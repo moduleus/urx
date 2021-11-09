@@ -1,0 +1,35 @@
+/*!
+ * Copyright Moduleus
+ * \file uff_element.cpp
+ * \brief
+ */
+
+#include "uff_element.h"
+ 
+namespace uff 
+{
+
+void Element::printSelf(std::ostream& os, std::string indent) const
+{
+    //superclass::printSelf(os, indent);
+    os << indent << "X: ";
+    if (m_x.has_value())
+        os << m_x.value();
+    else
+        os << UNDEFINED;
+
+    os << ", Y: ";
+    if (m_y.has_value())
+        os << m_y.value();
+    else
+        os << UNDEFINED;
+
+    os << ", Z: ";
+    if (m_z.has_value())
+        os << m_z.value();
+    else
+        os << UNDEFINED;
+    os << std::endl;
+}
+
+} // namespace uff
