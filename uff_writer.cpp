@@ -514,7 +514,7 @@ H5::DataSet Writer::writeOptionalStringDataset(H5::Group& group, const std::stri
 void Writer::writeTimedEvent(H5::Group& group, const uff::TimedEvent& timedEvent)
 {
     // "event"
-    std::string eventId = getIdFromPointer<uff::Event>(m_dataset.channelData().uniqueEvents(), timedEvent.event());
+    std::string eventId = getIdFromPointer<uff::Event>(m_dataset.channelData().uniqueEvents(), timedEvent.evenement());
     writeStringDataset(group, "event_id", eventId);
 
     // "time_offset"

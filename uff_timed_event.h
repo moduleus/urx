@@ -30,7 +30,7 @@ public:
 
     void printSelf(std::ostream& os, std::string indent) const override;
         
-    std::weak_ptr<uff::Event> event() const { return m_event; }
+    std::weak_ptr<uff::Event> evenement() const { return m_event; }
     void setEvent(std::weak_ptr<uff::Event> event) 
     {
         m_event = event;
