@@ -9,32 +9,6 @@
 namespace uff
 {
 
-/**
- * Return the string-ID (format: "00000123") of the pointer wptr.
- * The string-ID is the position of the pointer in the vector 'vec'. First pointer's string-ID is "00000001".
- * If 'wptr' does not point to an object stored in 'vec' then return "????????"
- */
-template<typename T>
-std::string Writer::getIdFromPointer(const std::vector<std::shared_ptr<T>>& vec, std::weak_ptr<T> wptr)
-{
-    if (auto p1 = wptr.lock())
-    {
-        int cnt = 1;
-        for (auto p2 : vec)
-        {
-            if (p1 == p2)
-            {
-                char buf[9];
-                snprintf(buf, sizeof buf, "%08d", cnt);
-                return std::string(buf);
-            }
-            cnt++;
-        }
-    }
-    
-    return "????????";
-}
-
 void Writer::printSelf(std::ostream& os, std::string indent) const
 {
     superclass::printSelf(os, indent);
@@ -58,9 +32,9 @@ bool Writer::writeToFile()
 
         // Channel Data
         H5::Group channelData(file.createGroup("channel_data"));
-        writeChannelData(channelData, m_dataset.channelData());
+        writeAcquisition(channelData, m_dataset.acquisition());
 
-        file.close();        
+        file.close();
 
         return true;
     }  // end of try block
@@ -101,97 +75,123 @@ bool Writer::writeToFile()
     }
 }
 
-void Writer::writeAperture(H5::Group& group, const uff::Aperture& aperture)
+void Writer::writeAcquisition(H5::Group& group, const uff::Acquisition& acquisition)
 {
-    // "origin"
-    H5::Group origin = group.createGroup("origin");
-    writeTransform(origin, aperture.origin());
+    // acquisition.authors
+    writeStringDataset(group, "authors", acquisition.authors());
 
-    // "window"
-    writeOptionalStringDataset(group, "window", aperture.window());
+    // acquisition.description
+    writeStringDataset(group, "description", acquisition.description());
 
-    // "f_number"
-    writeOptionalDoubleDataset(group, "f_number", aperture.fNumber());
+    // acquisition.local_time
+    writeStringDataset(group, "local_time", acquisition.localTime());
 
-    // "fixed_size"
-    writeOptionalDoubleDataset(group, "fixed_size", aperture.fixedSize());
+    // acquisition.country_code
+    writeStringDataset(group, "country_code", acquisition.countryCode());
 
-    // "maximum_size" TODO
-    // "minimum_size" TODO
-}
+    // acquisition.system
+    writeStringDataset(group, "system", acquisition.system());
 
-void Writer::writeChannelData(H5::Group& group, const uff::ChannelData& channelData)
-{
-    // channel_data.authors
-    writeStringDataset(group, "authors", channelData.authors());
+    // acquisition.sound_speed
+    writeDoubleDataset(group, "sound_speed", acquisition.soundSpeed());
 
-    // channel_data.description
-    writeStringDataset(group, "description", channelData.description());
+    // acquisition.time_offset
+    writeDoubleDataset(group, "time_offset", acquisition.timeOffset());
 
-    // channel_data.local_time
-    writeStringDataset(group, "local_time", channelData.localTime());
+    // acquisition.initial_group
+    std::string intialGroupId = getIdFromPointer<uff::IGroup>(acquisition.groups(), acquisition.initialGroup());
+    writeStringDataset(group, "initial_group", intialGroupId);
 
-    // channel_data.country_code
-    writeStringDataset(group, "country_code", channelData.countryCode());
+    // Group links
+    H5::Group groupLinks(group.createGroup("group_links"));
+    writeGroupLinkArray(groupLinks, acquisition.groupLinks());
 
-    // channel_data.system
-    writeStringDataset(group, "system", channelData.system());
-
-    // channel_data.sound_speed
-    writeOptionalDoubleDataset(group, "sound_speed", channelData.soundSpeed());
-
-    // channel_data.repetition_rate
-    writeOptionalDoubleDataset(group, "repetition_rate", channelData.repetitionRate());
-
-    // channel_data.data
-    size_t nFrames = channelData.numberOfFrames();
-    size_t nEvents = channelData.numberOfEvents();
-    size_t nChannels = channelData.numberOfChannels();
-    size_t nSamples = channelData.numberOfSamples();
-    std::vector<size_t> dims({ nFrames, nEvents, nChannels, nSamples });
-    writeFloatArrayDataset(group, "data", m_dataset.channelData().data(), dims);
+    // Groups
+    H5::Group groups(group.createGroup("groups"));
+    writeGroupArray(groups, acquisition.groups());
 
     // Probes
     H5::Group probes(group.createGroup("probes"));
-    writeProbeArray(probes, channelData.probes());
-
-    // Unique waves
-    H5::Group waves(group.createGroup("unique_waves"));
-    writeWaveArray(waves, channelData.uniqueWaves());
+    writeProbeArray(probes, acquisition.probes());
 
     // Unique events
     H5::Group uniqueEvents(group.createGroup("unique_events"));
-    writeEventArray(uniqueEvents, channelData.uniqueEvents());
+    writeEventArray(uniqueEvents, acquisition.uniqueEvents());
 
-    // Sequence
-    H5::Group sequence(group.createGroup("sequence"));
-    writeTimedEventArray(sequence, channelData.sequence());
+    // Unique waves
+    H5::Group waves(group.createGroup("unique_waves"));
+    writeWaveArray(waves, acquisition.uniqueWaves());
+
+    // Unique Excitations
+    H5::Group uniqueExcitations(group.createGroup("unique_excitations"));
+    writeExcitationArray(uniqueExcitations, acquisition.uniqueExcitations());
+
+    // Group Data
+    H5::Group groupData(group.createGroup("group_data"));
+    writeGroupDataArray(groupData, acquisition.groupData());
 }
 
-H5::DataSet Writer::writeDoubleDataset(H5::Group& group, const std::string& name, double value)
+void Writer::writeGroupLinkArray(H5::Group& group, const std::vector<std::shared_ptr<GroupLink>>& groupLinks)
 {
-    H5::StrType datatype(H5::PredType::NATIVE_DOUBLE);
-    H5::DataSpace dataspace = H5::DataSpace(H5S_SCALAR);
-    H5::DataSet dataset = group.createDataSet(name, datatype, dataspace);
-    dataset.write(&value, datatype, dataspace);
-    dataset.close();
-    return dataset;
-}
-
-H5::DataSet Writer::writeOptionalDoubleDataset(H5::Group& group, const std::string& name, std::optional<double> value)
-{
-    H5::StrType datatype(H5::PredType::NATIVE_DOUBLE);
-    H5::DataSpace dataspace = H5::DataSpace(H5S_SCALAR);
-    H5::DataSet dataset = group.createDataSet(name, datatype, dataspace);
-    if (value.has_value())
-        dataset.write(&value.value(), datatype, dataspace);
-    else
+    char buf[9];
+    snprintf(buf, sizeof buf, "%08d", 0);
+    for (int i = 0; i < groupLinks.size(); i++)
     {
-        double nan = std::numeric_limits<double>::quiet_NaN();
-        dataset.write(&nan, datatype, dataspace);
+        snprintf(buf, sizeof buf, "%08d", i + 1);
+        std::string groupDataId = buf;
+        H5::Group hdf5Group = group.createGroup(groupDataId);
+        writeGroupLink(hdf5Group, groupLinks[i]);
     }
-    dataset.close();
-    return dataset;
+}
+
+void Writer::writeGroupLink(H5::Group& group, const std::shared_ptr<GroupLink>& groupLink)
+{
+    // source
+    std::string idGroupSource = getIdFromPointer<IGroup>(m_dataset.acquisition().groups(), groupLink->source());
+    writeStringDataset(group, "source", idGroupSource);
+
+    // destination
+    std::string idGroupDestination = getIdFromPointer<IGroup>(m_dataset.acquisition().groups(), groupLink->destination());
+    writeStringDataset(group, "destination", idGroupDestination);
+}
+
+void Writer::writeGroupDataArray(H5::Group& group, const std::vector<std::shared_ptr<GroupData>>& groupData)
+{
+    char buf[9];
+    snprintf(buf, sizeof buf, "%08d", 0);
+    for (int i = 0; i < groupData.size(); i++)
+    {
+        snprintf(buf, sizeof buf, "%08d", i + 1);
+        std::string id = buf;
+        H5::Group hdf5Group = group.createGroup(id);
+        writeGroupData(hdf5Group, groupData[i]);
+    }
+}
+
+void Writer::writeGroupData(H5::Group& group, const std::shared_ptr<GroupData>& groupData)
+{
+    // group
+    std::string idGroup = getIdFromPointer<IGroup>(m_dataset.acquisition().groups(), groupData->group());
+    writeStringDataset(group, "group", idGroup);
+
+    // data
+    todo
+}
+
+void Writer::writeGroupArray(H5::Group& group, const std::vector<std::shared_ptr<IGroup>>& igroup)
+{
+    char buf[9];
+    snprintf(buf, sizeof buf, "%08d", 0);
+    for (int i = 0; i < igroup.size(); i++)
+    {
+        snprintf(buf, sizeof buf, "%08d", i + 1);
+        std::string id = buf;
+        H5::Group hdf5Group = group.createGroup(id);
+
+        if (Group* group = dynamic_cast<Group*>(igroup[i].get()))                       { writeGroup(hdf5Group, *group); }
+        else if (SuperGroup* superGroup = dynamic_cast<SuperGroup*>(igroup[i].get()))   { writeSuperGroup(hdf5Group, *superGroup); }
+        else { assert(false); }
+    }
 }
 
 void Writer::writeElement(H5::Group& group, const uff::Element& element)
@@ -236,96 +236,6 @@ void Writer::writeEventArray(H5::Group& group, const std::vector<std::shared_ptr
         H5::Group ev = group.createGroup(event_id);
         writeEvent(ev, events[i]);
     }
-}
-
-void Writer::writeExcitation(H5::Group& group, const uff::Excitation& excitation)
-{
-    // "pulse_shape"
-    writeOptionalStringDataset(group, "pulse_shape", excitation.pulseShape());
-
-    // "transmit_frequency"
-    writeOptionalDoubleDataset(group, "transmit_frequency", excitation.transmitFrequency());
-
-    // "waveform"
-    writeFloatArrayDataset(group, "waveform", excitation.waveform(), {});
-
-    // "sampling_frequency"
-    writeOptionalDoubleDataset(group, "sampling_frequency", excitation.samplingFrequency());
-}
-
-H5::DataSet Writer::writeFloatArrayDataset(H5::Group& group, const std::string& name,
-    const std::vector<float>& values, const std::vector<size_t>& dimensions)
-{
-    assert(dimensions.size() <= 4);
-
-    hsize_t dims[4];
-    int ndims = (int)dimensions.size();
-    if (ndims == 0)    // unspecified dimension: write 1D array
-    {
-        ndims = 1;
-        dims[0] = values.size();
-    }
-    else
-    {
-        size_t numel = dimensions[0];
-        dims[0] = dimensions[0];
-        for (int i = 1; i < dimensions.size(); i++)
-        {
-            numel *= dimensions[i];
-            dims[i] = dimensions[i];
-        }
-
-        // check if prod(dimensions) == values.length()
-        assert(values.size() == numel);
-    }
-    
-    H5::DataSpace dataspace = H5::DataSpace(ndims, dims);
-    H5::DataSet dataset = group.createDataSet(name, H5::PredType::NATIVE_FLOAT, dataspace);
-    dataset.write(values.data(), H5::PredType::NATIVE_FLOAT);
-    dataset.close();
-    return dataset;
-}
-
-H5::DataSet Writer::writeIntegerArrayDataset(H5::Group& group, const std::string& name, const std::vector<int>& values, const std::vector<size_t>& dimensions)
-{
-    assert(dimensions.size() <= 4);
-
-    hsize_t dims[4];
-    int ndims = (int)dimensions.size();
-    if (ndims == 0)    // unspecified dimension: write 1D array
-    {
-        ndims = 1;
-        dims[0] = values.size();
-    }
-    else
-    {
-        size_t numel = dimensions[0];
-        dims[0] = dimensions[0];
-        for (int i = 1; i < dimensions.size(); i++)
-        {
-            numel *= dimensions[i];
-            dims[i] = dimensions[i];
-        }
-
-        // check if prod(dimensions) == values.length()
-        assert(values.size() == numel);
-    }
-
-    H5::DataSpace dataspace = H5::DataSpace(ndims, dims);
-    H5::DataSet dataset = group.createDataSet(name, H5::PredType::NATIVE_INT, dataspace);
-    dataset.write(values.data(), H5::PredType::NATIVE_INT);
-    dataset.close();
-    return dataset;
-}
-
-H5::DataSet Writer::writeIntegerDataset(H5::Group& group, const std::string& name, int value)
-{
-    H5::StrType datatype(H5::PredType::NATIVE_INT);
-    H5::DataSpace dataspace = H5::DataSpace(H5S_SCALAR);
-    H5::DataSet dataset = group.createDataSet(name, datatype, dataspace);
-    dataset.write(&value, datatype, dataspace);
-    dataset.close();
-    return dataset;
 }
 
 void Writer::writeLinearArray(H5::Group& group, const std::shared_ptr<uff::LinearArray>& linearArray)
@@ -451,7 +361,7 @@ void Writer::writeProbeArray(H5::Group& group, const std::vector<std::shared_ptr
 void Writer::writeReceiveSetup(H5::Group& group, const uff::ReceiveSetup& receiveSetup)
 {
     // "probe"
-    std::string probeId = getIdFromPointer<uff::Probe>(m_dataset.channelData().probes(), receiveSetup.probe());
+    std::string probeId = getIdFromPointer<uff::Probe>(m_dataset.acquisition().probes(), receiveSetup.probe());
     writeStringDataset(group, "probe_id", probeId);
 
     // "time_offset"
@@ -483,38 +393,10 @@ void Writer::writeRotation(H5::Group& group, const uff::Rotation& rotation)
     writeDoubleDataset(group, "z", rotation.z());
 }
 
-H5::DataSet Writer::writeStringDataset(H5::Group& group, const std::string& name, const std::string& value)
-{
-    /*H5::StrType datatype(H5::PredType::C_S1, value.length());    // Create new string datatype for attribute
-    H5::DataSpace dataspace = H5::DataSpace(H5S_SCALAR);        // Create the data space for the attribute.
-    H5::DataSet dataset = group.createDataSet(name.c_str(), datatype, dataspace);
-    dataset.write(value.c_str(), datatype);
-    dataset.close();
-    return dataset;*/
-
-    H5::StrType vlst(0, H5T_VARIABLE);
-    H5::DataSpace ds_space(H5S_SCALAR);
-    H5::DataSet dataset = group.createDataSet(name.c_str(), vlst, ds_space);
-    dataset.write(value, vlst);
-    return dataset;
-}
-
-H5::DataSet Writer::writeOptionalStringDataset(H5::Group& group, const std::string& name, const std::optional<std::string>& value)
-{
-    H5::StrType vlst(0, H5T_VARIABLE);
-    H5::DataSpace ds_space(H5S_SCALAR);
-    H5::DataSet dataset = group.createDataSet(name.c_str(), vlst, ds_space);
-    if (value.has_value())
-        dataset.write(value.value(), vlst);
-    else
-        dataset.write(std::string("undefined"), vlst);
-    return dataset;
-}
-
 void Writer::writeTimedEvent(H5::Group& group, const uff::TimedEvent& timedEvent)
 {
     // "event"
-    std::string eventId = getIdFromPointer<uff::Event>(m_dataset.channelData().uniqueEvents(), timedEvent.evenement());
+    std::string eventId = getIdFromPointer<uff::Event>(m_dataset.acquisition().uniqueEvents(), timedEvent.evenement());
     writeStringDataset(group, "event_id", eventId);
 
     // "time_offset"
@@ -555,30 +437,15 @@ void Writer::writeTranslation(H5::Group& group, const uff::Translation& translat
 void Writer::writeTransmitSetup(H5::Group& group, const uff::TransmitSetup& transmitSetup)
 {
     // "probe"
-    const std::string probeId = getIdFromPointer<uff::Probe>(m_dataset.channelData().probes(), transmitSetup.probe());
-    //std::cout << "probeId" << probeId << std::endl;
+    const std::string probeId = getIdFromPointer<uff::Probe>(m_dataset.acquisition().probes(), transmitSetup.probe());
     writeStringDataset(group, "probe_id", probeId);
 
-    // "transmit_wave"
-    H5::Group transmitWave = group.createGroup("transmit_wave");
-    writeTransmitWave(transmitWave, transmitSetup.transmitWave());
-
-    // "channel_mapping"
-    writeIntegerArrayDataset(group, "channel_mapping", transmitSetup.channelMapping(), {});
-}
-
-void Writer::writeTransmitWave(H5::Group& group, const uff::TransmitWave& transmitWave)
-{
-    // "wave"
-    const std::string waveId = getIdFromPointer<uff::Wave>(m_dataset.channelData().uniqueWaves(), transmitWave.wave());
-    //std::cout << "waveId" << waveId << std::endl;
-    writeStringDataset(group, "wave_id", waveId);
-
     // "time_offset"
-    writeDoubleDataset(group, "time_offset", transmitWave.timeOffset());
+    writeDoubleDataset(group, "time_offset", transmitSetup.timeOffset());
 
-    // "weight"
-    writeDoubleDataset(group, "weight", transmitWave.weight());
+    // "wave"
+    const std::string waveId = getIdFromPointer<uff::Wave>(m_dataset.acquisition().uniqueWaves(), transmitSetup.wave());
+    writeStringDataset(group, "wave_id", probeId);
 }
 
 void Writer::writeVersion(H5::Group& group, const uff::Version& version)
@@ -588,35 +455,268 @@ void Writer::writeVersion(H5::Group& group, const uff::Version& version)
     writeIntegerDataset(group, "patch", version.patch());
 }
 
-void Writer::writeWave(H5::Group& group, const std::shared_ptr<uff::Wave>& wave)
-{
-    // write "origin"
-    H5::Group origin = group.createGroup("origin");
-    writeTransform(origin, wave->origin());
-
-    // write "wave_type"
-    writeIntegerDataset(group, "wave_type", wave->waveType());
-
-    // write "aperture"
-    H5::Group aperture = group.createGroup("aperture");
-    writeAperture(aperture, wave->aperture());
-
-    // write "excitation"
-    H5::Group excitation = group.createGroup("excitation");
-    writeExcitation(excitation, wave->excitation());
-}
-
-void Writer::writeWaveArray(H5::Group& group, const std::vector<std::shared_ptr<uff::Wave>>& waves)
-{
-    char buf[9];
-    snprintf(buf, sizeof buf, "%08d", 0);
-    for (int i = 0; i < waves.size(); i++)
+    void Writer::writeWave(H5::Group& group, const std::shared_ptr<uff::Wave>& wave)
     {
-        snprintf(buf, sizeof buf, "%08d", i + 1);
-        std::string wave_id = buf;
-        H5::Group wave = group.createGroup(wave_id);
-        writeWave(wave, waves[i]);
+        // write "origin"
+        H5::Group origin = group.createGroup("origin");
+        writeTransform(origin, wave->origin());
+
+        // write "wave_type"
+        writeIntegerDataset(group, "wave_type", (int)wave->waveType());
+
+        // write "aperture"
+        H5::Group aperture = group.createGroup("aperture");
+        writeAperture(aperture, wave->aperture());
+
+        // "channel_mapping"
+        writeIntegerArrayDataset(group, "channel_mapping", wave->channelMapping(), { wave->channelMapping().size() });
+
+        // write "excitation"
+        const std::string excitationId = getIdFromPointer<uff::Excitation>(m_dataset.acquisition().uniqueExcitations(), wave->excitation());
+        writeStringDataset(group, "excitation_id", excitationId);
     }
-}
+
+    void Writer::writeWaveArray(H5::Group& group, const std::vector<std::shared_ptr<uff::Wave>>& waves)
+    {
+        char buf[9];
+        snprintf(buf, sizeof buf, "%08d", 0);
+        for (int i = 0; i < waves.size(); i++)
+        {
+            snprintf(buf, sizeof buf, "%08d", i + 1);
+            std::string wave_id = buf;
+            H5::Group wave = group.createGroup(wave_id);
+            writeWave(wave, waves[i]);
+        }
+    }
+
+    void Writer::writeAperture(H5::Group& group, const uff::Aperture& aperture)
+    {
+        // "origin"
+        H5::Group origin = group.createGroup("origin");
+        writeTransform(origin, aperture.origin());
+
+        // "window"
+        writeOptionalStringDataset(group, "window", aperture.window());
+
+        // "f_number"
+        writeOptionalDoubleDataset(group, "f_number", aperture.fNumber());
+
+        // "fixed_size"
+        writeOptionalDoubleDataset(group, "fixed_size", aperture.fixedSize());
+
+        // "maximum_size" TODO
+        // "minimum_size" TODO
+    }
+
+    void Writer::writeExcitation(H5::Group& group, const std::shared_ptr<Excitation>& excitation)
+    {
+        // "pulse_shape"
+        writeOptionalStringDataset(group, "pulse_shape", excitation->pulseShape());
+
+        // "transmit_frequency"
+        writeOptionalDoubleDataset(group, "transmit_frequency", excitation->transmitFrequency());
+
+        // "waveform"
+        writeFloatArrayDataset(group, "waveform", excitation->waveform(), {});
+
+        // "sampling_frequency"
+        writeOptionalDoubleDataset(group, "sampling_frequency", excitation->samplingFrequency());
+    }
+
+    void Writer::writeExcitationArray(H5::Group& group, const std::vector<std::shared_ptr<Excitation>>& excitations)
+    {
+        char buf[9];
+        snprintf(buf, sizeof buf, "%08d", 0);
+        for (int i = 0; i < excitations.size(); i++)
+        {
+            snprintf(buf, sizeof buf, "%08d", i + 1);
+            std::string id = buf;
+            H5::Group hdf5Group = group.createGroup(id);
+            writeExcitation(hdf5Group, excitations[i]);
+        }
+    }
+
+    // ___________________________ Write Low level types ___________________________________________________________________________________________________
+
+    H5::DataSet Writer::writeStringDataset(H5::Group& group, const std::string& name, const std::string& value)
+    {
+        H5::StrType vlst(0, H5T_VARIABLE);
+        H5::DataSpace ds_space(H5S_SCALAR);
+        H5::DataSet dataset = group.createDataSet(name.c_str(), vlst, ds_space);
+        dataset.write(value, vlst);
+        return dataset;
+    }
+
+    H5::DataSet Writer::writeOptionalStringDataset(H5::Group& group, const std::string& name, const std::optional<std::string>& value)
+    {
+        H5::StrType vlst(0, H5T_VARIABLE);
+        H5::DataSpace ds_space(H5S_SCALAR);
+        H5::DataSet dataset = group.createDataSet(name.c_str(), vlst, ds_space);
+        if (value.has_value())
+            dataset.write(value.value(), vlst);
+        else
+            dataset.write(std::string("undefined"), vlst);
+        return dataset;
+    }
+
+    H5::DataSet Writer::writeDoubleDataset(H5::Group& group, const std::string& name, double value)
+    {
+        H5::StrType datatype(H5::PredType::NATIVE_DOUBLE);
+        H5::DataSpace dataspace = H5::DataSpace(H5S_SCALAR);
+        H5::DataSet dataset = group.createDataSet(name, datatype, dataspace);
+        dataset.write(&value, datatype, dataspace);
+        dataset.close();
+        return dataset;
+    }
+
+    H5::DataSet Writer::writeOptionalDoubleDataset(H5::Group& group, const std::string& name, std::optional<double> value)
+    {
+        H5::StrType datatype(H5::PredType::NATIVE_DOUBLE);
+        H5::DataSpace dataspace = H5::DataSpace(H5S_SCALAR);
+        H5::DataSet dataset = group.createDataSet(name, datatype, dataspace);
+        if (value.has_value())
+            dataset.write(&value.value(), datatype, dataspace);
+        else
+        {
+            constexpr double nan = std::numeric_limits<double>::quiet_NaN();
+            dataset.write(&nan, datatype, dataspace);
+        }
+        dataset.close();
+        return dataset;
+    }
+
+    H5::DataSet Writer::writeIntegerArrayDataset(H5::Group& group, const std::string& name, const std::vector<int>& values, const std::vector<size_t>& dimensions)
+    {
+        assert(dimensions.size() <= 4);
+
+        hsize_t dims[4];
+        int ndims = (int)dimensions.size();
+        if (ndims == 0)    // unspecified dimension: write 1D array
+        {
+            ndims = 1;
+            dims[0] = values.size();
+        }
+        else
+        {
+            size_t numel = dimensions[0];
+            dims[0] = dimensions[0];
+            for (int i = 1; i < dimensions.size(); i++)
+            {
+                numel *= dimensions[i];
+                dims[i] = dimensions[i];
+            }
+
+            // check if prod(dimensions) == values.length()
+            assert(values.size() == numel);
+        }
+
+        H5::DataSpace dataspace = H5::DataSpace(ndims, dims);
+        H5::DataSet dataset = group.createDataSet(name, H5::PredType::NATIVE_INT, dataspace);
+        dataset.write(values.data(), H5::PredType::NATIVE_INT);
+        dataset.close();
+        return dataset;
+    }
+
+    H5::DataSet Writer::writeIntegerDataset(H5::Group& group, const std::string& name, int value)
+    {
+        H5::StrType datatype(H5::PredType::NATIVE_INT);
+        H5::DataSpace dataspace = H5::DataSpace(H5S_SCALAR);
+        H5::DataSet dataset = group.createDataSet(name, datatype, dataspace);
+        dataset.write(&value, datatype, dataspace);
+        dataset.close();
+        return dataset;
+    }
+
+    H5::DataSet Writer::writeFloatArrayDataset(H5::Group& group, const std::string& name,
+        const std::vector<float>& values, const std::vector<size_t>& dimensions)
+    {
+        assert(dimensions.size() <= 4);
+
+        hsize_t dims[4];
+        int ndims = (int)dimensions.size();
+        if (ndims == 0)    // unspecified dimension: write 1D array
+        {
+            ndims = 1;
+            dims[0] = values.size();
+        }
+        else
+        {
+            size_t numel = dimensions[0];
+            dims[0] = dimensions[0];
+            for (int i = 1; i < dimensions.size(); i++)
+            {
+                numel *= dimensions[i];
+                dims[i] = dimensions[i];
+            }
+
+            // check if prod(dimensions) == values.length()
+            assert(values.size() == numel);
+        }
+
+        H5::DataSpace dataspace = H5::DataSpace(ndims, dims);
+        H5::DataSet dataset = group.createDataSet(name, H5::PredType::NATIVE_FLOAT, dataspace);
+        dataset.write(values.data(), H5::PredType::NATIVE_FLOAT);
+        dataset.close();
+        return dataset;
+    }
+
+    H5::DataSet Writer::writeInt16ArrayDataset(H5::Group& group, const std::string& name,
+        const std::vector<int16_t>& values, const std::vector<size_t>& dimensions)
+    {
+        assert(dimensions.size() <= 4);
+
+        hsize_t dims[4];
+        int ndims = (int)dimensions.size();
+        if (ndims == 0)    // unspecified dimension: write 1D array
+        {
+            ndims = 1;
+            dims[0] = values.size();
+        }
+        else
+        {
+            size_t numel = dimensions[0];
+            dims[0] = dimensions[0];
+            for (int i = 1; i < dimensions.size(); i++)
+            {
+                numel *= dimensions[i];
+                dims[i] = dimensions[i];
+            }
+
+            // check if prod(dimensions) == values.length()
+            assert(values.size() == numel);
+        }
+
+        H5::DataSpace dataspace = H5::DataSpace(ndims, dims);
+        H5::DataSet dataset = group.createDataSet(name, H5::PredType::NATIVE_INT16, dataspace);
+        dataset.write(values.data(), H5::PredType::NATIVE_INT16);
+        dataset.close();
+        return dataset;
+    }
+
+    /**
+     * Return the string-ID (format: "00000123") of the pointer wptr.
+     * The string-ID is the position of the pointer in the vector 'vec'. First pointer's string-ID is "00000001".
+     * If 'wptr' does not point to an object stored in 'vec' then return "????????"
+     */
+    template<typename T>
+    std::string Writer::getIdFromPointer(const std::vector<std::shared_ptr<T>>& vec, std::weak_ptr<T> wptr)
+    {
+        if (auto p1 = wptr.lock())
+        {
+            int cnt = 1;
+            for (auto p2 : vec)
+            {
+                if (p1 == p2)
+                {
+                    char buf[9];
+                    snprintf(buf, sizeof buf, "%08d", cnt);
+                    return std::string(buf);
+                }
+                cnt++;
+            }
+        }
+
+        return "????????";
+    }
 
 } // namespace uff

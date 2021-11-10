@@ -10,7 +10,7 @@
 // UFF
 #include "uff_object.h"
 #include "uff_version.h"
-#include "uff_channel_data.h"
+#include "uff_acquisition.h"
 
 // System
 #include <cmath>
@@ -18,141 +18,102 @@
 namespace uff
 {
 
-/**
- * @brief The UFF Dataset class
- */
-class Dataset : public uff::Object
-{
-    UFF_TYPE_MACRO(Dataset, uff::Object);
-
-public:
-
-    Dataset() {}
-
-    void printSelf(std::ostream& os, std::string indent) const override;
-
-    uff::ChannelData& channelData() { return m_channelData; }
-    void setChannelData(const uff::ChannelData& channelData)
+    /**
+     * @brief The UFF Dataset class
+     */
+    class Dataset : public uff::Object
     {
-        m_channelData = channelData;
-    }
+        UFF_TYPE_MACRO(Dataset, uff::Object);
 
-    const uff::Version& version() const { return m_version; }
-    void setVersion(const uff::Version& version)
-    {
-        m_version = version;
-    }
+    public:
 
-    /* Convenience access method */
+        Dataset() {}
 
-    // Returns the channel geometry of the probe used by the 1st receive setup
-    const std::vector<float> getChannelGeometry()
-    {
-        if (m_channelData.probes().empty())
-        {
-            return std::vector<float>();
-        }
-        else
-        {
-            return m_channelData.probes()[0]->getChannelGeometry();
-        }
-    }
+        void printSelf(std::ostream& os, std::string indent) const override;
 
-    // Returns the receive delay of the 1st ReceiveSetup
-    double getReceiveDelay() const
-    {
-        if (m_channelData.uniqueEvents().empty())
+        uff::Acquisition& acquisition() { return m_acquisition; }
+        void setAcquisition(const uff::Acquisition& acquisition)
         {
-            return UFF_NAN;
+            m_acquisition = acquisition;
         }
-        else
-        {
-            return m_channelData.uniqueEvents()[0]->receiveSetup().timeOffset();
-        }
-    }
 
-    // Returns the type of sampling of the 1st ReceiveSetup
-    uff::ReceiveSetup::SAMPLING_TYPE getSamplingType() const
-    {
-        if (m_channelData.uniqueEvents().empty())
+        const uff::Version& version() const { return m_version; }
+        void setVersion(const uff::Version& version)
         {
-            return uff::ReceiveSetup::SAMPLING_TYPE::DIRECT_RF;
+            m_version = version;
         }
-        else
-        {
-            return m_channelData.uniqueEvents()[0]->receiveSetup().samplingType();
-        }
-    }
 
-    // Return the sampling frequency associated with the 1st receive event [Hz]
-    double getSamplingFrequency() const
-    {
-        if (m_channelData.uniqueEvents().empty() || 
-            !m_channelData.uniqueEvents()[0]->receiveSetup().samplingFrequency().has_value())
-        {
-            return UFF_NAN;
-        }
-        else
-        {
-            return m_channelData.uniqueEvents()[0]->receiveSetup().samplingFrequency().value();
-        }
-    }
+        /* Convenience access method */
 
-    // Returns the speed of sound [m/s]
-    double getSoundSpeed() const
-    {
-        if (m_channelData.soundSpeed().has_value())
-            return m_channelData.soundSpeed().value();
-        else
-            return UFF_NAN;
-    }
-
-    // Return the transmit frequency associated with the 1st Wave of the dataset
-    double getTransmitFrequency() const
-    {
-        if (m_channelData.uniqueWaves().empty() || 
-            !m_channelData.uniqueWaves()[0]->excitation().transmitFrequency().has_value())
+        // Returns the channel geometry of the probe used by the 1st receive setup
+        const std::vector<float> getChannelGeometry()
         {
-            return UFF_NAN;
+            if (m_acquisition.probes().empty()) { return std::vector<float>(); }
+            else { return m_acquisition.probes()[0]->getChannelGeometry(); }
         }
-        else
+
+        // Returns the receive delay of the 1st ReceiveSetup
+        double getReceiveDelay() const
         {
-            return m_channelData.uniqueWaves()[0]->excitation().transmitFrequency().value();
+            if (m_acquisition.uniqueEvents().empty()) { return UFF_NAN; }
+            else { return m_acquisition.uniqueEvents()[0]->receiveSetup().timeOffset(); }
         }
-    }
 
-    // Returns true is the 1st probe is of sub-type 'ProbeType'
-    // Example: isProbeType<uff::MatrixArray>() == true;
-    template <class ProbeType>
-    bool isProbeType() const
-    {
-        if (m_channelData.probes().empty())
+        // Returns the type of sampling of the 1st ReceiveSetup
+        uff::ReceiveSetup::SAMPLING_TYPE getSamplingType() const
         {
-            // no probe: not a 'ProbeType' probe
-            return false;
+            if (m_acquisition.uniqueEvents().empty()) { return uff::ReceiveSetup::SAMPLING_TYPE::DIRECT_RF; }
+            else { return m_acquisition.uniqueEvents()[0]->receiveSetup().samplingType(); }
         }
-        else
+
+        // Return the sampling frequency associated with the 1st receive event [Hz]
+        double getSamplingFrequency() const
         {
-            // Try to cast the 1st probe to the user-provided type
-            std::shared_ptr<ProbeType> pt = std::dynamic_pointer_cast<ProbeType>(m_channelData.probes()[0]);
-            return (pt.get() != nullptr);
+            if (m_acquisition.uniqueEvents().empty() || !m_acquisition.uniqueEvents()[0]->receiveSetup().samplingFrequency().has_value()) { return UFF_NAN; }
+            else { return m_acquisition.uniqueEvents()[0]->receiveSetup().samplingFrequency().value(); }
         }
-    }
 
-    inline bool operator ==(const Dataset& other) const
-    {
-        return ((m_version == other.m_version) && (m_channelData == other.m_channelData));
-    }
+        // Returns the speed of sound [m/s]
+        double getSoundSpeed() const
+        {
+            if (m_acquisition.soundSpeed()) { return m_acquisition.soundSpeed(); }
+            else { return UFF_NAN; }
+        }
 
-    inline bool operator !=(const Dataset& other) const
-    {
-        return !(*this == other);
-    }
+        // Return the transmit frequency associated with the 1st Wave of the dataset
+        double getTransmitFrequency() const
+        {
+            if (m_acquisition.uniqueWaves().empty() || !m_acquisition.uniqueWaves()[0]->excitation().transmitFrequency().has_value()) { return UFF_NAN; }
+            else { return m_acquisition.uniqueWaves()[0]->excitation().transmitFrequency().value(); }
+        }
 
-private:
-    uff::Version m_version;
-    uff::ChannelData m_channelData;
-};
+        // Returns true is the 1st probe is of sub-type 'ProbeType'
+        // Example: isProbeType<uff::MatrixArray>() == true;
+        template <class ProbeType>
+        bool isProbeType() const
+        {
+            if (m_channelData.probes().empty())
+            {
+                // no probe: not a 'ProbeType' probe
+                return false;
+            }
+            else
+            {
+                // Try to cast the 1st probe to the user-provided type
+                std::shared_ptr<ProbeType> pt = std::dynamic_pointer_cast<ProbeType>(m_channelData.probes()[0]);
+                return (pt.get() != nullptr);
+            }
+        }
+
+        inline bool operator ==(const Dataset& other) const
+        { return ((m_version == other.m_version) && (m_acquisition == other.m_acquisition)); }
+
+        inline bool operator !=(const Dataset& other) const { return !(*this == other); }
+
+    private:
+        uff::Version m_version;
+        uff::Acquisition m_acquisition;
+    };
 
 } // namespace uff
 

@@ -10,7 +10,7 @@
 // UFF
 #include "uff_object.h"
 #include "uff_probe.h"
-#include "uff_transmit_wave.h"
+#include "uff_wave.h"
 
 namespace uff
 {
@@ -29,45 +29,34 @@ public:
     void printSelf(std::ostream& os, std::string indent) const override;
     
     std::weak_ptr<uff::Probe> probe() const { return m_probe; }
-    void setProbe(std::weak_ptr<uff::Probe> probe)
-    {
-        m_probe = probe;
-    }
+    void setProbe(std::weak_ptr<uff::Probe> probe) { m_probe = probe; }
     
-    uff::TransmitWave transmitWave() const { return m_transmitWave; }
-    void setTransmitWave(const uff::TransmitWave& transmitWave)
-    {
-        m_transmitWave = transmitWave;
-    }
+    std::weak_ptr<uff::Wave> wave() const { return m_wave; }
+    void setWave(const std::weak_ptr<uff::Wave>& wave) { m_wave = wave; }
     
-    std::vector<int> channelMapping() const { return m_channelMapping; }
-    void setChannelMapping(std::vector<int> channelMapping)
-    {
-        m_channelMapping = channelMapping;
-    }
+    double timeOffset() const { return m_timeOffset; }
+    void setTimeOffset(double timeOffset) { m_timeOffset = timeOffset; }
 
     bool operator ==(const TransmitSetup& other) const
     {
         return ( (m_probe.expired() == other.m_probe.expired()) &&
-            ( m_probe.expired() || (*(m_probe.lock()) == *(other.m_probe.lock())) ) &&
-            (m_transmitWave == other.m_transmitWave) &&
-            (m_channelMapping == other.m_channelMapping));
+                ( m_probe.expired() || (*(m_probe.lock()) == *(other.m_probe.lock())) ) &&
+            ((m_wave.expired() == other.m_wave.expired()) &&
+                (m_wave.expired() || (*(m_wave.lock()) == *(other.m_wave.lock()))) &&
+            (m_timeOffset == other.m_timeOffset));
     }
 
-    inline bool operator !=(const TransmitSetup& other) const
-    {
-        return !(*this == other);
-    }
+    inline bool operator !=(const TransmitSetup& other) const { return !(*this == other); }
     
 private:
     // Reference to the probe use in transmission
     std::weak_ptr<uff::Probe> m_probe;
 
-    //     List of transmit waves used in this event with their respective time offset and weight
-    uff::TransmitWave m_transmitWave;
+    // Wave
+    std::weak_ptr<uff::Wave> m_wave;
 
-    // Map of transmit channels to transducer elements
-    std::vector<int> m_channelMapping;
+    // Time offset
+    double m_timeOffset = 0;
 };
 
 } // namespace uff

@@ -1,0 +1,56 @@
+/*!
+ * Copyright Moduleus
+ * \file uff_channel_data.h
+ * \brief
+ */
+
+#ifndef UFF_GROUP_H
+#define UFF_GROUP_H
+
+// UFF
+#include "uff_igroup.h"
+#include "uff_sequence.h"
+
+// System
+#include <string>
+
+namespace uff
+{
+
+    /**
+     * @brief UFF class that contains all the information needed to store and later process channel data.
+     */
+    class Group : public IGroup
+    {
+        UFF_TYPE_MACRO(Group, uff::Object);
+
+    public:
+        Group() {}
+        Group(const double repetitionRate, const Sequence sequence)
+            : m_repetitionRate(repetitionRate), m_sequence(sequence)
+        {}
+
+        void printSelf(std::ostream& os, std::string indent) const override;
+
+        bool operator ==(const Group& other) const;
+        inline bool operator !=(const Group& other) const { return !(*this == other); }
+
+        // Repetition Rate
+        double repetitionRate() const { return m_repetitionRate; }
+        void setRepetitionRate(double repetitionRate) { m_repetitionRate = repetitionRate; }
+
+        // Sequence
+        const Sequence& sequence() const { return m_sequence; }
+        void setSequence(const Sequence& sequence) { m_sequence = sequence; }
+
+    private:
+        // Group repetition
+        double m_repetitionRate;
+
+        // Sequence
+        Sequence m_sequence;
+    };
+
+} // namespace uff
+
+#endif // UFF_GROUP_H

@@ -31,41 +31,30 @@ public:
     void printSelf(std::ostream& os, std::string indent) const override;
     
     const uff::Transform& origin() const { return m_origin; }
-    void setOrigin(const uff::Transform& origin) 
-    {
-        m_origin = origin;
-    }
+    void setOrigin(const uff::Transform& origin) { m_origin = origin; }
     
     const uff::WaveType& waveType() const { return m_waveType; }
-    void setWaveType(const uff::WaveType& waveType) 
-    {
-        m_waveType = waveType;
-    }
+    void setWaveType(const uff::WaveType& waveType) { m_waveType = waveType; }
     
     const uff::Aperture& aperture() const { return m_aperture; }
-    void setAperture(const uff::Aperture& aperture) 
-    {
-        m_aperture = aperture;
-    }
+    void setAperture(const uff::Aperture& aperture) { m_aperture = aperture; }
+
+    const std::vector<int32_t>& channelMapping() const { return m_channelMapping; }
+    void setChannelMapping(const std::vector<int32_t>& channelMapping) { m_channelMapping = channelMapping; }
     
-    const uff::Excitation& excitation() const { return m_excitation; }
-    void setExcitation(const uff::Excitation& excitation) 
-    {
-        m_excitation = excitation;
-    }
+    const std::weak_ptr<uff::Excitation>& excitation() const { return m_excitation; }
+    void setExcitation(const std::weak_ptr<uff::Excitation>& excitation) { m_excitation = excitation; }
 
     bool operator ==(const Wave& other) const
     {
-        return ((m_origin == other.m_origin) &&
+        return (m_origin == other.m_origin) &&
             (m_waveType == other.m_waveType) &&
             (m_aperture == other.m_aperture) &&
-            (m_excitation == other.m_excitation));
+            ( m_excitation.expired() == other.m_excitation.expired() &&
+            (m_excitation.expired() || *m_excitation.lock() == *other.m_excitation.lock()));
     }
 
-    inline bool operator !=(const Wave& other) const
-    {
-        return !(*this == other);
-    }
+    inline bool operator !=(const Wave& other) const { return !(*this == other); }
 
 private:
     // Geometric origin of the wave.
@@ -77,8 +66,11 @@ private:
     // Description of the aperture used to produce the wave
     uff::Aperture m_aperture;
 
-    // [Optional] excitation waveform
-    uff::Excitation m_excitation;
+    // Channel mapping
+    std::vector<int32_t> m_channelMapping;
+
+    // excitation waveform
+    std::weak_ptr<uff::Excitation> m_excitation;
 };
 
 } // namespace uff
