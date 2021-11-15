@@ -12,7 +12,6 @@
 #include "uff_object.h"
 
 #include <H5Cpp.h>
-
 #include <optional>
 
 namespace uff

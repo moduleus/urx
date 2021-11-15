@@ -83,8 +83,8 @@ namespace uff
         // Return the transmit frequency associated with the 1st Wave of the dataset
         double getTransmitFrequency() const
         {
-            if (m_acquisition.uniqueWaves().empty() || !m_acquisition.uniqueWaves()[0]->excitation().transmitFrequency().has_value()) { return UFF_NAN; }
-            else { return m_acquisition.uniqueWaves()[0]->excitation().transmitFrequency().value(); }
+            if (m_acquisition.uniqueWaves().empty() || !m_acquisition.uniqueWaves()[0]->excitation().lock()->transmitFrequency().has_value()) { return UFF_NAN; }
+            else { return m_acquisition.uniqueWaves()[0]->excitation().lock()->transmitFrequency().value(); }
         }
 
         // Returns true is the 1st probe is of sub-type 'ProbeType'

@@ -43,7 +43,7 @@ public:
                 ( m_probe.expired() || (*(m_probe.lock()) == *(other.m_probe.lock())) ) &&
             ((m_wave.expired() == other.m_wave.expired()) &&
                 (m_wave.expired() || (*(m_wave.lock()) == *(other.m_wave.lock()))) &&
-            (m_timeOffset == other.m_timeOffset));
+            (m_timeOffset == other.m_timeOffset)) );
     }
 
     inline bool operator !=(const TransmitSetup& other) const { return !(*this == other); }
