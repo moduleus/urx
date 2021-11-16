@@ -33,6 +33,13 @@ namespace uff
         bool operator ==(const SuperGroup& other) const;
         inline bool operator !=(const SuperGroup& other) const { return !(*this == other); }
 
+
+        // ******************** Getters / Setters **********************************************
+    public:
+        // Initial Group
+        const std::weak_ptr<Group>& initialGroup() const { return m_initialGroup; }
+        void setInitialGroup(std::weak_ptr<Group> initialGroup) { m_initialGroup = initialGroup; }
+
     private:
         // Initial Group
         std::weak_ptr<Group> m_initialGroup;

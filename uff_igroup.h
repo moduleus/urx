@@ -34,6 +34,21 @@ namespace uff
         bool operator ==(const IGroup& other) const;
         inline bool operator !=(const IGroup& other) const { return !(*this == other); }
 
+        // ************ Getters / Setters ***********************
+    public:
+        // Description
+        const std::string& description() const { return m_description; }
+        void setDescription(std::string description) { m_description = description; }
+
+        // Time offset
+        double timeOffset() const { return m_timeOffset; }
+        void setTimeOffset(double timeOffset) { m_timeOffset = timeOffset; }
+
+        // Description
+        uint32_t repetitionCount() const { return m_repetitionCount; }
+        void setRepetitionCount(uint32_t repetitionCount) { m_repetitionCount = repetitionCount; }
+
+        // ****************** Attributes ************************
     private:
         // string describing the group
         std::string m_description = "";

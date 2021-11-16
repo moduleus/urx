@@ -3,34 +3,34 @@
  */
  
 // UFF
-#include "uff_channel_data.h"
+#include "uff_acquisition.h"
 
 // System
 #include <iostream>
 
 #define CHECK_ISO8601(str)                                         \
-    if(uff::ChannelData::isIso8601(str) == false)                 \
+    if(uff::Acquisition::isIso8601(str) == false)                 \
     {                                                             \
         std::cerr << "Not ISO-8601: " << (str) << std::endl;     \
         return -1;                                                \
     }
 
 #define CHECK_NOT_ISO8601(str)                                  \
-    if(uff::ChannelData::isIso8601(str) == true)                 \
+    if(uff::Acquisition::isIso8601(str) == true)                 \
     {                                                             \
         std::cerr << "ISO-8601: " << (str) << std::endl;         \
         return -1;                                                \
     }
     
 #define CHECK_ISO3166(str)                                         \
-    if(uff::ChannelData::isIso3166(str) == false)                 \
+    if(uff::Acquisition::isIso3166(str) == false)                 \
     {                                                             \
         std::cerr << "Not ISO-3166: " << (str) << std::endl;     \
         return -1;                                                \
     }
 
 #define CHECK_NOT_ISO3166(str)                              \
-    if(uff::ChannelData::isIso3166(str) == true)             \
+    if(uff::Acquisition::isIso3166(str) == true)             \
     {                                                         \
         std::cerr << "ISO-3166: " << (str) << std::endl;     \
         return -1;                                            \

@@ -25,7 +25,6 @@ class Wave : public uff::Object
     UFF_TYPE_MACRO(Wave, uff::Object);
 
 public:
-
     Wave() {}
 
     void printSelf(std::ostream& os, std::string indent) const override;

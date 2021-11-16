@@ -35,11 +35,22 @@ namespace uff
         bool operator ==(const Sequence& other) const;
         inline bool operator !=(const Sequence& other) const { return !(*this == other); }
 
+        // ******************** Getters / Setters **********************************************
+    public:
+        // Time offset
+        double timeOffset() const { return m_timeOffset; }
+        void setTimeOffset(double timeOffset) { m_timeOffset = timeOffset; }
+
+        // timed Events
+        const std::vector<TimedEvent>& timedEvents() const { return m_timedEvents; }
+        void setTimedEvents(std::vector<TimedEvent> timedEvents) { m_timedEvents = timedEvents; }
+
+        // ******************** Attributes **********************************************
     private:
         // Time offset
         double m_timeOffset = 0;
 
-        // Sequence
+        // timedEvents
         std::vector<TimedEvent> m_timedEvents;
     };
 

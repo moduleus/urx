@@ -9,317 +9,234 @@
 #include <type_traits>
 #include <limits>
 
-//static_assert(sizeof (long) == sizeof (long long),
-//              "Architecture not supported, cf. Reader::readIntegerArrayDataset");
-
 namespace uff
 {
 
-void Reader::printSelf(std::ostream& os, std::string indent) const
-{
-    superclass::printSelf(os, indent);
-}
+    void Reader::printSelf(std::ostream& os, std::string indent) const { superclass::printSelf(os, indent); }
 
-void Reader::updateMetadata()
-{
-    m_dataset = std::make_shared<uff::Dataset>();
-
-    try
+    void Reader::updateMetadata()
     {
-        H5::Exception::dontPrint();
-
-        H5::H5File file(m_fileName, H5F_ACC_RDONLY);
-
-        // Version
-        H5::Group version(file.openGroup("version"));
-        readVersion(version);
-
-        // Channel Data
-        H5::Group channelData(file.openGroup("channel_data"));
-        readChannelData(channelData);
-
-        file.close();
-    }  // end of try block
-    // catch failure caused by the H5File operations
-    catch (H5::FileIException error)
-    {
-        error.printErrorStack();
-        std::cerr << __FILE__ << __LINE__ << error.getDetailMsg();
-        return;
-    }
-    // catch failure caused by the DataSet operations
-    catch (H5::DataSetIException error)
-    {
-        error.printErrorStack();
-        std::cerr << __FILE__ << __LINE__ << error.getDetailMsg();
-        return;
-    }
-    // catch failure caused by the DataSpace operations
-    catch (H5::DataSpaceIException error)
-    {
-        error.printErrorStack();
-        std::cerr << __FILE__ << __LINE__ << error.getDetailMsg();
-        return;
-    }
-    // catch failure caused by the DataSpace operations
-    catch (H5::DataTypeIException error)
-    {
-        error.printErrorStack();
-        std::cerr << __FILE__ << __LINE__ << error.getDetailMsg();
-        return;
-    }
-    // catch failure caused by the Group operations
-    catch (H5::GroupIException error)
-    {
-        error.printErrorStack();
-        std::cerr << __FILE__ << __LINE__ << error.getDetailMsg();
-        return;
-    }
-}
-
-uff::Aperture Reader::readAperture(const H5::Group& group)
-{
-    uff::Aperture aperture;
-
-    // origin
-    aperture.setOrigin(readTransform(group.openGroup("origin")));
-
-    // "window"
-    aperture.setWindow(readOptionalStringDataset(group, "window"));
-
-    // "f_number"
-    aperture.setFNumber(readOptionalDoubleDataset(group, "f_number"));
-
-    // "fixed_size"
-    aperture.setFixedSize(readOptionalDoubleDataset(group, "fixed_size"));
-
-    // "maximum_size" TODO
-    // "minimum_size" TODO
-
-    return aperture;
-}
-
-void Reader::readChannelData(const H5::Group& group)
-{
-    uff::ChannelData& channelData = m_dataset->channelData();
-    channelData.setAuthors(readStringDataset(group, "authors"));
-    channelData.setDescription(readStringDataset(group, "description"));
-    channelData.setLocalTime(readStringDataset(group, "local_time"));
-    channelData.setCountryCode(readStringDataset(group, "country_code"));
-    channelData.setSystem(readStringDataset(group, "system"));
-    channelData.setSoundSpeed(readOptionalDoubleDataset(group, "sound_speed"));
-    channelData.setRepetitionRate(readOptionalDoubleDataset(group, "repetition_rate"));
-
-    // channel_data.data
-    std::vector<size_t> dataDims;
-    readFloatArrayDataset(group, "data", m_dataset->channelData().data(), dataDims);
-    if (dataDims.size() != 4)
-    {
-        std::cerr << "Uff::Reader : Dataset dimension != 4" << std::endl;
-        return;
-    }
-    channelData.setNumberOfFrames(dataDims[0]);
-    channelData.setNumberOfEvents(dataDims[1]);
-    channelData.setNumberOfChannels(dataDims[2]);
-    channelData.setNumberOfSamples(dataDims[3]);
-
-    // Probes
-    H5::Group probes(group.openGroup("probes"));
-    channelData.setProbes(readProbeArray(probes));
-
-    // Unique waves
-    H5::Group waves(group.openGroup("unique_waves"));
-    channelData.setUniqueWaves(readWaveArray(waves));
-
-    // Unique events
-    H5::Group uniqueEvents(group.openGroup("unique_events"));
-    channelData.setUniqueEvents(readEventArray(uniqueEvents));
-
-    // Sequence
-    H5::Group sequence(group.openGroup("sequence"));
-    channelData.setSequence(readTimedEventArray(sequence));
-}
-
-double Reader::readDoubleDataset(const H5::Group& group, const std::string& name)
-{
-    H5::StrType datatype(H5::PredType::NATIVE_DOUBLE);
-    H5::DataSet dataset = group.openDataSet(name);
-    double value;
-    dataset.read(&value, datatype);
-    dataset.close();
-    return value;
-}
-
-std::optional<double> Reader::readOptionalDoubleDataset(const H5::Group& group, const std::string& name)
-{
-    H5::StrType datatype(H5::PredType::NATIVE_DOUBLE);
-    H5::DataSet dataset = group.openDataSet(name);
-    double value;
-    dataset.read(&value, datatype);
-    dataset.close();
-    std::optional<double> result = std::nullopt;
-    if (!std::isnan(value))
-        result = value;
-    return result;
-}
-
-uff::Element Reader::readElement(const H5::Group& group)
-{
-    uff::Element element;
-
-    element.setX(readOptionalDoubleDataset(group, "x"));
-    element.setY(readOptionalDoubleDataset(group, "y"));
-    element.setZ(readOptionalDoubleDataset(group, "z"));
-
-    return element;
-}
-
-std::vector<uff::Element> Reader::readElementArray(const H5::Group& group)
-{
-    std::vector<uff::Element> elements;
-
-    char buf[9];
-    int id = 1;
-    while (true)
-    {
-        snprintf(buf, sizeof buf, "%08d", id);
-        if (H5Lexists(group.getLocId(), buf, H5P_DEFAULT))
+        m_dataset = std::make_shared<uff::Dataset>();
+        try
         {
-            H5::Group element = group.openGroup(buf);
-            elements.push_back(readElement(element));
-            id++;
+            H5::Exception::dontPrint();
+            H5::H5File file(m_fileName, H5F_ACC_RDONLY);
+
+            // Version
+            H5::Group version(file.openGroup("version"));
+            readVersion(version);
+
+            // Channel Data
+            H5::Group acquisition(file.openGroup("acquisition"));
+            readAcquisition(acquisition);
+
+            file.close();
+        }  // end of try block
+        // catch failure caused by the H5File operations
+        catch (H5::FileIException error)
+        {
+            error.printErrorStack();
+            std::cerr << __FILE__ << __LINE__ << error.getDetailMsg();
+            return;
         }
-        else
+        // catch failure caused by the DataSet operations
+        catch (H5::DataSetIException error)
         {
-            break;
+            error.printErrorStack();
+            std::cerr << __FILE__ << __LINE__ << error.getDetailMsg();
+            return;
+        }
+        // catch failure caused by the DataSpace operations
+        catch (H5::DataSpaceIException error)
+        {
+            error.printErrorStack();
+            std::cerr << __FILE__ << __LINE__ << error.getDetailMsg();
+            return;
+        }
+        // catch failure caused by the DataSpace operations
+        catch (H5::DataTypeIException error)
+        {
+            error.printErrorStack();
+            std::cerr << __FILE__ << __LINE__ << error.getDetailMsg();
+            return;
+        }
+        // catch failure caused by the Group operations
+        catch (H5::GroupIException error)
+        {
+            error.printErrorStack();
+            std::cerr << __FILE__ << __LINE__ << error.getDetailMsg();
+            return;
         }
     }
 
-    return elements;
-}
-
-std::shared_ptr<uff::Event> Reader::readEvent(const H5::Group& group)
-{
-    auto event = std::make_shared<uff::Event>();
-
-    // "receive_setup"
-    event->setReceiveSetup(readReceiveSetup(group.openGroup("receive_setup")));
-
-    // "transmit_setup"
-    event->setTransmitSetup(readTransmitSetup(group.openGroup("transmit_setup")));
-
-    return event;
-}
-
-std::vector<std::shared_ptr<uff::Event>> Reader::readEventArray(const H5::Group& group)
-{
-    std::vector<std::shared_ptr<uff::Event>> events;
-
-    char buf[9];
-    int id = 1;
-    while (true)
+    void Reader::readAcquisition(const H5::Group& group)
     {
-        snprintf(buf, sizeof buf, "%08d", id);
+        uff::Acquisition& acquisition = m_dataset->acquisition();
+        acquisition.setAuthors(readStringDataset(group, "authors"));
+        acquisition.setDescription(readStringDataset(group, "description"));
+        acquisition.setLocalTime(readStringDataset(group, "local_time"));
+        acquisition.setCountryCode(readStringDataset(group, "country_code"));
+        acquisition.setSystem(readStringDataset(group, "system"));
+        acquisition.setSoundSpeed(readDoubleDataset(group, "sound_speed"));
+        acquisition.setTimeOffset(readDoubleDataset(group, "time_offset"));
 
-        if (H5Lexists(group.getLocId(), buf, H5P_DEFAULT))
-        {
-            H5::Group event = group.openGroup(buf);
-            events.push_back(readEvent(event));
-            id++;
-        }
-        else
-        {
-            break;
-        }
+        // Group Links
+        H5::Group groupLinks(group.openGroup("group_links"));
+        acquisition.setGroupLink(readArray<std::shared_ptr<GroupLink>>(groupLinks));
+
+        // Groups
+        H5::Group groups(group.openGroup("groups"));
+        acquisition.setGroups(readArray<std::shared_ptr<IGroup>>(groups));
+
+        // Probes
+        H5::Group probes(group.openGroup("probes"));
+        acquisition.setProbes(readArray<std::shared_ptr<Probe>>(probes));
+
+        // Unique events
+        H5::Group uniqueEvents(group.openGroup("unique_events"));
+        acquisition.setUniqueEvents(readArray<std::shared_ptr<Event>>(uniqueEvents));
+
+        // Unique waves
+        H5::Group waves(group.openGroup("unique_waves"));
+        acquisition.setUniqueWaves(readArray<std::shared_ptr<Wave>>(waves));
+
+        // Excitations
+        H5::Group excitation(group.openGroup("excitations"));
+        acquisition.setUniqueExcitations(readArray<std::shared_ptr<Excitation>>(excitation));
+
+        // Group data
+        H5::Group groupData(group.openGroup("group_data"));
+        acquisition.setGroupData(readArray<std::shared_ptr<GroupData>>(groupData));
+
+        // Initial Group
+        int initialGroupId = std::stoi(readStringDataset(group, "initial_group"));
+        acquisition.setInitialGroup(acquisition.groups()[(size_t)initialGroupId - 1]);
     }
 
-    return events;
-}
-
-uff::Excitation Reader::readExcitation(const H5::Group& group)
-{
-    uff::Excitation excitation;
-
-    // "pulse_shape"
-    excitation.setPulseShape(readOptionalStringDataset(group, "pulse_shape"));
-
-    // "transmit_frequency"
-    excitation.setTransmitFrequency(readOptionalDoubleDataset(group, "transmit_frequency"));
-
-    // "waveform"
-    // TODO excitation.setWaveform(readFloatArrayDataset(group, "waveform"));
-
-    // "sampling_frequency"
-    excitation.setSamplingFrequency(readOptionalDoubleDataset(group, "sampling_frequency"));
-
-    return excitation;
-}
-
-void Reader::readFloatArrayDataset(const H5::Group& group, const std::string& name,
-    std::vector<float>& values, std::vector<size_t>& dimensions)
-{
-    H5::DataSet dataset = group.openDataSet(name);
-    // TODO: check if type is correct : dataset.getTypeClass()
-    H5::StrType datatype(H5::PredType::NATIVE_FLOAT);
-
-    // find dataset dimensions
-    H5::DataSpace dataspace = dataset.getSpace();
-    int ndims = dataspace.getSimpleExtentNdims();
-    //std::cout << "ndims:" << ndims << std::endl;
-    dimensions.resize(ndims);
-    dataspace.getSimpleExtentDims((unsigned long long*)dimensions.data()); // Poor casting
-    size_t numel = 1;
-    for (auto sz : dimensions)
+    void Reader::readVersion(const H5::Group& group)
     {
-        numel *= sz;
-        //std::cout << "sz:" << sz << std::endl;
+        int major = readIntegerDataset(group, "major");
+        int minor = readIntegerDataset(group, "minor");
+        int patch = readIntegerDataset(group, "patch");
+        uff::Version version(major, minor, patch);
+        m_dataset->setVersion(version);
     }
 
-    // reserve space in the output buffer
-    values.resize(numel);
-
-    // read data
-    dataset.read(values.data(), datatype);
-}
-
-void Reader::readIntegerArrayDataset(const H5::Group& group, const std::string& name,
-    std::vector<int>& values, std::vector<size_t>& dimensions)
-{
-    H5::DataSet dataset = group.openDataSet(name);
-    // TODO: check if type is correct : dataset.getTypeClass()
-    H5::StrType datatype(H5::PredType::NATIVE_INT);
-
-    // find dataset dimensions
-    H5::DataSpace dataspace = dataset.getSpace();
-    int ndims = dataspace.getSimpleExtentNdims();
-    //std::cout << "ndims:" << ndims << std::endl;
-    dimensions.resize(ndims);
-    dataspace.getSimpleExtentDims((hsize_t*)dimensions.data()); // NOTE: Will bug on architectures whose (sizeof(hsize_t != sizeof(long long unsigned int))) cf. the static_assert upper
-    //hsize_t* dims = dimensions.data();
-    //dataspace.getSimpleExtentDims(dims);
-    size_t numel = 1;
-    for (auto sz : dimensions)
+    std::shared_ptr<uff::GroupLink> Reader::readGroupLink(const H5::Group& group)
     {
-        numel *= sz;
-        //std::cout << "sz:" << sz << std::endl;
+        std::shared_ptr<uff::GroupLink> groupLink = std::make_shared<uff::GroupLink>();
+
+        // Source 
+        int idSource = stoi(readStringDataset(group, "source_id"));
+        groupLink->setSource(m_dataset->acquisition().groups()[idSource - 1]);
+
+        // Destination
+        int idDestination = stoi(readStringDataset(group, "source_id"));
+        groupLink->setDestination(m_dataset->acquisition().groups()[idDestination - 1]);
+
+        return groupLink;
     }
 
-    // reserve space in the output buffer
-    values.resize(numel);
+    std::shared_ptr<uff::IGroup> Reader::readIGroup(const H5::Group& group)
+    {
+        std::shared_ptr<uff::IGroup> iGroup;
 
-    // read data
-    dataset.read(values.data(), datatype);
-}
+        // If this IGroup has initial_group attribute then it's a super group else just a group.
+        if (H5Lexists(group.getLocId(), "initial_group", H5P_DEFAULT)) { iGroup = readSuperGroup(group); }
+        else { iGroup = readGroup(group); }
 
-int Reader::readIntegerDataset(const H5::Group& group, const std::string& name)
-{
-    H5::StrType datatype(H5::PredType::NATIVE_INT);
-    H5::DataSet dataset = group.openDataSet(name);
-    int value;
-    dataset.read(&value, datatype);
-    dataset.close();
-    return value;
-}
+        // description
+        iGroup->setDescription(readStringDataset(group, "description"));
+
+        // time_offset
+        iGroup->setTimeOffset(readDoubleDataset(group, "time_offset"));
+
+        // repetition_count
+        iGroup->setRepetitionCount((uint32_t)readIntegerDataset(group, "repetition_count"));
+
+        return iGroup;
+    }
+
+    std::shared_ptr<uff::SuperGroup> Reader::readSuperGroup(const H5::Group& group)
+    {
+        std::shared_ptr<uff::SuperGroup> superGroup = std::make_shared<uff::SuperGroup>();
+
+        // initial_group
+        int idInitialGroup = stoi(readStringDataset(group, "initial_group"));
+        superGroup->setInitialGroup(m_dataset->acquisition().groups()[(size_t)idInitialGroup - 1]);
+
+        return superGroup;
+    }
+
+    std::shared_ptr<uff::Group> Reader::readGroup(const H5::Group& group)
+    {
+        std::shared_ptr<uff::Group> groupUff = std::make_shared<uff::Group>();
+
+        // repetition_rate
+        groupUff->setRepetitionRate(readDoubleDataset(group, "repetition_rate"));
+
+        // sequence
+        H5::Group sequence(group.openGroup("sequence"));
+        groupUff->setSequence(readSequence(sequence));
+
+        return groupUff;
+    }
+
+    std::shared_ptr<uff::GroupData> Reader::readGroupData(const H5::Group& group)
+    {
+        std::shared_ptr<uff::GroupData> groupData = std::make_shared<uff::GroupData>();
+
+        // group
+        int idGroup = stoi(readStringDataset(group, "group"));
+        groupData->setGroup(m_dataset->acquisition().groups()[idGroup - 1]);
+
+        // data
+        std::vector<size_t> dataDims;
+        readInt16ArrayDataset(group, "data", groupData->data(), dataDims);
+        if (dataDims.size() != 4) { std::cerr << "Uff::Reader : Dataset dimension != 4" << std::endl; }
+
+        return groupData;
+    }
+
+    uff::Element Reader::readElement(const H5::Group& group)
+    {
+        uff::Element element;
+
+        element.setX(readOptionalDoubleDataset(group, "x"));
+        element.setY(readOptionalDoubleDataset(group, "y"));
+        element.setZ(readOptionalDoubleDataset(group, "z"));
+
+        return element;
+    }
+
+    std::shared_ptr<uff::Event> Reader::readEvent(const H5::Group& group)
+    {
+        auto event = std::make_shared<uff::Event>();
+
+        // "receive_setup"
+        event->setReceiveSetup(readReceiveSetup(group.openGroup("receive_setup")));
+
+        // "transmit_setup"
+        event->setTransmitSetup(readTransmitSetup(group.openGroup("transmit_setup")));
+
+        return event;
+    }
+
+    std::shared_ptr<uff::Excitation> Reader::readExcitation(const H5::Group& group)
+    {
+        std::shared_ptr<uff::Excitation> excitation = std::make_shared<uff::Excitation>();
+
+        // "pulse_shape"
+        excitation->setPulseShape(readOptionalStringDataset(group, "pulse_shape"));
+
+        // "transmit_frequency"
+        excitation->setTransmitFrequency(readOptionalDoubleDataset(group, "transmit_frequency"));
+
+        // "sampling_frequency"
+        excitation->setSamplingFrequency(readOptionalDoubleDataset(group, "sampling_frequency"));
+
+        return excitation;
+    }
 
 std::shared_ptr<uff::LinearArray> Reader::readLinearArray(const H5::Group& group)
 {
@@ -390,11 +307,7 @@ std::shared_ptr<uff::Probe> Reader::readProbe(const H5::Group& group)
 
     // elements
     H5::Group elements = group.openGroup("elements");
-    probe->setElements(readElementArray(elements));
-
-    // element geometries (TODO)
-
-    // impulse responses (TODO)
+    probe->setElements(readArray<Element>(elements));
 
     // probe_type (optional)
     if (H5Lexists(group.getLocId(), "probe_type", H5P_DEFAULT))
@@ -440,28 +353,18 @@ std::shared_ptr<uff::Probe> Reader::readProbe(const H5::Group& group)
     return probe;
 }
 
-std::vector<std::shared_ptr<uff::Probe>> Reader::readProbeArray(const H5::Group& group)
+uff::Sequence Reader::readSequence(const H5::Group& group)
 {
-    std::vector<std::shared_ptr<uff::Probe>> probes;
+    uff::Sequence sequence;
 
-    char buf[9];
-    int id = 1;
-    while(true)
-    {
-        snprintf(buf, sizeof buf, "%08d", id);
-        if (H5Lexists(group.getLocId(), buf, H5P_DEFAULT))
-        {
-            H5::Group probe = group.openGroup(buf);
-            probes.push_back(readProbe(probe));
-            id++;
-        }
-        else
-        {
-            break;
-        }
-    }
+    // time_offset
+    sequence.setTimeOffset(readDoubleDataset(group, "time_offset"));
 
-    return probes;
+    // timed_events
+    H5::Group timedEvents(group.openGroup("timed_events"));
+    sequence.setTimedEvents(readArray<TimedEvent>(timedEvents));
+
+    return sequence;
 }
 
 uff::ReceiveSetup Reader::readReceiveSetup(const H5::Group& group)
@@ -470,7 +373,7 @@ uff::ReceiveSetup Reader::readReceiveSetup(const H5::Group& group)
 
     // "probe"
     int probeId = std::stoi(readStringDataset(group, "probe_id"));
-    receiveSetup.setProbe(m_dataset->channelData().probes()[probeId-1]);
+    receiveSetup.setProbe(m_dataset->acquisition().probes()[(size_t)probeId - 1]);
 
     // "time_offset"
     receiveSetup.setTimeOffset(readDoubleDataset(group, "time_offset"));
@@ -542,67 +445,18 @@ uff::Rotation Reader::readRotation(const H5::Group& group)
     return rotation;
 }
 
-std::string Reader::readStringDataset(const H5::Group& group, const std::string& name)
-{
-    H5::StrType datatype(0, H5T_VARIABLE);
-    H5::DataSpace dataspace(H5S_SCALAR);
-    H5::DataSet dataset = group.openDataSet(name);
-    std::string buffer;
-    dataset.read(buffer, datatype, dataspace);
-    return buffer;
-}
-
-std::optional<std::string> Reader::readOptionalStringDataset(const H5::Group& group, const std::string& name)
-{
-    H5::StrType datatype(0, H5T_VARIABLE);
-    H5::DataSpace dataspace(H5S_SCALAR);
-    H5::DataSet dataset = group.openDataSet(name);
-    std::string buffer;
-    dataset.read(buffer, datatype, dataspace);
-    std::optional<std::string> result = std::nullopt;
-    if (buffer != "undefined")
-        result = buffer;
-    return result;
-}
-
 uff::TimedEvent Reader::readTimedEvent(const H5::Group& group)
 {
     uff::TimedEvent timedEvent;
 
     // "event"
     int eventId = std::stoi(readStringDataset(group, "event_id"));
-    //std::cout << "probeId" << probeId << " " << m_dataset.channelData().probes().size();
-    timedEvent.setEvent(m_dataset->channelData().uniqueEvents()[eventId - 1]);
+    timedEvent.setEvent(m_dataset->acquisition().uniqueEvents()[(size_t)eventId - 1]);
 
     // "time_offset"
     timedEvent.setTimeOffset(readDoubleDataset(group, "time_offset"));
 
     return timedEvent;
-}
-
-std::vector<uff::TimedEvent> Reader::readTimedEventArray(const H5::Group& group)
-{
-    std::vector<uff::TimedEvent> timedEvents;
-
-    char buf[9];
-    int id = 1;
-    while (true)
-    {
-        snprintf(buf, sizeof buf, "%08d", id);
-
-        if (H5Lexists(group.getLocId(), buf, H5P_DEFAULT))
-        {
-            H5::Group timedEvent = group.openGroup(buf);
-            timedEvents.push_back(readTimedEvent(timedEvent));
-            id++;
-        }
-        else
-        {
-            break;
-        }
-    }
-
-    return timedEvents;
 }
 
 uff::Transform Reader::readTransform(const H5::Group& group)
@@ -633,69 +487,38 @@ uff::TransmitSetup Reader::readTransmitSetup(const H5::Group& group)
 
     // "probe"
     int probeId = std::stoi(readStringDataset(group, "probe_id"));
-    transmitSetup.setProbe(m_dataset->channelData().probes()[probeId - 1]);
+    transmitSetup.setProbe(m_dataset->acquisition().probes()[(size_t)probeId - 1]);
+
+    // time_offset
+    transmitSetup.setTimeOffset(readDoubleDataset(group, "time_offset"));
 
     // "transmit_wave"
-    transmitSetup.setTransmitWave(readTransmitWave(group.openGroup("transmit_wave")));
-
-    // channel_mapping [optional]
-    if (H5Lexists(group.getLocId(), "channel_mapping", H5P_DEFAULT))
-    {
-        std::vector<int> channelMapping;
-        std::vector<size_t> dimensions;
-        readIntegerArrayDataset(group, "channel_mapping", channelMapping, dimensions);
-        transmitSetup.setChannelMapping(channelMapping);
-    }
+    int waveId = std::stoi(readStringDataset(group, "wave_id"));
+    transmitSetup.setWave(m_dataset->acquisition().uniqueWaves()[(size_t)waveId - 1]);
 
     return transmitSetup;
-}
-
-uff::TransmitWave Reader::readTransmitWave(const H5::Group& group)
-{
-    uff::TransmitWave transmitWave;
-
-    // "wave"
-    int waveId = std::stoi(readStringDataset(group, "wave_id"));
-    transmitWave.setWave(m_dataset->channelData().uniqueWaves()[waveId - 1]);
-
-    // "time_offset"
-    transmitWave.setTimeOffset(readDoubleDataset(group, "time_offset"));
-
-    // "weight"
-    transmitWave.setWeight(readDoubleDataset(group, "weight"));
-
-    return transmitWave;
-}
-
-void Reader::readVersion(const H5::Group& group)
-{
-    int major = readIntegerDataset(group, "major");
-    int minor = readIntegerDataset(group, "minor");
-    int patch = readIntegerDataset(group, "patch");
-    uff::Version version(major, minor, patch);
-    m_dataset->setVersion(version);
 }
 
 std::shared_ptr<uff::Wave> Reader::readWave(const H5::Group& group)
 {
     auto wave = std::make_shared<uff::Wave>();
 
-    // write "origin"
+    // "origin"
     wave->setOrigin(readTransform(group.openGroup("origin")));
 
-    // write "wave_type"
+    // "wave_type"
     switch (readIntegerDataset(group, "wave_type"))
     {
-    case uff::WaveType::CONVERGING_WAVE:
+    case (int)uff::WaveType::CONVERGING_WAVE:
         wave->setWaveType(uff::WaveType::CONVERGING_WAVE);
         break;
-    case uff::WaveType::CYLINDRICAL_WAVE:
+    case (int)uff::WaveType::CYLINDRICAL_WAVE:
         wave->setWaveType(uff::WaveType::CYLINDRICAL_WAVE);
         break;
-    case uff::WaveType::DIVERGING_WAVE:
+    case (int)uff::WaveType::DIVERGING_WAVE:
         wave->setWaveType(uff::WaveType::DIVERGING_WAVE);
         break;
-    case uff::WaveType::PLANE_WAVE:
+    case (int)uff::WaveType::PLANE_WAVE:
         wave->setWaveType(uff::WaveType::PLANE_WAVE);
         break;
     default:
@@ -703,37 +526,142 @@ std::shared_ptr<uff::Wave> Reader::readWave(const H5::Group& group)
         break;
     }
 
-    // write "aperture"
+    // "aperture"
     wave->setAperture(readAperture(group.openGroup("aperture")));
 
-    // write "excitation"
-    wave->setExcitation(readExcitation(group.openGroup("excitation")));
+    // channel_mapping [optional]
+    if (H5Lexists(group.getLocId(), "channel_mapping", H5P_DEFAULT))
+    {
+        std::vector<int> channelMapping;
+        std::vector<size_t> dimensions;
+        readIntegerArrayDataset(group, "channel_mapping", channelMapping, dimensions);
+        wave->setChannelMapping(channelMapping);
+    }
+
+    // "excitation"
+    int excitationId = stoi(readStringDataset(group, "excitation_id"));
+    wave->setExcitation(m_dataset->acquisition().uniqueExcitations()[(size_t)excitationId - 1]);
 
     return wave;
 }
 
-std::vector<std::shared_ptr<uff::Wave>> Reader::readWaveArray(const H5::Group& group)
-{
-    std::vector<std::shared_ptr<uff::Wave>> waves;
-
-    char buf[9];
-    int id = 1;
-    while (true)
+    uff::Aperture Reader::readAperture(const H5::Group& group)
     {
-        snprintf(buf, sizeof buf, "%08d", id);
-        if (H5Lexists(group.getLocId(), buf, H5P_DEFAULT))
-        {
-            H5::Group wave = group.openGroup(buf);
-            waves.push_back(readWave(wave));
-            id++;
-        }
-        else
-        {
-            break;
-        }
+        uff::Aperture aperture;
+
+        // origin
+        aperture.setOrigin(readTransform(group.openGroup("origin")));
+
+        // "window"
+        aperture.setWindow(readOptionalStringDataset(group, "window"));
+
+        // "f_number"
+        aperture.setFNumber(readOptionalDoubleDataset(group, "f_number"));
+
+        // "fixed_size"
+        aperture.setFixedSize(readOptionalDoubleDataset(group, "fixed_size"));
+
+        return aperture;
     }
 
-    return waves;
-}
+    double Reader::readDoubleDataset(const H5::Group& group, const std::string& name)
+    {
+        H5::StrType datatype(H5::PredType::NATIVE_DOUBLE);
+        H5::DataSet dataset = group.openDataSet(name);
+        double value;
+        dataset.read(&value, datatype);
+        dataset.close();
+        return value;
+    }
+
+    std::optional<double> Reader::readOptionalDoubleDataset(const H5::Group& group, const std::string& name)
+    {
+        H5::StrType datatype(H5::PredType::NATIVE_DOUBLE);
+        H5::DataSet dataset = group.openDataSet(name);
+        double value;
+        dataset.read(&value, datatype);
+        dataset.close();
+        std::optional<double> result = std::nullopt;
+        if (!std::isnan(value)) { result = value; }
+        return result;
+    }
+
+    void Reader::readIntegerArrayDataset(const H5::Group& group, const std::string& name,
+        std::vector<int>& values, std::vector<size_t>& dimensions)
+    {
+        H5::DataSet dataset = group.openDataSet(name);
+        // TODO: check if type is correct : dataset.getTypeClass()
+        H5::StrType datatype(H5::PredType::NATIVE_INT);
+
+        // find dataset dimensions
+        H5::DataSpace dataspace = dataset.getSpace();
+        int ndims = dataspace.getSimpleExtentNdims();
+        //std::cout << "ndims:" << ndims << std::endl;
+        dimensions.resize(ndims);
+        dataspace.getSimpleExtentDims((hsize_t*)dimensions.data()); // NOTE: Will bug on architectures whose (sizeof(hsize_t != sizeof(long long unsigned int))) cf. the static_assert upper
+        size_t numel = 1;
+        for (auto sz : dimensions) { numel *= sz; }
+
+        // reserve space in the output buffer
+        values.resize(numel);
+
+        // read data
+        dataset.read(values.data(), datatype);
+    }
+
+    int Reader::readIntegerDataset(const H5::Group& group, const std::string& name)
+    {
+        H5::StrType datatype(H5::PredType::NATIVE_INT);
+        H5::DataSet dataset = group.openDataSet(name);
+        int value;
+        dataset.read(&value, datatype);
+        dataset.close();
+        return value;
+    }
+
+    std::string Reader::readStringDataset(const H5::Group& group, const std::string& name)
+    {
+        H5::StrType datatype(0, H5T_VARIABLE);
+        H5::DataSpace dataspace(H5S_SCALAR);
+        H5::DataSet dataset = group.openDataSet(name);
+        std::string buffer;
+        dataset.read(buffer, datatype, dataspace);
+        return buffer;
+    }
+
+    std::optional<std::string> Reader::readOptionalStringDataset(const H5::Group& group, const std::string& name)
+    {
+        H5::StrType datatype(0, H5T_VARIABLE);
+        H5::DataSpace dataspace(H5S_SCALAR);
+        H5::DataSet dataset = group.openDataSet(name);
+        std::string buffer;
+        dataset.read(buffer, datatype, dataspace);
+        std::optional<std::string> result = std::nullopt;
+        if (buffer != "undefined")
+            result = buffer;
+        return result;
+    }
+
+    void Reader::readFloatArrayDataset(const H5::Group& group, const std::string& name,
+        std::vector<float>& values, std::vector<size_t>& dimensions)
+    {
+        H5::DataSet dataset = group.openDataSet(name);
+        // TODO: check if type is correct : dataset.getTypeClass()
+        H5::StrType datatype(H5::PredType::NATIVE_FLOAT);
+
+        // find dataset dimensions
+        H5::DataSpace dataspace = dataset.getSpace();
+        int ndims = dataspace.getSimpleExtentNdims();
+        dimensions.resize(ndims);
+        dataspace.getSimpleExtentDims((unsigned long long*)dimensions.data()); // Poor casting
+        size_t numel = 1;
+        for (auto sz : dimensions) { numel *= sz; }
+
+        // reserve space in the output buffer
+        values.resize(numel);
+
+        // read data
+        dataset.read(values.data(), datatype);
+    }
 
 } // namespace uff

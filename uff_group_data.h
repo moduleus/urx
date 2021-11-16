@@ -32,7 +32,7 @@ namespace uff
         void setGroup(std::weak_ptr<Group> group) { m_group = group; }
 
         // Data
-        const std::vector<int16_t>& data() { return m_data; }
+        std::vector<int16_t>& data() { return m_data; }
         int16_t* pData() { return m_data.data(); }
         void setData(const std::vector<int16_t>& data) { m_data = data; }
 

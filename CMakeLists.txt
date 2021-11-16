@@ -15,9 +15,8 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Enable source groups in Visual Studio
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-#
 # HDF5
-# Maybe use find package before installing a new one
+# Maybe use find package before installing a new one 
 # if ( find_package(HDF5 NAMES hdf5 COMPONENTS CXX ${SEARCH_TYPE}) ) then set(HDF5_DIR <pathToHDF5 already installed>)
 if(NOT HDF5_DIR)
   include( ${CMAKE_CURRENT_SOURCE_DIR}/External-HDF5.cmake )
