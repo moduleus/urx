@@ -32,16 +32,10 @@ namespace uff
         void printSelf(std::ostream& os, std::string indent) const override;
 
         uff::Acquisition& acquisition() { return m_acquisition; }
-        void setAcquisition(const uff::Acquisition& acquisition)
-        {
-            m_acquisition = acquisition;
-        }
+        void setAcquisition(const uff::Acquisition& acquisition) { m_acquisition = acquisition; }
 
         const uff::Version& version() const { return m_version; }
-        void setVersion(const uff::Version& version)
-        {
-            m_version = version;
-        }
+        void setVersion(const uff::Version& version) { m_version = version; }
 
         /* Convenience access method */
 
@@ -69,16 +63,12 @@ namespace uff
         // Return the sampling frequency associated with the 1st receive event [Hz]
         double getSamplingFrequency() const
         {
-            if (m_acquisition.uniqueEvents().empty() || !m_acquisition.uniqueEvents()[0]->receiveSetup().samplingFrequency().has_value()) { return UFF_NAN; }
-            else { return m_acquisition.uniqueEvents()[0]->receiveSetup().samplingFrequency().value(); }
+            if (m_acquisition.uniqueEvents().empty() || !m_acquisition.uniqueEvents()[0]->receiveSetup().samplingFrequency()) { return UFF_NAN; }
+            else { return m_acquisition.uniqueEvents()[0]->receiveSetup().samplingFrequency(); }
         }
 
         // Returns the speed of sound [m/s]
-        double getSoundSpeed() const
-        {
-            if (m_acquisition.soundSpeed()) { return m_acquisition.soundSpeed(); }
-            else { return UFF_NAN; }
-        }
+        double getSoundSpeed() const { return m_acquisition.soundSpeed(); }
 
         // Return the transmit frequency associated with the 1st Wave of the dataset
         double getTransmitFrequency() const
@@ -105,9 +95,7 @@ namespace uff
             }
         }
 
-        inline bool operator ==(const Dataset& other) const
-        { return ((m_version == other.m_version) && (m_acquisition == other.m_acquisition)); }
-
+        inline bool operator ==(const Dataset& other) const { return ((m_version == other.m_version) && (m_acquisition == other.m_acquisition)); }
         inline bool operator !=(const Dataset& other) const { return !(*this == other); }
 
     private:

@@ -112,11 +112,10 @@ namespace uff
         std::optional<std::string> readOptionalStringDataset(const H5::Group& group, const std::string& name);
 
         // float Vector
-        void readFloatArrayDataset(const H5::Group& group, const std::string& name,
-            std::vector<float>& values, std::vector<size_t>& dimensions);
-        // int16_t vector
-        void readInt16ArrayDataset(const H5::Group& group, const std::string& name,
-            std::vector<int16_t>& values, std::vector<size_t>& dimensions);
+        template<typename T>
+        void readArrayDataset(const H5::Group& group, const std::string& name,
+            std::vector<T>& values, std::vector<size_t>& dimensions);
+
         // Uff class vector
         template<typename T>
         std::vector<T> readArray(const H5::Group& group);
@@ -129,6 +128,26 @@ namespace uff
         std::shared_ptr<uff::Dataset> m_dataset;
     };
 
+    template<typename T>
+    inline void Reader::readArrayDataset(const H5::Group& group, const std::string& name, std::vector<T>& values, std::vector<size_t>& dimensions)
+    {
+        const H5::DataSet dataset = group.openDataSet(name);
+        const H5::StrType datatype = dataset.getStrType();
+
+        // find dataset dimensions
+        const H5::DataSpace dataspace = dataset.getSpace();
+        const int ndims = dataspace.getSimpleExtentNdims();
+        dimensions.resize(ndims);
+        dataspace.getSimpleExtentDims((unsigned long long*)dimensions.data()); // Poor casting
+        size_t numel = 1;
+        for (auto sz : dimensions) { numel *= sz; }
+
+        // reserve space in the output buffer
+        values.resize(numel);
+
+        // read data
+        dataset.read((void*)values.data(), datatype);
+    }
 
     template<typename T>
     inline std::vector<T> Reader::readArray(const H5::Group& group)
@@ -142,15 +161,19 @@ namespace uff
         {
             H5::Group hdf5Group = group.openGroup(buf);
 
-            if      (std::is_same_v<T, std::shared_ptr<uff::GroupLink>>())   { vector.push_back(readGroupLink(hdf5Group)); }
-            else if (std::is_same_v<T, std::shared_ptr<uff::IGroup>>())      { vector.push_back(readIGroup(hdf5Group)); }
-            else if (std::is_same_v<T, std::shared_ptr<uff::Probe>>())       { vector.push_back(readProbe(hdf5Group)); }
-            else if (std::is_same_v<T, std::shared_ptr<uff::Event>>())       { vector.push_back(readEvent(hdf5Group)); }
-            else if (std::is_same_v<T, std::shared_ptr<uff::Wave>>())        { vector.push_back(readWave(hdf5Group)); }
-            else if (std::is_same_v<T, std::shared_ptr<uff::Excitation>>())  { vector.push_back(readExcitation(hdf5Group)); }
-            else if (std::is_same_v<T, std::shared_ptr<uff::GroupData>>())   { vector.push_back(readGroupData(hdf5Group)); }
-            else if (std::is_same_v<T, Element>())                           { vector.push_back(readElement(hdf5Group)); }
+            T objectRead;
+
+            if      (std::is_same<T, std::shared_ptr<uff::GroupLink>>::value)   { objectRead = readGroupLink(hdf5Group); }
+            else if (std::is_same<T, std::shared_ptr<uff::IGroup>>::value)      { objectRead = readIGroup(hdf5Group); }
+            else if (std::is_same<T, std::shared_ptr<uff::Probe>>::value)       { objectRead = readProbe(hdf5Group); }
+            else if (std::is_same<T, std::shared_ptr<uff::Event>>::value)       { objectRead = readEvent(hdf5Group); }
+            else if (std::is_same<T, std::shared_ptr<uff::Wave>>::value)        { objectRead = readWave(hdf5Group); }
+            else if (std::is_same<T, std::shared_ptr<uff::Excitation>>::value)  { objectRead = readExcitation(hdf5Group); }
+            else if (std::is_same<T, std::shared_ptr<uff::GroupData>>::value)   { objectRead = readGroupData(hdf5Group); }
+            else if (std::is_same<T, uff::Element>::value)                      { objectRead = readElement(hdf5Group); }
             else { assert(false); }
+
+            vector.push_back(objectRead);
 
             id++;
             snprintf(buf, sizeof buf, "%08d", id);

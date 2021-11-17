@@ -54,24 +54,12 @@ public:
             (m_z == other.m_z));
     }
 
-    inline bool operator !=(const Element& other) const
-    {
-        return !(*this == other);
-    }
+    inline bool operator !=(const Element& other) const { return !(*this == other); }
 
 private:
     std::optional<float> m_x = std::nullopt;
     std::optional<float> m_y = std::nullopt;
     std::optional<float> m_z = std::nullopt;
-
-    // Attitude of the element in 3D space
-    //uff::Transform m_transform;
-
-    // (Optional) Geometry of the element
-    //uff::ElementGeometry m_elementGeometry;
-
-    // (Optional) Electromechanical impulse response
-    //uff::ImpulseResponse m_impulseResponse;
 };
 
 } // namespace uff

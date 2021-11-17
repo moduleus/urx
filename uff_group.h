@@ -35,6 +35,15 @@ namespace uff
         bool operator ==(const Group& other) const;
         inline bool operator !=(const Group& other) const { return !(*this == other); }
 
+        // ************************** Convenient Methods ******************************************
+    public:
+        uint32_t numberOfFrames()   { return repetitionCount(); }
+        uint32_t numberOfEvents()   { return (uint32_t)m_sequence.timedEvents().size(); }
+        uint32_t numberOfChannels() { return m_sequence.timedEvents().size() > 0 ? (uint32_t)m_sequence.timedEvents()[0].evenement().lock()->receiveSetup().channelMapping().size() : 0; }
+        uint32_t numberOfSamples()  { return m_sequence.timedEvents().size() > 0 ? m_sequence.timedEvents()[0].evenement().lock()->receiveSetup().numberOfSamples() : 0; }
+
+        // ************************** Getters / Setters ******************************************
+    public:
         // Repetition Rate
         double repetitionRate() const { return m_repetitionRate; }
         void setRepetitionRate(double repetitionRate) { m_repetitionRate = repetitionRate; }
@@ -43,6 +52,7 @@ namespace uff
         const Sequence& sequence() const { return m_sequence; }
         void setSequence(const Sequence& sequence) { m_sequence = sequence; }
 
+        // ************************** Attributes ******************************************
     private:
         // Group repetition
         double m_repetitionRate;

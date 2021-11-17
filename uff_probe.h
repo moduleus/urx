@@ -34,21 +34,15 @@ public:
 
     void printSelf(std::ostream& os, std::string indent) const override;
 
-    /* Attitude of the probe in 3D */
+    // Attitude of the probe in 3D 
     const uff::Transform& transform() const { return m_transform; }
-    void setTransform(const uff::Transform& transform)
-    {
-        m_transform = transform;
-    }
+    void setTransform(const uff::Transform& transform) { m_transform = transform; }
 
-    /* [optional] For probes with a focal lens, it describes the focal length in m [Az, Ele] */
+    // [optional] For probes with a focal lens, it describes the focal length in m [Az, Ele] 
     std::optional<double> focalLength() const { return m_focalLength; }
-    void setFocalLength(std::optional<double> focalLength)
-    {
-        m_focalLength = focalLength;
-    }
+    void setFocalLength(std::optional<double> focalLength) { m_focalLength = focalLength; }
 
-    /* List elements in the probe */
+    // List elements in the probe 
     std::vector<uff::Element>& elements() { return m_elements; }
     void setElements(const std::vector<uff::Element>& elements)
     {
@@ -58,17 +52,11 @@ public:
 
     /* [optional] List of unique element geometries in the probe */
     std::vector<uff::ElementGeometry>& elementGeometries() { return m_elementGeometries; }
-    void setElementGeometries(const std::vector<uff::ElementGeometry>& elementGeometries)
-    {
-        m_elementGeometries = elementGeometries;
-    }
+    void setElementGeometries(const std::vector<uff::ElementGeometry>& elementGeometries) { m_elementGeometries = elementGeometries; }
 
     /* [optional] List of unique electromechanical impulse responses of the elements in the probe */
     std::vector<uff::ImpulseResponse>& impulseResponses() { return m_impulseResponses; }
-    void setImpulseResponses(const std::vector<uff::ImpulseResponse>& impulseResponses)
-    {
-        m_impulseResponses = impulseResponses;
-    }
+    void setImpulseResponses(const std::vector<uff::ImpulseResponse>& impulseResponses) { m_impulseResponses = impulseResponses; }
 
     /* Convenience method */
     const std::vector<float>& getChannelGeometry()
@@ -78,11 +66,11 @@ public:
             // build channel geometry
             _channelGeometry.resize(4 * m_elements.size());
             auto dst = _channelGeometry.begin();
-            for (auto el : m_elements)
+            for (auto& el : m_elements)
             {
-                *dst++ = el.x().has_value() ? el.x().value() : UFF_NAN;
-                *dst++ = el.y().has_value() ? el.y().value() : UFF_NAN;
-                *dst++ = el.z().has_value() ? el.z().value() : UFF_NAN;
+                *dst++ = el.x().has_value() ? el.x().value() : (float)UFF_NAN;
+                *dst++ = el.y().has_value() ? el.y().value() : (float)UFF_NAN;
+                *dst++ = el.z().has_value() ? el.z().value() : (float)UFF_NAN;
                 *dst++ = 0;
             }
             _channelGeometryValid = true;

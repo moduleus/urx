@@ -71,30 +71,26 @@ private:
     // Update elements position
     void updateElements()
     {
-        m_elements.resize(m_numberElementsX * m_numberElementsY);
+        m_elements.resize((size_t)m_numberElementsX * m_numberElementsY);
 
         double pitchX = m_pitchX.has_value() ? m_pitchX.value() : UFF_NAN;
         double pitchY = m_pitchY.has_value() ? m_pitchY.value() : UFF_NAN;
 
         double xmin = -pitchX * (m_numberElementsX - 1.0) / 2.0;
         double ymin = -pitchY * (m_numberElementsY - 1.0) / 2.0;
-        for (int i = 0; i < m_numberElementsY; i++)
+        for (uint32_t i = 0; i < m_numberElementsY; i++)
         {    
-            for (int j = 0; j < m_numberElementsX; j++)
+            for (uint32_t j = 0; j < m_numberElementsX; j++)
             {                
                 uff::Element element;
-                if (m_pitchX.has_value())
-                    element.setX(xmin + j * pitchX);
-                else
-                    element.setX(std::nullopt);
+                if (m_pitchX.has_value()) { element.setX(xmin + j * pitchX); }
+                else { element.setX(std::nullopt); }
 
-                if (m_pitchY.has_value())
-                    element.setY(ymin + i * pitchY);
-                else
-                    element.setY(std::nullopt);
+                if (m_pitchY.has_value()) { element.setY(ymin + i * pitchY); }
+                else { element.setY(std::nullopt); }
 
                 element.setZ(0.0);
-                m_elements[j + i * m_numberElementsY] = element;
+                m_elements[(size_t)j + i * m_numberElementsY] = element;
             }
         }
     }

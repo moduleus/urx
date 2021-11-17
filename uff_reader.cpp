@@ -163,7 +163,9 @@ namespace uff
 
         // initial_group
         int idInitialGroup = stoi(readStringDataset(group, "initial_group"));
-        superGroup->setInitialGroup(m_dataset->acquisition().groups()[(size_t)idInitialGroup - 1]);
+        std::shared_ptr<IGroup> initialIGroup = m_dataset->acquisition().groups()[(size_t)idInitialGroup - 1];
+        std::weak_ptr<Group> initialGroup = std::dynamic_pointer_cast<Group>(initialIGroup);
+        superGroup->setInitialGroup(initialGroup);
 
         return superGroup;
     }
@@ -188,11 +190,13 @@ namespace uff
 
         // group
         int idGroup = stoi(readStringDataset(group, "group"));
-        groupData->setGroup(m_dataset->acquisition().groups()[idGroup - 1]);
+        std::shared_ptr<IGroup> iGroupConcerned = m_dataset->acquisition().groups()[(size_t)idGroup - 1];
+        std::weak_ptr<Group> groupConcerned = std::dynamic_pointer_cast<Group>(iGroupConcerned);
+        groupData->setGroup(groupConcerned);
 
         // data
         std::vector<size_t> dataDims;
-        readInt16ArrayDataset(group, "data", groupData->data(), dataDims);
+        readArrayDataset(group, "data", groupData->data(), dataDims);
         if (dataDims.size() != 4) { std::cerr << "Uff::Reader : Dataset dimension != 4" << std::endl; }
 
         return groupData;
@@ -379,7 +383,10 @@ uff::ReceiveSetup Reader::readReceiveSetup(const H5::Group& group)
     receiveSetup.setTimeOffset(readDoubleDataset(group, "time_offset"));
 
     // "sampling_frequency"
-    receiveSetup.setSamplingFrequency(readOptionalDoubleDataset(group, "sampling_frequency"));
+    receiveSetup.setSamplingFrequency(readDoubleDataset(group, "sampling_frequency"));
+
+    // "nb_samples"
+    receiveSetup.setNumberOfSamples(readIntegerDataset(group, "nb_samples"));
 
     // "sampling_type"
     int st = readIntegerDataset(group, "sampling_type");
@@ -415,7 +422,7 @@ uff::ReceiveSetup Reader::readReceiveSetup(const H5::Group& group)
     {
         std::vector<float> tgcProfile;
         std::vector<size_t> dimensions;
-        readFloatArrayDataset(group, "tgc_profile", tgcProfile, dimensions);
+        readArrayDataset(group, "tgc_profile", tgcProfile, dimensions);
         receiveSetup.setTgcProfile(tgcProfile);
     }
 
@@ -640,28 +647,6 @@ std::shared_ptr<uff::Wave> Reader::readWave(const H5::Group& group)
         if (buffer != "undefined")
             result = buffer;
         return result;
-    }
-
-    void Reader::readFloatArrayDataset(const H5::Group& group, const std::string& name,
-        std::vector<float>& values, std::vector<size_t>& dimensions)
-    {
-        H5::DataSet dataset = group.openDataSet(name);
-        // TODO: check if type is correct : dataset.getTypeClass()
-        H5::StrType datatype(H5::PredType::NATIVE_FLOAT);
-
-        // find dataset dimensions
-        H5::DataSpace dataspace = dataset.getSpace();
-        int ndims = dataspace.getSimpleExtentNdims();
-        dimensions.resize(ndims);
-        dataspace.getSimpleExtentDims((unsigned long long*)dimensions.data()); // Poor casting
-        size_t numel = 1;
-        for (auto sz : dimensions) { numel *= sz; }
-
-        // reserve space in the output buffer
-        values.resize(numel);
-
-        // read data
-        dataset.read(values.data(), datatype);
     }
 
 } // namespace uff

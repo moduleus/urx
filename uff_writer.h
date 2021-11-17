@@ -46,51 +46,48 @@ public:
     
 private:
     void writeAcquisition(H5::Group& group, const uff::Acquisition& acquisition);
+    void writeVersion(H5::Group& group, const uff::Version& version);
 
-    void writeGroupLinkArray(H5::Group& group, const std::vector<std::shared_ptr<GroupLink>>& groupLinks);
+    // Group
     void writeGroupLink(H5::Group& group, const std::shared_ptr<GroupLink>& groupLink);
 
-    void writeGroupDataArray(H5::Group& group, const std::vector<std::shared_ptr<GroupData>>& groupData);
     void writeGroupData(H5::Group& group, const std::shared_ptr<GroupData>& groupData);
 
-    void writeGroupArray(H5::Group& group, const std::vector<std::shared_ptr<IGroup>>& igroup);
-    void writeSuperGroup(H5::Group& group, const uff::SuperGroup& superGroup);
-    void writeGroup(H5::Group& group, const uff::Group& groupUff);
+    void writeSuperGroup(H5::Group& group, const std::shared_ptr<uff::SuperGroup>& superGroup);
+    void writeGroup(H5::Group& group, const std::shared_ptr<uff::Group>& groupUff);
+    void writeIGroup(H5::Group& group, const std::shared_ptr<uff::IGroup>& igroup);
 
-    void writeElementArray(H5::Group& group, const std::vector<uff::Element>& elements);
+    // Probe
+    void writeProbe(H5::Group& group, const std::shared_ptr<uff::Probe>& probe);
+
     void writeElement(H5::Group& group, const uff::Element& element);
-
-    void writeEvent(H5::Group& group, const std::shared_ptr<uff::Event>& event);
-    void writeEventArray(H5::Group& group, const std::vector<std::shared_ptr<uff::Event>>& events);
 
     void writeLinearArray(H5::Group& group, const std::shared_ptr<uff::LinearArray>& linearArray);
     void writeMatrixArray(H5::Group& group, const std::shared_ptr<uff::MatrixArray>& matrixArray);
     void writeRcaArray(H5::Group& group, const std::shared_ptr<uff::RcaArray>& rcaArray);
 
-    void writeProbe(H5::Group& group, const std::shared_ptr<uff::Probe>& probe);
-    void writeProbeArray(H5::Group& group, const std::vector<std::shared_ptr<uff::Probe>>& probes);
-
-    void writeReceiveSetup(H5::Group& group, const uff::ReceiveSetup& receiveSetup);
-    void writeRotation(H5::Group& group, const uff::Rotation& rotation);
+    // Sequence
+    void writeSequence(H5::Group& group, const Sequence& sequence);
 
     void writeTimedEvent(H5::Group& group, const uff::TimedEvent& timedEvent);
-    void writeTimedEventArray(H5::Group& group, const std::vector<uff::TimedEvent>& timedEvents);
 
-    void writeTransform(H5::Group& group, const uff::Transform& transform);
-    void writeTranslation(H5::Group& group, const uff::Translation& translation);
+    void writeEvent(H5::Group& group, const std::shared_ptr<uff::Event>& event);
 
+    // Receive Setup
+    void writeReceiveSetup(H5::Group& group, const uff::ReceiveSetup& receiveSetup);
+
+    // Transmit setup
     void writeTransmitSetup(H5::Group& group, const uff::TransmitSetup& transmitSetup);
 
-    void writeVersion(H5::Group& group, const uff::Version& version);
-
     void writeWave(H5::Group& group, const std::shared_ptr<uff::Wave>& wave);
-    void writeWaveArray(H5::Group& group, const std::vector<std::shared_ptr<uff::Wave>>& waves);
-
     void writeAperture(H5::Group& group, const uff::Aperture& aperture);
-
     void writeExcitation(H5::Group& group, const std::shared_ptr<Excitation>& excitation);
-    void writeExcitationArray(H5::Group& group, const std::vector<std::shared_ptr<Excitation>>& excitations);
 
+    // Transform
+    void writeTransform(H5::Group& group, const uff::Transform& transform);
+    void writeTranslation(H5::Group& group, const uff::Translation& translation);
+    void writeRotation(H5::Group& group, const uff::Rotation& rotation);
+    
     // _____________ Write Low level types ______________________________
     // String
     H5::DataSet writeStringDataset(H5::Group& group, const std::string& name, const std::string& value);
@@ -113,6 +110,9 @@ private:
     // _________________ Tools ___________________________
     template<typename T>
     std::string getIdFromPointer(const std::vector<std::shared_ptr<T>>& vec, std::weak_ptr<T> wptr);
+
+    template<typename T>
+    void writeArray(H5::Group& group, const std::vector<T>& array);
 
 private:
     std::string m_fileName;

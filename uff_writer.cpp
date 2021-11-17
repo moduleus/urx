@@ -31,8 +31,8 @@ bool Writer::writeToFile()
         writeVersion(version, m_dataset.version());
 
         // Channel Data
-        H5::Group channelData(file.createGroup("channel_data"));
-        writeAcquisition(channelData, m_dataset.acquisition());
+        H5::Group acquisition(file.createGroup("acquisition"));
+        writeAcquisition(acquisition, m_dataset.acquisition());
 
         file.close();
 
@@ -104,44 +104,31 @@ void Writer::writeAcquisition(H5::Group& group, const uff::Acquisition& acquisit
 
     // Group links
     H5::Group groupLinks(group.createGroup("group_links"));
-    writeGroupLinkArray(groupLinks, acquisition.groupLinks());
+    writeArray<std::shared_ptr<GroupLink>>(groupLinks, acquisition.groupLinks());
 
     // Groups
     H5::Group groups(group.createGroup("groups"));
-    writeGroupArray(groups, acquisition.groups());
+    writeArray<std::shared_ptr<IGroup>>(groupLinks, acquisition.groups());
 
     // Probes
     H5::Group probes(group.createGroup("probes"));
-    writeProbeArray(probes, acquisition.probes());
+    writeArray<std::shared_ptr<Probe>>(groupLinks, acquisition.probes());
 
     // Unique events
     H5::Group uniqueEvents(group.createGroup("unique_events"));
-    writeEventArray(uniqueEvents, acquisition.uniqueEvents());
+    writeArray<std::shared_ptr<Event>>(groupLinks, acquisition.uniqueEvents());
 
     // Unique waves
     H5::Group waves(group.createGroup("unique_waves"));
-    writeWaveArray(waves, acquisition.uniqueWaves());
+    writeArray<std::shared_ptr<Wave>>(groupLinks, acquisition.uniqueWaves());
 
     // Unique Excitations
     H5::Group uniqueExcitations(group.createGroup("unique_excitations"));
-    writeExcitationArray(uniqueExcitations, acquisition.uniqueExcitations());
+    writeArray<std::shared_ptr<Excitation>>(groupLinks, acquisition.uniqueExcitations());
 
     // Group Data
     H5::Group groupData(group.createGroup("group_data"));
-    writeGroupDataArray(groupData, acquisition.groupData());
-}
-
-void Writer::writeGroupLinkArray(H5::Group& group, const std::vector<std::shared_ptr<GroupLink>>& groupLinks)
-{
-    char buf[9];
-    snprintf(buf, sizeof buf, "%08d", 0);
-    for (int i = 0; i < groupLinks.size(); i++)
-    {
-        snprintf(buf, sizeof buf, "%08d", i + 1);
-        std::string groupDataId = buf;
-        H5::Group hdf5Group = group.createGroup(groupDataId);
-        writeGroupLink(hdf5Group, groupLinks[i]);
-    }
+    writeArray<std::shared_ptr<GroupData>>(groupLinks, acquisition.groupData());
 }
 
 void Writer::writeGroupLink(H5::Group& group, const std::shared_ptr<GroupLink>& groupLink)
@@ -155,19 +142,6 @@ void Writer::writeGroupLink(H5::Group& group, const std::shared_ptr<GroupLink>& 
     writeStringDataset(group, "destination", idGroupDestination);
 }
 
-void Writer::writeGroupDataArray(H5::Group& group, const std::vector<std::shared_ptr<GroupData>>& groupData)
-{
-    char buf[9];
-    snprintf(buf, sizeof buf, "%08d", 0);
-    for (int i = 0; i < groupData.size(); i++)
-    {
-        snprintf(buf, sizeof buf, "%08d", i + 1);
-        std::string id = buf;
-        H5::Group hdf5Group = group.createGroup(id);
-        writeGroupData(hdf5Group, groupData[i]);
-    }
-}
-
 void Writer::writeGroupData(H5::Group& group, const std::shared_ptr<GroupData>& groupData)
 {
     // group
@@ -175,23 +149,56 @@ void Writer::writeGroupData(H5::Group& group, const std::shared_ptr<GroupData>& 
     writeStringDataset(group, "group", idGroup);
 
     // data
-    todo
+    const size_t nFrames = groupData->group().lock()->numberOfFrames();
+    const size_t nEvents = groupData->group().lock()->numberOfEvents();
+    const size_t nChannels = groupData->group().lock()->numberOfChannels();
+    const size_t nSamples = groupData->group().lock()->numberOfSamples();
+    const std::vector<size_t> dimensions({ nFrames, nEvents, nChannels, nSamples });
+    writeInt16ArrayDataset(group, "data", groupData->data(), dimensions);
 }
 
-void Writer::writeGroupArray(H5::Group& group, const std::vector<std::shared_ptr<IGroup>>& igroup)
+void Writer::writeSuperGroup(H5::Group& group, const std::shared_ptr<uff::SuperGroup>& superGroup)
 {
-    char buf[9];
-    snprintf(buf, sizeof buf, "%08d", 0);
-    for (int i = 0; i < igroup.size(); i++)
-    {
-        snprintf(buf, sizeof buf, "%08d", i + 1);
-        std::string id = buf;
-        H5::Group hdf5Group = group.createGroup(id);
+    // initial_group
+    std::weak_ptr<IGroup> initialGroup = std::dynamic_pointer_cast<IGroup>(superGroup->initialGroup().lock());
+    std::string initialGroupId = getIdFromPointer(m_dataset.acquisition().groups(), initialGroup);
+    writeStringDataset(group, "initial_group", initialGroupId);
+}
 
-        if (Group* group = dynamic_cast<Group*>(igroup[i].get()))                       { writeGroup(hdf5Group, *group); }
-        else if (SuperGroup* superGroup = dynamic_cast<SuperGroup*>(igroup[i].get()))   { writeSuperGroup(hdf5Group, *superGroup); }
-        else { assert(false); }
-    }
+void Writer::writeGroup(H5::Group& group, const std::shared_ptr<uff::Group>& groupUff)
+{
+    // repetition_rate
+    writeDoubleDataset(group, "repetition_rate", groupUff->repetitionRate());
+
+    // sequence
+    H5::Group groups(group.createGroup("sequence"));    
+    writeSequence(group, groupUff->sequence());
+}
+
+void Writer::writeIGroup(H5::Group& group, const std::shared_ptr<IGroup>& igroup)
+{
+    // description
+    writeStringDataset(group, "description", igroup->description());
+
+    // time_offset
+    writeDoubleDataset(group, "time_offset", igroup->timeOffset());
+
+    // repetition_count
+    writeIntegerDataset(group, "repetition_count", igroup->repetitionCount());
+
+    if (std::shared_ptr<Group> groupUff = std::dynamic_pointer_cast<Group>(igroup)) { writeGroup(group, groupUff); }
+    else if (std::shared_ptr<SuperGroup> superGroup = std::dynamic_pointer_cast<SuperGroup>(igroup)) { writeSuperGroup(group, superGroup); }
+    else { assert(false); }
+}
+
+void Writer::writeSequence(H5::Group& group, const Sequence& sequence)
+{
+    // time_offset
+    writeDoubleDataset(group, "time_offset", sequence.timeOffset());
+
+    // timed_events
+    H5::Group timedEvents(group.createGroup("timed_events"));
+    writeArray<TimedEvent>(timedEvents, sequence.timedEvents());
 }
 
 void Writer::writeElement(H5::Group& group, const uff::Element& element)
@@ -199,19 +206,6 @@ void Writer::writeElement(H5::Group& group, const uff::Element& element)
     writeOptionalDoubleDataset(group, "x", element.x());
     writeOptionalDoubleDataset(group, "y", element.y());
     writeOptionalDoubleDataset(group, "z", element.z());
-}
-
-void Writer::writeElementArray(H5::Group& group, const std::vector<uff::Element>& elements)
-{
-    char buf[9];
-    snprintf(buf, sizeof buf, "%08d", 0);
-    for (int i = 0; i < elements.size(); i++)
-    {
-        snprintf(buf, sizeof buf, "%08d", i + 1);
-        std::string element_id = buf;
-        H5::Group element = group.createGroup(element_id);
-        writeElement(element, elements[i]);
-    }
 }
 
 void Writer::writeEvent(H5::Group& group, const std::shared_ptr<uff::Event>& ev)
@@ -223,19 +217,6 @@ void Writer::writeEvent(H5::Group& group, const std::shared_ptr<uff::Event>& ev)
     // "receive_setup"
     H5::Group receiveSetup = group.createGroup("receive_setup");
     writeReceiveSetup(receiveSetup, ev->receiveSetup());
-}
-
-void Writer::writeEventArray(H5::Group& group, const std::vector<std::shared_ptr<uff::Event>>& events)
-{
-    char buf[9];
-    snprintf(buf, sizeof buf, "%08d", 0);
-    for (int i = 0; i < events.size(); i++)
-    {
-        snprintf(buf, sizeof buf, "%08d", i + 1);
-        std::string event_id = buf;
-        H5::Group ev = group.createGroup(event_id);
-        writeEvent(ev, events[i]);
-    }
 }
 
 void Writer::writeLinearArray(H5::Group& group, const std::shared_ptr<uff::LinearArray>& linearArray)
@@ -309,13 +290,10 @@ void Writer::writeProbe(H5::Group& group, const std::shared_ptr<uff::Probe>& pro
 
     // write "elements"
     H5::Group elements = group.createGroup("elements");
-    writeElementArray(elements, probe->elements());
+    writeArray<Element>(elements, probe->elements());
 
     // write "focal_length" (optional)
     writeOptionalDoubleDataset(group, "focal_length", probe->focalLength());
-
-    // write "element_geometry" (optional)
-    // write "element_impulse_response" (optional)
 
     // MatrixArray ?
     std::shared_ptr<uff::MatrixArray> matrixArray = std::dynamic_pointer_cast<uff::MatrixArray>(probe);
@@ -345,19 +323,6 @@ void Writer::writeProbe(H5::Group& group, const std::shared_ptr<uff::Probe>& pro
     }
 }
 
-void Writer::writeProbeArray(H5::Group& group, const std::vector<std::shared_ptr<uff::Probe>>& probes)
-{
-    char buf[9];
-    snprintf(buf, sizeof buf, "%08d", 0);
-    for (int i = 0; i < probes.size(); i++)
-    {
-        snprintf(buf, sizeof buf, "%08d", i + 1);
-        std::string probe_id = buf;
-        H5::Group probe = group.createGroup(probe_id);
-        writeProbe(probe, probes[i]);
-    }
-}
-
 void Writer::writeReceiveSetup(H5::Group& group, const uff::ReceiveSetup& receiveSetup)
 {
     // "probe"
@@ -368,10 +333,13 @@ void Writer::writeReceiveSetup(H5::Group& group, const uff::ReceiveSetup& receiv
     writeDoubleDataset(group, "time_offset", receiveSetup.timeOffset());
 
     // "sampling_frequency"
-    writeOptionalDoubleDataset(group, "sampling_frequency", receiveSetup.samplingFrequency());
+    writeDoubleDataset(group, "sampling_frequency", receiveSetup.samplingFrequency());
+
+    // "nb_samples"
+    writeIntegerDataset(group, "nb_samples", receiveSetup.numberOfSamples());
 
     // "sampling_type"
-    writeIntegerDataset(group, "sampling_type", receiveSetup.samplingType());
+    writeIntegerDataset(group, "sampling_type", (int)receiveSetup.samplingType());
 
     // "channel_mapping"
     writeIntegerArrayDataset(group, "channel_mapping", receiveSetup.channelMapping(), {});
@@ -401,19 +369,6 @@ void Writer::writeTimedEvent(H5::Group& group, const uff::TimedEvent& timedEvent
 
     // "time_offset"
     writeDoubleDataset(group, "time_offset", timedEvent.timeOffset());
-}
-
-void Writer::writeTimedEventArray(H5::Group& group, const std::vector<uff::TimedEvent>& timedEvents)
-{
-    char buf[9];
-    snprintf(buf, sizeof buf, "%08d", 0);
-    for (int i = 0; i < timedEvents.size(); i++)
-    {
-        snprintf(buf, sizeof buf, "%08d", i + 1);
-        std::string timedEvent_id = buf;
-        H5::Group timedEvent = group.createGroup(timedEvent_id);
-        writeTimedEvent(timedEvent, timedEvents[i]);
-    }
 }
 
 void Writer::writeTransform(H5::Group& group, const uff::Transform& transform)
@@ -476,19 +431,6 @@ void Writer::writeVersion(H5::Group& group, const uff::Version& version)
         writeStringDataset(group, "excitation_id", excitationId);
     }
 
-    void Writer::writeWaveArray(H5::Group& group, const std::vector<std::shared_ptr<uff::Wave>>& waves)
-    {
-        char buf[9];
-        snprintf(buf, sizeof buf, "%08d", 0);
-        for (int i = 0; i < waves.size(); i++)
-        {
-            snprintf(buf, sizeof buf, "%08d", i + 1);
-            std::string wave_id = buf;
-            H5::Group wave = group.createGroup(wave_id);
-            writeWave(wave, waves[i]);
-        }
-    }
-
     void Writer::writeAperture(H5::Group& group, const uff::Aperture& aperture)
     {
         // "origin"
@@ -503,9 +445,6 @@ void Writer::writeVersion(H5::Group& group, const uff::Version& version)
 
         // "fixed_size"
         writeOptionalDoubleDataset(group, "fixed_size", aperture.fixedSize());
-
-        // "maximum_size" TODO
-        // "minimum_size" TODO
     }
 
     void Writer::writeExcitation(H5::Group& group, const std::shared_ptr<Excitation>& excitation)
@@ -521,19 +460,6 @@ void Writer::writeVersion(H5::Group& group, const uff::Version& version)
 
         // "sampling_frequency"
         writeOptionalDoubleDataset(group, "sampling_frequency", excitation->samplingFrequency());
-    }
-
-    void Writer::writeExcitationArray(H5::Group& group, const std::vector<std::shared_ptr<Excitation>>& excitations)
-    {
-        char buf[9];
-        snprintf(buf, sizeof buf, "%08d", 0);
-        for (int i = 0; i < excitations.size(); i++)
-        {
-            snprintf(buf, sizeof buf, "%08d", i + 1);
-            std::string id = buf;
-            H5::Group hdf5Group = group.createGroup(id);
-            writeExcitation(hdf5Group, excitations[i]);
-        }
     }
 
     // ___________________________ Write Low level types ___________________________________________________________________________________________________
@@ -717,6 +643,30 @@ void Writer::writeVersion(H5::Group& group, const uff::Version& version)
         }
 
         return "????????";
+    } 
+
+    template<typename T>
+    void Writer::writeArray(H5::Group& group, const std::vector<T>& vect)
+    {
+        char buf[9];
+        snprintf(buf, sizeof buf, "%08d", 0);
+        for (int i = 0; i < vect.size(); i++)
+        {
+            snprintf(buf, sizeof buf, "%08d", i + 1);
+            std::string id = buf;
+            H5::Group hdf5Group = group.createGroup(id);
+
+            if (std::is_same_v<T, std::shared_ptr<Excitation>>)         { writeExcitation(hdf5Group, vect[i]); }
+            else if (std::is_same_v<T, std::shared_ptr<Wave>>)          { writeWave(hdf5Group, vect[i]); }
+            else if (std::is_same_v<T, std::shared_ptr<Probe>>)         { writeProbe(hdf5Group, vect[i]); }
+            else if (std::is_same_v<T, std::shared_ptr<TimedEvent>>)    { writeTimedEvent(hdf5Group, vect[i]); }
+            else if (std::is_same_v<T, std::shared_ptr<Event>>)         { writeEvent(hdf5Group, vect[i]); }
+            else if (std::is_same_v<T, std::shared_ptr<IGroup>>)        { writeIGroup(hdf5Group, vect[i]); }
+            else if (std::is_same_v<T, std::shared_ptr<GroupData>>)     { writeGroupData(hdf5Group, vect[i]); }
+            else if (std::is_same_v<T, std::shared_ptr<GroupLink>>)     { writeGroupLink(hdf5Group, vect[i]); }
+            else if (std::is_same_v<T, Element>)                        { writeElement(hdf5Group, vect[i]); }
+            else { assert(false); }
+        }
     }
 
 } // namespace uff
