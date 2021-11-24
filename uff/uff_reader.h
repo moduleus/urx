@@ -163,14 +163,14 @@ namespace uff
 
             T objectRead;
 
-            if      (std::is_same<T, std::shared_ptr<uff::GroupLink>>::value)   { objectRead = readGroupLink(hdf5Group); }
-            else if (std::is_same<T, std::shared_ptr<uff::IGroup>>::value)      { objectRead = readIGroup(hdf5Group); }
-            else if (std::is_same<T, std::shared_ptr<uff::Probe>>::value)       { objectRead = readProbe(hdf5Group); }
-            else if (std::is_same<T, std::shared_ptr<uff::Event>>::value)       { objectRead = readEvent(hdf5Group); }
-            else if (std::is_same<T, std::shared_ptr<uff::Wave>>::value)        { objectRead = readWave(hdf5Group); }
-            else if (std::is_same<T, std::shared_ptr<uff::Excitation>>::value)  { objectRead = readExcitation(hdf5Group); }
-            else if (std::is_same<T, std::shared_ptr<uff::GroupData>>::value)   { objectRead = readGroupData(hdf5Group); }
-            else if (std::is_same<T, uff::Element>::value)                      { objectRead = readElement(hdf5Group); }
+            if constexpr (std::is_same<T, std::shared_ptr<uff::GroupLink>>::value)   { objectRead = readGroupLink(hdf5Group); }
+            else if constexpr (std::is_same<T, std::shared_ptr<uff::IGroup>>::value)      { objectRead = readIGroup(hdf5Group); }
+            else if constexpr (std::is_same<T, std::shared_ptr<uff::Probe>>::value)       { objectRead = readProbe(hdf5Group); }
+            else if constexpr (std::is_same<T, std::shared_ptr<uff::Event>>::value)       { objectRead = readEvent(hdf5Group); }
+            else if constexpr (std::is_same<T, std::shared_ptr<uff::Wave>>::value)        { objectRead = readWave(hdf5Group); }
+            else if constexpr (std::is_same<T, std::shared_ptr<uff::Excitation>>::value)  { objectRead = readExcitation(hdf5Group); }
+            else if constexpr (std::is_same<T, std::shared_ptr<uff::GroupData>>::value)   { objectRead = readGroupData(hdf5Group); }
+            else if constexpr (std::is_same<T, uff::Element>::value)                      { objectRead = readElement(hdf5Group); }
             else { assert(false); }
 
             vector.push_back(objectRead);

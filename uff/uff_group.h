@@ -55,7 +55,7 @@ namespace uff
         // ************************** Attributes ******************************************
     private:
         // Group repetition
-        double m_repetitionRate;
+        double m_repetitionRate = 0;
 
         // Sequence
         Sequence m_sequence;

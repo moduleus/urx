@@ -90,7 +90,7 @@ private:
                 else { element.setY(std::nullopt); }
 
                 element.setZ(0.0);
-                m_elements[(size_t)j + i * m_numberElementsY] = element;
+                m_elements[(size_t)j + (size_t)i * m_numberElementsY] = element;
             }
         }
     }

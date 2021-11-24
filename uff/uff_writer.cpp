@@ -656,15 +656,15 @@ void Writer::writeVersion(H5::Group& group, const uff::Version& version)
             std::string id = buf;
             H5::Group hdf5Group = group.createGroup(id);
 
-            if (std::is_same_v<T, std::shared_ptr<Excitation>>)         { writeExcitation(hdf5Group, vect[i]); }
-            else if (std::is_same_v<T, std::shared_ptr<Wave>>)          { writeWave(hdf5Group, vect[i]); }
-            else if (std::is_same_v<T, std::shared_ptr<Probe>>)         { writeProbe(hdf5Group, vect[i]); }
-            else if (std::is_same_v<T, std::shared_ptr<TimedEvent>>)    { writeTimedEvent(hdf5Group, vect[i]); }
-            else if (std::is_same_v<T, std::shared_ptr<Event>>)         { writeEvent(hdf5Group, vect[i]); }
-            else if (std::is_same_v<T, std::shared_ptr<IGroup>>)        { writeIGroup(hdf5Group, vect[i]); }
-            else if (std::is_same_v<T, std::shared_ptr<GroupData>>)     { writeGroupData(hdf5Group, vect[i]); }
-            else if (std::is_same_v<T, std::shared_ptr<GroupLink>>)     { writeGroupLink(hdf5Group, vect[i]); }
-            else if (std::is_same_v<T, Element>)                        { writeElement(hdf5Group, vect[i]); }
+            if constexpr (std::is_same_v<T, std::shared_ptr<Excitation>>)         { writeExcitation(hdf5Group, vect[i]); }
+            else if constexpr (std::is_same_v<T, std::shared_ptr<Wave>>)          { writeWave(hdf5Group, vect[i]); }
+            else if constexpr (std::is_same_v<T, std::shared_ptr<Probe>>)         { writeProbe(hdf5Group, vect[i]); }
+            else if constexpr (std::is_same_v<T, std::shared_ptr<TimedEvent>>)    { writeTimedEvent(hdf5Group, vect[i]); }
+            else if constexpr (std::is_same_v<T, std::shared_ptr<Event>>)         { writeEvent(hdf5Group, vect[i]); }
+            else if constexpr (std::is_same_v<T, std::shared_ptr<IGroup>>)        { writeIGroup(hdf5Group, vect[i]); }
+            else if constexpr (std::is_same_v<T, std::shared_ptr<GroupData>>)     { writeGroupData(hdf5Group, vect[i]); }
+            else if constexpr (std::is_same_v<T, std::shared_ptr<GroupLink>>)     { writeGroupLink(hdf5Group, vect[i]); }
+            else if constexpr (std::is_same_v<T, Element>)                        { writeElement(hdf5Group, vect[i]); }
             else { assert(false); }
         }
     }

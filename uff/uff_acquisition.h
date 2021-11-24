@@ -147,7 +147,7 @@ namespace uff
         std::string m_system;
 
         // Reference sound speed for Tx and Rx events [m/s]
-        double m_soundSpeed;
+        double m_soundSpeed = 0;
 
         // Time offset
         double m_timeOffset = 0;
@@ -174,7 +174,7 @@ namespace uff
         std::vector<std::shared_ptr<Excitation>> m_uniqueExcitation;
 
         // Timestamp
-        uint64_t m_timeStamp;
+        uint64_t m_timeStamp = 0;
 
         // Group Data
         std::vector<std::shared_ptr<GroupData>> m_groupData;
