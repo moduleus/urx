@@ -1,3 +1,4 @@
 # Visual Studio tmp directories
 out/
 .vs/
+data/

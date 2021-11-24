@@ -26,7 +26,7 @@ class Writer : public uff::Object
 
 public:
 
-    Writer() {}
+    Writer() {  }
 
     void printSelf(std::ostream& os, std::string indent) const override;
     

@@ -5,32 +5,6 @@ cmake_minimum_required (VERSION 3.9)
 
 project(uff LANGUAGES C CXX DESCRIPTION "Ultrasound File Format C++ implementation")
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS ON)
- 
-# Find includes in corresponding build directories
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
-# Enable source groups in Visual Studio
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-
-# HDF5
-# Maybe use find package before installing a new one 
-# if ( find_package(HDF5 NAMES hdf5 COMPONENTS CXX ${SEARCH_TYPE}) ) then set(HDF5_DIR <pathToHDF5 already installed>)
-if(NOT HDF5_DIR)
-  include( ${CMAKE_CURRENT_SOURCE_DIR}/External-HDF5.cmake )
-  message(STATUS "Using External Project for HDF5: " ${HDF5_DIR})
-else()
-  message(STATUS "Using specified HDF5_DIR: ${HDF5_DIR}")
-endif()
- 
-set(LIB_TYPE STATIC) # or SHARED
-string(TOLOWER ${LIB_TYPE} SEARCH_TYPE)
-set_directory_properties(PROPERTIES INCLUDE_DIRECTORIES "${HDF5_DIR}")
-set(HDF5_LIBS ${LINK_LIBS} ${HDF5_CXX_${LIB_TYPE}_LIBRARY})
-include_directories(${HDF5_include_dir})
-
 # UFF 
 set(UFF_SRCS
   ${CMAKE_CURRENT_SOURCE_DIR}/uff.h
@@ -72,6 +46,8 @@ set(UFF_SRCS
   ${CMAKE_CURRENT_SOURCE_DIR}/uff_rca_array.h
   ${CMAKE_CURRENT_SOURCE_DIR}/uff_reader.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/uff_reader.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/uff_reader_v0_2.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/uff_reader_v0_2.h
   ${CMAKE_CURRENT_SOURCE_DIR}/uff_receive_setup.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/uff_receive_setup.h
   ${CMAKE_CURRENT_SOURCE_DIR}/uff_rotation.cpp
@@ -100,4 +76,11 @@ set(UFF_LIBRARY uff)
 add_library(${UFF_LIBRARY} STATIC ${UFF_SRCS})
 target_include_directories(${UFF_LIBRARY} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 add_dependencies(${UFF_LIBRARY} HDF5)
+
+# HDF5
+set(LIB_TYPE STATIC) # or SHARED
+string(TOLOWER ${LIB_TYPE} SEARCH_TYPE)
+find_package(HDF5 NAMES hdf5 COMPONENTS CXX ${SEARCH_TYPE})
+set_directory_properties(PROPERTIES INCLUDE_DIRECTORIES "${HDF5_INCLUDE_DIR}")
+set(HDF5_LIBS ${LINK_LIBS} ${HDF5_CXX_${LIB_TYPE}_LIBRARY})
 target_link_libraries (${UFF_LIBRARY} ${HDF5_LIBS})

@@ -9,13 +9,16 @@
 #include <type_traits>
 #include <limits>
 
+#include "uff_reader_v0_2.h"
+
 namespace uff
 {
 
     void Reader::printSelf(std::ostream& os, std::string indent) const { superclass::printSelf(os, indent); }
 
-    void Reader::updateMetadata()
+    bool Reader::updateMetadata()
     {
+        bool success = false;
         m_dataset = std::make_shared<uff::Dataset>();
         try
         {
@@ -26,47 +29,55 @@ namespace uff
             H5::Group version(file.openGroup("version"));
             readVersion(version);
 
-            // Channel Data
-            H5::Group acquisition(file.openGroup("acquisition"));
-            readAcquisition(acquisition);
+            if (m_dataset->version().minor() < 3)
+            {
+                file.close();
+                uff::ReaderV0_2 readerV0_2(m_fileName);
+                success = readerV0_2.updateMetadata();
+                if(success)m_dataset = readerV0_2.dataset();
+            }
+            else {
+                // Channel Data
+                H5::Group acquisition(file.openGroup("acquisition"));
+                readAcquisition(acquisition);
 
-            file.close();
+                file.close();
+                success = true;
+            }
+
         }  // end of try block
         // catch failure caused by the H5File operations
         catch (H5::FileIException error)
         {
             error.printErrorStack();
             std::cerr << __FILE__ << __LINE__ << error.getDetailMsg();
-            return;
         }
         // catch failure caused by the DataSet operations
         catch (H5::DataSetIException error)
         {
             error.printErrorStack();
             std::cerr << __FILE__ << __LINE__ << error.getDetailMsg();
-            return;
         }
         // catch failure caused by the DataSpace operations
         catch (H5::DataSpaceIException error)
         {
             error.printErrorStack();
             std::cerr << __FILE__ << __LINE__ << error.getDetailMsg();
-            return;
         }
         // catch failure caused by the DataSpace operations
         catch (H5::DataTypeIException error)
         {
             error.printErrorStack();
             std::cerr << __FILE__ << __LINE__ << error.getDetailMsg();
-            return;
         }
         // catch failure caused by the Group operations
         catch (H5::GroupIException error)
         {
             error.printErrorStack();
             std::cerr << __FILE__ << __LINE__ << error.getDetailMsg();
-            return;
         }
+
+        return success;
     }
 
     void Reader::readAcquisition(const H5::Group& group)
@@ -80,29 +91,29 @@ namespace uff
         acquisition.setSoundSpeed(readDoubleDataset(group, "sound_speed"));
         acquisition.setTimeOffset(readDoubleDataset(group, "time_offset"));
 
-        // Group Links
-        H5::Group groupLinks(group.openGroup("group_links"));
-        acquisition.setGroupLink(readArray<std::shared_ptr<GroupLink>>(groupLinks));
-
-        // Groups
-        H5::Group groups(group.openGroup("groups"));
-        acquisition.setGroups(readArray<std::shared_ptr<IGroup>>(groups));
-
         // Probes
         H5::Group probes(group.openGroup("probes"));
         acquisition.setProbes(readArray<std::shared_ptr<Probe>>(probes));
 
-        // Unique events
-        H5::Group uniqueEvents(group.openGroup("unique_events"));
-        acquisition.setUniqueEvents(readArray<std::shared_ptr<Event>>(uniqueEvents));
+        // Excitations
+        H5::Group excitation(group.openGroup("excitations"));
+        acquisition.setUniqueExcitations(readArray<std::shared_ptr<Excitation>>(excitation));
 
         // Unique waves
         H5::Group waves(group.openGroup("unique_waves"));
         acquisition.setUniqueWaves(readArray<std::shared_ptr<Wave>>(waves));
 
-        // Excitations
-        H5::Group excitation(group.openGroup("excitations"));
-        acquisition.setUniqueExcitations(readArray<std::shared_ptr<Excitation>>(excitation));
+        // Unique events
+        H5::Group uniqueEvents(group.openGroup("unique_events"));
+        acquisition.setUniqueEvents(readArray<std::shared_ptr<Event>>(uniqueEvents));
+
+        // Groups
+        H5::Group groups(group.openGroup("groups"));
+        acquisition.setGroups(readArray<std::shared_ptr<IGroup>>(groups));
+
+        // Group Links
+        H5::Group groupLinks(group.openGroup("group_links"));
+        acquisition.setGroupLink(readArray<std::shared_ptr<GroupLink>>(groupLinks));
 
         // Group data
         H5::Group groupData(group.openGroup("group_data"));
@@ -128,11 +139,11 @@ namespace uff
 
         // Source 
         int idSource = stoi(readStringDataset(group, "source_id"));
-        groupLink->setSource(m_dataset->acquisition().groups()[idSource - 1]);
+        groupLink->setSource(m_dataset->acquisition().groups()[(size_t)idSource - 1]);
 
         // Destination
         int idDestination = stoi(readStringDataset(group, "source_id"));
-        groupLink->setDestination(m_dataset->acquisition().groups()[idDestination - 1]);
+        groupLink->setDestination(m_dataset->acquisition().groups()[(size_t)idDestination - 1]);
 
         return groupLink;
     }
@@ -390,23 +401,8 @@ uff::ReceiveSetup Reader::readReceiveSetup(const H5::Group& group)
 
     // "sampling_type"
     int st = readIntegerDataset(group, "sampling_type");
-    switch (st)
-    {
-    case uff::ReceiveSetup::SAMPLING_TYPE::DIRECT_RF:
-        receiveSetup.setSamplingType(uff::ReceiveSetup::SAMPLING_TYPE::DIRECT_RF);
-        break;
-    case uff::ReceiveSetup::SAMPLING_TYPE::IQ:
-        receiveSetup.setSamplingType(uff::ReceiveSetup::SAMPLING_TYPE::IQ);
-        break;
-    case uff::ReceiveSetup::SAMPLING_TYPE::QUADRATURE_4X_F0:
-        receiveSetup.setSamplingType(uff::ReceiveSetup::SAMPLING_TYPE::QUADRATURE_4X_F0);
-        break;
-    case uff::ReceiveSetup::SAMPLING_TYPE::QUADRATURE_2X_F0:
-        receiveSetup.setSamplingType(uff::ReceiveSetup::SAMPLING_TYPE::QUADRATURE_2X_F0);
-        break;
-    default:
-        std::cerr << "Unknow sampling type:" << st;
-    }
+    receiveSetup.setSamplingType((uff::ReceiveSetup::SAMPLING_TYPE)st);
+    if ((int)receiveSetup.samplingType() != st) { std::cerr << "Unknow sampling type:" << st; }
 
     // channel_mapping [optional]
     if (H5Lexists(group.getLocId(), "channel_mapping", H5P_DEFAULT))

@@ -23,10 +23,10 @@ namespace uff
 {
 
 #define UFF_VERSION_MAJOR 0
-#define UFF_VERSION_MINOR 2
+#define UFF_VERSION_MINOR 3
 #define UFF_VERSION_PATCH 0
 
-#define UFF_LIB_VERSION "0.0.1"
+#define UFF_LIB_VERSION "0.3.0"
 
 #define UFF_FORMAT_VERSION "v.0.0.40"
 

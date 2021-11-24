@@ -108,27 +108,27 @@ void Writer::writeAcquisition(H5::Group& group, const uff::Acquisition& acquisit
 
     // Groups
     H5::Group groups(group.createGroup("groups"));
-    writeArray<std::shared_ptr<IGroup>>(groupLinks, acquisition.groups());
+    writeArray<std::shared_ptr<IGroup>>(groups, acquisition.groups());
 
     // Probes
     H5::Group probes(group.createGroup("probes"));
-    writeArray<std::shared_ptr<Probe>>(groupLinks, acquisition.probes());
+    writeArray<std::shared_ptr<Probe>>(probes, acquisition.probes());
 
     // Unique events
     H5::Group uniqueEvents(group.createGroup("unique_events"));
-    writeArray<std::shared_ptr<Event>>(groupLinks, acquisition.uniqueEvents());
+    writeArray<std::shared_ptr<Event>>(uniqueEvents, acquisition.uniqueEvents());
 
     // Unique waves
     H5::Group waves(group.createGroup("unique_waves"));
-    writeArray<std::shared_ptr<Wave>>(groupLinks, acquisition.uniqueWaves());
+    writeArray<std::shared_ptr<Wave>>(waves, acquisition.uniqueWaves());
 
     // Unique Excitations
-    H5::Group uniqueExcitations(group.createGroup("unique_excitations"));
-    writeArray<std::shared_ptr<Excitation>>(groupLinks, acquisition.uniqueExcitations());
+    H5::Group uniqueExcitations(group.createGroup("excitations"));
+    writeArray<std::shared_ptr<Excitation>>(uniqueExcitations, acquisition.uniqueExcitations());
 
     // Group Data
     H5::Group groupData(group.createGroup("group_data"));
-    writeArray<std::shared_ptr<GroupData>>(groupLinks, acquisition.groupData());
+    writeArray<std::shared_ptr<GroupData>>(groupData, acquisition.groupData());
 }
 
 void Writer::writeGroupLink(H5::Group& group, const std::shared_ptr<GroupLink>& groupLink)
@@ -171,8 +171,8 @@ void Writer::writeGroup(H5::Group& group, const std::shared_ptr<uff::Group>& gro
     writeDoubleDataset(group, "repetition_rate", groupUff->repetitionRate());
 
     // sequence
-    H5::Group groups(group.createGroup("sequence"));    
-    writeSequence(group, groupUff->sequence());
+    H5::Group sequence(group.createGroup("sequence"));    
+    writeSequence(sequence, groupUff->sequence());
 }
 
 void Writer::writeIGroup(H5::Group& group, const std::shared_ptr<IGroup>& igroup)
@@ -321,6 +321,11 @@ void Writer::writeProbe(H5::Group& group, const std::shared_ptr<uff::Probe>& pro
         writeRcaArray(group, rcaArray);
         return;
     }
+
+    // TODO : Element geometry
+
+    // TODO : Impulse response
+
 }
 
 void Writer::writeReceiveSetup(H5::Group& group, const uff::ReceiveSetup& receiveSetup)
@@ -665,6 +670,7 @@ void Writer::writeVersion(H5::Group& group, const uff::Version& version)
             else if constexpr (std::is_same_v<T, std::shared_ptr<GroupData>>)     { writeGroupData(hdf5Group, vect[i]); }
             else if constexpr (std::is_same_v<T, std::shared_ptr<GroupLink>>)     { writeGroupLink(hdf5Group, vect[i]); }
             else if constexpr (std::is_same_v<T, Element>)                        { writeElement(hdf5Group, vect[i]); }
+            else if constexpr (std::is_same_v<T, TimedEvent>)                     { writeTimedEvent(hdf5Group, vect[i]); }
             else { assert(false); }
         }
     }
