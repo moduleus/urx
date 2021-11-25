@@ -46,31 +46,7 @@ namespace uff
             return true;
         }  // end of try block
         // catch failure caused by the H5File operations
-        catch (H5::FileIException error)
-        {
-            error.printErrorStack();
-            std::cerr << __FILE__ << __LINE__ << error.getDetailMsg();
-        }
-        // catch failure caused by the DataSet operations
-        catch (H5::DataSetIException error)
-        {
-            error.printErrorStack();
-            std::cerr << __FILE__ << __LINE__ << error.getDetailMsg();
-        }
-        // catch failure caused by the DataSpace operations
-        catch (H5::DataSpaceIException error)
-        {
-            error.printErrorStack();
-            std::cerr << __FILE__ << __LINE__ << error.getDetailMsg();
-        }
-        // catch failure caused by the DataSpace operations
-        catch (H5::DataTypeIException error)
-        {
-            error.printErrorStack();
-            std::cerr << __FILE__ << __LINE__ << error.getDetailMsg();
-        }
-        // catch failure caused by the Group operations
-        catch (H5::GroupIException error)
+        catch (H5::Exception error)
         {
             error.printErrorStack();
             std::cerr << __FILE__ << __LINE__ << error.getDetailMsg();
@@ -94,9 +70,6 @@ namespace uff
 
         // "fixed_size"
         aperture.setFixedSize(readOptionalDoubleDataset(group, "fixed_size"));
-
-        // "maximum_size" TODO
-        // "minimum_size" TODO
 
         return aperture;
     }
@@ -231,8 +204,15 @@ namespace uff
 
         // TODO: Waveform
         
-        // Add unique excitation to acquisition.
-        m_dataset->acquisition().addUniqueExcitation(excitation);
+        // Add unique excitation to acquisition only if it doesn't exist
+        bool found = false;
+        for (size_t iExcitation = 0; iExcitation < m_dataset->acquisition().uniqueExcitations().size() && !found; iExcitation++) 
+        { 
+            found = *excitation.get() == *m_dataset->acquisition().uniqueExcitations()[iExcitation].get();
+
+            if (found) excitation = m_dataset->acquisition().uniqueExcitations()[iExcitation];
+        }
+        if(!found)m_dataset->acquisition().addUniqueExcitation(excitation);
 
         return excitation;
     }
