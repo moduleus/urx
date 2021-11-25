@@ -35,11 +35,11 @@ public:
 
     void printSelf(std::ostream& os, std::string indent) const override;
         
-    // TODO: authors should be a vector of std::string, one author per item
-    // TODO: addAuthor(const std::string& author)
+    // Authors
     const std::string& authors() const { return m_authors; }
     void setAuthors(const std::string& authors) { m_authors = authors; }
     
+    // Description
     const std::string& description() const { return m_description; }
     void setDescription(const std::string& description) { m_description = description; }
 
@@ -53,14 +53,8 @@ public:
     void setLocalTime(const std::string& localTime) 
     {
         // validate
-        if (isIso8601(localTime))
-        {
-            m_localTime = localTime;
-        }
-        else
-        {
-            std::cerr << '"' << localTime << "\" is not ISO8601 format (YYYY-MM-DDThh:mm:ss)\n";
-        }
+        if (isIso8601(localTime)) { m_localTime = localTime; }
+        else { std::cerr << '"' << localTime << "\" is not ISO8601 format (YYYY-MM-DDThh:mm:ss)\n"; }
     }
     
     /**
@@ -72,87 +66,51 @@ public:
     void setCountryCode(const std::string& countryCode) 
     { 
         // validate
-        if (isIso3166(countryCode))
-        {
-            m_countryCode = countryCode;
-        }
-        else
-        {
-            std::cerr << '"' << countryCode << "\" is not ISO3166 (XX)\n";
-        }
-        
+        if (isIso3166(countryCode)) { m_countryCode = countryCode; }
+        else { std::cerr << '"' << countryCode << "\" is not ISO3166 (XX)\n"; }        
     }
 
-    /* 'System' describes the acquisition system used to acquire the data */
+    // 'System' describes the acquisition system used to acquire the data
     const std::string& system() const { return m_system; }
     void setSystem(const std::string& system) { m_system = system; }
     
-    /* Speed of sound in m/s */
-    std::optional<double> soundSpeed() const { return m_soundSpeed; }
-    void setSoundSpeed(std::optional<double> soundSpeed) { m_soundSpeed = soundSpeed; }
+    // Speed of sound in m/s 
+    double soundSpeed() const { return m_soundSpeed; }
+    void setSoundSpeed(double soundSpeed) { m_soundSpeed = soundSpeed; }
 
-    /* Sequence repetition rate in Hz. Sometimes called framerate. */
+    // Sequence repetition rate in Hz. Sometimes called framerate. 
     std::optional<double> repetitionRate() const { return m_repetitionRate; }
     void setRepetitionRate(std::optional<double> repetitionRate) { m_repetitionRate = repetitionRate; }
 
-    /* List of probes used for this dataset */    
+    // List of probes used for this dataset 
     const std::vector<std::shared_ptr<uff::Probe>>& probes() const { return m_probes; }
-    void addProbe(std::shared_ptr<uff::Probe> probe)
-    {
-        m_probes.push_back(probe);
-    }
-    void setProbes(const std::vector<std::shared_ptr<uff::Probe>>& probes)
-    {
-        m_probes = probes;
-    }
+    void addProbe(std::shared_ptr<uff::Probe> probe) { m_probes.push_back(probe); }
+    void setProbes(const std::vector<std::shared_ptr<uff::Probe>>& probes) { m_probes = probes; }
 
-    /* List of unique waves used for this dataset */
+    // List of unique waves used for this dataset 
     const std::vector<std::shared_ptr<uff::Wave>>& uniqueWaves() const { return m_uniqueWaves; }
-    void addUniqueWave(std::shared_ptr<uff::Wave> wave)
-    {
-        m_uniqueWaves.push_back(wave);
-    }
-    void setUniqueWaves(const std::vector<std::shared_ptr<uff::Wave>>& uniqueWaves)
-    {
-        m_uniqueWaves = uniqueWaves;
-    }
+    void addUniqueWave(std::shared_ptr<uff::Wave> wave) { m_uniqueWaves.push_back(wave); }
+    void setUniqueWaves(const std::vector<std::shared_ptr<uff::Wave>>& uniqueWaves) { m_uniqueWaves = uniqueWaves; }
 
     /* List of unique events used for this dataset */
     const std::vector<std::shared_ptr<uff::Event>>& uniqueEvents() const { return m_uniqueEvents; }
-    void addUniqueEvent(std::shared_ptr<uff::Event> event)
-    {
-        m_uniqueEvents.push_back(event);
-        // TODO: should return a reference to the array position '00000001'
-    }
-    void setUniqueEvents(const std::vector<std::shared_ptr<uff::Event>>& uniqueEvents)
-    {
-        m_uniqueEvents = uniqueEvents;
-    }
+    void addUniqueEvent(std::shared_ptr<uff::Event> event) { m_uniqueEvents.push_back(event); }
+    void setUniqueEvents(const std::vector<std::shared_ptr<uff::Event>>& uniqueEvents) { m_uniqueEvents = uniqueEvents; }
 
     const std::vector<uff::TimedEvent>& sequence() const { return m_sequence; }
-    void addTimedEvent(const uff::TimedEvent& timedEvent)
-    {
-        m_sequence.push_back(timedEvent);
-    }
-    void setSequence(const std::vector<uff::TimedEvent>& sequence) 
-    {
-        m_sequence = sequence;
-    }
+    void addTimedEvent(const uff::TimedEvent& timedEvent) { m_sequence.push_back(timedEvent); }
+    void setSequence(const std::vector<uff::TimedEvent>& sequence) { m_sequence = sequence; }
     
-    //float* data() { return m_data.data(); }
-    // TODO: the data should be stored in 2D array samples * channels
+    // data
     std::vector<float>& data() { return m_data; }
-    void setData(const std::vector<float>& data) 
-    {
-        m_data = data;
-    }
+    void setData(const std::vector<float>& data)  { m_data = data; }
 
     float* dataAt(int frame, int event, int channel)
     {
         return m_data.data()
-            + (frame * numberOfEvents() * numberOfChannels() * numberOfSamples())
-            + (event * numberOfChannels() * numberOfSamples())
-            + (channel * numberOfSamples());
+            + ((size_t)frame * numberOfEvents() * numberOfChannels() * numberOfSamples())
+            + ((size_t)event * numberOfChannels() * numberOfSamples())
+            + ((size_t)channel * numberOfSamples());
     }
 
     uint32_t numberOfFrames() const { return m_numberOfFrames; }
@@ -167,7 +125,7 @@ public:
 
     void allocate()
     {
-        size_t sz = numberOfFrames() * numberOfEvents() * numberOfChannels() * numberOfSamples();
+        size_t sz = (size_t)numberOfFrames() * numberOfEvents() * numberOfChannels() * numberOfSamples();
         m_data.resize(sz, 0);
     }
 
@@ -178,8 +136,6 @@ public:
     static bool isIso8601(const std::string& dateTime)
     {
         const std::string r = R"(^([\+-]?\d{4}(?!\d{2}\b))((-?)((0[1-9]|1[0-2])(\3([12]\d|0[1-9]|3[01]))?|W([0-4]\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\d|[12]\d{2}|3([0-5]\d|6[1-6])))([T\s]((([01]\d|2[0-3])((:?)[0-5]\d)?|24\:?00)([\.,]\d+(?!:))?)?(\17[0-5]\d([\.,]\d+)?)?([zZ]|([\+-])([01]\d|2[0-3]):?([0-5]\d)?)?)?)?$)";
-        //const std::string r = R"(^(?:[1-9]\d{3}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1\d|2[0-8])|(?:0[13-9]|1[0-2])-(?:29|30)|(?:0[13578]|1[02])-31)|(?:[1-9]\d(?:0[48]|[2468][048]|[13579][26])|(?:[2468][048]|[13579][26])00)-02-29)T(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d{1,9})?(?:Z|[+-][01]\d:[0-5]\d)$)";
-        //const std::string r = R"(^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01][0-9]):([0-5][0-9]):([0-5][0-9])(.[0-9]+)?(Z)?$)";
         return std::regex_match(dateTime, std::regex(r));
     }
 
@@ -193,6 +149,8 @@ public:
         const std::string r = R"(^[A-Z][A-Z]$)";
         return std::regex_match(countryCode, std::regex(r));
     }
+
+    ChannelData& operator=(const ChannelData& other);
 
     bool operator ==(const ChannelData& other) const
     {
@@ -232,10 +190,7 @@ public:
             (m_numberOfChannels == other.m_numberOfChannels));
     }
 
-    inline bool operator !=(const ChannelData& other) const
-    {
-        return !(*this == other);
-    }
+    inline bool operator !=(const ChannelData& other) const { return !(*this == other); }
 
 private:
     // string with the authors of the data
@@ -254,7 +209,7 @@ private:
     std::string m_system;
 
     // Reference sound speed for Tx and Rx events [m/s]
-    std::optional<double> m_soundSpeed = std::nullopt;
+    double m_soundSpeed = 0;
 
     // Inverse of the time delay between consecutive repetitions of the sequence
     std::optional<double> m_repetitionRate = std::nullopt;
@@ -271,13 +226,12 @@ private:
     // List of the times_events that describe the sequence
     std::vector<uff::TimedEvent> m_sequence;
 
-    // TODO: store data as a std::list of std::list of std::vector.
-    //    First list = frames, 2nd list PW, vector is RF data
+    // data[iFrame][iEvent][iChannel][iSample]
     std::vector<float> m_data;
     uint32_t m_numberOfFrames = 0;
     uint32_t m_numberOfEvents = 0;
-    uint32_t m_numberOfSamples = 0;
     uint32_t m_numberOfChannels = 0;
+    uint32_t m_numberOfSamples = 0;
 };
 
 } // namespace uff

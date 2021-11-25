@@ -31,17 +31,11 @@ public:
     void printSelf(std::ostream& os, std::string indent) const override;
     
     uff::Dataset& dataset() { return m_dataset; }
-    void setDataset(const uff::Dataset& dataset)
-    {
-        m_dataset = dataset;
-    }
+    void setDataset(const uff::Dataset& dataset) { m_dataset = dataset; }
     
     /* Set/Get the filename of the UFF file. The 'fileName' must contain the file extension. */
     std::string fileName() const { return m_fileName; }
-    void setFileName(const std::string& fileName)
-    {
-        m_fileName = fileName;
-    }
+    void setFileName(const std::string& fileName) { m_fileName = fileName; }
 
     /**
      * @brief Write the content of the Dataset in a file.

@@ -29,22 +29,13 @@ public:
     void printSelf(std::ostream& os, std::string indent) const override;
     
     std::weak_ptr<uff::Probe> probe() const { return m_probe; }
-    void setProbe(std::weak_ptr<uff::Probe> probe)
-    {
-        m_probe = probe;
-    }
+    void setProbe(std::weak_ptr<uff::Probe> probe) { m_probe = probe; }
     
     uff::TransmitWave transmitWave() const { return m_transmitWave; }
-    void setTransmitWave(const uff::TransmitWave& transmitWave)
-    {
-        m_transmitWave = transmitWave;
-    }
+    void setTransmitWave(const uff::TransmitWave& transmitWave) { m_transmitWave = transmitWave; }
     
     std::vector<int> channelMapping() const { return m_channelMapping; }
-    void setChannelMapping(std::vector<int> channelMapping)
-    {
-        m_channelMapping = channelMapping;
-    }
+    void setChannelMapping(std::vector<int> channelMapping) { m_channelMapping = channelMapping; }
 
     bool operator ==(const TransmitSetup& other) const
     {
@@ -54,16 +45,13 @@ public:
             (m_channelMapping == other.m_channelMapping));
     }
 
-    inline bool operator !=(const TransmitSetup& other) const
-    {
-        return !(*this == other);
-    }
+    inline bool operator !=(const TransmitSetup& other) const { return !(*this == other); }
     
 private:
     // Reference to the probe use in transmission
     std::weak_ptr<uff::Probe> m_probe;
 
-    //     List of transmit waves used in this event with their respective time offset and weight
+    // List of transmit waves used in this event with their respective time offset and weight
     uff::TransmitWave m_transmitWave;
 
     // Map of transmit channels to transducer elements

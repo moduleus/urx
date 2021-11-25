@@ -32,80 +32,46 @@ public:
     void printSelf(std::ostream& os, std::string indent) const override;
 
     uff::ChannelData& channelData() { return m_channelData; }
-    void setChannelData(const uff::ChannelData& channelData)
-    {
-        m_channelData = channelData;
-    }
+    void setChannelData(const uff::ChannelData& channelData) { m_channelData = channelData; }
 
     const uff::Version& version() const { return m_version; }
-    void setVersion(const uff::Version& version)
-    {
-        m_version = version;
-    }
+    void setVersion(const uff::Version& version) { m_version = version; }
 
-    /* Convenience access method */
+    // ___________________ Convenience access method ___________________________________
 
     // Returns the channel geometry of the probe used by the 1st receive setup
     const std::vector<float> getChannelGeometry()
     {
-        if (m_channelData.probes().empty())
-        {
-            return std::vector<float>();
-        }
-        else
-        {
-            return m_channelData.probes()[0]->getChannelGeometry();
-        }
+        if (m_channelData.probes().empty()) { return std::vector<float>(); }
+        else { return m_channelData.probes()[0]->getChannelGeometry(); }
     }
 
     // Returns the receive delay of the 1st ReceiveSetup
     double getReceiveDelay() const
     {
-        if (m_channelData.uniqueEvents().empty())
-        {
-            return UFF_NAN;
-        }
+        if (m_channelData.uniqueEvents().empty()) { return UFF_NAN; }
         else
-        {
-            return m_channelData.uniqueEvents()[0]->receiveSetup().timeOffset();
+        {  return m_channelData.uniqueEvents()[0]->receiveSetup().timeOffset();
         }
     }
 
     // Returns the type of sampling of the 1st ReceiveSetup
     uff::ReceiveSetup::SAMPLING_TYPE getSamplingType() const
     {
-        if (m_channelData.uniqueEvents().empty())
-        {
-            return uff::ReceiveSetup::SAMPLING_TYPE::DIRECT_RF;
-        }
-        else
-        {
-            return m_channelData.uniqueEvents()[0]->receiveSetup().samplingType();
-        }
+        if (m_channelData.uniqueEvents().empty()) { return uff::ReceiveSetup::SAMPLING_TYPE::DIRECT_RF; }
+        else { return m_channelData.uniqueEvents()[0]->receiveSetup().samplingType(); }
     }
 
     // Return the sampling frequency associated with the 1st receive event [Hz]
     double getSamplingFrequency() const
     {
         if (m_channelData.uniqueEvents().empty() || 
-            !m_channelData.uniqueEvents()[0]->receiveSetup().samplingFrequency().has_value())
-        {
-            return UFF_NAN;
-        }
-        else
-        {
-            return m_channelData.uniqueEvents()[0]->receiveSetup().samplingFrequency().value();
-        }
+            !m_channelData.uniqueEvents()[0]->receiveSetup().samplingFrequency().has_value()) { return UFF_NAN; }
+        else { return m_channelData.uniqueEvents()[0]->receiveSetup().samplingFrequency().value(); }
     }
 
     // Returns the speed of sound [m/s]
-    double getSoundSpeed() const
-    {
-        if (m_channelData.soundSpeed().has_value())
-            return m_channelData.soundSpeed().value();
-        else
-            return UFF_NAN;
-    }
+    double getSoundSpeed() const { return m_channelData.soundSpeed(); }
 
     // Return the transmit frequency associated with the 1st Wave of the dataset
     double getTransmitFrequency() const
@@ -126,11 +92,7 @@ public:
     template <class ProbeType>
     bool isProbeType() const
     {
-        if (m_channelData.probes().empty())
-        {
-            // no probe: not a 'ProbeType' probe
-            return false;
-        }
+        if (m_channelData.probes().empty()) { return false; }
         else
         {
             // Try to cast the 1st probe to the user-provided type
@@ -141,13 +103,11 @@ public:
 
     inline bool operator ==(const Dataset& other) const
     {
-        return ((m_version == other.m_version) && (m_channelData == other.m_channelData));
+        return ((m_version == other.m_version) && 
+            (m_channelData == other.m_channelData));
     }
 
-    inline bool operator !=(const Dataset& other) const
-    {
-        return !(*this == other);
-    }
+    inline bool operator !=(const Dataset& other) const { return !(*this == other); }
 
 private:
     uff::Version m_version;

@@ -23,24 +23,15 @@ class TimedEvent : public uff::Object
 
 public:
 
-    TimedEvent() 
-    {
-        m_timeOffset = 0.0;
-    }
+    TimedEvent()  { }
 
     void printSelf(std::ostream& os, std::string indent) const override;
         
     std::weak_ptr<uff::Event> evenement() const { return m_event; }
-    void setEvent(std::weak_ptr<uff::Event> event) 
-    {
-        m_event = event;
-    }
+    void setEvent(std::weak_ptr<uff::Event> event)  { m_event = event; }
     
     double timeOffset() const { return m_timeOffset; }
-    void setTimeOffset(double timeOffset) 
-    {
-        m_timeOffset = timeOffset;
-    }
+    void setTimeOffset(double timeOffset) { m_timeOffset = timeOffset; }
 
     bool operator ==(const TimedEvent& other) const
     {
@@ -49,17 +40,14 @@ public:
             (m_event.expired() || (*(m_event.lock()) == *(other.m_event.lock()))) );
     }
 
-    inline bool operator !=(const TimedEvent& other) const
-    {
-        return !(*this == other);
-    }
+    inline bool operator !=(const TimedEvent& other) const { return !(*this == other); }
 
 private:
     //    Reference to one of the unique transmit/receive events used in the sequence.
     std::weak_ptr<uff::Event> m_event;
 
     // time offset relative to start of the sequence repetition (frame) [s]
-    double m_timeOffset;
+    double m_timeOffset = 0.0;
 };
 
 } // namespace uff

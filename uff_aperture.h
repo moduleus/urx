@@ -32,29 +32,21 @@ public:
 
     void printSelf(std::ostream& os, std::string indent) const override;
 
+    // Origin
     const uff::Transform& origin() const { return m_origin; }
-    void setOrigin(const uff::Transform& origin)
-    {
-        m_origin = origin;
-    }
+    void setOrigin(const uff::Transform& origin) { m_origin = origin; }
 
+    // Window
     const std::optional<std::string>& window() const { return m_window; }
-    void setWindow(const std::optional<std::string>& window)
-    {
-        m_window = window;
-    }
+    void setWindow(const std::optional<std::string>& window) { m_window = window; }
 
+    // F number
     std::optional<double> fNumber() const { return m_fNumber; }
-    void setFNumber(std::optional<double> f_number)
-    {
-        m_fNumber = f_number;
-    }
+    void setFNumber(std::optional<double> f_number) { m_fNumber = f_number; }
 
+    // Fixed size
     std::optional<double> fixedSize() const { return m_fixedSize; }
-    void setFixedSize(std::optional<double> fixedSize)
-    {
-        m_fixedSize = fixedSize;
-    }
+    void setFixedSize(std::optional<double> fixedSize) { m_fixedSize = fixedSize; }
 
     bool operator ==(const Aperture& other) const
     {
@@ -64,10 +56,7 @@ public:
             (m_fixedSize == other.m_fixedSize));
     }
 
-    inline bool operator !=(const Aperture& other) const
-    {
-        return !(*this == other);
-    }
+    inline bool operator !=(const Aperture& other) const { return !(*this == other); }
 
 private:
     // Location of the aperture center in space
@@ -81,12 +70,6 @@ private:
 
     // If non-zero, this overwrites the size of the aperture in m [Az, El]
     std::optional<double> m_fixedSize = std::nullopt;
-
-    // (Optional) If non-zero, this sets a limit for the maximum dynamic aperture in m [Az, El]
-    // double m_maximumSize;
-
-    // (Optional) If non-zero, this sets a limit for the minimum dynamic aperture in m [Az, El]
-    // double m_minimumSize;
 };
 
 } // namespace uff

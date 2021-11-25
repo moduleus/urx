@@ -67,6 +67,11 @@ public:
     std::optional<double> elementHeight() { return m_elementHeight; }
     void setElementHeight(std::optional<double> elementHeight) { m_elementHeight = elementHeight; }
 
+    virtual std::shared_ptr<uff::Probe> clone() override
+    {
+        return std::make_shared<uff::MatrixArray>(*this);
+    }
+
 private:
     // Update elements position
     void updateElements()

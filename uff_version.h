@@ -42,10 +42,7 @@ public:
             (m_patch == other.m_patch));
     }
 
-    inline bool operator !=(const Version& other) const
-    {
-        return !(*this == other);
-    }
+    inline bool operator !=(const Version& other) const { return !(*this == other); }
 
 private:
     uint32_t m_major;

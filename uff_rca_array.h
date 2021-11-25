@@ -76,6 +76,11 @@ public:
     std::optional<double> elementHeightY() { return m_elementHeightY; }
     void setElementHeightY(std::optional<double> elementHeightY) { m_elementHeightY = elementHeightY; }
 
+    virtual std::shared_ptr<uff::Probe> clone() override
+    {
+        return std::make_shared<uff::RcaArray>(*this);
+    }
+
 private:
     // Update elements position
     void updateElements()

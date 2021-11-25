@@ -34,26 +34,17 @@ public:
     void printSelf(std::ostream& os, std::string indent) const override;
 
     std::shared_ptr<uff::Dataset> dataset() { return m_dataset; }
-    /*void setDataset(const uff::Dataset& dataset)
-    {
-        m_dataset = dataset;
-    }*/
 
     /* Set/Get the filename of the UFF file. The 'fileName' must contain the file extension. */
     std::string fileName() const { return m_fileName; }
-    void setFileName(const std::string& fileName)
-    {
-        m_fileName = fileName;
-    }
+    void setFileName(const std::string& fileName) { m_fileName = fileName; }
 
     void updateMetadata();
-    //void updateData();
 
 protected:
     // Read basic types
     double readDoubleDataset(const H5::Group& group, const std::string& name);
     std::optional<double> readOptionalDoubleDataset(const H5::Group& group, const std::string& name);
-    //std::vector<float> readFloatArrayDataset(const H5::CommonFG& group, const std::string& name, std::vector<size_t>& dimensions);
     void readIntegerArrayDataset(const H5::Group& group, const std::string& name, std::vector<int>& values, std::vector<size_t>& dimensions);
     int readIntegerDataset(const H5::Group& group, const std::string& name);
     std::string readStringDataset(const H5::Group& group, const std::string& name);

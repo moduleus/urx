@@ -54,6 +54,13 @@ public:
         return !(*this == other);
     }
 
+    Transform& operator=(const Transform& other)
+    {
+        m_rotation = other.m_rotation;
+        m_translation = other.m_translation;
+        return *this;
+    }
+
 private:
     // rotation in radians
     uff::Rotation m_rotation;

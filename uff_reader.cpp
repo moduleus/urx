@@ -107,7 +107,7 @@ void Reader::readChannelData(const H5::Group& group)
     channelData.setLocalTime(readStringDataset(group, "local_time"));
     channelData.setCountryCode(readStringDataset(group, "country_code"));
     channelData.setSystem(readStringDataset(group, "system"));
-    channelData.setSoundSpeed(readOptionalDoubleDataset(group, "sound_speed"));
+    channelData.setSoundSpeed(readDoubleDataset(group, "sound_speed"));
     channelData.setRepetitionRate(readOptionalDoubleDataset(group, "repetition_rate"));
 
     // channel_data.data
@@ -158,8 +158,7 @@ std::optional<double> Reader::readOptionalDoubleDataset(const H5::Group& group, 
     dataset.read(&value, datatype);
     dataset.close();
     std::optional<double> result = std::nullopt;
-    if (!std::isnan(value))
-        result = value;
+    if (!std::isnan(value)) { result = value; }
     return result;
 }
 
@@ -470,7 +469,7 @@ uff::ReceiveSetup Reader::readReceiveSetup(const H5::Group& group)
 
     // "probe"
     int probeId = std::stoi(readStringDataset(group, "probe_id"));
-    receiveSetup.setProbe(m_dataset->channelData().probes()[probeId-1]);
+    receiveSetup.setProbe(m_dataset->channelData().probes()[(size_t)probeId - 1]);
 
     // "time_offset"
     receiveSetup.setTimeOffset(readDoubleDataset(group, "time_offset"));
@@ -572,7 +571,7 @@ uff::TimedEvent Reader::readTimedEvent(const H5::Group& group)
     // "event"
     int eventId = std::stoi(readStringDataset(group, "event_id"));
     //std::cout << "probeId" << probeId << " " << m_dataset.channelData().probes().size();
-    timedEvent.setEvent(m_dataset->channelData().uniqueEvents()[eventId - 1]);
+    timedEvent.setEvent(m_dataset->channelData().uniqueEvents()[(size_t)eventId - 1]);
 
     // "time_offset"
     timedEvent.setTimeOffset(readDoubleDataset(group, "time_offset"));
@@ -633,7 +632,7 @@ uff::TransmitSetup Reader::readTransmitSetup(const H5::Group& group)
 
     // "probe"
     int probeId = std::stoi(readStringDataset(group, "probe_id"));
-    transmitSetup.setProbe(m_dataset->channelData().probes()[probeId - 1]);
+    transmitSetup.setProbe(m_dataset->channelData().probes()[(size_t)probeId - 1]);
 
     // "transmit_wave"
     transmitSetup.setTransmitWave(readTransmitWave(group.openGroup("transmit_wave")));
@@ -656,7 +655,7 @@ uff::TransmitWave Reader::readTransmitWave(const H5::Group& group)
 
     // "wave"
     int waveId = std::stoi(readStringDataset(group, "wave_id"));
-    transmitWave.setWave(m_dataset->channelData().uniqueWaves()[waveId - 1]);
+    transmitWave.setWave(m_dataset->channelData().uniqueWaves()[(size_t)waveId - 1]);
 
     // "time_offset"
     transmitWave.setTimeOffset(readDoubleDataset(group, "time_offset"));

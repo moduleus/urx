@@ -36,17 +36,11 @@ public:
 
     /* Attitude of the probe in 3D */
     const uff::Transform& transform() const { return m_transform; }
-    void setTransform(const uff::Transform& transform)
-    {
-        m_transform = transform;
-    }
+    void setTransform(const uff::Transform& transform) { m_transform = transform; }
 
     /* [optional] For probes with a focal lens, it describes the focal length in m [Az, Ele] */
     std::optional<double> focalLength() const { return m_focalLength; }
-    void setFocalLength(std::optional<double> focalLength)
-    {
-        m_focalLength = focalLength;
-    }
+    void setFocalLength(std::optional<double> focalLength) { m_focalLength = focalLength; }
 
     /* List elements in the probe */
     std::vector<uff::Element>& elements() { return m_elements; }
@@ -58,10 +52,7 @@ public:
 
     /* [optional] List of unique element geometries in the probe */
     std::vector<uff::ElementGeometry>& elementGeometries() { return m_elementGeometries; }
-    void setElementGeometries(const std::vector<uff::ElementGeometry>& elementGeometries)
-    {
-        m_elementGeometries = elementGeometries;
-    }
+    void setElementGeometries(const std::vector<uff::ElementGeometry>& elementGeometries) { m_elementGeometries = elementGeometries; }
 
     /* [optional] List of unique electromechanical impulse responses of the elements in the probe */
     std::vector<uff::ImpulseResponse>& impulseResponses() { return m_impulseResponses; }
@@ -105,6 +96,24 @@ public:
     inline bool operator !=(const Probe& other) const
     {
         return !(*this == other);
+    }
+
+    Probe& operator=(const Probe& other)
+    {
+        m_transform = other.m_transform;
+        m_focalLength = other.m_focalLength;
+        m_elements = other.m_elements;
+        m_elementGeometries = other.m_elementGeometries;
+        m_impulseResponses = other.m_impulseResponses;
+        _channelGeometryValid = other._channelGeometryValid;
+        _channelGeometry = other._channelGeometry;
+        assert(*this == other);
+        return *this;
+    }
+
+    virtual std::shared_ptr<uff::Probe> clone()
+    {
+        return std::make_shared<uff::Probe>(*this);
     }
 
 protected:

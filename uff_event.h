@@ -23,33 +23,18 @@ class Event : public uff::Object
     UFF_TYPE_MACRO(Event, uff::Object);
 
 public:
-
     Event() {}
 
     void printSelf(std::ostream& os, std::string indent) const override;
     
     uff::TransmitSetup& transmitSetup() { return m_transmitSetup; }
-    void setTransmitSetup(const uff::TransmitSetup& transmitSetup) 
-    {
-        m_transmitSetup = transmitSetup;
-    }
+    void setTransmitSetup(const uff::TransmitSetup& transmitSetup) { m_transmitSetup = transmitSetup; }
     
     uff::ReceiveSetup& receiveSetup() { return m_receiveSetup; }
-    void setReceiveSetup(const uff::ReceiveSetup& receiveSetup) 
-    {
-        m_receiveSetup = receiveSetup;
-    }
+    void setReceiveSetup(const uff::ReceiveSetup& receiveSetup)  { m_receiveSetup = receiveSetup; }
 
-    bool operator ==(const Event& other) const
-    {
-        return ((m_transmitSetup == other.m_transmitSetup) &&
-            (m_receiveSetup == other.m_receiveSetup));
-    }
-
-    inline bool operator !=(const Event& other) const
-    {
-        return !(*this == other);
-    }
+    bool operator ==(const Event& other) const { return ((m_transmitSetup == other.m_transmitSetup) && (m_receiveSetup == other.m_receiveSetup)); }
+    inline bool operator !=(const Event& other) const { return !(*this == other); }
     
 private:
     // Description of the transmit event (probe/channels, waves, excitations, etc.). If more than one probe is used in reception, this is a list of setups.
