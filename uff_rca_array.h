@@ -85,12 +85,12 @@ private:
     // Update elements position
     void updateElements()
     {
-        m_elements.resize(m_numberElementsX + m_numberElementsY);
+        m_elements.resize((size_t)m_numberElementsX + m_numberElementsY);
 
         double pitchX = m_pitchX.has_value() ? m_pitchX.value() : UFF_NAN;
         double xmin = - pitchX * (m_numberElementsX - 1.0) / 2.0;
 
-        for (int i = 0; i < m_numberElementsX; i++)
+        for (uint32_t i = 0; i < m_numberElementsX; i++)
         {
             uff::Element element;
             if (m_pitchX.has_value())
@@ -105,11 +105,11 @@ private:
 
         double pitchY = m_pitchY.has_value() ? m_pitchY.value() : UFF_NAN;
         double ymin = - pitchY * (m_numberElementsY - 1.0) / 2.0;
-        for (int i = m_numberElementsX; i < m_elements.size(); i++)
+        for (uint32_t i = m_numberElementsX; i < m_elements.size(); i++)
         {
             uff::Element element;
             if (m_pitchX.has_value())
-                element.setY(ymin + (i- m_numberElementsX) * pitchY);
+                element.setY(ymin + (i - m_numberElementsX) * pitchY);
             else
                 element.setY(0.);
 

@@ -69,11 +69,11 @@ public:
             // build channel geometry
             _channelGeometry.resize(4 * m_elements.size());
             auto dst = _channelGeometry.begin();
-            for (auto el : m_elements)
+            for (auto& el : m_elements)
             {
-                *dst++ = el.x().has_value() ? el.x().value() : UFF_NAN;
-                *dst++ = el.y().has_value() ? el.y().value() : UFF_NAN;
-                *dst++ = el.z().has_value() ? el.z().value() : UFF_NAN;
+                *dst++ = el.x().has_value() ? el.x().value() : (float)UFF_NAN;
+                *dst++ = el.y().has_value() ? el.y().value() : (float)UFF_NAN;
+                *dst++ = el.z().has_value() ? el.z().value() : (float)UFF_NAN;
                 *dst++ = 0;
             }
             _channelGeometryValid = true;

@@ -183,11 +183,10 @@ H5::DataSet Writer::writeOptionalDoubleDataset(H5::Group& group, const std::stri
     H5::StrType datatype(H5::PredType::NATIVE_DOUBLE);
     H5::DataSpace dataspace = H5::DataSpace(H5S_SCALAR);
     H5::DataSet dataset = group.createDataSet(name, datatype, dataspace);
-    if (value.has_value())
-        dataset.write(&value.value(), datatype, dataspace);
+    if (value.has_value()) { dataset.write(&value.value(), datatype, dataspace); }
     else
     {
-        double nan = std::numeric_limits<double>::quiet_NaN();
+        constexpr double nan = std::numeric_limits<double>::quiet_NaN();
         dataset.write(&nan, datatype, dataspace);
     }
     dataset.close();
@@ -404,9 +403,6 @@ void Writer::writeProbe(H5::Group& group, const std::shared_ptr<uff::Probe>& pro
     // write "focal_length" (optional)
     writeOptionalDoubleDataset(group, "focal_length", probe->focalLength());
 
-    // write "element_geometry" (optional)
-    // write "element_impulse_response" (optional)
-
     // MatrixArray ?
     std::shared_ptr<uff::MatrixArray> matrixArray = std::dynamic_pointer_cast<uff::MatrixArray>(probe);
     if (matrixArray.get() != nullptr)
@@ -461,7 +457,7 @@ void Writer::writeReceiveSetup(H5::Group& group, const uff::ReceiveSetup& receiv
     writeOptionalDoubleDataset(group, "sampling_frequency", receiveSetup.samplingFrequency());
 
     // "sampling_type"
-    writeIntegerDataset(group, "sampling_type", receiveSetup.samplingType());
+    writeIntegerDataset(group, "sampling_type", (int)receiveSetup.samplingType());
 
     // "channel_mapping"
     writeIntegerArrayDataset(group, "channel_mapping", receiveSetup.channelMapping(), {});
@@ -485,13 +481,6 @@ void Writer::writeRotation(H5::Group& group, const uff::Rotation& rotation)
 
 H5::DataSet Writer::writeStringDataset(H5::Group& group, const std::string& name, const std::string& value)
 {
-    /*H5::StrType datatype(H5::PredType::C_S1, value.length());    // Create new string datatype for attribute
-    H5::DataSpace dataspace = H5::DataSpace(H5S_SCALAR);        // Create the data space for the attribute.
-    H5::DataSet dataset = group.createDataSet(name.c_str(), datatype, dataspace);
-    dataset.write(value.c_str(), datatype);
-    dataset.close();
-    return dataset;*/
-
     H5::StrType vlst(0, H5T_VARIABLE);
     H5::DataSpace ds_space(H5S_SCALAR);
     H5::DataSet dataset = group.createDataSet(name.c_str(), vlst, ds_space);
@@ -556,7 +545,6 @@ void Writer::writeTransmitSetup(H5::Group& group, const uff::TransmitSetup& tran
 {
     // "probe"
     const std::string probeId = getIdFromPointer<uff::Probe>(m_dataset.channelData().probes(), transmitSetup.probe());
-    //std::cout << "probeId" << probeId << std::endl;
     writeStringDataset(group, "probe_id", probeId);
 
     // "transmit_wave"
@@ -571,7 +559,6 @@ void Writer::writeTransmitWave(H5::Group& group, const uff::TransmitWave& transm
 {
     // "wave"
     const std::string waveId = getIdFromPointer<uff::Wave>(m_dataset.channelData().uniqueWaves(), transmitWave.wave());
-    //std::cout << "waveId" << waveId << std::endl;
     writeStringDataset(group, "wave_id", waveId);
 
     // "time_offset"
@@ -595,7 +582,7 @@ void Writer::writeWave(H5::Group& group, const std::shared_ptr<uff::Wave>& wave)
     writeTransform(origin, wave->origin());
 
     // write "wave_type"
-    writeIntegerDataset(group, "wave_type", wave->waveType());
+    writeIntegerDataset(group, "wave_type", (int)wave->waveType());
 
     // write "aperture"
     H5::Group aperture = group.createGroup("aperture");

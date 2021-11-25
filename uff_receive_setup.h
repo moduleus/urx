@@ -27,7 +27,7 @@ class ReceiveSetup : public uff::Object
 
 public:
 
-    typedef enum { DIRECT_RF = 0, QUADRATURE_4X_F0 = 1, QUADRATURE_2X_F0 = 2, IQ = 3 } SAMPLING_TYPE;
+    enum class SAMPLING_TYPE { DIRECT_RF = 0, QUADRATURE_4X_F0 = 1, QUADRATURE_2X_F0 = 2, IQ = 3 };
 
     ReceiveSetup() {}
 
@@ -111,7 +111,7 @@ private:
     std::optional<double> m_samplingFrequency = std::nullopt;
 
     // Type of sampling: 
-    SAMPLING_TYPE m_samplingType = DIRECT_RF;
+    SAMPLING_TYPE m_samplingType = SAMPLING_TYPE::DIRECT_RF;
 
     // Maps the RF line with the corresponding element
     // channel_element_index = m_channelMapping[rf_index] 

@@ -72,7 +72,7 @@ private:
     uff::Transform m_origin;
 
     // enumerated type ( [0] -> converging, [1] -> diverging, [2]-> plane, [3]-> cylindrical, [4] -> photoacoustic)
-    uff::WaveType m_waveType;
+    uff::WaveType m_waveType = uff::WaveType::PLANE_WAVE;
 
     // Description of the aperture used to produce the wave
     uff::Aperture m_aperture;
