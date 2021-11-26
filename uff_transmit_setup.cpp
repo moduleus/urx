@@ -24,15 +24,7 @@ void TransmitSetup::printSelf(std::ostream& os, std::string indent) const
         os << "<Probe pointer is expired>" << std::endl;
     }
     os << indent << "TransmitWave: ";
-    this->transmitWave().printSelf(os, indent + UFF_STD_INDENT);
-    /*if (auto spt = this->transmitWave().lock())
-    { // Has to be copied into a shared_ptr before usage
-        os << &(*spt) << std::endl;
-    }
-    else
-    {
-        os << "<TransmitWave pointer is expired>" << std::endl;
-    }*/
+    m_transmitWave.printSelf(os, indent + UFF_STD_INDENT);
 }
 
 } // namespace uff

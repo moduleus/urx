@@ -32,6 +32,7 @@ std::string Writer::getIdFromPointer(const std::vector<std::shared_ptr<T>>& vec,
         }
     }
     
+    assert(false);
     return "????????";
 }
 
@@ -549,7 +550,7 @@ void Writer::writeTransmitSetup(H5::Group& group, const uff::TransmitSetup& tran
 
     // "transmit_wave"
     H5::Group transmitWave = group.createGroup("transmit_wave");
-    writeTransmitWave(transmitWave, transmitSetup.transmitWave());
+    writeTransmitWave(transmitWave, transmitSetup.getTransmitWave());
 
     // "channel_mapping"
     writeIntegerArrayDataset(group, "channel_mapping", transmitSetup.channelMapping(), {});

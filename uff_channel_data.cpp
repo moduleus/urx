@@ -6,6 +6,8 @@
 
 #include "uff_channel_data.h"
 
+#include <thread>
+
 namespace uff
 {
     
@@ -72,16 +74,17 @@ namespace uff
         for (auto& probe : other.m_probes)
         {
             std::shared_ptr<uff::Probe> newProbe = probe->clone();
-            assert(*newProbe == *probe);
             m_probes.push_back(newProbe);
+            assert(*newProbe == *probe);
+            assert(m_probes.back() != probe);
         }
 
         // Waves
         for (auto& uniqueWave : other.m_uniqueWaves)
         {
-            m_uniqueWaves.push_back(std::make_shared<uff::Wave>());
-            *m_uniqueWaves.back() = *uniqueWave;
+            m_uniqueWaves.push_back(std::make_shared<uff::Wave>(*uniqueWave));
             assert(*m_uniqueWaves.back() == *uniqueWave);
+            assert(m_uniqueWaves.back() != uniqueWave);
         }
 
         // Events
@@ -91,39 +94,52 @@ namespace uff
             *m_uniqueEvents.back() = *uniqueEvent;
 
             // Transmit Probe weak pointer
-            std::shared_ptr<uff::Probe> transmitProbe;
-            for (size_t iProbe = 0; iProbe < m_probes.size() && !transmitProbe; iProbe++)
             {
-                if (*m_probes[iProbe] == *uniqueEvent->transmitSetup().probe().lock())
+                std::shared_ptr<uff::Probe> transmitProbe;
+                for (size_t iProbe = 0; iProbe < m_probes.size() && !transmitProbe; iProbe++)
                 {
-                    transmitProbe = m_probes[iProbe];
+                    if (*m_probes[iProbe] == *uniqueEvent->transmitSetup().probe().lock())
+                    {
+                        transmitProbe = m_probes[iProbe];
+                    }
                 }
+                m_uniqueEvents.back()->transmitSetup().setProbe(transmitProbe);
+                bool foundTransmitProbe = std::find(m_probes.begin(), m_probes.end(), m_uniqueEvents.back()->transmitSetup().probe().lock()) != m_probes.end();
+                assert(foundTransmitProbe);
             }
-            m_uniqueEvents.back()->transmitSetup().setProbe(transmitProbe);
             
             // Receive Probe weak pointer
-            std::shared_ptr<uff::Probe> receiveProbe;
-            for (size_t iProbe = 0; iProbe < m_probes.size() && !receiveProbe; iProbe++)
             {
-                if (*m_probes[iProbe] == *uniqueEvent->receiveSetup().probe().lock())
+                std::shared_ptr<uff::Probe> receiveProbe;
+                for (size_t iProbe = 0; iProbe < m_probes.size() && !receiveProbe; iProbe++)
                 {
-                    receiveProbe = m_probes[iProbe];
+                    if (*m_probes[iProbe] == *uniqueEvent->receiveSetup().probe().lock())
+                    {
+                        receiveProbe = m_probes[iProbe];
+                    }
                 }
+                m_uniqueEvents.back()->receiveSetup().setProbe(receiveProbe);
+                bool foundReceiveProbe = std::find(m_probes.begin(), m_probes.end(), m_uniqueEvents.back()->receiveSetup().probe().lock()) != m_probes.end();
+                assert(foundReceiveProbe);
             }
-            m_uniqueEvents.back()->receiveSetup().setProbe(receiveProbe);
 
             // Wave weak pointer
-            std::shared_ptr<uff::Wave> wave;
-            for (size_t iWave = 0; iWave < m_uniqueWaves.size() && !wave; iWave++)
             {
-                if (*m_uniqueWaves[iWave] == *uniqueEvent->transmitSetup().transmitWave().wave().lock())
+                std::shared_ptr<uff::Wave> wave;
+                for (size_t iWave = 0; iWave < m_uniqueWaves.size() && !wave; iWave++)
                 {
-                    wave = m_uniqueWaves[iWave];
+                    if (*m_uniqueWaves[iWave] == *uniqueEvent->transmitSetup().transmitWave().wave().lock())
+                    {
+                        wave = m_uniqueWaves[iWave];
+                    }
                 }
+                m_uniqueEvents.back()->transmitSetup().transmitWave().setWave(wave);
+                bool foundWave = std::find( m_uniqueWaves.begin(), m_uniqueWaves.end(), m_uniqueEvents.back()->transmitSetup().transmitWave().wave().lock()) != m_uniqueWaves.end();
+                assert(foundWave);
             }
-            m_uniqueEvents.back()->transmitSetup().transmitWave().setWave(wave);
 
             assert(*m_uniqueEvents.back() == *uniqueEvent);
+            assert(m_uniqueEvents.back() != uniqueEvent);
         }
 
         // Sequence
@@ -145,13 +161,14 @@ namespace uff
             assert(m_sequence.back() == timedEvent);
         }
 
-        // Data
-        m_data = other.m_data;
-
+        // Sizes
         m_numberOfFrames = other.m_numberOfFrames;
         m_numberOfEvents = other.m_numberOfEvents;
         m_numberOfChannels = other.m_numberOfChannels;
         m_numberOfSamples = other.m_numberOfSamples;
+
+        // Data
+        m_data = other.m_data;
 
         assert(*this == other);
 

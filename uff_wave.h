@@ -31,28 +31,16 @@ public:
     void printSelf(std::ostream& os, std::string indent) const override;
     
     const uff::Transform& origin() const { return m_origin; }
-    void setOrigin(const uff::Transform& origin) 
-    {
-        m_origin = origin;
-    }
+    void setOrigin(const uff::Transform& origin)  { m_origin = origin; }
     
     const uff::WaveType& waveType() const { return m_waveType; }
-    void setWaveType(const uff::WaveType& waveType) 
-    {
-        m_waveType = waveType;
-    }
+    void setWaveType(const uff::WaveType& waveType) { m_waveType = waveType; }
     
     const uff::Aperture& aperture() const { return m_aperture; }
-    void setAperture(const uff::Aperture& aperture) 
-    {
-        m_aperture = aperture;
-    }
+    void setAperture(const uff::Aperture& aperture) { m_aperture = aperture; }
     
     const uff::Excitation& excitation() const { return m_excitation; }
-    void setExcitation(const uff::Excitation& excitation) 
-    {
-        m_excitation = excitation;
-    }
+    void setExcitation(const uff::Excitation& excitation) { m_excitation = excitation; }
 
     bool operator ==(const Wave& other) const
     {
@@ -62,10 +50,7 @@ public:
             (m_excitation == other.m_excitation));
     }
 
-    inline bool operator !=(const Wave& other) const
-    {
-        return !(*this == other);
-    }
+    inline bool operator !=(const Wave& other) const { return !(*this == other); }
 
 private:
     // Geometric origin of the wave.

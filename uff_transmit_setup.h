@@ -31,7 +31,8 @@ public:
     std::weak_ptr<uff::Probe> probe() const { return m_probe; }
     void setProbe(std::weak_ptr<uff::Probe> probe) { m_probe = probe; }
     
-    uff::TransmitWave transmitWave() const { return m_transmitWave; }
+    uff::TransmitWave getTransmitWave() const { return m_transmitWave; }
+    uff::TransmitWave& transmitWave() { return m_transmitWave; }
     void setTransmitWave(const uff::TransmitWave& transmitWave) { m_transmitWave = transmitWave; }
     
     std::vector<int> channelMapping() const { return m_channelMapping; }
