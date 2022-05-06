@@ -1,0 +1,9 @@
+# Bin dir
+build/
+out/
+CI/
+CI_Android/
+
+# IDE dir
+.vs/
+.vscode/
