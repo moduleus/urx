@@ -23,7 +23,7 @@ class Rotation : public uff::Object
 
 public:
 
-    explicit Rotation(double rx = 0.0, double ry = 0.0, double rz = 0.0)
+    explicit Rotation(FloatingType rx = 0.f, FloatingType ry = 0.f, FloatingType rz = 0.f)
     { 
         setX(rx);
         setY(ry);
@@ -32,18 +32,18 @@ public:
 
     void printSelf(std::ostream& os, std::string indent) const override;
     
-    double x() const { return m_rx; }
-    void setX(double x) { m_rx = x; }
+    FloatingType x() const { return m_rx; }
+    void setX(FloatingType x) { m_rx = x; }
 
-    double y() const { return m_ry; }
-    void setY(double y) { m_ry = y; }
+    FloatingType y() const { return m_ry; }
+    void setY(FloatingType y) { m_ry = y; }
 
-    double z() const { return m_rz; }
-    void setZ(double z) { m_rz = z; }
+    FloatingType z() const { return m_rz; }
+    void setZ(FloatingType z) { m_rz = z; }
     
-    double elevation() const { return m_rx; }
-    double azimut() const { return m_ry; }
-    double roll() const { return m_rz; }
+    FloatingType elevation() const { return m_rx; }
+    FloatingType azimut() const { return m_ry; }
+    FloatingType roll() const { return m_rz; }
 
     bool operator ==(const Rotation& other) const
     {
@@ -59,13 +59,13 @@ public:
 
 private:
     // Rotation around the X-axis (elevation) in radians
-    double m_rx;
+    FloatingType m_rx;
 
     // Rotation around the Y-axis (azimut) in radians
-    double m_ry;
+    FloatingType m_ry;
 
     // Rotation around the Z-axis (roll) in radians
-    double m_rz;
+    FloatingType m_rz;
 };
 
 } // namespace uff

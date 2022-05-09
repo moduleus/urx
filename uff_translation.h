@@ -22,7 +22,7 @@ class Translation : public uff::Object
 
 public:
 
-    explicit Translation(double tx = 0.0, double ty = 0.0, double tz = 0.0)
+    explicit Translation(FloatingType tx = 0.f, FloatingType ty = 0.f, FloatingType tz = 0.f)
     {
         setX(tx);
         setY(ty);
@@ -31,14 +31,14 @@ public:
 
     void printSelf(std::ostream& os, std::string indent) const override;
     
-    double x() const { return m_tx; }
-    void setX(double x) { m_tx = x; }
+    FloatingType x() const { return m_tx; }
+    void setX(FloatingType x) { m_tx = x; }
 
-    double y() const { return m_ty; }
-    void setY(double y) { m_ty = y; }
+    FloatingType y() const { return m_ty; }
+    void setY(FloatingType y) { m_ty = y; }
 
-    double z() const { return m_tz; }
-    void setZ(double z) { m_tz = z; }
+    FloatingType z() const { return m_tz; }
+    void setZ(FloatingType z) { m_tz = z; }
 
     bool operator ==(const Translation& other) const
     {
@@ -53,9 +53,9 @@ public:
     }
 
 private:
-    double m_tx;
-    double m_ty;
-    double m_tz;
+    FloatingType m_tx;
+    FloatingType m_ty;
+    FloatingType m_tz;
 };
 
 } // namespace uff

@@ -33,8 +33,8 @@ public:
 
     void printSelf(std::ostream& os, std::string indent) const override;
     
-    std::vector< std::pair<double, double> >& points() { return m_points; }
-    void setPoints(const std::vector< std::pair<double, double> >& points) 
+    std::vector< std::pair<FloatingType, FloatingType> >& points() { return m_points; }
+    void setPoints(const std::vector< std::pair<FloatingType, FloatingType> >& points) 
     {
         m_points = points;
     }
@@ -51,7 +51,7 @@ public:
  
 private:
     // Vector of pair of points (x, y). It is assumed that perimeter is always in the X-Y plane.
-    std::vector< std::pair<double, double> > m_points;
+    std::vector< std::pair<FloatingType, FloatingType> > m_points;
 };
 
 } // namespace uff

@@ -33,17 +33,17 @@ public:
     const std::optional<std::string>& pulseShape() const { return m_pulseShape; }
     void setPulseShape(const std::optional<std::string>& pulseShape) { m_pulseShape = pulseShape; }
 
-    const std::vector<float>& waveform() const { return m_waveform; }
-    void setWaveform(const std::vector<float>& waveform) { m_waveform = waveform; }
+    const std::vector<FloatingType>& waveform() const { return m_waveform; }
+    void setWaveform(const std::vector<FloatingType>& waveform) { m_waveform = waveform; }
 
-    std::optional<double> samplingFrequency() const { return m_samplingFrequency; }
-    void setSamplingFrequency(std::optional<double> samplingFrequency)
+    std::optional<FloatingType> samplingFrequency() const { return m_samplingFrequency; }
+    void setSamplingFrequency(std::optional<FloatingType> samplingFrequency)
     {
         m_samplingFrequency = samplingFrequency;
     }
 
-    std::optional<double> transmitFrequency() const { return m_transmitFrequency; }
-    void setTransmitFrequency(std::optional<double> transmitFrequency)
+    std::optional<FloatingType> transmitFrequency() const { return m_transmitFrequency; }
+    void setTransmitFrequency(std::optional<FloatingType> transmitFrequency)
     {
         m_transmitFrequency = transmitFrequency;
     }
@@ -66,13 +66,13 @@ private:
     std::optional<std::string> m_pulseShape = std::nullopt;
 
     // Transmit frequency [Hz]
-    std::optional<double> m_transmitFrequency = std::nullopt;
+    std::optional<FloatingType> m_transmitFrequency = std::nullopt;
 
     // Sampled excitation waveform [normalized units]
-    std::vector<float> m_waveform;
+    std::vector<FloatingType> m_waveform;
 
     // Sampling frequency of the excitation waveform [Hz]
-    std::optional<double> m_samplingFrequency = std::nullopt;
+    std::optional<FloatingType> m_samplingFrequency = std::nullopt;
 };
 
 } // namespace uff

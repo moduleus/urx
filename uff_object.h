@@ -21,7 +21,7 @@
 // Standard indentation
 #define UFF_STD_INDENT "  "
 #define UNDEFINED "UNDEFINED"
-#define UFF_NAN std::numeric_limits<double>::quiet_NaN()
+#define UFF_NAN std::numeric_limits<FloatingType>::quiet_NaN()
 
 namespace uff
 {
@@ -31,6 +31,10 @@ namespace uff
  */
 class Object
 {
+public:
+    Object() = default;
+    virtual ~Object() = default;
+
 protected:
     virtual const char* getClassNameInternal() const { return "Object"; }
 

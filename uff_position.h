@@ -18,7 +18,7 @@ namespace uff
 class Position
 {
 public:
-	explicit Position(double x = 0.0, double y = 0.0, double z = 0.0)
+	explicit Position(FloatingType x = 0.f, FloatingType y = 0.f, FloatingType z = 0.f)
 	{
 		this->setX(x);
 		this->setY(y);
@@ -28,19 +28,19 @@ public:
     friend std::ostream& operator<<(std::ostream& os, const uff::Position& r);
 
 
-	double x() const { return m_x; }
-	void setX(double x) { m_x = x; }
+	FloatingType x() const { return m_x; }
+	void setX(FloatingType x) { m_x = x; }
 
-	double y() const { return m_y; }
-	void setY(double y) { m_x = y; }
+	FloatingType y() const { return m_y; }
+	void setY(FloatingType y) { m_x = y; }
 
-	double z() const { return m_z; }
-	void setZ(double z) { m_z = z; }
+	FloatingType z() const { return m_z; }
+	void setZ(FloatingType z) { m_z = z; }
 
 private:
-	double m_x;
-	double m_y;
-	double m_z;
+	FloatingType m_x;
+	FloatingType m_y;
+	FloatingType m_z;
 };
 
 } // namespace uff

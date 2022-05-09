@@ -39,14 +39,14 @@ public:
         m_probe = probe;
     }
     
-    double timeOffset() const { return m_timeOffset; }
-    void setTimeOffset(double timeOffset) 
+    FloatingType timeOffset() const { return m_timeOffset; }
+    void setTimeOffset(FloatingType timeOffset) 
     {
         m_timeOffset = timeOffset;
     }
     
-    std::optional<double> samplingFrequency() const { return m_samplingFrequency; }
-    void setSamplingFrequency(std::optional<double> samplingFrequency)
+    std::optional<FloatingType> samplingFrequency() const { return m_samplingFrequency; }
+    void setSamplingFrequency(std::optional<FloatingType> samplingFrequency)
     {
         m_samplingFrequency = samplingFrequency;
     }
@@ -64,20 +64,20 @@ public:
     }
 
     
-    std::vector<float> tgcProfile() const { return m_tgcProfile; }
-    void setTgcProfile(const std::vector<float>& tgcProfile)
+    std::vector<FloatingType> tgcProfile() const { return m_tgcProfile; }
+    void setTgcProfile(const std::vector<FloatingType>& tgcProfile)
     {
         m_tgcProfile = tgcProfile;
     }
 
-    std::optional<double> tgcSamplingFrequency() const { return m_tgcSamplingFrequency; }
-    void setTgcSamplingFrequency(std::optional<double> tgcSamplingFrequency)
+    std::optional<FloatingType> tgcSamplingFrequency() const { return m_tgcSamplingFrequency; }
+    void setTgcSamplingFrequency(std::optional<FloatingType> tgcSamplingFrequency)
     {
         m_tgcSamplingFrequency = tgcSamplingFrequency;
     }
 
-    std::optional<double> modulationFrequency() const { return m_modulationFrequency; }
-    void setModulationFrequency(std::optional<double> modulationFrequency)
+    std::optional<FloatingType> modulationFrequency() const { return m_modulationFrequency; }
+    void setModulationFrequency(std::optional<FloatingType> modulationFrequency)
     {
         m_modulationFrequency = modulationFrequency;
     }
@@ -105,10 +105,10 @@ private:
     std::weak_ptr<uff::Probe> m_probe;
 
     // Time before the first samples [s]
-    double m_timeOffset = 0.;
+    FloatingType m_timeOffset = 0.;
 
     // Sampling frequency [Hz]
-    std::optional<double> m_samplingFrequency = std::nullopt;
+    std::optional<FloatingType> m_samplingFrequency = std::nullopt;
 
     // Type of sampling: 
     SAMPLING_TYPE m_samplingType = SAMPLING_TYPE::DIRECT_RF;
@@ -118,13 +118,13 @@ private:
     std::vector<int> m_channelMapping;
 
     // (Optional) Analog TGC profile sampled at tgc_sampling_frequency [dB]
-    std::vector<float> m_tgcProfile = { 0.0 };
+    std::vector<FloatingType> m_tgcProfile = { 0.f };
 
     //     (Optional) Sampling frequency of the TGC profile [Hz]
-    std::optional<double> m_tgcSamplingFrequency = std::nullopt;
+    std::optional<FloatingType> m_tgcSamplingFrequency = std::nullopt;
 
     //     (Optional) Modulation frequency used in case of IQ-data [Hz]
-    std::optional<double> m_modulationFrequency = std::nullopt;
+    std::optional<FloatingType> m_modulationFrequency = std::nullopt;
 };
 
 } // namespace uff

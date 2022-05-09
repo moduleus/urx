@@ -30,8 +30,8 @@ public:
     std::weak_ptr<uff::Event> evenement() const { return m_event; }
     void setEvent(std::weak_ptr<uff::Event> event)  { m_event = event; }
     
-    double timeOffset() const { return m_timeOffset; }
-    void setTimeOffset(double timeOffset) { m_timeOffset = timeOffset; }
+    FloatingType timeOffset() const { return m_timeOffset; }
+    void setTimeOffset(FloatingType timeOffset) { m_timeOffset = timeOffset; }
 
     bool operator ==(const TimedEvent& other) const
     {
@@ -47,7 +47,7 @@ private:
     std::weak_ptr<uff::Event> m_event;
 
     // time offset relative to start of the sequence repetition (frame) [s]
-    double m_timeOffset = 0.0;
+    FloatingType m_timeOffset = 0.f;
 };
 
 } // namespace uff

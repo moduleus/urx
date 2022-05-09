@@ -15,6 +15,7 @@
 #include "uff_transform.h"
 
 // System
+#include <memory>
 #include <optional>
 #include <vector>
 
@@ -39,8 +40,8 @@ public:
     void setTransform(const uff::Transform& transform) { m_transform = transform; }
 
     /* [optional] For probes with a focal lens, it describes the focal length in m [Az, Ele] */
-    std::optional<double> focalLength() const { return m_focalLength; }
-    void setFocalLength(std::optional<double> focalLength) { m_focalLength = focalLength; }
+    std::optional<FloatingType> focalLength() const { return m_focalLength; }
+    void setFocalLength(std::optional<FloatingType> focalLength) { m_focalLength = focalLength; }
 
     /* List elements in the probe */
     std::vector<uff::Element>& elements() { return m_elements; }
@@ -62,7 +63,7 @@ public:
     }
 
     /* Convenience method */
-    const std::vector<float>& getChannelGeometry()
+    const std::vector<FloatingType>& getChannelGeometry()
     {
         if (_channelGeometryValid == false)
         {
@@ -71,9 +72,9 @@ public:
             auto dst = _channelGeometry.begin();
             for (auto& el : m_elements)
             {
-                *dst++ = el.x().has_value() ? el.x().value() : (float)UFF_NAN;
-                *dst++ = el.y().has_value() ? el.y().value() : (float)UFF_NAN;
-                *dst++ = el.z().has_value() ? el.z().value() : (float)UFF_NAN;
+                *dst++ = el.x().has_value() ? el.x().value() : (FloatingType)UFF_NAN;
+                *dst++ = el.y().has_value() ? el.y().value() : (FloatingType)UFF_NAN;
+                *dst++ = el.z().has_value() ? el.z().value() : (FloatingType)UFF_NAN;
                 *dst++ = 0;
             }
             _channelGeometryValid = true;
@@ -118,13 +119,13 @@ public:
 
 protected:
     uff::Transform m_transform;
-    std::optional<double> m_focalLength = std::nullopt;
+    std::optional<FloatingType> m_focalLength = std::nullopt;
     std::vector<uff::Element> m_elements;
     std::vector<uff::ElementGeometry> m_elementGeometries;
     std::vector<uff::ImpulseResponse> m_impulseResponses;
 
     bool _channelGeometryValid = false;
-    std::vector<float> _channelGeometry;
+    std::vector<FloatingType> _channelGeometry;
 };
 
 } // namespace uff

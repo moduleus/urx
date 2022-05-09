@@ -9,16 +9,6 @@
 
 #include <string>
 
-/* If UFF is built with Qt support add macro for QDebug */
-#define UFF_HAS_QT_SUPPORT
-#ifdef UFF_HAS_QT_SUPPORT
-//#include <QDebug>
-namespace uff
-{
-
-}    // namespace uff
-#endif // UFF_HAS_QT_SUPPORT
-
 namespace uff
 {
 
@@ -26,9 +16,7 @@ namespace uff
 #define UFF_VERSION_MINOR 2
 #define UFF_VERSION_PATCH 0
 
-#define UFF_LIB_VERSION "0.0.1"
-
-#define UFF_FORMAT_VERSION "v.0.0.40"
+using FloatingType = float;
 
 // Macro to prevent some class from being copied
 #define UFF_MAKE_NONCOPYABLE(ClassName) \

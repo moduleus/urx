@@ -47,25 +47,25 @@ public:
         updateElements(); 
     }
 
-    std::optional<double> pitchX() { return m_pitchX; }
-    void setPitchX(std::optional<double> pitchX)
+    std::optional<FloatingType> pitchX() { return m_pitchX; }
+    void setPitchX(std::optional<FloatingType> pitchX)
     { 
         m_pitchX = pitchX; 
         updateElements();
     }
 
-    std::optional<double> pitchY() { return m_pitchY; }
-    void setPitchY(std::optional<double> pitchY)
+    std::optional<FloatingType> pitchY() { return m_pitchY; }
+    void setPitchY(std::optional<FloatingType> pitchY)
     { 
         m_pitchY = pitchY;
         updateElements();
     }
 
-    std::optional<double> elementWidth() { return m_elementWidth; }
-    void setElementWidth(std::optional<double> elementWidth) { m_elementWidth = elementWidth; }
+    std::optional<FloatingType> elementWidth() { return m_elementWidth; }
+    void setElementWidth(std::optional<FloatingType> elementWidth) { m_elementWidth = elementWidth; }
 
-    std::optional<double> elementHeight() { return m_elementHeight; }
-    void setElementHeight(std::optional<double> elementHeight) { m_elementHeight = elementHeight; }
+    std::optional<FloatingType> elementHeight() { return m_elementHeight; }
+    void setElementHeight(std::optional<FloatingType> elementHeight) { m_elementHeight = elementHeight; }
 
     virtual std::shared_ptr<uff::Probe> clone() override
     {
@@ -78,11 +78,11 @@ private:
     {
         m_elements.resize((size_t)m_numberElementsX * m_numberElementsY);
 
-        double pitchX = m_pitchX.has_value() ? m_pitchX.value() : UFF_NAN;
-        double pitchY = m_pitchY.has_value() ? m_pitchY.value() : UFF_NAN;
+        FloatingType pitchX = m_pitchX.has_value() ? m_pitchX.value() : UFF_NAN;
+        FloatingType pitchY = m_pitchY.has_value() ? m_pitchY.value() : UFF_NAN;
 
-        double xmin = -pitchX * (m_numberElementsX - 1.0) / 2.0;
-        double ymin = -pitchY * (m_numberElementsY - 1.0) / 2.0;
+        FloatingType xmin = -pitchX * (m_numberElementsX - 1.f) / 2.f;
+        FloatingType ymin = -pitchY * (m_numberElementsY - 1.f) / 2.f;
         for (uint32_t i = 0; i < m_numberElementsY; i++)
         {    
             for (uint32_t j = 0; j < m_numberElementsX; j++)
@@ -98,7 +98,7 @@ private:
                 else
                     element.setY(std::nullopt);
 
-                element.setZ(0.0);
+                element.setZ(0.f);
                 m_elements[(size_t)j + (size_t)i * m_numberElementsY] = element;
             }
         }
@@ -112,16 +112,16 @@ protected:
     uint32_t m_numberElementsY = 0;
 
     // Distance between the acoustic center of adyacent elements along the x-axis [m]
-    std::optional<double> m_pitchX = std::nullopt;
+    std::optional<FloatingType> m_pitchX = std::nullopt;
 
     // Distance between the acoustic center of adyacent elements along the y-axis [m]
-    std::optional<double> m_pitchY = std::nullopt;
+    std::optional<FloatingType> m_pitchY = std::nullopt;
 
     // (Optional) Element size in the x-axis [m]
-    std::optional<double> m_elementWidth = std::nullopt;
+    std::optional<FloatingType> m_elementWidth = std::nullopt;
 
     // (Optional) Element size in the y-axis [m]
-    std::optional<double> m_elementHeight = std::nullopt;
+    std::optional<FloatingType> m_elementHeight = std::nullopt;
 };
 
 } // namespace uff

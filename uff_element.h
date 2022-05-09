@@ -30,17 +30,18 @@ class Element : public uff::Object
 public:
 
     Element() {}
+    virtual ~Element() = default;
 
     void printSelf(std::ostream& os, std::string indent) const override;
 
-    std::optional<float> x() const { return m_x; }
-    std::optional<float> y() const { return m_y; }
-    std::optional<float> z() const { return m_z; }
+    std::optional<FloatingType> x() const { return m_x; }
+    std::optional<FloatingType> y() const { return m_y; }
+    std::optional<FloatingType> z() const { return m_z; }
 
-    void setX(std::optional<float> x) { m_x = x; }
-    void setY(std::optional<float> y) { m_y = y; }
-    void setZ(std::optional<float> z) { m_z = z; }
-    void setXYZ(std::optional<float> x, std::optional<float> y, std::optional<float> z)
+    void setX(std::optional<FloatingType> x) { m_x = x; }
+    void setY(std::optional<FloatingType> y) { m_y = y; }
+    void setZ(std::optional<FloatingType> z) { m_z = z; }
+    void setXYZ(std::optional<FloatingType> x, std::optional<FloatingType> y, std::optional<FloatingType> z)
     {
         setX(x);
         setY(y);
@@ -57,9 +58,9 @@ public:
     inline bool operator !=(const Element& other) const { return !(*this == other); }
 
 private:
-    std::optional<float> m_x = std::nullopt;
-    std::optional<float> m_y = std::nullopt;
-    std::optional<float> m_z = std::nullopt;
+    std::optional<FloatingType> m_x = std::nullopt;
+    std::optional<FloatingType> m_y = std::nullopt;
+    std::optional<FloatingType> m_z = std::nullopt;
 };
 
 } // namespace uff

@@ -32,20 +32,20 @@ public:
 
     void printSelf(std::ostream& os, std::string indent) const override;
 
-    double initialTime() const { return m_initialTime; }
-    void setInitialTime(double initialTime)
+    FloatingType initialTime() const { return m_initialTime; }
+    void setInitialTime(FloatingType initialTime)
     {
         m_initialTime = initialTime;
     }
 
-    std::optional<double> samplingFrequency() const { return m_samplingFrequency; }
-    void setSampleFrequency(std::optional<double> samplingFrequency)
+    std::optional<FloatingType> samplingFrequency() const { return m_samplingFrequency; }
+    void setSampleFrequency(std::optional<FloatingType> samplingFrequency)
     {
         m_samplingFrequency = samplingFrequency;
     }
 
-    const std::vector<double>& data() const { return m_data; }
-    void setData(const std::vector<double>& data)
+    const std::vector<FloatingType>& data() const { return m_data; }
+    void setData(const std::vector<FloatingType>& data)
     {
         m_data = data;
     }
@@ -71,13 +71,13 @@ public:
 
 private:
     // Time in seconds from the delta excitation until the acquisition of the first sample
-    double m_initialTime = 0.;
+    FloatingType m_initialTime = 0.f;
 
     // Sampling frequency in Hz
-    std::optional<double> m_samplingFrequency = std::nullopt;
+    std::optional<FloatingType> m_samplingFrequency = std::nullopt;
 
     // Collection of samples containing the impulse response
-    std::vector<double> m_data;
+    std::vector<FloatingType> m_data;
 
     // (Optional) Name of the units of the impulse response
     std::string m_units;

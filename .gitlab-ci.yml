@@ -1,0 +1,54 @@
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+  
+stages:
+  - build
+
+build:windows:
+  stage: build
+  tags:
+    - win10
+    - build
+  script:
+    - md CI -Force
+    - 'cmake.exe -S . -B CI/ -G "Visual Studio 16 2019" -A "x64"'
+    - 'cmake.exe --build CI/ --config Release --parallel 8' 
+  artifacts:
+    paths:
+      - CI/
+    expire_in: 1 day
+
+build:ubuntu:
+  stage: build
+  tags:
+    - ubuntu
+    - build
+  before_script:
+    - if ! [ -d CI ]; then mkdir CI; fi
+  script:
+    - cmake -S . -B CI/
+    - cmake --build CI/ --config Release --parallel 8
+  artifacts:
+    paths:
+      - CI/
+    expire_in: 1 day
+
+
+build:android-ubuntu:
+  stage: build
+  tags:
+    - ubuntu
+    - build
+  before_script:
+    - if ! [ -d CI_Android ]; then mkdir CI_Android; fi
+  script:
+    - export ANDROID_HOME=/home/integration/Android
+    - export ANDROID_SDK_PATH=$ANDROID_HOME/Sdk
+    - export ANDROID_NDK_PATH=$ANDROID_SDK_PATH/ndk/21.4.7075529
+    - export ANDROID_ARM64_V8A_INSTALL_PREFIX=$ANDROID_HOME/libs/arm64-v8a
+    - cmake -S . -B CI_Android/ -DCMAKE_SYSTEM_NAME=Android -DCMAKE_SYSTEM_VERSION=28 -DCMAKE_ANDROID_ARCH_ABI=arm64-v8a -DCMAKE_ANDROID_NDK=$ANDROID_NDK_PATH -DCMAKE_ANDROID_STL_TYPE=c++_static -DCMAKE_INSTALL_PREFIX=$ANDROID_HOME/libs
+    - cmake --build CI_Android/ --config Release --parallel 8
+  artifacts:
+    paths:
+      - CI_Android/
+    expire_in: 1 day

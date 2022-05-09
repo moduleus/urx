@@ -41,18 +41,18 @@ public:
         updateElements();
     }
     
-    std::optional<double> pitch() { return m_pitch; }
-    void setPitch(std::optional<double> pitch)
+    std::optional<FloatingType> pitch() { return m_pitch; }
+    void setPitch(std::optional<FloatingType> pitch)
     { 
         m_pitch = pitch;
         updateElements();
     }
 
-    std::optional<double> elementWidth() { return m_elementWidth; }
-    void setElementWidth(std::optional<double> elementWidth) { m_elementWidth = elementWidth; }
+    std::optional<FloatingType> elementWidth() { return m_elementWidth; }
+    void setElementWidth(std::optional<FloatingType> elementWidth) { m_elementWidth = elementWidth; }
 
-    std::optional<double> elementHeight() { return m_elementHeight; }
-    void setElementHeight(std::optional<double> elementHeight) { m_elementHeight = elementHeight; }
+    std::optional<FloatingType> elementHeight() { return m_elementHeight; }
+    void setElementHeight(std::optional<FloatingType> elementHeight) { m_elementHeight = elementHeight; }
 
     virtual std::shared_ptr<uff::Probe> clone() override
     {
@@ -70,13 +70,13 @@ private:
             uff::Element element;
             if (m_pitch.has_value())
             {
-                double xmin = - m_pitch.value() * (m_numberElements - 1.0) / 2.0;
+                FloatingType xmin = - m_pitch.value() * (m_numberElements - 1.f) / 2.f;
                 element.setX(xmin + i * m_pitch.value());
             }
             else
-                element.setX(0.);
-            element.setY(0.);
-            element.setZ(0.);
+                element.setX(0.f);
+            element.setY(0.f);
+            element.setZ(0.f);
             m_elements[i] = element;
         }
     }
@@ -86,13 +86,13 @@ protected:
     uint32_t m_numberElements = 0;
 
     // Distance between the acoustic ceneter of adyacent elements [m]
-    std::optional<double> m_pitch = std::nullopt;
+    std::optional<FloatingType> m_pitch = std::nullopt;
 
     // (Optional) Element size in the x-axis [m]
-    std::optional<double> m_elementWidth = std::nullopt;
+    std::optional<FloatingType> m_elementWidth = std::nullopt;
 
     // (Optional) Element size in the y-axis [m]
-    std::optional<double> m_elementHeight = std::nullopt;
+    std::optional<FloatingType> m_elementHeight = std::nullopt;
 };
 
 } // namespace uff
