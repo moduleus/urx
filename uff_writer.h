@@ -50,8 +50,8 @@ private:
 
     void writeAperture(H5::Group& group, const uff::Aperture& aperture);
     void writeChannelData(H5::Group& group, const uff::ChannelData& channelData);
-    H5::DataSet writeDoubleDataset(H5::Group& group, const std::string& name, double value);
-    H5::DataSet writeOptionalDoubleDataset(H5::Group& group, const std::string& name, std::optional<double> value);
+    H5::DataSet writeFloatingTypeDataset(H5::Group& group, const std::string& name, FloatingType value);
+    H5::DataSet writeOptionalFloatingTypeDataset(H5::Group& group, const std::string& name, std::optional<FloatingType> value);
 
     void writeElementArray(H5::Group& group, const std::vector<uff::Element>& elements);
     void writeElement(H5::Group& group, const uff::Element& element);
@@ -61,7 +61,7 @@ private:
 
     void writeExcitation(H5::Group& group, const uff::Excitation& excitation);
 
-    H5::DataSet writeFloatArrayDataset(H5::Group& group, const std::string& name, const std::vector<float>& values, const std::vector<size_t>& dimensions);
+    H5::DataSet writeFloatingTypeArrayDataset(H5::Group& group, const std::string& name, const std::vector<FloatingType>& values, const std::vector<size_t>& dimensions);
 
     H5::DataSet writeIntegerArrayDataset(H5::Group& group, const std::string& name, const std::vector<int>& values, const std::vector<size_t>& dimensions);
     H5::DataSet writeIntegerDataset(H5::Group& group, const std::string& name, int value);

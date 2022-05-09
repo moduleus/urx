@@ -28,7 +28,7 @@ void Probe::printSelf(std::ostream& os, std::string indent) const
     }
     
     os << indent << "ElementGeometries: (size=" << this->m_elementGeometries.size() << ")" << std::endl;
-    for (int i=0; i<this->m_elementGeometries.size(); i++)
+    for (uint32_t i=0; i<this->m_elementGeometries.size(); i++)
     {
         os << indent + UFF_STD_INDENT << '#' << i + 1 << ": ";
         this->m_elementGeometries[i].printSelf(os, indent + UFF_STD_INDENT + UFF_STD_INDENT);
@@ -36,7 +36,7 @@ void Probe::printSelf(std::ostream& os, std::string indent) const
     
     os << indent << "ImpulseResponses: (size=" << this->m_impulseResponses.size() << ")" << std::endl;
     if (this->m_impulseResponses.size())
-    for (int i=0; i<this->m_impulseResponses.size(); i++)
+    for (uint32_t i=0; i<this->m_impulseResponses.size(); i++)
     {
         os << indent + UFF_STD_INDENT << '#' << i + 1 << ':' << std::endl;
         this->m_impulseResponses[i].printSelf(os, indent + UFF_STD_INDENT + UFF_STD_INDENT);

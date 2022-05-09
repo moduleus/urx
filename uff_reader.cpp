@@ -88,10 +88,10 @@ uff::Aperture Reader::readAperture(const H5::Group& group)
     aperture.setWindow(readOptionalStringDataset(group, "window"));
 
     // "f_number"
-    aperture.setFNumber(readOptionalDoubleDataset(group, "f_number"));
+    aperture.setFNumber(readOptionalFloatingTypeDataset(group, "f_number"));
 
     // "fixed_size"
-    aperture.setFixedSize(readOptionalDoubleDataset(group, "fixed_size"));
+    aperture.setFixedSize(readOptionalFloatingTypeDataset(group, "fixed_size"));
 
     // "maximum_size" TODO
     // "minimum_size" TODO
@@ -107,12 +107,12 @@ void Reader::readChannelData(const H5::Group& group)
     channelData.setLocalTime(readStringDataset(group, "local_time"));
     channelData.setCountryCode(readStringDataset(group, "country_code"));
     channelData.setSystem(readStringDataset(group, "system"));
-    channelData.setSoundSpeed(readDoubleDataset(group, "sound_speed"));
-    channelData.setRepetitionRate(readOptionalDoubleDataset(group, "repetition_rate"));
+    channelData.setSoundSpeed(readFloatingTypeDataset(group, "sound_speed"));
+    channelData.setRepetitionRate(readOptionalFloatingTypeDataset(group, "repetition_rate"));
 
     // channel_data.data
     std::vector<size_t> dataDims;
-    readFloatArrayDataset(group, "data", m_dataset->channelData().data(), dataDims);
+    readFloatingTypeArrayDataset(group, "data", m_dataset->channelData().data(), dataDims);
     if (dataDims.size() != 4)
     {
         std::cerr << "Uff::Reader : Dataset dimension != 4" << std::endl;
@@ -140,24 +140,24 @@ void Reader::readChannelData(const H5::Group& group)
     channelData.setSequence(readTimedEventArray(sequence));
 }
 
-double Reader::readDoubleDataset(const H5::Group& group, const std::string& name)
+FloatingType Reader::readFloatingTypeDataset(const H5::Group& group, const std::string& name)
 {
-    H5::StrType datatype(H5::PredType::NATIVE_DOUBLE);
+    H5::StrType datatype(H5::PredType::NATIVE_FloatingType);
     H5::DataSet dataset = group.openDataSet(name);
-    double value;
+    FloatingType value;
     dataset.read(&value, datatype);
     dataset.close();
     return value;
 }
 
-std::optional<double> Reader::readOptionalDoubleDataset(const H5::Group& group, const std::string& name)
+std::optional<FloatingType> Reader::readOptionalFloatingTypeDataset(const H5::Group& group, const std::string& name)
 {
-    H5::StrType datatype(H5::PredType::NATIVE_DOUBLE);
+    H5::StrType datatype(H5::PredType::NATIVE_FloatingType);
     H5::DataSet dataset = group.openDataSet(name);
-    double value;
+    FloatingType value;
     dataset.read(&value, datatype);
     dataset.close();
-    std::optional<double> result = std::nullopt;
+    std::optional<FloatingType> result = std::nullopt;
     if (!std::isnan(value)) { result = value; }
     return result;
 }
@@ -166,9 +166,9 @@ uff::Element Reader::readElement(const H5::Group& group)
 {
     uff::Element element;
 
-    element.setX(readOptionalDoubleDataset(group, "x"));
-    element.setY(readOptionalDoubleDataset(group, "y"));
-    element.setZ(readOptionalDoubleDataset(group, "z"));
+    element.setX(readOptionalFloatingTypeDataset(group, "x"));
+    element.setY(readOptionalFloatingTypeDataset(group, "y"));
+    element.setZ(readOptionalFloatingTypeDataset(group, "z"));
 
     return element;
 }
@@ -243,23 +243,23 @@ uff::Excitation Reader::readExcitation(const H5::Group& group)
     excitation.setPulseShape(readOptionalStringDataset(group, "pulse_shape"));
 
     // "transmit_frequency"
-    excitation.setTransmitFrequency(readOptionalDoubleDataset(group, "transmit_frequency"));
+    excitation.setTransmitFrequency(readOptionalFloatingTypeDataset(group, "transmit_frequency"));
 
     // "waveform"
-    // TODO excitation.setWaveform(readFloatArrayDataset(group, "waveform"));
+    // TODO excitation.setWaveform(readFloatingTypeArrayDataset(group, "waveform"));
 
     // "sampling_frequency"
-    excitation.setSamplingFrequency(readOptionalDoubleDataset(group, "sampling_frequency"));
+    excitation.setSamplingFrequency(readOptionalFloatingTypeDataset(group, "sampling_frequency"));
 
     return excitation;
 }
 
-void Reader::readFloatArrayDataset(const H5::Group& group, const std::string& name,
-    std::vector<float>& values, std::vector<size_t>& dimensions)
+void Reader::readFloatingTypeArrayDataset(const H5::Group& group, const std::string& name,
+    std::vector<FloatingType>& values, std::vector<size_t>& dimensions)
 {
     H5::DataSet dataset = group.openDataSet(name);
     // TODO: check if type is correct : dataset.getTypeClass()
-    H5::StrType datatype(H5::PredType::NATIVE_FLOAT);
+    H5::StrType datatype(H5::PredType::NATIVE_FloatingType);
 
     // find dataset dimensions
     H5::DataSpace dataspace = dataset.getSpace();
@@ -325,13 +325,13 @@ std::shared_ptr<uff::LinearArray> Reader::readLinearArray(const H5::Group& group
     auto linearArray = std::make_shared<uff::LinearArray>(readIntegerDataset(group, "number_elements"));
 
     // Read "pitch"
-    linearArray->setPitch(readOptionalDoubleDataset(group, "pitch"));
+    linearArray->setPitch(readOptionalFloatingTypeDataset(group, "pitch"));
 
     // Read "element_width"
-    linearArray->setElementWidth(readOptionalDoubleDataset(group, "element_width"));
+    linearArray->setElementWidth(readOptionalFloatingTypeDataset(group, "element_width"));
 
     // Read "element_height"
-    linearArray->setElementHeight(readOptionalDoubleDataset(group, "element_height"));
+    linearArray->setElementHeight(readOptionalFloatingTypeDataset(group, "element_height"));
 
     return linearArray;
 }
@@ -345,14 +345,14 @@ std::shared_ptr<uff::MatrixArray> Reader::readMatrixArray(const H5::Group& group
     matrixArray->setNumberElementsY(readIntegerDataset(group, "number_elements_y"));
 
     // Read "pitch"
-    matrixArray->setPitchX(readOptionalDoubleDataset(group, "pitch_x"));
-    matrixArray->setPitchY(readOptionalDoubleDataset(group, "pitch_y"));
+    matrixArray->setPitchX(readOptionalFloatingTypeDataset(group, "pitch_x"));
+    matrixArray->setPitchY(readOptionalFloatingTypeDataset(group, "pitch_y"));
 
     // Read "element_width"
-    matrixArray->setElementWidth(readOptionalDoubleDataset(group, "element_width"));
+    matrixArray->setElementWidth(readOptionalFloatingTypeDataset(group, "element_width"));
 
     // Read "element_height"
-    matrixArray->setElementHeight(readOptionalDoubleDataset(group, "element_height"));
+    matrixArray->setElementHeight(readOptionalFloatingTypeDataset(group, "element_height"));
 
     return matrixArray;
 }
@@ -362,16 +362,16 @@ std::shared_ptr<RcaArray> Reader::readRcaArray(const H5::Group&group)
     auto rcaArray = std::make_shared<uff::RcaArray>(readIntegerDataset(group, "number_elements_x"), readIntegerDataset(group, "number_elements_y"));
 
     // Read "pitch"
-    rcaArray->setPitchX(readOptionalDoubleDataset(group, "pitch_x"));
-    rcaArray->setPitchY(readOptionalDoubleDataset(group, "pitch_y"));
+    rcaArray->setPitchX(readOptionalFloatingTypeDataset(group, "pitch_x"));
+    rcaArray->setPitchY(readOptionalFloatingTypeDataset(group, "pitch_y"));
 
     // Read "element_width"
-    rcaArray->setElementWidthX(readOptionalDoubleDataset(group, "element_width_x"));
-    rcaArray->setElementWidthY(readOptionalDoubleDataset(group, "element_width_y"));
+    rcaArray->setElementWidthX(readOptionalFloatingTypeDataset(group, "element_width_x"));
+    rcaArray->setElementWidthY(readOptionalFloatingTypeDataset(group, "element_width_y"));
 
     // Read "element_height"
-    rcaArray->setElementHeightX(readOptionalDoubleDataset(group, "element_height_x"));
-    rcaArray->setElementHeightY(readOptionalDoubleDataset(group, "element_height_y"));
+    rcaArray->setElementHeightX(readOptionalFloatingTypeDataset(group, "element_height_x"));
+    rcaArray->setElementHeightY(readOptionalFloatingTypeDataset(group, "element_height_y"));
 
     return rcaArray;
 }
@@ -385,7 +385,7 @@ std::shared_ptr<uff::Probe> Reader::readProbe(const H5::Group& group)
     probe->setTransform(readTransform(transform));
 
     // focal length
-    probe->setFocalLength(readOptionalDoubleDataset(group, "focal_length"));
+    probe->setFocalLength(readOptionalFloatingTypeDataset(group, "focal_length"));
 
     // elements
     H5::Group elements = group.openGroup("elements");
@@ -472,10 +472,10 @@ uff::ReceiveSetup Reader::readReceiveSetup(const H5::Group& group)
     receiveSetup.setProbe(m_dataset->channelData().probes()[(size_t)probeId - 1]);
 
     // "time_offset"
-    receiveSetup.setTimeOffset(readDoubleDataset(group, "time_offset"));
+    receiveSetup.setTimeOffset(readFloatingTypeDataset(group, "time_offset"));
 
     // "sampling_frequency"
-    receiveSetup.setSamplingFrequency(readOptionalDoubleDataset(group, "sampling_frequency"));
+    receiveSetup.setSamplingFrequency(readOptionalFloatingTypeDataset(group, "sampling_frequency"));
 
     // "sampling_type"
     int st = readIntegerDataset(group, "sampling_type");
@@ -509,22 +509,22 @@ uff::ReceiveSetup Reader::readReceiveSetup(const H5::Group& group)
     // "tgc_profile" [optional]
     if (H5Lexists(group.getLocId(), "tgc_profile", H5P_DEFAULT))
     {
-        std::vector<float> tgcProfile;
+        std::vector<FloatingType> tgcProfile;
         std::vector<size_t> dimensions;
-        readFloatArrayDataset(group, "tgc_profile", tgcProfile, dimensions);
+        readFloatingTypeArrayDataset(group, "tgc_profile", tgcProfile, dimensions);
         receiveSetup.setTgcProfile(tgcProfile);
     }
 
     // "tgc_sampling_frequency" [optional]
     if (H5Lexists(group.getLocId(), "tgc_sampling_frequency", H5P_DEFAULT))
     {
-        receiveSetup.setTgcSamplingFrequency(readOptionalDoubleDataset(group, "tgc_sampling_frequency"));
+        receiveSetup.setTgcSamplingFrequency(readOptionalFloatingTypeDataset(group, "tgc_sampling_frequency"));
     }
 
     // "modulation_frequency" [optional]
     if (H5Lexists(group.getLocId(), "tgc_sampling_frequency", H5P_DEFAULT))
     {
-        receiveSetup.setModulationFrequency(readOptionalDoubleDataset(group, "modulation_frequency"));
+        receiveSetup.setModulationFrequency(readOptionalFloatingTypeDataset(group, "modulation_frequency"));
     }
 
     return receiveSetup;
@@ -534,9 +534,9 @@ uff::Rotation Reader::readRotation(const H5::Group& group)
 {
     uff::Rotation rotation;
 
-    rotation.setX(readDoubleDataset(group, "x"));
-    rotation.setY(readDoubleDataset(group, "y"));
-    rotation.setZ(readDoubleDataset(group, "z"));
+    rotation.setX(readFloatingTypeDataset(group, "x"));
+    rotation.setY(readFloatingTypeDataset(group, "y"));
+    rotation.setZ(readFloatingTypeDataset(group, "z"));
 
     return rotation;
 }
@@ -574,7 +574,7 @@ uff::TimedEvent Reader::readTimedEvent(const H5::Group& group)
     timedEvent.setEvent(m_dataset->channelData().uniqueEvents()[(size_t)eventId - 1]);
 
     // "time_offset"
-    timedEvent.setTimeOffset(readDoubleDataset(group, "time_offset"));
+    timedEvent.setTimeOffset(readFloatingTypeDataset(group, "time_offset"));
 
     return timedEvent;
 }
@@ -619,9 +619,9 @@ uff::Translation Reader::readTranslation(const H5::Group& group)
 {
     uff::Translation translation;
 
-    translation.setX(readDoubleDataset(group, "x"));
-    translation.setY(readDoubleDataset(group, "y"));
-    translation.setZ(readDoubleDataset(group, "z"));
+    translation.setX(readFloatingTypeDataset(group, "x"));
+    translation.setY(readFloatingTypeDataset(group, "y"));
+    translation.setZ(readFloatingTypeDataset(group, "z"));
 
     return translation;
 }
@@ -658,10 +658,10 @@ uff::TransmitWave Reader::readTransmitWave(const H5::Group& group)
     transmitWave.setWave(m_dataset->channelData().uniqueWaves()[(size_t)waveId - 1]);
 
     // "time_offset"
-    transmitWave.setTimeOffset(readDoubleDataset(group, "time_offset"));
+    transmitWave.setTimeOffset(readFloatingTypeDataset(group, "time_offset"));
 
     // "weight"
-    transmitWave.setWeight(readDoubleDataset(group, "weight"));
+    transmitWave.setWeight(readFloatingTypeDataset(group, "weight"));
 
     return transmitWave;
 }

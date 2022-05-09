@@ -75,12 +75,12 @@ public:
     void setSystem(const std::string& system) { m_system = system; }
     
     // Speed of sound in m/s 
-    double soundSpeed() const { return m_soundSpeed; }
-    void setSoundSpeed(double soundSpeed) { m_soundSpeed = soundSpeed; }
+    FloatingType soundSpeed() const { return m_soundSpeed; }
+    void setSoundSpeed(FloatingType soundSpeed) { m_soundSpeed = soundSpeed; }
 
     // Sequence repetition rate in Hz. Sometimes called framerate. 
-    std::optional<double> repetitionRate() const { return m_repetitionRate; }
-    void setRepetitionRate(std::optional<double> repetitionRate) { m_repetitionRate = repetitionRate; }
+    std::optional<FloatingType> repetitionRate() const { return m_repetitionRate; }
+    void setRepetitionRate(std::optional<FloatingType> repetitionRate) { m_repetitionRate = repetitionRate; }
 
     // List of probes used for this dataset 
     const std::vector<std::shared_ptr<uff::Probe>>& probes() const { return m_probes; }
@@ -102,10 +102,10 @@ public:
     void setSequence(const std::vector<uff::TimedEvent>& sequence) { m_sequence = sequence; }
     
     // data
-    std::vector<float>& data() { return m_data; }
-    void setData(const std::vector<float>& data)  { m_data = data; }
+    std::vector<FloatingType>& data() { return m_data; }
+    void setData(const std::vector<FloatingType>& data)  { m_data = data; }
 
-    float* dataAt(int frame, int event, int channel)
+    FloatingType* dataAt(int frame, int event, int channel)
     {
         return m_data.data()
             + ((size_t)frame * numberOfEvents() * numberOfChannels() * numberOfSamples())
@@ -209,10 +209,10 @@ private:
     std::string m_system;
 
     // Reference sound speed for Tx and Rx events [m/s]
-    double m_soundSpeed = 0;
+    FloatingType m_soundSpeed = 0;
 
     // Inverse of the time delay between consecutive repetitions of the sequence
-    std::optional<double> m_repetitionRate = std::nullopt;
+    std::optional<FloatingType> m_repetitionRate = std::nullopt;
 
     // List of the probes used to transmit/recive the sequence
     std::vector<std::shared_ptr<uff::Probe>> m_probes;
@@ -227,7 +227,7 @@ private:
     std::vector<uff::TimedEvent> m_sequence;
 
     // data[iFrame][iEvent][iChannel][iSample]
-    std::vector<float> m_data;
+    std::vector<FloatingType> m_data;
     uint32_t m_numberOfFrames = 0;
     uint32_t m_numberOfEvents = 0;
     uint32_t m_numberOfChannels = 0;

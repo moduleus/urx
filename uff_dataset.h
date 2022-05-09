@@ -40,14 +40,14 @@ public:
     // ___________________ Convenience access method ___________________________________
 
     // Returns the channel geometry of the probe used by the 1st receive setup
-    const std::vector<float> getChannelGeometry()
+    const std::vector<FloatingType> getChannelGeometry()
     {
-        if (m_channelData.probes().empty()) { return std::vector<float>(); }
+        if (m_channelData.probes().empty()) { return std::vector<FloatingType>(); }
         else { return m_channelData.probes()[0]->getChannelGeometry(); }
     }
 
     // Returns the receive delay of the 1st ReceiveSetup
-    double getReceiveDelay() const
+    FloatingType getReceiveDelay() const
     {
         if (m_channelData.uniqueEvents().empty()) { return UFF_NAN; }
         else
@@ -63,7 +63,7 @@ public:
     }
 
     // Return the sampling frequency associated with the 1st receive event [Hz]
-    double getSamplingFrequency() const
+    FloatingType getSamplingFrequency() const
     {
         if (m_channelData.uniqueEvents().empty() || 
             !m_channelData.uniqueEvents()[0]->receiveSetup().samplingFrequency().has_value()) { return UFF_NAN; }
@@ -71,10 +71,10 @@ public:
     }
 
     // Returns the speed of sound [m/s]
-    double getSoundSpeed() const { return m_channelData.soundSpeed(); }
+    FloatingType getSoundSpeed() const { return m_channelData.soundSpeed(); }
 
     // Return the transmit frequency associated with the 1st Wave of the dataset
-    double getTransmitFrequency() const
+    FloatingType getTransmitFrequency() const
     {
         if (m_channelData.uniqueWaves().empty() || 
             !m_channelData.uniqueWaves()[0]->excitation().transmitFrequency().has_value())

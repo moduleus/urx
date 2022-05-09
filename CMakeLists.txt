@@ -108,6 +108,12 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 if(${HDF5_FOUND})
   target_link_libraries (${PROJECT_NAME} ${HDF5_LIBS})
 endif(${HDF5_FOUND})
+# Treat warnings as errors
+target_compile_options(${PROJECT_NAME} PRIVATE
+$<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
+     -Werror -Wall>
+$<$<CXX_COMPILER_ID:MSVC>:
+     /W3 /WX /EHsc>)
 
 ### Create cmake config files ###
 
