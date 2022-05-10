@@ -32,6 +32,7 @@ public:
     void printSelf(std::ostream& os, std::string indent) const override;
 
     uff::ChannelData& channelData() { return m_channelData; }
+    const uff::ChannelData& channelData() const { return m_channelData; }
     void setChannelData(const uff::ChannelData& channelData) { m_channelData = channelData; }
 
     const uff::Version& version() const { return m_version; }

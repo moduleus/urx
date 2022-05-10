@@ -104,7 +104,14 @@ public:
     // data
     std::vector<float>& data() { return m_data; }
     void setData(const std::vector<float>& data)  { m_data = data; }
-
+    
+    const float* dataAt(int frame, int event, int channel) const 
+    { 
+        return m_data.data()
+            + ((size_t)frame * numberOfEvents() * numberOfChannels() * numberOfSamples())
+            + ((size_t)event * numberOfChannels() * numberOfSamples())
+            + ((size_t)channel * numberOfSamples());
+    }
     float* dataAt(int frame, int event, int channel)
     {
         return m_data.data()
