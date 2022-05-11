@@ -4,6 +4,7 @@
  * \brief
  */
 
+#ifdef WITH_HDF5
 #ifndef UFF_READER_H
 #define UFF_READER_H
 
@@ -104,3 +105,4 @@ private:
 } // namespace uff
 
 #endif // UFF_READER_H
+#endif // WITH_HDF5

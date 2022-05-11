@@ -75,16 +75,16 @@ namespace uff
         {
             std::shared_ptr<uff::Probe> newProbe = probe->clone();
             m_probes.push_back(newProbe);
-            assert(*newProbe == *probe);
-            assert(m_probes.back() != probe);
+            if(*newProbe != *probe) throw;
+            if(m_probes.back() == probe) throw;
         }
 
         // Waves
         for (auto& uniqueWave : other.m_uniqueWaves)
         {
             m_uniqueWaves.push_back(std::make_shared<uff::Wave>(*uniqueWave));
-            assert(*m_uniqueWaves.back() == *uniqueWave);
-            assert(m_uniqueWaves.back() != uniqueWave);
+            if(*m_uniqueWaves.back() != *uniqueWave) throw;
+            if(m_uniqueWaves.back() == uniqueWave) throw;
         }
 
         // Events
@@ -105,7 +105,7 @@ namespace uff
                 }
                 m_uniqueEvents.back()->transmitSetup().setProbe(transmitProbe);
                 bool foundTransmitProbe = std::find(m_probes.begin(), m_probes.end(), m_uniqueEvents.back()->transmitSetup().probe().lock()) != m_probes.end();
-                assert(foundTransmitProbe);
+                if(!foundTransmitProbe) throw;
             }
             
             // Receive Probe weak pointer
@@ -120,7 +120,7 @@ namespace uff
                 }
                 m_uniqueEvents.back()->receiveSetup().setProbe(receiveProbe);
                 bool foundReceiveProbe = std::find(m_probes.begin(), m_probes.end(), m_uniqueEvents.back()->receiveSetup().probe().lock()) != m_probes.end();
-                assert(foundReceiveProbe);
+                if(!foundReceiveProbe) throw;
             }
 
             // Wave weak pointer
@@ -135,11 +135,11 @@ namespace uff
                 }
                 m_uniqueEvents.back()->transmitSetup().transmitWave().setWave(wave);
                 bool foundWave = std::find( m_uniqueWaves.begin(), m_uniqueWaves.end(), m_uniqueEvents.back()->transmitSetup().transmitWave().wave().lock()) != m_uniqueWaves.end();
-                assert(foundWave);
+                if(!foundWave) throw;
             }
 
-            assert(*m_uniqueEvents.back() == *uniqueEvent);
-            assert(m_uniqueEvents.back() != uniqueEvent);
+            if(*m_uniqueEvents.back() != *uniqueEvent) throw;
+            if(m_uniqueEvents.back() == uniqueEvent) throw;
         }
 
         // Sequence
@@ -157,8 +157,7 @@ namespace uff
                 }
             }
             m_sequence.back().setEvent(evenement);
-
-            assert(m_sequence.back() == timedEvent);
+            if(m_sequence.back() != timedEvent) throw;
         }
 
         // Sizes
@@ -170,7 +169,7 @@ namespace uff
         // Data
         m_data = other.m_data;
 
-        assert(*this == other);
+        if(*this != other) throw;
 
         return *this;
     }

@@ -17,6 +17,12 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 enable_testing()
 
+if(DEFINED HDF5_DIR)
+  set(HDF5_DEFINED TRUE)
+else()
+  set(HDF5_DEFINED FALSE)
+endif()
+
 #
 # HDF5
 #
@@ -25,6 +31,11 @@ string(TOLOWER ${LIB_TYPE} SEARCH_TYPE)
 find_package(HDF5 NAMES hdf5 COMPONENTS CXX ${SEARCH_TYPE})
 set_directory_properties(PROPERTIES INCLUDE_DIRECTORIES "${HDF5_INCLUDE_DIR}")
 set(HDF5_LIBS ${LINK_LIBS} ${HDF5_CXX_${LIB_TYPE}_LIBRARY})
+
+
+if(NOT ${HDF5_FOUND} AND ${HDF5_DEFINED})
+  message( FATAL_ERROR "HDF5 has been specified but was not found, CMake will exit." )
+endif()
 
 ### Sources files ###
 
@@ -79,15 +90,11 @@ set(UFF_SRCS
   ${CMAKE_CURRENT_SOURCE_DIR}/uff_version.h
   ${CMAKE_CURRENT_SOURCE_DIR}/uff_wave.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/uff_wave.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt)
-
-if(${HDF5_FOUND})
-  set(UFF_SRCS ${UFF_SRCS}
-    ${CMAKE_CURRENT_SOURCE_DIR}/uff_reader.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/uff_reader.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/uff_writer.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/uff_writer.h)
-endif(${HDF5_FOUND})
+  ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt
+  ${CMAKE_CURRENT_SOURCE_DIR}/uff_reader.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/uff_reader.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/uff_writer.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/uff_writer.h)
 
 # Set the tree view in IDE
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${UFF_SRCS})
@@ -99,6 +106,11 @@ if(WIN32)
 else(WIN32)
   add_library(${PROJECT_NAME} SHARED ${UFF_SRCS})
 endif(WIN32)
+
+if(${HDF5_FOUND})
+  target_compile_definitions(${PROJECT_NAME} PRIVATE WITH_HDF5)
+endif(${HDF5_FOUND})
+
 #target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(${PROJECT_NAME} PUBLIC  
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>  

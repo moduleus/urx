@@ -4,7 +4,21 @@ variables:
 stages:
   - build
 
-build:windows:
+build:windows-with-HDF5:
+  stage: build
+  tags:
+    - win10
+    - build
+  script:
+    - md CI -Force
+    - 'cmake.exe -S . -B CI/ -G "Visual Studio 16 2019" -A "x64" -DHDF5_DIR="D:/GitRepo/External_MD/HDF5-install/cmake/hdf5"'
+    - 'cmake.exe --build CI/ --config Release --parallel 8' 
+  artifacts:
+    paths:
+      - CI/
+    expire_in: 1 day
+
+build:windows-without-HDF5:
   stage: build
   tags:
     - win10
@@ -18,7 +32,22 @@ build:windows:
       - CI/
     expire_in: 1 day
 
-build:ubuntu:
+build:ubuntu-with-HDF5:
+  stage: build
+  tags:
+    - ubuntu
+    - build
+  before_script:
+    - if ! [ -d CI ]; then mkdir CI; fi
+  script:
+    - cmake -S . -B CI/ -DHDF5_DIR="~/Documents/External_Ubuntu/HDF5-install/share/cmake/hdf5"
+    - cmake --build CI/ --config Release --parallel 8
+  artifacts:
+    paths:
+      - CI/
+    expire_in: 1 day
+
+build:ubuntu-without-HDF5:
   stage: build
   tags:
     - ubuntu
@@ -34,7 +63,7 @@ build:ubuntu:
     expire_in: 1 day
 
 
-build:android-ubuntu:
+build:android-ubuntu-without-HDF5:
   stage: build
   tags:
     - ubuntu
