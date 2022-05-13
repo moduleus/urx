@@ -4,6 +4,7 @@
  * \brief
  */
 
+#ifdef WITH_HDF5
 #ifndef UFF_WRITER_H
 #define UFF_WRITER_H
 
@@ -98,3 +99,4 @@ private:
 } // namespace uff
 
 #endif // UFF_WRITER_H
+#endif // WITH_HDF5

@@ -4,6 +4,8 @@
  * \brief
  */
 
+#ifdef WITH_HDF5
+
 #include "uff_reader.h"
 
 #include <type_traits>
@@ -41,35 +43,35 @@ void Reader::updateMetadata()
         file.close();
     }  // end of try block
     // catch failure caused by the H5File operations
-    catch (H5::FileIException error)
+    catch(const H5::FileIException& error)
     {
         error.printErrorStack();
         std::cerr << __FILE__ << __LINE__ << error.getDetailMsg();
         return;
     }
     // catch failure caused by the DataSet operations
-    catch (H5::DataSetIException error)
+    catch(const H5::DataSetIException& error)
     {
         error.printErrorStack();
         std::cerr << __FILE__ << __LINE__ << error.getDetailMsg();
         return;
     }
     // catch failure caused by the DataSpace operations
-    catch (H5::DataSpaceIException error)
+    catch(const H5::DataSpaceIException& error)
     {
         error.printErrorStack();
         std::cerr << __FILE__ << __LINE__ << error.getDetailMsg();
         return;
     }
     // catch failure caused by the DataSpace operations
-    catch (H5::DataTypeIException error)
+    catch(const H5::DataTypeIException& error)
     {
         error.printErrorStack();
         std::cerr << __FILE__ << __LINE__ << error.getDetailMsg();
         return;
     }
     // catch failure caused by the Group operations
-    catch (H5::GroupIException error)
+    catch(const H5::GroupIException& error)
     {
         error.printErrorStack();
         std::cerr << __FILE__ << __LINE__ << error.getDetailMsg();
@@ -118,10 +120,10 @@ void Reader::readChannelData(const H5::Group& group)
         std::cerr << "Uff::Reader : Dataset dimension != 4" << std::endl;
         return;
     }
-    channelData.setNumberOfFrames(dataDims[0]);
-    channelData.setNumberOfEvents(dataDims[1]);
-    channelData.setNumberOfChannels(dataDims[2]);
-    channelData.setNumberOfSamples(dataDims[3]);
+    channelData.setNumberOfFrames(static_cast<int>(dataDims[0]));
+    channelData.setNumberOfEvents(static_cast<int>(dataDims[1]));
+    channelData.setNumberOfChannels(static_cast<int>(dataDims[2]));
+    channelData.setNumberOfSamples(static_cast<int>(dataDims[3]));
 
     // Probes
     H5::Group probes(group.openGroup("probes"));
@@ -142,7 +144,7 @@ void Reader::readChannelData(const H5::Group& group)
 
 FloatingType Reader::readFloatingTypeDataset(const H5::Group& group, const std::string& name)
 {
-    H5::StrType datatype(H5::PredType::NATIVE_FloatingType);
+    H5::StrType datatype(H5FloatingType);
     H5::DataSet dataset = group.openDataSet(name);
     FloatingType value;
     dataset.read(&value, datatype);
@@ -152,7 +154,7 @@ FloatingType Reader::readFloatingTypeDataset(const H5::Group& group, const std::
 
 std::optional<FloatingType> Reader::readOptionalFloatingTypeDataset(const H5::Group& group, const std::string& name)
 {
-    H5::StrType datatype(H5::PredType::NATIVE_FloatingType);
+    H5::StrType datatype(H5FloatingType);
     H5::DataSet dataset = group.openDataSet(name);
     FloatingType value;
     dataset.read(&value, datatype);
@@ -259,7 +261,7 @@ void Reader::readFloatingTypeArrayDataset(const H5::Group& group, const std::str
 {
     H5::DataSet dataset = group.openDataSet(name);
     // TODO: check if type is correct : dataset.getTypeClass()
-    H5::StrType datatype(H5::PredType::NATIVE_FloatingType);
+    H5::StrType datatype(H5FloatingType);
 
     // find dataset dimensions
     H5::DataSpace dataspace = dataset.getSpace();
@@ -478,7 +480,8 @@ uff::ReceiveSetup Reader::readReceiveSetup(const H5::Group& group)
     receiveSetup.setSamplingFrequency(readOptionalFloatingTypeDataset(group, "sampling_frequency"));
 
     // "sampling_type"
-    int st = readIntegerDataset(group, "sampling_type");
+    const uff::ReceiveSetup::SAMPLING_TYPE st = 
+        static_cast<uff::ReceiveSetup::SAMPLING_TYPE>(readIntegerDataset(group, "sampling_type"));
     switch (st)
     {
     case uff::ReceiveSetup::SAMPLING_TYPE::DIRECT_RF:
@@ -494,7 +497,7 @@ uff::ReceiveSetup Reader::readReceiveSetup(const H5::Group& group)
         receiveSetup.setSamplingType(uff::ReceiveSetup::SAMPLING_TYPE::QUADRATURE_2X_F0);
         break;
     default:
-        std::cerr << "Unknow sampling type:" << st;
+        std::cerr << "Unknow sampling type:" << static_cast<int>(st);
     }
 
     // channel_mapping [optional]
@@ -683,7 +686,9 @@ std::shared_ptr<uff::Wave> Reader::readWave(const H5::Group& group)
     wave->setOrigin(readTransform(group.openGroup("origin")));
 
     // write "wave_type"
-    switch (readIntegerDataset(group, "wave_type"))
+    const uff::WaveType wt = 
+        static_cast<uff::WaveType>(readIntegerDataset(group, "wave_type"));
+    switch (wt)
     {
     case uff::WaveType::CONVERGING_WAVE:
         wave->setWaveType(uff::WaveType::CONVERGING_WAVE);
@@ -736,3 +741,4 @@ std::vector<std::shared_ptr<uff::Wave>> Reader::readWaveArray(const H5::Group& g
 }
 
 } // namespace uff
+#endif // WITH_HDF5

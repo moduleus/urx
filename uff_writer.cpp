@@ -4,6 +4,7 @@
  * \brief
  */
 
+#ifdef WITH_HDF5
 #include "uff_writer.h"
 
 namespace uff
@@ -66,35 +67,35 @@ bool Writer::writeToFile()
         return true;
     }  // end of try block
     // catch failure caused by the H5File operations
-    catch (H5::FileIException error)
+    catch(const H5::FileIException& error)
     {
         error.printErrorStack();
         std::cerr << __FILE__ << __LINE__ << error.getDetailMsg();
         return false;
     }
     // catch failure caused by the DataSet operations
-    catch (H5::DataSetIException error)
+    catch(const H5::DataSetIException& error)
     {
         error.printErrorStack();
         std::cerr << __FILE__ << __LINE__ << error.getDetailMsg();
         return false;
     }
     // catch failure caused by the DataSpace operations
-    catch (H5::DataSpaceIException error)
+    catch(const H5::DataSpaceIException& error)
     {
         error.printErrorStack();
         std::cerr << __FILE__ << __LINE__ << error.getDetailMsg();
         return false;
     }
     // catch failure caused by the DataSpace operations
-    catch (H5::DataTypeIException error)
+    catch(const H5::DataTypeIException& error)
     {
         error.printErrorStack();
         std::cerr << __FILE__ << __LINE__ << error.getDetailMsg();
         return false;
     }
     // catch failure caused by the Group operations
-    catch (H5::GroupIException error)
+    catch(const H5::GroupIException& error)
     {
         error.printErrorStack();
         std::cerr << __FILE__ << __LINE__ << error.getDetailMsg();
@@ -171,7 +172,7 @@ void Writer::writeChannelData(H5::Group& group, const uff::ChannelData& channelD
 
 H5::DataSet Writer::writeFloatingTypeDataset(H5::Group& group, const std::string& name, FloatingType value)
 {
-    H5::StrType datatype(H5::PredType::NATIVE_FloatingType);
+    H5::StrType datatype(H5FloatingType);
     H5::DataSpace dataspace = H5::DataSpace(H5S_SCALAR);
     H5::DataSet dataset = group.createDataSet(name, datatype, dataspace);
     dataset.write(&value, datatype, dataspace);
@@ -181,7 +182,7 @@ H5::DataSet Writer::writeFloatingTypeDataset(H5::Group& group, const std::string
 
 H5::DataSet Writer::writeOptionalFloatingTypeDataset(H5::Group& group, const std::string& name, std::optional<FloatingType> value)
 {
-    H5::StrType datatype(H5::PredType::NATIVE_FloatingType);
+    H5::StrType datatype(H5FloatingType);
     H5::DataSpace dataspace = H5::DataSpace(H5S_SCALAR);
     H5::DataSet dataset = group.createDataSet(name, datatype, dataspace);
     if (value.has_value()) { dataset.write(&value.value(), datatype, dataspace); }
@@ -205,7 +206,7 @@ void Writer::writeElementArray(H5::Group& group, const std::vector<uff::Element>
 {
     char buf[9];
     snprintf(buf, sizeof buf, "%08d", 0);
-    for (int i = 0; i < elements.size(); i++)
+    for (uint32_t i = 0; i < elements.size(); i++)
     {
         snprintf(buf, sizeof buf, "%08d", i + 1);
         std::string element_id = buf;
@@ -229,7 +230,7 @@ void Writer::writeEventArray(H5::Group& group, const std::vector<std::shared_ptr
 {
     char buf[9];
     snprintf(buf, sizeof buf, "%08d", 0);
-    for (int i = 0; i < events.size(); i++)
+    for (uint32_t i = 0; i < events.size(); i++)
     {
         snprintf(buf, sizeof buf, "%08d", i + 1);
         std::string event_id = buf;
@@ -259,7 +260,7 @@ H5::DataSet Writer::writeFloatingTypeArrayDataset(H5::Group& group, const std::s
     assert(dimensions.size() <= 4);
 
     hsize_t dims[4];
-    int ndims = (int)dimensions.size();
+    size_t ndims = dimensions.size();
     if (ndims == 0)    // unspecified dimension: write 1D array
     {
         ndims = 1;
@@ -269,7 +270,7 @@ H5::DataSet Writer::writeFloatingTypeArrayDataset(H5::Group& group, const std::s
     {
         size_t numel = dimensions[0];
         dims[0] = dimensions[0];
-        for (int i = 1; i < dimensions.size(); i++)
+        for (uint32_t i = 1; i < dimensions.size(); i++)
         {
             numel *= dimensions[i];
             dims[i] = dimensions[i];
@@ -279,9 +280,9 @@ H5::DataSet Writer::writeFloatingTypeArrayDataset(H5::Group& group, const std::s
         assert(values.size() == numel);
     }
     
-    H5::DataSpace dataspace = H5::DataSpace(ndims, dims);
-    H5::DataSet dataset = group.createDataSet(name, H5::PredType::NATIVE_FloatingType, dataspace);
-    dataset.write(values.data(), H5::PredType::NATIVE_FloatingType);
+    H5::DataSpace dataspace = H5::DataSpace(static_cast<int>(ndims), dims);
+    H5::DataSet dataset = group.createDataSet(name, H5FloatingType, dataspace);
+    dataset.write(values.data(), H5FloatingType);
     dataset.close();
     return dataset;
 }
@@ -291,7 +292,7 @@ H5::DataSet Writer::writeIntegerArrayDataset(H5::Group& group, const std::string
     assert(dimensions.size() <= 4);
 
     hsize_t dims[4];
-    int ndims = (int)dimensions.size();
+    size_t ndims = dimensions.size();
     if (ndims == 0)    // unspecified dimension: write 1D array
     {
         ndims = 1;
@@ -301,7 +302,7 @@ H5::DataSet Writer::writeIntegerArrayDataset(H5::Group& group, const std::string
     {
         size_t numel = dimensions[0];
         dims[0] = dimensions[0];
-        for (int i = 1; i < dimensions.size(); i++)
+        for (uint32_t i = 1; i < dimensions.size(); i++)
         {
             numel *= dimensions[i];
             dims[i] = dimensions[i];
@@ -311,7 +312,7 @@ H5::DataSet Writer::writeIntegerArrayDataset(H5::Group& group, const std::string
         assert(values.size() == numel);
     }
 
-    H5::DataSpace dataspace = H5::DataSpace(ndims, dims);
+    H5::DataSpace dataspace = H5::DataSpace(static_cast<int>(ndims), dims);
     H5::DataSet dataset = group.createDataSet(name, H5::PredType::NATIVE_INT, dataspace);
     dataset.write(values.data(), H5::PredType::NATIVE_INT);
     dataset.close();
@@ -436,7 +437,7 @@ void Writer::writeProbeArray(H5::Group& group, const std::vector<std::shared_ptr
 {
     char buf[9];
     snprintf(buf, sizeof buf, "%08d", 0);
-    for (int i = 0; i < probes.size(); i++)
+    for (uint32_t i = 0; i < probes.size(); i++)
     {
         snprintf(buf, sizeof buf, "%08d", i + 1);
         std::string probe_id = buf;
@@ -515,7 +516,7 @@ void Writer::writeTimedEventArray(H5::Group& group, const std::vector<uff::Timed
 {
     char buf[9];
     snprintf(buf, sizeof buf, "%08d", 0);
-    for (int i = 0; i < timedEvents.size(); i++)
+    for (uint32_t i = 0; i < timedEvents.size(); i++)
     {
         snprintf(buf, sizeof buf, "%08d", i + 1);
         std::string timedEvent_id = buf;
@@ -598,7 +599,7 @@ void Writer::writeWaveArray(H5::Group& group, const std::vector<std::shared_ptr<
 {
     char buf[9];
     snprintf(buf, sizeof buf, "%08d", 0);
-    for (int i = 0; i < waves.size(); i++)
+    for (uint32_t i = 0; i < waves.size(); i++)
     {
         snprintf(buf, sizeof buf, "%08d", i + 1);
         std::string wave_id = buf;
@@ -608,3 +609,5 @@ void Writer::writeWaveArray(H5::Group& group, const std::vector<std::shared_ptr<
 }
 
 } // namespace uff
+
+#endif // WITH_HDF5
