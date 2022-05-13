@@ -41,7 +41,7 @@ public:
     // ___________________ Convenience access method ___________________________________
 
     // Returns the channel geometry of the probe used by the 1st receive setup
-    const std::vector<float> getChannelGeometry()
+    const std::vector<float> getChannelGeometry() const
     {
         if (m_channelData.probes().empty()) { return std::vector<float>(); }
         else { return m_channelData.probes()[0]->getChannelGeometry(); }

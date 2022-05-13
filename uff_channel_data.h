@@ -103,6 +103,7 @@ public:
     
     // data
     std::vector<float>& data() { return m_data; }
+    const std::vector<float>& data() const { return m_data; }
     void setData(const std::vector<float>& data)  { m_data = data; }
     
     const float* dataAt(int frame, int event, int channel) const 
