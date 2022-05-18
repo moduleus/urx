@@ -25,7 +25,8 @@ namespace uff
 using FloatingType = float;
 
 #ifdef WITH_HDF5
-const H5::PredType H5FloatingType = std::is_same<FloatingType, float>::value ? H5::PredType::NATIVE_FLOAT: H5::PredType::NATIVE_DOUBLE;
+//const H5::PredType H5FloatingType = std::is_same<FloatingType, float>::value ? H5::PredType::NATIVE_FLOAT: H5::PredType::NATIVE_DOUBLE;
+#define H5FloatingType std::is_same<FloatingType, float>::value ? H5::PredType::NATIVE_FLOAT: H5::PredType::NATIVE_DOUBLE
 #endif // WITH_HDF5
 
 // Macro to prevent some class from being copied
