@@ -19,8 +19,10 @@ enable_testing()
 
 if(DEFINED HDF5_DIR)
   set(HDF5_DEFINED TRUE)
+  message("HDF5_DIR defined")
 else()
   set(HDF5_DEFINED FALSE)
+  message(WARNING "HDF5_DIR NOT defined")
 endif()
 
 #
@@ -31,7 +33,6 @@ string(TOLOWER ${LIB_TYPE} SEARCH_TYPE)
 find_package(HDF5 NAMES hdf5 COMPONENTS CXX ${SEARCH_TYPE})
 set_directory_properties(PROPERTIES INCLUDE_DIRECTORIES "${HDF5_INCLUDE_DIR}")
 set(HDF5_LIBS ${LINK_LIBS} ${HDF5_CXX_${LIB_TYPE}_LIBRARY})
-
 
 if(NOT ${HDF5_FOUND} AND ${HDF5_DEFINED})
   message( FATAL_ERROR "HDF5 has been specified but was not found, CMake will exit." )
@@ -151,7 +152,7 @@ install(EXPORT ${PROJECT_NAME}Targets
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
 )
 
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
         FILES_MATCHING
             PATTERN "*.hpp"
