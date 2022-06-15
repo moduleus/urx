@@ -15,27 +15,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-enable_testing()
+option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
 
-if(DEFINED HDF5_DIR)
-  set(HDF5_DEFINED TRUE)
-  message("HDF5_DIR defined")
-else()
-  set(HDF5_DEFINED FALSE)
-  message(WARNING "HDF5_DIR NOT defined")
-endif()
+add_compile_options($<$<CXX_COMPILER_ID:MSVC>:/MP>)
 
-#
-# HDF5
-#
-set(LIB_TYPE STATIC) # or SHARED
-string(TOLOWER ${LIB_TYPE} SEARCH_TYPE)
-find_package(HDF5 NAMES hdf5 COMPONENTS CXX ${SEARCH_TYPE})
-set_directory_properties(PROPERTIES INCLUDE_DIRECTORIES "${HDF5_INCLUDE_DIR}")
-set(HDF5_LIBS ${LINK_LIBS} ${HDF5_CXX_${LIB_TYPE}_LIBRARY})
+include(CTest)
 
-if(NOT ${HDF5_FOUND} AND ${HDF5_DEFINED})
-  message( FATAL_ERROR "HDF5 has been specified but was not found, CMake will exit." )
+if(BUILD_SHARED_LIBS)
+  set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 endif()
 
 ### Sources files ###
@@ -102,31 +89,44 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${UFF_SRCS})
 
 ### Target library ###
 set(UFF_LIBRARY ${PROJECT_NAME})
-if(WIN32)
-  add_library(${PROJECT_NAME} STATIC ${UFF_SRCS})
-else(WIN32)
-  add_library(${PROJECT_NAME} SHARED ${UFF_SRCS})
-endif(WIN32)
+add_library(${PROJECT_NAME} ${UFF_SRCS})
 
-if(${HDF5_FOUND})
-  target_compile_definitions(${PROJECT_NAME} PRIVATE WITH_HDF5)
-endif(${HDF5_FOUND})
-
-#target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(${PROJECT_NAME} PUBLIC  
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>  
     $<INSTALL_INTERFACE:>  # <prefix>/include/mylib
 )
 ### Link ###
-if(${HDF5_FOUND})
-  target_link_libraries (${PROJECT_NAME} ${HDF5_LIBS})
-endif(${HDF5_FOUND})
+if (BUILD_SHARED_LIBS)
+  set(LIB_TYPE SHARED)
+else()
+  set(LIB_TYPE STATIC)
+endif()
+string(TOLOWER ${LIB_TYPE} SEARCH_TYPE)
+if(TARGET hdf5-${SEARCH_TYPE})
+  target_compile_definitions(${PROJECT_NAME} PUBLIC WITH_HDF5)
+  target_link_libraries(${PROJECT_NAME} PUBLIC hdf5-${SEARCH_TYPE} hdf5_cpp-${SEARCH_TYPE})
+  target_include_directories(
+    ${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${HDF5_CPP_SRC_SOURCE_DIR}>
+                           $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+  target_include_directories(
+    ${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${HDF5_SRC_SOURCE_DIR}>)
+  target_include_directories(
+    ${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${HDF5_BINARY_DIR}>)
+else()
+  find_package(HDF5 NAMES hdf5 COMPONENTS CXX ${SEARCH_TYPE})
+  if (${HDF5_FOUND})
+    target_compile_definitions(${PROJECT_NAME} PUBLIC WITH_HDF5)
+    target_link_libraries(${PROJECT_NAME} PUBLIC hdf5::hdf5-${SEARCH_TYPE} hdf5::hdf5_cpp-${SEARCH_TYPE})
+  endif()
+endif()
 # Treat warnings as errors
 target_compile_options(${PROJECT_NAME} PRIVATE
 $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
      -Werror -Wall>
 $<$<CXX_COMPILER_ID:MSVC>:
-     /W3 /WX /EHsc>)
+     /W3 /WX /EHsc /wd4251>)
+target_compile_options(${PROJECT_NAME} PRIVATE
+$<$<CXX_COMPILER_ID:GNU>:-Wno-format-truncation>)
 
 ### Create cmake config files ###
 
@@ -156,7 +156,8 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
         FILES_MATCHING
             PATTERN "*.hpp"
-            PATTERN "*.h")
+            PATTERN "*.h"
+            PATTERN ".git" EXCLUDE)
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
               ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
