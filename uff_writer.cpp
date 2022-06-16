@@ -268,11 +268,15 @@ H5::DataSet Writer::writeFloatingTypeArrayDataset(H5::Group& group, const std::s
     }
     else
     {
+#ifndef NDEBUG
         size_t numel = dimensions[0];
+#endif
         dims[0] = dimensions[0];
         for (uint32_t i = 1; i < dimensions.size(); i++)
         {
+#ifndef NDEBUG
             numel *= dimensions[i];
+#endif
             dims[i] = dimensions[i];
         }
 
@@ -300,11 +304,15 @@ H5::DataSet Writer::writeIntegerArrayDataset(H5::Group& group, const std::string
     }
     else
     {
+#ifndef NDEBUG
         size_t numel = dimensions[0];
+#endif
         dims[0] = dimensions[0];
         for (uint32_t i = 1; i < dimensions.size(); i++)
         {
+#ifndef NDEBUG
             numel *= dimensions[i];
+#endif
             dims[i] = dimensions[i];
         }
 
