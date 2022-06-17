@@ -38,9 +38,16 @@ public:
     std::optional<FloatingType> y() const { return m_y; }
     std::optional<FloatingType> z() const { return m_z; }
 
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic warning "-Wmaybe-uninitialized"
+#endif
     void setX(std::optional<FloatingType> x) { m_x = x; }
     void setY(std::optional<FloatingType> y) { m_y = y; }
     void setZ(std::optional<FloatingType> z) { m_z = z; }
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic pop
+#endif
     void setXYZ(std::optional<FloatingType> x, std::optional<FloatingType> y, std::optional<FloatingType> z)
     {
         setX(x);
