@@ -2,9 +2,17 @@ variables:
   GIT_SUBMODULE_STRATEGY: recursive
   
 stages:
+  - clang-format
   - build
   - test
   - install
+
+clang-format:ubuntu:
+  stage: clang-format
+  tags:
+    - ubuntu
+  script:
+    - find . -name "*.cpp" -or -name "*.cc" -or -name "*.hpp" -or -name "*.h" | xargs clang-format-14 --style=file --dry-run --Werror
 
 build:windows-with-HDF5-static:
   stage: build

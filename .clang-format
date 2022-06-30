@@ -1,0 +1,7 @@
+---
+Language: Cpp
+BasedOnStyle:  Google
+ColumnLimit: 80
+IncludeBlocks: Preserve
+ReflowComments: false
+PointerAlignment: Left
