@@ -2,17 +2,25 @@ variables:
   GIT_SUBMODULE_STRATEGY: recursive
   
 stages:
-  - clang-format
   - build
+  - format
   - test
   - install
 
-clang-format:ubuntu:
-  stage: clang-format
+format:clang-format:
+  stage: format
   tags:
     - ubuntu
   script:
-    - find . -name "*.cpp" -or -name "*.cc" -or -name "*.hpp" -or -name "*.h" | xargs clang-format-14 --style=file --dry-run --Werror
+    - find . -type d \( -path ./CI -o -path ./CI_Android \) -prune -type f -o -name "*.cpp" -or -name "*.cc" -or -name "*.hpp" -or -name "*.h" |xargs clang-format-14 --style=file --dry-run --Werror
+
+format:cmake-format:
+  stage: format
+  tags:
+    - ubuntu
+  script:
+    - find . -name "CMakeLists.txt" | xargs cmake-format -i
+    - if [ -n "$(git diff-index --name-only HEAD --)" ]; then echo "Please, format your CMake files."; echo "$(git diff-index --name-only HEAD --)"; exit 1; fi
 
 build:windows-with-HDF5-static:
   stage: build
@@ -46,6 +54,8 @@ install:windows-with-HDF5-static:
   stage: install
   needs:
     - test:windows-with-HDF5-static
+    - format:clang-format
+    - format:cmake-format
   tags:
     - win10
     - build
@@ -84,6 +94,8 @@ install:windows-with-HDF5-shared:
   stage: install
   needs:
     - test:windows-with-HDF5-shared
+    - format:clang-format
+    - format:cmake-format
   tags:
     - win10
     - build
@@ -178,6 +190,8 @@ install:ubuntu-with-HDF5-static:
   stage: install
   needs:
     - test:ubuntu-with-HDF5-static
+    - format:clang-format
+    - format:cmake-format
   tags:
     - ubuntu
     - build
@@ -216,6 +230,8 @@ install:ubuntu-with-HDF5-shared:
   stage: install
   needs:
     - test:ubuntu-with-HDF5-shared
+    - format:clang-format
+    - format:cmake-format
   tags:
     - ubuntu
     - build
@@ -300,6 +316,8 @@ install:android-ubuntu-without-HDF5-static:
   stage: install
   needs:
     - build:android-ubuntu-without-HDF5-static
+    - format:clang-format
+    - format:cmake-format
   tags:
     - android
     - ubuntu
@@ -329,6 +347,8 @@ install:android-ubuntu-without-HDF5-shared:
   stage: install
   needs:
     - build:android-ubuntu-without-HDF5-shared
+    - format:clang-format
+    - format:cmake-format
   tags:
     - android
     - ubuntu
