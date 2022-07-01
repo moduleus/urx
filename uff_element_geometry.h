@@ -14,43 +14,37 @@
 // System
 #include <string>
 
-namespace uff
-{
-    
+namespace uff {
+
 /**
  * @brief Describes the geometry of an ultrasonic element.
  */
-class ElementGeometry : public uff::Object
-{
-    UFF_TYPE_MACRO(ElementGeometry, uff::Object);
+class ElementGeometry : public uff::Object {
+  UFF_TYPE_MACRO(ElementGeometry, uff::Object);
 
-public:
+ public:
+  ElementGeometry() {}
 
-    ElementGeometry() {}
+  void printSelf(std::ostream& os, std::string indent) const override;
 
-    void printSelf(std::ostream& os, std::string indent) const override;
+  uff::Perimeter& perimeter() { return m_perimeter; }
+  void setPerimeter(const uff::Perimeter& perimeter) {
+    m_perimeter = perimeter;
+  }
 
-    uff::Perimeter& perimeter() { return m_perimeter; }
-    void setPerimeter(const uff::Perimeter& perimeter) 
-    {
-        m_perimeter = perimeter;
-    }
+  bool operator==(const ElementGeometry& other) const {
+    return (m_perimeter == other.m_perimeter);
+  }
 
-    bool operator ==(const ElementGeometry& other) const
-    {
-        return (m_perimeter == other.m_perimeter);
-    }
+  inline bool operator!=(const ElementGeometry& other) const {
+    return !(*this == other);
+  }
 
-    inline bool operator !=(const ElementGeometry& other) const
-    {
-        return !(*this == other);
-    }
- 
-private:
-    // (Optional) List of positions defining the element perimeter
-    uff::Perimeter m_perimeter;
+ private:
+  // (Optional) List of positions defining the element perimeter
+  uff::Perimeter m_perimeter;
 };
 
-} // namespace uff
+}  // namespace uff
 
-#endif // UFF_ELEMENT_GEOMETRY_H
+#endif  // UFF_ELEMENT_GEOMETRY_H

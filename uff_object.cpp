@@ -5,17 +5,14 @@
  */
 
 #include "uff_object.h"
- 
-namespace uff 
-{
 
-const char* Object::getClassName() const
-{
-    return this->getClassNameInternal();
+namespace uff {
+
+const char* Object::getClassName() const {
+  return this->getClassNameInternal();
 }
-    
-void Object::print(std::ostream& os) const
-{
+
+void Object::print(std::ostream& os) const {
   std::string indent;
 
   this->printHeader(os, "");
@@ -23,20 +20,17 @@ void Object::print(std::ostream& os) const
   this->printTrailer(os, "");
 }
 
-void Object::printHeader(std::ostream& os, std::string indent) const
-{
-    os << indent << this->getClassName() << " (" << this << ")\n";
+void Object::printHeader(std::ostream& os, std::string indent) const {
+  os << indent << this->getClassName() << " (" << this << ")\n";
 }
 
-void Object::printSelf(std::ostream& os, std::string indent) const
-{
-    //os << indent << this->getClassName() << " (" << this << ")\n";
-    os << this->getClassName() << " (0x" << this << ")\n";
+void Object::printSelf(std::ostream& os, std::string indent) const {
+  //os << indent << this->getClassName() << " (" << this << ")\n";
+  os << this->getClassName() << " (0x" << this << ")\n";
 }
 
-void Object::printTrailer(std::ostream& os, std::string indent) const
-{
-    os << indent << "\n";
+void Object::printTrailer(std::ostream& os, std::string indent) const {
+  os << indent << "\n";
 }
 
 /**
@@ -45,10 +39,9 @@ void Object::printTrailer(std::ostream& os, std::string indent) const
  * 'printSelf' method that all objects should define, if they have anything
  * interesting to print out.
  */
-std::ostream& operator<<(std::ostream& os, const uff::Object& o)
-{
+std::ostream& operator<<(std::ostream& os, const uff::Object& o) {
   o.print(os);
   return os;
 }
 
-} // namespace uff
+}  // namespace uff

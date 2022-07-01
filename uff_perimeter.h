@@ -11,49 +11,46 @@
 #include "uff_object.h"
 
 // System
-#include <vector>
-#include <utility>
 #include <string>
+#include <utility>
+#include <vector>
 
-namespace uff
-{
-    
+namespace uff {
+
 /**
  * @brief The UFF Perimeter class
  * TODO: replace std<<>> by uff::Position
  * TODO: << operator for adding points to perimeter
  */
-class Perimeter : public uff::Object
-{
-    UFF_TYPE_MACRO(Perimeter, uff::Object);
+class Perimeter : public uff::Object {
+  UFF_TYPE_MACRO(Perimeter, uff::Object);
 
-public:
+ public:
+  Perimeter() {}
 
-    Perimeter() {}
+  void printSelf(std::ostream& os, std::string indent) const override;
 
-    void printSelf(std::ostream& os, std::string indent) const override;
-    
-    std::vector< std::pair<FloatingType, FloatingType> >& points() { return m_points; }
-    void setPoints(const std::vector< std::pair<FloatingType, FloatingType> >& points) 
-    {
-        m_points = points;
-    }
+  std::vector<std::pair<FloatingType, FloatingType> >& points() {
+    return m_points;
+  }
+  void setPoints(
+      const std::vector<std::pair<FloatingType, FloatingType> >& points) {
+    m_points = points;
+  }
 
-    bool operator ==(const Perimeter& other) const
-    {
-        return (m_points == other.m_points);
-    }
+  bool operator==(const Perimeter& other) const {
+    return (m_points == other.m_points);
+  }
 
-    inline bool operator !=(const Perimeter& other) const
-    {
-        return !(*this == other);
-    }
- 
-private:
-    // Vector of pair of points (x, y). It is assumed that perimeter is always in the X-Y plane.
-    std::vector< std::pair<FloatingType, FloatingType> > m_points;
+  inline bool operator!=(const Perimeter& other) const {
+    return !(*this == other);
+  }
+
+ private:
+  // Vector of pair of points (x, y). It is assumed that perimeter is always in the X-Y plane.
+  std::vector<std::pair<FloatingType, FloatingType> > m_points;
 };
 
-} // namespace uff
+}  // namespace uff
 
-#endif // UFF_PERIMETER_H
+#endif  // UFF_PERIMETER_H
