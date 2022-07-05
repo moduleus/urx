@@ -8,9 +8,7 @@
 
 namespace uff {
 
-const char* Object::getClassName() const {
-  return this->getClassNameInternal();
-}
+const char* Object::getClassName() const { return this->getClassNameInternal(); }
 
 void Object::print(std::ostream& os) const {
   std::string indent;
@@ -29,9 +27,7 @@ void Object::printSelf(std::ostream& os, std::string indent) const {
   os << this->getClassName() << " (0x" << this << ")\n";
 }
 
-void Object::printTrailer(std::ostream& os, std::string indent) const {
-  os << indent << "\n";
-}
+void Object::printTrailer(std::ostream& os, std::string indent) const { os << indent << "\n"; }
 
 /**
  * This operator allows all subclasses of uff::Object to be printed via <<.

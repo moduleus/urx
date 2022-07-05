@@ -36,31 +36,22 @@ class Aperture : public uff::Object {
 
   // Window
   const std::optional<std::string>& window() const { return m_window; }
-  void setWindow(const std::optional<std::string>& window) {
-    m_window = window;
-  }
+  void setWindow(const std::optional<std::string>& window) { m_window = window; }
 
   // F number
   std::optional<FloatingType> fNumber() const { return m_fNumber; }
-  void setFNumber(std::optional<FloatingType> f_number) {
-    m_fNumber = f_number;
-  }
+  void setFNumber(std::optional<FloatingType> f_number) { m_fNumber = f_number; }
 
   // Fixed size
   std::optional<FloatingType> fixedSize() const { return m_fixedSize; }
-  void setFixedSize(std::optional<FloatingType> fixedSize) {
-    m_fixedSize = fixedSize;
-  }
+  void setFixedSize(std::optional<FloatingType> fixedSize) { m_fixedSize = fixedSize; }
 
   bool operator==(const Aperture& other) const {
     return ((m_origin == other.m_origin) && (m_window == other.m_window) &&
-            (m_fNumber == other.m_fNumber) &&
-            (m_fixedSize == other.m_fixedSize));
+            (m_fNumber == other.m_fNumber) && (m_fixedSize == other.m_fixedSize));
   }
 
-  inline bool operator!=(const Aperture& other) const {
-    return !(*this == other);
-  }
+  inline bool operator!=(const Aperture& other) const { return !(*this == other); }
 
  private:
   // Location of the aperture center in space

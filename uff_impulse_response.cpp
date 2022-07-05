@@ -13,8 +13,7 @@ void ImpulseResponse::printSelf(std::ostream& os, std::string indent) const {
   os << indent << "InitialTime: " << m_initialTime << std::endl;
 
   if (m_samplingFrequency.has_value())
-    os << indent << "SamplingFrequency: " << m_samplingFrequency.value()
-       << std::endl;
+    os << indent << "SamplingFrequency: " << m_samplingFrequency.value() << std::endl;
   else
     os << indent << "SamplingFrequency: " << UNDEFINED << std::endl;
 

@@ -26,8 +26,7 @@ class Transform : public uff::Object {
  public:
   Transform() {}
 
-  Transform(const uff::Rotation& rotation,
-            const uff::Translation& translation) {
+  Transform(const uff::Rotation& rotation, const uff::Translation& translation) {
     this->setRotation(rotation);
     this->setTranslation(translation);
   }
@@ -38,18 +37,13 @@ class Transform : public uff::Object {
   void setRotation(const uff::Rotation& rotation) { m_rotation = rotation; }
 
   const uff::Translation& translation() const { return m_translation; }
-  void setTranslation(const uff::Translation& translation) {
-    m_translation = translation;
-  }
+  void setTranslation(const uff::Translation& translation) { m_translation = translation; }
 
   bool operator==(const Transform& other) const {
-    return ((m_rotation == other.m_rotation) &&
-            (m_translation == other.m_translation));
+    return ((m_rotation == other.m_rotation) && (m_translation == other.m_translation));
   }
 
-  inline bool operator!=(const Transform& other) const {
-    return !(*this == other);
-  }
+  inline bool operator!=(const Transform& other) const { return !(*this == other); }
 
   Transform& operator=(const Transform& other) {
     m_rotation = other.m_rotation;

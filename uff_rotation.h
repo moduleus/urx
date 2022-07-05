@@ -20,8 +20,7 @@ class Rotation : public uff::Object {
   UFF_TYPE_MACRO(Rotation, uff::Object);
 
  public:
-  explicit Rotation(FloatingType rx = 0.f, FloatingType ry = 0.f,
-                    FloatingType rz = 0.f) {
+  explicit Rotation(FloatingType rx = 0.f, FloatingType ry = 0.f, FloatingType rz = 0.f) {
     setX(rx);
     setY(ry);
     setZ(rz);
@@ -43,13 +42,10 @@ class Rotation : public uff::Object {
   FloatingType roll() const { return m_rz; }
 
   bool operator==(const Rotation& other) const {
-    return ((m_rx == other.m_rx) && (m_ry == other.m_ry) &&
-            (m_rz == other.m_rz));
+    return ((m_rx == other.m_rx) && (m_ry == other.m_ry) && (m_rz == other.m_rz));
   }
 
-  inline bool operator!=(const Rotation& other) const {
-    return !(*this == other);
-  }
+  inline bool operator!=(const Rotation& other) const { return !(*this == other); }
 
  private:
   // Rotation around the X-axis (elevation) in radians

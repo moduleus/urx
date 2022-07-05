@@ -44,75 +44,57 @@ class Writer : public uff::Object {
 
  private:
   template <typename T>
-  std::string getIdFromPointer(const std::vector<std::shared_ptr<T>>& vec,
-                               std::weak_ptr<T> wptr);
+  std::string getIdFromPointer(const std::vector<std::shared_ptr<T>>& vec, std::weak_ptr<T> wptr);
 
   void writeAperture(H5::Group& group, const uff::Aperture& aperture);
   void writeChannelData(H5::Group& group, const uff::ChannelData& channelData);
-  H5::DataSet writeFloatingTypeDataset(H5::Group& group,
-                                       const std::string& name,
+  H5::DataSet writeFloatingTypeDataset(H5::Group& group, const std::string& name,
                                        FloatingType value);
-  H5::DataSet writeOptionalFloatingTypeDataset(
-      H5::Group& group, const std::string& name,
-      std::optional<FloatingType> value);
+  H5::DataSet writeOptionalFloatingTypeDataset(H5::Group& group, const std::string& name,
+                                               std::optional<FloatingType> value);
 
-  void writeElementArray(H5::Group& group,
-                         const std::vector<uff::Element>& elements);
+  void writeElementArray(H5::Group& group, const std::vector<uff::Element>& elements);
   void writeElement(H5::Group& group, const uff::Element& element);
 
   void writeEvent(H5::Group& group, const std::shared_ptr<uff::Event>& event);
-  void writeEventArray(H5::Group& group,
-                       const std::vector<std::shared_ptr<uff::Event>>& events);
+  void writeEventArray(H5::Group& group, const std::vector<std::shared_ptr<uff::Event>>& events);
 
   void writeExcitation(H5::Group& group, const uff::Excitation& excitation);
 
-  H5::DataSet writeFloatingTypeArrayDataset(
-      H5::Group& group, const std::string& name,
-      const std::vector<FloatingType>& values,
-      const std::vector<size_t>& dimensions);
+  H5::DataSet writeFloatingTypeArrayDataset(H5::Group& group, const std::string& name,
+                                            const std::vector<FloatingType>& values,
+                                            const std::vector<size_t>& dimensions);
 
-  H5::DataSet writeIntegerArrayDataset(H5::Group& group,
-                                       const std::string& name,
+  H5::DataSet writeIntegerArrayDataset(H5::Group& group, const std::string& name,
                                        const std::vector<int>& values,
                                        const std::vector<size_t>& dimensions);
-  H5::DataSet writeIntegerDataset(H5::Group& group, const std::string& name,
-                                  int value);
+  H5::DataSet writeIntegerDataset(H5::Group& group, const std::string& name, int value);
 
-  void writeLinearArray(H5::Group& group,
-                        const std::shared_ptr<uff::LinearArray>& linearArray);
-  void writeMatrixArray(H5::Group& group,
-                        const std::shared_ptr<uff::MatrixArray>& matrixArray);
-  void writeRcaArray(H5::Group& group,
-                     const std::shared_ptr<uff::RcaArray>& rcaArray);
+  void writeLinearArray(H5::Group& group, const std::shared_ptr<uff::LinearArray>& linearArray);
+  void writeMatrixArray(H5::Group& group, const std::shared_ptr<uff::MatrixArray>& matrixArray);
+  void writeRcaArray(H5::Group& group, const std::shared_ptr<uff::RcaArray>& rcaArray);
 
   void writeProbe(H5::Group& group, const std::shared_ptr<uff::Probe>& probe);
-  void writeProbeArray(H5::Group& group,
-                       const std::vector<std::shared_ptr<uff::Probe>>& probes);
+  void writeProbeArray(H5::Group& group, const std::vector<std::shared_ptr<uff::Probe>>& probes);
 
-  void writeReceiveSetup(H5::Group& group,
-                         const uff::ReceiveSetup& receiveSetup);
+  void writeReceiveSetup(H5::Group& group, const uff::ReceiveSetup& receiveSetup);
   void writeRotation(H5::Group& group, const uff::Rotation& rotation);
   H5::DataSet writeStringDataset(H5::Group& group, const std::string& name,
                                  const std::string& value);
-  H5::DataSet writeOptionalStringDataset(
-      H5::Group& group, const std::string& name,
-      const std::optional<std::string>& value);
+  H5::DataSet writeOptionalStringDataset(H5::Group& group, const std::string& name,
+                                         const std::optional<std::string>& value);
 
   void writeTimedEvent(H5::Group& group, const uff::TimedEvent& timedEvent);
-  void writeTimedEventArray(H5::Group& group,
-                            const std::vector<uff::TimedEvent>& timedEvents);
+  void writeTimedEventArray(H5::Group& group, const std::vector<uff::TimedEvent>& timedEvents);
 
   void writeTransform(H5::Group& group, const uff::Transform& transform);
   void writeTranslation(H5::Group& group, const uff::Translation& translation);
-  void writeTransmitSetup(H5::Group& group,
-                          const uff::TransmitSetup& transmitSetup);
-  void writeTransmitWave(H5::Group& group,
-                         const uff::TransmitWave& transmitWave);
+  void writeTransmitSetup(H5::Group& group, const uff::TransmitSetup& transmitSetup);
+  void writeTransmitWave(H5::Group& group, const uff::TransmitWave& transmitWave);
   void writeVersion(H5::Group& group, const uff::Version& version);
 
   void writeWave(H5::Group& group, const std::shared_ptr<uff::Wave>& wave);
-  void writeWaveArray(H5::Group& group,
-                      const std::vector<std::shared_ptr<uff::Wave>>& waves);
+  void writeWaveArray(H5::Group& group, const std::vector<std::shared_ptr<uff::Wave>>& waves);
 
  private:
   std::string m_fileName;

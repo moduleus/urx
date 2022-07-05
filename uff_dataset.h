@@ -29,9 +29,7 @@ class Dataset : public uff::Object {
   void printSelf(std::ostream& os, std::string indent) const override;
 
   uff::ChannelData& channelData() { return m_channelData; }
-  void setChannelData(const uff::ChannelData& channelData) {
-    m_channelData = channelData;
-  }
+  void setChannelData(const uff::ChannelData& channelData) { m_channelData = channelData; }
 
   const uff::Version& version() const { return m_version; }
   void setVersion(const uff::Version& version) { m_version = version; }
@@ -68,16 +66,10 @@ class Dataset : public uff::Object {
   // Return the sampling frequency associated with the 1st receive event [Hz]
   FloatingType getSamplingFrequency() const {
     if (m_channelData.uniqueEvents().empty() ||
-        !m_channelData.uniqueEvents()[0]
-             ->receiveSetup()
-             .samplingFrequency()
-             .has_value()) {
+        !m_channelData.uniqueEvents()[0]->receiveSetup().samplingFrequency().has_value()) {
       return UFF_NAN;
     } else {
-      return m_channelData.uniqueEvents()[0]
-          ->receiveSetup()
-          .samplingFrequency()
-          .value();
+      return m_channelData.uniqueEvents()[0]->receiveSetup().samplingFrequency().value();
     }
   }
 
@@ -86,16 +78,11 @@ class Dataset : public uff::Object {
 
   // Return the transmit frequency associated with the 1st Wave of the dataset
   FloatingType getTransmitFrequency() const {
-    if (m_channelData.uniqueWaves().empty() || !m_channelData.uniqueWaves()[0]
-                                                    ->excitation()
-                                                    .transmitFrequency()
-                                                    .has_value()) {
+    if (m_channelData.uniqueWaves().empty() ||
+        !m_channelData.uniqueWaves()[0]->excitation().transmitFrequency().has_value()) {
       return UFF_NAN;
     } else {
-      return m_channelData.uniqueWaves()[0]
-          ->excitation()
-          .transmitFrequency()
-          .value();
+      return m_channelData.uniqueWaves()[0]->excitation().transmitFrequency().value();
     }
   }
 
@@ -114,13 +101,10 @@ class Dataset : public uff::Object {
   }
 
   inline bool operator==(const Dataset& other) const {
-    return ((m_version == other.m_version) &&
-            (m_channelData == other.m_channelData));
+    return ((m_version == other.m_version) && (m_channelData == other.m_channelData));
   }
 
-  inline bool operator!=(const Dataset& other) const {
-    return !(*this == other);
-  }
+  inline bool operator!=(const Dataset& other) const { return !(*this == other); }
 
  private:
   uff::Version m_version;

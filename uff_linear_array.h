@@ -23,8 +23,7 @@ class LinearArray : public uff::Probe {
   UFF_TYPE_MACRO(LinearArray, uff::Object);
 
  public:
-  explicit LinearArray(uint32_t numberElements)
-      : m_numberElements(numberElements) {
+  explicit LinearArray(uint32_t numberElements) : m_numberElements(numberElements) {
     updateElements();
   }
 
@@ -43,9 +42,7 @@ class LinearArray : public uff::Probe {
   }
 
   std::optional<FloatingType> elementWidth() { return m_elementWidth; }
-  void setElementWidth(std::optional<FloatingType> elementWidth) {
-    m_elementWidth = elementWidth;
-  }
+  void setElementWidth(std::optional<FloatingType> elementWidth) { m_elementWidth = elementWidth; }
 
   std::optional<FloatingType> elementHeight() { return m_elementHeight; }
   void setElementHeight(std::optional<FloatingType> elementHeight) {

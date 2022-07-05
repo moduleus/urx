@@ -34,15 +34,11 @@ class Probe : public uff::Object {
 
   /* Attitude of the probe in 3D */
   const uff::Transform& transform() const { return m_transform; }
-  void setTransform(const uff::Transform& transform) {
-    m_transform = transform;
-  }
+  void setTransform(const uff::Transform& transform) { m_transform = transform; }
 
   /* [optional] For probes with a focal lens, it describes the focal length in m [Az, Ele] */
   std::optional<FloatingType> focalLength() const { return m_focalLength; }
-  void setFocalLength(std::optional<FloatingType> focalLength) {
-    m_focalLength = focalLength;
-  }
+  void setFocalLength(std::optional<FloatingType> focalLength) { m_focalLength = focalLength; }
 
   /* List elements in the probe */
   std::vector<uff::Element>& elements() { return m_elements; }
@@ -52,20 +48,14 @@ class Probe : public uff::Object {
   }
 
   /* [optional] List of unique element geometries in the probe */
-  std::vector<uff::ElementGeometry>& elementGeometries() {
-    return m_elementGeometries;
-  }
-  void setElementGeometries(
-      const std::vector<uff::ElementGeometry>& elementGeometries) {
+  std::vector<uff::ElementGeometry>& elementGeometries() { return m_elementGeometries; }
+  void setElementGeometries(const std::vector<uff::ElementGeometry>& elementGeometries) {
     m_elementGeometries = elementGeometries;
   }
 
   /* [optional] List of unique electromechanical impulse responses of the elements in the probe */
-  std::vector<uff::ImpulseResponse>& impulseResponses() {
-    return m_impulseResponses;
-  }
-  void setImpulseResponses(
-      const std::vector<uff::ImpulseResponse>& impulseResponses) {
+  std::vector<uff::ImpulseResponse>& impulseResponses() { return m_impulseResponses; }
+  void setImpulseResponses(const std::vector<uff::ImpulseResponse>& impulseResponses) {
     m_impulseResponses = impulseResponses;
   }
 
@@ -88,8 +78,7 @@ class Probe : public uff::Object {
   }
 
   bool operator==(const Probe& other) const {
-    return ((m_transform == other.m_transform) &&
-            (m_focalLength == other.m_focalLength) &&
+    return ((m_transform == other.m_transform) && (m_focalLength == other.m_focalLength) &&
             (m_elements == other.m_elements) &&
             (m_elementGeometries == other.m_elementGeometries) &&
             (m_impulseResponses == other.m_impulseResponses) &&
@@ -111,9 +100,7 @@ class Probe : public uff::Object {
     return *this;
   }
 
-  virtual std::shared_ptr<uff::Probe> clone() {
-    return std::make_shared<uff::Probe>(*this);
-  }
+  virtual std::shared_ptr<uff::Probe> clone() { return std::make_shared<uff::Probe>(*this); }
 
  protected:
   uff::Transform m_transform;

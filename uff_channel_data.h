@@ -39,9 +39,7 @@ class ChannelData : public uff::Object {
 
   // Description
   const std::string& description() const { return m_description; }
-  void setDescription(const std::string& description) {
-    m_description = description;
-  }
+  void setDescription(const std::string& description) { m_description = description; }
 
   /**
      * Format: ISO8601
@@ -55,8 +53,7 @@ class ChannelData : public uff::Object {
     if (isIso8601(localTime)) {
       m_localTime = localTime;
     } else {
-      std::cerr << '"' << localTime
-                << "\" is not ISO8601 format (YYYY-MM-DDThh:mm:ss)\n";
+      std::cerr << '"' << localTime << "\" is not ISO8601 format (YYYY-MM-DDThh:mm:ss)\n";
     }
   }
 
@@ -84,55 +81,33 @@ class ChannelData : public uff::Object {
   void setSoundSpeed(FloatingType soundSpeed) { m_soundSpeed = soundSpeed; }
 
   // Sequence repetition rate in Hz. Sometimes called framerate.
-  std::optional<FloatingType> repetitionRate() const {
-    return m_repetitionRate;
-  }
+  std::optional<FloatingType> repetitionRate() const { return m_repetitionRate; }
   void setRepetitionRate(std::optional<FloatingType> repetitionRate) {
     m_repetitionRate = repetitionRate;
   }
 
   // List of probes used for this dataset
-  const std::vector<std::shared_ptr<uff::Probe>>& probes() const {
-    return m_probes;
-  }
-  void addProbe(std::shared_ptr<uff::Probe> probe) {
-    m_probes.push_back(probe);
-  }
-  void setProbes(const std::vector<std::shared_ptr<uff::Probe>>& probes) {
-    m_probes = probes;
-  }
+  const std::vector<std::shared_ptr<uff::Probe>>& probes() const { return m_probes; }
+  void addProbe(std::shared_ptr<uff::Probe> probe) { m_probes.push_back(probe); }
+  void setProbes(const std::vector<std::shared_ptr<uff::Probe>>& probes) { m_probes = probes; }
 
   // List of unique waves used for this dataset
-  const std::vector<std::shared_ptr<uff::Wave>>& uniqueWaves() const {
-    return m_uniqueWaves;
-  }
-  void addUniqueWave(std::shared_ptr<uff::Wave> wave) {
-    m_uniqueWaves.push_back(wave);
-  }
-  void setUniqueWaves(
-      const std::vector<std::shared_ptr<uff::Wave>>& uniqueWaves) {
+  const std::vector<std::shared_ptr<uff::Wave>>& uniqueWaves() const { return m_uniqueWaves; }
+  void addUniqueWave(std::shared_ptr<uff::Wave> wave) { m_uniqueWaves.push_back(wave); }
+  void setUniqueWaves(const std::vector<std::shared_ptr<uff::Wave>>& uniqueWaves) {
     m_uniqueWaves = uniqueWaves;
   }
 
   /* List of unique events used for this dataset */
-  const std::vector<std::shared_ptr<uff::Event>>& uniqueEvents() const {
-    return m_uniqueEvents;
-  }
-  void addUniqueEvent(std::shared_ptr<uff::Event> event) {
-    m_uniqueEvents.push_back(event);
-  }
-  void setUniqueEvents(
-      const std::vector<std::shared_ptr<uff::Event>>& uniqueEvents) {
+  const std::vector<std::shared_ptr<uff::Event>>& uniqueEvents() const { return m_uniqueEvents; }
+  void addUniqueEvent(std::shared_ptr<uff::Event> event) { m_uniqueEvents.push_back(event); }
+  void setUniqueEvents(const std::vector<std::shared_ptr<uff::Event>>& uniqueEvents) {
     m_uniqueEvents = uniqueEvents;
   }
 
   const std::vector<uff::TimedEvent>& sequence() const { return m_sequence; }
-  void addTimedEvent(const uff::TimedEvent& timedEvent) {
-    m_sequence.push_back(timedEvent);
-  }
-  void setSequence(const std::vector<uff::TimedEvent>& sequence) {
-    m_sequence = sequence;
-  }
+  void addTimedEvent(const uff::TimedEvent& timedEvent) { m_sequence.push_back(timedEvent); }
+  void setSequence(const std::vector<uff::TimedEvent>& sequence) { m_sequence = sequence; }
 
   // data
   std::vector<FloatingType>& data() { return m_data; }
@@ -140,8 +115,7 @@ class ChannelData : public uff::Object {
 
   FloatingType* dataAt(int frame, int event, int channel) {
     return m_data.data() +
-           ((size_t)frame * numberOfEvents() * numberOfChannels() *
-            numberOfSamples()) +
+           ((size_t)frame * numberOfEvents() * numberOfChannels() * numberOfSamples()) +
            ((size_t)event * numberOfChannels() * numberOfSamples()) +
            ((size_t)channel * numberOfSamples());
   }
@@ -157,8 +131,8 @@ class ChannelData : public uff::Object {
   void setNumberOfSamples(uint32_t sz) { m_numberOfSamples = sz; }
 
   void allocate() {
-    size_t sz = (size_t)numberOfFrames() * numberOfEvents() *
-                numberOfChannels() * numberOfSamples();
+    size_t sz =
+        (size_t)numberOfFrames() * numberOfEvents() * numberOfChannels() * numberOfSamples();
     m_data.resize(sz, 0);
   }
 
@@ -187,42 +161,33 @@ class ChannelData : public uff::Object {
   bool operator==(const ChannelData& other) const {
     bool areProbesEqualed = true;
     for (uint32_t i = 0; i < m_probes.size() && areProbesEqualed; ++i) {
-      areProbesEqualed =
-          areProbesEqualed && (*m_probes[i] == *other.m_probes[i]);
+      areProbesEqualed = areProbesEqualed && (*m_probes[i] == *other.m_probes[i]);
     }
 
     bool areUniqueWavesEqualed = true;
-    for (uint32_t i = 0; i < m_uniqueWaves.size() && areUniqueWavesEqualed;
-         ++i) {
-      areUniqueWavesEqualed = areUniqueWavesEqualed &&
-                              (*m_uniqueWaves[i] == *other.m_uniqueWaves[i]);
+    for (uint32_t i = 0; i < m_uniqueWaves.size() && areUniqueWavesEqualed; ++i) {
+      areUniqueWavesEqualed =
+          areUniqueWavesEqualed && (*m_uniqueWaves[i] == *other.m_uniqueWaves[i]);
     }
 
     bool areUniqueEventsEqualed = true;
-    for (uint32_t i = 0; i < m_uniqueEvents.size() && areUniqueEventsEqualed;
-         ++i) {
-      areUniqueEventsEqualed = areUniqueEventsEqualed &&
-                               (*m_uniqueEvents[i] == *other.m_uniqueEvents[i]);
+    for (uint32_t i = 0; i < m_uniqueEvents.size() && areUniqueEventsEqualed; ++i) {
+      areUniqueEventsEqualed =
+          areUniqueEventsEqualed && (*m_uniqueEvents[i] == *other.m_uniqueEvents[i]);
     }
 
-    return ((m_authors == other.m_authors) &&
-            (m_description == other.m_description) &&
-            (m_localTime == other.m_localTime) &&
-            (m_countryCode == other.m_countryCode) &&
-            (m_system == other.m_system) &&
-            (m_soundSpeed == other.m_soundSpeed) &&
+    return ((m_authors == other.m_authors) && (m_description == other.m_description) &&
+            (m_localTime == other.m_localTime) && (m_countryCode == other.m_countryCode) &&
+            (m_system == other.m_system) && (m_soundSpeed == other.m_soundSpeed) &&
             (m_repetitionRate == other.m_repetitionRate) && areProbesEqualed &&
-            areUniqueWavesEqualed && areUniqueEventsEqualed &&
-            (m_sequence == other.m_sequence) && (m_data == other.m_data) &&
-            (m_numberOfFrames == other.m_numberOfFrames) &&
+            areUniqueWavesEqualed && areUniqueEventsEqualed && (m_sequence == other.m_sequence) &&
+            (m_data == other.m_data) && (m_numberOfFrames == other.m_numberOfFrames) &&
             (m_numberOfEvents == other.m_numberOfEvents) &&
             (m_numberOfSamples == other.m_numberOfSamples) &&
             (m_numberOfChannels == other.m_numberOfChannels));
   }
 
-  inline bool operator!=(const ChannelData& other) const {
-    return !(*this == other);
-  }
+  inline bool operator!=(const ChannelData& other) const { return !(*this == other); }
 
  private:
   // string with the authors of the data

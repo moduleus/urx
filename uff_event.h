@@ -31,13 +31,10 @@ class Event : public uff::Object {
   }
 
   uff::ReceiveSetup& receiveSetup() { return m_receiveSetup; }
-  void setReceiveSetup(const uff::ReceiveSetup& receiveSetup) {
-    m_receiveSetup = receiveSetup;
-  }
+  void setReceiveSetup(const uff::ReceiveSetup& receiveSetup) { m_receiveSetup = receiveSetup; }
 
   bool operator==(const Event& other) const {
-    return ((m_transmitSetup == other.m_transmitSetup) &&
-            (m_receiveSetup == other.m_receiveSetup));
+    return ((m_transmitSetup == other.m_transmitSetup) && (m_receiveSetup == other.m_receiveSetup));
   }
   inline bool operator!=(const Event& other) const { return !(*this == other); }
 

@@ -29,33 +29,27 @@ void ChannelData::printSelf(std::ostream& os, std::string indent) const {
 
   for (uint32_t i = 0; i < m_probes.size(); i++) {
     const auto& sptr = probes()[i];
-    os << indent + UFF_STD_INDENT << '#' << std::setfill('0') << std::setw(8)
-       << i + 1 << ": ";
+    os << indent + UFF_STD_INDENT << '#' << std::setfill('0') << std::setw(8) << i + 1 << ": ";
     (*sptr).printSelf(os, indent + UFF_STD_INDENT + UFF_STD_INDENT);
   }
 
-  os << indent << "UniqueWaves: (size=" << m_uniqueWaves.size() << ")"
-     << std::endl;
+  os << indent << "UniqueWaves: (size=" << m_uniqueWaves.size() << ")" << std::endl;
   for (uint32_t i = 0; i < uniqueWaves().size(); i++) {
-    os << indent + UFF_STD_INDENT << "#" << std::setfill('0') << std::setw(8)
-       << i + 1 << ": ";
+    os << indent + UFF_STD_INDENT << "#" << std::setfill('0') << std::setw(8) << i + 1 << ": ";
     const auto& sptr = uniqueWaves()[i];
     (*sptr).printSelf(os, indent + UFF_STD_INDENT + UFF_STD_INDENT);
   }
 
-  os << indent << "UniqueEvents: (size=" << m_uniqueEvents.size() << ")"
-     << std::endl;
+  os << indent << "UniqueEvents: (size=" << m_uniqueEvents.size() << ")" << std::endl;
   for (uint32_t i = 0; i < uniqueEvents().size(); i++) {
-    os << indent + UFF_STD_INDENT << "#" << std::setfill('0') << std::setw(8)
-       << i + 1 << ": ";
+    os << indent + UFF_STD_INDENT << "#" << std::setfill('0') << std::setw(8) << i + 1 << ": ";
     const auto& sptr = uniqueEvents()[i];
     (*sptr).printSelf(os, indent + UFF_STD_INDENT + UFF_STD_INDENT);
   }
 
   os << indent << "Sequence: (size=" << m_sequence.size() << ")" << std::endl;
   for (uint32_t i = 0; i < sequence().size(); i++) {
-    os << indent + UFF_STD_INDENT << "#" << std::setfill('0') << std::setw(8)
-       << i + 1 << ": ";
+    os << indent + UFF_STD_INDENT << "#" << std::setfill('0') << std::setw(8) << i + 1 << ": ";
     const auto& timedEvent = sequence()[i];
     timedEvent.printSelf(os, indent + UFF_STD_INDENT + UFF_STD_INDENT);
   }
@@ -95,8 +89,7 @@ ChannelData& ChannelData::operator=(const ChannelData& other) {
     // Transmit Probe weak pointer
     {
       std::shared_ptr<uff::Probe> transmitProbe;
-      for (size_t iProbe = 0; iProbe < m_probes.size() && !transmitProbe;
-           iProbe++) {
+      for (size_t iProbe = 0; iProbe < m_probes.size() && !transmitProbe; iProbe++) {
         if (*m_probes[iProbe] == *uniqueEvent->transmitSetup().probe().lock()) {
           transmitProbe = m_probes[iProbe];
         }
@@ -104,16 +97,14 @@ ChannelData& ChannelData::operator=(const ChannelData& other) {
       m_uniqueEvents.back()->transmitSetup().setProbe(transmitProbe);
       bool foundTransmitProbe =
           std::find(m_probes.begin(), m_probes.end(),
-                    m_uniqueEvents.back()->transmitSetup().probe().lock()) !=
-          m_probes.end();
+                    m_uniqueEvents.back()->transmitSetup().probe().lock()) != m_probes.end();
       if (!foundTransmitProbe) throw;
     }
 
     // Receive Probe weak pointer
     {
       std::shared_ptr<uff::Probe> receiveProbe;
-      for (size_t iProbe = 0; iProbe < m_probes.size() && !receiveProbe;
-           iProbe++) {
+      for (size_t iProbe = 0; iProbe < m_probes.size() && !receiveProbe; iProbe++) {
         if (*m_probes[iProbe] == *uniqueEvent->receiveSetup().probe().lock()) {
           receiveProbe = m_probes[iProbe];
         }
@@ -121,8 +112,7 @@ ChannelData& ChannelData::operator=(const ChannelData& other) {
       m_uniqueEvents.back()->receiveSetup().setProbe(receiveProbe);
       bool foundReceiveProbe =
           std::find(m_probes.begin(), m_probes.end(),
-                    m_uniqueEvents.back()->receiveSetup().probe().lock()) !=
-          m_probes.end();
+                    m_uniqueEvents.back()->receiveSetup().probe().lock()) != m_probes.end();
       if (!foundReceiveProbe) throw;
     }
 
@@ -130,18 +120,15 @@ ChannelData& ChannelData::operator=(const ChannelData& other) {
     {
       std::shared_ptr<uff::Wave> wave;
       for (size_t iWave = 0; iWave < m_uniqueWaves.size() && !wave; iWave++) {
-        if (*m_uniqueWaves[iWave] ==
-            *uniqueEvent->transmitSetup().transmitWave().wave().lock()) {
+        if (*m_uniqueWaves[iWave] == *uniqueEvent->transmitSetup().transmitWave().wave().lock()) {
           wave = m_uniqueWaves[iWave];
         }
       }
       m_uniqueEvents.back()->transmitSetup().transmitWave().setWave(wave);
-      bool foundWave = std::find(m_uniqueWaves.begin(), m_uniqueWaves.end(),
-                                 m_uniqueEvents.back()
-                                     ->transmitSetup()
-                                     .transmitWave()
-                                     .wave()
-                                     .lock()) != m_uniqueWaves.end();
+      bool foundWave =
+          std::find(m_uniqueWaves.begin(), m_uniqueWaves.end(),
+                    m_uniqueEvents.back()->transmitSetup().transmitWave().wave().lock()) !=
+          m_uniqueWaves.end();
       if (!foundWave) throw;
     }
 
@@ -155,8 +142,7 @@ ChannelData& ChannelData::operator=(const ChannelData& other) {
 
     // Event weak pointer
     std::shared_ptr<uff::Event> evenement;
-    for (size_t iEvent = 0; iEvent < m_uniqueEvents.size() && !evenement;
-         iEvent++) {
+    for (size_t iEvent = 0; iEvent < m_uniqueEvents.size() && !evenement; iEvent++) {
       if (*m_uniqueEvents[iEvent] == *timedEvent.evenement().lock()) {
         evenement = m_uniqueEvents[iEvent];
       }

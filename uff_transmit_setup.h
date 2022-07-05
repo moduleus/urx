@@ -30,26 +30,19 @@ class TransmitSetup : public uff::Object {
 
   uff::TransmitWave getTransmitWave() const { return m_transmitWave; }
   uff::TransmitWave& transmitWave() { return m_transmitWave; }
-  void setTransmitWave(const uff::TransmitWave& transmitWave) {
-    m_transmitWave = transmitWave;
-  }
+  void setTransmitWave(const uff::TransmitWave& transmitWave) { m_transmitWave = transmitWave; }
 
   std::vector<int> channelMapping() const { return m_channelMapping; }
-  void setChannelMapping(std::vector<int> channelMapping) {
-    m_channelMapping = channelMapping;
-  }
+  void setChannelMapping(std::vector<int> channelMapping) { m_channelMapping = channelMapping; }
 
   bool operator==(const TransmitSetup& other) const {
-    return (
-        (m_probe.expired() == other.m_probe.expired()) &&
-        (m_probe.expired() || (*(m_probe.lock()) == *(other.m_probe.lock()))) &&
-        (m_transmitWave == other.m_transmitWave) &&
-        (m_channelMapping == other.m_channelMapping));
+    return ((m_probe.expired() == other.m_probe.expired()) &&
+            (m_probe.expired() || (*(m_probe.lock()) == *(other.m_probe.lock()))) &&
+            (m_transmitWave == other.m_transmitWave) &&
+            (m_channelMapping == other.m_channelMapping));
   }
 
-  inline bool operator!=(const TransmitSetup& other) const {
-    return !(*this == other);
-  }
+  inline bool operator!=(const TransmitSetup& other) const { return !(*this == other); }
 
  private:
   // Reference to the probe use in transmission

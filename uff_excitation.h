@@ -28,25 +28,17 @@ class Excitation : public uff::Object {
   void printSelf(std::ostream& os, std::string indent) const override;
 
   const std::optional<std::string>& pulseShape() const { return m_pulseShape; }
-  void setPulseShape(const std::optional<std::string>& pulseShape) {
-    m_pulseShape = pulseShape;
-  }
+  void setPulseShape(const std::optional<std::string>& pulseShape) { m_pulseShape = pulseShape; }
 
   const std::vector<FloatingType>& waveform() const { return m_waveform; }
-  void setWaveform(const std::vector<FloatingType>& waveform) {
-    m_waveform = waveform;
-  }
+  void setWaveform(const std::vector<FloatingType>& waveform) { m_waveform = waveform; }
 
-  std::optional<FloatingType> samplingFrequency() const {
-    return m_samplingFrequency;
-  }
+  std::optional<FloatingType> samplingFrequency() const { return m_samplingFrequency; }
   void setSamplingFrequency(std::optional<FloatingType> samplingFrequency) {
     m_samplingFrequency = samplingFrequency;
   }
 
-  std::optional<FloatingType> transmitFrequency() const {
-    return m_transmitFrequency;
-  }
+  std::optional<FloatingType> transmitFrequency() const { return m_transmitFrequency; }
   void setTransmitFrequency(std::optional<FloatingType> transmitFrequency) {
     m_transmitFrequency = transmitFrequency;
   }
@@ -54,13 +46,10 @@ class Excitation : public uff::Object {
   bool operator==(const Excitation& other) const {
     return ((m_pulseShape == other.m_pulseShape) &&
             (m_transmitFrequency == other.m_transmitFrequency) &&
-            (m_waveform == other.m_waveform) &&
-            (m_samplingFrequency == other.m_samplingFrequency));
+            (m_waveform == other.m_waveform) && (m_samplingFrequency == other.m_samplingFrequency));
   }
 
-  inline bool operator!=(const Excitation& other) const {
-    return !(*this == other);
-  }
+  inline bool operator!=(const Excitation& other) const { return !(*this == other); }
 
  private:
   // String describing the pulse shape (e.g., sinusoidal, square wave, chirp), including necessary parameters

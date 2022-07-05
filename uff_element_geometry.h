@@ -28,17 +28,11 @@ class ElementGeometry : public uff::Object {
   void printSelf(std::ostream& os, std::string indent) const override;
 
   uff::Perimeter& perimeter() { return m_perimeter; }
-  void setPerimeter(const uff::Perimeter& perimeter) {
-    m_perimeter = perimeter;
-  }
+  void setPerimeter(const uff::Perimeter& perimeter) { m_perimeter = perimeter; }
 
-  bool operator==(const ElementGeometry& other) const {
-    return (m_perimeter == other.m_perimeter);
-  }
+  bool operator==(const ElementGeometry& other) const { return (m_perimeter == other.m_perimeter); }
 
-  inline bool operator!=(const ElementGeometry& other) const {
-    return !(*this == other);
-  }
+  inline bool operator!=(const ElementGeometry& other) const { return !(*this == other); }
 
  private:
   // (Optional) List of positions defining the element perimeter
