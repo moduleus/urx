@@ -37,14 +37,11 @@ class Wave : public uff::Object {
   void setAperture(const uff::Aperture& aperture) { m_aperture = aperture; }
 
   const uff::Excitation& excitation() const { return m_excitation; }
-  void setExcitation(const uff::Excitation& excitation) {
-    m_excitation = excitation;
-  }
+  void setExcitation(const uff::Excitation& excitation) { m_excitation = excitation; }
 
   bool operator==(const Wave& other) const {
     return ((m_origin == other.m_origin) && (m_waveType == other.m_waveType) &&
-            (m_aperture == other.m_aperture) &&
-            (m_excitation == other.m_excitation));
+            (m_aperture == other.m_aperture) && (m_excitation == other.m_excitation));
   }
 
   inline bool operator!=(const Wave& other) const { return !(*this == other); }

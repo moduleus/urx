@@ -31,15 +31,12 @@ class TimedEvent : public uff::Object {
   void setTimeOffset(FloatingType timeOffset) { m_timeOffset = timeOffset; }
 
   bool operator==(const TimedEvent& other) const {
-    return (
-        (m_timeOffset == other.m_timeOffset) &&
-        (m_event.expired() == other.m_event.expired()) &&
-        (m_event.expired() || (*(m_event.lock()) == *(other.m_event.lock()))));
+    return ((m_timeOffset == other.m_timeOffset) &&
+            (m_event.expired() == other.m_event.expired()) &&
+            (m_event.expired() || (*(m_event.lock()) == *(other.m_event.lock()))));
   }
 
-  inline bool operator!=(const TimedEvent& other) const {
-    return !(*this == other);
-  }
+  inline bool operator!=(const TimedEvent& other) const { return !(*this == other); }
 
  private:
   //    Reference to one of the unique transmit/receive events used in the sequence.

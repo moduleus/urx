@@ -111,8 +111,7 @@ void Writer::writeAperture(H5::Group& group, const uff::Aperture& aperture) {
   // "minimum_size" TODO
 }
 
-void Writer::writeChannelData(H5::Group& group,
-                              const uff::ChannelData& channelData) {
+void Writer::writeChannelData(H5::Group& group, const uff::ChannelData& channelData) {
   // channel_data.authors
   writeStringDataset(group, "authors", channelData.authors());
 
@@ -129,12 +128,10 @@ void Writer::writeChannelData(H5::Group& group,
   writeStringDataset(group, "system", channelData.system());
 
   // channel_data.sound_speed
-  writeOptionalFloatingTypeDataset(group, "sound_speed",
-                                   channelData.soundSpeed());
+  writeOptionalFloatingTypeDataset(group, "sound_speed", channelData.soundSpeed());
 
   // channel_data.repetition_rate
-  writeOptionalFloatingTypeDataset(group, "repetition_rate",
-                                   channelData.repetitionRate());
+  writeOptionalFloatingTypeDataset(group, "repetition_rate", channelData.repetitionRate());
 
   // channel_data.data
   size_t nFrames = channelData.numberOfFrames();
@@ -142,8 +139,7 @@ void Writer::writeChannelData(H5::Group& group,
   size_t nChannels = channelData.numberOfChannels();
   size_t nSamples = channelData.numberOfSamples();
   std::vector<size_t> dims({nFrames, nEvents, nChannels, nSamples});
-  writeFloatingTypeArrayDataset(group, "data", m_dataset.channelData().data(),
-                                dims);
+  writeFloatingTypeArrayDataset(group, "data", m_dataset.channelData().data(), dims);
 
   // Probes
   H5::Group probes(group.createGroup("probes"));
@@ -162,8 +158,7 @@ void Writer::writeChannelData(H5::Group& group,
   writeTimedEventArray(sequence, channelData.sequence());
 }
 
-H5::DataSet Writer::writeFloatingTypeDataset(H5::Group& group,
-                                             const std::string& name,
+H5::DataSet Writer::writeFloatingTypeDataset(H5::Group& group, const std::string& name,
                                              FloatingType value) {
   H5::StrType datatype(H5FloatingType);
   H5::DataSpace dataspace = H5::DataSpace(H5S_SCALAR);
@@ -173,9 +168,8 @@ H5::DataSet Writer::writeFloatingTypeDataset(H5::Group& group,
   return dataset;
 }
 
-H5::DataSet Writer::writeOptionalFloatingTypeDataset(
-    H5::Group& group, const std::string& name,
-    std::optional<FloatingType> value) {
+H5::DataSet Writer::writeOptionalFloatingTypeDataset(H5::Group& group, const std::string& name,
+                                                     std::optional<FloatingType> value) {
   H5::StrType datatype(H5FloatingType);
   H5::DataSpace dataspace = H5::DataSpace(H5S_SCALAR);
   H5::DataSet dataset = group.createDataSet(name, datatype, dataspace);
@@ -195,8 +189,7 @@ void Writer::writeElement(H5::Group& group, const uff::Element& element) {
   writeOptionalFloatingTypeDataset(group, "z", element.z());
 }
 
-void Writer::writeElementArray(H5::Group& group,
-                               const std::vector<uff::Element>& elements) {
+void Writer::writeElementArray(H5::Group& group, const std::vector<uff::Element>& elements) {
   char buf[9];
   snprintf(buf, sizeof buf, "%08d", 0);
   for (uint32_t i = 0; i < elements.size(); i++) {
@@ -207,8 +200,7 @@ void Writer::writeElementArray(H5::Group& group,
   }
 }
 
-void Writer::writeEvent(H5::Group& group,
-                        const std::shared_ptr<uff::Event>& ev) {
+void Writer::writeEvent(H5::Group& group, const std::shared_ptr<uff::Event>& ev) {
   // "transmit_setup"
   H5::Group transmitSetup = group.createGroup("transmit_setup");
   writeTransmitSetup(transmitSetup, ev->transmitSetup());
@@ -218,8 +210,8 @@ void Writer::writeEvent(H5::Group& group,
   writeReceiveSetup(receiveSetup, ev->receiveSetup());
 }
 
-void Writer::writeEventArray(
-    H5::Group& group, const std::vector<std::shared_ptr<uff::Event>>& events) {
+void Writer::writeEventArray(H5::Group& group,
+                             const std::vector<std::shared_ptr<uff::Event>>& events) {
   char buf[9];
   snprintf(buf, sizeof buf, "%08d", 0);
   for (uint32_t i = 0; i < events.size(); i++) {
@@ -230,27 +222,23 @@ void Writer::writeEventArray(
   }
 }
 
-void Writer::writeExcitation(H5::Group& group,
-                             const uff::Excitation& excitation) {
+void Writer::writeExcitation(H5::Group& group, const uff::Excitation& excitation) {
   // "pulse_shape"
   writeOptionalStringDataset(group, "pulse_shape", excitation.pulseShape());
 
   // "transmit_frequency"
-  writeOptionalFloatingTypeDataset(group, "transmit_frequency",
-                                   excitation.transmitFrequency());
+  writeOptionalFloatingTypeDataset(group, "transmit_frequency", excitation.transmitFrequency());
 
   // "waveform"
   writeFloatingTypeArrayDataset(group, "waveform", excitation.waveform(), {});
 
   // "sampling_frequency"
-  writeOptionalFloatingTypeDataset(group, "sampling_frequency",
-                                   excitation.samplingFrequency());
+  writeOptionalFloatingTypeDataset(group, "sampling_frequency", excitation.samplingFrequency());
 }
 
-H5::DataSet Writer::writeFloatingTypeArrayDataset(
-    H5::Group& group, const std::string& name,
-    const std::vector<FloatingType>& values,
-    const std::vector<size_t>& dimensions) {
+H5::DataSet Writer::writeFloatingTypeArrayDataset(H5::Group& group, const std::string& name,
+                                                  const std::vector<FloatingType>& values,
+                                                  const std::vector<size_t>& dimensions) {
   assert(dimensions.size() <= 4);
 
   hsize_t dims[4];
@@ -282,9 +270,9 @@ H5::DataSet Writer::writeFloatingTypeArrayDataset(
   return dataset;
 }
 
-H5::DataSet Writer::writeIntegerArrayDataset(
-    H5::Group& group, const std::string& name, const std::vector<int>& values,
-    const std::vector<size_t>& dimensions) {
+H5::DataSet Writer::writeIntegerArrayDataset(H5::Group& group, const std::string& name,
+                                             const std::vector<int>& values,
+                                             const std::vector<size_t>& dimensions) {
   assert(dimensions.size() <= 4);
 
   hsize_t dims[4];
@@ -310,15 +298,13 @@ H5::DataSet Writer::writeIntegerArrayDataset(
   }
 
   H5::DataSpace dataspace = H5::DataSpace(static_cast<int>(ndims), dims);
-  H5::DataSet dataset =
-      group.createDataSet(name, H5::PredType::NATIVE_INT, dataspace);
+  H5::DataSet dataset = group.createDataSet(name, H5::PredType::NATIVE_INT, dataspace);
   dataset.write(values.data(), H5::PredType::NATIVE_INT);
   dataset.close();
   return dataset;
 }
 
-H5::DataSet Writer::writeIntegerDataset(H5::Group& group,
-                                        const std::string& name, int value) {
+H5::DataSet Writer::writeIntegerDataset(H5::Group& group, const std::string& name, int value) {
   H5::StrType datatype(H5::PredType::NATIVE_INT);
   H5::DataSpace dataspace = H5::DataSpace(H5S_SCALAR);
   H5::DataSet dataset = group.createDataSet(name, datatype, dataspace);
@@ -327,8 +313,8 @@ H5::DataSet Writer::writeIntegerDataset(H5::Group& group,
   return dataset;
 }
 
-void Writer::writeLinearArray(
-    H5::Group& group, const std::shared_ptr<uff::LinearArray>& linearArray) {
+void Writer::writeLinearArray(H5::Group& group,
+                              const std::shared_ptr<uff::LinearArray>& linearArray) {
   // Write "number_elements"
   writeIntegerDataset(group, "number_elements", linearArray->numberElements());
 
@@ -336,23 +322,19 @@ void Writer::writeLinearArray(
   writeOptionalFloatingTypeDataset(group, "pitch", linearArray->pitch());
 
   // Write "element_width"
-  writeOptionalFloatingTypeDataset(group, "element_width",
-                                   linearArray->elementWidth());
+  writeOptionalFloatingTypeDataset(group, "element_width", linearArray->elementWidth());
 
   // Write "element_height"
-  writeOptionalFloatingTypeDataset(group, "element_height",
-                                   linearArray->elementHeight());
+  writeOptionalFloatingTypeDataset(group, "element_height", linearArray->elementHeight());
 }
 
-void Writer::writeMatrixArray(
-    H5::Group& group, const std::shared_ptr<uff::MatrixArray>& matrixArray) {
+void Writer::writeMatrixArray(H5::Group& group,
+                              const std::shared_ptr<uff::MatrixArray>& matrixArray) {
   // Write "number_elements_x"
-  writeIntegerDataset(group, "number_elements_x",
-                      matrixArray->numberElementsX());
+  writeIntegerDataset(group, "number_elements_x", matrixArray->numberElementsX());
 
   // Write "number_elements_y"
-  writeIntegerDataset(group, "number_elements_y",
-                      matrixArray->numberElementsY());
+  writeIntegerDataset(group, "number_elements_y", matrixArray->numberElementsY());
 
   // Write "pitch_x"
   writeOptionalFloatingTypeDataset(group, "pitch_x", matrixArray->pitchX());
@@ -361,16 +343,13 @@ void Writer::writeMatrixArray(
   writeOptionalFloatingTypeDataset(group, "pitch_y", matrixArray->pitchY());
 
   // Write "element_width"
-  writeOptionalFloatingTypeDataset(group, "element_width",
-                                   matrixArray->elementWidth());
+  writeOptionalFloatingTypeDataset(group, "element_width", matrixArray->elementWidth());
 
   // Write "element_height"
-  writeOptionalFloatingTypeDataset(group, "element_height",
-                                   matrixArray->elementHeight());
+  writeOptionalFloatingTypeDataset(group, "element_height", matrixArray->elementHeight());
 }
 
-void Writer::writeRcaArray(H5::Group& group,
-                           const std::shared_ptr<uff::RcaArray>& rcaArray) {
+void Writer::writeRcaArray(H5::Group& group, const std::shared_ptr<uff::RcaArray>& rcaArray) {
   // Write "number_elements_x"
   writeIntegerDataset(group, "number_elements_x", rcaArray->numberElementsX());
 
@@ -384,24 +363,19 @@ void Writer::writeRcaArray(H5::Group& group,
   writeOptionalFloatingTypeDataset(group, "pitch_y", rcaArray->pitchY());
 
   // Write "element_width_x"
-  writeOptionalFloatingTypeDataset(group, "element_width_x",
-                                   rcaArray->elementWidthX());
+  writeOptionalFloatingTypeDataset(group, "element_width_x", rcaArray->elementWidthX());
 
   // Write "element_width_y"
-  writeOptionalFloatingTypeDataset(group, "element_width_y",
-                                   rcaArray->elementWidthY());
+  writeOptionalFloatingTypeDataset(group, "element_width_y", rcaArray->elementWidthY());
 
   // Write "element_height_x"
-  writeOptionalFloatingTypeDataset(group, "element_height_x",
-                                   rcaArray->elementHeightX());
+  writeOptionalFloatingTypeDataset(group, "element_height_x", rcaArray->elementHeightX());
 
   // Write "element_height_y"
-  writeOptionalFloatingTypeDataset(group, "element_height_y",
-                                   rcaArray->elementHeightY());
+  writeOptionalFloatingTypeDataset(group, "element_height_y", rcaArray->elementHeightY());
 }
 
-void Writer::writeProbe(H5::Group& group,
-                        const std::shared_ptr<uff::Probe>& probe) {
+void Writer::writeProbe(H5::Group& group, const std::shared_ptr<uff::Probe>& probe) {
   // write "transform"
   H5::Group transform = group.createGroup("transform");
   writeTransform(transform, probe->transform());
@@ -432,8 +406,7 @@ void Writer::writeProbe(H5::Group& group,
   }
 
   // RcaArray ?
-  std::shared_ptr<uff::RcaArray> rcaArray =
-      std::dynamic_pointer_cast<uff::RcaArray>(probe);
+  std::shared_ptr<uff::RcaArray> rcaArray = std::dynamic_pointer_cast<uff::RcaArray>(probe);
   if (rcaArray.get() != nullptr) {
     writeStringDataset(group, "probe_type", "RcaArray");
     writeRcaArray(group, rcaArray);
@@ -441,8 +414,8 @@ void Writer::writeProbe(H5::Group& group,
   }
 }
 
-void Writer::writeProbeArray(
-    H5::Group& group, const std::vector<std::shared_ptr<uff::Probe>>& probes) {
+void Writer::writeProbeArray(H5::Group& group,
+                             const std::vector<std::shared_ptr<uff::Probe>>& probes) {
   char buf[9];
   snprintf(buf, sizeof buf, "%08d", 0);
   for (uint32_t i = 0; i < probes.size(); i++) {
@@ -453,30 +426,26 @@ void Writer::writeProbeArray(
   }
 }
 
-void Writer::writeReceiveSetup(H5::Group& group,
-                               const uff::ReceiveSetup& receiveSetup) {
+void Writer::writeReceiveSetup(H5::Group& group, const uff::ReceiveSetup& receiveSetup) {
   // "probe"
-  std::string probeId = getIdFromPointer<uff::Probe>(
-      m_dataset.channelData().probes(), receiveSetup.probe());
+  std::string probeId =
+      getIdFromPointer<uff::Probe>(m_dataset.channelData().probes(), receiveSetup.probe());
   writeStringDataset(group, "probe_id", probeId);
 
   // "time_offset"
   writeFloatingTypeDataset(group, "time_offset", receiveSetup.timeOffset());
 
   // "sampling_frequency"
-  writeOptionalFloatingTypeDataset(group, "sampling_frequency",
-                                   receiveSetup.samplingFrequency());
+  writeOptionalFloatingTypeDataset(group, "sampling_frequency", receiveSetup.samplingFrequency());
 
   // "sampling_type"
   writeIntegerDataset(group, "sampling_type", (int)receiveSetup.samplingType());
 
   // "channel_mapping"
-  writeIntegerArrayDataset(group, "channel_mapping",
-                           receiveSetup.channelMapping(), {});
+  writeIntegerArrayDataset(group, "channel_mapping", receiveSetup.channelMapping(), {});
 
   // "tgc_profile"
-  writeFloatingTypeArrayDataset(group, "tgc_profile", receiveSetup.tgcProfile(),
-                                {});
+  writeFloatingTypeArrayDataset(group, "tgc_profile", receiveSetup.tgcProfile(), {});
 
   // "tgc_sampling_frequency"
   writeOptionalFloatingTypeDataset(group, "tgc_sampling_frequency",
@@ -493,8 +462,7 @@ void Writer::writeRotation(H5::Group& group, const uff::Rotation& rotation) {
   writeFloatingTypeDataset(group, "z", rotation.z());
 }
 
-H5::DataSet Writer::writeStringDataset(H5::Group& group,
-                                       const std::string& name,
+H5::DataSet Writer::writeStringDataset(H5::Group& group, const std::string& name,
                                        const std::string& value) {
   H5::StrType vlst(0, H5T_VARIABLE);
   H5::DataSpace ds_space(H5S_SCALAR);
@@ -503,9 +471,8 @@ H5::DataSet Writer::writeStringDataset(H5::Group& group,
   return dataset;
 }
 
-H5::DataSet Writer::writeOptionalStringDataset(
-    H5::Group& group, const std::string& name,
-    const std::optional<std::string>& value) {
+H5::DataSet Writer::writeOptionalStringDataset(H5::Group& group, const std::string& name,
+                                               const std::optional<std::string>& value) {
   H5::StrType vlst(0, H5T_VARIABLE);
   H5::DataSpace ds_space(H5S_SCALAR);
   H5::DataSet dataset = group.createDataSet(name.c_str(), vlst, ds_space);
@@ -516,19 +483,18 @@ H5::DataSet Writer::writeOptionalStringDataset(
   return dataset;
 }
 
-void Writer::writeTimedEvent(H5::Group& group,
-                             const uff::TimedEvent& timedEvent) {
+void Writer::writeTimedEvent(H5::Group& group, const uff::TimedEvent& timedEvent) {
   // "event"
-  std::string eventId = getIdFromPointer<uff::Event>(
-      m_dataset.channelData().uniqueEvents(), timedEvent.evenement());
+  std::string eventId =
+      getIdFromPointer<uff::Event>(m_dataset.channelData().uniqueEvents(), timedEvent.evenement());
   writeStringDataset(group, "event_id", eventId);
 
   // "time_offset"
   writeFloatingTypeDataset(group, "time_offset", timedEvent.timeOffset());
 }
 
-void Writer::writeTimedEventArray(
-    H5::Group& group, const std::vector<uff::TimedEvent>& timedEvents) {
+void Writer::writeTimedEventArray(H5::Group& group,
+                                  const std::vector<uff::TimedEvent>& timedEvents) {
   char buf[9];
   snprintf(buf, sizeof buf, "%08d", 0);
   for (uint32_t i = 0; i < timedEvents.size(); i++) {
@@ -549,18 +515,16 @@ void Writer::writeTransform(H5::Group& group, const uff::Transform& transform) {
   writeTranslation(translation, transform.translation());
 }
 
-void Writer::writeTranslation(H5::Group& group,
-                              const uff::Translation& translation) {
+void Writer::writeTranslation(H5::Group& group, const uff::Translation& translation) {
   writeFloatingTypeDataset(group, "x", translation.x());
   writeFloatingTypeDataset(group, "y", translation.y());
   writeFloatingTypeDataset(group, "z", translation.z());
 }
 
-void Writer::writeTransmitSetup(H5::Group& group,
-                                const uff::TransmitSetup& transmitSetup) {
+void Writer::writeTransmitSetup(H5::Group& group, const uff::TransmitSetup& transmitSetup) {
   // "probe"
-  const std::string probeId = getIdFromPointer<uff::Probe>(
-      m_dataset.channelData().probes(), transmitSetup.probe());
+  const std::string probeId =
+      getIdFromPointer<uff::Probe>(m_dataset.channelData().probes(), transmitSetup.probe());
   writeStringDataset(group, "probe_id", probeId);
 
   // "transmit_wave"
@@ -568,15 +532,13 @@ void Writer::writeTransmitSetup(H5::Group& group,
   writeTransmitWave(transmitWave, transmitSetup.getTransmitWave());
 
   // "channel_mapping"
-  writeIntegerArrayDataset(group, "channel_mapping",
-                           transmitSetup.channelMapping(), {});
+  writeIntegerArrayDataset(group, "channel_mapping", transmitSetup.channelMapping(), {});
 }
 
-void Writer::writeTransmitWave(H5::Group& group,
-                               const uff::TransmitWave& transmitWave) {
+void Writer::writeTransmitWave(H5::Group& group, const uff::TransmitWave& transmitWave) {
   // "wave"
-  const std::string waveId = getIdFromPointer<uff::Wave>(
-      m_dataset.channelData().uniqueWaves(), transmitWave.wave());
+  const std::string waveId =
+      getIdFromPointer<uff::Wave>(m_dataset.channelData().uniqueWaves(), transmitWave.wave());
   writeStringDataset(group, "wave_id", waveId);
 
   // "time_offset"
@@ -592,8 +554,7 @@ void Writer::writeVersion(H5::Group& group, const uff::Version& version) {
   writeIntegerDataset(group, "patch", version.patch());
 }
 
-void Writer::writeWave(H5::Group& group,
-                       const std::shared_ptr<uff::Wave>& wave) {
+void Writer::writeWave(H5::Group& group, const std::shared_ptr<uff::Wave>& wave) {
   // write "origin"
   H5::Group origin = group.createGroup("origin");
   writeTransform(origin, wave->origin());
@@ -610,8 +571,8 @@ void Writer::writeWave(H5::Group& group,
   writeExcitation(excitation, wave->excitation());
 }
 
-void Writer::writeWaveArray(
-    H5::Group& group, const std::vector<std::shared_ptr<uff::Wave>>& waves) {
+void Writer::writeWaveArray(H5::Group& group,
+                            const std::vector<std::shared_ptr<uff::Wave>>& waves) {
   char buf[9];
   snprintf(buf, sizeof buf, "%08d", 0);
   for (uint32_t i = 0; i < waves.size(); i++) {

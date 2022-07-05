@@ -32,9 +32,7 @@ class ImpulseResponse : public uff::Object {
   FloatingType initialTime() const { return m_initialTime; }
   void setInitialTime(FloatingType initialTime) { m_initialTime = initialTime; }
 
-  std::optional<FloatingType> samplingFrequency() const {
-    return m_samplingFrequency;
-  }
+  std::optional<FloatingType> samplingFrequency() const { return m_samplingFrequency; }
   void setSampleFrequency(std::optional<FloatingType> samplingFrequency) {
     m_samplingFrequency = samplingFrequency;
   }
@@ -47,13 +45,11 @@ class ImpulseResponse : public uff::Object {
 
   bool operator==(const ImpulseResponse& other) const {
     return ((m_initialTime == other.m_initialTime) &&
-            (m_samplingFrequency == other.m_samplingFrequency) &&
-            (m_data == other.m_data) && (m_units == other.m_units));
+            (m_samplingFrequency == other.m_samplingFrequency) && (m_data == other.m_data) &&
+            (m_units == other.m_units));
   }
 
-  inline bool operator!=(const ImpulseResponse& other) const {
-    return !(*this == other);
-  }
+  inline bool operator!=(const ImpulseResponse& other) const { return !(*this == other); }
 
  private:
   // Time in seconds from the delta excitation until the acquisition of the first sample

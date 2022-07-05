@@ -11,9 +11,7 @@ namespace uff {
 void TransmitWave::printSelf(std::ostream& os, std::string indent) const {
   superclass::printSelf(os, indent);
   os << indent << "Wave: ";
-  if (auto wpt =
-          this->wave()
-              .lock()) {  // Has to be copied into a shared_ptr before usage
+  if (auto wpt = this->wave().lock()) {  // Has to be copied into a shared_ptr before usage
     //os << *wpt << std::endl;
     (*wpt).printSelf(os, indent + UFF_STD_INDENT);
   } else {

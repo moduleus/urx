@@ -41,16 +41,13 @@ class Reader : public uff::Object {
 
  protected:
   // Read basic types
-  FloatingType readFloatingTypeDataset(const H5::Group& group,
-                                       const std::string& name);
-  std::optional<FloatingType> readOptionalFloatingTypeDataset(
-      const H5::Group& group, const std::string& name);
+  FloatingType readFloatingTypeDataset(const H5::Group& group, const std::string& name);
+  std::optional<FloatingType> readOptionalFloatingTypeDataset(const H5::Group& group,
+                                                              const std::string& name);
   void readIntegerArrayDataset(const H5::Group& group, const std::string& name,
-                               std::vector<int>& values,
-                               std::vector<size_t>& dimensions);
+                               std::vector<int>& values, std::vector<size_t>& dimensions);
   int readIntegerDataset(const H5::Group& group, const std::string& name);
-  std::string readStringDataset(const H5::Group& group,
-                                const std::string& name);
+  std::string readStringDataset(const H5::Group& group, const std::string& name);
   std::optional<std::string> readOptionalStringDataset(const H5::Group& group,
                                                        const std::string& name);
 
@@ -63,13 +60,11 @@ class Reader : public uff::Object {
   std::vector<uff::Element> readElementArray(const H5::Group& group);
 
   std::shared_ptr<uff::Event> readEvent(const H5::Group& group);
-  std::vector<std::shared_ptr<uff::Event>> readEventArray(
-      const H5::Group& group);
+  std::vector<std::shared_ptr<uff::Event>> readEventArray(const H5::Group& group);
 
   uff::Excitation readExcitation(const H5::Group& group);
 
-  void readFloatingTypeArrayDataset(const H5::Group& group,
-                                    const std::string& name,
+  void readFloatingTypeArrayDataset(const H5::Group& group, const std::string& name,
                                     std::vector<FloatingType>& values,
                                     std::vector<size_t>& dimensions);
 
@@ -78,8 +73,7 @@ class Reader : public uff::Object {
   std::shared_ptr<uff::RcaArray> readRcaArray(const H5::Group& group);
 
   std::shared_ptr<uff::Probe> readProbe(const H5::Group& group);
-  std::vector<std::shared_ptr<uff::Probe>> readProbeArray(
-      const H5::Group& group);
+  std::vector<std::shared_ptr<uff::Probe>> readProbeArray(const H5::Group& group);
 
   uff::ReceiveSetup readReceiveSetup(const H5::Group& group);
 

@@ -19,8 +19,7 @@ class Version : public uff::Object {
   UFF_TYPE_MACRO(Version, uff::Object);
 
  public:
-  explicit Version(uint32_t major = UFF_VERSION_MAJOR,
-                   uint32_t minor = UFF_VERSION_MINOR,
+  explicit Version(uint32_t major = UFF_VERSION_MAJOR, uint32_t minor = UFF_VERSION_MINOR,
                    uint32_t patch = UFF_VERSION_PATCH) {
     m_major = major;
     m_minor = minor;
@@ -34,13 +33,10 @@ class Version : public uff::Object {
   uint32_t patch() const { return m_patch; }
 
   inline bool operator==(const Version& other) const {
-    return ((m_major == other.m_major) && (m_minor == other.m_minor) &&
-            (m_patch == other.m_patch));
+    return ((m_major == other.m_major) && (m_minor == other.m_minor) && (m_patch == other.m_patch));
   }
 
-  inline bool operator!=(const Version& other) const {
-    return !(*this == other);
-  }
+  inline bool operator!=(const Version& other) const { return !(*this == other); }
 
  private:
   uint32_t m_major;

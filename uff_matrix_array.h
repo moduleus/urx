@@ -55,9 +55,7 @@ class MatrixArray : public uff::Probe {
   }
 
   std::optional<FloatingType> elementWidth() { return m_elementWidth; }
-  void setElementWidth(std::optional<FloatingType> elementWidth) {
-    m_elementWidth = elementWidth;
-  }
+  void setElementWidth(std::optional<FloatingType> elementWidth) { m_elementWidth = elementWidth; }
 
   std::optional<FloatingType> elementHeight() { return m_elementHeight; }
   void setElementHeight(std::optional<FloatingType> elementHeight) {

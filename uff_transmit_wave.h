@@ -38,15 +38,12 @@ class TransmitWave : public uff::Object {
   void setWeight(FloatingType weight) { m_weight = weight; }
 
   bool operator==(const TransmitWave& other) const {
-    return (
-        (m_wave.expired() == other.m_wave.expired()) &&
-        (m_wave.expired() || (*(m_wave.lock()) == *(other.m_wave.lock()))) &&
-        (m_timeOffset == other.m_timeOffset) && (m_weight == other.m_weight));
+    return ((m_wave.expired() == other.m_wave.expired()) &&
+            (m_wave.expired() || (*(m_wave.lock()) == *(other.m_wave.lock()))) &&
+            (m_timeOffset == other.m_timeOffset) && (m_weight == other.m_weight));
   }
 
-  inline bool operator!=(const TransmitWave& other) const {
-    return !(*this == other);
-  }
+  inline bool operator!=(const TransmitWave& other) const { return !(*this == other); }
 
  private:
   // Reference to the geometry of the wave that was transmitted

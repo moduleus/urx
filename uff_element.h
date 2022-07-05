@@ -56,9 +56,7 @@ class Element : public uff::Object {
     return ((m_x == other.m_x) && (m_y == other.m_y) && (m_z == other.m_z));
   }
 
-  inline bool operator!=(const Element& other) const {
-    return !(*this == other);
-  }
+  inline bool operator!=(const Element& other) const { return !(*this == other); }
 
  private:
   std::optional<FloatingType> m_x = std::nullopt;

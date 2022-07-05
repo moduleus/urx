@@ -18,8 +18,7 @@ namespace uff {
  */
 class Position {
  public:
-  explicit Position(FloatingType x = 0.f, FloatingType y = 0.f,
-                    FloatingType z = 0.f) {
+  explicit Position(FloatingType x = 0.f, FloatingType y = 0.f, FloatingType z = 0.f) {
     this->setX(x);
     this->setY(y);
     this->setZ(z);

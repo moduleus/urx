@@ -19,8 +19,7 @@ class Translation : public uff::Object {
   UFF_TYPE_MACRO(Translation, uff::Object);
 
  public:
-  explicit Translation(FloatingType tx = 0.f, FloatingType ty = 0.f,
-                       FloatingType tz = 0.f) {
+  explicit Translation(FloatingType tx = 0.f, FloatingType ty = 0.f, FloatingType tz = 0.f) {
     setX(tx);
     setY(ty);
     setZ(tz);
@@ -38,13 +37,10 @@ class Translation : public uff::Object {
   void setZ(FloatingType z) { m_tz = z; }
 
   bool operator==(const Translation& other) const {
-    return ((m_tx == other.m_tx) && (m_ty == other.m_ty) &&
-            (m_tz == other.m_tz));
+    return ((m_tx == other.m_tx) && (m_ty == other.m_ty) && (m_tz == other.m_tz));
   }
 
-  inline bool operator!=(const Translation& other) const {
-    return !(*this == other);
-  }
+  inline bool operator!=(const Translation& other) const { return !(*this == other); }
 
  private:
   FloatingType m_tx;
