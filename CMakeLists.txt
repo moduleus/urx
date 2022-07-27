@@ -157,8 +157,6 @@ target_compile_options(
     /WX
     /EHsc
     /wd4251>)
-target_compile_options(${PROJECT_NAME}
-                       PRIVATE $<$<CXX_COMPILER_ID:GNU>:-Wno-format-truncation>)
 
 # Create cmake config files ###
 
