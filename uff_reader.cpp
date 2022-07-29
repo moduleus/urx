@@ -11,6 +11,10 @@
 #include <limits>
 #include <type_traits>
 
+#if defined(__GNUC__) && !defined(__ANDROID__)
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+#endif
+
 //static_assert(sizeof (long) == sizeof (long long),
 //              "Architecture not supported, cf. Reader::readIntegerArrayDataset");
 

@@ -7,6 +7,10 @@
 #ifdef WITH_HDF5
 #include "uff_writer.h"
 
+#if defined(__GNUC__) && !defined(__ANDROID__)
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+#endif
+
 namespace uff {
 
 /**
