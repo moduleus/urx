@@ -481,16 +481,16 @@ uff::ReceiveSetup Reader::readReceiveSetup(const H5::Group& group)
     int st = readIntegerDataset(group, "sampling_type");
     switch (st)
     {
-    case uff::ReceiveSetup::SAMPLING_TYPE::DIRECT_RF:
+    case static_cast<int>(uff::ReceiveSetup::SAMPLING_TYPE::DIRECT_RF):
         receiveSetup.setSamplingType(uff::ReceiveSetup::SAMPLING_TYPE::DIRECT_RF);
         break;
-    case uff::ReceiveSetup::SAMPLING_TYPE::IQ:
+    case static_cast<int>(uff::ReceiveSetup::SAMPLING_TYPE::IQ):
         receiveSetup.setSamplingType(uff::ReceiveSetup::SAMPLING_TYPE::IQ);
         break;
-    case uff::ReceiveSetup::SAMPLING_TYPE::QUADRATURE_4X_F0:
+    case static_cast<int>(uff::ReceiveSetup::SAMPLING_TYPE::QUADRATURE_4X_F0):
         receiveSetup.setSamplingType(uff::ReceiveSetup::SAMPLING_TYPE::QUADRATURE_4X_F0);
         break;
-    case uff::ReceiveSetup::SAMPLING_TYPE::QUADRATURE_2X_F0:
+    case static_cast<int>(uff::ReceiveSetup::SAMPLING_TYPE::QUADRATURE_2X_F0):
         receiveSetup.setSamplingType(uff::ReceiveSetup::SAMPLING_TYPE::QUADRATURE_2X_F0);
         break;
     default:
@@ -685,16 +685,16 @@ std::shared_ptr<uff::Wave> Reader::readWave(const H5::Group& group)
     // write "wave_type"
     switch (readIntegerDataset(group, "wave_type"))
     {
-    case uff::WaveType::CONVERGING_WAVE:
+    case static_cast<int>(uff::WaveType::CONVERGING_WAVE):
         wave->setWaveType(uff::WaveType::CONVERGING_WAVE);
         break;
-    case uff::WaveType::CYLINDRICAL_WAVE:
+    case static_cast<int>(uff::WaveType::CYLINDRICAL_WAVE):
         wave->setWaveType(uff::WaveType::CYLINDRICAL_WAVE);
         break;
-    case uff::WaveType::DIVERGING_WAVE:
+    case static_cast<int>(uff::WaveType::DIVERGING_WAVE):
         wave->setWaveType(uff::WaveType::DIVERGING_WAVE);
         break;
-    case uff::WaveType::PLANE_WAVE:
+    case static_cast<int>(uff::WaveType::PLANE_WAVE):
         wave->setWaveType(uff::WaveType::PLANE_WAVE);
         break;
     default:

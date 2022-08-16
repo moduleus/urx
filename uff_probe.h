@@ -15,6 +15,7 @@
 #include "uff_transform.h"
 
 // System
+#include <memory>
 #include <optional>
 #include <vector>
 

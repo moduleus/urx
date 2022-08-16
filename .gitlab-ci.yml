@@ -1,0 +1,217 @@
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+  
+stages:
+  - build
+  - test
+  - install
+
+build:windows-with-HDF5-static:
+  stage: build
+  tags:
+    - win10
+    - build
+  script:
+    - 'cmake.exe -S . -B CI/ -G "Visual Studio 16 2019" -A "x64" -DHDF5_DIR="D:/GitRepo/External_MD/work/install/2019_64_static_Release/cmake/hdf5" -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF'
+    - 'cmake.exe --build CI/ --config Release --parallel 8' 
+  artifacts:
+    paths:
+      - CI/
+    expire_in: 1 day
+
+test:windows-with-HDF5-static:
+  stage: test
+  needs:
+    - build:windows-with-HDF5-static
+  tags:
+    - win10
+    - test
+  script:
+    - cd CI/
+    - 'ctest --output-on-failure -C Release'
+  artifacts:
+    paths:
+      - CI
+    expire_in: 1 day
+
+install:windows-with-HDF5-static:
+  stage: install
+  needs:
+    - test:windows-with-HDF5-static
+  tags:
+    - win10
+    - build
+  script:
+    - 'cmake.exe --install CI --config Release'
+
+build:windows-with-HDF5-shared:
+  stage: build
+  tags:
+    - win10
+    - build
+  script:
+    - 'cmake.exe -S . -B CI/ -G "Visual Studio 16 2019" -A "x64" -DHDF5_DIR="D:/GitRepo/External_MD/work/install/2019_64_shared_Release/cmake/hdf5" -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=ON'
+    - 'cmake.exe --build CI/ --config Release --parallel 8' 
+  artifacts:
+    paths:
+      - CI/
+    expire_in: 1 day
+
+test:windows-with-HDF5-shared:
+  stage: test
+  needs:
+    - build:windows-with-HDF5-shared
+  tags:
+    - win10
+    - test
+  script:
+    - cd CI/
+    - 'ctest --output-on-failure -C Release'
+  artifacts:
+    paths:
+      - CI
+    expire_in: 1 day
+
+install:windows-with-HDF5-shared:
+  stage: install
+  needs:
+    - test:windows-with-HDF5-shared
+  tags:
+    - win10
+    - build
+  script:
+    - 'cmake.exe --install CI --config Release'
+
+build:ubuntu-with-HDF5-static:
+  stage: build
+  tags:
+    - ubuntu
+    - build
+  script:
+    - cmake -S . -B CI/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DHDF5_DIR="/home/gitlab-runner/Documents/External_Ubuntu/work/install/gcc_64_static_Release/share/cmake/hdf5" -DBUILD_SHARED_LIBS=OFF
+    - cmake --build CI/ --config Release --parallel 8
+  artifacts:
+    paths:
+      - CI/
+    expire_in: 1 day
+
+test:ubuntu-with-HDF5-static:
+  stage: test
+  needs:
+    - build:ubuntu-with-HDF5-static
+  tags:
+    - ubuntu
+    - build
+  script:
+    - cd CI/
+    - 'ctest --output-on-failure -C Release'
+  artifacts:
+    paths:
+      - CI
+    expire_in: 1 day
+
+install:ubuntu-with-HDF5-static:
+  stage: install
+  needs:
+    - test:ubuntu-with-HDF5-static
+  tags:
+    - ubuntu
+    - build
+  script:
+    - cmake --install CI --config Release
+
+build:ubuntu-with-HDF5-shared:
+  stage: build
+  tags:
+    - ubuntu
+    - build
+  script:
+    - cmake -S . -B CI/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DHDF5_DIR="/home/gitlab-runner/Documents/External_Ubuntu/work/install/gcc_64_shared_Release/share/cmake/hdf5" -DBUILD_SHARED_LIBS=ON
+    - cmake --build CI/ --config Release --parallel 8
+  artifacts:
+    paths:
+      - CI/
+    expire_in: 1 day
+
+test:ubuntu-with-HDF5-shared:
+  stage: test
+  needs:
+    - build:ubuntu-with-HDF5-shared
+  tags:
+    - ubuntu
+    - build
+  script:
+    - cd CI/
+    - 'ctest --output-on-failure -C Release'
+  artifacts:
+    paths:
+      - CI
+    expire_in: 1 day
+
+install:ubuntu-with-HDF5-shared:
+  stage: install
+  needs:
+    - test:ubuntu-with-HDF5-shared
+  tags:
+    - ubuntu
+    - build
+  script:
+    - cmake --install CI --config Release
+
+build:android-ubuntu-with-HDF5-static:
+  stage: build
+  tags:
+    - android
+    - ubuntu
+    - build
+  script:
+    - export ANDROID_HOME=/home/integration/Android
+    - export ANDROID_SDK_PATH=$ANDROID_HOME/Sdk
+    - export ANDROID_NDK_PATH=$ANDROID_SDK_PATH/ndk/21.4.7075529
+    - export ANDROID_ARM64_V8A_INSTALL_PREFIX=$ANDROID_HOME/libs/arm64-v8a
+    - cmake -S . -B CI_Android/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_SYSTEM_NAME=Android -DCMAKE_SYSTEM_VERSION=28 -DCMAKE_ANDROID_ARCH_ABI=arm64-v8a -DCMAKE_ANDROID_NDK=$ANDROID_NDK_PATH -DCMAKE_ANDROID_STL_TYPE=c++_static -DCMAKE_INSTALL_PREFIX=$ANDROID_HOME/libs -DBUILD_SHARED_LIBS=OFF -DHDF5_DIR="/home/gitlab-runner/Android/libs/share/cmake/hdf5"
+    - cmake --build CI_Android/ --config Release --parallel 8
+  artifacts:
+    paths:
+      - CI_Android/
+    expire_in: 1 day
+
+install:android-ubuntu-with-HDF5-static:
+  stage: install
+  needs:
+    - build:android-ubuntu-with-HDF5-static
+  tags:
+    - android
+    - ubuntu
+    - build
+  script:
+    - cmake --install CI_Android/ --config Release
+
+build:android-ubuntu-with-HDF5-shared:
+  stage: build
+  tags:
+    - android
+    - ubuntu
+    - build
+  script:
+    - export ANDROID_HOME=/home/integration/Android
+    - export ANDROID_SDK_PATH=$ANDROID_HOME/Sdk
+    - export ANDROID_NDK_PATH=$ANDROID_SDK_PATH/ndk/21.4.7075529
+    - export ANDROID_ARM64_V8A_INSTALL_PREFIX=$ANDROID_HOME/libs/arm64-v8a
+    - cmake -S . -B CI_Android/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_SYSTEM_NAME=Android -DCMAKE_SYSTEM_VERSION=28 -DCMAKE_ANDROID_ARCH_ABI=arm64-v8a -DCMAKE_ANDROID_NDK=$ANDROID_NDK_PATH -DCMAKE_ANDROID_STL_TYPE=c++_static -DCMAKE_INSTALL_PREFIX=$ANDROID_HOME/libs -DBUILD_SHARED_LIBS=ON -DHDF5_DIR="/home/gitlab-runner/Android/libs/share/cmake/hdf5"
+    - cmake --build CI_Android/ --config Release --parallel 8
+  artifacts:
+    paths:
+      - CI_Android/
+    expire_in: 1 day
+
+install:android-ubuntu-with-HDF5-shared:
+  stage: install
+  needs:
+    - build:android-ubuntu-with-HDF5-shared
+  tags:
+    - android
+    - ubuntu
+    - build
+  script:
+    - cmake --install CI_Android/ --config Release
