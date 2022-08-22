@@ -13,14 +13,10 @@
 #define UFF_HAS_QT_SUPPORT
 #ifdef UFF_HAS_QT_SUPPORT
 //#include <QDebug>
-namespace uff
-{
+namespace uff {}  // namespace uff
+#endif            // UFF_HAS_QT_SUPPORT
 
-}    // namespace uff
-#endif // UFF_HAS_QT_SUPPORT
-
-namespace uff
-{
+namespace uff {
 
 #define UFF_VERSION_MAJOR 0
 #define UFF_VERSION_MINOR 2
@@ -32,16 +28,17 @@ namespace uff
 
 // Macro to prevent some class from being copied
 #define UFF_MAKE_NONCOPYABLE(ClassName) \
-        private: \
-            ClassName(const ClassName&) = delete; \
-            ClassName& operator=(const ClassName&) = delete; \
+ private:                               \
+  ClassName(const ClassName&) = delete; \
+  ClassName& operator=(const ClassName&) = delete;
 
-#define UFF_TYPE_MACRO(thisClass, superClass) \
-protected: \
-const char* getClassNameInternal() const override {return #thisClass;}; \
-public: \
-typedef superClass superclass;
+#define UFF_TYPE_MACRO(thisClass, superClass)                               \
+ protected:                                                                 \
+  const char* getClassNameInternal() const override { return #thisClass; }; \
+                                                                            \
+ public:                                                                    \
+  typedef superClass superclass;
 
-} // namespace uff
+}  // namespace uff
 
-#endif // UFF_H
+#endif  // UFF_H

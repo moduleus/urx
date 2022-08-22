@@ -23,33 +23,30 @@
 #define UNDEFINED "UNDEFINED"
 #define UFF_NAN std::numeric_limits<double>::quiet_NaN()
 
-namespace uff
-{
+namespace uff {
 
 /**
  * The uff::Object class is the base class for all UFF components.
  */
-class Object
-{
-protected:
-    virtual const char* getClassNameInternal() const { return "Object"; }
+class Object {
+ protected:
+  virtual const char* getClassNameInternal() const { return "Object"; }
 
-public:
-    const char* getClassName() const;
-    
-    void print(std::ostream& os) const;
+ public:
+  const char* getClassName() const;
 
-    virtual void printSelf(std::ostream& os, std::string indent) const;
+  void print(std::ostream& os) const;
 
-    virtual void printHeader(std::ostream& os, std::string indent) const;
+  virtual void printSelf(std::ostream& os, std::string indent) const;
 
-    virtual void printTrailer(std::ostream& os, std::string indent) const;
+  virtual void printHeader(std::ostream& os, std::string indent) const;
 
-private:
+  virtual void printTrailer(std::ostream& os, std::string indent) const;
 
-    friend std::ostream& operator<<(std::ostream& os, const uff::Object& o);
+ private:
+  friend std::ostream& operator<<(std::ostream& os, const uff::Object& o);
 };
 
-} // namespace uff
+}  // namespace uff
 
-#endif // UFF_OBJECT_H
+#endif  // UFF_OBJECT_H
