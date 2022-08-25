@@ -1,0 +1,10 @@
+# ------------------------------------------------
+# Options affecting comment reflow and formatting.
+# ------------------------------------------------
+with section("markup"):
+  # If true, then insert a space between the first hash char and remaining hash
+  # chars in a hash ruler, and normalize its length to fill the column
+  canonicalize_hashrulers = True
+
+  # enable comment markup parsing and reflow
+  enable_markup = False
