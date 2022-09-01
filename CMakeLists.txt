@@ -109,6 +109,7 @@ endif()
 # Target library ###
 set(UFF_LIBRARY ${PROJECT_NAME})
 add_library(${PROJECT_NAME} ${UFF_SRCS})
+add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 target_include_directories(
   ${PROJECT_NAME}
