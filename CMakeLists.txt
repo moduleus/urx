@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.9)
 
 project(
   Uff
-  VERSION 0.2.1
+  VERSION 0.2.2
   LANGUAGES C CXX
   DESCRIPTION "Ultrasound File Format C++ implementation")
 
@@ -109,6 +109,7 @@ endif()
 # Target library ###
 set(UFF_LIBRARY ${PROJECT_NAME})
 add_library(${PROJECT_NAME} ${UFF_SRCS})
+add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 target_include_directories(
   ${PROJECT_NAME}
