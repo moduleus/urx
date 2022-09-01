@@ -102,7 +102,8 @@ if(NOT BUILD_SHARED_LIBS)
 endif()
 
 set(UFF_LIBRARY Uff)
-add_library(${UFF_LIBRARY} ${UFF_SRCS})
+add_library(${PROJECT_NAME} ${UFF_SRCS})
+add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 target_include_directories(
   ${PROJECT_NAME}
   PUBLIC
