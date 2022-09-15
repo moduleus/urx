@@ -50,7 +50,7 @@ class ChannelData : public uff::Object {
   const std::string& localTime() const { return m_localTime; }
   void setLocalTime(const std::string& localTime) {
     // validate
-    if (isIso8601(localTime)) {
+    if (!localTime.empty() && isIso8601(localTime)) {
       m_localTime = localTime;
     } else {
       std::cerr << '"' << localTime << "\" is not ISO8601 format (YYYY-MM-DDThh:mm:ss)\n";
@@ -65,7 +65,7 @@ class ChannelData : public uff::Object {
   const std::string& countryCode() const { return m_countryCode; }
   void setCountryCode(const std::string& countryCode) {
     // validate
-    if (isIso3166(countryCode)) {
+    if (!countryCode.empty() && isIso3166(countryCode)) {
       m_countryCode = countryCode;
     } else {
       std::cerr << '"' << countryCode << "\" is not ISO3166 (XX)\n";
