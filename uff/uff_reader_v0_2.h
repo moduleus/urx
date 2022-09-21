@@ -56,7 +56,7 @@ namespace uff
         std::shared_ptr<uff::Event> readEvent(const H5::Group& group);
 
         // Excitation
-        std::weak_ptr<uff::Excitation> readExcitation(const H5::Group& group);
+        std::shared_ptr<uff::Excitation> readExcitation(const H5::Group& group);
 
         // Probe
         std::shared_ptr<uff::LinearArray> readLinearArray(const H5::Group& group);

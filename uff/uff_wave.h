@@ -42,18 +42,25 @@ public:
     void setChannelMapping(const std::vector<int32_t>& channelMapping) { m_channelMapping = channelMapping; }
     
     const std::vector<std::weak_ptr<uff::Excitation>>& channelExcitations() const { return m_channel_excitations; }
-    void setExcitation(const std::vector<std::weak_ptr<uff::Excitation>>& excitation) { m_excitation = excitation; }
+    void setChannelExcitations(const std::vector<std::weak_ptr<uff::Excitation>>& excitation) { m_channel_excitations = excitation; }
 
-    const std::vector<float>& channelDcOffset() const { return m_channelDcOffset; }
-    void setChannelDcOffset(const std::vector<float>& channelDcOffset) { m_channelDcOffset = channelDcOffset; }
+    const std::vector<float>& channelDcOffset() const { return m_channel_dc_offset; }
+    void setChannelDcOffset(const std::vector<float>& channelDcOffset) { m_channel_dc_offset = channelDcOffset; }
 
     bool operator ==(const Wave& other) const
     {
+        bool sameExcitations = m_channel_excitations.size() == other.m_channel_excitations.size();
+        for (size_t iExcitation = 0; iExcitation < m_channel_excitations.size(); ++iExcitation)
+        {
+            sameExcitations &= m_channel_excitations[iExcitation].expired() == other.m_channel_excitations[iExcitation].expired();
+            sameExcitations &= m_channel_excitations[iExcitation].expired() || 
+                (*m_channel_excitations[iExcitation].lock() == *other.m_channel_excitations[iExcitation].lock());
+        }
         return (m_origin == other.m_origin) &&
             (m_waveType == other.m_waveType) &&
             (m_aperture == other.m_aperture) &&
-            ( m_excitation.expired() == other.m_excitation.expired() &&
-            (m_excitation.expired() || *m_excitation.lock() == *other.m_excitation.lock()));
+            sameExcitations &&
+            m_channel_dc_offset == other.m_channel_dc_offset;
     }
 
     inline bool operator !=(const Wave& other) const { return !(*this == other); }

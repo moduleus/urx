@@ -3,9 +3,18 @@
 #
 cmake_minimum_required (VERSION 3.9)
 
-project(uff LANGUAGES C CXX DESCRIPTION "Ultrasound File Format C++ implementation")
+project(Uff 
+	LANGUAGES C CXX 
+	DESCRIPTION "Ultrasound File Format C++ implementation")
+	
+# Configure compiler ###
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# UFF 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_DEBUG_POSTFIX d)
+
+# Sources
 set(UFF_SRCS
   ${CMAKE_CURRENT_SOURCE_DIR}/uff.h
   ${CMAKE_CURRENT_SOURCE_DIR}/uff_acquisition.cpp
@@ -72,10 +81,11 @@ set(UFF_SRCS
   ${CMAKE_CURRENT_SOURCE_DIR}/uff_writer.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/uff_writer.h)
    
-set(UFF_LIBRARY uff) 
-add_library(${UFF_LIBRARY} STATIC ${UFF_SRCS})
+set(UFF_LIBRARY Uff) 
+add_library(${PROJECT_NAME} STATIC ${UFF_SRCS})
+add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 target_include_directories(${UFF_LIBRARY} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-add_dependencies(${UFF_LIBRARY} HDF5)
+add_dependencies(${PROJECT_NAME} HDF5)
 
 # HDF5
 set(LIB_TYPE STATIC) # or SHARED

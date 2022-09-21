@@ -24,8 +24,11 @@ void Wave::printSelf(std::ostream& os, std::string indent) const
     os << indent << "Channel Mapping size: " << this->m_channelMapping.size() << std::endl;
 
     os << indent << "Excitation: ";
-    if (auto spt = this->m_excitation.lock()) { (*spt).printSelf(os, indent + UFF_STD_INDENT); }
-    else { os << "<excitation pointer expired>" << std::endl; }
+    for (auto& excitation : m_channel_excitations)
+    {
+        if (auto spt = excitation.lock()) { (*spt).printSelf(os, indent + UFF_STD_INDENT); }
+        else { os << "<excitation pointer expired>" << std::endl; }
+    }
 }
 
 } // namespace uff

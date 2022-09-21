@@ -1,14 +1,7 @@
-﻿# CMakeList.txt : CMake project for uff_cpp, include source and define
-# project specific logic here.
-#
+﻿# Copyright Moduleus 2019
+
 cmake_minimum_required (VERSION 3.9)
 
-project(UffTesting LANGUAGES C CXX DESCRIPTION "Ultrasound File Format C++ implementation")
-
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS ON) 
- 
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
  
@@ -27,7 +20,7 @@ set(ep_common_args
   -DCMAKE_EXTRA_GENERATOR:STRING=${CMAKE_EXTRA_GENERATOR}
   )
 
-message(STATUS "CMAKE_BUILD_TYPE : "${CMAKE_BUILD_TYPE})
+message(STATUS "CMAKE_BUILD_TYPE : ${CMAKE_BUILD_TYPE}")
  
 # HDF5  
 # Maybe use find package before installing a new one 
@@ -42,7 +35,6 @@ endif()
 # UFF
 add_subdirectory(uff)    
 set(UFF_LIBRARY uff) 
-
 
 # UFF Testing
 add_subdirectory(testing) 

@@ -432,8 +432,15 @@ void Writer::writeVersion(H5::Group& group, const uff::Version& version)
         writeIntegerArrayDataset(group, "channel_mapping", wave->channelMapping(), { wave->channelMapping().size() });
 
         // write "excitation"
-        const std::string excitationId = getIdFromPointer<uff::Excitation>(m_dataset.acquisition().uniqueExcitations(), wave->excitation());
-        writeStringDataset(group, "excitation_id", excitationId);
+        std::vector<std::string> excitationsId(wave->channelExcitations().size());
+        for (size_t iExcitation = 0; iExcitation < wave->channelExcitations().size(); ++iExcitation)
+        {
+            excitationsId[iExcitation] = getIdFromPointer<uff::Excitation>(
+                m_dataset.acquisition().uniqueExcitations(), 
+                wave->channelExcitations()[iExcitation]);
+        }
+        H5::Group excitations(group.createGroup("channel_excitations"));
+        writeArray(excitations, excitationsId);
     }
 
     void Writer::writeAperture(H5::Group& group, const uff::Aperture& aperture)

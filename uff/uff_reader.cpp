@@ -542,8 +542,14 @@ std::shared_ptr<uff::Wave> Reader::readWave(const H5::Group& group)
     }
 
     // "excitation"
-    int excitationId = stoi(readStringDataset(group, "excitation_id"));
-    wave->setExcitation(m_dataset->acquisition().uniqueExcitations()[(size_t)excitationId - 1]);
+    H5::Group excitations(group.openGroup("channel_excitations"));
+    std::vector<std::string> excitationsIdStr = readArray<std::string>(excitations);
+    std::vector<std::weak_ptr<uff::Excitation>> channelExcitations(excitationsIdStr.size());
+    for (size_t iExcitation = 0; iExcitation < excitationsIdStr.size(); ++iExcitation) {
+        int index = stoi(readStringDataset(group, "excitation_id"));
+        channelExcitations[iExcitation] = m_dataset->acquisition().uniqueExcitations()[(size_t)index - 1];
+    }
+    wave->setChannelExcitations(channelExcitations);
 
     return wave;
 }

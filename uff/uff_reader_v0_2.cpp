@@ -189,7 +189,7 @@ namespace uff
         return event;
     }
 
-    std::weak_ptr<uff::Excitation> ReaderV0_2::readExcitation(const H5::Group& group)
+    std::shared_ptr<uff::Excitation> ReaderV0_2::readExcitation(const H5::Group& group)
     {
         std::shared_ptr<uff::Excitation> excitation = std::make_shared<uff::Excitation>();
 
@@ -549,19 +549,44 @@ namespace uff
     {
         auto wave = std::make_shared<uff::Wave>();
 
-        // write "origin"
+        // Read "origin"
         wave->setOrigin(readTransform(group.openGroup("origin")));
 
-        // write "wave_type"
+        // Read "wave_type"
         const int waveType = readIntegerDataset(group, "wave_type");
         wave->setWaveType((uff::WaveType)waveType);
         if ((int)wave->waveType() != waveType) { std::cerr << "Unknow sampling type:" << waveType; }
 
-        // write "aperture"
+        // Read "aperture"
         wave->setAperture(readAperture(group.openGroup("aperture")));
 
-        // write "excitation"
-        wave->setExcitation(readExcitation(group.openGroup("excitation")));
+        // Read "excitation"
+        auto excitation = readExcitation(group.openGroup("excitation"));
+        {
+            bool found = false;
+            for (auto& e : m_dataset->acquisition().uniqueExcitations())
+            {
+                if (*e == *excitation) {
+                    found = true;
+                    excitation = e;
+                }
+            }
+            if (!found) { m_dataset->acquisition().addUniqueExcitation(excitation); }
+        }
+
+        std::vector<std::weak_ptr<uff::Excitation>> channelExcitation(m_dataset->acquisition().probes()[0]->elements().size());
+        for (size_t iChannel = 0; iChannel < channelExcitation.size(); ++iChannel)
+        {
+            bool found = false;
+            for (auto& channel : wave->channelMapping()) {
+                if ((iChannel + 1) == channel)found = true;
+            }
+            if (found)
+            {
+                channelExcitation[iChannel] = excitation;
+            }
+        }
+        wave->setChannelExcitations(channelExcitation);
 
         return wave;
     }
