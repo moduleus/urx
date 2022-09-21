@@ -32,6 +32,7 @@ namespace uff
         void printSelf(std::ostream& os, std::string indent) const override;
 
         uff::Acquisition& acquisition() { return m_acquisition; }
+        const uff::Acquisition& acquisition() const { return m_acquisition; }
         void setAcquisition(const uff::Acquisition& acquisition) { m_acquisition = acquisition; }
 
         const uff::Version& version() const { return m_version; }

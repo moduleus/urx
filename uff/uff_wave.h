@@ -41,8 +41,11 @@ public:
     const std::vector<int32_t>& channelMapping() const { return m_channelMapping; }
     void setChannelMapping(const std::vector<int32_t>& channelMapping) { m_channelMapping = channelMapping; }
     
-    const std::weak_ptr<uff::Excitation>& excitation() const { return m_excitation; }
-    void setExcitation(const std::weak_ptr<uff::Excitation>& excitation) { m_excitation = excitation; }
+    const std::vector<std::weak_ptr<uff::Excitation>>& channelExcitations() const { return m_channel_excitations; }
+    void setExcitation(const std::vector<std::weak_ptr<uff::Excitation>>& excitation) { m_excitation = excitation; }
+
+    const std::vector<float>& channelDcOffset() const { return m_channelDcOffset; }
+    void setChannelDcOffset(const std::vector<float>& channelDcOffset) { m_channelDcOffset = channelDcOffset; }
 
     bool operator ==(const Wave& other) const
     {
@@ -68,8 +71,11 @@ private:
     // Channel mapping
     std::vector<int32_t> m_channelMapping;
 
-    // excitation waveform
-    std::weak_ptr<uff::Excitation> m_excitation;
+    // Channel Excitations
+    std::vector<std::weak_ptr<uff::Excitation>> m_channel_excitations;
+
+    // Channel DC offset
+    std::vector<float> m_channel_dc_offset;
 };
 
 } // namespace uff
