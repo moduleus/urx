@@ -37,7 +37,7 @@ class Reader : public uff::Object {
   std::string fileName() const { return m_fileName; }
   void setFileName(const std::string& fileName) { m_fileName = fileName; }
 
-  void updateMetadata();
+  bool updateMetadata();
 
  protected:
   // Read basic types
