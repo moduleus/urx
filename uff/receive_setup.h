@@ -33,11 +33,11 @@ class ReceiveSetup : public uff::Object {
   const std::weak_ptr<uff::Probe> probe() const { return m_probe; }
   void setProbe(std::weak_ptr<uff::Probe> probe) { m_probe = probe; }
 
-  FloatingType timeOffset() const { return m_timeOffset; }
-  void setTimeOffset(FloatingType timeOffset) { m_timeOffset = timeOffset; }
+  MetadataType timeOffset() const { return m_timeOffset; }
+  void setTimeOffset(MetadataType timeOffset) { m_timeOffset = timeOffset; }
 
-  std::optional<FloatingType> samplingFrequency() const { return m_samplingFrequency; }
-  void setSamplingFrequency(std::optional<FloatingType> samplingFrequency) {
+  std::optional<MetadataType> samplingFrequency() const { return m_samplingFrequency; }
+  void setSamplingFrequency(std::optional<MetadataType> samplingFrequency) {
     m_samplingFrequency = samplingFrequency;
   }
 
@@ -49,16 +49,16 @@ class ReceiveSetup : public uff::Object {
     m_channelMapping = channelMapping;
   }
 
-  std::vector<FloatingType> tgcProfile() const { return m_tgcProfile; }
-  void setTgcProfile(const std::vector<FloatingType>& tgcProfile) { m_tgcProfile = tgcProfile; }
+  std::vector<MetadataType> tgcProfile() const { return m_tgcProfile; }
+  void setTgcProfile(const std::vector<MetadataType>& tgcProfile) { m_tgcProfile = tgcProfile; }
 
-  std::optional<FloatingType> tgcSamplingFrequency() const { return m_tgcSamplingFrequency; }
-  void setTgcSamplingFrequency(std::optional<FloatingType> tgcSamplingFrequency) {
+  std::optional<MetadataType> tgcSamplingFrequency() const { return m_tgcSamplingFrequency; }
+  void setTgcSamplingFrequency(std::optional<MetadataType> tgcSamplingFrequency) {
     m_tgcSamplingFrequency = tgcSamplingFrequency;
   }
 
-  std::optional<FloatingType> modulationFrequency() const { return m_modulationFrequency; }
-  void setModulationFrequency(std::optional<FloatingType> modulationFrequency) {
+  std::optional<MetadataType> modulationFrequency() const { return m_modulationFrequency; }
+  void setModulationFrequency(std::optional<MetadataType> modulationFrequency) {
     m_modulationFrequency = modulationFrequency;
   }
 
@@ -80,10 +80,10 @@ class ReceiveSetup : public uff::Object {
   std::weak_ptr<uff::Probe> m_probe;
 
   // Time before the first samples [s]
-  FloatingType m_timeOffset = 0.;
+  MetadataType m_timeOffset = 0.;
 
   // Sampling frequency [Hz]
-  std::optional<FloatingType> m_samplingFrequency = std::nullopt;
+  std::optional<MetadataType> m_samplingFrequency = std::nullopt;
 
   // Type of sampling:
   SAMPLING_TYPE m_samplingType = SAMPLING_TYPE::DIRECT_RF;
@@ -93,13 +93,13 @@ class ReceiveSetup : public uff::Object {
   std::vector<int> m_channelMapping;
 
   // (Optional) Analog TGC profile sampled at tgc_sampling_frequency [dB]
-  std::vector<FloatingType> m_tgcProfile = {0.f};
+  std::vector<MetadataType> m_tgcProfile = {0.f};
 
   //     (Optional) Sampling frequency of the TGC profile [Hz]
-  std::optional<FloatingType> m_tgcSamplingFrequency = std::nullopt;
+  std::optional<MetadataType> m_tgcSamplingFrequency = std::nullopt;
 
   //     (Optional) Modulation frequency used in case of IQ-data [Hz]
-  std::optional<FloatingType> m_modulationFrequency = std::nullopt;
+  std::optional<MetadataType> m_modulationFrequency = std::nullopt;
 };
 
 }  // namespace uff

@@ -29,16 +29,16 @@ class ImpulseResponse : public uff::Object {
 
   void printSelf(std::ostream& os, std::string indent) const override;
 
-  FloatingType initialTime() const { return m_initialTime; }
-  void setInitialTime(FloatingType initialTime) { m_initialTime = initialTime; }
+  MetadataType initialTime() const { return m_initialTime; }
+  void setInitialTime(MetadataType initialTime) { m_initialTime = initialTime; }
 
-  std::optional<FloatingType> samplingFrequency() const { return m_samplingFrequency; }
-  void setSampleFrequency(std::optional<FloatingType> samplingFrequency) {
+  std::optional<MetadataType> samplingFrequency() const { return m_samplingFrequency; }
+  void setSampleFrequency(std::optional<MetadataType> samplingFrequency) {
     m_samplingFrequency = samplingFrequency;
   }
 
-  const std::vector<FloatingType>& data() const { return m_data; }
-  void setData(const std::vector<FloatingType>& data) { m_data = data; }
+  const std::vector<MetadataType>& data() const { return m_data; }
+  void setData(const std::vector<MetadataType>& data) { m_data = data; }
 
   const std::string& units() const { return m_units; }
   void setUnits(const std::string& units) { m_units = units; }
@@ -53,13 +53,13 @@ class ImpulseResponse : public uff::Object {
 
  private:
   // Time in seconds from the delta excitation until the acquisition of the first sample
-  FloatingType m_initialTime = 0.f;
+  MetadataType m_initialTime = 0.f;
 
   // Sampling frequency in Hz
-  std::optional<FloatingType> m_samplingFrequency = std::nullopt;
+  std::optional<MetadataType> m_samplingFrequency = std::nullopt;
 
   // Collection of samples containing the impulse response
-  std::vector<FloatingType> m_data;
+  std::vector<MetadataType> m_data;
 
   // (Optional) Name of the units of the impulse response
   std::string m_units;

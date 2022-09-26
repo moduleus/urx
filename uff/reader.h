@@ -41,8 +41,8 @@ class Reader : public uff::Object {
 
  protected:
   // Read basic types
-  FloatingType readFloatingTypeDataset(const H5::Group& group, const std::string& name);
-  std::optional<FloatingType> readOptionalFloatingTypeDataset(const H5::Group& group,
+  MetadataType readMetadataTypeDataset(const H5::Group& group, const std::string& name);
+  std::optional<MetadataType> readOptionalMetadataTypeDataset(const H5::Group& group,
                                                               const std::string& name);
   void readIntegerArrayDataset(const H5::Group& group, const std::string& name,
                                std::vector<int>& values, std::vector<size_t>& dimensions);
@@ -64,8 +64,10 @@ class Reader : public uff::Object {
 
   uff::Excitation readExcitation(const H5::Group& group);
 
-  void readFloatingTypeArrayDataset(const H5::Group& group, const std::string& name,
-                                    std::vector<FloatingType>& values,
+  void readDataTypeArrayDataset(const H5::Group& group, const std::string& name,
+                                std::vector<DataType>& values, std::vector<size_t>& dimensions);
+  void readMetadataTypeArrayDataset(const H5::Group& group, const std::string& name,
+                                    std::vector<MetadataType>& values,
                                     std::vector<size_t>& dimensions);
 
   std::shared_ptr<uff::LinearArray> readLinearArray(const H5::Group& group);

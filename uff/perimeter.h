@@ -30,8 +30,8 @@ class Perimeter : public uff::Object {
 
   void printSelf(std::ostream& os, std::string indent) const override;
 
-  std::vector<std::pair<FloatingType, FloatingType> >& points() { return m_points; }
-  void setPoints(const std::vector<std::pair<FloatingType, FloatingType> >& points) {
+  std::vector<std::pair<MetadataType, MetadataType> >& points() { return m_points; }
+  void setPoints(const std::vector<std::pair<MetadataType, MetadataType> >& points) {
     m_points = points;
   }
 
@@ -41,7 +41,7 @@ class Perimeter : public uff::Object {
 
  private:
   // Vector of pair of points (x, y). It is assumed that perimeter is always in the X-Y plane.
-  std::vector<std::pair<FloatingType, FloatingType> > m_points;
+  std::vector<std::pair<MetadataType, MetadataType> > m_points;
 };
 
 }  // namespace uff

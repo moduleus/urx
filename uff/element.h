@@ -31,22 +31,22 @@ class Element : public uff::Object {
 
   void printSelf(std::ostream& os, std::string indent) const override;
 
-  std::optional<FloatingType> x() const { return m_x; }
-  std::optional<FloatingType> y() const { return m_y; }
-  std::optional<FloatingType> z() const { return m_z; }
+  std::optional<MetadataType> x() const { return m_x; }
+  std::optional<MetadataType> y() const { return m_y; }
+  std::optional<MetadataType> z() const { return m_z; }
 
 #if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic warning "-Wmaybe-uninitialized"
 #endif
-  void setX(std::optional<FloatingType> x) { m_x = x; }
-  void setY(std::optional<FloatingType> y) { m_y = y; }
-  void setZ(std::optional<FloatingType> z) { m_z = z; }
+  void setX(std::optional<MetadataType> x) { m_x = x; }
+  void setY(std::optional<MetadataType> y) { m_y = y; }
+  void setZ(std::optional<MetadataType> z) { m_z = z; }
 #if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
-  void setXYZ(std::optional<FloatingType> x, std::optional<FloatingType> y,
-              std::optional<FloatingType> z) {
+  void setXYZ(std::optional<MetadataType> x, std::optional<MetadataType> y,
+              std::optional<MetadataType> z) {
     setX(x);
     setY(y);
     setZ(z);
@@ -59,9 +59,9 @@ class Element : public uff::Object {
   inline bool operator!=(const Element& other) const { return !(*this == other); }
 
  private:
-  std::optional<FloatingType> m_x = std::nullopt;
-  std::optional<FloatingType> m_y = std::nullopt;
-  std::optional<FloatingType> m_z = std::nullopt;
+  std::optional<MetadataType> m_x = std::nullopt;
+  std::optional<MetadataType> m_y = std::nullopt;
+  std::optional<MetadataType> m_z = std::nullopt;
 };
 
 }  // namespace uff

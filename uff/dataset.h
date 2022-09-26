@@ -37,16 +37,16 @@ class Dataset : public uff::Object {
   // ___________________ Convenience access method ___________________________________
 
   // Returns the channel geometry of the probe used by the 1st receive setup
-  const std::vector<FloatingType> getChannelGeometry() {
+  const std::vector<MetadataType> getChannelGeometry() {
     if (m_channelData.probes().empty()) {
-      return std::vector<FloatingType>();
+      return std::vector<MetadataType>();
     } else {
       return m_channelData.probes()[0]->getChannelGeometry();
     }
   }
 
   // Returns the receive delay of the 1st ReceiveSetup
-  FloatingType getReceiveDelay() const {
+  MetadataType getReceiveDelay() const {
     if (m_channelData.uniqueEvents().empty()) {
       return UFF_NAN;
     } else {
@@ -64,7 +64,7 @@ class Dataset : public uff::Object {
   }
 
   // Return the sampling frequency associated with the 1st receive event [Hz]
-  FloatingType getSamplingFrequency() const {
+  MetadataType getSamplingFrequency() const {
     if (m_channelData.uniqueEvents().empty() ||
         !m_channelData.uniqueEvents()[0]->receiveSetup().samplingFrequency().has_value()) {
       return UFF_NAN;
@@ -74,10 +74,10 @@ class Dataset : public uff::Object {
   }
 
   // Returns the speed of sound [m/s]
-  FloatingType getSoundSpeed() const { return m_channelData.soundSpeed(); }
+  MetadataType getSoundSpeed() const { return m_channelData.soundSpeed(); }
 
   // Return the transmit frequency associated with the 1st Wave of the dataset
-  FloatingType getTransmitFrequency() const {
+  MetadataType getTransmitFrequency() const {
     if (m_channelData.uniqueWaves().empty() ||
         !m_channelData.uniqueWaves()[0]->excitation().transmitFrequency().has_value()) {
       return UFF_NAN;

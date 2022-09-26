@@ -20,12 +20,15 @@ namespace uff {
 #define UFF_VERSION_MINOR 2
 #define UFF_VERSION_PATCH 0
 
-using FloatingType = float;
+using DataType = float;
+using MetadataType = double;
 
 #ifdef WITH_HDF5
-//const H5::PredType H5FloatingType = std::is_same<FloatingType, float>::value ? H5::PredType::NATIVE_FLOAT: H5::PredType::NATIVE_DOUBLE;
-#define H5FloatingType                                                  \
-  std::is_same<FloatingType, float>::value ? H5::PredType::NATIVE_FLOAT \
+// TODO: Allow other types for data type.
+#define H5DataType \
+  std::is_same<DataType, float>::value ? H5::PredType::NATIVE_FLOAT : H5::PredType::NATIVE_DOUBLE
+#define H5MetadataType                                                  \
+  std::is_same<MetadataType, float>::value ? H5::PredType::NATIVE_FLOAT \
                                            : H5::PredType::NATIVE_DOUBLE
 #endif  // WITH_HDF5
 

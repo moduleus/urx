@@ -37,8 +37,8 @@ class Probe : public uff::Object {
   void setTransform(const uff::Transform& transform) { m_transform = transform; }
 
   /* [optional] For probes with a focal lens, it describes the focal length in m [Az, Ele] */
-  std::optional<FloatingType> focalLength() const { return m_focalLength; }
-  void setFocalLength(std::optional<FloatingType> focalLength) { m_focalLength = focalLength; }
+  std::optional<MetadataType> focalLength() const { return m_focalLength; }
+  void setFocalLength(std::optional<MetadataType> focalLength) { m_focalLength = focalLength; }
 
   /* List elements in the probe */
   std::vector<uff::Element>& elements() { return m_elements; }
@@ -60,15 +60,15 @@ class Probe : public uff::Object {
   }
 
   /* Convenience method */
-  const std::vector<FloatingType>& getChannelGeometry() {
+  const std::vector<MetadataType>& getChannelGeometry() {
     if (_channelGeometryValid == false) {
       // build channel geometry
       _channelGeometry.resize(4 * m_elements.size());
       auto dst = _channelGeometry.begin();
       for (auto& el : m_elements) {
-        *dst++ = el.x().has_value() ? el.x().value() : (FloatingType)UFF_NAN;
-        *dst++ = el.y().has_value() ? el.y().value() : (FloatingType)UFF_NAN;
-        *dst++ = el.z().has_value() ? el.z().value() : (FloatingType)UFF_NAN;
+        *dst++ = el.x().has_value() ? el.x().value() : (MetadataType)UFF_NAN;
+        *dst++ = el.y().has_value() ? el.y().value() : (MetadataType)UFF_NAN;
+        *dst++ = el.z().has_value() ? el.z().value() : (MetadataType)UFF_NAN;
         *dst++ = 0;
       }
       _channelGeometryValid = true;
@@ -104,13 +104,13 @@ class Probe : public uff::Object {
 
  protected:
   uff::Transform m_transform;
-  std::optional<FloatingType> m_focalLength = std::nullopt;
+  std::optional<MetadataType> m_focalLength = std::nullopt;
   std::vector<uff::Element> m_elements;
   std::vector<uff::ElementGeometry> m_elementGeometries;
   std::vector<uff::ImpulseResponse> m_impulseResponses;
 
   bool _channelGeometryValid = false;
-  std::vector<FloatingType> _channelGeometry;
+  std::vector<MetadataType> _channelGeometry;
 };
 
 }  // namespace uff

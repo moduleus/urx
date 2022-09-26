@@ -30,16 +30,16 @@ class Excitation : public uff::Object {
   const std::optional<std::string>& pulseShape() const { return m_pulseShape; }
   void setPulseShape(const std::optional<std::string>& pulseShape) { m_pulseShape = pulseShape; }
 
-  const std::vector<FloatingType>& waveform() const { return m_waveform; }
-  void setWaveform(const std::vector<FloatingType>& waveform) { m_waveform = waveform; }
+  const std::vector<MetadataType>& waveform() const { return m_waveform; }
+  void setWaveform(const std::vector<MetadataType>& waveform) { m_waveform = waveform; }
 
-  std::optional<FloatingType> samplingFrequency() const { return m_samplingFrequency; }
-  void setSamplingFrequency(std::optional<FloatingType> samplingFrequency) {
+  std::optional<MetadataType> samplingFrequency() const { return m_samplingFrequency; }
+  void setSamplingFrequency(std::optional<MetadataType> samplingFrequency) {
     m_samplingFrequency = samplingFrequency;
   }
 
-  std::optional<FloatingType> transmitFrequency() const { return m_transmitFrequency; }
-  void setTransmitFrequency(std::optional<FloatingType> transmitFrequency) {
+  std::optional<MetadataType> transmitFrequency() const { return m_transmitFrequency; }
+  void setTransmitFrequency(std::optional<MetadataType> transmitFrequency) {
     m_transmitFrequency = transmitFrequency;
   }
 
@@ -56,13 +56,13 @@ class Excitation : public uff::Object {
   std::optional<std::string> m_pulseShape = std::nullopt;
 
   // Transmit frequency [Hz]
-  std::optional<FloatingType> m_transmitFrequency = std::nullopt;
+  std::optional<MetadataType> m_transmitFrequency = std::nullopt;
 
   // Sampled excitation waveform [normalized units]
-  std::vector<FloatingType> m_waveform;
+  std::vector<MetadataType> m_waveform;
 
   // Sampling frequency of the excitation waveform [Hz]
-  std::optional<FloatingType> m_samplingFrequency = std::nullopt;
+  std::optional<MetadataType> m_samplingFrequency = std::nullopt;
 };
 
 }  // namespace uff

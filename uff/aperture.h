@@ -39,12 +39,12 @@ class Aperture : public uff::Object {
   void setWindow(const std::optional<std::string>& window) { m_window = window; }
 
   // F number
-  std::optional<FloatingType> fNumber() const { return m_fNumber; }
-  void setFNumber(std::optional<FloatingType> f_number) { m_fNumber = f_number; }
+  std::optional<MetadataType> fNumber() const { return m_fNumber; }
+  void setFNumber(std::optional<MetadataType> f_number) { m_fNumber = f_number; }
 
   // Fixed size
-  std::optional<FloatingType> fixedSize() const { return m_fixedSize; }
-  void setFixedSize(std::optional<FloatingType> fixedSize) { m_fixedSize = fixedSize; }
+  std::optional<MetadataType> fixedSize() const { return m_fixedSize; }
+  void setFixedSize(std::optional<MetadataType> fixedSize) { m_fixedSize = fixedSize; }
 
   bool operator==(const Aperture& other) const {
     return ((m_origin == other.m_origin) && (m_window == other.m_window) &&
@@ -61,10 +61,10 @@ class Aperture : public uff::Object {
   std::optional<std::string> m_window = std::nullopt;
 
   // Desired F-number of the aperture [Az, El]
-  std::optional<FloatingType> m_fNumber = std::nullopt;
+  std::optional<MetadataType> m_fNumber = std::nullopt;
 
   // If non-zero, this overwrites the size of the aperture in m [Az, El]
-  std::optional<FloatingType> m_fixedSize = std::nullopt;
+  std::optional<MetadataType> m_fixedSize = std::nullopt;
 };
 
 }  // namespace uff

@@ -35,17 +35,17 @@ class LinearArray : public uff::Probe {
     updateElements();
   }
 
-  std::optional<FloatingType> pitch() { return m_pitch; }
-  void setPitch(std::optional<FloatingType> pitch) {
+  std::optional<MetadataType> pitch() { return m_pitch; }
+  void setPitch(std::optional<MetadataType> pitch) {
     m_pitch = pitch;
     updateElements();
   }
 
-  std::optional<FloatingType> elementWidth() { return m_elementWidth; }
-  void setElementWidth(std::optional<FloatingType> elementWidth) { m_elementWidth = elementWidth; }
+  std::optional<MetadataType> elementWidth() { return m_elementWidth; }
+  void setElementWidth(std::optional<MetadataType> elementWidth) { m_elementWidth = elementWidth; }
 
-  std::optional<FloatingType> elementHeight() { return m_elementHeight; }
-  void setElementHeight(std::optional<FloatingType> elementHeight) {
+  std::optional<MetadataType> elementHeight() { return m_elementHeight; }
+  void setElementHeight(std::optional<MetadataType> elementHeight) {
     m_elementHeight = elementHeight;
   }
 
@@ -61,7 +61,7 @@ class LinearArray : public uff::Probe {
       // element position
       uff::Element element;
       if (m_pitch.has_value()) {
-        FloatingType xmin = -m_pitch.value() * (m_numberElements - 1.f) / 2.f;
+        MetadataType xmin = -m_pitch.value() * (m_numberElements - 1.f) / 2.f;
         element.setX(xmin + i * m_pitch.value());
       } else
         element.setX(0.f);
@@ -76,13 +76,13 @@ class LinearArray : public uff::Probe {
   uint32_t m_numberElements = 0;
 
   // Distance between the acoustic ceneter of adyacent elements [m]
-  std::optional<FloatingType> m_pitch = std::nullopt;
+  std::optional<MetadataType> m_pitch = std::nullopt;
 
   // (Optional) Element size in the x-axis [m]
-  std::optional<FloatingType> m_elementWidth = std::nullopt;
+  std::optional<MetadataType> m_elementWidth = std::nullopt;
 
   // (Optional) Element size in the y-axis [m]
-  std::optional<FloatingType> m_elementHeight = std::nullopt;
+  std::optional<MetadataType> m_elementHeight = std::nullopt;
 };
 
 }  // namespace uff

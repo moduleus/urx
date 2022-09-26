@@ -77,12 +77,12 @@ class ChannelData : public uff::Object {
   void setSystem(const std::string& system) { m_system = system; }
 
   // Speed of sound in m/s
-  FloatingType soundSpeed() const { return m_soundSpeed; }
-  void setSoundSpeed(FloatingType soundSpeed) { m_soundSpeed = soundSpeed; }
+  MetadataType soundSpeed() const { return m_soundSpeed; }
+  void setSoundSpeed(MetadataType soundSpeed) { m_soundSpeed = soundSpeed; }
 
   // Sequence repetition rate in Hz. Sometimes called framerate.
-  std::optional<FloatingType> repetitionRate() const { return m_repetitionRate; }
-  void setRepetitionRate(std::optional<FloatingType> repetitionRate) {
+  std::optional<MetadataType> repetitionRate() const { return m_repetitionRate; }
+  void setRepetitionRate(std::optional<MetadataType> repetitionRate) {
     m_repetitionRate = repetitionRate;
   }
 
@@ -110,10 +110,10 @@ class ChannelData : public uff::Object {
   void setSequence(const std::vector<uff::TimedEvent>& sequence) { m_sequence = sequence; }
 
   // data
-  std::vector<FloatingType>& data() { return m_data; }
-  void setData(const std::vector<FloatingType>& data) { m_data = data; }
+  std::vector<DataType>& data() { return m_data; }
+  void setData(const std::vector<DataType>& data) { m_data = data; }
 
-  FloatingType* dataAt(int frame, int event, int channel) {
+  DataType* dataAt(int frame, int event, int channel) {
     return m_data.data() +
            ((size_t)frame * numberOfEvents() * numberOfChannels() * numberOfSamples()) +
            ((size_t)event * numberOfChannels() * numberOfSamples()) +
@@ -206,10 +206,10 @@ class ChannelData : public uff::Object {
   std::string m_system;
 
   // Reference sound speed for Tx and Rx events [m/s]
-  FloatingType m_soundSpeed = 0;
+  MetadataType m_soundSpeed = 0;
 
   // Inverse of the time delay between consecutive repetitions of the sequence
-  std::optional<FloatingType> m_repetitionRate = std::nullopt;
+  std::optional<MetadataType> m_repetitionRate = std::nullopt;
 
   // List of the probes used to transmit/recive the sequence
   std::vector<std::shared_ptr<uff::Probe>> m_probes;
@@ -224,7 +224,7 @@ class ChannelData : public uff::Object {
   std::vector<uff::TimedEvent> m_sequence;
 
   // data[iFrame][iEvent][iChannel][iSample]
-  std::vector<FloatingType> m_data;
+  std::vector<DataType> m_data;
   uint32_t m_numberOfFrames = 0;
   uint32_t m_numberOfEvents = 0;
   uint32_t m_numberOfChannels = 0;

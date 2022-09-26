@@ -48,10 +48,10 @@ class Writer : public uff::Object {
 
   void writeAperture(H5::Group& group, const uff::Aperture& aperture);
   void writeChannelData(H5::Group& group, const uff::ChannelData& channelData);
-  H5::DataSet writeFloatingTypeDataset(H5::Group& group, const std::string& name,
-                                       FloatingType value);
-  H5::DataSet writeOptionalFloatingTypeDataset(H5::Group& group, const std::string& name,
-                                               std::optional<FloatingType> value);
+  H5::DataSet writeMetadataTypeDataset(H5::Group& group, const std::string& name,
+                                       MetadataType value);
+  H5::DataSet writeOptionalMetadataTypeDataset(H5::Group& group, const std::string& name,
+                                               std::optional<MetadataType> value);
 
   void writeElementArray(H5::Group& group, const std::vector<uff::Element>& elements);
   void writeElement(H5::Group& group, const uff::Element& element);
@@ -61,8 +61,12 @@ class Writer : public uff::Object {
 
   void writeExcitation(H5::Group& group, const uff::Excitation& excitation);
 
-  H5::DataSet writeFloatingTypeArrayDataset(H5::Group& group, const std::string& name,
-                                            const std::vector<FloatingType>& values,
+  H5::DataSet writeDataTypeArrayDataset(H5::Group& group, const std::string& name,
+                                        const std::vector<DataType>& values,
+                                        const std::vector<size_t>& dimensions);
+
+  H5::DataSet writeMetadataTypeArrayDataset(H5::Group& group, const std::string& name,
+                                            const std::vector<MetadataType>& values,
                                             const std::vector<size_t>& dimensions);
 
   H5::DataSet writeIntegerArrayDataset(H5::Group& group, const std::string& name,

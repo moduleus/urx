@@ -43,35 +43,35 @@ class RcaArray : public uff::Probe {
     updateElements();
   }
 
-  std::optional<FloatingType> pitchX() { return m_pitchX; }
-  void setPitchX(std::optional<FloatingType> pitchX) {
+  std::optional<MetadataType> pitchX() { return m_pitchX; }
+  void setPitchX(std::optional<MetadataType> pitchX) {
     m_pitchX = pitchX;
     updateElements();
   }
 
-  std::optional<FloatingType> pitchY() { return m_pitchX; }
-  void setPitchY(std::optional<FloatingType> pitchY) {
+  std::optional<MetadataType> pitchY() { return m_pitchX; }
+  void setPitchY(std::optional<MetadataType> pitchY) {
     m_pitchY = pitchY;
     updateElements();
   }
 
-  std::optional<FloatingType> elementWidthX() { return m_elementWidthX; }
-  void setElementWidthX(std::optional<FloatingType> elementWidthX) {
+  std::optional<MetadataType> elementWidthX() { return m_elementWidthX; }
+  void setElementWidthX(std::optional<MetadataType> elementWidthX) {
     m_elementWidthX = elementWidthX;
   }
 
-  std::optional<FloatingType> elementWidthY() { return m_elementWidthY; }
-  void setElementWidthY(std::optional<FloatingType> elementWidthY) {
+  std::optional<MetadataType> elementWidthY() { return m_elementWidthY; }
+  void setElementWidthY(std::optional<MetadataType> elementWidthY) {
     m_elementWidthY = elementWidthY;
   }
 
-  std::optional<FloatingType> elementHeightX() { return m_elementHeightX; }
-  void setElementHeightX(std::optional<FloatingType> elementHeightX) {
+  std::optional<MetadataType> elementHeightX() { return m_elementHeightX; }
+  void setElementHeightX(std::optional<MetadataType> elementHeightX) {
     m_elementHeightX = elementHeightX;
   }
 
-  std::optional<FloatingType> elementHeightY() { return m_elementHeightY; }
-  void setElementHeightY(std::optional<FloatingType> elementHeightY) {
+  std::optional<MetadataType> elementHeightY() { return m_elementHeightY; }
+  void setElementHeightY(std::optional<MetadataType> elementHeightY) {
     m_elementHeightY = elementHeightY;
   }
 
@@ -84,8 +84,8 @@ class RcaArray : public uff::Probe {
   void updateElements() {
     m_elements.resize((size_t)m_numberElementsX + m_numberElementsY);
 
-    FloatingType pitchX = m_pitchX.has_value() ? m_pitchX.value() : UFF_NAN;
-    FloatingType xmin = -pitchX * (m_numberElementsX - 1.f) / 2.f;
+    MetadataType pitchX = m_pitchX.has_value() ? m_pitchX.value() : UFF_NAN;
+    MetadataType xmin = -pitchX * (m_numberElementsX - 1.f) / 2.f;
 
     for (uint32_t i = 0; i < m_numberElementsX; i++) {
       uff::Element element;
@@ -99,8 +99,8 @@ class RcaArray : public uff::Probe {
       m_elements[i] = element;
     }
 
-    FloatingType pitchY = m_pitchY.has_value() ? m_pitchY.value() : UFF_NAN;
-    FloatingType ymin = -pitchY * (m_numberElementsY - 1.f) / 2.f;
+    MetadataType pitchY = m_pitchY.has_value() ? m_pitchY.value() : UFF_NAN;
+    MetadataType ymin = -pitchY * (m_numberElementsY - 1.f) / 2.f;
     for (uint32_t i = m_numberElementsX; i < m_elements.size(); i++) {
       uff::Element element;
       if (m_pitchX.has_value())
@@ -122,22 +122,22 @@ class RcaArray : public uff::Probe {
   uint32_t m_numberElementsY = 0;
 
   // Distance between the acoustic center of adyacent elements along the x-axis [m]
-  std::optional<FloatingType> m_pitchX = std::nullopt;
+  std::optional<MetadataType> m_pitchX = std::nullopt;
 
   // Distance between the acoustic center of adyacent elements along the y-axis [m]
-  std::optional<FloatingType> m_pitchY = std::nullopt;
+  std::optional<MetadataType> m_pitchY = std::nullopt;
 
   // (Optional) Element size in the x-axis [m]
-  std::optional<FloatingType> m_elementWidthX = std::nullopt;
+  std::optional<MetadataType> m_elementWidthX = std::nullopt;
 
   // (Optional) Element size in the x-axis [m]
-  std::optional<FloatingType> m_elementWidthY = std::nullopt;
+  std::optional<MetadataType> m_elementWidthY = std::nullopt;
 
   // (Optional) Element size in the y-axis [m]
-  std::optional<FloatingType> m_elementHeightX = std::nullopt;
+  std::optional<MetadataType> m_elementHeightX = std::nullopt;
 
   // (Optional) Element size in the y-axis [m]
-  std::optional<FloatingType> m_elementHeightY = std::nullopt;
+  std::optional<MetadataType> m_elementHeightY = std::nullopt;
 };
 
 }  // namespace uff

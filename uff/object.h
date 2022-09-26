@@ -21,7 +21,7 @@
 // Standard indentation
 #define UFF_STD_INDENT "  "
 #define UNDEFINED "UNDEFINED"
-#define UFF_NAN std::numeric_limits<FloatingType>::quiet_NaN()
+#define UFF_NAN std::numeric_limits<MetadataType>::quiet_NaN()
 
 namespace uff {
 
