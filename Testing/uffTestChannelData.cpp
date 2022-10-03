@@ -3,7 +3,7 @@
  */
 
 // UFF
-#include "uff_channel_data.h"
+#include "uff/channel_data.h"
 
 // System
 #include <iostream>
