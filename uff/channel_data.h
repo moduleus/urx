@@ -111,8 +111,15 @@ class ChannelData : public uff::Object {
 
   // data
   std::vector<DataType>& data() { return m_data; }
+  const std::vector<DataType>& data() const { return m_data; }
   void setData(const std::vector<DataType>& data) { m_data = data; }
 
+  const DataType* dataAt(int frame, int event, int channel) const {
+    return m_data.data() +
+           ((size_t)frame * numberOfEvents() * numberOfChannels() * numberOfSamples()) +
+           ((size_t)event * numberOfChannels() * numberOfSamples()) +
+           ((size_t)channel * numberOfSamples());
+  }
   DataType* dataAt(int frame, int event, int channel) {
     return m_data.data() +
            ((size_t)frame * numberOfEvents() * numberOfChannels() * numberOfSamples()) +

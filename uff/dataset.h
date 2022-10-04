@@ -29,6 +29,7 @@ class Dataset : public uff::Object {
   void printSelf(std::ostream& os, std::string indent) const override;
 
   uff::ChannelData& channelData() { return m_channelData; }
+  const uff::ChannelData& channelData() const { return m_channelData; }
   void setChannelData(const uff::ChannelData& channelData) { m_channelData = channelData; }
 
   const uff::Version& version() const { return m_version; }
@@ -37,7 +38,7 @@ class Dataset : public uff::Object {
   // ___________________ Convenience access method ___________________________________
 
   // Returns the channel geometry of the probe used by the 1st receive setup
-  const std::vector<MetadataType> getChannelGeometry() {
+  const std::vector<MetadataType> getChannelGeometry() const {
     if (m_channelData.probes().empty()) {
       return std::vector<MetadataType>();
     } else {
