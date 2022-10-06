@@ -38,11 +38,15 @@ class Dataset : public uff::Object {
   // ___________________ Convenience access method ___________________________________
 
   // Returns the channel geometry of the probe used by the 1st receive setup
-  const std::vector<MetadataType> getChannelGeometry() const {
+  template <typename T>
+  const std::vector<T> getChannelGeometry() const {
     if (m_channelData.probes().empty()) {
-      return std::vector<MetadataType>();
-    } else {
+      return std::vector<T>();
+    } else if constexpr (std::is_same<T, MetadataType>::value) {
       return m_channelData.probes()[0]->getChannelGeometry();
+    } else {
+      auto& channelGeometry = m_channelData.probes()[0]->getChannelGeometry();
+      return std::vector<T>(channelGeometry.begin(), channelGeometry.end());
     }
   }
 
