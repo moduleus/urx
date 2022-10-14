@@ -7,7 +7,7 @@
 #ifdef WITH_HDF5
 #include "uff/writer.h"
 
-#if defined(__GNUC__) && !defined(__ANDROID__)
+#if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic ignored "-Wformat-truncation"
 #endif
 
