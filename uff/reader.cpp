@@ -11,7 +11,7 @@
 #include <limits>
 #include <type_traits>
 
-#if defined(__GNUC__) && !defined(__ANDROID__)
+#if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic ignored "-Wformat-truncation"
 #endif
 
