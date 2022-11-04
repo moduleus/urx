@@ -31,6 +31,7 @@ class Dataset : public uff::Object {
   uff::ChannelData& channelData() { return m_channelData; }
   const uff::ChannelData& channelData() const { return m_channelData; }
   void setChannelData(const uff::ChannelData& channelData) { m_channelData = channelData; }
+  void setChannelData(uff::ChannelData&& channelData) { m_channelData = std::move(channelData); }
 
   const uff::Version& version() const { return m_version; }
   void setVersion(const uff::Version& version) { m_version = version; }
