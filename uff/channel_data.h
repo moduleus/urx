@@ -164,6 +164,7 @@ class ChannelData : public uff::Object {
   }
 
   ChannelData& operator=(const ChannelData& other);
+  ChannelData& operator=(ChannelData&& other) noexcept = default;
 
   bool operator==(const ChannelData& other) const {
     bool areProbesEqualed = true;
