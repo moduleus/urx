@@ -17,6 +17,7 @@
 #include "uff_wave.h"
 #include "uff_group_data.h"
 #include "uff_group_link.h"
+#include "uff_excitation.h"
 
 // System
 #include <optional>

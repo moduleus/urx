@@ -36,8 +36,8 @@ public:
     const std::vector<float>& waveform() const { return m_waveform; }
     void setWaveform(const std::vector<float>& waveform) { m_waveform = waveform; }
 
-    std::optional<double> samplingFrequency() const { return m_samplingFrequency; }
-    void setSamplingFrequency(std::optional<double> samplingFrequency)
+    double samplingFrequency() const { return m_samplingFrequency; }
+    void setSamplingFrequency(double samplingFrequency)
     {
         m_samplingFrequency = samplingFrequency;
     }
@@ -72,7 +72,7 @@ private:
     std::vector<float> m_waveform;
 
     // Sampling frequency of the excitation waveform [Hz]
-    std::optional<double> m_samplingFrequency = std::nullopt;
+    double m_samplingFrequency = 0;
 };
 
 } // namespace uff

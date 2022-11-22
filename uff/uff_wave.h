@@ -38,11 +38,17 @@ public:
     const uff::Aperture& aperture() const { return m_aperture; }
     void setAperture(const uff::Aperture& aperture) { m_aperture = aperture; }
 
+    const double& timeZero() const { return m_timeZero; }
+    void setTimeZero(const double& timeZero) { m_timeZero = timeZero; }
+
     const std::vector<int32_t>& channelMapping() const { return m_channelMapping; }
     void setChannelMapping(const std::vector<int32_t>& channelMapping) { m_channelMapping = channelMapping; }
     
     const std::vector<std::weak_ptr<uff::Excitation>>& channelExcitations() const { return m_channel_excitations; }
     void setChannelExcitations(const std::vector<std::weak_ptr<uff::Excitation>>& excitation) { m_channel_excitations = excitation; }
+
+    const std::vector<double>& channelDelays() const { return m_channel_delays; }
+    void setChannelDelays(const std::vector<double>& channelDelays) { m_channel_delays = channelDelays; }
 
     const std::vector<float>& channelDcOffset() const { return m_channel_dc_offset; }
     void setChannelDcOffset(const std::vector<float>& channelDcOffset) { m_channel_dc_offset = channelDcOffset; }
@@ -75,11 +81,17 @@ private:
     // Description of the aperture used to produce the wave
     uff::Aperture m_aperture;
 
+    // Origine for beamformer
+    double m_timeZero = 0;
+
     // Channel mapping
     std::vector<int32_t> m_channelMapping;
 
     // Channel Excitations
     std::vector<std::weak_ptr<uff::Excitation>> m_channel_excitations;
+
+    // Channel Delays
+    std::vector<double> m_channel_delays;
 
     // Channel DC offset
     std::vector<float> m_channel_dc_offset;

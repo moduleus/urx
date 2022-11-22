@@ -20,7 +20,7 @@ void Excitation::printSelf(std::ostream& os, std::string indent) const
     os << indent << "WaveForm: (size=" << m_waveform.size() << ")" << std::endl;
 
     if (m_pulseShape.has_value())
-        os << indent << "SamplingFrequency: " << m_samplingFrequency.value() << std::endl;
+        os << indent << "SamplingFrequency: " << m_samplingFrequency << std::endl;
     else
         os << indent << "SamplingFrequency: " << UNDEFINED << '"' << std::endl;
 }

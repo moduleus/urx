@@ -248,7 +248,7 @@ namespace uff
         excitation->setTransmitFrequency(readOptionalDoubleDataset(group, "transmit_frequency"));
 
         // "sampling_frequency"
-        excitation->setSamplingFrequency(readOptionalDoubleDataset(group, "sampling_frequency"));
+        excitation->setSamplingFrequency(readDoubleDataset(group, "sampling_frequency"));
 
         return excitation;
     }
