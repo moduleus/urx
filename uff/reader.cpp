@@ -24,56 +24,22 @@ void Reader::printSelf(std::ostream& os, std::string indent) const {
   superclass::printSelf(os, indent);
 }
 
-bool Reader::updateMetadata() {
+void Reader::updateMetadata() {
   m_dataset = std::make_shared<uff::Dataset>();
 
-  try {
-    H5::Exception::dontPrint();
+  H5::Exception::dontPrint();
 
-    H5::H5File file(m_fileName, H5F_ACC_RDONLY);
+  H5::H5File file(m_fileName, H5F_ACC_RDONLY);
 
-    // Version
-    H5::Group version(file.openGroup("version"));
-    readVersion(version);
+  // Version
+  H5::Group version(file.openGroup("version"));
+  readVersion(version);
 
-    // Channel Data
-    H5::Group channelData(file.openGroup("channel_data"));
-    readChannelData(channelData);
+  // Channel Data
+  H5::Group channelData(file.openGroup("channel_data"));
+  readChannelData(channelData);
 
-    file.close();
-
-    return true;
-  }
-  // catch failure caused by the H5File operations
-  catch (const H5::FileIException& error) {
-    error.printErrorStack();
-    std::cerr << __FILE__ << __LINE__ << error.getDetailMsg();
-    return false;
-  }
-  // catch failure caused by the DataSet operations
-  catch (const H5::DataSetIException& error) {
-    error.printErrorStack();
-    std::cerr << __FILE__ << __LINE__ << error.getDetailMsg();
-    return false;
-  }
-  // catch failure caused by the DataSpace operations
-  catch (const H5::DataSpaceIException& error) {
-    error.printErrorStack();
-    std::cerr << __FILE__ << __LINE__ << error.getDetailMsg();
-    return false;
-  }
-  // catch failure caused by the DataSpace operations
-  catch (const H5::DataTypeIException& error) {
-    error.printErrorStack();
-    std::cerr << __FILE__ << __LINE__ << error.getDetailMsg();
-    return false;
-  }
-  // catch failure caused by the Group operations
-  catch (const H5::GroupIException& error) {
-    error.printErrorStack();
-    std::cerr << __FILE__ << __LINE__ << error.getDetailMsg();
-    return false;
-  }
+  file.close();
 }
 
 uff::Aperture Reader::readAperture(const H5::Group& group) {
