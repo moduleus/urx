@@ -16,16 +16,18 @@
 #endif
 
 //static_assert(sizeof (long) == sizeof (long long),
-//              "Architecture not supported, cf. Reader::readIntegerArrayDataset");
+//              "Architecture not supported, cf. Reader<DataType>::readIntegerArrayDataset");
 
 namespace uff {
 
-void Reader::printSelf(std::ostream& os, std::string indent) const {
+template <typename DataType>
+void Reader<DataType>::printSelf(std::ostream& os, std::string indent) const {
   superclass::printSelf(os, indent);
 }
 
-void Reader::updateMetadata() {
-  m_dataset = std::make_shared<uff::Dataset>();
+template <typename DataType>
+void Reader<DataType>::updateMetadata() {
+  m_dataset = std::make_shared<uff::Dataset<DataType>>();
 
   H5::Exception::dontPrint();
 
@@ -42,7 +44,8 @@ void Reader::updateMetadata() {
   file.close();
 }
 
-uff::Aperture Reader::readAperture(const H5::Group& group) {
+template <typename DataType>
+uff::Aperture Reader<DataType>::readAperture(const H5::Group& group) {
   uff::Aperture aperture;
 
   // origin
@@ -63,8 +66,9 @@ uff::Aperture Reader::readAperture(const H5::Group& group) {
   return aperture;
 }
 
-void Reader::readChannelData(const H5::Group& group) {
-  uff::ChannelData& channelData = m_dataset->channelData();
+template <typename DataType>
+void Reader<DataType>::readChannelData(const H5::Group& group) {
+  uff::ChannelData<DataType>& channelData = m_dataset->channelData();
   channelData.setAuthors(readStringDataset(group, "authors"));
   channelData.setDescription(readStringDataset(group, "description"));
   channelData.setLocalTime(readStringDataset(group, "local_time"));
@@ -73,6 +77,10 @@ void Reader::readChannelData(const H5::Group& group) {
   channelData.setSoundSpeed(readMetadataTypeDataset(group, "sound_speed"));
   channelData.setRepetitionRate(readOptionalMetadataTypeDataset(group, "repetition_rate"));
 
+  if (group.openDataSet("data").getDataType() != H5DataType) {
+    std::cerr << "Uff::Reader : invalid format of data." << std::endl;
+    return;
+  }
   // channel_data.data
   std::vector<size_t> dataDims;
   readDataTypeArrayDataset(group, "data", m_dataset->channelData().data(), dataDims);
@@ -102,7 +110,9 @@ void Reader::readChannelData(const H5::Group& group) {
   channelData.setSequence(readTimedEventArray(sequence));
 }
 
-MetadataType Reader::readMetadataTypeDataset(const H5::Group& group, const std::string& name) {
+template <typename DataType>
+MetadataType Reader<DataType>::readMetadataTypeDataset(const H5::Group& group,
+                                                       const std::string& name) {
   H5::StrType datatype(H5MetadataType);
   H5::DataSet dataset = group.openDataSet(name);
   MetadataType value;
@@ -111,8 +121,9 @@ MetadataType Reader::readMetadataTypeDataset(const H5::Group& group, const std::
   return value;
 }
 
-std::optional<MetadataType> Reader::readOptionalMetadataTypeDataset(const H5::Group& group,
-                                                                    const std::string& name) {
+template <typename DataType>
+std::optional<MetadataType> Reader<DataType>::readOptionalMetadataTypeDataset(
+    const H5::Group& group, const std::string& name) {
   H5::StrType datatype(H5MetadataType);
   H5::DataSet dataset = group.openDataSet(name);
   MetadataType value;
@@ -125,7 +136,8 @@ std::optional<MetadataType> Reader::readOptionalMetadataTypeDataset(const H5::Gr
   return result;
 }
 
-uff::Element Reader::readElement(const H5::Group& group) {
+template <typename DataType>
+uff::Element Reader<DataType>::readElement(const H5::Group& group) {
   uff::Element element;
 
   element.setX(readOptionalMetadataTypeDataset(group, "x"));
@@ -135,7 +147,8 @@ uff::Element Reader::readElement(const H5::Group& group) {
   return element;
 }
 
-std::vector<uff::Element> Reader::readElementArray(const H5::Group& group) {
+template <typename DataType>
+std::vector<uff::Element> Reader<DataType>::readElementArray(const H5::Group& group) {
   std::vector<uff::Element> elements;
 
   char buf[9];
@@ -154,7 +167,8 @@ std::vector<uff::Element> Reader::readElementArray(const H5::Group& group) {
   return elements;
 }
 
-std::shared_ptr<uff::Event> Reader::readEvent(const H5::Group& group) {
+template <typename DataType>
+std::shared_ptr<uff::Event> Reader<DataType>::readEvent(const H5::Group& group) {
   auto event = std::make_shared<uff::Event>();
 
   // "receive_setup"
@@ -166,7 +180,8 @@ std::shared_ptr<uff::Event> Reader::readEvent(const H5::Group& group) {
   return event;
 }
 
-std::vector<std::shared_ptr<uff::Event>> Reader::readEventArray(const H5::Group& group) {
+template <typename DataType>
+std::vector<std::shared_ptr<uff::Event>> Reader<DataType>::readEventArray(const H5::Group& group) {
   std::vector<std::shared_ptr<uff::Event>> events;
 
   char buf[9];
@@ -186,7 +201,8 @@ std::vector<std::shared_ptr<uff::Event>> Reader::readEventArray(const H5::Group&
   return events;
 }
 
-uff::Excitation Reader::readExcitation(const H5::Group& group) {
+template <typename DataType>
+uff::Excitation Reader<DataType>::readExcitation(const H5::Group& group) {
   uff::Excitation excitation;
 
   // "pulse_shape"
@@ -204,9 +220,10 @@ uff::Excitation Reader::readExcitation(const H5::Group& group) {
   return excitation;
 }
 
-void Reader::readDataTypeArrayDataset(const H5::Group& group, const std::string& name,
-                                      std::vector<DataType>& values,
-                                      std::vector<size_t>& dimensions) {
+template <typename DataType>
+void Reader<DataType>::readDataTypeArrayDataset(const H5::Group& group, const std::string& name,
+                                                std::vector<DataType>& values,
+                                                std::vector<size_t>& dimensions) {
   H5::DataSet dataset = group.openDataSet(name);
   // TODO: check if type is correct : dataset.getTypeClass()
   H5::StrType datatype(H5DataType);
@@ -230,9 +247,10 @@ void Reader::readDataTypeArrayDataset(const H5::Group& group, const std::string&
   dataset.read(values.data(), datatype);
 }
 
-void Reader::readMetadataTypeArrayDataset(const H5::Group& group, const std::string& name,
-                                          std::vector<MetadataType>& values,
-                                          std::vector<size_t>& dimensions) {
+template <typename DataType>
+void Reader<DataType>::readMetadataTypeArrayDataset(const H5::Group& group, const std::string& name,
+                                                    std::vector<MetadataType>& values,
+                                                    std::vector<size_t>& dimensions) {
   H5::DataSet dataset = group.openDataSet(name);
   // TODO: check if type is correct : dataset.getTypeClass()
   H5::StrType datatype(H5MetadataType);
@@ -256,8 +274,10 @@ void Reader::readMetadataTypeArrayDataset(const H5::Group& group, const std::str
   dataset.read(values.data(), datatype);
 }
 
-void Reader::readIntegerArrayDataset(const H5::Group& group, const std::string& name,
-                                     std::vector<int>& values, std::vector<size_t>& dimensions) {
+template <typename DataType>
+void Reader<DataType>::readIntegerArrayDataset(const H5::Group& group, const std::string& name,
+                                               std::vector<int>& values,
+                                               std::vector<size_t>& dimensions) {
   H5::DataSet dataset = group.openDataSet(name);
   // TODO: check if type is correct : dataset.getTypeClass()
   H5::StrType datatype(H5::PredType::NATIVE_INT);
@@ -285,7 +305,8 @@ void Reader::readIntegerArrayDataset(const H5::Group& group, const std::string& 
   dataset.read(values.data(), datatype);
 }
 
-int Reader::readIntegerDataset(const H5::Group& group, const std::string& name) {
+template <typename DataType>
+int Reader<DataType>::readIntegerDataset(const H5::Group& group, const std::string& name) {
   H5::StrType datatype(H5::PredType::NATIVE_INT);
   H5::DataSet dataset = group.openDataSet(name);
   int value;
@@ -294,7 +315,8 @@ int Reader::readIntegerDataset(const H5::Group& group, const std::string& name) 
   return value;
 }
 
-std::shared_ptr<uff::LinearArray> Reader::readLinearArray(const H5::Group& group) {
+template <typename DataType>
+std::shared_ptr<uff::LinearArray> Reader<DataType>::readLinearArray(const H5::Group& group) {
   auto linearArray =
       std::make_shared<uff::LinearArray>(readIntegerDataset(group, "number_elements"));
 
@@ -310,7 +332,8 @@ std::shared_ptr<uff::LinearArray> Reader::readLinearArray(const H5::Group& group
   return linearArray;
 }
 
-std::shared_ptr<uff::MatrixArray> Reader::readMatrixArray(const H5::Group& group) {
+template <typename DataType>
+std::shared_ptr<uff::MatrixArray> Reader<DataType>::readMatrixArray(const H5::Group& group) {
   auto matrixArray = std::make_shared<uff::MatrixArray>();
 
   // Read "number_elements"
@@ -330,7 +353,8 @@ std::shared_ptr<uff::MatrixArray> Reader::readMatrixArray(const H5::Group& group
   return matrixArray;
 }
 
-std::shared_ptr<RcaArray> Reader::readRcaArray(const H5::Group& group) {
+template <typename DataType>
+std::shared_ptr<RcaArray> Reader<DataType>::readRcaArray(const H5::Group& group) {
   auto rcaArray = std::make_shared<uff::RcaArray>(readIntegerDataset(group, "number_elements_x"),
                                                   readIntegerDataset(group, "number_elements_y"));
 
@@ -349,7 +373,8 @@ std::shared_ptr<RcaArray> Reader::readRcaArray(const H5::Group& group) {
   return rcaArray;
 }
 
-std::shared_ptr<uff::Probe> Reader::readProbe(const H5::Group& group) {
+template <typename DataType>
+std::shared_ptr<uff::Probe> Reader<DataType>::readProbe(const H5::Group& group) {
   auto probe = std::make_shared<uff::Probe>();
 
   // transform
@@ -404,7 +429,8 @@ std::shared_ptr<uff::Probe> Reader::readProbe(const H5::Group& group) {
   return probe;
 }
 
-std::vector<std::shared_ptr<uff::Probe>> Reader::readProbeArray(const H5::Group& group) {
+template <typename DataType>
+std::vector<std::shared_ptr<uff::Probe>> Reader<DataType>::readProbeArray(const H5::Group& group) {
   std::vector<std::shared_ptr<uff::Probe>> probes;
 
   char buf[9];
@@ -423,7 +449,8 @@ std::vector<std::shared_ptr<uff::Probe>> Reader::readProbeArray(const H5::Group&
   return probes;
 }
 
-uff::ReceiveSetup Reader::readReceiveSetup(const H5::Group& group) {
+template <typename DataType>
+uff::ReceiveSetup Reader<DataType>::readReceiveSetup(const H5::Group& group) {
   uff::ReceiveSetup receiveSetup;
 
   // "probe"
@@ -487,7 +514,8 @@ uff::ReceiveSetup Reader::readReceiveSetup(const H5::Group& group) {
   return receiveSetup;
 }
 
-uff::Rotation Reader::readRotation(const H5::Group& group) {
+template <typename DataType>
+uff::Rotation Reader<DataType>::readRotation(const H5::Group& group) {
   uff::Rotation rotation;
 
   rotation.setX(readMetadataTypeDataset(group, "x"));
@@ -497,7 +525,8 @@ uff::Rotation Reader::readRotation(const H5::Group& group) {
   return rotation;
 }
 
-std::string Reader::readStringDataset(const H5::Group& group, const std::string& name) {
+template <typename DataType>
+std::string Reader<DataType>::readStringDataset(const H5::Group& group, const std::string& name) {
   H5::StrType datatype(0, H5T_VARIABLE);
   H5::DataSpace dataspace(H5S_SCALAR);
   H5::DataSet dataset = group.openDataSet(name);
@@ -506,8 +535,9 @@ std::string Reader::readStringDataset(const H5::Group& group, const std::string&
   return buffer;
 }
 
-std::optional<std::string> Reader::readOptionalStringDataset(const H5::Group& group,
-                                                             const std::string& name) {
+template <typename DataType>
+std::optional<std::string> Reader<DataType>::readOptionalStringDataset(const H5::Group& group,
+                                                                       const std::string& name) {
   H5::StrType datatype(0, H5T_VARIABLE);
   H5::DataSpace dataspace(H5S_SCALAR);
   H5::DataSet dataset = group.openDataSet(name);
@@ -518,7 +548,8 @@ std::optional<std::string> Reader::readOptionalStringDataset(const H5::Group& gr
   return result;
 }
 
-uff::TimedEvent Reader::readTimedEvent(const H5::Group& group) {
+template <typename DataType>
+uff::TimedEvent Reader<DataType>::readTimedEvent(const H5::Group& group) {
   uff::TimedEvent timedEvent;
 
   // "event"
@@ -532,7 +563,8 @@ uff::TimedEvent Reader::readTimedEvent(const H5::Group& group) {
   return timedEvent;
 }
 
-std::vector<uff::TimedEvent> Reader::readTimedEventArray(const H5::Group& group) {
+template <typename DataType>
+std::vector<uff::TimedEvent> Reader<DataType>::readTimedEventArray(const H5::Group& group) {
   std::vector<uff::TimedEvent> timedEvents;
 
   char buf[9];
@@ -552,7 +584,8 @@ std::vector<uff::TimedEvent> Reader::readTimedEventArray(const H5::Group& group)
   return timedEvents;
 }
 
-uff::Transform Reader::readTransform(const H5::Group& group) {
+template <typename DataType>
+uff::Transform Reader<DataType>::readTransform(const H5::Group& group) {
   // rotation
   uff::Rotation rotation = readRotation(group.openGroup("rotation"));
 
@@ -562,7 +595,8 @@ uff::Transform Reader::readTransform(const H5::Group& group) {
   return uff::Transform(rotation, translation);
 }
 
-uff::Translation Reader::readTranslation(const H5::Group& group) {
+template <typename DataType>
+uff::Translation Reader<DataType>::readTranslation(const H5::Group& group) {
   uff::Translation translation;
 
   translation.setX(readMetadataTypeDataset(group, "x"));
@@ -572,7 +606,8 @@ uff::Translation Reader::readTranslation(const H5::Group& group) {
   return translation;
 }
 
-uff::TransmitSetup Reader::readTransmitSetup(const H5::Group& group) {
+template <typename DataType>
+uff::TransmitSetup Reader<DataType>::readTransmitSetup(const H5::Group& group) {
   uff::TransmitSetup transmitSetup;
 
   // "probe"
@@ -593,7 +628,8 @@ uff::TransmitSetup Reader::readTransmitSetup(const H5::Group& group) {
   return transmitSetup;
 }
 
-uff::TransmitWave Reader::readTransmitWave(const H5::Group& group) {
+template <typename DataType>
+uff::TransmitWave Reader<DataType>::readTransmitWave(const H5::Group& group) {
   uff::TransmitWave transmitWave;
 
   // "wave"
@@ -609,7 +645,8 @@ uff::TransmitWave Reader::readTransmitWave(const H5::Group& group) {
   return transmitWave;
 }
 
-void Reader::readVersion(const H5::Group& group) {
+template <typename DataType>
+void Reader<DataType>::readVersion(const H5::Group& group) {
   int major = readIntegerDataset(group, "major");
   int minor = readIntegerDataset(group, "minor");
   int patch = readIntegerDataset(group, "patch");
@@ -617,7 +654,8 @@ void Reader::readVersion(const H5::Group& group) {
   m_dataset->setVersion(version);
 }
 
-std::shared_ptr<uff::Wave> Reader::readWave(const H5::Group& group) {
+template <typename DataType>
+std::shared_ptr<uff::Wave> Reader<DataType>::readWave(const H5::Group& group) {
   auto wave = std::make_shared<uff::Wave>();
 
   // write "origin"
@@ -652,7 +690,8 @@ std::shared_ptr<uff::Wave> Reader::readWave(const H5::Group& group) {
   return wave;
 }
 
-std::vector<std::shared_ptr<uff::Wave>> Reader::readWaveArray(const H5::Group& group) {
+template <typename DataType>
+std::vector<std::shared_ptr<uff::Wave>> Reader<DataType>::readWaveArray(const H5::Group& group) {
   std::vector<std::shared_ptr<uff::Wave>> waves;
 
   char buf[9];
@@ -670,6 +709,9 @@ std::vector<std::shared_ptr<uff::Wave>> Reader::readWaveArray(const H5::Group& g
 
   return waves;
 }
+
+template class Reader<float>;
+template class Reader<short>;
 
 }  // namespace uff
 #endif  // WITH_HDF5

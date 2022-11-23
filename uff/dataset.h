@@ -20,6 +20,7 @@ namespace uff {
 /**
  * @brief The UFF Dataset class
  */
+template <typename DataType>
 class Dataset : public uff::Object {
   UFF_TYPE_MACRO(Dataset, uff::Object);
 
@@ -28,10 +29,14 @@ class Dataset : public uff::Object {
 
   void printSelf(std::ostream& os, std::string indent) const override;
 
-  uff::ChannelData& channelData() { return m_channelData; }
-  const uff::ChannelData& channelData() const { return m_channelData; }
-  void setChannelData(const uff::ChannelData& channelData) { m_channelData = channelData; }
-  void setChannelData(uff::ChannelData&& channelData) { m_channelData = std::move(channelData); }
+  uff::ChannelData<DataType>& channelData() { return m_channelData; }
+  const uff::ChannelData<DataType>& channelData() const { return m_channelData; }
+  void setChannelData(const uff::ChannelData<DataType>& channelData) {
+    m_channelData = channelData;
+  }
+  void setChannelData(uff::ChannelData<DataType>&& channelData) {
+    m_channelData = std::move(channelData);
+  }
 
   const uff::Version& version() const { return m_version; }
   void setVersion(const uff::Version& version) { m_version = version; }
@@ -114,7 +119,7 @@ class Dataset : public uff::Object {
 
  private:
   uff::Version m_version;
-  uff::ChannelData m_channelData;
+  uff::ChannelData<DataType> m_channelData;
 };
 
 }  // namespace uff

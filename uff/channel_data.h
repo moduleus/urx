@@ -25,6 +25,7 @@ namespace uff {
 /**
  * @brief UFF class that contains all the information needed to store and later process channel data.
  */
+template <typename DataType>
 class ChannelData : public uff::Object {
   UFF_TYPE_MACRO(ChannelData, uff::Object);
 
