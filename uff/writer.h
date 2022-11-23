@@ -28,8 +28,8 @@ class Writer : public uff::Object {
 
   void printSelf(std::ostream& os, std::string indent) const override;
 
-  uff::Dataset& dataset() { return m_dataset; }
-  void setDataset(const uff::Dataset& dataset) { m_dataset = dataset; }
+  //uff::Dataset* dataset() { return m_dataset.get(); }
+  void setDataset(std::shared_ptr<uff::Dataset> dataset) { m_dataset = dataset; }
 
   /* Set/Get the filename of the UFF file. The 'fileName' must contain the file extension. */
   std::string fileName() const { return m_fileName; }
@@ -38,9 +38,8 @@ class Writer : public uff::Object {
   /**
      * @brief Write the content of the Dataset in a file.
      * setDataset() and setFileName() must have been called before calling this method.
-     * @return true if the writing is successful, false otherwise.
      */
-  bool writeToFile();
+  void writeToFile();
 
  private:
   template <typename T>
@@ -102,7 +101,7 @@ class Writer : public uff::Object {
 
  private:
   std::string m_fileName;
-  uff::Dataset m_dataset;
+  std::shared_ptr<uff::Dataset> m_dataset;
 };
 
 }  // namespace uff
