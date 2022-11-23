@@ -10,7 +10,8 @@
 
 namespace uff {
 
-void ChannelData::printSelf(std::ostream& os, std::string indent) const {
+template <typename DataType>
+void ChannelData<DataType>::printSelf(std::ostream& os, std::string indent) const {
   superclass::printSelf(os, indent);
   os << indent << "Authors: " << '"' << authors() << '"' << std::endl;
   os << indent << "Description: " << '"' << description() << '"' << std::endl;
@@ -57,7 +58,8 @@ void ChannelData::printSelf(std::ostream& os, std::string indent) const {
   os << indent << "Data: (size=" << m_data.size() << ")\n" << std::endl;
 }
 
-ChannelData& ChannelData::operator=(const ChannelData& other) {
+template <typename DataType>
+ChannelData<DataType>& ChannelData<DataType>::operator=(const ChannelData<DataType>& other) {
   m_authors = other.m_authors;
   m_description = other.m_description;
   m_localTime = other.m_localTime;
@@ -164,5 +166,8 @@ ChannelData& ChannelData::operator=(const ChannelData& other) {
 
   return *this;
 }
+
+template class ChannelData<float>;
+template class ChannelData<short>;
 
 }  // namespace uff

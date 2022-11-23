@@ -20,6 +20,7 @@ namespace uff {
 /**
  * @brief The UFF Writer class
  */
+template <typename DataType>
 class Writer : public uff::Object {
   UFF_TYPE_MACRO(Writer, uff::Object);
 
@@ -29,7 +30,7 @@ class Writer : public uff::Object {
   void printSelf(std::ostream& os, std::string indent) const override;
 
   //uff::Dataset* dataset() { return m_dataset.get(); }
-  void setDataset(std::shared_ptr<uff::Dataset> dataset) { m_dataset = dataset; }
+  void setDataset(std::shared_ptr<uff::Dataset<DataType>> dataset) { m_dataset = dataset; }
 
   /* Set/Get the filename of the UFF file. The 'fileName' must contain the file extension. */
   std::string fileName() const { return m_fileName; }
@@ -46,7 +47,7 @@ class Writer : public uff::Object {
   std::string getIdFromPointer(const std::vector<std::shared_ptr<T>>& vec, std::weak_ptr<T> wptr);
 
   void writeAperture(H5::Group& group, const uff::Aperture& aperture);
-  void writeChannelData(H5::Group& group, const uff::ChannelData& channelData);
+  void writeChannelData(H5::Group& group, const uff::ChannelData<DataType>& channelData);
   H5::DataSet writeMetadataTypeDataset(H5::Group& group, const std::string& name,
                                        MetadataType value);
   H5::DataSet writeOptionalMetadataTypeDataset(H5::Group& group, const std::string& name,
@@ -101,7 +102,7 @@ class Writer : public uff::Object {
 
  private:
   std::string m_fileName;
-  std::shared_ptr<uff::Dataset> m_dataset;
+  std::shared_ptr<uff::Dataset<DataType>> m_dataset;
 };
 
 }  // namespace uff

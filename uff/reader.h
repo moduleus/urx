@@ -23,6 +23,7 @@ namespace uff {
  * TODO: setFileName(), update(), 
  * TODO: only read metadata first, then read RF channel data next and only on-demand
  */
+template <typename DataType>
 class Reader : public uff::Object {
   UFF_TYPE_MACRO(Reader, uff::Object);
 
@@ -31,7 +32,7 @@ class Reader : public uff::Object {
 
   void printSelf(std::ostream& os, std::string indent) const override;
 
-  std::shared_ptr<uff::Dataset> dataset() { return m_dataset; }
+  std::shared_ptr<uff::Dataset<DataType>> dataset() { return m_dataset; }
 
   /* Set/Get the filename of the UFF file. The 'fileName' must contain the file extension. */
   std::string fileName() const { return m_fileName; }
@@ -103,7 +104,7 @@ class Reader : public uff::Object {
   std::string m_fileName;
 
   // dataset
-  std::shared_ptr<uff::Dataset> m_dataset;
+  std::shared_ptr<uff::Dataset<DataType>> m_dataset;
 };
 
 }  // namespace uff
