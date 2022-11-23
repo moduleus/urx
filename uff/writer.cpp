@@ -44,57 +44,23 @@ void Writer::printSelf(std::ostream& os, std::string indent) const {
      << indent << "UFF Version: "
      << "TODO" << std::endl
      << indent << "FileName: " << this->m_fileName << std::endl
-     << indent << "Dataset: " << this->m_dataset << std::endl;
+     << indent << "Dataset: " << *this->m_dataset << std::endl;
 }
 
-bool Writer::writeToFile() {
-  try {
-    H5::Exception::dontPrint();
+void Writer::writeToFile() {
+  H5::Exception::dontPrint();
 
-    H5::H5File file(m_fileName, H5F_ACC_TRUNC);
+  H5::H5File file(m_fileName, H5F_ACC_TRUNC);
 
-    // Version
-    H5::Group version(file.createGroup("version"));
-    writeVersion(version, m_dataset.version());
+  // Version
+  H5::Group version(file.createGroup("version"));
+  writeVersion(version, m_dataset->version());
 
-    // Channel Data
-    H5::Group channelData(file.createGroup("channel_data"));
-    writeChannelData(channelData, m_dataset.channelData());
+  // Channel Data
+  H5::Group channelData(file.createGroup("channel_data"));
+  writeChannelData(channelData, m_dataset->channelData());
 
-    file.close();
-
-    return true;
-  }  // end of try block
-  // catch failure caused by the H5File operations
-  catch (const H5::FileIException& error) {
-    error.printErrorStack();
-    std::cerr << __FILE__ << __LINE__ << error.getDetailMsg();
-    return false;
-  }
-  // catch failure caused by the DataSet operations
-  catch (const H5::DataSetIException& error) {
-    error.printErrorStack();
-    std::cerr << __FILE__ << __LINE__ << error.getDetailMsg();
-    return false;
-  }
-  // catch failure caused by the DataSpace operations
-  catch (const H5::DataSpaceIException& error) {
-    error.printErrorStack();
-    std::cerr << __FILE__ << __LINE__ << error.getDetailMsg();
-    return false;
-  }
-  // catch failure caused by the DataSpace operations
-  catch (const H5::DataTypeIException& error) {
-    error.printErrorStack();
-    std::cerr << __FILE__ << __LINE__ << error.getDetailMsg();
-    return false;
-  }
-  // catch failure caused by the Group operations
-  catch (const H5::GroupIException& error) {
-    error.printErrorStack();
-    std::cerr << __FILE__ << __LINE__ << error.getDetailMsg();
-    return false;
-  }
+  file.close();
 }
 
 void Writer::writeAperture(H5::Group& group, const uff::Aperture& aperture) {
@@ -143,7 +109,7 @@ void Writer::writeChannelData(H5::Group& group, const uff::ChannelData& channelD
   size_t nChannels = channelData.numberOfChannels();
   size_t nSamples = channelData.numberOfSamples();
   std::vector<size_t> dims({nFrames, nEvents, nChannels, nSamples});
-  writeDataTypeArrayDataset(group, "data", m_dataset.channelData().data(), dims);
+  writeDataTypeArrayDataset(group, "data", m_dataset->channelData().data(), dims);
 
   // Probes
   H5::Group probes(group.createGroup("probes"));
@@ -467,7 +433,7 @@ void Writer::writeProbeArray(H5::Group& group,
 void Writer::writeReceiveSetup(H5::Group& group, const uff::ReceiveSetup& receiveSetup) {
   // "probe"
   std::string probeId =
-      getIdFromPointer<uff::Probe>(m_dataset.channelData().probes(), receiveSetup.probe());
+      getIdFromPointer<uff::Probe>(m_dataset->channelData().probes(), receiveSetup.probe());
   writeStringDataset(group, "probe_id", probeId);
 
   // "time_offset"
@@ -524,7 +490,7 @@ H5::DataSet Writer::writeOptionalStringDataset(H5::Group& group, const std::stri
 void Writer::writeTimedEvent(H5::Group& group, const uff::TimedEvent& timedEvent) {
   // "event"
   std::string eventId =
-      getIdFromPointer<uff::Event>(m_dataset.channelData().uniqueEvents(), timedEvent.evenement());
+      getIdFromPointer<uff::Event>(m_dataset->channelData().uniqueEvents(), timedEvent.evenement());
   writeStringDataset(group, "event_id", eventId);
 
   // "time_offset"
@@ -562,7 +528,7 @@ void Writer::writeTranslation(H5::Group& group, const uff::Translation& translat
 void Writer::writeTransmitSetup(H5::Group& group, const uff::TransmitSetup& transmitSetup) {
   // "probe"
   const std::string probeId =
-      getIdFromPointer<uff::Probe>(m_dataset.channelData().probes(), transmitSetup.probe());
+      getIdFromPointer<uff::Probe>(m_dataset->channelData().probes(), transmitSetup.probe());
   writeStringDataset(group, "probe_id", probeId);
 
   // "transmit_wave"
@@ -576,7 +542,7 @@ void Writer::writeTransmitSetup(H5::Group& group, const uff::TransmitSetup& tran
 void Writer::writeTransmitWave(H5::Group& group, const uff::TransmitWave& transmitWave) {
   // "wave"
   const std::string waveId =
-      getIdFromPointer<uff::Wave>(m_dataset.channelData().uniqueWaves(), transmitWave.wave());
+      getIdFromPointer<uff::Wave>(m_dataset->channelData().uniqueWaves(), transmitWave.wave());
   writeStringDataset(group, "wave_id", waveId);
 
   // "time_offset"
