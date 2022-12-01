@@ -28,6 +28,7 @@ void Reader<DataType>::printSelf(std::ostream& os, std::string indent) const {
 template <typename DataType>
 void Reader<DataType>::updateMetadata() {
   m_dataset = std::make_shared<uff::Dataset<DataType>>();
+  m_dataset->channelData().setSkipChannelDataData(m_skipChannelDataData);
 
   H5::Exception::dontPrint();
 
@@ -83,7 +84,9 @@ void Reader<DataType>::readChannelData(const H5::Group& group) {
   }
   // channel_data.data
   std::vector<size_t> dataDims;
-  readDataTypeArrayDataset(group, "data", m_dataset->channelData().data(), dataDims);
+  std::vector<DataType> fake;
+  readDataTypeArrayDataset(
+      group, "data", m_skipChannelDataData ? fake : m_dataset->channelData().data(), dataDims);
   if (dataDims.size() != 4) {
     std::cerr << "Uff::Reader : Dataset dimension != 4" << std::endl;
     return;
@@ -240,11 +243,13 @@ void Reader<DataType>::readDataTypeArrayDataset(const H5::Group& group, const st
     //std::cout << "sz:" << sz << std::endl;
   }
 
-  // reserve space in the output buffer
-  values.resize(numel);
+  if (!m_skipChannelDataData) {
+    // reserve space in the output buffer
+    values.resize(numel);
 
-  // read data
-  dataset.read(values.data(), datatype);
+    // read data
+    dataset.read(values.data(), datatype);
+  }
 }
 
 template <typename DataType>
