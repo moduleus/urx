@@ -111,8 +111,18 @@ class ChannelData : public uff::Object {
   void setSequence(const std::vector<uff::TimedEvent>& sequence) { m_sequence = sequence; }
 
   // data
-  std::vector<DataType>& data() { return m_data; }
-  const std::vector<DataType>& data() const { return m_data; }
+  std::vector<DataType>& data() {
+    if (m_skipChannelDataData) {
+      throw std::logic_error("Can't read data.");
+    }
+    return m_data;
+  }
+  const std::vector<DataType>& data() const {
+    if (m_skipChannelDataData) {
+      throw std::logic_error("Can't read data.");
+    }
+    return m_data;
+  }
   void setData(const std::vector<DataType>& data) { m_data = data; }
 
   const DataType* dataAt(int frame, int event, int channel) const {
@@ -137,6 +147,8 @@ class ChannelData : public uff::Object {
   void setNumberOfEvents(uint32_t sz) { m_numberOfEvents = sz; }
   void setNumberOfChannels(uint32_t sz) { m_numberOfChannels = sz; }
   void setNumberOfSamples(uint32_t sz) { m_numberOfSamples = sz; }
+
+  void setSkipChannelDataData(bool skip) { m_skipChannelDataData = skip; }
 
   void allocate() {
     size_t sz =
@@ -238,6 +250,8 @@ class ChannelData : public uff::Object {
   uint32_t m_numberOfEvents = 0;
   uint32_t m_numberOfChannels = 0;
   uint32_t m_numberOfSamples = 0;
+
+  bool m_skipChannelDataData = false;
 };
 
 }  // namespace uff

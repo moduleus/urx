@@ -38,6 +38,9 @@ class Reader : public uff::Object {
   std::string fileName() const { return m_fileName; }
   void setFileName(const std::string& fileName) { m_fileName = fileName; }
 
+  bool skipChannelDataData() const { return m_skipChannelDataData; }
+  void setSkipChannelDataData(bool skip) { m_skipChannelDataData = skip; }
+
   // No H5Exception is catched
   void updateMetadata();
 
@@ -102,6 +105,7 @@ class Reader : public uff::Object {
  private:
   // name of the file to read
   std::string m_fileName;
+  bool m_skipChannelDataData = false;
 
   // dataset
   std::shared_ptr<uff::Dataset<DataType>> m_dataset;
