@@ -7,6 +7,7 @@
 #ifdef WITH_HDF5
 
 #include "uff/reader.h"
+#include "uff/log.h"
 
 #include <limits>
 #include <type_traits>
@@ -78,8 +79,8 @@ void Reader<DataType>::readChannelData(const H5::Group& group) {
   channelData.setSoundSpeed(readMetadataTypeDataset(group, "sound_speed"));
   channelData.setRepetitionRate(readOptionalMetadataTypeDataset(group, "repetition_rate"));
 
-  if (group.openDataSet("data").getDataType() != H5DataType) {
-    std::cerr << "Uff::Reader : invalid format of data." << std::endl;
+  if (!m_skipChannelDataData && group.openDataSet("data").getDataType() != H5DataType) {
+    LOG_THIS(ERROR) << "Invalid format of data.\n";
     return;
   }
   // channel_data.data
@@ -88,7 +89,7 @@ void Reader<DataType>::readChannelData(const H5::Group& group) {
   readDataTypeArrayDataset(
       group, "data", m_skipChannelDataData ? fake : m_dataset->channelData().data(), dataDims);
   if (dataDims.size() != 4) {
-    std::cerr << "Uff::Reader : Dataset dimension != 4" << std::endl;
+    LOG_THIS(ERROR) << "Dataset dimension != 4\n";
     return;
   }
   channelData.setNumberOfFrames(static_cast<int>(dataDims[0]));
@@ -425,8 +426,8 @@ std::shared_ptr<uff::Probe> Reader<DataType>::readProbe(const H5::Group& group) 
       rcaArray->setImpulseResponses(probe->impulseResponses());
       return rcaArray;
     } else {
-      std::cerr << getClassNameInternal() << ": Ignoring unknown probe_type:" << probeType
-                << std::endl;
+      LOG_THIS(ERROR) << getClassNameInternal() << ": Ignoring unknown probe_type:" << probeType
+                      << "\n";
       return probe;
     }
   }
@@ -485,7 +486,7 @@ uff::ReceiveSetup Reader<DataType>::readReceiveSetup(const H5::Group& group) {
       receiveSetup.setSamplingType(uff::ReceiveSetup::SAMPLING_TYPE::QUADRATURE_2X_F0);
       break;
     default:
-      std::cerr << "Unknow sampling type:" << static_cast<int>(st);
+      LOG_THIS(ERROR) << "Unknow sampling type:" << static_cast<int>(st);
   }
 
   // channel_mapping [optional]

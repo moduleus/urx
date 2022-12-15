@@ -6,6 +6,8 @@
 
 #include "uff/channel_data.h"
 
+#include "uff/log.h"
+
 #include <thread>
 
 namespace uff {
@@ -165,6 +167,26 @@ ChannelData<DataType>& ChannelData<DataType>::operator=(const ChannelData<DataTy
   if (*this != other) throw;
 
   return *this;
+}
+
+template <typename DataType>
+void ChannelData<DataType>::setLocalTime(const std::string& localTime) {
+  // validate
+  if (!localTime.empty() && isIso8601(localTime)) {
+    m_localTime = localTime;
+  } else {
+    LOG_THIS(ERROR) << '"' << localTime << "\" is not ISO8601 format (YYYY-MM-DDThh:mm:ss)\n";
+  }
+}
+
+template <typename DataType>
+void ChannelData<DataType>::setCountryCode(const std::string& countryCode) {
+  // validate
+  if (!countryCode.empty() && isIso3166(countryCode)) {
+    m_countryCode = countryCode;
+  } else {
+    LOG_THIS(ERROR) << '"' << countryCode << "\" is not ISO3166 (XX)\n";
+  }
 }
 
 template class ChannelData<float>;
