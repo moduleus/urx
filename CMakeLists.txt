@@ -56,7 +56,9 @@ endif()
 set(UFF_LIBRARY ${PROJECT_NAME})
 add_library(${PROJECT_NAME} ${UFF_SRCS})
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
-
+if(ANDROID)
+  target_link_libraries(${PROJECT_NAME} PUBLIC log)
+endif()
 target_include_directories(
   ${PROJECT_NAME}
   PUBLIC
@@ -138,7 +140,8 @@ install(
   PATTERN "*.hpp"
   PATTERN "*.h"
   PATTERN ".git" EXCLUDE
-  PATTERN "CI" EXCLUDE)
+  PATTERN "CI" EXCLUDE
+  PATTERN "log.h" EXCLUDE)
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
               ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake

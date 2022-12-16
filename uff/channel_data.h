@@ -49,14 +49,7 @@ class ChannelData : public uff::Object {
      *   "2008-09-15T15:53:00+05:00"
      */
   const std::string& localTime() const { return m_localTime; }
-  void setLocalTime(const std::string& localTime) {
-    // validate
-    if (!localTime.empty() && isIso8601(localTime)) {
-      m_localTime = localTime;
-    } else {
-      std::cerr << '"' << localTime << "\" is not ISO8601 format (YYYY-MM-DDThh:mm:ss)\n";
-    }
-  }
+  void setLocalTime(const std::string& localTime);
 
   /**
      * Format: ISO3166-1
@@ -64,14 +57,7 @@ class ChannelData : public uff::Object {
      *     "FR" for France
      */
   const std::string& countryCode() const { return m_countryCode; }
-  void setCountryCode(const std::string& countryCode) {
-    // validate
-    if (!countryCode.empty() && isIso3166(countryCode)) {
-      m_countryCode = countryCode;
-    } else {
-      std::cerr << '"' << countryCode << "\" is not ISO3166 (XX)\n";
-    }
-  }
+  void setCountryCode(const std::string& countryCode);
 
   // 'System' describes the acquisition system used to acquire the data
   const std::string& system() const { return m_system; }
