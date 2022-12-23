@@ -229,7 +229,6 @@ void Reader<DataType>::readDataTypeArrayDataset(const H5::Group& group, const st
                                                 std::vector<DataType>& values,
                                                 std::vector<size_t>& dimensions) {
   H5::DataSet dataset = group.openDataSet(name);
-  // TODO: check if type is correct : dataset.getTypeClass()
   H5::StrType datatype(H5DataType);
 
   // find dataset dimensions
