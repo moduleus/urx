@@ -419,7 +419,8 @@ std::shared_ptr<uff::Probe> Reader<DataType>::readProbe(const H5::Group& group) 
       matrixArray->setElementGeometries(probe->elementGeometries());
       matrixArray->setImpulseResponses(probe->impulseResponses());
       return matrixArray;
-    } else if (probeType == "RcaArray") {
+    }
+    if (probeType == "RcaArray") {
       auto rcaArray = readRcaArray(group);
       rcaArray->setTransform(probe->transform());
       rcaArray->setFocalLength(probe->focalLength());
