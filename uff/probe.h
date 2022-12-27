@@ -28,9 +28,9 @@ class Probe : public uff::Object {
   UFF_TYPE_MACRO(Probe, uff::Object);
 
  public:
-  Probe() {}
+  Probe() = default;
 
-  void printSelf(std::ostream& os, std::string indent) const override;
+  void printSelf(std::ostream& os, const std::string& indent) const override;
 
   /* Attitude of the probe in 3D */
   const uff::Transform& transform() const { return m_transform; }
@@ -61,14 +61,14 @@ class Probe : public uff::Object {
 
   /* Convenience method */
   const std::vector<MetadataType>& getChannelGeometry() {
-    if (_channelGeometryValid == false) {
+    if (!_channelGeometryValid) {
       // build channel geometry
       _channelGeometry.resize(4 * m_elements.size());
       auto dst = _channelGeometry.begin();
       for (auto& el : m_elements) {
-        *dst++ = el.x().has_value() ? el.x().value() : (MetadataType)UFF_NAN;
-        *dst++ = el.y().has_value() ? el.y().value() : (MetadataType)UFF_NAN;
-        *dst++ = el.z().has_value() ? el.z().value() : (MetadataType)UFF_NAN;
+        *dst++ = el.x().has_value() ? el.x().value() : static_cast<MetadataType>(UFF_NAN);
+        *dst++ = el.y().has_value() ? el.y().value() : static_cast<MetadataType>(UFF_NAN);
+        *dst++ = el.z().has_value() ? el.z().value() : static_cast<MetadataType>(UFF_NAN);
         *dst++ = 0;
       }
       _channelGeometryValid = true;
@@ -89,6 +89,7 @@ class Probe : public uff::Object {
   inline bool operator!=(const Probe& other) const { return !(*this == other); }
 
   Probe& operator=(const Probe& other) {
+    if (&other == this) return *this;
     m_transform = other.m_transform;
     m_focalLength = other.m_focalLength;
     m_elements = other.m_elements;

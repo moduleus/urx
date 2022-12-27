@@ -25,9 +25,9 @@ class Writer : public uff::Object {
   UFF_TYPE_MACRO(Writer, uff::Object);
 
  public:
-  Writer() {}
+  Writer() = default;
 
-  void printSelf(std::ostream& os, std::string indent) const override;
+  void printSelf(std::ostream& os, const std::string& indent) const override;
 
   //uff::Dataset* dataset() { return m_dataset.get(); }
   void setDataset(std::shared_ptr<const uff::Dataset<DataType>> dataset) { m_dataset = dataset; }
@@ -100,7 +100,6 @@ class Writer : public uff::Object {
   void writeWave(H5::Group& group, const std::shared_ptr<uff::Wave>& wave);
   void writeWaveArray(H5::Group& group, const std::vector<std::shared_ptr<uff::Wave>>& waves);
 
- private:
   std::string m_fileName;
   std::shared_ptr<const uff::Dataset<DataType>> m_dataset;
 };

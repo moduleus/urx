@@ -41,11 +41,11 @@ class Object {
 
   void print(std::ostream& os) const;
 
-  virtual void printSelf(std::ostream& os, std::string indent) const;
+  virtual void printSelf(std::ostream& os, const std::string& indent) const;
 
-  virtual void printHeader(std::ostream& os, std::string indent) const;
+  virtual void printHeader(std::ostream& os, const std::string& indent) const;
 
-  virtual void printTrailer(std::ostream& os, std::string indent) const;
+  virtual void printTrailer(std::ostream& os, const std::string& indent) const;
 
  private:
   friend std::ostream& operator<<(std::ostream& os, const uff::Object& o);

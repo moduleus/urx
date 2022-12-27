@@ -26,9 +26,9 @@ class Aperture : public uff::Object {
   UFF_TYPE_MACRO(Aperture, uff::Object);
 
  public:
-  Aperture() {}
+  Aperture() = default;
 
-  void printSelf(std::ostream& os, std::string indent) const override;
+  void printSelf(std::ostream& os, const std::string& indent) const override;
 
   // Origin
   const uff::Transform& origin() const { return m_origin; }

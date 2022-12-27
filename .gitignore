@@ -7,3 +7,5 @@ CI_Android/
 # IDE dir
 .vs/
 .vscode/
+
+*.swp

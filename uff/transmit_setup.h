@@ -8,6 +8,8 @@
 #define UFF_TRANSMIT_SETUP_H
 
 // UFF
+#include <utility>
+
 #include "uff/object.h"
 #include "uff/probe.h"
 #include "uff/transmit_wave.h"
@@ -21,19 +23,21 @@ class TransmitSetup : public uff::Object {
   UFF_TYPE_MACRO(TransmitSetup, uff::Object);
 
  public:
-  TransmitSetup() {}
+  TransmitSetup() = default;
 
-  void printSelf(std::ostream& os, std::string indent) const override;
+  void printSelf(std::ostream& os, const std::string& indent) const override;
 
   std::weak_ptr<uff::Probe> probe() const { return m_probe; }
-  void setProbe(std::weak_ptr<uff::Probe> probe) { m_probe = probe; }
+  void setProbe(std::weak_ptr<uff::Probe> probe) { m_probe = std::move(probe); }
 
   uff::TransmitWave getTransmitWave() const { return m_transmitWave; }
   uff::TransmitWave& transmitWave() { return m_transmitWave; }
   void setTransmitWave(const uff::TransmitWave& transmitWave) { m_transmitWave = transmitWave; }
 
   std::vector<int> channelMapping() const { return m_channelMapping; }
-  void setChannelMapping(std::vector<int> channelMapping) { m_channelMapping = channelMapping; }
+  void setChannelMapping(std::vector<int> channelMapping) {
+    m_channelMapping = std::move(channelMapping);
+  }
 
   bool operator==(const TransmitSetup& other) const {
     return ((m_probe.expired() == other.m_probe.expired()) &&

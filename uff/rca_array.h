@@ -29,7 +29,7 @@ class RcaArray : public uff::Probe {
     updateElements();
   }
 
-  void printSelf(std::ostream& os, std::string indent) const override;
+  void printSelf(std::ostream& os, const std::string& indent) const override;
 
   uint32_t numberElementsX() const { return m_numberElementsX; }
   void setNumberElementsX(uint32_t numberElementsX) {
@@ -75,14 +75,12 @@ class RcaArray : public uff::Probe {
     m_elementHeightY = elementHeightY;
   }
 
-  virtual std::shared_ptr<uff::Probe> clone() override {
-    return std::make_shared<uff::RcaArray>(*this);
-  }
+  std::shared_ptr<uff::Probe> clone() override { return std::make_shared<uff::RcaArray>(*this); }
 
  private:
   // Update elements position
   void updateElements() {
-    m_elements.resize((size_t)m_numberElementsX + m_numberElementsY);
+    m_elements.resize(static_cast<size_t>(m_numberElementsX) + m_numberElementsY);
 
     MetadataType pitchX = m_pitchX.has_value() ? m_pitchX.value() : UFF_NAN;
     MetadataType xmin = -pitchX * (m_numberElementsX - 1.f) / 2.f;

@@ -28,9 +28,9 @@ class Reader : public uff::Object {
   UFF_TYPE_MACRO(Reader, uff::Object);
 
  public:
-  Reader() {}
+  Reader() = default;
 
-  void printSelf(std::ostream& os, std::string indent) const override;
+  void printSelf(std::ostream& os, const std::string& indent) const override;
 
   std::shared_ptr<uff::Dataset<DataType>> dataset() { return m_dataset; }
 

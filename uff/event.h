@@ -21,9 +21,9 @@ class Event : public uff::Object {
   UFF_TYPE_MACRO(Event, uff::Object);
 
  public:
-  Event() {}
+  Event() = default;
 
-  void printSelf(std::ostream& os, std::string indent) const override;
+  void printSelf(std::ostream& os, const std::string& indent) const override;
 
   uff::TransmitSetup& transmitSetup() { return m_transmitSetup; }
   void setTransmitSetup(const uff::TransmitSetup& transmitSetup) {

@@ -26,10 +26,10 @@ class Element : public uff::Object {
   UFF_TYPE_MACRO(Element, uff::Object);
 
  public:
-  Element() {}
-  virtual ~Element() = default;
+  Element() = default;
+  ~Element() override = default;
 
-  void printSelf(std::ostream& os, std::string indent) const override;
+  void printSelf(std::ostream& os, const std::string& indent) const override;
 
   std::optional<MetadataType> x() const { return m_x; }
   std::optional<MetadataType> y() const { return m_y; }

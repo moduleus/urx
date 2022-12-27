@@ -72,7 +72,7 @@ class MyStream {
 #else
 #include <iostream>
 
-typedef enum { LOG_INFO = 0, LOG_WARN, LOG_ERROR } LogPriority;
+using LogPriority = enum { LOG_INFO = 0, LOG_WARN, LOG_ERROR };
 
 #define LOG_THIS(LOG_LEVEL) (LOG_##LOG_LEVEL == LOG_INFO ? std::cout : std::cerr)
 #define LOG_NO_THIS(LOG_LEVEL) (LOG_##LOG_LEVEL == LOG_INFO ? std::cout : std::cerr)

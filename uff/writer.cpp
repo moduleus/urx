@@ -24,11 +24,11 @@ std::string Writer<DataType>::getIdFromPointer(const std::vector<std::shared_ptr
                                                std::weak_ptr<T> wptr) {
   if (auto p1 = wptr.lock()) {
     int cnt = 1;
-    for (auto p2 : vec) {
+    for (const auto& p2 : vec) {
       if (p1 == p2) {
         char buf[9];
         snprintf(buf, sizeof buf, "%08d", cnt);
-        return std::string(buf);
+        return {buf};
       }
       cnt++;
     }
@@ -39,7 +39,7 @@ std::string Writer<DataType>::getIdFromPointer(const std::vector<std::shared_ptr
 }
 
 template <typename DataType>
-void Writer<DataType>::printSelf(std::ostream& os, std::string indent) const {
+void Writer<DataType>::printSelf(std::ostream& os, const std::string& indent) const {
   superclass::printSelf(os, indent);
   os << indent << "HDF5 Version: "
      << "TODO" << std::endl
@@ -420,7 +420,7 @@ void Writer<DataType>::writeProbe(H5::Group& group, const std::shared_ptr<uff::P
   // MatrixArray ?
   std::shared_ptr<uff::MatrixArray> matrixArray =
       std::dynamic_pointer_cast<uff::MatrixArray>(probe);
-  if (matrixArray.get() != nullptr) {
+  if (matrixArray != nullptr) {
     writeStringDataset(group, "probe_type", "MatrixArray");
     writeMatrixArray(group, matrixArray);
     return;
@@ -429,7 +429,7 @@ void Writer<DataType>::writeProbe(H5::Group& group, const std::shared_ptr<uff::P
   // LinearArray ?
   std::shared_ptr<uff::LinearArray> linearArray =
       std::dynamic_pointer_cast<uff::LinearArray>(probe);
-  if (linearArray.get() != nullptr) {
+  if (linearArray != nullptr) {
     writeStringDataset(group, "probe_type", "LinearArray");
     writeLinearArray(group, linearArray);
     return;
@@ -437,7 +437,7 @@ void Writer<DataType>::writeProbe(H5::Group& group, const std::shared_ptr<uff::P
 
   // RcaArray ?
   std::shared_ptr<uff::RcaArray> rcaArray = std::dynamic_pointer_cast<uff::RcaArray>(probe);
-  if (rcaArray.get() != nullptr) {
+  if (rcaArray != nullptr) {
     writeStringDataset(group, "probe_type", "RcaArray");
     writeRcaArray(group, rcaArray);
     return;
@@ -471,7 +471,7 @@ void Writer<DataType>::writeReceiveSetup(H5::Group& group, const uff::ReceiveSet
   writeOptionalMetadataTypeDataset(group, "sampling_frequency", receiveSetup.samplingFrequency());
 
   // "sampling_type"
-  writeIntegerDataset(group, "sampling_type", (int)receiveSetup.samplingType());
+  writeIntegerDataset(group, "sampling_type", static_cast<int>(receiveSetup.samplingType()));
 
   // "channel_mapping"
   writeIntegerArrayDataset(group, "channel_mapping", receiveSetup.channelMapping(), {});
@@ -604,7 +604,7 @@ void Writer<DataType>::writeWave(H5::Group& group, const std::shared_ptr<uff::Wa
   writeTransform(origin, wave->origin());
 
   // write "wave_type"
-  writeIntegerDataset(group, "wave_type", (int)wave->waveType());
+  writeIntegerDataset(group, "wave_type", static_cast<int>(wave->waveType()));
 
   // write "aperture"
   H5::Group aperture = group.createGroup("aperture");

@@ -23,9 +23,9 @@ class ElementGeometry : public uff::Object {
   UFF_TYPE_MACRO(ElementGeometry, uff::Object);
 
  public:
-  ElementGeometry() {}
+  ElementGeometry() = default;
 
-  void printSelf(std::ostream& os, std::string indent) const override;
+  void printSelf(std::ostream& os, const std::string& indent) const override;
 
   uff::Perimeter& perimeter() { return m_perimeter; }
   void setPerimeter(const uff::Perimeter& perimeter) { m_perimeter = perimeter; }
