@@ -31,7 +31,7 @@ class ReceiveSetup : public uff::Object {
 
   void printSelf(std::ostream& os, const std::string& indent) const override;
 
-  const std::weak_ptr<uff::Probe> probe() const { return m_probe; }
+  std::weak_ptr<uff::Probe> probe() const { return m_probe; }
   void setProbe(std::weak_ptr<uff::Probe> probe) { m_probe = std::move(probe); }
 
   MetadataType timeOffset() const { return m_timeOffset; }

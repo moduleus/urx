@@ -24,7 +24,7 @@ std::string Writer<DataType>::getIdFromPointer(const std::vector<std::shared_ptr
                                                std::weak_ptr<T> wptr) {
   if (auto p1 = wptr.lock()) {
     int cnt = 1;
-    for (auto p2 : vec) {
+    for (const auto& p2 : vec) {
       if (p1 == p2) {
         char buf[9];
         snprintf(buf, sizeof buf, "%08d", cnt);

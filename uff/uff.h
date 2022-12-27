@@ -43,7 +43,7 @@ using MetadataType = double;
   const char* getClassNameInternal() const override { return #thisClass; }; \
                                                                             \
  public:                                                                    \
-  typedef superClass superclass;
+  using superclass = superClass;
 
 }  // namespace uff
 

@@ -45,7 +45,7 @@ class Dataset : public uff::Object {
 
   // Returns the channel geometry of the probe used by the 1st receive setup
   template <typename T>
-  const std::vector<T> getChannelGeometry() const {
+  std::vector<T> getChannelGeometry() const {
     if (m_channelData.probes().empty()) {
       return std::vector<T>();
     }
