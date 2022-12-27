@@ -25,7 +25,7 @@ class Wave : public uff::Object {
  public:
   Wave() = default;
 
-  void printSelf(std::ostream& os, std::string indent) const override;
+  void printSelf(std::ostream& os, const std::string& indent) const override;
 
   const uff::Transform& origin() const { return m_origin; }
   void setOrigin(const uff::Transform& origin) { m_origin = origin; }

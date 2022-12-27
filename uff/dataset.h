@@ -27,7 +27,7 @@ class Dataset : public uff::Object {
  public:
   Dataset() = default;
 
-  void printSelf(std::ostream& os, std::string indent) const override;
+  void printSelf(std::ostream& os, const std::string& indent) const override;
 
   uff::ChannelData<DataType>& channelData() { return m_channelData; }
   const uff::ChannelData<DataType>& channelData() const { return m_channelData; }

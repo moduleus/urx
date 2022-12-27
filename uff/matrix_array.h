@@ -28,7 +28,7 @@ class MatrixArray : public uff::Probe {
  public:
   MatrixArray() = default;
 
-  void printSelf(std::ostream& os, std::string indent) const override;
+  void printSelf(std::ostream& os, const std::string& indent) const override;
 
   uint32_t numberElementsX() const { return m_numberElementsX; }
   void setNumberElementsX(uint32_t numberElementsX) {

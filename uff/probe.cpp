@@ -8,7 +8,7 @@
 
 namespace uff {
 
-void Probe::printSelf(std::ostream& os, std::string indent) const {
+void Probe::printSelf(std::ostream& os, const std::string& indent) const {
   superclass::printSelf(os, indent);
   os << indent << "Transform: ";
   this->transform().printSelf(os, indent + UFF_STD_INDENT + UFF_STD_INDENT);

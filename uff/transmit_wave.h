@@ -26,7 +26,7 @@ class TransmitWave : public uff::Object {
  public:
   TransmitWave() = default;
 
-  void printSelf(std::ostream& os, std::string indent) const override;
+  void printSelf(std::ostream& os, const std::string& indent) const override;
 
   /* */
   std::weak_ptr<uff::Wave> wave() const { return m_wave; }

@@ -8,7 +8,7 @@
 
 namespace uff {
 
-void Excitation::printSelf(std::ostream& os, std::string indent) const {
+void Excitation::printSelf(std::ostream& os, const std::string& indent) const {
   superclass::printSelf(os, indent);
   if (m_pulseShape.has_value())
     os << indent << "PulseShape: \"" << m_pulseShape.value() << '"' << std::endl;

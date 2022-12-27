@@ -8,7 +8,7 @@
 
 namespace uff {
 
-void Perimeter::printSelf(std::ostream& os, std::string indent) const {
+void Perimeter::printSelf(std::ostream& os, const std::string& indent) const {
   superclass::printSelf(os, indent);
   os << indent << "Points: (";
   for (const auto& pt : this->m_points) {

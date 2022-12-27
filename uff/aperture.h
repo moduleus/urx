@@ -28,7 +28,7 @@ class Aperture : public uff::Object {
  public:
   Aperture() = default;
 
-  void printSelf(std::ostream& os, std::string indent) const override;
+  void printSelf(std::ostream& os, const std::string& indent) const override;
 
   // Origin
   const uff::Transform& origin() const { return m_origin; }

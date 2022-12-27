@@ -27,7 +27,7 @@ class Writer : public uff::Object {
  public:
   Writer() = default;
 
-  void printSelf(std::ostream& os, std::string indent) const override;
+  void printSelf(std::ostream& os, const std::string& indent) const override;
 
   //uff::Dataset* dataset() { return m_dataset.get(); }
   void setDataset(std::shared_ptr<const uff::Dataset<DataType>> dataset) { m_dataset = dataset; }

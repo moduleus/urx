@@ -8,7 +8,7 @@
 
 namespace uff {
 
-void TransmitSetup::printSelf(std::ostream& os, std::string indent) const {
+void TransmitSetup::printSelf(std::ostream& os, const std::string& indent) const {
   superclass::printSelf(os, indent);
   os << indent << "Channel mapping size: " << this->channelMapping().size() << std::endl
      << indent << "Probe: ";

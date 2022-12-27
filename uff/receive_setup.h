@@ -29,7 +29,7 @@ class ReceiveSetup : public uff::Object {
 
   ReceiveSetup() = default;
 
-  void printSelf(std::ostream& os, std::string indent) const override;
+  void printSelf(std::ostream& os, const std::string& indent) const override;
 
   const std::weak_ptr<uff::Probe> probe() const { return m_probe; }
   void setProbe(std::weak_ptr<uff::Probe> probe) { m_probe = std::move(probe); }

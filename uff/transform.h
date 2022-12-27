@@ -31,7 +31,7 @@ class Transform : public uff::Object {
     this->setTranslation(translation);
   }
 
-  void printSelf(std::ostream& os, std::string indent) const override;
+  void printSelf(std::ostream& os, const std::string& indent) const override;
 
   const uff::Rotation& rotation() const { return m_rotation; }
   void setRotation(const uff::Rotation& rotation) { m_rotation = rotation; }
@@ -46,6 +46,7 @@ class Transform : public uff::Object {
   inline bool operator!=(const Transform& other) const { return !(*this == other); }
 
   Transform& operator=(const Transform& other) {
+    if (&other == this) return *this;
     m_rotation = other.m_rotation;
     m_translation = other.m_translation;
     return *this;

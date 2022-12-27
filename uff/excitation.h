@@ -25,7 +25,7 @@ class Excitation : public uff::Object {
  public:
   Excitation() = default;
 
-  void printSelf(std::ostream& os, std::string indent) const override;
+  void printSelf(std::ostream& os, const std::string& indent) const override;
 
   const std::optional<std::string>& pulseShape() const { return m_pulseShape; }
   void setPulseShape(const std::optional<std::string>& pulseShape) { m_pulseShape = pulseShape; }

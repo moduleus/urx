@@ -22,7 +22,7 @@
 namespace uff {
 
 template <typename DataType>
-void Reader<DataType>::printSelf(std::ostream& os, std::string indent) const {
+void Reader<DataType>::printSelf(std::ostream& os, const std::string& indent) const {
   superclass::printSelf(os, indent);
 }
 
@@ -600,7 +600,7 @@ uff::Transform Reader<DataType>::readTransform(const H5::Group& group) {
   // translation
   uff::Translation translation = readTranslation(group.openGroup("translation"));
 
-  return uff::Transform(rotation, translation);
+  return {rotation, translation};
 }
 
 template <typename DataType>

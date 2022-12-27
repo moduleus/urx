@@ -28,7 +28,7 @@ class Perimeter : public uff::Object {
  public:
   Perimeter() = default;
 
-  void printSelf(std::ostream& os, std::string indent) const override;
+  void printSelf(std::ostream& os, const std::string& indent) const override;
 
   std::vector<std::pair<MetadataType, MetadataType> >& points() { return m_points; }
   void setPoints(const std::vector<std::pair<MetadataType, MetadataType> >& points) {

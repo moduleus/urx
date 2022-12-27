@@ -29,7 +29,7 @@ class Element : public uff::Object {
   Element() = default;
   ~Element() override = default;
 
-  void printSelf(std::ostream& os, std::string indent) const override;
+  void printSelf(std::ostream& os, const std::string& indent) const override;
 
   std::optional<MetadataType> x() const { return m_x; }
   std::optional<MetadataType> y() const { return m_y; }

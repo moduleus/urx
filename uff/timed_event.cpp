@@ -8,7 +8,7 @@
 
 namespace uff {
 
-void TimedEvent::printSelf(std::ostream& os, std::string indent) const {
+void TimedEvent::printSelf(std::ostream& os, const std::string& indent) const {
   superclass::printSelf(os, indent);
   os << indent << "TimeOffset: " << this->timeOffset() << std::endl << indent << "Event: ";
   if (auto spt = this->evenement().lock()) {  // Has to be copied into a shared_ptr before usage

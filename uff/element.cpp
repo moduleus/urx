@@ -8,7 +8,7 @@
 
 namespace uff {
 
-void Element::printSelf(std::ostream& os, std::string indent) const {
+void Element::printSelf(std::ostream& os, const std::string& indent) const {
   //superclass::printSelf(os, indent);
   os << indent << "X: ";
   if (m_x.has_value())

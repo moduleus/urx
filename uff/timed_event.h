@@ -24,7 +24,7 @@ class TimedEvent : public uff::Object {
  public:
   TimedEvent() = default;
 
-  void printSelf(std::ostream& os, std::string indent) const override;
+  void printSelf(std::ostream& os, const std::string& indent) const override;
 
   std::weak_ptr<uff::Event> evenement() const { return m_event; }
   void setEvent(std::weak_ptr<uff::Event> event) { m_event = std::move(event); }

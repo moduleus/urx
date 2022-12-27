@@ -8,7 +8,7 @@
 
 namespace uff {
 
-void RcaArray::printSelf(std::ostream& os, std::string indent) const {
+void RcaArray::printSelf(std::ostream& os, const std::string& indent) const {
   uff::Probe::printSelf(os, indent);
   os << indent;
   superclass::printSelf(os, indent + UFF_STD_INDENT);

@@ -30,7 +30,7 @@ class Probe : public uff::Object {
  public:
   Probe() = default;
 
-  void printSelf(std::ostream& os, std::string indent) const override;
+  void printSelf(std::ostream& os, const std::string& indent) const override;
 
   /* Attitude of the probe in 3D */
   const uff::Transform& transform() const { return m_transform; }
@@ -89,6 +89,7 @@ class Probe : public uff::Object {
   inline bool operator!=(const Probe& other) const { return !(*this == other); }
 
   Probe& operator=(const Probe& other) {
+    if (&other == this) return *this;
     m_transform = other.m_transform;
     m_focalLength = other.m_focalLength;
     m_elements = other.m_elements;

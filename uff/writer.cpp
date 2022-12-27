@@ -28,7 +28,7 @@ std::string Writer<DataType>::getIdFromPointer(const std::vector<std::shared_ptr
       if (p1 == p2) {
         char buf[9];
         snprintf(buf, sizeof buf, "%08d", cnt);
-        return std::string(buf);
+        return {buf};
       }
       cnt++;
     }
@@ -39,7 +39,7 @@ std::string Writer<DataType>::getIdFromPointer(const std::vector<std::shared_ptr
 }
 
 template <typename DataType>
-void Writer<DataType>::printSelf(std::ostream& os, std::string indent) const {
+void Writer<DataType>::printSelf(std::ostream& os, const std::string& indent) const {
   superclass::printSelf(os, indent);
   os << indent << "HDF5 Version: "
      << "TODO" << std::endl

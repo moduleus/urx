@@ -13,7 +13,7 @@
 namespace uff {
 
 template <typename DataType>
-void ChannelData<DataType>::printSelf(std::ostream& os, std::string indent) const {
+void ChannelData<DataType>::printSelf(std::ostream& os, const std::string& indent) const {
   superclass::printSelf(os, indent);
   os << indent << "Authors: " << '"' << authors() << '"' << std::endl;
   os << indent << "Description: " << '"' << description() << '"' << std::endl;
@@ -62,6 +62,8 @@ void ChannelData<DataType>::printSelf(std::ostream& os, std::string indent) cons
 
 template <typename DataType>
 ChannelData<DataType>& ChannelData<DataType>::operator=(const ChannelData<DataType>& other) {
+  if (&other == this) return *this;
+
   m_authors = other.m_authors;
   m_description = other.m_description;
   m_localTime = other.m_localTime;

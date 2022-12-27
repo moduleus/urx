@@ -32,7 +32,7 @@ class ChannelData : public uff::Object {
  public:
   ChannelData() = default;
 
-  void printSelf(std::ostream& os, std::string indent) const override;
+  void printSelf(std::ostream& os, const std::string& indent) const override;
 
   // Authors
   const std::string& authors() const { return m_authors; }
@@ -139,8 +139,8 @@ class ChannelData : public uff::Object {
   void setSkipChannelDataData(bool skip) { m_skipChannelDataData = skip; }
 
   void allocate() {
-    size_t sz =
-        (size_t)numberOfFrames() * numberOfEvents() * numberOfChannels() * numberOfSamples();
+    size_t sz = static_cast<size_t>(numberOfFrames()) * numberOfEvents() * numberOfChannels() *
+                numberOfSamples();
     m_data.resize(sz, 0);
   }
 
