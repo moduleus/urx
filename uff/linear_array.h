@@ -49,9 +49,7 @@ class LinearArray : public uff::Probe {
     m_elementHeight = elementHeight;
   }
 
-  virtual std::shared_ptr<uff::Probe> clone() override {
-    return std::make_shared<uff::LinearArray>(*this);
-  }
+  std::shared_ptr<uff::Probe> clone() override { return std::make_shared<uff::LinearArray>(*this); }
 
  private:
   // Update elements position

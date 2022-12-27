@@ -13,6 +13,7 @@
 
 #include <iostream>
 #include <memory>
+#include <utility>
 
 namespace uff {
 
@@ -23,13 +24,13 @@ class TransmitWave : public uff::Object {
   UFF_TYPE_MACRO(TransmitWave, uff::Object);
 
  public:
-  TransmitWave() {}
+  TransmitWave() = default;
 
   void printSelf(std::ostream& os, std::string indent) const override;
 
   /* */
   std::weak_ptr<uff::Wave> wave() const { return m_wave; }
-  void setWave(std::weak_ptr<uff::Wave> wave) { m_wave = wave; }
+  void setWave(std::weak_ptr<uff::Wave> wave) { m_wave = std::move(wave); }
 
   MetadataType timeOffset() const { return m_timeOffset; }
   void setTimeOffset(MetadataType timeOffset) { m_timeOffset = timeOffset; }

@@ -23,7 +23,7 @@ class Wave : public uff::Object {
   UFF_TYPE_MACRO(Wave, uff::Object);
 
  public:
-  Wave() {}
+  Wave() = default;
 
   void printSelf(std::ostream& os, std::string indent) const override;
 

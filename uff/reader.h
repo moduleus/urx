@@ -28,7 +28,7 @@ class Reader : public uff::Object {
   UFF_TYPE_MACRO(Reader, uff::Object);
 
  public:
-  Reader() {}
+  Reader() = default;
 
   void printSelf(std::ostream& os, std::string indent) const override;
 

@@ -25,7 +25,7 @@ class ImpulseResponse : public uff::Object {
   UFF_TYPE_MACRO(ImpulseResponse, uff::Object);
 
  public:
-  ImpulseResponse() {}
+  ImpulseResponse() = default;
 
   void printSelf(std::ostream& os, std::string indent) const override;
 

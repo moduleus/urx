@@ -23,7 +23,7 @@ class Excitation : public uff::Object {
   UFF_TYPE_MACRO(Excitation, uff::Object);
 
  public:
-  Excitation() {}
+  Excitation() = default;
 
   void printSelf(std::ostream& os, std::string indent) const override;
 

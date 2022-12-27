@@ -36,7 +36,7 @@ using MetadataType = double;
 #define UFF_MAKE_NONCOPYABLE(ClassName) \
  private:                               \
   ClassName(const ClassName&) = delete; \
-  ClassName& operator=(const ClassName&) = delete;
+  (ClassName)& operator=(const ClassName&) = delete;
 
 #define UFF_TYPE_MACRO(thisClass, superClass)                               \
  protected:                                                                 \

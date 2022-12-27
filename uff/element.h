@@ -26,8 +26,8 @@ class Element : public uff::Object {
   UFF_TYPE_MACRO(Element, uff::Object);
 
  public:
-  Element() {}
-  virtual ~Element() = default;
+  Element() = default;
+  ~Element() override = default;
 
   void printSelf(std::ostream& os, std::string indent) const override;
 

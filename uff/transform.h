@@ -24,7 +24,7 @@ class Transform : public uff::Object {
   UFF_TYPE_MACRO(Transform, uff::Object);
 
  public:
-  Transform() {}
+  Transform() = default;
 
   Transform(const uff::Rotation& rotation, const uff::Translation& translation) {
     this->setRotation(rotation);

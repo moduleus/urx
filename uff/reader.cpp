@@ -236,7 +236,8 @@ void Reader<DataType>::readDataTypeArrayDataset(const H5::Group& group, const st
   int ndims = dataspace.getSimpleExtentNdims();
   //std::cout << "ndims:" << ndims << std::endl;
   dimensions.resize(ndims);
-  dataspace.getSimpleExtentDims((unsigned long long*)dimensions.data());  // Poor casting
+  dataspace.getSimpleExtentDims(
+      reinterpret_cast<unsigned long long*>(dimensions.data()));  // Poor casting
   size_t numel = 1;
   for (auto sz : dimensions) {
     numel *= sz;
@@ -265,7 +266,8 @@ void Reader<DataType>::readMetadataTypeArrayDataset(const H5::Group& group, cons
   int ndims = dataspace.getSimpleExtentNdims();
   //std::cout << "ndims:" << ndims << std::endl;
   dimensions.resize(ndims);
-  dataspace.getSimpleExtentDims((unsigned long long*)dimensions.data());  // Poor casting
+  dataspace.getSimpleExtentDims(
+      reinterpret_cast<unsigned long long*>(dimensions.data()));  // Poor casting
   size_t numel = 1;
   for (auto sz : dimensions) {
     numel *= sz;
@@ -292,9 +294,9 @@ void Reader<DataType>::readIntegerArrayDataset(const H5::Group& group, const std
   int ndims = dataspace.getSimpleExtentNdims();
   //std::cout << "ndims:" << ndims << std::endl;
   dimensions.resize(ndims);
-  dataspace.getSimpleExtentDims(
-      (hsize_t*)dimensions
-          .data());  // NOTE: Will bug on architectures whose (sizeof(hsize_t != sizeof(long long unsigned int))) cf. the static_assert upper
+  dataspace.getSimpleExtentDims(reinterpret_cast<hsize_t*>(
+      dimensions
+          .data()));  // NOTE: Will bug on architectures whose (sizeof(hsize_t != sizeof(long long unsigned int))) cf. the static_assert upper
   //hsize_t* dims = dimensions.data();
   //dataspace.getSimpleExtentDims(dims);
   size_t numel = 1;
@@ -408,7 +410,8 @@ std::shared_ptr<uff::Probe> Reader<DataType>::readProbe(const H5::Group& group) 
       linearArray->setElementGeometries(probe->elementGeometries());
       linearArray->setImpulseResponses(probe->impulseResponses());
       return linearArray;
-    } else if (probeType == "MatrixArray") {
+    }
+    if (probeType == "MatrixArray") {
       auto matrixArray = readMatrixArray(group);
       matrixArray->setTransform(probe->transform());
       matrixArray->setFocalLength(probe->focalLength());
@@ -460,7 +463,7 @@ uff::ReceiveSetup Reader<DataType>::readReceiveSetup(const H5::Group& group) {
 
   // "probe"
   int probeId = std::stoi(readStringDataset(group, "probe_id"));
-  receiveSetup.setProbe(m_dataset->channelData().probes()[(size_t)probeId - 1]);
+  receiveSetup.setProbe(m_dataset->channelData().probes()[static_cast<size_t>(probeId) - 1]);
 
   // "time_offset"
   receiveSetup.setTimeOffset(readMetadataTypeDataset(group, "time_offset"));
@@ -560,7 +563,7 @@ uff::TimedEvent Reader<DataType>::readTimedEvent(const H5::Group& group) {
   // "event"
   int eventId = std::stoi(readStringDataset(group, "event_id"));
   //std::cout << "probeId" << probeId << " " << m_dataset.channelData().probes().size();
-  timedEvent.setEvent(m_dataset->channelData().uniqueEvents()[(size_t)eventId - 1]);
+  timedEvent.setEvent(m_dataset->channelData().uniqueEvents()[static_cast<size_t>(eventId) - 1]);
 
   // "time_offset"
   timedEvent.setTimeOffset(readMetadataTypeDataset(group, "time_offset"));
@@ -617,7 +620,7 @@ uff::TransmitSetup Reader<DataType>::readTransmitSetup(const H5::Group& group) {
 
   // "probe"
   int probeId = std::stoi(readStringDataset(group, "probe_id"));
-  transmitSetup.setProbe(m_dataset->channelData().probes()[(size_t)probeId - 1]);
+  transmitSetup.setProbe(m_dataset->channelData().probes()[static_cast<size_t>(probeId) - 1]);
 
   // "transmit_wave"
   transmitSetup.setTransmitWave(readTransmitWave(group.openGroup("transmit_wave")));
@@ -639,7 +642,7 @@ uff::TransmitWave Reader<DataType>::readTransmitWave(const H5::Group& group) {
 
   // "wave"
   int waveId = std::stoi(readStringDataset(group, "wave_id"));
-  transmitWave.setWave(m_dataset->channelData().uniqueWaves()[(size_t)waveId - 1]);
+  transmitWave.setWave(m_dataset->channelData().uniqueWaves()[static_cast<size_t>(waveId) - 1]);
 
   // "time_offset"
   transmitWave.setTimeOffset(readMetadataTypeDataset(group, "time_offset"));

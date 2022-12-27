@@ -26,7 +26,7 @@ class MatrixArray : public uff::Probe {
   UFF_TYPE_MACRO(MatrixArray, uff::Object);
 
  public:
-  MatrixArray() {}
+  MatrixArray() = default;
 
   void printSelf(std::ostream& os, std::string indent) const override;
 
@@ -62,14 +62,12 @@ class MatrixArray : public uff::Probe {
     m_elementHeight = elementHeight;
   }
 
-  virtual std::shared_ptr<uff::Probe> clone() override {
-    return std::make_shared<uff::MatrixArray>(*this);
-  }
+  std::shared_ptr<uff::Probe> clone() override { return std::make_shared<uff::MatrixArray>(*this); }
 
  private:
   // Update elements position
   void updateElements() {
-    m_elements.resize((size_t)m_numberElementsX * m_numberElementsY);
+    m_elements.resize(static_cast<size_t>(m_numberElementsX) * m_numberElementsY);
 
     MetadataType pitchX = m_pitchX.has_value() ? m_pitchX.value() : UFF_NAN;
     MetadataType pitchY = m_pitchY.has_value() ? m_pitchY.value() : UFF_NAN;
@@ -90,7 +88,7 @@ class MatrixArray : public uff::Probe {
           element.setY(std::nullopt);
 
         element.setZ(0.f);
-        m_elements[(size_t)j + (size_t)i * m_numberElementsY] = element;
+        m_elements[static_cast<size_t>(j) + static_cast<size_t>(i) * m_numberElementsY] = element;
       }
     }
   }

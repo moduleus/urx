@@ -26,7 +26,7 @@ class Perimeter : public uff::Object {
   UFF_TYPE_MACRO(Perimeter, uff::Object);
 
  public:
-  Perimeter() {}
+  Perimeter() = default;
 
   void printSelf(std::ostream& os, std::string indent) const override;
 
