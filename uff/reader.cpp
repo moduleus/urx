@@ -428,11 +428,10 @@ std::shared_ptr<uff::Probe> Reader<DataType>::readProbe(const H5::Group& group) 
       rcaArray->setElementGeometries(probe->elementGeometries());
       rcaArray->setImpulseResponses(probe->impulseResponses());
       return rcaArray;
-    } else {
-      LOG_THIS(ERROR) << getClassNameInternal() << ": Ignoring unknown probe_type:" << probeType
-                      << "\n";
-      return probe;
     }
+    LOG_THIS(ERROR) << getClassNameInternal() << ": Ignoring unknown probe_type:" << probeType
+                    << "\n";
+    return probe;
   }
 
   return probe;
