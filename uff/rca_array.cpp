@@ -15,15 +15,8 @@ void RcaArray::printSelf(std::ostream& os, std::string indent) const {
   os << indent + UFF_STD_INDENT << "NumberElementsX: " << m_numberElementsX << std::endl;
   os << indent + UFF_STD_INDENT << "NumberElementsY: " << m_numberElementsY << std::endl;
 
-  if (m_pitchX.has_value())
-    os << indent + UFF_STD_INDENT << "PitchX: " << m_pitchX.value() << std::endl;
-  else
-    os << indent + UFF_STD_INDENT << "PitchX: " << UNDEFINED << std::endl;
-
-  if (m_pitchY.has_value())
-    os << indent + UFF_STD_INDENT << "PitchY: " << m_pitchY.value() << std::endl;
-  else
-    os << indent + UFF_STD_INDENT << "PitchY: " << UNDEFINED << std::endl;
+  os << indent + UFF_STD_INDENT << "PitchX: " << m_pitchX << std::endl;
+  os << indent + UFF_STD_INDENT << "PitchY: " << m_pitchY << std::endl;
 
   if (m_elementWidthX.has_value())
     os << indent + UFF_STD_INDENT << "ElementWidthX: " << m_elementWidthX.value() << std::endl;

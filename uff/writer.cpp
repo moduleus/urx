@@ -173,7 +173,7 @@ H5::DataSet Writer::writeMetadataTypeDataset(H5::Group& group, const std::string
 }
 
 H5::DataSet Writer::writeOptionalMetadataTypeDataset(H5::Group& group, const std::string& name,
-                                                     std::optional<MetadataType> value) {
+                                                     const std::optional<MetadataType>& value) {
   H5::StrType datatype(H5MetadataType);
   H5::DataSpace dataspace = H5::DataSpace(H5S_SCALAR);
   H5::DataSet dataset = group.createDataSet(name, datatype, dataspace);
@@ -357,7 +357,7 @@ void Writer::writeLinearArray(H5::Group& group,
   writeIntegerDataset(group, "number_elements", linearArray->numberElements());
 
   // Write "pitch"
-  writeOptionalMetadataTypeDataset(group, "pitch", linearArray->pitch());
+  writeMetadataTypeDataset(group, "pitch", linearArray->pitch());
 
   // Write "element_width"
   writeOptionalMetadataTypeDataset(group, "element_width", linearArray->elementWidth());
@@ -375,10 +375,10 @@ void Writer::writeMatrixArray(H5::Group& group,
   writeIntegerDataset(group, "number_elements_y", matrixArray->numberElementsY());
 
   // Write "pitch_x"
-  writeOptionalMetadataTypeDataset(group, "pitch_x", matrixArray->pitchX());
+  writeMetadataTypeDataset(group, "pitch_x", matrixArray->pitchX());
 
   // Write "pitch_y"
-  writeOptionalMetadataTypeDataset(group, "pitch_y", matrixArray->pitchY());
+  writeMetadataTypeDataset(group, "pitch_y", matrixArray->pitchY());
 
   // Write "element_width"
   writeOptionalMetadataTypeDataset(group, "element_width", matrixArray->elementWidth());
@@ -395,10 +395,10 @@ void Writer::writeRcaArray(H5::Group& group, const std::shared_ptr<uff::RcaArray
   writeIntegerDataset(group, "number_elements_y", rcaArray->numberElementsY());
 
   // Write "pitch_x"
-  writeOptionalMetadataTypeDataset(group, "pitch_x", rcaArray->pitchX());
+  writeMetadataTypeDataset(group, "pitch_x", rcaArray->pitchX());
 
   // Write "pitch_y"
-  writeOptionalMetadataTypeDataset(group, "pitch_y", rcaArray->pitchY());
+  writeMetadataTypeDataset(group, "pitch_y", rcaArray->pitchY());
 
   // Write "element_width_x"
   writeOptionalMetadataTypeDataset(group, "element_width_x", rcaArray->elementWidthX());

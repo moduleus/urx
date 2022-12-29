@@ -17,10 +17,7 @@ void ReceiveSetup::printSelf(std::ostream& os, std::string indent) const {
     os << "<Probe pointer is expired>" << std::endl;
   }
   os << indent << "TimeOffset: " << m_timeOffset << std::endl;
-  if (m_samplingFrequency.has_value())
-    os << indent << "SamplingFrequency: " << m_samplingFrequency.value() << std::endl;
-  else
-    os << indent << "SamplingFrequency: " << UNDEFINED << std::endl;
+  os << indent << "SamplingFrequency: " << m_samplingFrequency << std::endl;
 }
 
 }  // namespace uff
