@@ -41,8 +41,8 @@ public:
         updateElements();
     }
     
-    std::optional<double> pitch() { return m_pitch; }
-    void setPitch(std::optional<double> pitch)
+    double pitch() const { return m_pitch; }
+    void setPitch(const double& pitch)
     { 
         m_pitch = pitch;
         updateElements();
@@ -63,13 +63,8 @@ private:
         {
             // element position
             uff::Element element;
-            if (m_pitch.has_value())
-            {
-                double xmin = - m_pitch.value() * (m_numberElements - 1.0) / 2.0;
-                element.setX(xmin + i * m_pitch.value());
-            }
-            else
-                element.setX(0.);
+            double xmin = -m_pitch * (m_numberElements - 1.0) / 2.0;
+            element.setX(xmin + i * m_pitch);
             element.setY(0.);
             element.setZ(0.);
             m_elements[i] = element;
@@ -81,7 +76,7 @@ protected:
     uint32_t m_numberElements = 0;
 
     // Distance between the acoustic ceneter of adyacent elements [m]
-    std::optional<double> m_pitch = std::nullopt;
+    double m_pitch = 0;
 
     // (Optional) Element size in the x-axis [m]
     std::optional<double> m_elementWidth = std::nullopt;

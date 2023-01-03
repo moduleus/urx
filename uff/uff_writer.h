@@ -95,7 +95,7 @@ private:
 
     // Double
     H5::DataSet writeDoubleDataset(H5::Group& group, const std::string& name, double value);
-    H5::DataSet writeOptionalDoubleDataset(H5::Group& group, const std::string& name, std::optional<double> value);
+    H5::DataSet writeOptionalDoubleDataset(H5::Group& group, const std::string& name, const std::optional<double>& value);
 
     // Integer
     H5::DataSet writeIntegerArrayDataset(H5::Group& group, const std::string& name, const std::vector<int>& values, const std::vector<size_t>& dimensions);

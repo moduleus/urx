@@ -225,7 +225,7 @@ void Writer::writeLinearArray(H5::Group& group, const std::shared_ptr<uff::Linea
     writeIntegerDataset(group, "number_elements", linearArray->numberElements());
 
     // Write "pitch"
-    writeOptionalDoubleDataset(group, "pitch", linearArray->pitch());
+    writeDoubleDataset(group, "pitch", linearArray->pitch());
 
     // Write "element_width"
     writeOptionalDoubleDataset(group, "element_width", linearArray->elementWidth());
@@ -243,10 +243,10 @@ void Writer::writeMatrixArray(H5::Group& group, const std::shared_ptr<uff::Matri
     writeIntegerDataset(group, "number_elements_y", matrixArray->numberElementsY());
 
     // Write "pitch_x"
-    writeOptionalDoubleDataset(group, "pitch_x", matrixArray->pitchX());
+    writeDoubleDataset(group, "pitch_x", matrixArray->pitchX());
 
     // Write "pitch_y"
-    writeOptionalDoubleDataset(group, "pitch_y", matrixArray->pitchY());
+    writeDoubleDataset(group, "pitch_y", matrixArray->pitchY());
 
     // Write "element_width"
     writeOptionalDoubleDataset(group, "element_width", matrixArray->elementWidth());
@@ -264,10 +264,10 @@ void Writer::writeRcaArray(H5::Group& group, const std::shared_ptr<uff::RcaArray
     writeIntegerDataset(group, "number_elements_y", rcaArray->numberElementsY());
 
     // Write "pitch_x"
-    writeOptionalDoubleDataset(group, "pitch_x", rcaArray->pitchX());
+    writeDoubleDataset(group, "pitch_x", rcaArray->pitchX());
 
     // Write "pitch_y"
-    writeOptionalDoubleDataset(group, "pitch_y", rcaArray->pitchY());
+    writeDoubleDataset(group, "pitch_y", rcaArray->pitchY());
 
     // Write "element_width_x"
     writeOptionalDoubleDataset(group, "element_width_x", rcaArray->elementWidthX());
@@ -507,7 +507,7 @@ void Writer::writeVersion(H5::Group& group, const uff::Version& version)
         return dataset;
     }
 
-    H5::DataSet Writer::writeOptionalDoubleDataset(H5::Group& group, const std::string& name, std::optional<double> value)
+    H5::DataSet Writer::writeOptionalDoubleDataset(H5::Group& group, const std::string& name, const std::optional<double>& value)
     {
         H5::StrType datatype(H5::PredType::NATIVE_DOUBLE);
         H5::DataSpace dataspace = H5::DataSpace(H5S_SCALAR);

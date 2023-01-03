@@ -15,11 +15,7 @@ void LinearArray::printSelf(std::ostream& os, std::string indent) const
     os << indent;
     superclass::printSelf(os, indent + UFF_STD_INDENT);    
     os << indent + UFF_STD_INDENT << "NumberElements: " << m_numberElements << std::endl;
-
-    if (m_pitch.has_value())
-        os << indent + UFF_STD_INDENT << "Pitch: " << m_pitch.value() << std::endl;
-    else
-        os << indent + UFF_STD_INDENT << "Pitch: " << UNDEFINED << std::endl;
+    os << indent + UFF_STD_INDENT << "PitchX: " << m_pitch << std::endl;
 
     if (m_elementWidth.has_value())
         os << indent + UFF_STD_INDENT << "ElementWidth: " << m_elementWidth.value() << std::endl;

@@ -109,10 +109,10 @@ namespace uff
         for (uint32_t i = 0; i < dataFloat.size(); i++) { groupData->data()[i] = (int16_t)dataFloat[i]; }
 
         // Extract acquisition data parameters
-        const uint32_t nbFrames = dataDims[0];
-        const uint32_t nbEvents = dataDims[1];
-        const uint32_t nbChannels = dataDims[2];
-        const uint32_t nbSamples = dataDims[3];
+        const uint32_t nbFrames = (uint32_t)dataDims[0];
+        const uint32_t nbEvents = (uint32_t)dataDims[1];
+        const uint32_t nbChannels = (uint32_t)dataDims[2];
+        const uint32_t nbSamples = (uint32_t)dataDims[3];
 
         // Create unique group
         uffGroup->setDescription("");
@@ -134,7 +134,7 @@ namespace uff
         for (auto& uniqueEvent : acquisition.uniqueEvents()) { uniqueEvent->receiveSetup().setNumberOfSamples(nbSamples); }
 
         // Create sequence
-        uff:Sequence sequence;
+        Sequence sequence;
         sequence.setTimeOffset(0);
         H5::Group timedEvents(group.openGroup("sequence"));
         sequence.setTimedEvents(readArray<TimedEvent>(timedEvents));
@@ -255,7 +255,7 @@ namespace uff
         auto linearArray = std::make_shared<uff::LinearArray>(readIntegerDataset(group, "number_elements"));
 
         // Read "pitch"
-        linearArray->setPitch(readOptionalDoubleDataset(group, "pitch"));
+        linearArray->setPitch(readDoubleDataset(group, "pitch"));
 
         // Read "element_width"
         linearArray->setElementWidth(readOptionalDoubleDataset(group, "element_width"));
@@ -275,8 +275,8 @@ namespace uff
         matrixArray->setNumberElementsY(readIntegerDataset(group, "number_elements_y"));
 
         // Read "pitch"
-        matrixArray->setPitchX(readOptionalDoubleDataset(group, "pitch_x"));
-        matrixArray->setPitchY(readOptionalDoubleDataset(group, "pitch_y"));
+        matrixArray->setPitchX(readDoubleDataset(group, "pitch_x"));
+        matrixArray->setPitchY(readDoubleDataset(group, "pitch_y"));
 
         // Read "element_width"
         matrixArray->setElementWidth(readOptionalDoubleDataset(group, "element_width"));
@@ -292,8 +292,8 @@ namespace uff
         auto rcaArray = std::make_shared<uff::RcaArray>(readIntegerDataset(group, "number_elements_x"), readIntegerDataset(group, "number_elements_y"));
 
         // Read "pitch"
-        rcaArray->setPitchX(readOptionalDoubleDataset(group, "pitch_x"));
-        rcaArray->setPitchY(readOptionalDoubleDataset(group, "pitch_y"));
+        rcaArray->setPitchX(readDoubleDataset(group, "pitch_x"));
+        rcaArray->setPitchY(readDoubleDataset(group, "pitch_y"));
 
         // Read "element_width"
         rcaArray->setElementWidthX(readOptionalDoubleDataset(group, "element_width_x"));

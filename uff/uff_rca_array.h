@@ -27,9 +27,12 @@ class RcaArray : public uff::Probe
 
 public:
 
-    explicit RcaArray(uint32_t numberElementsX, uint32_t numberElementsy) :
+    explicit RcaArray(uint32_t numberElementsX, uint32_t numberElementsy, 
+        double pitchX = 0, double pitchY = 0) :
         m_numberElementsX(numberElementsX),
-        m_numberElementsY(numberElementsy)
+        m_numberElementsY(numberElementsy),
+        m_pitchX(pitchX),
+        m_pitchY(pitchY)
     {
         updateElements();
     }
@@ -50,30 +53,30 @@ public:
         updateElements(); 
     }
 
-    std::optional<double> pitchX() { return m_pitchX; }
-    void setPitchX(std::optional<double> pitchX)
+    double pitchX() const { return m_pitchX; }
+    void setPitchX(const double& pitchX)
     { 
         m_pitchX = pitchX; 
         updateElements();
     }
 
-    std::optional<double> pitchY() { return m_pitchX; }
-    void setPitchY(std::optional<double> pitchY)
+    double pitchY()  const { return m_pitchY; }
+    void setPitchY(const double& pitchY)
     { 
         m_pitchY = pitchY;
         updateElements();
     }
 
-    std::optional<double> elementWidthX() { return m_elementWidthX; }
+    std::optional<double> elementWidthX() const { return m_elementWidthX; }
     void setElementWidthX(std::optional<double> elementWidthX) { m_elementWidthX = elementWidthX; }
 
-    std::optional<double> elementWidthY() { return m_elementWidthY; }
+    std::optional<double> elementWidthY() const { return m_elementWidthY; }
     void setElementWidthY(std::optional<double> elementWidthY) { m_elementWidthY = elementWidthY; }
 
-    std::optional<double> elementHeightX() { return m_elementHeightX; }
+    std::optional<double> elementHeightX() const { return m_elementHeightX; }
     void setElementHeightX(std::optional<double> elementHeightX) { m_elementHeightX = elementHeightX; }
 
-    std::optional<double> elementHeightY() { return m_elementHeightY; }
+    std::optional<double> elementHeightY() const { return m_elementHeightY; }
     void setElementHeightY(std::optional<double> elementHeightY) { m_elementHeightY = elementHeightY; }
 
 private:
@@ -82,27 +85,23 @@ private:
     {
         m_elements.resize((size_t)m_numberElementsX + m_numberElementsY);
 
-        double pitchX = m_pitchX.has_value() ? m_pitchX.value() : UFF_NAN;
-        double xmin = - pitchX * (m_numberElementsX - 1.0) / 2.0;
+        double xmin = - m_pitchX * (m_numberElementsX - 1.0) / 2.0;
 
         for (uint32_t i = 0; i < m_numberElementsX; i++)
         {
             uff::Element element;
-            if (m_pitchX.has_value()) { element.setX(xmin + i * pitchX); }
-            else { element.setX(0.); }
+            element.setX(xmin + i * m_pitchX);
 
             element.setY(0.);
             element.setZ(0.);
             m_elements[i] = element;
         }
 
-        double pitchY = m_pitchY.has_value() ? m_pitchY.value() : UFF_NAN;
-        double ymin = - pitchY * (m_numberElementsY - 1.0) / 2.0;
+        double ymin = -m_pitchY * (m_numberElementsY - 1.0) / 2.0;
         for (uint32_t i = m_numberElementsX; i < m_elements.size(); i++)
         {
             uff::Element element;
-            if (m_pitchX.has_value()) { element.setY((float)(ymin + ((double)i - (double)m_numberElementsX) * pitchY)); }
-            else { element.setY(0.); }
+            element.setY((float)(ymin + ((double)i - (double)m_numberElementsX) * m_pitchY));
 
             element.setX(0.);
             element.setZ(0.);
@@ -117,11 +116,11 @@ protected:
     // Number of elements in the y-axis
     uint32_t m_numberElementsY = 0;
 
-    // Distance between the acoustic center of adyacent elements along the x-axis [m]
-    std::optional<double> m_pitchX = std::nullopt;
+    // Distance between the acoustic center of adjacent elements along the x-axis [m]
+    double m_pitchX = 0;
 
-    // Distance between the acoustic center of adyacent elements along the y-axis [m]
-    std::optional<double> m_pitchY = std::nullopt;
+    // Distance between the acoustic center of adjacent elements along the y-axis [m]
+    double m_pitchY = 0;
 
     // (Optional) Element size in the x-axis [m]
     std::optional<double> m_elementWidthX = std::nullopt;

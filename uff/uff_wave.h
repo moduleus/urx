@@ -50,8 +50,8 @@ public:
     const std::vector<double>& channelDelays() const { return m_channel_delays; }
     void setChannelDelays(const std::vector<double>& channelDelays) { m_channel_delays = channelDelays; }
 
-    const std::vector<float>& channelDcOffset() const { return m_channel_dc_offset; }
-    void setChannelDcOffset(const std::vector<float>& channelDcOffset) { m_channel_dc_offset = channelDcOffset; }
+    const std::vector<double>& channelDcOffset() const { return m_channel_dc_offset; }
+    void setChannelDcOffset(const std::vector<double>& channelDcOffset) { m_channel_dc_offset = channelDcOffset; }
 
     bool operator ==(const Wave& other) const
     {
@@ -93,8 +93,8 @@ private:
     // Channel Delays
     std::vector<double> m_channel_delays;
 
-    // Channel DC offset
-    std::vector<float> m_channel_dc_offset;
+    // Channel dc offset
+    std::vector<double> m_channel_dc_offset;
 };
 
 } // namespace uff
