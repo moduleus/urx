@@ -6,6 +6,9 @@
 
 #include "uff/probe.h"
 
+#include <cstddef>
+#include <ostream>
+
 namespace uff {
 
 void Probe::printSelf(std::ostream& os, const std::string& indent) const {

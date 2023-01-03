@@ -6,6 +6,8 @@
 
 #include "uff/excitation.h"
 
+#include <ostream>
+
 namespace uff {
 
 void Excitation::printSelf(std::ostream& os, const std::string& indent) const {

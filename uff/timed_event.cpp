@@ -6,6 +6,8 @@
 
 #include "uff/timed_event.h"
 
+#include <ostream>
+
 namespace uff {
 
 void TimedEvent::printSelf(std::ostream& os, const std::string& indent) const {

@@ -6,6 +6,11 @@
 
 #include "uff/linear_array.h"
 
+#include <ostream>
+#include <utility>
+
+#include "uff/probe.h"
+
 namespace uff {
 
 void LinearArray::printSelf(std::ostream& os, const std::string& indent) const {

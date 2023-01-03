@@ -7,12 +7,14 @@
 #ifndef UFF_WAVE_H
 #define UFF_WAVE_H
 
-// UFF
+#include <iosfwd>
+#include <string>
 #include "uff/aperture.h"
 #include "uff/excitation.h"
 #include "uff/object.h"
 #include "uff/transform.h"
 #include "uff/types.h"
+#include "uff/uff.h"
 
 namespace uff {
 

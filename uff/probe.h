@@ -7,17 +7,20 @@
 #ifndef UFF_PROBE_H
 #define UFF_PROBE_H
 
-// UFF
+#include <cassert>
+#include <iosfwd>
+#include <memory>
+#include <optional>
+#include <string>
+#include <utility>
+#include <vector>
+
 #include "uff/element.h"
 #include "uff/element_geometry.h"
 #include "uff/impulse_response.h"
 #include "uff/object.h"
 #include "uff/transform.h"
-
-// System
-#include <memory>
-#include <optional>
-#include <vector>
+#include "uff/uff.h"
 
 namespace uff {
 

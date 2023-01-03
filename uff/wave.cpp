@@ -6,6 +6,9 @@
 
 #include "uff/wave.h"
 
+#include <ostream>
+#include <utility>
+
 namespace uff {
 
 void Wave::printSelf(std::ostream& os, const std::string& indent) const {

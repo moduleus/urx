@@ -6,6 +6,8 @@
 
 #include "uff/aperture.h"
 
+#include <ostream>
+
 namespace uff {
 
 void Aperture::printSelf(std::ostream& os, const std::string& indent) const {

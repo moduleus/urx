@@ -6,9 +6,14 @@
 
 #include "uff/channel_data.h"
 
-#include "uff/log.h"
+#include <iomanip>
+#include <ostream>
+#include <utility>
 
-#include <thread>
+#include "uff/log.h"
+#include "uff/receive_setup.h"
+#include "uff/transmit_setup.h"
+#include "uff/transmit_wave.h"
 
 namespace uff {
 

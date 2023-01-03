@@ -7,10 +7,12 @@
 #ifndef UFF_EVENT_H
 #define UFF_EVENT_H
 
-// UFF
+#include <iosfwd>
+#include <string>
 #include "uff/object.h"
 #include "uff/receive_setup.h"
 #include "uff/transmit_setup.h"
+#include "uff/uff.h"
 
 namespace uff {
 

@@ -7,18 +7,27 @@
 #ifndef UFF_CHANNEL_DATA_H
 #define UFF_CHANNEL_DATA_H
 
-// UFF
+#include <algorithm>
+#include <cstddef>
+#include <ios>
+#include <iosfwd>
+#include <istream>
+#include <locale>
+#include <map>
+#include <memory>
+#include <optional>
+#include <regex>
+#include <sstream>
+#include <stdexcept>
+#include <streambuf>
+#include <string>
+#include <vector>
 #include "uff/event.h"
 #include "uff/object.h"
 #include "uff/probe.h"
 #include "uff/timed_event.h"
+#include "uff/uff.h"
 #include "uff/wave.h"
-
-// System
-#include <optional>
-#include <regex>
-#include <string>
-#include <vector>
 
 namespace uff {
 

@@ -6,6 +6,9 @@
 
 #include "uff/element_geometry.h"
 
+#include <ostream>
+#include <utility>
+
 namespace uff {
 
 void ElementGeometry::printSelf(std::ostream& os, const std::string& indent) const {

@@ -7,13 +7,12 @@
 #ifndef UFF_PERIMETER_H
 #define UFF_PERIMETER_H
 
-// UFF
-#include "uff/object.h"
-
-// System
+#include <iosfwd>
 #include <string>
 #include <utility>
 #include <vector>
+#include "uff/object.h"
+#include "uff/uff.h"
 
 namespace uff {
 

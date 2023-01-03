@@ -6,6 +6,8 @@
 
 #include "uff/receive_setup.h"
 
+#include <ostream>
+
 namespace uff {
 
 void ReceiveSetup::printSelf(std::ostream& os, const std::string& indent) const {

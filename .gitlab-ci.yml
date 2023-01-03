@@ -34,6 +34,24 @@ format:clang-tidy:
   needs:
     - build:ubuntu-with-HDF5-static
 
+format:iwyu:
+  stage: format
+  tags:
+    - ubuntu
+  script:
+    - cd CI
+    - iwyu_tool.py -p . -- -Xiwyu --no_default_mappings -Xiwyu --mapping_file="$(pwd)/../.iwyu-imp" -Xiwyu --no_fwd_decls > iwyu_tool.log
+    - fix_includes.py < iwyu_tool.log
+    - if [[ `git status --porcelain` ]]; then exit 1; fi
+  needs:
+    - build:ubuntu-with-HDF5-static
+  allow_failure: true
+  artifacts:
+    when: on_failure
+    paths:
+      - CI/iwyu_tool.log
+    expire_in: 1 day
+
 build:windows-with-HDF5-static:
   stage: build
   tags:

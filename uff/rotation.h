@@ -7,8 +7,10 @@
 #ifndef UFF_ROTATION_H
 #define UFF_ROTATION_H
 
-// UFF
+#include <iosfwd>
+#include <string>
 #include "uff/object.h"
+#include "uff/uff.h"
 
 namespace uff {
 

@@ -7,15 +7,16 @@
 #ifndef UFF_ELEMENT_H
 #define UFF_ELEMENT_H
 
-// UFF
+#include <iosfwd>
+#include <limits>
+#include <optional>
+#include <string>
+
 #include "uff/element_geometry.h"
 #include "uff/impulse_response.h"
 #include "uff/object.h"
 #include "uff/transform.h"
-
-// System
-#include <limits>
-#include <optional>
+#include "uff/uff.h"
 
 namespace uff {
 

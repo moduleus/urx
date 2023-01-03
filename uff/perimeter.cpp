@@ -6,6 +6,8 @@
 
 #include "uff/perimeter.h"
 
+#include <ostream>
+
 namespace uff {
 
 void Perimeter::printSelf(std::ostream& os, const std::string& indent) const {
