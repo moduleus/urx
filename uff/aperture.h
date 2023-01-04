@@ -7,15 +7,16 @@
 #ifndef UFF_APERTURE_H
 #define UFF_APERTURE_H
 
-// UFF
-#include "uff/object.h"
-#include "uff/transform.h"
-
-// System
+#include <iosfwd>
 #include <iostream>
 #include <limits>
 #include <optional>
 #include <string>
+#include <utility>
+
+#include "uff/object.h"
+#include "uff/transform.h"
+#include "uff/uff.h"
 
 namespace uff {
 

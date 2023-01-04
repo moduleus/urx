@@ -6,6 +6,10 @@
 
 #include "uff/object.h"
 
+#include <memory>
+#include <ostream>
+#include <utility>
+
 namespace uff {
 
 const char* Object::getClassName() const { return this->getClassNameInternal(); }

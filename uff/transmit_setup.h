@@ -7,12 +7,16 @@
 #ifndef UFF_TRANSMIT_SETUP_H
 #define UFF_TRANSMIT_SETUP_H
 
-// UFF
+#include <iosfwd>
+#include <memory>
+#include <string>
 #include <utility>
+#include <vector>
 
 #include "uff/object.h"
 #include "uff/probe.h"
 #include "uff/transmit_wave.h"
+#include "uff/uff.h"
 
 namespace uff {
 

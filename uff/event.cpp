@@ -6,6 +6,9 @@
 
 #include "uff/event.h"
 
+#include <ostream>
+#include <utility>
+
 namespace uff {
 
 void Event::printSelf(std::ostream& os, const std::string& indent) const {

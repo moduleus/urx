@@ -6,6 +6,11 @@
 
 #include "uff/matrix_array.h"
 
+#include <ostream>
+#include <utility>
+
+#include "uff/probe.h"
+
 namespace uff {
 
 void MatrixArray::printSelf(std::ostream& os, const std::string& indent) const {

@@ -7,11 +7,14 @@
 #ifndef UFF_TIMED_EVENT_H
 #define UFF_TIMED_EVENT_H
 
-// UFF
+#include <iosfwd>
+#include <memory>
+#include <string>
 #include <utility>
 
 #include "uff/event.h"
 #include "uff/object.h"
+#include "uff/uff.h"
 
 namespace uff {
 

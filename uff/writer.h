@@ -6,14 +6,38 @@
 
 #ifdef WITH_HDF5
 #ifndef UFF_WRITER_H
-#define UFF_WRITER_H
+#include <cstddef>
+#include <iosfwd>
+#include <memory>
+#include <string>
+#include <vector>
 
-// UFF
-#include "uff/dataset.h"
-#include "uff/object.h"
+#include "uff/aperture.h"
+#include "uff/channel_data.h"
+#include "uff/element.h"
+#include "uff/event.h"
+#include "uff/excitation.h"
+#include "uff/linear_array.h"
+#include "uff/matrix_array.h"
+#include "uff/probe.h"
+#include "uff/rca_array.h"
+#include "uff/receive_setup.h"
+#include "uff/rotation.h"
+#include "uff/timed_event.h"
+#include "uff/transform.h"
+#include "uff/translation.h"
+#include "uff/transmit_setup.h"
+#include "uff/transmit_wave.h"
+#include "uff/uff.h"
+#include "uff/version.h"
+#include "uff/wave.h"
+
+#define UFF_WRITER_H
 
 #include <H5Cpp.h>
 #include <optional>
+#include "uff/dataset.h"
+#include "uff/object.h"
 
 namespace uff {
 

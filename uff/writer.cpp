@@ -7,6 +7,11 @@
 #ifdef WITH_HDF5
 #include "uff/writer.h"
 
+#include <cassert>
+#include <cstdio>
+#include <limits>
+#include <ostream>
+
 #if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic ignored "-Wformat-truncation"
 #endif

@@ -7,14 +7,14 @@
 #ifndef UFF_IMPULSE_RESPONSE_H
 #define UFF_IMPULSE_RESPONSE_H
 
-// UFF
-#include "uff/object.h"
-
-// System
+#include <iosfwd>
 #include <limits>
 #include <optional>
 #include <string>
 #include <vector>
+
+#include "uff/object.h"
+#include "uff/uff.h"
 
 namespace uff {
 

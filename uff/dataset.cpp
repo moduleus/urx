@@ -6,6 +6,8 @@
 
 #include "uff/dataset.h"
 
+#include <ostream>
+
 namespace uff {
 
 template <typename DataType>

@@ -6,6 +6,8 @@
 
 #include "uff/impulse_response.h"
 
+#include <ostream>
+
 namespace uff {
 
 void ImpulseResponse::printSelf(std::ostream& os, const std::string& indent) const {

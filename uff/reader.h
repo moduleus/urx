@@ -6,15 +6,36 @@
 
 #ifdef WITH_HDF5
 #ifndef UFF_READER_H
+#include <cstddef>
+#include <iosfwd>
+#include <memory>
+#include <string>
+#include <vector>
+
+#include "uff/aperture.h"
+#include "uff/element.h"
+#include "uff/event.h"
+#include "uff/excitation.h"
+#include "uff/linear_array.h"
+#include "uff/matrix_array.h"
+#include "uff/probe.h"
+#include "uff/rca_array.h"
+#include "uff/receive_setup.h"
+#include "uff/rotation.h"
+#include "uff/timed_event.h"
+#include "uff/transform.h"
+#include "uff/translation.h"
+#include "uff/transmit_setup.h"
+#include "uff/transmit_wave.h"
+#include "uff/uff.h"
+#include "uff/wave.h"
+
 #define UFF_READER_H
 
-// UFF
+#include <H5Cpp.h>
+#include <optional>
 #include "uff/dataset.h"
 #include "uff/object.h"
-
-#include <H5Cpp.h>
-
-#include <optional>
 
 namespace uff {
 

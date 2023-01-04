@@ -7,13 +7,23 @@
 #ifndef UFF_DATASET_H
 #define UFF_DATASET_H
 
-// UFF
-#include "uff/channel_data.h"
-#include "uff/object.h"
-#include "uff/version.h"
-
-// System
 #include <cmath>
+#include <iosfwd>
+#include <memory>
+#include <optional>
+#include <string>
+#include <type_traits>
+#include <utility>
+#include <vector>
+
+#include "uff/channel_data.h"
+#include "uff/event.h"
+#include "uff/excitation.h"
+#include "uff/object.h"
+#include "uff/receive_setup.h"
+#include "uff/uff.h"
+#include "uff/version.h"
+#include "uff/wave.h"
 
 namespace uff {
 

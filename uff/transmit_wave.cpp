@@ -6,6 +6,8 @@
 
 #include "uff/transmit_wave.h"
 
+#include <ostream>
+
 namespace uff {
 
 void TransmitWave::printSelf(std::ostream& os, const std::string& indent) const {

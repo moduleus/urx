@@ -6,6 +6,8 @@
 
 #include "uff/rotation.h"
 
+#include <ostream>
+
 namespace uff {
 
 void Rotation::printSelf(std::ostream& os, const std::string& indent) const {

@@ -6,6 +6,8 @@
 
 #include "uff/version.h"
 
+#include <ostream>
+
 namespace uff {
 
 void Version::printSelf(std::ostream& os, const std::string& indent) const {

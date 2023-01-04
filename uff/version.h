@@ -7,8 +7,11 @@
 #ifndef UFF_VERSION_H
 #define UFF_VERSION_H
 
-// UFF
+#include <cstddef>
+#include <iosfwd>
+#include <string>
 #include "uff/object.h"
+#include "uff/uff.h"
 
 namespace uff {
 

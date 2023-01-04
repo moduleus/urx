@@ -6,6 +6,11 @@
 
 #include "uff/rca_array.h"
 
+#include <ostream>
+#include <utility>
+
+#include "uff/probe.h"
+
 namespace uff {
 
 void RcaArray::printSelf(std::ostream& os, const std::string& indent) const {

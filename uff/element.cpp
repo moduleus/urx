@@ -6,6 +6,8 @@
 
 #include "uff/element.h"
 
+#include <ostream>
+
 namespace uff {
 
 void Element::printSelf(std::ostream& os, const std::string& indent) const {

@@ -6,6 +6,9 @@
 
 #include "uff/transform.h"
 
+#include <ostream>
+#include <utility>
+
 namespace uff {
 
 void Transform::printSelf(std::ostream& os, const std::string& indent) const {

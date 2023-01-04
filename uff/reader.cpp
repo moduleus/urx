@@ -7,10 +7,16 @@
 #ifdef WITH_HDF5
 
 #include "uff/reader.h"
-#include "uff/log.h"
 
-#include <limits>
-#include <type_traits>
+#include <cmath>
+#include <cstdio>
+#include <ostream>
+#include <utility>
+
+#include "uff/channel_data.h"
+#include "uff/log.h"
+#include "uff/types.h"
+#include "uff/version.h"
 
 #if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic ignored "-Wformat-truncation"

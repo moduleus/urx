@@ -6,6 +6,8 @@
 
 #include "uff/translation.h"
 
+#include <ostream>
+
 namespace uff {
 
 void Translation::printSelf(std::ostream& os, const std::string& indent) const {

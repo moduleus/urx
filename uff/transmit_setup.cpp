@@ -6,6 +6,8 @@
 
 #include "uff/transmit_setup.h"
 
+#include <ostream>
+
 namespace uff {
 
 void TransmitSetup::printSelf(std::ostream& os, const std::string& indent) const {
