@@ -42,7 +42,7 @@ namespace uff
         inline bool operator !=(const GroupData& other) const { return !(*this == other); }
 
     private:
-        // Initial Group
+        // Group
         std::weak_ptr<Group> m_group;
 
         // Data organized as data[iFrame][iEvent][iChannel][iSample].
