@@ -6,6 +6,7 @@ stages:
   - format
   - test
   - install
+  - tag
 
 format:clang-format:
   stage: format
@@ -40,8 +41,8 @@ format:iwyu:
     - ubuntu
   script:
     - cd CI
-    - iwyu_tool.py -p . -- -Xiwyu --no_default_mappings -Xiwyu --mapping_file="$(pwd)/../.iwyu-imp" -Xiwyu --no_fwd_decls > iwyu_tool.log
-    - fix_includes.py < iwyu_tool.log
+    - iwyu_tool.py -p . -j $NUM_PARALLEL -- -Xiwyu --no_default_mappings -Xiwyu --mapping_file="$(pwd)/../.iwyu-imp" -Xiwyu --no_fwd_decls > iwyu_tool.log
+    - fix_includes.py --nosafe_headers < iwyu_tool.log
     - if [[ `git status --porcelain` ]]; then exit 1; fi
   needs:
     - build:ubuntu-with-HDF5-static
@@ -271,6 +272,25 @@ install:ubuntu-with-HDF5-shared:
     - build
   script:
     - cmake --install CI --config Release
+  artifacts:
+    paths:
+      - CI/version.txt
+    expire_in: 1 day
+
+tag-version:
+  stage: tag
+  needs:
+    - install:ubuntu-with-HDF5-shared
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  script:
+    - git tag -f $(cat CI/version.txt)
+    - git push -f --tags
+  tags:
+    - ubuntu
+    - build
 
 build:ubuntu-without-HDF5-static:
   stage: build

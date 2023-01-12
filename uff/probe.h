@@ -119,8 +119,4 @@ class Probe : public uff::Object {
 
 }  // namespace uff
 
-#include "uff/linear_array.h"
-#include "uff/matrix_array.h"
-#include "uff/rca_array.h"
-
 #endif  // UFF_PROBE_H

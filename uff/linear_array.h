@@ -8,7 +8,6 @@
 #define UFF_LINEAR_ARRAY_H
 
 #include <cstddef>
-#include <cstdint>
 #include <iosfwd>
 #include <memory>
 #include <optional>

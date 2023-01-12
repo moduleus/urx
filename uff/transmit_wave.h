@@ -8,7 +8,6 @@
 #define UFF_TRANSMIT_WAVE_H
 
 #include <iosfwd>
-#include <iostream>
 #include <memory>
 #include <string>
 #include <utility>

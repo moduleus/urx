@@ -7,7 +7,6 @@
 #ifndef UFF_DATASET_H
 #define UFF_DATASET_H
 
-#include <cmath>
 #include <iosfwd>
 #include <memory>
 #include <optional>

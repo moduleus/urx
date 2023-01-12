@@ -8,7 +8,6 @@
 #define UFF_RECEIVE_SETUP_H
 
 #include <iosfwd>
-#include <iostream>
 #include <memory>
 #include <optional>
 #include <string>

@@ -7,15 +7,9 @@
 #ifndef UFF_OBJECT_H
 #define UFF_OBJECT_H
 
-#include <cassert>
-#include <iomanip>
 #include <iosfwd>
-#include <iostream>
-#include <limits>
+#include <limits>  // IWYU pragma: keep
 #include <string>
-#include <vector>
-
-#include "uff.h"
 
 // Standard indentation
 #define UFF_STD_INDENT "  "

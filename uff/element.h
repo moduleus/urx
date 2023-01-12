@@ -8,14 +8,10 @@
 #define UFF_ELEMENT_H
 
 #include <iosfwd>
-#include <limits>
 #include <optional>
 #include <string>
 
-#include "uff/element_geometry.h"
-#include "uff/impulse_response.h"
 #include "uff/object.h"
-#include "uff/transform.h"
 #include "uff/uff.h"
 
 namespace uff {

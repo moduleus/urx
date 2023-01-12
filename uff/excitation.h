@@ -8,7 +8,6 @@
 #define UFF_EXCITATION_H
 
 #include <iosfwd>
-#include <limits>
 #include <optional>
 #include <string>
 #include <utility>
