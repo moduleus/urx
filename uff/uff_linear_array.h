@@ -26,8 +26,8 @@ class LinearArray : public uff::Probe
 
 public:
 
-    explicit LinearArray(uint32_t numberElements) :
-        m_numberElements(numberElements)
+    explicit LinearArray(const uint32_t& numberElements, const double& pitch) :
+        m_numberElements(numberElements), m_pitch(pitch)
     {
         updateElements();
     }
