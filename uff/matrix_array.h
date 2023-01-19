@@ -8,7 +8,6 @@
 #define UFF_MATRIX_ARRAY_H
 
 #include <cstddef>
-#include <cstdint>
 #include <iosfwd>
 #include <memory>
 #include <optional>

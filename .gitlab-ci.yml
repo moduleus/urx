@@ -41,8 +41,8 @@ format:iwyu:
     - ubuntu
   script:
     - cd CI
-    - iwyu_tool.py -p . -- -Xiwyu --no_default_mappings -Xiwyu --mapping_file="$(pwd)/../.iwyu-imp" -Xiwyu --no_fwd_decls > iwyu_tool.log
-    - fix_includes.py < iwyu_tool.log
+    - iwyu_tool.py -p . -j $NUM_PARALLEL -- -Xiwyu --no_default_mappings -Xiwyu --mapping_file="$(pwd)/../.iwyu-imp" -Xiwyu --no_fwd_decls > iwyu_tool.log
+    - fix_includes.py --nosafe_headers < iwyu_tool.log
     - if [[ `git status --porcelain` ]]; then exit 1; fi
   needs:
     - build:ubuntu-with-HDF5-static

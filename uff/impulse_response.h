@@ -8,7 +8,6 @@
 #define UFF_IMPULSE_RESPONSE_H
 
 #include <iosfwd>
-#include <limits>
 #include <optional>
 #include <string>
 #include <vector>

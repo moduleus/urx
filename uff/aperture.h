@@ -8,8 +8,6 @@
 #define UFF_APERTURE_H
 
 #include <iosfwd>
-#include <iostream>
-#include <limits>
 #include <optional>
 #include <string>
 #include <utility>
