@@ -40,17 +40,18 @@ format:iwyu:
   tags:
     - ubuntu
   script:
-    - cd CI
-    - iwyu_tool.py -p . -j $NUM_PARALLEL -- -Xiwyu --no_default_mappings -Xiwyu --mapping_file="$(pwd)/../.iwyu-imp" -Xiwyu --no_fwd_decls > iwyu_tool.log
-    - fix_includes.py --nosafe_headers < iwyu_tool.log
-    - if [[ `git status --porcelain` ]]; then exit 1; fi
+    - iwyu_tool.py -p CI -j $NUM_PARALLEL -- -Xiwyu --no_default_mappings -Xiwyu --mapping_file="$(pwd)/.iwyu-imp" -Xiwyu --no_fwd_decls > CI/iwyu_tool.log
+    - fix_includes.py --nosafe_headers < CI/iwyu_tool.log
+    - git diff > CI/iwyu.patch
+    - cat CI/iwyu.patch
+    - if [[ `git status --porcelain` ]]; then echo "Please apply iwyu patch to fix your includes"; exit 1; fi
   needs:
     - build:ubuntu-with-HDF5-static
   allow_failure: true
   artifacts:
     when: on_failure
     paths:
-      - CI/iwyu_tool.log
+      - CI/iwyu.patch
     expire_in: 1 day
 
 build:windows-with-HDF5-static:
