@@ -54,6 +54,7 @@ class Reader : public uff::Object {
   void printSelf(std::ostream& os, const std::string& indent) const override;
 
   std::shared_ptr<uff::Dataset<DataType>> dataset() { return m_dataset; }
+  std::shared_ptr<const uff::Dataset<DataType>> dataset() const { return m_dataset; }
 
   /* Set/Get the filename of the UFF file. The 'fileName' must contain the file extension. */
   std::string fileName() const { return m_fileName; }
