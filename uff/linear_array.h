@@ -7,12 +7,17 @@
 #ifndef UFF_LINEAR_ARRAY_H
 #define UFF_LINEAR_ARRAY_H
 
-// UFF
-#include "uff/probe.h"
-
-// System
-#include <cstdint>
+#include <cstddef>
+#include <iosfwd>
+#include <memory>
+#include <optional>
+#include <string>
 #include <vector>
+
+#include "uff/element.h"
+#include "uff/object.h"
+#include "uff/probe.h"
+#include "uff/uff.h"
 
 namespace uff {
 
@@ -27,7 +32,7 @@ class LinearArray : public uff::Probe {
     updateElements();
   }
 
-  void printSelf(std::ostream& os, std::string indent) const override;
+  void printSelf(std::ostream& os, const std::string& indent) const override;
 
   uint32_t numberElements() const { return m_numberElements; }
   void setNumberElements(uint32_t numberElements) {
@@ -49,9 +54,7 @@ class LinearArray : public uff::Probe {
     m_elementHeight = elementHeight;
   }
 
-  virtual std::shared_ptr<uff::Probe> clone() override {
-    return std::make_shared<uff::LinearArray>(*this);
-  }
+  std::shared_ptr<uff::Probe> clone() override { return std::make_shared<uff::LinearArray>(*this); }
 
  private:
   // Update elements position

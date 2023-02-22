@@ -2,34 +2,34 @@
  * Copyright MODULEUS 2019
  */
 
-// UFF
+#include <memory>
+#include <ostream>
+#include <string>
 #include "uff/channel_data.h"
+#include "uff/log.h"
 
-// System
-#include <iostream>
+#define CHECK_ISO8601(str)                                   \
+  if (uff::ChannelData<float>::isIso8601(str) == false) {    \
+    LOG_NO_THIS(ERROR) << "Not ISO-8601: " << (str) << "\n"; \
+    return -1;                                               \
+  }
 
-#define CHECK_ISO8601(str)                               \
-  if (uff::ChannelData::isIso8601(str) == false) {       \
-    std::cerr << "Not ISO-8601: " << (str) << std::endl; \
+#define CHECK_NOT_ISO8601(str)                           \
+  if (uff::ChannelData<float>::isIso8601(str) == true) { \
+    LOG_NO_THIS(ERROR) << "ISO-8601: " << (str) << "\n"; \
     return -1;                                           \
   }
 
-#define CHECK_NOT_ISO8601(str)                       \
-  if (uff::ChannelData::isIso8601(str) == true) {    \
-    std::cerr << "ISO-8601: " << (str) << std::endl; \
-    return -1;                                       \
+#define CHECK_ISO3166(str)                                   \
+  if (uff::ChannelData<float>::isIso3166(str) == false) {    \
+    LOG_NO_THIS(ERROR) << "Not ISO-3166: " << (str) << "\n"; \
+    return -1;                                               \
   }
 
-#define CHECK_ISO3166(str)                               \
-  if (uff::ChannelData::isIso3166(str) == false) {       \
-    std::cerr << "Not ISO-3166: " << (str) << std::endl; \
+#define CHECK_NOT_ISO3166(str)                           \
+  if (uff::ChannelData<float>::isIso3166(str) == true) { \
+    LOG_NO_THIS(ERROR) << "ISO-3166: " << (str) << "\n"; \
     return -1;                                           \
-  }
-
-#define CHECK_NOT_ISO3166(str)                       \
-  if (uff::ChannelData::isIso3166(str) == true) {    \
-    std::cerr << "ISO-3166: " << (str) << std::endl; \
-    return -1;                                       \
   }
 
 int main(int argc, char* argv[]) {

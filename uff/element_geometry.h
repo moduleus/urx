@@ -7,12 +7,11 @@
 #ifndef UFF_ELEMENT_GEOMETRY_H
 #define UFF_ELEMENT_GEOMETRY_H
 
-// UFF
+#include <iosfwd>
+#include <string>
 #include "uff/object.h"
 #include "uff/perimeter.h"
-
-// System
-#include <string>
+#include "uff/uff.h"
 
 namespace uff {
 
@@ -23,9 +22,9 @@ class ElementGeometry : public uff::Object {
   UFF_TYPE_MACRO(ElementGeometry, uff::Object);
 
  public:
-  ElementGeometry() {}
+  ElementGeometry() = default;
 
-  void printSelf(std::ostream& os, std::string indent) const override;
+  void printSelf(std::ostream& os, const std::string& indent) const override;
 
   uff::Perimeter& perimeter() { return m_perimeter; }
   void setPerimeter(const uff::Perimeter& perimeter) { m_perimeter = perimeter; }

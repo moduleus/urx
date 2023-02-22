@@ -6,12 +6,17 @@
 
 #include "uff/rca_array.h"
 
+#include <ostream>
+#include <utility>
+
+#include "uff/probe.h"
+
 namespace uff {
 
-void RcaArray::printSelf(std::ostream& os, std::string indent) const {
+void RcaArray::printSelf(std::ostream& os, const std::string& indent) const {
   uff::Probe::printSelf(os, indent);
   os << indent;
-  superclass::printSelf(os, indent + UFF_STD_INDENT);
+  superclass::printSelf(os, indent + UFF_STD_INDENT);  // NOLINT(bugprone-parent-virtual-call)
   os << indent + UFF_STD_INDENT << "NumberElementsX: " << m_numberElementsX << std::endl;
   os << indent + UFF_STD_INDENT << "NumberElementsY: " << m_numberElementsY << std::endl;
 

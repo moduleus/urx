@@ -7,30 +7,45 @@
 #ifndef UFF_DATASET_H
 #define UFF_DATASET_H
 
-// UFF
-#include "uff/channel_data.h"
-#include "uff/object.h"
-#include "uff/version.h"
+#include <iosfwd>
+#include <memory>
+#include <optional>
+#include <string>
+#include <type_traits>
+#include <utility>
+#include <vector>
 
-// System
-#include <cmath>
+#include "uff/channel_data.h"
+#include "uff/event.h"
+#include "uff/excitation.h"
+#include "uff/object.h"
+#include "uff/receive_setup.h"
+#include "uff/uff.h"
+#include "uff/version.h"
+#include "uff/wave.h"
 
 namespace uff {
 
 /**
  * @brief The UFF Dataset class
  */
+template <typename DataType>
 class Dataset : public uff::Object {
   UFF_TYPE_MACRO(Dataset, uff::Object);
 
  public:
-  Dataset() {}
+  Dataset() = default;
 
-  void printSelf(std::ostream& os, std::string indent) const override;
+  void printSelf(std::ostream& os, const std::string& indent) const override;
 
-  uff::ChannelData& channelData() { return m_channelData; }
-  const uff::ChannelData& channelData() const { return m_channelData; }
-  void setChannelData(const uff::ChannelData& channelData) { m_channelData = channelData; }
+  uff::ChannelData<DataType>& channelData() { return m_channelData; }
+  const uff::ChannelData<DataType>& channelData() const { return m_channelData; }
+  void setChannelData(const uff::ChannelData<DataType>& channelData) {
+    m_channelData = channelData;
+  }
+  void setChannelData(uff::ChannelData<DataType>&& channelData) {
+    m_channelData = std::move(channelData);
+  }
 
   const uff::Version& version() const { return m_version; }
   void setVersion(const uff::Version& version) { m_version = version; }
@@ -39,10 +54,11 @@ class Dataset : public uff::Object {
 
   // Returns the channel geometry of the probe used by the 1st receive setup
   template <typename T>
-  const std::vector<T> getChannelGeometry() const {
+  std::vector<T> getChannelGeometry() const {
     if (m_channelData.probes().empty()) {
       return std::vector<T>();
-    } else if constexpr (std::is_same<T, MetadataType>::value) {
+    }
+    if constexpr (std::is_same<T, MetadataType>::value) {
       return m_channelData.probes()[0]->getChannelGeometry();
     } else {
       auto& channelGeometry = m_channelData.probes()[0]->getChannelGeometry();
@@ -54,27 +70,24 @@ class Dataset : public uff::Object {
   MetadataType getReceiveDelay() const {
     if (m_channelData.uniqueEvents().empty()) {
       return UFF_NAN;
-    } else {
-      return m_channelData.uniqueEvents()[0]->receiveSetup().timeOffset();
     }
+    return m_channelData.uniqueEvents()[0]->receiveSetup().timeOffset();
   }
 
   // Returns the type of sampling of the 1st ReceiveSetup
   uff::ReceiveSetup::SAMPLING_TYPE getSamplingType() const {
     if (m_channelData.uniqueEvents().empty()) {
       return uff::ReceiveSetup::SAMPLING_TYPE::DIRECT_RF;
-    } else {
-      return m_channelData.uniqueEvents()[0]->receiveSetup().samplingType();
     }
+    return m_channelData.uniqueEvents()[0]->receiveSetup().samplingType();
   }
 
   // Return the sampling frequency associated with the 1st receive event [Hz]
   MetadataType getSamplingFrequency() const {
     if (m_channelData.uniqueEvents().empty()) {
       return UFF_NAN;
-    } else {
-      return m_channelData.uniqueEvents()[0]->receiveSetup().samplingFrequency();
     }
+    return m_channelData.uniqueEvents()[0]->receiveSetup().samplingFrequency();
   }
 
   // Returns the speed of sound [m/s]
@@ -85,9 +98,8 @@ class Dataset : public uff::Object {
     if (m_channelData.uniqueWaves().empty() ||
         !m_channelData.uniqueWaves()[0]->excitation().transmitFrequency().has_value()) {
       return UFF_NAN;
-    } else {
-      return m_channelData.uniqueWaves()[0]->excitation().transmitFrequency().value();
     }
+    return m_channelData.uniqueWaves()[0]->excitation().transmitFrequency().value();
   }
 
   // Returns true is the 1st probe is of sub-type 'ProbeType'
@@ -96,12 +108,9 @@ class Dataset : public uff::Object {
   bool isProbeType() const {
     if (m_channelData.probes().empty()) {
       return false;
-    } else {
-      // Try to cast the 1st probe to the user-provided type
-      std::shared_ptr<ProbeType> pt =
-          std::dynamic_pointer_cast<ProbeType>(m_channelData.probes()[0]);
-      return (pt.get() != nullptr);
-    }
+    }  // Try to cast the 1st probe to the user-provided type
+    std::shared_ptr<ProbeType> pt = std::dynamic_pointer_cast<ProbeType>(m_channelData.probes()[0]);
+    return (pt.get() != nullptr);
   }
 
   inline bool operator==(const Dataset& other) const {
@@ -112,7 +121,7 @@ class Dataset : public uff::Object {
 
  private:
   uff::Version m_version;
-  uff::ChannelData m_channelData;
+  uff::ChannelData<DataType> m_channelData;
 };
 
 }  // namespace uff

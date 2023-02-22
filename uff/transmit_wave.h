@@ -7,12 +7,14 @@
 #ifndef UFF_TRANSMIT_WAVE_H
 #define UFF_TRANSMIT_WAVE_H
 
-// UFF
-#include "uff/object.h"
-#include "uff/wave.h"
-
-#include <iostream>
+#include <iosfwd>
 #include <memory>
+#include <string>
+#include <utility>
+
+#include "uff/object.h"
+#include "uff/uff.h"
+#include "uff/wave.h"
 
 namespace uff {
 
@@ -23,13 +25,13 @@ class TransmitWave : public uff::Object {
   UFF_TYPE_MACRO(TransmitWave, uff::Object);
 
  public:
-  TransmitWave() {}
+  TransmitWave() = default;
 
-  void printSelf(std::ostream& os, std::string indent) const override;
+  void printSelf(std::ostream& os, const std::string& indent) const override;
 
   /* */
   std::weak_ptr<uff::Wave> wave() const { return m_wave; }
-  void setWave(std::weak_ptr<uff::Wave> wave) { m_wave = wave; }
+  void setWave(std::weak_ptr<uff::Wave> wave) { m_wave = std::move(wave); }
 
   MetadataType timeOffset() const { return m_timeOffset; }
   void setTimeOffset(MetadataType timeOffset) { m_timeOffset = timeOffset; }

@@ -6,9 +6,12 @@
 
 #include "uff/event.h"
 
+#include <ostream>
+#include <utility>
+
 namespace uff {
 
-void Event::printSelf(std::ostream& os, std::string indent) const {
+void Event::printSelf(std::ostream& os, const std::string& indent) const {
   superclass::printSelf(os, indent);
 
   os << indent << "TransmitSetup: ";

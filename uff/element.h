@@ -7,15 +7,12 @@
 #ifndef UFF_ELEMENT_H
 #define UFF_ELEMENT_H
 
-// UFF
-#include "uff/element_geometry.h"
-#include "uff/impulse_response.h"
-#include "uff/object.h"
-#include "uff/transform.h"
-
-// System
-#include <limits>
+#include <iosfwd>
 #include <optional>
+#include <string>
+
+#include "uff/object.h"
+#include "uff/uff.h"
 
 namespace uff {
 
@@ -26,10 +23,10 @@ class Element : public uff::Object {
   UFF_TYPE_MACRO(Element, uff::Object);
 
  public:
-  Element() {}
-  virtual ~Element() = default;
+  Element() = default;
+  ~Element() override = default;
 
-  void printSelf(std::ostream& os, std::string indent) const override;
+  void printSelf(std::ostream& os, const std::string& indent) const override;
 
   std::optional<MetadataType> x() const { return m_x; }
   std::optional<MetadataType> y() const { return m_y; }

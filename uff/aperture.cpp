@@ -6,9 +6,11 @@
 
 #include "uff/aperture.h"
 
+#include <ostream>
+
 namespace uff {
 
-void Aperture::printSelf(std::ostream& os, std::string indent) const {
+void Aperture::printSelf(std::ostream& os, const std::string& indent) const {
   superclass::printSelf(os, indent);
   if (m_window.has_value())
     os << indent << "Window: \"" << m_window.value() << "\"" << std::endl;

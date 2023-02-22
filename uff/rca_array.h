@@ -7,13 +7,17 @@
 #ifndef UFF_RCA_ARRAY_H
 #define UFF_RCA_ARRAY_H
 
-// UFF
-#include "uff/probe.h"
-
-// System
-#include <cstdint>
+#include <cstddef>
+#include <iosfwd>
+#include <memory>
 #include <optional>
+#include <string>
 #include <vector>
+
+#include "uff/element.h"
+#include "uff/object.h"
+#include "uff/probe.h"
+#include "uff/uff.h"
 
 namespace uff {
 
@@ -29,7 +33,7 @@ class RcaArray : public uff::Probe {
     updateElements();
   }
 
-  void printSelf(std::ostream& os, std::string indent) const override;
+  void printSelf(std::ostream& os, const std::string& indent) const override;
 
   uint32_t numberElementsX() const { return m_numberElementsX; }
   void setNumberElementsX(uint32_t numberElementsX) {
@@ -75,14 +79,12 @@ class RcaArray : public uff::Probe {
     m_elementHeightY = elementHeightY;
   }
 
-  virtual std::shared_ptr<uff::Probe> clone() override {
-    return std::make_shared<uff::RcaArray>(*this);
-  }
+  std::shared_ptr<uff::Probe> clone() override { return std::make_shared<uff::RcaArray>(*this); }
 
  private:
   // Update elements position
   void updateElements() {
-    m_elements.resize((size_t)m_numberElementsX + m_numberElementsY);
+    m_elements.resize(static_cast<size_t>(m_numberElementsX) + m_numberElementsY);
 
     MetadataType xmin = -m_pitchX * (m_numberElementsX - 1.f) / 2.f;
 

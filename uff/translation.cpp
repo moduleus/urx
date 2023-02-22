@@ -6,9 +6,11 @@
 
 #include "uff/translation.h"
 
+#include <ostream>
+
 namespace uff {
 
-void Translation::printSelf(std::ostream& os, std::string indent) const {
+void Translation::printSelf(std::ostream& os, const std::string& indent) const {
   superclass::printSelf(os, indent);
   os << indent << "X: " << this->x() << ", "
      << "Y: " << this->y() << ", "

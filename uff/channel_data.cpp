@@ -6,11 +6,19 @@
 
 #include "uff/channel_data.h"
 
-#include <thread>
+#include <iomanip>
+#include <ostream>
+#include <utility>
+
+#include "uff/log.h"
+#include "uff/receive_setup.h"
+#include "uff/transmit_setup.h"
+#include "uff/transmit_wave.h"
 
 namespace uff {
 
-void ChannelData::printSelf(std::ostream& os, std::string indent) const {
+template <typename DataType>
+void ChannelData<DataType>::printSelf(std::ostream& os, const std::string& indent) const {
   superclass::printSelf(os, indent);
   os << indent << "Authors: " << '"' << authors() << '"' << std::endl;
   os << indent << "Description: " << '"' << description() << '"' << std::endl;
@@ -57,7 +65,10 @@ void ChannelData::printSelf(std::ostream& os, std::string indent) const {
   os << indent << "Data: (size=" << m_data.size() << ")\n" << std::endl;
 }
 
-ChannelData& ChannelData::operator=(const ChannelData& other) {
+template <typename DataType>
+ChannelData<DataType>& ChannelData<DataType>::operator=(const ChannelData<DataType>& other) {
+  if (&other == this) return *this;
+
   m_authors = other.m_authors;
   m_description = other.m_description;
   m_localTime = other.m_localTime;
@@ -164,5 +175,28 @@ ChannelData& ChannelData::operator=(const ChannelData& other) {
 
   return *this;
 }
+
+template <typename DataType>
+void ChannelData<DataType>::setLocalTime(const std::string& localTime) {
+  // validate
+  if (!localTime.empty() && isIso8601(localTime)) {
+    m_localTime = localTime;
+  } else {
+    LOG_THIS(ERROR) << '"' << localTime << "\" is not ISO8601 format (YYYY-MM-DDThh:mm:ss)\n";
+  }
+}
+
+template <typename DataType>
+void ChannelData<DataType>::setCountryCode(const std::string& countryCode) {
+  // validate
+  if (!countryCode.empty() && isIso3166(countryCode)) {
+    m_countryCode = countryCode;
+  } else {
+    LOG_THIS(ERROR) << '"' << countryCode << "\" is not ISO3166 (XX)\n";
+  }
+}
+
+template class ChannelData<float>;
+template class ChannelData<short>;
 
 }  // namespace uff

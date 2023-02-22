@@ -7,8 +7,10 @@
 #ifndef UFF_TRANSLATION_H
 #define UFF_TRANSLATION_H
 
-// UFF
+#include <iosfwd>
+#include <string>
 #include "uff/object.h"
+#include "uff/uff.h"
 
 namespace uff {
 
@@ -25,7 +27,7 @@ class Translation : public uff::Object {
     setZ(tz);
   }
 
-  void printSelf(std::ostream& os, std::string indent) const override;
+  void printSelf(std::ostream& os, const std::string& indent) const override;
 
   MetadataType x() const { return m_tx; }
   void setX(MetadataType x) { m_tx = x; }

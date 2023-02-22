@@ -7,8 +7,11 @@
 #ifndef UFF_VERSION_H
 #define UFF_VERSION_H
 
-// UFF
+#include <cstddef>
+#include <iosfwd>
+#include <string>
 #include "uff/object.h"
+#include "uff/uff.h"
 
 namespace uff {
 
@@ -26,7 +29,7 @@ class Version : public uff::Object {
     m_patch = patch;
   }
 
-  void printSelf(std::ostream& os, std::string indent) const override;
+  void printSelf(std::ostream& os, const std::string& indent) const override;
 
   uint32_t major() const { return m_major; }
   uint32_t minor() const { return m_minor; }

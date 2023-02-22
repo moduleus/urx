@@ -6,6 +6,10 @@
 
 #include "uff/object.h"
 
+#include <memory>
+#include <ostream>
+#include <utility>
+
 namespace uff {
 
 const char* Object::getClassName() const { return this->getClassNameInternal(); }
@@ -18,16 +22,18 @@ void Object::print(std::ostream& os) const {
   this->printTrailer(os, "");
 }
 
-void Object::printHeader(std::ostream& os, std::string indent) const {
+void Object::printHeader(std::ostream& os, const std::string& indent) const {
   os << indent << this->getClassName() << " (" << this << ")\n";
 }
 
-void Object::printSelf(std::ostream& os, std::string indent) const {
+void Object::printSelf(std::ostream& os, const std::string& indent) const {
   //os << indent << this->getClassName() << " (" << this << ")\n";
   os << this->getClassName() << " (0x" << this << ")\n";
 }
 
-void Object::printTrailer(std::ostream& os, std::string indent) const { os << indent << "\n"; }
+void Object::printTrailer(std::ostream& os, const std::string& indent) const {
+  os << indent << "\n";
+}
 
 /**
  * This operator allows all subclasses of uff::Object to be printed via <<.

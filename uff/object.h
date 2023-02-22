@@ -7,16 +7,9 @@
 #ifndef UFF_OBJECT_H
 #define UFF_OBJECT_H
 
-// UFF
-#include "uff.h"
-
-// System
-#include <cassert>
-#include <iomanip>
-#include <iostream>
-#include <limits>
+#include <iosfwd>
+#include <limits>  // IWYU pragma: keep
 #include <string>
-#include <vector>
 
 // Standard indentation
 #define UFF_STD_INDENT "  "
@@ -41,11 +34,11 @@ class Object {
 
   void print(std::ostream& os) const;
 
-  virtual void printSelf(std::ostream& os, std::string indent) const;
+  virtual void printSelf(std::ostream& os, const std::string& indent) const;
 
-  virtual void printHeader(std::ostream& os, std::string indent) const;
+  virtual void printHeader(std::ostream& os, const std::string& indent) const;
 
-  virtual void printTrailer(std::ostream& os, std::string indent) const;
+  virtual void printTrailer(std::ostream& os, const std::string& indent) const;
 
  private:
   friend std::ostream& operator<<(std::ostream& os, const uff::Object& o);

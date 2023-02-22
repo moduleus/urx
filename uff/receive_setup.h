@@ -7,13 +7,16 @@
 #ifndef UFF_RECEIVE_SETUP_H
 #define UFF_RECEIVE_SETUP_H
 
-// UFF
+#include <iosfwd>
+#include <memory>
+#include <optional>
+#include <string>
+#include <utility>
+#include <vector>
+
 #include "uff/object.h"
 #include "uff/probe.h"
-
-// System
-#include <iostream>
-#include <memory>
+#include "uff/uff.h"
 
 namespace uff {
 
@@ -26,12 +29,12 @@ class ReceiveSetup : public uff::Object {
  public:
   enum class SAMPLING_TYPE { DIRECT_RF = 0, QUADRATURE_4X_F0 = 1, QUADRATURE_2X_F0 = 2, IQ = 3 };
 
-  ReceiveSetup() {}
+  ReceiveSetup() = default;
 
-  void printSelf(std::ostream& os, std::string indent) const override;
+  void printSelf(std::ostream& os, const std::string& indent) const override;
 
-  const std::weak_ptr<uff::Probe> probe() const { return m_probe; }
-  void setProbe(std::weak_ptr<uff::Probe> probe) { m_probe = probe; }
+  std::weak_ptr<uff::Probe> probe() const { return m_probe; }
+  void setProbe(std::weak_ptr<uff::Probe> probe) { m_probe = std::move(probe); }
 
   MetadataType timeOffset() const { return m_timeOffset; }
   void setTimeOffset(const MetadataType& timeOffset) { m_timeOffset = timeOffset; }

@@ -6,6 +6,7 @@ stages:
   - format
   - test
   - install
+  - tag
 
 format:clang-format:
   stage: format
@@ -34,13 +35,32 @@ format:clang-tidy:
   needs:
     - build:ubuntu-with-HDF5-static
 
+format:iwyu:
+  stage: format
+  tags:
+    - ubuntu
+  script:
+    - iwyu_tool.py -p CI -j $NUM_PARALLEL -- -Xiwyu --no_default_mappings -Xiwyu --mapping_file="$(pwd)/.iwyu-imp" -Xiwyu --no_fwd_decls > CI/iwyu_tool.log
+    - fix_includes.py --nosafe_headers < CI/iwyu_tool.log
+    - git diff > CI/iwyu.patch
+    - cat CI/iwyu.patch
+    - if [[ `git status --porcelain` ]]; then echo "Please apply iwyu patch to fix your includes"; exit 1; fi
+  needs:
+    - build:ubuntu-with-HDF5-static
+  allow_failure: true
+  artifacts:
+    when: on_failure
+    paths:
+      - CI/iwyu.patch
+    expire_in: 1 day
+
 build:windows-with-HDF5-static:
   stage: build
   tags:
     - win10
     - build
   script:
-    - cmake.exe -S . -B CI -G "Visual Studio 16 2019" -A x64 -DHDF5_DIR="$HDF5_DIR_2019_64_STATIC_RELEASE" -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF
+    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DHDF5_DIR="$HDF5_DIR_2019_64_STATIC_RELEASE" -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF
     - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
   artifacts:
     paths:
@@ -81,7 +101,7 @@ build:windows-with-HDF5-shared:
     - win10
     - build
   script:
-    - cmake.exe -S . -B CI -G "Visual Studio 16 2019" -A x64 -DHDF5_DIR="$HDF5_DIR_2019_64_SHARED_RELEASE" -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=ON
+    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DHDF5_DIR="$HDF5_DIR_2019_64_SHARED_RELEASE" -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=ON
     - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
   artifacts:
     paths:
@@ -122,7 +142,7 @@ build:windows-without-HDF5-static:
     - win10
     - build
   script:
-    - cmake.exe -S . -B CI -G "Visual Studio 16 2019" -A x64 -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF
+    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF
     - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
   artifacts:
     paths:
@@ -150,7 +170,7 @@ build:windows-without-HDF5-shared:
     - win10
     - build
   script:
-    - cmake.exe -S . -B CI -G "Visual Studio 16 2019" -A x64 -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=ON
+    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=ON
     - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
   artifacts:
     paths:
@@ -253,6 +273,25 @@ install:ubuntu-with-HDF5-shared:
     - build
   script:
     - cmake --install CI --config Release
+  artifacts:
+    paths:
+      - CI/version.txt
+    expire_in: 1 day
+
+tag-version:
+  stage: tag
+  needs:
+    - install:ubuntu-with-HDF5-shared
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  script:
+    - git tag -f $(cat CI/version.txt)
+    - git push -f --tags
+  tags:
+    - ubuntu
+    - build
 
 build:ubuntu-without-HDF5-static:
   stage: build

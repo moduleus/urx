@@ -7,15 +7,14 @@
 #ifndef UFF_APERTURE_H
 #define UFF_APERTURE_H
 
-// UFF
-#include "uff/object.h"
-#include "uff/transform.h"
-
-// System
-#include <iostream>
-#include <limits>
+#include <iosfwd>
 #include <optional>
 #include <string>
+#include <utility>
+
+#include "uff/object.h"
+#include "uff/transform.h"
+#include "uff/uff.h"
 
 namespace uff {
 
@@ -26,9 +25,9 @@ class Aperture : public uff::Object {
   UFF_TYPE_MACRO(Aperture, uff::Object);
 
  public:
-  Aperture() {}
+  Aperture() = default;
 
-  void printSelf(std::ostream& os, std::string indent) const override;
+  void printSelf(std::ostream& os, const std::string& indent) const override;
 
   // Origin
   const uff::Transform& origin() const { return m_origin; }

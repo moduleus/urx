@@ -7,31 +7,42 @@
 #ifndef UFF_CHANNEL_DATA_H
 #define UFF_CHANNEL_DATA_H
 
-// UFF
+#include <algorithm>
+#include <cstddef>
+#include <ios>
+#include <iosfwd>
+#include <istream>
+#include <locale>
+#include <map>
+#include <memory>
+#include <optional>
+#include <regex>
+#include <sstream>
+#include <stdexcept>
+#include <streambuf>
+#include <string>
+#include <vector>
+
 #include "uff/event.h"
 #include "uff/object.h"
 #include "uff/probe.h"
 #include "uff/timed_event.h"
+#include "uff/uff.h"
 #include "uff/wave.h"
-
-// System
-#include <optional>
-#include <regex>
-#include <string>
-#include <vector>
 
 namespace uff {
 
 /**
  * @brief UFF class that contains all the information needed to store and later process channel data.
  */
+template <typename DataType>
 class ChannelData : public uff::Object {
   UFF_TYPE_MACRO(ChannelData, uff::Object);
 
  public:
-  ChannelData() {}
+  ChannelData() = default;
 
-  void printSelf(std::ostream& os, std::string indent) const override;
+  void printSelf(std::ostream& os, const std::string& indent) const override;
 
   // Authors
   const std::string& authors() const { return m_authors; }
@@ -48,14 +59,7 @@ class ChannelData : public uff::Object {
      *   "2008-09-15T15:53:00+05:00"
      */
   const std::string& localTime() const { return m_localTime; }
-  void setLocalTime(const std::string& localTime) {
-    // validate
-    if (!localTime.empty() && isIso8601(localTime)) {
-      m_localTime = localTime;
-    } else {
-      std::cerr << '"' << localTime << "\" is not ISO8601 format (YYYY-MM-DDThh:mm:ss)\n";
-    }
-  }
+  void setLocalTime(const std::string& localTime);
 
   /**
      * Format: ISO3166-1
@@ -63,14 +67,7 @@ class ChannelData : public uff::Object {
      *     "FR" for France
      */
   const std::string& countryCode() const { return m_countryCode; }
-  void setCountryCode(const std::string& countryCode) {
-    // validate
-    if (!countryCode.empty() && isIso3166(countryCode)) {
-      m_countryCode = countryCode;
-    } else {
-      std::cerr << '"' << countryCode << "\" is not ISO3166 (XX)\n";
-    }
-  }
+  void setCountryCode(const std::string& countryCode);
 
   // 'System' describes the acquisition system used to acquire the data
   const std::string& system() const { return m_system; }
@@ -88,19 +85,19 @@ class ChannelData : public uff::Object {
 
   // List of probes used for this dataset
   const std::vector<std::shared_ptr<uff::Probe>>& probes() const { return m_probes; }
-  void addProbe(std::shared_ptr<uff::Probe> probe) { m_probes.push_back(probe); }
+  void addProbe(const std::shared_ptr<uff::Probe>& probe) { m_probes.push_back(probe); }
   void setProbes(const std::vector<std::shared_ptr<uff::Probe>>& probes) { m_probes = probes; }
 
   // List of unique waves used for this dataset
   const std::vector<std::shared_ptr<uff::Wave>>& uniqueWaves() const { return m_uniqueWaves; }
-  void addUniqueWave(std::shared_ptr<uff::Wave> wave) { m_uniqueWaves.push_back(wave); }
+  void addUniqueWave(const std::shared_ptr<uff::Wave>& wave) { m_uniqueWaves.push_back(wave); }
   void setUniqueWaves(const std::vector<std::shared_ptr<uff::Wave>>& uniqueWaves) {
     m_uniqueWaves = uniqueWaves;
   }
 
   /* List of unique events used for this dataset */
   const std::vector<std::shared_ptr<uff::Event>>& uniqueEvents() const { return m_uniqueEvents; }
-  void addUniqueEvent(std::shared_ptr<uff::Event> event) { m_uniqueEvents.push_back(event); }
+  void addUniqueEvent(const std::shared_ptr<uff::Event>& event) { m_uniqueEvents.push_back(event); }
   void setUniqueEvents(const std::vector<std::shared_ptr<uff::Event>>& uniqueEvents) {
     m_uniqueEvents = uniqueEvents;
   }
@@ -110,21 +107,33 @@ class ChannelData : public uff::Object {
   void setSequence(const std::vector<uff::TimedEvent>& sequence) { m_sequence = sequence; }
 
   // data
-  std::vector<DataType>& data() { return m_data; }
-  const std::vector<DataType>& data() const { return m_data; }
+  std::vector<DataType>& data() {
+    if (m_skipChannelDataData) {
+      throw std::logic_error("Can't read data.");
+    }
+    return m_data;
+  }
+  const std::vector<DataType>& data() const {
+    if (m_skipChannelDataData) {
+      throw std::logic_error("Can't read data.");
+    }
+    return m_data;
+  }
   void setData(const std::vector<DataType>& data) { m_data = data; }
 
   const DataType* dataAt(int frame, int event, int channel) const {
     return m_data.data() +
-           ((size_t)frame * numberOfEvents() * numberOfChannels() * numberOfSamples()) +
-           ((size_t)event * numberOfChannels() * numberOfSamples()) +
-           ((size_t)channel * numberOfSamples());
+           (static_cast<size_t>(frame) * numberOfEvents() * numberOfChannels() *
+            numberOfSamples()) +
+           (static_cast<size_t>(event) * numberOfChannels() * numberOfSamples()) +
+           (static_cast<size_t>(channel) * numberOfSamples());
   }
   DataType* dataAt(int frame, int event, int channel) {
     return m_data.data() +
-           ((size_t)frame * numberOfEvents() * numberOfChannels() * numberOfSamples()) +
-           ((size_t)event * numberOfChannels() * numberOfSamples()) +
-           ((size_t)channel * numberOfSamples());
+           (static_cast<size_t>(frame) * numberOfEvents() * numberOfChannels() *
+            numberOfSamples()) +
+           (static_cast<size_t>(event) * numberOfChannels() * numberOfSamples()) +
+           (static_cast<size_t>(channel) * numberOfSamples());
   }
 
   uint32_t numberOfFrames() const { return m_numberOfFrames; }
@@ -137,9 +146,11 @@ class ChannelData : public uff::Object {
   void setNumberOfChannels(uint32_t sz) { m_numberOfChannels = sz; }
   void setNumberOfSamples(uint32_t sz) { m_numberOfSamples = sz; }
 
+  void setSkipChannelDataData(bool skip) { m_skipChannelDataData = skip; }
+
   void allocate() {
-    size_t sz =
-        (size_t)numberOfFrames() * numberOfEvents() * numberOfChannels() * numberOfSamples();
+    size_t sz = static_cast<size_t>(numberOfFrames()) * numberOfEvents() * numberOfChannels() *
+                numberOfSamples();
     m_data.resize(sz, 0);
   }
 
@@ -164,6 +175,7 @@ class ChannelData : public uff::Object {
   }
 
   ChannelData& operator=(const ChannelData& other);
+  ChannelData& operator=(ChannelData&& other) noexcept = default;
 
   bool operator==(const ChannelData& other) const {
     bool areProbesEqualed = true;
@@ -236,6 +248,8 @@ class ChannelData : public uff::Object {
   uint32_t m_numberOfEvents = 0;
   uint32_t m_numberOfChannels = 0;
   uint32_t m_numberOfSamples = 0;
+
+  bool m_skipChannelDataData = false;
 };
 
 }  // namespace uff

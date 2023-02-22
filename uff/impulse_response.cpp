@@ -6,9 +6,11 @@
 
 #include "uff/impulse_response.h"
 
+#include <ostream>
+
 namespace uff {
 
-void ImpulseResponse::printSelf(std::ostream& os, std::string indent) const {
+void ImpulseResponse::printSelf(std::ostream& os, const std::string& indent) const {
   superclass::printSelf(os, indent);
   os << indent << "InitialTime: " << m_initialTime << std::endl;
 

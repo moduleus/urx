@@ -7,13 +7,17 @@
 #ifndef UFF_MATRIX_ARRAY_H
 #define UFF_MATRIX_ARRAY_H
 
-// UFF
-#include "uff/probe.h"
-
-// System
-#include <cstdint>
+#include <cstddef>
+#include <iosfwd>
+#include <memory>
 #include <optional>
+#include <string>
 #include <vector>
+
+#include "uff/element.h"
+#include "uff/object.h"
+#include "uff/probe.h"
+#include "uff/uff.h"
 
 namespace uff {
 
@@ -26,7 +30,7 @@ class MatrixArray : public uff::Probe {
   UFF_TYPE_MACRO(MatrixArray, uff::Object);
 
  public:
-  MatrixArray(){}
+  MatrixArray() = default;
   MatrixArray(const uint32_t& nbElementsX, const uint32_t& nbElementsY,
               const MetadataType& pitchX, const MetadataType& picthY) {
     m_numberElementsX = nbElementsX;
@@ -36,7 +40,7 @@ class MatrixArray : public uff::Probe {
     updateElements();
   }
 
-  void printSelf(std::ostream& os, std::string indent) const override;
+  void printSelf(std::ostream& os, const std::string& indent) const override;
 
   uint32_t numberElementsX() const { return m_numberElementsX; }
   void setNumberElementsX(uint32_t numberElementsX) {
@@ -70,14 +74,12 @@ class MatrixArray : public uff::Probe {
     m_elementHeight = elementHeight;
   }
 
-  virtual std::shared_ptr<uff::Probe> clone() override {
-    return std::make_shared<uff::MatrixArray>(*this);
-  }
+  std::shared_ptr<uff::Probe> clone() override { return std::make_shared<uff::MatrixArray>(*this); }
 
  private:
   // Update elements position
   void updateElements() {
-    m_elements.resize((size_t)m_numberElementsX * m_numberElementsY);
+    m_elements.resize(static_cast<size_t>(m_numberElementsX) * m_numberElementsY);
 
     MetadataType xmin = -m_pitchX * (m_numberElementsX - 1.f) / 2.f;
     MetadataType ymin = -m_pitchY * (m_numberElementsY - 1.f) / 2.f;
@@ -87,7 +89,7 @@ class MatrixArray : public uff::Probe {
         element.setX(xmin + j * m_pitchX);
         element.setY(ymin + i * m_pitchY);
         element.setZ(0.f);
-        m_elements[(size_t)j + (size_t)i * m_numberElementsY] = element;
+        m_elements[static_cast<size_t>(j) + static_cast<size_t>(i) * m_numberElementsY] = element;
       }
     }
   }

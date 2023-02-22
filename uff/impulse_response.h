@@ -7,14 +7,13 @@
 #ifndef UFF_IMPULSE_RESPONSE_H
 #define UFF_IMPULSE_RESPONSE_H
 
-// UFF
-#include "uff/object.h"
-
-// System
-#include <limits>
+#include <iosfwd>
 #include <optional>
 #include <string>
 #include <vector>
+
+#include "uff/object.h"
+#include "uff/uff.h"
 
 namespace uff {
 
@@ -25,9 +24,9 @@ class ImpulseResponse : public uff::Object {
   UFF_TYPE_MACRO(ImpulseResponse, uff::Object);
 
  public:
-  ImpulseResponse() {}
+  ImpulseResponse() = default;
 
-  void printSelf(std::ostream& os, std::string indent) const override;
+  void printSelf(std::ostream& os, const std::string& indent) const override;
 
   MetadataType initialTime() const { return m_initialTime; }
   void setInitialTime(MetadataType initialTime) { m_initialTime = initialTime; }

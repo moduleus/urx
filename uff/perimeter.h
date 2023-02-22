@@ -7,13 +7,13 @@
 #ifndef UFF_PERIMETER_H
 #define UFF_PERIMETER_H
 
-// UFF
-#include "uff/object.h"
-
-// System
+#include <iosfwd>
 #include <string>
 #include <utility>
 #include <vector>
+
+#include "uff/object.h"
+#include "uff/uff.h"
 
 namespace uff {
 
@@ -26,9 +26,9 @@ class Perimeter : public uff::Object {
   UFF_TYPE_MACRO(Perimeter, uff::Object);
 
  public:
-  Perimeter() {}
+  Perimeter() = default;
 
-  void printSelf(std::ostream& os, std::string indent) const override;
+  void printSelf(std::ostream& os, const std::string& indent) const override;
 
   std::vector<std::pair<MetadataType, MetadataType> >& points() { return m_points; }
   void setPoints(const std::vector<std::pair<MetadataType, MetadataType> >& points) {

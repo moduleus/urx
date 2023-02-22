@@ -6,30 +6,55 @@
 
 #ifdef WITH_HDF5
 #ifndef UFF_WRITER_H
-#define UFF_WRITER_H
+#include <cstddef>
+#include <iosfwd>
+#include <memory>
+#include <string>
+#include <vector>
 
-// UFF
-#include "uff/dataset.h"
-#include "uff/object.h"
+#include "uff/aperture.h"
+#include "uff/channel_data.h"
+#include "uff/element.h"
+#include "uff/event.h"
+#include "uff/excitation.h"
+#include "uff/linear_array.h"
+#include "uff/matrix_array.h"
+#include "uff/probe.h"
+#include "uff/rca_array.h"
+#include "uff/receive_setup.h"
+#include "uff/rotation.h"
+#include "uff/timed_event.h"
+#include "uff/transform.h"
+#include "uff/translation.h"
+#include "uff/transmit_setup.h"
+#include "uff/transmit_wave.h"
+#include "uff/uff.h"
+#include "uff/version.h"
+#include "uff/wave.h"
+
+#define UFF_WRITER_H
 
 #include <H5Cpp.h>
 #include <optional>
+#include "uff/dataset.h"
+#include "uff/object.h"
 
 namespace uff {
 
 /**
  * @brief The UFF Writer class
  */
+template <typename DataType>
 class Writer : public uff::Object {
   UFF_TYPE_MACRO(Writer, uff::Object);
 
  public:
-  Writer() {}
+  Writer() = default;
 
-  void printSelf(std::ostream& os, std::string indent) const override;
+  void printSelf(std::ostream& os, const std::string& indent) const override;
 
-  uff::Dataset& dataset() { return m_dataset; }
-  void setDataset(const uff::Dataset& dataset) { m_dataset = dataset; }
+  //uff::Dataset* dataset() { return m_dataset.get(); }
+  void setDataset(std::shared_ptr<const uff::Dataset<DataType>> dataset) { m_dataset = dataset; }
 
   /* Set/Get the filename of the UFF file. The 'fileName' must contain the file extension. */
   std::string fileName() const { return m_fileName; }
@@ -38,16 +63,15 @@ class Writer : public uff::Object {
   /**
      * @brief Write the content of the Dataset in a file.
      * setDataset() and setFileName() must have been called before calling this method.
-     * @return true if the writing is successful, false otherwise.
      */
-  bool writeToFile();
+  void writeToFile();
 
  private:
   template <typename T>
   std::string getIdFromPointer(const std::vector<std::shared_ptr<T>>& vec, std::weak_ptr<T> wptr);
 
   void writeAperture(H5::Group& group, const uff::Aperture& aperture);
-  void writeChannelData(H5::Group& group, const uff::ChannelData& channelData);
+  void writeChannelData(H5::Group& group, const uff::ChannelData<DataType>& channelData);
   H5::DataSet writeMetadataTypeDataset(H5::Group& group, const std::string& name,
                                        MetadataType value);
   H5::DataSet writeOptionalMetadataTypeDataset(H5::Group& group, const std::string& name,
@@ -100,9 +124,8 @@ class Writer : public uff::Object {
   void writeWave(H5::Group& group, const std::shared_ptr<uff::Wave>& wave);
   void writeWaveArray(H5::Group& group, const std::vector<std::shared_ptr<uff::Wave>>& waves);
 
- private:
   std::string m_fileName;
-  uff::Dataset m_dataset;
+  std::shared_ptr<const uff::Dataset<DataType>> m_dataset;
 };
 
 }  // namespace uff

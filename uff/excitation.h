@@ -7,12 +7,14 @@
 #ifndef UFF_EXCITATION_H
 #define UFF_EXCITATION_H
 
-// UFF
-#include "uff/object.h"
-
-// System
-#include <limits>
+#include <iosfwd>
 #include <optional>
+#include <string>
+#include <utility>
+#include <vector>
+
+#include "uff/object.h"
+#include "uff/uff.h"
 
 namespace uff {
 
@@ -23,9 +25,9 @@ class Excitation : public uff::Object {
   UFF_TYPE_MACRO(Excitation, uff::Object);
 
  public:
-  Excitation() {}
+  Excitation() = default;
 
-  void printSelf(std::ostream& os, std::string indent) const override;
+  void printSelf(std::ostream& os, const std::string& indent) const override;
 
   const std::optional<std::string>& pulseShape() const { return m_pulseShape; }
   void setPulseShape(const std::optional<std::string>& pulseShape) { m_pulseShape = pulseShape; }
