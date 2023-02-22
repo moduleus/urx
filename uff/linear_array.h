@@ -63,7 +63,7 @@ class LinearArray : public uff::Probe {
     for (uint32_t i = 0; i < m_numberElements; ++i) {
       // element position
       uff::Element element;
-      MetadataType xmin = -m_pitch * (float)(m_numberElements - 1) / 2.f;
+      MetadataType xmin = -m_pitch * static_cast<float>(m_numberElements - 1) / 2.f;
       element.setX(xmin + i * m_pitch);
       element.setY(0.f);
       element.setZ(0.f);
