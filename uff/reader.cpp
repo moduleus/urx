@@ -334,7 +334,7 @@ std::shared_ptr<uff::LinearArray> Reader<DataType>::readLinearArray(const H5::Gr
       std::make_shared<uff::LinearArray>(readIntegerDataset(group, "number_elements"));
 
   // Read "pitch"
-  linearArray->setPitch(readOptionalMetadataTypeDataset(group, "pitch"));
+  linearArray->setPitch(readMetadataTypeDataset(group, "pitch"));
 
   // Read "element_width"
   linearArray->setElementWidth(readOptionalMetadataTypeDataset(group, "element_width"));
@@ -354,8 +354,8 @@ std::shared_ptr<uff::MatrixArray> Reader<DataType>::readMatrixArray(const H5::Gr
   matrixArray->setNumberElementsY(readIntegerDataset(group, "number_elements_y"));
 
   // Read "pitch"
-  matrixArray->setPitchX(readOptionalMetadataTypeDataset(group, "pitch_x"));
-  matrixArray->setPitchY(readOptionalMetadataTypeDataset(group, "pitch_y"));
+  matrixArray->setPitchX(readMetadataTypeDataset(group, "pitch_x"));
+  matrixArray->setPitchY(readMetadataTypeDataset(group, "pitch_y"));
 
   // Read "element_width"
   matrixArray->setElementWidth(readOptionalMetadataTypeDataset(group, "element_width"));
@@ -372,8 +372,8 @@ std::shared_ptr<RcaArray> Reader<DataType>::readRcaArray(const H5::Group& group)
                                                   readIntegerDataset(group, "number_elements_y"));
 
   // Read "pitch"
-  rcaArray->setPitchX(readOptionalMetadataTypeDataset(group, "pitch_x"));
-  rcaArray->setPitchY(readOptionalMetadataTypeDataset(group, "pitch_y"));
+  rcaArray->setPitchX(readMetadataTypeDataset(group, "pitch_x"));
+  rcaArray->setPitchY(readMetadataTypeDataset(group, "pitch_y"));
 
   // Read "element_width"
   rcaArray->setElementWidthX(readOptionalMetadataTypeDataset(group, "element_width_x"));
@@ -475,7 +475,7 @@ uff::ReceiveSetup Reader<DataType>::readReceiveSetup(const H5::Group& group) {
   receiveSetup.setTimeOffset(readMetadataTypeDataset(group, "time_offset"));
 
   // "sampling_frequency"
-  receiveSetup.setSamplingFrequency(readOptionalMetadataTypeDataset(group, "sampling_frequency"));
+  receiveSetup.setSamplingFrequency(readMetadataTypeDataset(group, "sampling_frequency"));
 
   // "sampling_type"
   const uff::ReceiveSetup::SAMPLING_TYPE st =

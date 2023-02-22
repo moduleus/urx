@@ -75,7 +75,7 @@ class Writer : public uff::Object {
   H5::DataSet writeMetadataTypeDataset(H5::Group& group, const std::string& name,
                                        MetadataType value);
   H5::DataSet writeOptionalMetadataTypeDataset(H5::Group& group, const std::string& name,
-                                               std::optional<MetadataType> value);
+                                               const std::optional<MetadataType>& value);
 
   void writeElementArray(H5::Group& group, const std::vector<uff::Element>& elements);
   void writeElement(H5::Group& group, const uff::Element& element);

@@ -31,6 +31,14 @@ class MatrixArray : public uff::Probe {
 
  public:
   MatrixArray() = default;
+  MatrixArray(const uint32_t& nbElementsX, const uint32_t& nbElementsY, const MetadataType& pitchX,
+              const MetadataType& picthY) {
+    m_numberElementsX = nbElementsX;
+    m_numberElementsY = nbElementsY;
+    m_pitchX = pitchX;
+    m_pitchY = picthY;
+    updateElements();
+  }
 
   void printSelf(std::ostream& os, const std::string& indent) const override;
 
@@ -46,14 +54,14 @@ class MatrixArray : public uff::Probe {
     updateElements();
   }
 
-  std::optional<MetadataType> pitchX() { return m_pitchX; }
-  void setPitchX(std::optional<MetadataType> pitchX) {
+  MetadataType pitchX() const { return m_pitchX; }
+  void setPitchX(const MetadataType& pitchX) {
     m_pitchX = pitchX;
     updateElements();
   }
 
-  std::optional<MetadataType> pitchY() { return m_pitchY; }
-  void setPitchY(std::optional<MetadataType> pitchY) {
+  MetadataType pitchY() const { return m_pitchY; }
+  void setPitchY(const MetadataType& pitchY) {
     m_pitchY = pitchY;
     updateElements();
   }
@@ -73,24 +81,13 @@ class MatrixArray : public uff::Probe {
   void updateElements() {
     m_elements.resize(static_cast<size_t>(m_numberElementsX) * m_numberElementsY);
 
-    MetadataType pitchX = m_pitchX.has_value() ? m_pitchX.value() : UFF_NAN;
-    MetadataType pitchY = m_pitchY.has_value() ? m_pitchY.value() : UFF_NAN;
-
-    MetadataType xmin = -pitchX * (m_numberElementsX - 1.f) / 2.f;
-    MetadataType ymin = -pitchY * (m_numberElementsY - 1.f) / 2.f;
+    MetadataType xmin = -m_pitchX * (m_numberElementsX - 1.f) / 2.f;
+    MetadataType ymin = -m_pitchY * (m_numberElementsY - 1.f) / 2.f;
     for (uint32_t i = 0; i < m_numberElementsY; i++) {
       for (uint32_t j = 0; j < m_numberElementsX; j++) {
         uff::Element element;
-        if (m_pitchX.has_value())
-          element.setX(xmin + j * pitchX);
-        else
-          element.setX(std::nullopt);
-
-        if (m_pitchY.has_value())
-          element.setY(ymin + i * pitchY);
-        else
-          element.setY(std::nullopt);
-
+        element.setX(xmin + j * m_pitchX);
+        element.setY(ymin + i * m_pitchY);
         element.setZ(0.f);
         m_elements[static_cast<size_t>(j) + static_cast<size_t>(i) * m_numberElementsY] = element;
       }
@@ -105,10 +102,10 @@ class MatrixArray : public uff::Probe {
   uint32_t m_numberElementsY = 0;
 
   // Distance between the acoustic center of adyacent elements along the x-axis [m]
-  std::optional<MetadataType> m_pitchX = std::nullopt;
+  MetadataType m_pitchX = 0;
 
   // Distance between the acoustic center of adyacent elements along the y-axis [m]
-  std::optional<MetadataType> m_pitchY = std::nullopt;
+  MetadataType m_pitchY = 0;
 
   // (Optional) Element size in the x-axis [m]
   std::optional<MetadataType> m_elementWidth = std::nullopt;

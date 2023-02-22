@@ -40,8 +40,8 @@ class LinearArray : public uff::Probe {
     updateElements();
   }
 
-  std::optional<MetadataType> pitch() { return m_pitch; }
-  void setPitch(std::optional<MetadataType> pitch) {
+  MetadataType pitch() const { return m_pitch; }
+  void setPitch(const MetadataType& pitch) {
     m_pitch = pitch;
     updateElements();
   }
@@ -63,11 +63,8 @@ class LinearArray : public uff::Probe {
     for (uint32_t i = 0; i < m_numberElements; ++i) {
       // element position
       uff::Element element;
-      if (m_pitch.has_value()) {
-        MetadataType xmin = -m_pitch.value() * (m_numberElements - 1.f) / 2.f;
-        element.setX(xmin + i * m_pitch.value());
-      } else
-        element.setX(0.f);
+      MetadataType xmin = -m_pitch * static_cast<float>(m_numberElements - 1) / 2.f;
+      element.setX(xmin + i * m_pitch);
       element.setY(0.f);
       element.setZ(0.f);
       m_elements[i] = element;
@@ -79,7 +76,7 @@ class LinearArray : public uff::Probe {
   uint32_t m_numberElements = 0;
 
   // Distance between the acoustic ceneter of adyacent elements [m]
-  std::optional<MetadataType> m_pitch = std::nullopt;
+  MetadataType m_pitch = 0;
 
   // (Optional) Element size in the x-axis [m]
   std::optional<MetadataType> m_elementWidth = std::nullopt;

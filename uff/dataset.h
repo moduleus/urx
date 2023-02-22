@@ -84,11 +84,10 @@ class Dataset : public uff::Object {
 
   // Return the sampling frequency associated with the 1st receive event [Hz]
   MetadataType getSamplingFrequency() const {
-    if (m_channelData.uniqueEvents().empty() ||
-        !m_channelData.uniqueEvents()[0]->receiveSetup().samplingFrequency().has_value()) {
+    if (m_channelData.uniqueEvents().empty()) {
       return UFF_NAN;
     }
-    return m_channelData.uniqueEvents()[0]->receiveSetup().samplingFrequency().value();
+    return m_channelData.uniqueEvents()[0]->receiveSetup().samplingFrequency();
   }
 
   // Returns the speed of sound [m/s]

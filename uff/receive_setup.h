@@ -37,15 +37,15 @@ class ReceiveSetup : public uff::Object {
   void setProbe(std::weak_ptr<uff::Probe> probe) { m_probe = std::move(probe); }
 
   MetadataType timeOffset() const { return m_timeOffset; }
-  void setTimeOffset(MetadataType timeOffset) { m_timeOffset = timeOffset; }
+  void setTimeOffset(const MetadataType& timeOffset) { m_timeOffset = timeOffset; }
 
-  std::optional<MetadataType> samplingFrequency() const { return m_samplingFrequency; }
-  void setSamplingFrequency(std::optional<MetadataType> samplingFrequency) {
+  MetadataType samplingFrequency() const { return m_samplingFrequency; }
+  void setSamplingFrequency(const MetadataType& samplingFrequency) {
     m_samplingFrequency = samplingFrequency;
   }
 
   SAMPLING_TYPE samplingType() const { return m_samplingType; }
-  void setSamplingType(SAMPLING_TYPE samplingType) { m_samplingType = samplingType; }
+  void setSamplingType(const SAMPLING_TYPE& samplingType) { m_samplingType = samplingType; }
 
   std::vector<int> channelMapping() const { return m_channelMapping; }
   void setChannelMapping(const std::vector<int>& channelMapping) {
@@ -86,7 +86,7 @@ class ReceiveSetup : public uff::Object {
   MetadataType m_timeOffset = 0.;
 
   // Sampling frequency [Hz]
-  std::optional<MetadataType> m_samplingFrequency = std::nullopt;
+  MetadataType m_samplingFrequency = 0;
 
   // Type of sampling:
   SAMPLING_TYPE m_samplingType = SAMPLING_TYPE::DIRECT_RF;
