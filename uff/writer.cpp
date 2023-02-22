@@ -151,9 +151,8 @@ H5::DataSet Writer<DataType>::writeMetadataTypeDataset(H5::Group& group, const s
 }
 
 template <typename DataType>
-H5::DataSet Writer<DataType>::writeOptionalMetadataTypeDataset(H5::Group& group,
-                                                               const std::string& name,
-                                                               const std::optional<MetadataType>& value) {
+H5::DataSet Writer<DataType>::writeOptionalMetadataTypeDataset(
+    H5::Group& group, const std::string& name, const std::optional<MetadataType>& value) {
   H5::StrType datatype(H5MetadataType);
   H5::DataSpace dataspace = H5::DataSpace(H5S_SCALAR);
   H5::DataSet dataset = group.createDataSet(name, datatype, dataspace);

@@ -31,8 +31,8 @@ class MatrixArray : public uff::Probe {
 
  public:
   MatrixArray() = default;
-  MatrixArray(const uint32_t& nbElementsX, const uint32_t& nbElementsY,
-              const MetadataType& pitchX, const MetadataType& picthY) {
+  MatrixArray(const uint32_t& nbElementsX, const uint32_t& nbElementsY, const MetadataType& pitchX,
+              const MetadataType& picthY) {
     m_numberElementsX = nbElementsX;
     m_numberElementsY = nbElementsY;
     m_pitchX = pitchX;
