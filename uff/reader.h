@@ -72,7 +72,7 @@ class Reader : public uff::Object {
   std::optional<MetadataType> readOptionalMetadataTypeDataset(const H5::Group& group,
                                                               const std::string& name);
   void readIntegerArrayDataset(const H5::Group& group, const std::string& name,
-                               std::vector<int>& values, std::vector<size_t>& dimensions);
+                               std::vector<int>& values, std::vector<hsize_t>& dimensions);
   int readIntegerDataset(const H5::Group& group, const std::string& name);
   std::string readStringDataset(const H5::Group& group, const std::string& name);
   std::optional<std::string> readOptionalStringDataset(const H5::Group& group,
@@ -92,10 +92,10 @@ class Reader : public uff::Object {
   uff::Excitation readExcitation(const H5::Group& group);
 
   void readDataTypeArrayDataset(const H5::Group& group, const std::string& name,
-                                std::vector<DataType>& values, std::vector<size_t>& dimensions);
+                                std::vector<DataType>& values, std::vector<hsize_t>& dimensions);
   void readMetadataTypeArrayDataset(const H5::Group& group, const std::string& name,
                                     std::vector<MetadataType>& values,
-                                    std::vector<size_t>& dimensions);
+                                    std::vector<hsize_t>& dimensions);
 
   std::shared_ptr<uff::LinearArray> readLinearArray(const H5::Group& group);
   std::shared_ptr<uff::MatrixArray> readMatrixArray(const H5::Group& group);

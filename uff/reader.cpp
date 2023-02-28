@@ -90,7 +90,7 @@ void Reader<DataType>::readChannelData(const H5::Group& group) {
     return;
   }
   // channel_data.data
-  std::vector<size_t> dataDims;
+  std::vector<hsize_t> dataDims;
   std::vector<DataType> dummy;
   readDataTypeArrayDataset(
       group, "data", m_skipChannelDataData ? dummy : m_dataset->channelData().data(), dataDims);
@@ -233,7 +233,7 @@ uff::Excitation Reader<DataType>::readExcitation(const H5::Group& group) {
 template <typename DataType>
 void Reader<DataType>::readDataTypeArrayDataset(const H5::Group& group, const std::string& name,
                                                 std::vector<DataType>& values,
-                                                std::vector<size_t>& dimensions) {
+                                                std::vector<hsize_t>& dimensions) {
   H5::DataSet dataset = group.openDataSet(name);
   H5::StrType datatype(H5DataType);
 
@@ -242,8 +242,7 @@ void Reader<DataType>::readDataTypeArrayDataset(const H5::Group& group, const st
   int ndims = dataspace.getSimpleExtentNdims();
   //std::cout << "ndims:" << ndims << std::endl;
   dimensions.resize(ndims);
-  dataspace.getSimpleExtentDims(
-      reinterpret_cast<unsigned long long*>(dimensions.data()));  // Poor casting
+  dataspace.getSimpleExtentDims(dimensions.data());
   size_t numel = 1;
   for (auto sz : dimensions) {
     numel *= sz;
@@ -262,7 +261,7 @@ void Reader<DataType>::readDataTypeArrayDataset(const H5::Group& group, const st
 template <typename DataType>
 void Reader<DataType>::readMetadataTypeArrayDataset(const H5::Group& group, const std::string& name,
                                                     std::vector<MetadataType>& values,
-                                                    std::vector<size_t>& dimensions) {
+                                                    std::vector<hsize_t>& dimensions) {
   H5::DataSet dataset = group.openDataSet(name);
   // TODO: check if type is correct : dataset.getTypeClass()
   H5::StrType datatype(H5MetadataType);
@@ -272,8 +271,7 @@ void Reader<DataType>::readMetadataTypeArrayDataset(const H5::Group& group, cons
   int ndims = dataspace.getSimpleExtentNdims();
   //std::cout << "ndims:" << ndims << std::endl;
   dimensions.resize(ndims);
-  dataspace.getSimpleExtentDims(
-      reinterpret_cast<unsigned long long*>(dimensions.data()));  // Poor casting
+  dataspace.getSimpleExtentDims(dimensions.data());
   size_t numel = 1;
   for (auto sz : dimensions) {
     numel *= sz;
@@ -290,7 +288,7 @@ void Reader<DataType>::readMetadataTypeArrayDataset(const H5::Group& group, cons
 template <typename DataType>
 void Reader<DataType>::readIntegerArrayDataset(const H5::Group& group, const std::string& name,
                                                std::vector<int>& values,
-                                               std::vector<size_t>& dimensions) {
+                                               std::vector<hsize_t>& dimensions) {
   H5::DataSet dataset = group.openDataSet(name);
   // TODO: check if type is correct : dataset.getTypeClass()
   H5::StrType datatype(H5::PredType::NATIVE_INT);
@@ -300,11 +298,7 @@ void Reader<DataType>::readIntegerArrayDataset(const H5::Group& group, const std
   int ndims = dataspace.getSimpleExtentNdims();
   //std::cout << "ndims:" << ndims << std::endl;
   dimensions.resize(ndims);
-  dataspace.getSimpleExtentDims(reinterpret_cast<hsize_t*>(
-      dimensions
-          .data()));  // NOTE: Will bug on architectures whose (sizeof(hsize_t != sizeof(long long unsigned int))) cf. the static_assert upper
-  //hsize_t* dims = dimensions.data();
-  //dataspace.getSimpleExtentDims(dims);
+  dataspace.getSimpleExtentDims(dimensions.data());
   size_t numel = 1;
   for (auto sz : dimensions) {
     numel *= sz;
@@ -500,7 +494,7 @@ uff::ReceiveSetup Reader<DataType>::readReceiveSetup(const H5::Group& group) {
   // channel_mapping [optional]
   if (H5Lexists(group.getLocId(), "channel_mapping", H5P_DEFAULT)) {
     std::vector<int> channelMapping;
-    std::vector<size_t> dimensions;
+    std::vector<hsize_t> dimensions;
     readIntegerArrayDataset(group, "channel_mapping", channelMapping, dimensions);
     receiveSetup.setChannelMapping(channelMapping);
   }
@@ -508,7 +502,7 @@ uff::ReceiveSetup Reader<DataType>::readReceiveSetup(const H5::Group& group) {
   // "tgc_profile" [optional]
   if (H5Lexists(group.getLocId(), "tgc_profile", H5P_DEFAULT)) {
     std::vector<MetadataType> tgcProfile;
-    std::vector<size_t> dimensions;
+    std::vector<hsize_t> dimensions;
     readMetadataTypeArrayDataset(group, "tgc_profile", tgcProfile, dimensions);
     receiveSetup.setTgcProfile(tgcProfile);
   }
@@ -634,7 +628,7 @@ uff::TransmitSetup Reader<DataType>::readTransmitSetup(const H5::Group& group) {
   // channel_mapping [optional]
   if (H5Lexists(group.getLocId(), "channel_mapping", H5P_DEFAULT)) {
     std::vector<int> channelMapping;
-    std::vector<size_t> dimensions;
+    std::vector<hsize_t> dimensions;
     readIntegerArrayDataset(group, "channel_mapping", channelMapping, dimensions);
     transmitSetup.setChannelMapping(channelMapping);
   }
