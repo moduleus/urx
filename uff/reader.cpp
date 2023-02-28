@@ -91,9 +91,9 @@ void Reader<DataType>::readChannelData(const H5::Group& group) {
   }
   // channel_data.data
   std::vector<size_t> dataDims;
-  std::vector<DataType> fake;
+  std::vector<DataType> dummy;
   readDataTypeArrayDataset(
-      group, "data", m_skipChannelDataData ? fake : m_dataset->channelData().data(), dataDims);
+      group, "data", m_skipChannelDataData ? dummy : m_dataset->channelData().data(), dataDims);
   if (dataDims.size() != 4) {
     LOG_THIS(ERROR) << "Dataset dimension != 4\n";
     return;
