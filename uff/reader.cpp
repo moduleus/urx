@@ -47,7 +47,28 @@ void Reader<DataType>::updateMetadata() {
 
   // Channel Data
   H5::Group channelData(file.openGroup("channel_data"));
-  readChannelData(channelData);
+  readChannelData(channelData, false);
+
+  file.close();
+}
+
+template <typename DataType>
+void Reader<DataType>::loadFileAndCastData(std::string_view filename) {
+  m_fileName = filename;
+  m_dataset = std::make_shared<uff::Dataset<DataType>>();
+  m_dataset->channelData().setSkipChannelDataData(m_skipChannelDataData);
+
+  H5::Exception::dontPrint();
+
+  H5::H5File file(m_fileName, H5F_ACC_RDONLY);
+
+  // Version
+  H5::Group version(file.openGroup("version"));
+  readVersion(version);
+
+  // Channel Data
+  H5::Group channelData(file.openGroup("channel_data"));
+  readChannelData(channelData, true);
 
   file.close();
 }
@@ -75,7 +96,7 @@ uff::Aperture Reader<DataType>::readAperture(const H5::Group& group) {
 }
 
 template <typename DataType>
-void Reader<DataType>::readChannelData(const H5::Group& group) {
+void Reader<DataType>::readChannelData(const H5::Group& group, bool doCast) {
   uff::ChannelData<DataType>& channelData = m_dataset->channelData();
   channelData.setAuthors(readStringDataset(group, "authors"));
   channelData.setDescription(readStringDataset(group, "description"));
@@ -85,15 +106,18 @@ void Reader<DataType>::readChannelData(const H5::Group& group) {
   channelData.setSoundSpeed(readMetadataTypeDataset(group, "sound_speed"));
   channelData.setRepetitionRate(readOptionalMetadataTypeDataset(group, "repetition_rate"));
 
-  if (!m_skipChannelDataData && group.openDataSet("data").getDataType() != H5DataType) {
+  if (!m_skipChannelDataData && !doCast && group.openDataSet("data").getDataType() != H5DataType) {
     LOG_THIS(ERROR) << "Invalid format of data.\n";
     return;
   }
   // channel_data.data
   std::vector<hsize_t> dataDims;
   std::vector<DataType> dummy;
-  readDataTypeArrayDataset(
-      group, "data", m_skipChannelDataData ? dummy : m_dataset->channelData().data(), dataDims);
+
+  readDataTypeArrayDataset(group, "data",
+                           m_skipChannelDataData ? dummy : m_dataset->channelData().data(),
+                           dataDims, H5DataType);
+
   if (dataDims.size() != 4) {
     LOG_THIS(ERROR) << "Dataset dimension != 4\n";
     return;
@@ -233,9 +257,10 @@ uff::Excitation Reader<DataType>::readExcitation(const H5::Group& group) {
 template <typename DataType>
 void Reader<DataType>::readDataTypeArrayDataset(const H5::Group& group, const std::string& name,
                                                 std::vector<DataType>& values,
-                                                std::vector<hsize_t>& dimensions) {
+                                                std::vector<hsize_t>& dimensions,
+                                                H5::PredType targetType) {
   H5::DataSet dataset = group.openDataSet(name);
-  H5::StrType datatype(H5DataType);
+  H5::StrType datatype(targetType);
 
   // find dataset dimensions
   H5::DataSpace dataspace = dataset.getSpace();

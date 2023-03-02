@@ -66,6 +66,8 @@ class Reader : public uff::Object {
   // No H5Exception is catched
   void updateMetadata();
 
+  void loadFileAndCastData(std::string_view filename);
+
  protected:
   // Read basic types
   MetadataType readMetadataTypeDataset(const H5::Group& group, const std::string& name);
@@ -81,7 +83,7 @@ class Reader : public uff::Object {
   // Read groups
   uff::Aperture readAperture(const H5::Group& group);
 
-  void readChannelData(const H5::Group& group);
+  void readChannelData(const H5::Group& group, bool doCast = false);
 
   uff::Element readElement(const H5::Group& group);
   std::vector<uff::Element> readElementArray(const H5::Group& group);
@@ -92,7 +94,8 @@ class Reader : public uff::Object {
   uff::Excitation readExcitation(const H5::Group& group);
 
   void readDataTypeArrayDataset(const H5::Group& group, const std::string& name,
-                                std::vector<DataType>& values, std::vector<hsize_t>& dimensions);
+                                std::vector<DataType>& values, std::vector<hsize_t>& dimensions,
+                                H5::PredType targetType = H5DataType);
   void readMetadataTypeArrayDataset(const H5::Group& group, const std::string& name,
                                     std::vector<MetadataType>& values,
                                     std::vector<hsize_t>& dimensions);

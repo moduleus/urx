@@ -149,5 +149,9 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
 file(WRITE "${CMAKE_BINARY_DIR}/version.txt" "${CMAKE_PROJECT_VERSION}")
 
 if(BUILD_TESTING)
+  enable_testing()
   add_subdirectory(Testing)
+  if(${HDF5_FOUND})
+    add_subdirectory(test)
+  endif()
 endif()
