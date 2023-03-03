@@ -1,14 +1,29 @@
-#include <catch2/catch.hpp>
-
+#include <uff/channel_data.h>
+#include <uff/dataset.h>
+#include <uff/event.h>
+#include <uff/excitation.h>
+#include <uff/rca_array.h>
 #include <uff/reader.h>
+#include <uff/receive_setup.h>
+#include <uff/rotation.h>
+#include <uff/timed_event.h>
+#include <uff/transform.h>
+#include <uff/translation.h>
+#include <uff/transmit_setup.h>
+#include <uff/transmit_wave.h>
+#include <uff/types.h>
+#include <uff/uff.h>
+#include <uff/wave.h>
 #include <uff/writer.h>
-
-#include <iostream>
+#include <catch2/catch.hpp>
+#include <cstddef>
+#include <cstdlib>
+#include <limits>
+#include <memory>
+#include <string>
 #include <vector>
 
-namespace uff {
-
-namespace test {
+namespace uff::test {
 
 TEST_CASE("Load HDF5 file", "[hdf5_loader]") {
   constexpr uint8_t NB_CHANNELS = 32;
@@ -35,7 +50,7 @@ TEST_CASE("Load HDF5 file", "[hdf5_loader]") {
   std::vector<float> dataVec(320);
   short maxLimit = std::numeric_limits<short>::max();
   for (auto& data : dataVec) {
-    data = std::rand() / (RAND_MAX / maxLimit);
+    data = static_cast<short>(std::rand() / (RAND_MAX / maxLimit));
   }
   channelData.setData(dataVec);
 
@@ -120,11 +135,9 @@ TEST_CASE("Load HDF5 file", "[hdf5_loader]") {
 
   const std::vector<short>& shortVec = readShortDataset->channelData().data();
   const std::vector<float>& floatVec = readFloatDataset->channelData().data();
-  for (uint16_t i = 0; i < floatVec.size(); ++i) {
+  for (size_t i = 0; i < floatVec.size(); ++i) {
     REQUIRE(floatVec[i] == static_cast<float>(shortVec[i]));
   }
 }
 
-}  // namespace test
-
-}  // namespace uff
+}  // namespace uff::test

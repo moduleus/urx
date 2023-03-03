@@ -7,13 +7,11 @@
 #ifndef UFF_ELEMENT_H
 #define UFF_ELEMENT_H
 
+#include <uff/object.h>
+#include <uff/uff.h>
 #include <iosfwd>
 #include <optional>
 #include <string>
-
-#include "uff/object.h"
-#include "uff/uff.h"
-
 namespace uff {
 
 /**

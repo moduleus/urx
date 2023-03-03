@@ -4,8 +4,8 @@
  * \brief
  */
 
-#include "uff/excitation.h"
-
+#include <uff/excitation.h>
+#include <uff/object.h>
 #include <ostream>
 
 namespace uff {

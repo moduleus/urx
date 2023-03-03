@@ -4,12 +4,11 @@
  * \brief
  */
 
-#include "uff/linear_array.h"
-
+#include <uff/linear_array.h>
+#include <uff/object.h>
+#include <uff/probe.h>
 #include <ostream>
 #include <utility>
-
-#include "uff/probe.h"
 
 namespace uff {
 

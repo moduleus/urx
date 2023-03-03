@@ -7,15 +7,13 @@
 #ifndef UFF_TRANSMIT_WAVE_H
 #define UFF_TRANSMIT_WAVE_H
 
+#include <uff/object.h>
+#include <uff/uff.h>
+#include <uff/wave.h>
 #include <iosfwd>
 #include <memory>
 #include <string>
 #include <utility>
-
-#include "uff/object.h"
-#include "uff/uff.h"
-#include "uff/wave.h"
-
 namespace uff {
 
 /**

@@ -4,7 +4,7 @@
  * \brief
  */
 
-#include "uff/version.h"
+#include <uff/version.h>
 
 #include <ostream>
 

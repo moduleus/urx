@@ -4,7 +4,7 @@
  * \brief
  */
 
-#include "uff/position.h"
+#include <uff/position.h>
 
 namespace uff {
 

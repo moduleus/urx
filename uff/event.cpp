@@ -4,8 +4,10 @@
  * \brief
  */
 
-#include "uff/event.h"
-
+#include <uff/event.h>
+#include <uff/object.h>
+#include <uff/receive_setup.h>
+#include <uff/transmit_setup.h>
 #include <ostream>
 #include <utility>
 

@@ -7,11 +7,11 @@
 #ifndef UFF_ELEMENT_GEOMETRY_H
 #define UFF_ELEMENT_GEOMETRY_H
 
+#include <uff/object.h>
+#include <uff/perimeter.h>
+#include <uff/uff.h>
 #include <iosfwd>
 #include <string>
-#include "uff/object.h"
-#include "uff/perimeter.h"
-#include "uff/uff.h"
 
 namespace uff {
 

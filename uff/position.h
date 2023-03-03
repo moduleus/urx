@@ -7,7 +7,7 @@
 #ifndef UFF_POSTITION_H
 #define UFF_POSTITION_H
 
-#include "uff.h"
+#include <uff.h>
 
 #include <iostream>
 

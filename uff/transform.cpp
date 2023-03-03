@@ -4,8 +4,10 @@
  * \brief
  */
 
-#include "uff/transform.h"
-
+#include <uff/object.h>
+#include <uff/rotation.h>
+#include <uff/transform.h>
+#include <uff/translation.h>
 #include <ostream>
 #include <utility>
 

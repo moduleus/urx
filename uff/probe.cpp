@@ -4,8 +4,9 @@
  * \brief
  */
 
-#include "uff/probe.h"
-
+#include <uff/object.h>
+#include <uff/probe.h>
+#include <uff/transform.h>
 #include <cstddef>
 #include <ostream>
 

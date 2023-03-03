@@ -6,17 +6,34 @@
 
 #ifdef WITH_HDF5
 
-#include "uff/reader.h"
-
+#include <uff/aperture.h>
+#include <uff/channel_data.h>
+#include <uff/dataset.h>
+#include <uff/element.h>
+#include <uff/event.h>
+#include <uff/excitation.h>
+#include <uff/linear_array.h>
+#include <uff/log.h>
+#include <uff/matrix_array.h>
+#include <uff/probe.h>
+#include <uff/rca_array.h>
+#include <uff/reader.h>
+#include <uff/receive_setup.h>
+#include <uff/rotation.h>
+#include <uff/timed_event.h>
+#include <uff/transform.h>
+#include <uff/translation.h>
+#include <uff/transmit_setup.h>
+#include <uff/transmit_wave.h>
+#include <uff/types.h>
+#include <uff/uff.h>
+#include <uff/version.h>
+#include <uff/wave.h>
 #include <cmath>
 #include <cstdio>
 #include <ostream>
+#include <stdexcept>
 #include <utility>
-
-#include "uff/channel_data.h"
-#include "uff/log.h"
-#include "uff/types.h"
-#include "uff/version.h"
 
 #if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic ignored "-Wformat-truncation"
@@ -110,7 +127,7 @@ uff::ChannelData<DataType> Reader<DataType>::readChannelData(const H5::Group& gr
   channelData.setRepetitionRate(readOptionalMetadataTypeDataset(group, "repetition_rate"));
 
   if (!skipData && !castData && group.openDataSet("data").getDataType() != H5DataType) {
-    LOG_THIS(ERROR) << "Invalid format of data.\n";
+    LOG_NO_THIS(ERROR) << "Invalid format of data.\n";
     throw std::logic_error("Invalid format of data.");
   }
   // channel_data.data
@@ -121,7 +138,7 @@ uff::ChannelData<DataType> Reader<DataType>::readChannelData(const H5::Group& gr
                            H5DataType, skipData);
 
   if (dataDims.size() != 4) {
-    LOG_THIS(ERROR) << "Dataset dimension != 4\n";
+    LOG_NO_THIS(ERROR) << "Dataset dimension != 4\n";
     throw std::logic_error("Dataset dimension != 4.");
   }
   channelData.setNumberOfFrames(static_cast<int>(dataDims[0]));
@@ -268,7 +285,8 @@ template <typename DataType>
 void Reader<DataType>::readDataTypeArrayDataset(const H5::Group& group, const std::string& name,
                                                 std::vector<DataType>& values,
                                                 std::vector<hsize_t>& dimensions,
-                                                H5::PredType targetType, bool skipChannelData) {
+                                                const H5::PredType& targetType,
+                                                bool skipChannelData) {
   H5::DataSet dataset = group.openDataSet(name);
   H5::StrType datatype(targetType);
 
@@ -464,7 +482,7 @@ std::shared_ptr<uff::Probe> Reader<DataType>::readProbe(const H5::Group& group) 
       rcaArray->setImpulseResponses(probe->impulseResponses());
       return rcaArray;
     }
-    LOG_THIS(ERROR) << ": Ignoring unknown probe_type:" << probeType << "\n";
+    LOG_NO_THIS(ERROR) << ": Ignoring unknown probe_type:" << probeType << "\n";
     return probe;
   }
 
@@ -523,7 +541,7 @@ uff::ReceiveSetup Reader<DataType>::readReceiveSetup(
       receiveSetup.setSamplingType(uff::ReceiveSetup::SAMPLING_TYPE::QUADRATURE_2X_F0);
       break;
     default:
-      LOG_THIS(ERROR) << "Unknow sampling type:" << static_cast<int>(st);
+      LOG_NO_THIS(ERROR) << "Unknow sampling type:" << static_cast<int>(st);
   }
 
   // channel_mapping [optional]

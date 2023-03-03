@@ -12,9 +12,9 @@
 #include <string>
 #include <utility>
 
-#include "uff/event.h"
-#include "uff/object.h"
-#include "uff/uff.h"
+#include <uff/event.h>
+#include <uff/object.h>
+#include <uff/uff.h>
 
 namespace uff {
 
