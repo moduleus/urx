@@ -4,8 +4,10 @@
  * \brief
  */
 
-#include "uff/dataset.h"
-
+#include <uff/channel_data.h>
+#include <uff/dataset.h>
+#include <uff/object.h>
+#include <uff/version.h>
 #include <ostream>
 
 namespace uff {

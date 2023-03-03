@@ -7,12 +7,12 @@
 #ifndef UFF_TRANSFORM_H
 #define UFF_TRANSFORM_H
 
+#include <uff/object.h>
+#include <uff/rotation.h>
+#include <uff/translation.h>
+#include <uff/uff.h>
 #include <iosfwd>
 #include <string>
-#include "uff/object.h"
-#include "uff/rotation.h"
-#include "uff/translation.h"
-#include "uff/uff.h"
 
 namespace uff {
 

@@ -4,8 +4,9 @@
  * \brief
  */
 
-#include "uff/transmit_setup.h"
-
+#include <uff/object.h>
+#include <uff/transmit_setup.h>
+#include <uff/transmit_wave.h>
 #include <ostream>
 
 namespace uff {

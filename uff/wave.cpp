@@ -4,8 +4,11 @@
  * \brief
  */
 
-#include "uff/wave.h"
-
+#include <uff/aperture.h>
+#include <uff/excitation.h>
+#include <uff/object.h>
+#include <uff/transform.h>
+#include <uff/wave.h>
 #include <ostream>
 #include <utility>
 

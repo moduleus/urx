@@ -7,10 +7,10 @@
 #ifndef UFF_TRANSLATION_H
 #define UFF_TRANSLATION_H
 
+#include <uff/object.h>
+#include <uff/uff.h>
 #include <iosfwd>
 #include <string>
-#include "uff/object.h"
-#include "uff/uff.h"
 
 namespace uff {
 

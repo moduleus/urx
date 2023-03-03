@@ -4,8 +4,7 @@
  * \brief
  */
 
-#include "uff/receive_setup.h"
-
+#include <uff/receive_setup.h>
 #include <ostream>
 
 namespace uff {

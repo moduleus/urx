@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.9)
 
 project(
   Uff
-  VERSION 0.4.3
+  VERSION 0.4.4
   LANGUAGES C CXX
   DESCRIPTION "Ultrasound File Format C++ implementation")
 
@@ -149,5 +149,6 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
 file(WRITE "${CMAKE_BINARY_DIR}/version.txt" "${CMAKE_PROJECT_VERSION}")
 
 if(BUILD_TESTING)
+  enable_testing()
   add_subdirectory(Testing)
 endif()

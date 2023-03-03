@@ -7,18 +7,16 @@
 #ifndef UFF_LINEAR_ARRAY_H
 #define UFF_LINEAR_ARRAY_H
 
+#include <uff/element.h>
+#include <uff/object.h>
+#include <uff/probe.h>
+#include <uff/uff.h>
 #include <cstddef>
 #include <iosfwd>
 #include <memory>
 #include <optional>
 #include <string>
 #include <vector>
-
-#include "uff/element.h"
-#include "uff/object.h"
-#include "uff/probe.h"
-#include "uff/uff.h"
-
 namespace uff {
 
 /**

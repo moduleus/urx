@@ -7,14 +7,14 @@
 #ifndef UFF_EXCITATION_H
 #define UFF_EXCITATION_H
 
+#include <uff/object.h>
+#include <uff/uff.h>
 #include <iosfwd>
+#include <memory>
 #include <optional>
 #include <string>
 #include <utility>
 #include <vector>
-
-#include "uff/object.h"
-#include "uff/uff.h"
 
 namespace uff {
 

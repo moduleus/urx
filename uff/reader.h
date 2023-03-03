@@ -6,36 +6,37 @@
 
 #ifdef WITH_HDF5
 #ifndef UFF_READER_H
-#include <cstddef>
+#include <uff/aperture.h>
+#include <uff/channel_data.h>
+#include <uff/element.h>
+#include <uff/event.h>
+#include <uff/excitation.h>
+#include <uff/linear_array.h>
+#include <uff/matrix_array.h>
+#include <uff/probe.h>
+#include <uff/rca_array.h>
+#include <uff/receive_setup.h>
+#include <uff/rotation.h>
+#include <uff/timed_event.h>
+#include <uff/transform.h>
+#include <uff/translation.h>
+#include <uff/transmit_setup.h>
+#include <uff/transmit_wave.h>
+#include <uff/uff.h>
+#include <uff/version.h>
+#include <uff/wave.h>
 #include <iosfwd>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <vector>
-
-#include "uff/aperture.h"
-#include "uff/element.h"
-#include "uff/event.h"
-#include "uff/excitation.h"
-#include "uff/linear_array.h"
-#include "uff/matrix_array.h"
-#include "uff/probe.h"
-#include "uff/rca_array.h"
-#include "uff/receive_setup.h"
-#include "uff/rotation.h"
-#include "uff/timed_event.h"
-#include "uff/transform.h"
-#include "uff/translation.h"
-#include "uff/transmit_setup.h"
-#include "uff/transmit_wave.h"
-#include "uff/uff.h"
-#include "uff/wave.h"
 
 #define UFF_READER_H
 
 #include <H5Cpp.h>
+#include <uff/dataset.h>
+#include <uff/object.h>
 #include <optional>
-#include "uff/dataset.h"
-#include "uff/object.h"
 
 namespace uff {
 
@@ -66,63 +67,80 @@ class Reader : public uff::Object {
   // No H5Exception is catched
   void updateMetadata();
 
+  static std::shared_ptr<uff::Dataset<DataType>> loadFile(std::string_view filename, bool castData,
+                                                          bool skipChannelData);
+
  protected:
   // Read basic types
-  MetadataType readMetadataTypeDataset(const H5::Group& group, const std::string& name);
-  std::optional<MetadataType> readOptionalMetadataTypeDataset(const H5::Group& group,
+  static MetadataType readMetadataTypeDataset(const H5::Group& group, const std::string& name);
+  static std::optional<MetadataType> readOptionalMetadataTypeDataset(const H5::Group& group,
+                                                                     const std::string& name);
+  static void readIntegerArrayDataset(const H5::Group& group, const std::string& name,
+                                      std::vector<int>& values, std::vector<hsize_t>& dimensions);
+  static int readIntegerDataset(const H5::Group& group, const std::string& name);
+  static std::string readStringDataset(const H5::Group& group, const std::string& name);
+  static std::optional<std::string> readOptionalStringDataset(const H5::Group& group,
                                                               const std::string& name);
-  void readIntegerArrayDataset(const H5::Group& group, const std::string& name,
-                               std::vector<int>& values, std::vector<size_t>& dimensions);
-  int readIntegerDataset(const H5::Group& group, const std::string& name);
-  std::string readStringDataset(const H5::Group& group, const std::string& name);
-  std::optional<std::string> readOptionalStringDataset(const H5::Group& group,
-                                                       const std::string& name);
 
   // Read groups
-  uff::Aperture readAperture(const H5::Group& group);
+  static uff::Aperture readAperture(const H5::Group& group);
 
-  void readChannelData(const H5::Group& group);
+  static uff::ChannelData<DataType> readChannelData(const H5::Group& group, bool castData = false,
+                                                    bool skipData = false);
 
-  uff::Element readElement(const H5::Group& group);
-  std::vector<uff::Element> readElementArray(const H5::Group& group);
+  static uff::Element readElement(const H5::Group& group);
+  static std::vector<uff::Element> readElementArray(const H5::Group& group);
 
-  std::shared_ptr<uff::Event> readEvent(const H5::Group& group);
-  std::vector<std::shared_ptr<uff::Event>> readEventArray(const H5::Group& group);
+  static std::shared_ptr<uff::Event> readEvent(
+      const H5::Group& group, const std::vector<std::shared_ptr<uff::Probe>>& probes,
+      const std::vector<std::shared_ptr<uff::Wave>>& uniqueWaves);
+  static std::vector<std::shared_ptr<uff::Event>> readEventArray(
+      const H5::Group& group, const std::vector<std::shared_ptr<uff::Probe>>& probes,
+      const std::vector<std::shared_ptr<uff::Wave>>& uniqueWaves);
 
-  uff::Excitation readExcitation(const H5::Group& group);
+  static uff::Excitation readExcitation(const H5::Group& group);
 
-  void readDataTypeArrayDataset(const H5::Group& group, const std::string& name,
-                                std::vector<DataType>& values, std::vector<size_t>& dimensions);
-  void readMetadataTypeArrayDataset(const H5::Group& group, const std::string& name,
-                                    std::vector<MetadataType>& values,
-                                    std::vector<size_t>& dimensions);
+  static void readDataTypeArrayDataset(const H5::Group& group, const std::string& name,
+                                       std::vector<DataType>& values,
+                                       std::vector<hsize_t>& dimensions,
+                                       const H5::PredType& targetType = H5DataType,
+                                       bool skipChannelData = false);
+  static void readMetadataTypeArrayDataset(const H5::Group& group, const std::string& name,
+                                           std::vector<MetadataType>& values,
+                                           std::vector<hsize_t>& dimensions);
 
-  std::shared_ptr<uff::LinearArray> readLinearArray(const H5::Group& group);
-  std::shared_ptr<uff::MatrixArray> readMatrixArray(const H5::Group& group);
-  std::shared_ptr<uff::RcaArray> readRcaArray(const H5::Group& group);
+  static std::shared_ptr<uff::LinearArray> readLinearArray(const H5::Group& group);
+  static std::shared_ptr<uff::MatrixArray> readMatrixArray(const H5::Group& group);
+  static std::shared_ptr<uff::RcaArray> readRcaArray(const H5::Group& group);
 
-  std::shared_ptr<uff::Probe> readProbe(const H5::Group& group);
-  std::vector<std::shared_ptr<uff::Probe>> readProbeArray(const H5::Group& group);
+  static std::shared_ptr<uff::Probe> readProbe(const H5::Group& group);
+  static std::vector<std::shared_ptr<uff::Probe>> readProbeArray(const H5::Group& group);
 
-  uff::ReceiveSetup readReceiveSetup(const H5::Group& group);
+  static uff::ReceiveSetup readReceiveSetup(const H5::Group& group,
+                                            const std::vector<std::shared_ptr<uff::Probe>>& probes);
 
-  uff::Rotation readRotation(const H5::Group& group);
+  static uff::Rotation readRotation(const H5::Group& group);
 
-  uff::TimedEvent readTimedEvent(const H5::Group& group);
-  std::vector<uff::TimedEvent> readTimedEventArray(const H5::Group& group);
+  static uff::TimedEvent readTimedEvent(
+      const H5::Group& group, const std::vector<std::shared_ptr<uff::Event>>& uniqueEvents);
+  static std::vector<uff::TimedEvent> readTimedEventArray(
+      const H5::Group& group, const std::vector<std::shared_ptr<uff::Event>>& uniqueEvents);
 
-  uff::Transform readTransform(const H5::Group& group);
+  static uff::Transform readTransform(const H5::Group& group);
 
-  uff::Translation readTranslation(const H5::Group& group);
+  static uff::Translation readTranslation(const H5::Group& group);
 
-  uff::TransmitSetup readTransmitSetup(const H5::Group& group);
+  static uff::TransmitSetup readTransmitSetup(
+      const H5::Group& group, const std::vector<std::shared_ptr<uff::Probe>>& probes,
+      const std::vector<std::shared_ptr<uff::Wave>>& uniqueWaves);
 
-  uff::TransmitWave readTransmitWave(const H5::Group& group);
+  static uff::TransmitWave readTransmitWave(
+      const H5::Group& group, const std::vector<std::shared_ptr<uff::Wave>>& uniqueWaves);
 
-  void readVersion(const H5::Group& group);
+  static uff::Version readVersion(const H5::Group& group);
 
-  std::shared_ptr<uff::Wave> readWave(const H5::Group& group);
-  std::vector<std::shared_ptr<uff::Wave>> readWaveArray(const H5::Group& group);
+  static std::shared_ptr<uff::Wave> readWave(const H5::Group& group);
+  static std::vector<std::shared_ptr<uff::Wave>> readWaveArray(const H5::Group& group);
 
  private:
   // name of the file to read

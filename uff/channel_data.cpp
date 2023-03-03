@@ -4,16 +4,20 @@
  * \brief
  */
 
-#include "uff/channel_data.h"
+#include <uff/channel_data.h>
 
+#include <uff/event.h>
+#include <uff/log.h>
+#include <uff/object.h>
+#include <uff/probe.h>
+#include <uff/receive_setup.h>
+#include <uff/timed_event.h>
+#include <uff/transmit_setup.h>
+#include <uff/transmit_wave.h>
+#include <uff/wave.h>
 #include <iomanip>
 #include <ostream>
 #include <utility>
-
-#include "uff/log.h"
-#include "uff/receive_setup.h"
-#include "uff/transmit_setup.h"
-#include "uff/transmit_wave.h"
 
 namespace uff {
 

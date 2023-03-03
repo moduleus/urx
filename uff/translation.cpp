@@ -4,8 +4,7 @@
  * \brief
  */
 
-#include "uff/translation.h"
-
+#include <uff/translation.h>
 #include <ostream>
 
 namespace uff {

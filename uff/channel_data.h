@@ -7,6 +7,12 @@
 #ifndef UFF_CHANNEL_DATA_H
 #define UFF_CHANNEL_DATA_H
 
+#include <uff/event.h>
+#include <uff/object.h>
+#include <uff/probe.h>
+#include <uff/timed_event.h>
+#include <uff/uff.h>
+#include <uff/wave.h>
 #include <algorithm>
 #include <cstddef>
 #include <ios>
@@ -22,14 +28,6 @@
 #include <streambuf>
 #include <string>
 #include <vector>
-
-#include "uff/event.h"
-#include "uff/object.h"
-#include "uff/probe.h"
-#include "uff/timed_event.h"
-#include "uff/uff.h"
-#include "uff/wave.h"
-
 namespace uff {
 
 /**
@@ -41,6 +39,7 @@ class ChannelData : public uff::Object {
 
  public:
   ChannelData() = default;
+  ChannelData(const ChannelData&) = default;
 
   void printSelf(std::ostream& os, const std::string& indent) const override;
 

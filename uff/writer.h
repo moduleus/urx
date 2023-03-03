@@ -6,38 +6,37 @@
 
 #ifdef WITH_HDF5
 #ifndef UFF_WRITER_H
+#include <uff/aperture.h>
+#include <uff/channel_data.h>
+#include <uff/element.h>
+#include <uff/event.h>
+#include <uff/excitation.h>
+#include <uff/linear_array.h>
+#include <uff/matrix_array.h>
+#include <uff/probe.h>
+#include <uff/rca_array.h>
+#include <uff/receive_setup.h>
+#include <uff/rotation.h>
+#include <uff/timed_event.h>
+#include <uff/transform.h>
+#include <uff/translation.h>
+#include <uff/transmit_setup.h>
+#include <uff/transmit_wave.h>
+#include <uff/uff.h>
+#include <uff/version.h>
+#include <uff/wave.h>
 #include <cstddef>
 #include <iosfwd>
 #include <memory>
 #include <string>
 #include <vector>
 
-#include "uff/aperture.h"
-#include "uff/channel_data.h"
-#include "uff/element.h"
-#include "uff/event.h"
-#include "uff/excitation.h"
-#include "uff/linear_array.h"
-#include "uff/matrix_array.h"
-#include "uff/probe.h"
-#include "uff/rca_array.h"
-#include "uff/receive_setup.h"
-#include "uff/rotation.h"
-#include "uff/timed_event.h"
-#include "uff/transform.h"
-#include "uff/translation.h"
-#include "uff/transmit_setup.h"
-#include "uff/transmit_wave.h"
-#include "uff/uff.h"
-#include "uff/version.h"
-#include "uff/wave.h"
-
 #define UFF_WRITER_H
 
 #include <H5Cpp.h>
+#include <uff/dataset.h>
+#include <uff/object.h>
 #include <optional>
-#include "uff/dataset.h"
-#include "uff/object.h"
 
 namespace uff {
 
@@ -72,10 +71,9 @@ class Writer : public uff::Object {
 
   void writeAperture(H5::Group& group, const uff::Aperture& aperture);
   void writeChannelData(H5::Group& group, const uff::ChannelData<DataType>& channelData);
-  H5::DataSet writeMetadataTypeDataset(H5::Group& group, const std::string& name,
-                                       MetadataType value);
-  H5::DataSet writeOptionalMetadataTypeDataset(H5::Group& group, const std::string& name,
-                                               const std::optional<MetadataType>& value);
+  void writeMetadataTypeDataset(H5::Group& group, const std::string& name, MetadataType value);
+  void writeOptionalMetadataTypeDataset(H5::Group& group, const std::string& name,
+                                        const std::optional<MetadataType>& value);
 
   void writeElementArray(H5::Group& group, const std::vector<uff::Element>& elements);
   void writeElement(H5::Group& group, const uff::Element& element);
@@ -85,18 +83,18 @@ class Writer : public uff::Object {
 
   void writeExcitation(H5::Group& group, const uff::Excitation& excitation);
 
-  H5::DataSet writeDataTypeArrayDataset(H5::Group& group, const std::string& name,
-                                        const std::vector<DataType>& values,
-                                        const std::vector<size_t>& dimensions);
+  void writeDataTypeArrayDataset(H5::Group& group, const std::string& name,
+                                 const std::vector<DataType>& values,
+                                 const std::vector<size_t>& dimensions);
 
-  H5::DataSet writeMetadataTypeArrayDataset(H5::Group& group, const std::string& name,
-                                            const std::vector<MetadataType>& values,
-                                            const std::vector<size_t>& dimensions);
+  void writeMetadataTypeArrayDataset(H5::Group& group, const std::string& name,
+                                     const std::vector<MetadataType>& values,
+                                     const std::vector<size_t>& dimensions);
 
-  H5::DataSet writeIntegerArrayDataset(H5::Group& group, const std::string& name,
-                                       const std::vector<int>& values,
-                                       const std::vector<size_t>& dimensions);
-  H5::DataSet writeIntegerDataset(H5::Group& group, const std::string& name, int value);
+  void writeIntegerArrayDataset(H5::Group& group, const std::string& name,
+                                const std::vector<int>& values,
+                                const std::vector<size_t>& dimensions);
+  void writeIntegerDataset(H5::Group& group, const std::string& name, int value);
 
   void writeLinearArray(H5::Group& group, const std::shared_ptr<uff::LinearArray>& linearArray);
   void writeMatrixArray(H5::Group& group, const std::shared_ptr<uff::MatrixArray>& matrixArray);
@@ -107,10 +105,9 @@ class Writer : public uff::Object {
 
   void writeReceiveSetup(H5::Group& group, const uff::ReceiveSetup& receiveSetup);
   void writeRotation(H5::Group& group, const uff::Rotation& rotation);
-  H5::DataSet writeStringDataset(H5::Group& group, const std::string& name,
-                                 const std::string& value);
-  H5::DataSet writeOptionalStringDataset(H5::Group& group, const std::string& name,
-                                         const std::optional<std::string>& value);
+  void writeStringDataset(H5::Group& group, const std::string& name, const std::string& value);
+  void writeOptionalStringDataset(H5::Group& group, const std::string& name,
+                                  const std::optional<std::string>& value);
 
   void writeTimedEvent(H5::Group& group, const uff::TimedEvent& timedEvent);
   void writeTimedEventArray(H5::Group& group, const std::vector<uff::TimedEvent>& timedEvents);
