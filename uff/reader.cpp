@@ -65,8 +65,6 @@ void Reader<DataType>::updateMetadata() {
   // Channel Data
   H5::Group channelData(file.openGroup("channel_data"));
   m_dataset->setChannelData(readChannelData(channelData, false, m_skipChannelDataData));
-
-  file.close();
 }
 
 template <typename DataType>
@@ -88,7 +86,6 @@ std::shared_ptr<uff::Dataset<DataType>> Reader<DataType>::loadFile(std::string_v
   H5::Group channelData(file.openGroup("channel_data"));
   dataset->setChannelData(readChannelData(channelData, castData, skipChannelData));
 
-  file.close();
   return dataset;
 }
 
@@ -173,7 +170,6 @@ MetadataType Reader<DataType>::readMetadataTypeDataset(const H5::Group& group,
   H5::DataSet dataset = group.openDataSet(name);
   MetadataType value;
   dataset.read(&value, datatype);
-  dataset.close();
   return value;
 }
 
@@ -184,7 +180,6 @@ std::optional<MetadataType> Reader<DataType>::readOptionalMetadataTypeDataset(
   H5::DataSet dataset = group.openDataSet(name);
   MetadataType value;
   dataset.read(&value, datatype);
-  dataset.close();
   std::optional<MetadataType> result = std::nullopt;
   if (!std::isnan(value)) {
     result = value;
@@ -371,7 +366,6 @@ int Reader<DataType>::readIntegerDataset(const H5::Group& group, const std::stri
   H5::DataSet dataset = group.openDataSet(name);
   int value;
   dataset.read(&value, datatype);
-  dataset.close();
   return value;
 }
 

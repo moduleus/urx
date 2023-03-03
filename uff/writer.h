@@ -71,10 +71,9 @@ class Writer : public uff::Object {
 
   void writeAperture(H5::Group& group, const uff::Aperture& aperture);
   void writeChannelData(H5::Group& group, const uff::ChannelData<DataType>& channelData);
-  H5::DataSet writeMetadataTypeDataset(H5::Group& group, const std::string& name,
-                                       MetadataType value);
-  H5::DataSet writeOptionalMetadataTypeDataset(H5::Group& group, const std::string& name,
-                                               const std::optional<MetadataType>& value);
+  void writeMetadataTypeDataset(H5::Group& group, const std::string& name, MetadataType value);
+  void writeOptionalMetadataTypeDataset(H5::Group& group, const std::string& name,
+                                        const std::optional<MetadataType>& value);
 
   void writeElementArray(H5::Group& group, const std::vector<uff::Element>& elements);
   void writeElement(H5::Group& group, const uff::Element& element);
@@ -84,18 +83,18 @@ class Writer : public uff::Object {
 
   void writeExcitation(H5::Group& group, const uff::Excitation& excitation);
 
-  H5::DataSet writeDataTypeArrayDataset(H5::Group& group, const std::string& name,
-                                        const std::vector<DataType>& values,
-                                        const std::vector<size_t>& dimensions);
+  void writeDataTypeArrayDataset(H5::Group& group, const std::string& name,
+                                 const std::vector<DataType>& values,
+                                 const std::vector<size_t>& dimensions);
 
-  H5::DataSet writeMetadataTypeArrayDataset(H5::Group& group, const std::string& name,
-                                            const std::vector<MetadataType>& values,
-                                            const std::vector<size_t>& dimensions);
+  void writeMetadataTypeArrayDataset(H5::Group& group, const std::string& name,
+                                     const std::vector<MetadataType>& values,
+                                     const std::vector<size_t>& dimensions);
 
-  H5::DataSet writeIntegerArrayDataset(H5::Group& group, const std::string& name,
-                                       const std::vector<int>& values,
-                                       const std::vector<size_t>& dimensions);
-  H5::DataSet writeIntegerDataset(H5::Group& group, const std::string& name, int value);
+  void writeIntegerArrayDataset(H5::Group& group, const std::string& name,
+                                const std::vector<int>& values,
+                                const std::vector<size_t>& dimensions);
+  void writeIntegerDataset(H5::Group& group, const std::string& name, int value);
 
   void writeLinearArray(H5::Group& group, const std::shared_ptr<uff::LinearArray>& linearArray);
   void writeMatrixArray(H5::Group& group, const std::shared_ptr<uff::MatrixArray>& matrixArray);
@@ -106,10 +105,9 @@ class Writer : public uff::Object {
 
   void writeReceiveSetup(H5::Group& group, const uff::ReceiveSetup& receiveSetup);
   void writeRotation(H5::Group& group, const uff::Rotation& rotation);
-  H5::DataSet writeStringDataset(H5::Group& group, const std::string& name,
-                                 const std::string& value);
-  H5::DataSet writeOptionalStringDataset(H5::Group& group, const std::string& name,
-                                         const std::optional<std::string>& value);
+  void writeStringDataset(H5::Group& group, const std::string& name, const std::string& value);
+  void writeOptionalStringDataset(H5::Group& group, const std::string& name,
+                                  const std::optional<std::string>& value);
 
   void writeTimedEvent(H5::Group& group, const uff::TimedEvent& timedEvent);
   void writeTimedEventArray(H5::Group& group, const std::vector<uff::TimedEvent>& timedEvents);

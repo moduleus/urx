@@ -87,8 +87,6 @@ void Writer<DataType>::writeToFile() {
   // Channel Data
   H5::Group channelData(file.createGroup("channel_data"));
   writeChannelData(channelData, m_dataset->channelData());
-
-  file.close();
 }
 
 template <typename DataType>
@@ -160,19 +158,17 @@ void Writer<DataType>::writeChannelData(H5::Group& group,
 }
 
 template <typename DataType>
-H5::DataSet Writer<DataType>::writeMetadataTypeDataset(H5::Group& group, const std::string& name,
-                                                       MetadataType value) {
+void Writer<DataType>::writeMetadataTypeDataset(H5::Group& group, const std::string& name,
+                                                MetadataType value) {
   H5::StrType datatype(H5MetadataType);
   H5::DataSpace dataspace = H5::DataSpace(H5S_SCALAR);
   H5::DataSet dataset = group.createDataSet(name, datatype, dataspace);
   dataset.write(&value, datatype, dataspace);
-  dataset.close();
-  return dataset;
 }
 
 template <typename DataType>
-H5::DataSet Writer<DataType>::writeOptionalMetadataTypeDataset(
-    H5::Group& group, const std::string& name, const std::optional<MetadataType>& value) {
+void Writer<DataType>::writeOptionalMetadataTypeDataset(H5::Group& group, const std::string& name,
+                                                        const std::optional<MetadataType>& value) {
   H5::StrType datatype(H5MetadataType);
   H5::DataSpace dataspace = H5::DataSpace(H5S_SCALAR);
   H5::DataSet dataset = group.createDataSet(name, datatype, dataspace);
@@ -182,8 +178,6 @@ H5::DataSet Writer<DataType>::writeOptionalMetadataTypeDataset(
     constexpr MetadataType nan = std::numeric_limits<MetadataType>::quiet_NaN();
     dataset.write(&nan, datatype, dataspace);
   }
-  dataset.close();
-  return dataset;
 }
 
 template <typename DataType>
@@ -246,9 +240,9 @@ void Writer<DataType>::writeExcitation(H5::Group& group, const uff::Excitation& 
 }
 
 template <typename DataType>
-H5::DataSet Writer<DataType>::writeDataTypeArrayDataset(H5::Group& group, const std::string& name,
-                                                        const std::vector<DataType>& values,
-                                                        const std::vector<size_t>& dimensions) {
+void Writer<DataType>::writeDataTypeArrayDataset(H5::Group& group, const std::string& name,
+                                                 const std::vector<DataType>& values,
+                                                 const std::vector<size_t>& dimensions) {
   assert(dimensions.size() <= 4);
 
   hsize_t dims[4];
@@ -276,15 +270,12 @@ H5::DataSet Writer<DataType>::writeDataTypeArrayDataset(H5::Group& group, const 
   H5::DataSpace dataspace = H5::DataSpace(static_cast<int>(ndims), dims);
   H5::DataSet dataset = group.createDataSet(name, H5DataType, dataspace);
   dataset.write(values.data(), H5DataType);
-  dataset.close();
-  return dataset;
 }
 
 template <typename DataType>
-H5::DataSet Writer<DataType>::writeMetadataTypeArrayDataset(H5::Group& group,
-                                                            const std::string& name,
-                                                            const std::vector<MetadataType>& values,
-                                                            const std::vector<size_t>& dimensions) {
+void Writer<DataType>::writeMetadataTypeArrayDataset(H5::Group& group, const std::string& name,
+                                                     const std::vector<MetadataType>& values,
+                                                     const std::vector<size_t>& dimensions) {
   assert(dimensions.size() <= 4);
 
   hsize_t dims[4];
@@ -312,14 +303,12 @@ H5::DataSet Writer<DataType>::writeMetadataTypeArrayDataset(H5::Group& group,
   H5::DataSpace dataspace = H5::DataSpace(static_cast<int>(ndims), dims);
   H5::DataSet dataset = group.createDataSet(name, H5MetadataType, dataspace);
   dataset.write(values.data(), H5MetadataType);
-  dataset.close();
-  return dataset;
 }
 
 template <typename DataType>
-H5::DataSet Writer<DataType>::writeIntegerArrayDataset(H5::Group& group, const std::string& name,
-                                                       const std::vector<int>& values,
-                                                       const std::vector<size_t>& dimensions) {
+void Writer<DataType>::writeIntegerArrayDataset(H5::Group& group, const std::string& name,
+                                                const std::vector<int>& values,
+                                                const std::vector<size_t>& dimensions) {
   assert(dimensions.size() <= 4);
 
   hsize_t dims[4];
@@ -347,19 +336,14 @@ H5::DataSet Writer<DataType>::writeIntegerArrayDataset(H5::Group& group, const s
   H5::DataSpace dataspace = H5::DataSpace(static_cast<int>(ndims), dims);
   H5::DataSet dataset = group.createDataSet(name, H5::PredType::NATIVE_INT, dataspace);
   dataset.write(values.data(), H5::PredType::NATIVE_INT);
-  dataset.close();
-  return dataset;
 }
 
 template <typename DataType>
-H5::DataSet Writer<DataType>::writeIntegerDataset(H5::Group& group, const std::string& name,
-                                                  int value) {
+void Writer<DataType>::writeIntegerDataset(H5::Group& group, const std::string& name, int value) {
   H5::StrType datatype(H5::PredType::NATIVE_INT);
   H5::DataSpace dataspace = H5::DataSpace(H5S_SCALAR);
   H5::DataSet dataset = group.createDataSet(name, datatype, dataspace);
   dataset.write(&value, datatype, dataspace);
-  dataset.close();
-  return dataset;
 }
 
 template <typename DataType>
@@ -520,18 +504,17 @@ void Writer<DataType>::writeRotation(H5::Group& group, const uff::Rotation& rota
 }
 
 template <typename DataType>
-H5::DataSet Writer<DataType>::writeStringDataset(H5::Group& group, const std::string& name,
-                                                 const std::string& value) {
+void Writer<DataType>::writeStringDataset(H5::Group& group, const std::string& name,
+                                          const std::string& value) {
   H5::StrType vlst(0, H5T_VARIABLE);
   H5::DataSpace ds_space(H5S_SCALAR);
   H5::DataSet dataset = group.createDataSet(name.c_str(), vlst, ds_space);
   dataset.write(value, vlst);
-  return dataset;
 }
 
 template <typename DataType>
-H5::DataSet Writer<DataType>::writeOptionalStringDataset(H5::Group& group, const std::string& name,
-                                                         const std::optional<std::string>& value) {
+void Writer<DataType>::writeOptionalStringDataset(H5::Group& group, const std::string& name,
+                                                  const std::optional<std::string>& value) {
   H5::StrType vlst(0, H5T_VARIABLE);
   H5::DataSpace ds_space(H5S_SCALAR);
   H5::DataSet dataset = group.createDataSet(name.c_str(), vlst, ds_space);
@@ -539,7 +522,6 @@ H5::DataSet Writer<DataType>::writeOptionalStringDataset(H5::Group& group, const
     dataset.write(value.value(), vlst);
   else
     dataset.write(std::string("undefined"), vlst);
-  return dataset;
 }
 
 template <typename DataType>
