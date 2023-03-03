@@ -41,6 +41,7 @@ class ChannelData : public uff::Object {
 
  public:
   ChannelData() = default;
+  ChannelData(const ChannelData&) = default;
 
   void printSelf(std::ostream& os, const std::string& indent) const override;
 

@@ -43,34 +43,36 @@ void Reader<DataType>::updateMetadata() {
 
   // Version
   H5::Group version(file.openGroup("version"));
-  readVersion(version);
+  m_dataset->setVersion(readVersion(version));
 
   // Channel Data
   H5::Group channelData(file.openGroup("channel_data"));
-  readChannelData(channelData, false);
+  m_dataset->setChannelData(readChannelData(channelData, false, m_skipChannelDataData));
 
   file.close();
 }
 
 template <typename DataType>
-void Reader<DataType>::loadFileAndCastData(std::string_view filename) {
-  m_fileName = filename;
-  m_dataset = std::make_shared<uff::Dataset<DataType>>();
-  m_dataset->channelData().setSkipChannelDataData(m_skipChannelDataData);
+std::shared_ptr<uff::Dataset<DataType>> Reader<DataType>::loadFile(std::string_view filename,
+                                                                   bool castData,
+                                                                   bool skipChannelData) {
+  auto dataset = std::make_shared<uff::Dataset<DataType>>();
+  dataset->channelData().setSkipChannelDataData(skipChannelData);
 
   H5::Exception::dontPrint();
 
-  H5::H5File file(m_fileName, H5F_ACC_RDONLY);
+  H5::H5File file(filename.data(), H5F_ACC_RDONLY);
 
   // Version
   H5::Group version(file.openGroup("version"));
-  readVersion(version);
+  dataset->setVersion(readVersion(version));
 
   // Channel Data
   H5::Group channelData(file.openGroup("channel_data"));
-  readChannelData(channelData, true);
+  dataset->setChannelData(readChannelData(channelData, castData, skipChannelData));
 
   file.close();
+  return dataset;
 }
 
 template <typename DataType>
@@ -96,8 +98,9 @@ uff::Aperture Reader<DataType>::readAperture(const H5::Group& group) {
 }
 
 template <typename DataType>
-void Reader<DataType>::readChannelData(const H5::Group& group, bool doCast) {
-  uff::ChannelData<DataType>& channelData = m_dataset->channelData();
+uff::ChannelData<DataType> Reader<DataType>::readChannelData(const H5::Group& group, bool castData,
+                                                             bool skipData) {
+  uff::ChannelData<DataType> channelData;
   channelData.setAuthors(readStringDataset(group, "authors"));
   channelData.setDescription(readStringDataset(group, "description"));
   channelData.setLocalTime(readStringDataset(group, "local_time"));
@@ -106,21 +109,20 @@ void Reader<DataType>::readChannelData(const H5::Group& group, bool doCast) {
   channelData.setSoundSpeed(readMetadataTypeDataset(group, "sound_speed"));
   channelData.setRepetitionRate(readOptionalMetadataTypeDataset(group, "repetition_rate"));
 
-  if (!m_skipChannelDataData && !doCast && group.openDataSet("data").getDataType() != H5DataType) {
+  if (!skipData && !castData && group.openDataSet("data").getDataType() != H5DataType) {
     LOG_THIS(ERROR) << "Invalid format of data.\n";
-    return;
+    throw std::logic_error("Invalid format of data.");
   }
   // channel_data.data
   std::vector<hsize_t> dataDims;
   std::vector<DataType> dummy;
 
-  readDataTypeArrayDataset(group, "data",
-                           m_skipChannelDataData ? dummy : m_dataset->channelData().data(),
-                           dataDims, H5DataType);
+  readDataTypeArrayDataset(group, "data", skipData ? dummy : channelData.data(), dataDims,
+                           H5DataType, skipData);
 
   if (dataDims.size() != 4) {
     LOG_THIS(ERROR) << "Dataset dimension != 4\n";
-    return;
+    throw std::logic_error("Dataset dimension != 4.");
   }
   channelData.setNumberOfFrames(static_cast<int>(dataDims[0]));
   channelData.setNumberOfEvents(static_cast<int>(dataDims[1]));
@@ -137,11 +139,14 @@ void Reader<DataType>::readChannelData(const H5::Group& group, bool doCast) {
 
   // Unique events
   H5::Group uniqueEvents(group.openGroup("unique_events"));
-  channelData.setUniqueEvents(readEventArray(uniqueEvents));
+  channelData.setUniqueEvents(
+      readEventArray(uniqueEvents, channelData.probes(), channelData.uniqueWaves()));
 
   // Sequence
   H5::Group sequence(group.openGroup("sequence"));
-  channelData.setSequence(readTimedEventArray(sequence));
+  channelData.setSequence(readTimedEventArray(sequence, channelData.uniqueEvents()));
+
+  return channelData;
 }
 
 template <typename DataType>
@@ -202,20 +207,25 @@ std::vector<uff::Element> Reader<DataType>::readElementArray(const H5::Group& gr
 }
 
 template <typename DataType>
-std::shared_ptr<uff::Event> Reader<DataType>::readEvent(const H5::Group& group) {
+std::shared_ptr<uff::Event> Reader<DataType>::readEvent(
+    const H5::Group& group, const std::vector<std::shared_ptr<uff::Probe>>& probes,
+    const std::vector<std::shared_ptr<uff::Wave>>& uniqueWaves) {
   auto event = std::make_shared<uff::Event>();
 
   // "receive_setup"
-  event->setReceiveSetup(readReceiveSetup(group.openGroup("receive_setup")));
+  event->setReceiveSetup(readReceiveSetup(group.openGroup("receive_setup"), probes));
 
   // "transmit_setup"
-  event->setTransmitSetup(readTransmitSetup(group.openGroup("transmit_setup")));
+  event->setTransmitSetup(
+      readTransmitSetup(group.openGroup("transmit_setup"), probes, uniqueWaves));
 
   return event;
 }
 
 template <typename DataType>
-std::vector<std::shared_ptr<uff::Event>> Reader<DataType>::readEventArray(const H5::Group& group) {
+std::vector<std::shared_ptr<uff::Event>> Reader<DataType>::readEventArray(
+    const H5::Group& group, const std::vector<std::shared_ptr<uff::Probe>>& probes,
+    const std::vector<std::shared_ptr<uff::Wave>>& uniqueWaves) {
   std::vector<std::shared_ptr<uff::Event>> events;
 
   char buf[9];
@@ -225,7 +235,7 @@ std::vector<std::shared_ptr<uff::Event>> Reader<DataType>::readEventArray(const 
 
     if (H5Lexists(group.getLocId(), buf, H5P_DEFAULT)) {
       H5::Group event = group.openGroup(buf);
-      events.push_back(readEvent(event));
+      events.push_back(readEvent(event, probes, uniqueWaves));
       id++;
     } else {
       break;
@@ -258,7 +268,7 @@ template <typename DataType>
 void Reader<DataType>::readDataTypeArrayDataset(const H5::Group& group, const std::string& name,
                                                 std::vector<DataType>& values,
                                                 std::vector<hsize_t>& dimensions,
-                                                H5::PredType targetType) {
+                                                H5::PredType targetType, bool skipChannelData) {
   H5::DataSet dataset = group.openDataSet(name);
   H5::StrType datatype(targetType);
 
@@ -274,7 +284,7 @@ void Reader<DataType>::readDataTypeArrayDataset(const H5::Group& group, const st
     //std::cout << "sz:" << sz << std::endl;
   }
 
-  if (!m_skipChannelDataData) {
+  if (!skipChannelData) {
     // reserve space in the output buffer
     values.resize(numel);
 
@@ -454,8 +464,7 @@ std::shared_ptr<uff::Probe> Reader<DataType>::readProbe(const H5::Group& group) 
       rcaArray->setImpulseResponses(probe->impulseResponses());
       return rcaArray;
     }
-    LOG_THIS(ERROR) << getClassNameInternal() << ": Ignoring unknown probe_type:" << probeType
-                    << "\n";
+    LOG_THIS(ERROR) << ": Ignoring unknown probe_type:" << probeType << "\n";
     return probe;
   }
 
@@ -483,12 +492,13 @@ std::vector<std::shared_ptr<uff::Probe>> Reader<DataType>::readProbeArray(const 
 }
 
 template <typename DataType>
-uff::ReceiveSetup Reader<DataType>::readReceiveSetup(const H5::Group& group) {
+uff::ReceiveSetup Reader<DataType>::readReceiveSetup(
+    const H5::Group& group, const std::vector<std::shared_ptr<uff::Probe>>& probes) {
   uff::ReceiveSetup receiveSetup;
 
   // "probe"
   int probeId = std::stoi(readStringDataset(group, "probe_id"));
-  receiveSetup.setProbe(m_dataset->channelData().probes()[static_cast<size_t>(probeId) - 1]);
+  receiveSetup.setProbe(probes[static_cast<size_t>(probeId) - 1]);
 
   // "time_offset"
   receiveSetup.setTimeOffset(readMetadataTypeDataset(group, "time_offset"));
@@ -582,13 +592,14 @@ std::optional<std::string> Reader<DataType>::readOptionalStringDataset(const H5:
 }
 
 template <typename DataType>
-uff::TimedEvent Reader<DataType>::readTimedEvent(const H5::Group& group) {
+uff::TimedEvent Reader<DataType>::readTimedEvent(
+    const H5::Group& group, const std::vector<std::shared_ptr<uff::Event>>& uniqueEvents) {
   uff::TimedEvent timedEvent;
 
   // "event"
   int eventId = std::stoi(readStringDataset(group, "event_id"));
   //std::cout << "probeId" << probeId << " " << m_dataset.channelData().probes().size();
-  timedEvent.setEvent(m_dataset->channelData().uniqueEvents()[static_cast<size_t>(eventId) - 1]);
+  timedEvent.setEvent(uniqueEvents[static_cast<size_t>(eventId) - 1]);
 
   // "time_offset"
   timedEvent.setTimeOffset(readMetadataTypeDataset(group, "time_offset"));
@@ -597,7 +608,8 @@ uff::TimedEvent Reader<DataType>::readTimedEvent(const H5::Group& group) {
 }
 
 template <typename DataType>
-std::vector<uff::TimedEvent> Reader<DataType>::readTimedEventArray(const H5::Group& group) {
+std::vector<uff::TimedEvent> Reader<DataType>::readTimedEventArray(
+    const H5::Group& group, const std::vector<std::shared_ptr<uff::Event>>& uniqueEvents) {
   std::vector<uff::TimedEvent> timedEvents;
 
   char buf[9];
@@ -607,7 +619,7 @@ std::vector<uff::TimedEvent> Reader<DataType>::readTimedEventArray(const H5::Gro
 
     if (H5Lexists(group.getLocId(), buf, H5P_DEFAULT)) {
       H5::Group timedEvent = group.openGroup(buf);
-      timedEvents.push_back(readTimedEvent(timedEvent));
+      timedEvents.push_back(readTimedEvent(timedEvent, uniqueEvents));
       id++;
     } else {
       break;
@@ -640,15 +652,17 @@ uff::Translation Reader<DataType>::readTranslation(const H5::Group& group) {
 }
 
 template <typename DataType>
-uff::TransmitSetup Reader<DataType>::readTransmitSetup(const H5::Group& group) {
+uff::TransmitSetup Reader<DataType>::readTransmitSetup(
+    const H5::Group& group, const std::vector<std::shared_ptr<uff::Probe>>& probes,
+    const std::vector<std::shared_ptr<uff::Wave>>& uniqueWaves) {
   uff::TransmitSetup transmitSetup;
 
   // "probe"
   int probeId = std::stoi(readStringDataset(group, "probe_id"));
-  transmitSetup.setProbe(m_dataset->channelData().probes()[static_cast<size_t>(probeId) - 1]);
+  transmitSetup.setProbe(probes[static_cast<size_t>(probeId) - 1]);
 
   // "transmit_wave"
-  transmitSetup.setTransmitWave(readTransmitWave(group.openGroup("transmit_wave")));
+  transmitSetup.setTransmitWave(readTransmitWave(group.openGroup("transmit_wave"), uniqueWaves));
 
   // channel_mapping [optional]
   if (H5Lexists(group.getLocId(), "channel_mapping", H5P_DEFAULT)) {
@@ -662,12 +676,13 @@ uff::TransmitSetup Reader<DataType>::readTransmitSetup(const H5::Group& group) {
 }
 
 template <typename DataType>
-uff::TransmitWave Reader<DataType>::readTransmitWave(const H5::Group& group) {
+uff::TransmitWave Reader<DataType>::readTransmitWave(
+    const H5::Group& group, const std::vector<std::shared_ptr<uff::Wave>>& uniqueWaves) {
   uff::TransmitWave transmitWave;
 
   // "wave"
   int waveId = std::stoi(readStringDataset(group, "wave_id"));
-  transmitWave.setWave(m_dataset->channelData().uniqueWaves()[static_cast<size_t>(waveId) - 1]);
+  transmitWave.setWave(uniqueWaves[static_cast<size_t>(waveId) - 1]);
 
   // "time_offset"
   transmitWave.setTimeOffset(readMetadataTypeDataset(group, "time_offset"));
@@ -679,12 +694,11 @@ uff::TransmitWave Reader<DataType>::readTransmitWave(const H5::Group& group) {
 }
 
 template <typename DataType>
-void Reader<DataType>::readVersion(const H5::Group& group) {
+uff::Version Reader<DataType>::readVersion(const H5::Group& group) {
   int major = readIntegerDataset(group, "major");
   int minor = readIntegerDataset(group, "minor");
   int patch = readIntegerDataset(group, "patch");
-  uff::Version version(major, minor, patch);
-  m_dataset->setVersion(version);
+  return uff::Version(major, minor, patch);
 }
 
 template <typename DataType>
