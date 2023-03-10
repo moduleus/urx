@@ -1,11 +1,12 @@
+#pragma once
+
 /*!
  * Copyright Moduleus
  * \file uff/types.h
  * \brief
  */
 
-#ifndef UFF_TYPES_H
-#define UFF_TYPES_H
+#include <ostream>
 
 namespace uff {
 
@@ -16,6 +17,6 @@ enum class WaveType {
   CYLINDRICAL_WAVE = 3
 };
 
-}  // namespace uff
+std::ostream& operator<<(std::ostream& out, const WaveType& value);
 
-#endif  // UFF_TYPES_H
+}  // namespace uff
