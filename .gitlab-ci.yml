@@ -60,7 +60,7 @@ build:windows-with-HDF5-static:
     - win10
     - build
   script:
-    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DHDF5_DIR="$HDF5_DIR_2019_64_STATIC_RELEASE" -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF
+    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DHDF5_DIR="$HDF5_DIR_2022_64_STATIC_RELEASE" -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF
     - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
   artifacts:
     paths:
@@ -101,7 +101,7 @@ build:windows-with-HDF5-shared:
     - win10
     - build
   script:
-    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DHDF5_DIR="$HDF5_DIR_2019_64_SHARED_RELEASE" -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=ON
+    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DHDF5_DIR="$HDF5_DIR_2022_64_SHARED_RELEASE" -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=ON
     - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
   artifacts:
     paths:
