@@ -8,12 +8,15 @@
 #define UFF_CHANNEL_DATA_H
 
 #include <uff/event.h>
+#include <uff/excitation.h>
 #include <uff/object.h>
 #include <uff/probe.h>
+#include <uff/receive_setup.h>
 #include <uff/timed_event.h>
 #include <uff/uff.h>
 #include <uff/wave.h>
 #include <algorithm>
+#include <cmath>
 #include <cstddef>
 #include <ios>
 #include <iosfwd>
@@ -27,7 +30,11 @@
 #include <stdexcept>
 #include <streambuf>
 #include <string>
+#include <tuple>
+#include <type_traits>
+#include <utility>
 #include <vector>
+
 namespace uff {
 
 /**
@@ -75,6 +82,61 @@ class ChannelData : public uff::Object {
   // Speed of sound in m/s
   MetadataType soundSpeed() const { return m_soundSpeed; }
   void setSoundSpeed(MetadataType soundSpeed) { m_soundSpeed = soundSpeed; }
+
+  // Returns the channel geometry of the probe used by the 1st receive setup
+  template <typename T>
+  std::vector<T> channelGeometry() const {
+    if (probes().empty()) {
+      return std::vector<T>();
+    }
+    if constexpr (std::is_same<T, MetadataType>::value) {
+      return probes()[0]->getChannelGeometry();
+    } else {
+      auto& channelGeometry = probes()[0]->getChannelGeometry();
+      return std::vector<T>(channelGeometry.begin(), channelGeometry.end());
+    }
+  }
+
+  MetadataType receiveDelay() const {
+    if (uniqueEvents().empty()) {
+      return UFF_NAN;
+    }
+    return uniqueEvents()[0]->receiveSetup().timeOffset();
+  }
+
+  // Returns the type of sampling of the 1st ReceiveSetup
+  ReceiveSetup::SAMPLING_TYPE samplingType() const {
+    if (uniqueEvents().empty()) {
+      return ReceiveSetup::SAMPLING_TYPE::DIRECT_RF;
+    }
+    return uniqueEvents()[0]->receiveSetup().samplingType();
+  }
+
+  // Return the sampling frequency associated with the 1st receive event [Hz]
+  MetadataType samplingFrequency() const {
+    if (uniqueEvents().empty()) {
+      return UFF_NAN;
+    }
+    return uniqueEvents()[0]->receiveSetup().samplingFrequency();
+  }
+
+  MetadataType transmitFrequency() const {
+    if (uniqueWaves().empty() || !uniqueWaves()[0]->excitation().transmitFrequency().has_value()) {
+      return UFF_NAN;
+    }
+    return uniqueWaves()[0]->excitation().transmitFrequency().value();
+  }
+
+  // Returns true is the 1st probe is of sub-type 'ProbeType'
+  // Example: isProbeType<uff::MatrixArray>() == true;
+  template <class ProbeType>
+  bool isProbeType() const {
+    if (probes().empty()) {
+      return false;
+    }  // Try to cast the 1st probe to the user-provided type
+    std::shared_ptr<ProbeType> pt = std::dynamic_pointer_cast<ProbeType>(probes()[0]);
+    return (pt.get() != nullptr);
+  }
 
   // Sequence repetition rate in Hz. Sometimes called framerate.
   std::optional<MetadataType> repetitionRate() const { return m_repetitionRate; }
@@ -139,11 +201,38 @@ class ChannelData : public uff::Object {
   uint32_t numberOfEvents() const { return m_numberOfEvents; }
   uint32_t numberOfChannels() const { return m_numberOfChannels; }
   uint32_t numberOfSamples() const { return m_numberOfSamples; }
+  std::tuple<uint32_t, uint32_t, uint32_t, uint32_t> allNumberOf() const {
+    return {m_numberOfSamples, m_numberOfChannels, m_numberOfEvents, m_numberOfFrames};
+  }
 
   void setNumberOfFrames(uint32_t sz) { m_numberOfFrames = sz; }
   void setNumberOfEvents(uint32_t sz) { m_numberOfEvents = sz; }
   void setNumberOfChannels(uint32_t sz) { m_numberOfChannels = sz; }
   void setNumberOfSamples(uint32_t sz) { m_numberOfSamples = sz; }
+
+  size_t numberOfSamplesPerEvent() const {
+    return static_cast<size_t>(numberOfChannels()) * numberOfSamples();
+  }
+  size_t numberOfSamplesPerFrame() const {
+    return static_cast<size_t>(numberOfEvents()) * numberOfChannels() * numberOfSamples();
+  }
+  size_t totalNumberOfSamples() const {
+    return static_cast<size_t>(numberOfFrames()) * numberOfEvents() * numberOfChannels() *
+           numberOfSamples();
+  }
+
+  // Distance from the prob to the start of the acquisition
+  double acqStartDist() const { return receiveDelay() * soundSpeed() / 2.; }
+  double acqStartToEndDist() const {
+    return numberOfSamples() * soundSpeed() / samplingFrequency() / 2.0;
+  }
+  // Distance from the prob to the end of the acquisition
+  double acqEndDist() const { return acqStartDist() + acqStartToEndDist(); }
+
+  double sampleToLength() const { return soundSpeed() / samplingFrequency() / 2.; }
+  uint32_t lengthToSample(double distance) const {
+    return static_cast<uint32_t>(std::round(distance / soundSpeed() * samplingFrequency() * 2.));
+  }
 
   void setSkipChannelDataData(bool skip) { m_skipChannelDataData = skip; }
 
