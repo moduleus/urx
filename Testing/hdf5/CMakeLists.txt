@@ -15,4 +15,15 @@ target_include_directories(UffTest PUBLIC ${PROJECT_SOURCE_DIR}/uff)
 target_link_libraries(UffTest PRIVATE Uff::Uff ${HDF5_CXX_LIBRARIES}
                                       Catch2::Catch2)
 
+foreach(TESTI UffTest)
+  if(WIN32 AND BUILD_SHARED_LIBS)
+    add_custom_command(
+      TARGET ${TESTI}
+      POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different
+              $<TARGET_RUNTIME_DLLS:${TESTI}> $<TARGET_FILE_DIR:${TESTI}>
+      COMMAND_EXPAND_LISTS)
+  endif()
+endforeach()
+
 catch_discover_tests(UffTest)

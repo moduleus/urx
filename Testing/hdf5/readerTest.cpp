@@ -15,11 +15,14 @@
 #include <uff/uff.h>
 #include <uff/wave.h>
 #include <uff/writer.h>
+#include <algorithm>
 #include <catch2/catch.hpp>
+#include <cmath>
 #include <cstddef>
 #include <cstdlib>
 #include <limits>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -135,9 +138,28 @@ TEST_CASE("Load HDF5 file", "[hdf5_loader]") {
 
   const std::vector<short>& shortVec = readShortDataset->channelData().data();
   const std::vector<float>& floatVec = readFloatDataset->channelData().data();
-  for (size_t i = 0; i < floatVec.size(); ++i) {
-    REQUIRE(floatVec[i] == static_cast<float>(shortVec[i]));
+  REQUIRE(std::equal(shortVec.begin(), shortVec.end(), floatVec.begin()));
+
+  REQUIRE(readShortDataset->channelData().authors() == channelData.authors());
+  REQUIRE(readShortDataset->channelData().description() == channelData.description());
+  REQUIRE(readShortDataset->channelData().localTime() == channelData.localTime());
+  REQUIRE(readShortDataset->channelData().countryCode() == channelData.countryCode());
+  REQUIRE(readShortDataset->channelData().system() == channelData.system());
+  REQUIRE(readShortDataset->channelData().repetitionRate() == channelData.repetitionRate());
+  REQUIRE(readShortDataset->getSoundSpeed() == channelData.soundSpeed());
+  {
+    std::vector<double> geometry1 = readShortDataset->getChannelGeometry<double>();
+    std::vector<double> geometry2 = channelData.channelGeometry<double>();
+    REQUIRE(geometry1.size() == 4UL * 2 * NB_CHANNELS);
+    REQUIRE(geometry2.size() == 4UL * 2 * NB_CHANNELS);
+    REQUIRE(std::equal(geometry1.begin(), geometry1.end(), geometry2.begin()));
   }
+  REQUIRE(readShortDataset->getReceiveDelay() == channelData.receiveDelay());
+  REQUIRE(readShortDataset->getSamplingType() == channelData.samplingType());
+  REQUIRE(std::isnan(readShortDataset->getSamplingFrequency()));
+  REQUIRE(std::isnan(channelData.samplingFrequency()));
+  REQUIRE(std::isnan(readShortDataset->getTransmitFrequency()));
+  REQUIRE(std::isnan(channelData.transmitFrequency()));
 }
 
 }  // namespace uff::test

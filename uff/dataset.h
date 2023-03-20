@@ -48,7 +48,7 @@ class Dataset : public uff::Object {
   // Returns the channel geometry of the probe used by the 1st receive setup
   template <typename T>
   std::vector<T> getChannelGeometry() const {
-    return m_channelData.channelGeometry();
+    return m_channelData.template channelGeometry<T>();
   }
 
   // Returns the receive delay of the 1st ReceiveSetup
