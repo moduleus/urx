@@ -70,7 +70,7 @@ class Dataset : public uff::Object {
   // Example: isProbeType<uff::MatrixArray>() == true;
   template <class ProbeType>
   bool isProbeType() const {
-    return m_channelData.isProbeType();
+    return m_channelData.template isProbeType<ProbeType>();
   }
 
   inline bool operator==(const Dataset& other) const {
