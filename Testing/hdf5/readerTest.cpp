@@ -2,6 +2,8 @@
 #include <uff/dataset.h>
 #include <uff/event.h>
 #include <uff/excitation.h>
+#include <uff/linear_array.h>
+#include <uff/matrix_array.h>
 #include <uff/rca_array.h>
 #include <uff/reader.h>
 #include <uff/receive_setup.h>
@@ -160,6 +162,12 @@ TEST_CASE("Load HDF5 file", "[hdf5_loader]") {
   REQUIRE(std::isnan(channelData.samplingFrequency()));
   REQUIRE(std::isnan(readShortDataset->getTransmitFrequency()));
   REQUIRE(std::isnan(channelData.transmitFrequency()));
+  REQUIRE(readShortDataset->isProbeType<uff::RcaArray>());
+  REQUIRE(channelData.isProbeType<uff::RcaArray>());
+  REQUIRE(!readShortDataset->isProbeType<uff::MatrixArray>());
+  REQUIRE(!channelData.isProbeType<uff::MatrixArray>());
+  REQUIRE(!readShortDataset->isProbeType<uff::LinearArray>());
+  REQUIRE(!channelData.isProbeType<uff::LinearArray>());
 }
 
 }  // namespace uff::test
