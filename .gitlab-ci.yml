@@ -1,12 +1,16 @@
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
-  
+
+workflow:
+  rules:
+    - if: $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE != "push"
+
 stages:
   - build
   - format
   - test
-  - install
   - tag
+  - install
 
 format:clang-format:
   stage: format
@@ -32,7 +36,7 @@ format:clang-tidy:
   script:
     - cd CI
     - run-clang-tidy || exit 1
-  needs:
+  dependencies:
     - build:ubuntu-with-HDF5-static
 
 format:iwyu:
@@ -45,14 +49,30 @@ format:iwyu:
     - git diff > CI/iwyu.patch
     - cat CI/iwyu.patch
     - if [[ `git status --porcelain` ]]; then echo "Please apply iwyu patch to fix your includes"; exit 1; fi
-  needs:
+  dependencies:
     - build:ubuntu-with-HDF5-static
   allow_failure: true
   artifacts:
     when: on_failure
     paths:
+      - CI/iwyu_tool.log
       - CI/iwyu.patch
     expire_in: 1 day
+
+tag:version:
+  stage: tag
+  dependencies:
+    - build:ubuntu-with-HDF5-shared
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  script:
+    - git tag $(cat CI/version.txt)
+    - git push --tags
+  tags:
+    - ubuntu
+    - build
 
 build:windows-with-HDF5-static:
   stage: build
@@ -69,7 +89,7 @@ build:windows-with-HDF5-static:
 
 test:windows-with-HDF5-static:
   stage: test
-  needs:
+  dependencies:
     - build:windows-with-HDF5-static
   tags:
     - win10
@@ -77,18 +97,13 @@ test:windows-with-HDF5-static:
   script:
     - cd CI
     - ctest --output-on-failure -C Release
-  artifacts:
-    paths:
-      - CI
-    expire_in: 1 day
 
 install:windows-with-HDF5-static:
   stage: install
-  needs:
-    - test:windows-with-HDF5-static
-    - format:clang-format
-    - format:cmake-format
-    - format:clang-tidy
+  dependencies:
+    - build:windows-with-HDF5-static
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   tags:
     - win10
     - build
@@ -110,7 +125,7 @@ build:windows-with-HDF5-shared:
 
 test:windows-with-HDF5-shared:
   stage: test
-  needs:
+  dependencies:
     - build:windows-with-HDF5-shared
   tags:
     - win10
@@ -118,18 +133,13 @@ test:windows-with-HDF5-shared:
   script:
     - cd CI
     - ctest --output-on-failure -C Release
-  artifacts:
-    paths:
-      - CI
-    expire_in: 1 day
 
 install:windows-with-HDF5-shared:
   stage: install
-  needs:
-    - test:windows-with-HDF5-shared
-    - format:clang-format
-    - format:cmake-format
-    - format:clang-tidy
+  dependencies:
+    - build:windows-with-HDF5-shared
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   tags:
     - win10
     - build
@@ -151,7 +161,7 @@ build:windows-without-HDF5-static:
 
 test:windows-without-HDF5-static:
   stage: test
-  needs:
+  dependencies:
     - build:windows-without-HDF5-static
   tags:
     - win10
@@ -159,10 +169,6 @@ test:windows-without-HDF5-static:
   script:
     - cd CI
     - ctest --output-on-failure -C Release
-  artifacts:
-    paths:
-      - CI
-    expire_in: 1 day
 
 build:windows-without-HDF5-shared:
   stage: build
@@ -179,7 +185,7 @@ build:windows-without-HDF5-shared:
 
 test:windows-without-HDF5-shared:
   stage: test
-  needs:
+  dependencies:
     - build:windows-without-HDF5-shared
   tags:
     - win10
@@ -187,10 +193,6 @@ test:windows-without-HDF5-shared:
   script:
     - cd CI
     - ctest --output-on-failure -C Release
-  artifacts:
-    paths:
-      - CI
-    expire_in: 1 day
 
 build:ubuntu-with-HDF5-static:
   stage: build
@@ -207,7 +209,7 @@ build:ubuntu-with-HDF5-static:
 
 test:ubuntu-with-HDF5-static:
   stage: test
-  needs:
+  dependencies:
     - build:ubuntu-with-HDF5-static
   tags:
     - ubuntu
@@ -215,18 +217,13 @@ test:ubuntu-with-HDF5-static:
   script:
     - cd CI
     - ctest --output-on-failure -C Release
-  artifacts:
-    paths:
-      - CI
-    expire_in: 1 day
 
 install:ubuntu-with-HDF5-static:
   stage: install
-  needs:
-    - test:ubuntu-with-HDF5-static
-    - format:clang-format
-    - format:cmake-format
-    - format:clang-tidy
+  dependencies:
+    - build:ubuntu-with-HDF5-static
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   tags:
     - ubuntu
     - build
@@ -248,7 +245,7 @@ build:ubuntu-with-HDF5-shared:
 
 test:ubuntu-with-HDF5-shared:
   stage: test
-  needs:
+  dependencies:
     - build:ubuntu-with-HDF5-shared
   tags:
     - ubuntu
@@ -256,42 +253,18 @@ test:ubuntu-with-HDF5-shared:
   script:
     - cd CI
     - ctest --output-on-failure -C Release
-  artifacts:
-    paths:
-      - CI
-    expire_in: 1 day
 
 install:ubuntu-with-HDF5-shared:
   stage: install
-  needs:
-    - test:ubuntu-with-HDF5-shared
-    - format:clang-format
-    - format:cmake-format
-    - format:clang-tidy
+  dependencies:
+    - build:ubuntu-with-HDF5-shared
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   tags:
     - ubuntu
     - build
   script:
     - cmake --install CI --config Release
-  artifacts:
-    paths:
-      - CI/version.txt
-    expire_in: 1 day
-
-tag-version:
-  stage: tag
-  needs:
-    - install:ubuntu-with-HDF5-shared
-  rules:
-    - if: $CI_COMMIT_TAG
-      when: never
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  script:
-    - git tag -f $(cat CI/version.txt)
-    - git push -f --tags
-  tags:
-    - ubuntu
-    - build
 
 build:ubuntu-without-HDF5-static:
   stage: build
@@ -308,7 +281,7 @@ build:ubuntu-without-HDF5-static:
 
 test:ubuntu-without-HDF5-static:
   stage: test
-  needs:
+  dependencies:
     - build:ubuntu-without-HDF5-static
   tags:
     - ubuntu
@@ -316,10 +289,6 @@ test:ubuntu-without-HDF5-static:
   script:
     - cd CI
     - ctest --output-on-failure -C Release
-  artifacts:
-    paths:
-      - CI
-    expire_in: 1 day
 
 build:ubuntu-without-HDF5-shared:
   stage: build
@@ -336,7 +305,7 @@ build:ubuntu-without-HDF5-shared:
 
 test:ubuntu-without-HDF5-shared:
   stage: test
-  needs:
+  dependencies:
     - build:ubuntu-without-HDF5-shared
   tags:
     - ubuntu
@@ -344,10 +313,6 @@ test:ubuntu-without-HDF5-shared:
   script:
     - cd CI
     - ctest --output-on-failure -C Release
-  artifacts:
-    paths:
-      - CI
-    expire_in: 1 day
 
 build:android-ubuntu-without-HDF5-static:
   stage: build
@@ -366,11 +331,10 @@ build:android-ubuntu-without-HDF5-static:
 
 #install:android-ubuntu-without-HDF5-static:
 #  stage: install
-#  needs:
+#  dependencies:
 #    - build:android-ubuntu-without-HDF5-static
-#    - format:clang-format
-#    - format:cmake-format
-#    - format:clang-tidy
+#  rules:
+#    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 #  tags:
 #    - android
 #    - ubuntu
@@ -395,11 +359,10 @@ build:android-ubuntu-without-HDF5-shared:
 
 #install:android-ubuntu-without-HDF5-shared:
 #  stage: install
-#  needs:
+#  dependencies:
 #    - build:android-ubuntu-without-HDF5-shared
-#    - format:clang-format
-#    - format:cmake-format
-#    - format:clang-tidy
+#  rules:
+#    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 #  tags:
 #    - android
 #    - ubuntu
@@ -424,11 +387,10 @@ build:android-ubuntu-with-HDF5-static:
 
 install:android-ubuntu-with-HDF5-static:
   stage: install
-  needs:
+  dependencies:
     - build:android-ubuntu-with-HDF5-static
-    - format:clang-format
-    - format:cmake-format
-    - format:clang-tidy
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   tags:
     - android
     - ubuntu
@@ -453,11 +415,10 @@ build:android-ubuntu-with-HDF5-shared:
 
 install:android-ubuntu-with-HDF5-shared:
   stage: install
-  needs:
+  dependencies:
     - build:android-ubuntu-with-HDF5-shared
-    - format:clang-format
-    - format:cmake-format
-    - format:clang-tidy
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   tags:
     - android
     - ubuntu
