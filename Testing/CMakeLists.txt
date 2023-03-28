@@ -1,7 +1,7 @@
 foreach(TESTI uffTestChannelData)
   add_executable(${TESTI} ${TESTI}.cpp)
   target_link_libraries(${TESTI} PRIVATE ${UFF_LIBRARY})
-  add_test(NAME ${TESTI} COMMAND ${TESTI})
+  add_test(NAME ${TESTI} COMMAND $<TARGET_FILE:${TESTI}>)
   if(WIN32 AND BUILD_SHARED_LIBS)
     add_custom_command(
       TARGET ${TESTI}

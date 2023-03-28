@@ -1,5 +1,3 @@
-# Copyright Moduleus 2019
-
 cmake_minimum_required(VERSION 3.9)
 
 project(
@@ -17,6 +15,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_LINK_WHAT_YOU_USE ON)
 
 option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
 
@@ -28,10 +27,8 @@ if(BUILD_SHARED_LIBS)
   set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 endif()
 
-# Sources files ###
 add_subdirectory("uff")
 
-# Set the tree view in IDE
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${UFF_SRCS})
 
 find_package(Git REQUIRED)
