@@ -37,4 +37,6 @@ add_subdirectory(uff)
 set(UFF_LIBRARY uff) 
 
 # UFF Testing
-add_subdirectory(testing) 
+if(BUILD_TESTING)
+  add_subdirectory(testing) 
+endif()
