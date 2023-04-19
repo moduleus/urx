@@ -165,13 +165,36 @@ namespace uff
         return result;
     }
 
+    float ReaderV0_2::readFloatDataset(const H5::Group& group, const std::string& name)
+    {
+        H5::StrType datatype(H5::PredType::NATIVE_FLOAT);
+        H5::DataSet dataset = group.openDataSet(name);
+        float value;
+        dataset.read(&value, datatype);
+        dataset.close();
+        return value;
+    }
+
+    std::optional<float> ReaderV0_2::readOptionalFloatDataset(const H5::Group& group, const std::string& name)
+    {
+        H5::StrType datatype(H5::PredType::NATIVE_FLOAT);
+        H5::DataSet dataset = group.openDataSet(name);
+        float value;
+        dataset.read(&value, datatype);
+        dataset.close();
+        std::optional<float> result = std::nullopt;
+        if (!std::isnan(value))
+            result = value;
+        return result;
+    }
+
     uff::Element ReaderV0_2::readElement(const H5::Group& group)
     {
         uff::Element element;
 
-        element.setX(readOptionalDoubleDataset(group, "x"));
-        element.setY(readOptionalDoubleDataset(group, "y"));
-        element.setZ(readOptionalDoubleDataset(group, "z"));
+        element.setX(readOptionalFloatDataset(group, "x"));
+        element.setY(readOptionalFloatDataset(group, "y"));
+        element.setZ(readOptionalFloatDataset(group, "z"));
 
         return element;
     }

@@ -91,6 +91,10 @@ namespace uff
         double readDoubleDataset(const H5::Group& group, const std::string& name);
         std::optional<double> readOptionalDoubleDataset(const H5::Group& group, const std::string& name);
 
+        // Float
+        float readFloatDataset(const H5::Group& group, const std::string& name);
+        std::optional<float> readOptionalFloatDataset(const H5::Group& group, const std::string& name);
+
         // Int
         void readIntegerArrayDataset(const H5::Group& group, const std::string& name, std::vector<int>& values, std::vector<size_t>& dimensions);
         int readIntegerDataset(const H5::Group& group, const std::string& name);

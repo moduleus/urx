@@ -64,9 +64,9 @@ private:
             // element position
             uff::Element element;
             double xmin = -m_pitch * (m_numberElements - 1.0) / 2.0;
-            element.setX(xmin + i * m_pitch);
-            element.setY(0.);
-            element.setZ(0.);
+            element.setX((float)(xmin + i * m_pitch));
+            element.setY(0.f);
+            element.setZ(0.f);
             m_elements[i] = element;
         }
     }

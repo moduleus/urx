@@ -217,9 +217,9 @@ namespace uff
     {
         uff::Element element;
 
-        element.setX(readOptionalDoubleDataset(group, "x"));
-        element.setY(readOptionalDoubleDataset(group, "y"));
-        element.setZ(readOptionalDoubleDataset(group, "z"));
+        element.setX(readOptionalFloatDataset(group, "x"));
+        element.setY(readOptionalFloatDataset(group, "y"));
+        element.setZ(readOptionalFloatDataset(group, "z"));
 
         return element;
     }
@@ -591,6 +591,28 @@ std::shared_ptr<uff::Wave> Reader::readWave(const H5::Group& group)
         dataset.read(&value, datatype);
         dataset.close();
         std::optional<double> result = std::nullopt;
+        if (!std::isnan(value)) { result = value; }
+        return result;
+    }
+
+    float Reader::readFloatDataset(const H5::Group& group, const std::string& name)
+    {
+        H5::StrType datatype(H5::PredType::NATIVE_DOUBLE);
+        H5::DataSet dataset = group.openDataSet(name);
+        float value;
+        dataset.read(&value, datatype);
+        dataset.close();
+        return value;
+    }
+
+    std::optional<float> Reader::readOptionalFloatDataset(const H5::Group& group, const std::string& name)
+    {
+        H5::StrType datatype(H5::PredType::NATIVE_DOUBLE);
+        H5::DataSet dataset = group.openDataSet(name);
+        float value;
+        dataset.read(&value, datatype);
+        dataset.close();
+        std::optional<float> result = std::nullopt;
         if (!std::isnan(value)) { result = value; }
         return result;
     }

@@ -80,9 +80,9 @@ private:
             for (uint32_t j = 0; j < m_numberElementsX; j++)
             {                
                 uff::Element element;
-                element.setX(xmin + j * m_pitchX);
-                element.setY(ymin + i * m_pitchY);
-                element.setZ(0.0);
+                element.setX((float)(xmin + j * m_pitchX));
+                element.setY((float)(ymin + i * m_pitchY));
+                element.setZ(0.f);
                 m_elements[(size_t)j + (size_t)i * m_numberElementsY] = element;
             }
         }
