@@ -1,18 +1,3 @@
-# CMakeList.txt : CMake project for uff_cpp, include source and define
-# project specific logic here.
-#
-cmake_minimum_required (VERSION 3.9)
-
-project(Uff 
-	LANGUAGES C CXX 
-	DESCRIPTION "Ultrasound File Format C++ implementation")
-	
-# Configure compiler ###
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_DEBUG_POSTFIX d)
 
 # Sources
 set(UFF_SRCS
@@ -79,18 +64,5 @@ set(UFF_SRCS
   ${CMAKE_CURRENT_SOURCE_DIR}/uff_wave.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/uff_wave.h
   ${CMAKE_CURRENT_SOURCE_DIR}/uff_writer.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/uff_writer.h)
-   
-set(UFF_LIBRARY Uff) 
-add_library(${PROJECT_NAME} STATIC ${UFF_SRCS})
-add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
-target_include_directories(${UFF_LIBRARY} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-add_dependencies(${PROJECT_NAME} HDF5)
-
-# HDF5
-set(LIB_TYPE STATIC) # or SHARED
-string(TOLOWER ${LIB_TYPE} SEARCH_TYPE)
-find_package(HDF5 NAMES hdf5 COMPONENTS CXX ${SEARCH_TYPE})
-set_directory_properties(PROPERTIES INCLUDE_DIRECTORIES "${HDF5_INCLUDE_DIR}")
-set(HDF5_LIBS ${LINK_LIBS} ${HDF5_CXX_${LIB_TYPE}_LIBRARY})
-target_link_libraries (${UFF_LIBRARY} ${HDF5_LIBS})
+  ${CMAKE_CURRENT_SOURCE_DIR}/uff_writer.h
+  PARENT_SCOPE)
