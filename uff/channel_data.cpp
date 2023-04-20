@@ -22,6 +22,11 @@
 namespace uff {
 
 template <typename DataType>
+ChannelData<DataType>::ChannelData(const ChannelData& other) {
+  *this = other;
+}
+
+template <typename DataType>
 void ChannelData<DataType>::printSelf(std::ostream& os, const std::string& indent) const {
   superclass::printSelf(os, indent);
   os << indent << "Authors: " << '"' << authors() << '"' << std::endl;
