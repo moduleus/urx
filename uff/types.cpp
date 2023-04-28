@@ -4,8 +4,7 @@
 
 namespace uff {
 
-std::ostream& operator<<(std::ostream& out, const WaveType& value) 
-{
+std::ostream& operator<<(std::ostream& out, const WaveType& value) {
   std::string s;
 #define PROCESS_VAL(p) \
   case (p):            \
