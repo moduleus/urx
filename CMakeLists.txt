@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.9)
 
 project(
   Uff
-  VERSION 0.5.1
+  VERSION 0.5.2
   LANGUAGES C CXX
   DESCRIPTION "Ultrasound File Format C++ implementation")
 
@@ -40,7 +40,9 @@ execute_process(
   OUTPUT_VARIABLE git_branch
   OUTPUT_STRIP_TRAILING_WHITESPACE
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-if("${git_branch}" MATCHES ".*origin\/main.*" OR "${git_branch}" STREQUAL "")
+if("${git_branch}" MATCHES ".*origin\/main.*"
+   OR "${git_branch}" MATCHES ".*origin\/v[0-9].*"
+   OR "${git_branch}" STREQUAL "")
   set(git_branch ${PROJECT_VERSION})
 else()
   string(REPLACE "origin/" "" git_branch "${git_branch}")
