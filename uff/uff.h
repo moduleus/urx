@@ -10,12 +10,6 @@
 #include <string>
 #include <type_traits>
 
-#ifdef WITH_HDF5
-#include <H5Cpp.h>
-#include <typeindex>
-#include <unordered_map>
-#endif  // WITH_HDF5
-
 namespace uff {
 
 #define UFF_VERSION_MAJOR 0
@@ -23,14 +17,6 @@ namespace uff {
 #define UFF_VERSION_PATCH 0
 
 using MetadataType = double;
-
-#ifdef WITH_HDF5
-#define H5DataType \
-  (std::is_same<DataType, float>::value ? H5::PredType::NATIVE_FLOAT : H5::PredType::NATIVE_SHORT)
-#define H5MetadataType                                                   \
-  (std::is_same<MetadataType, float>::value ? H5::PredType::NATIVE_FLOAT \
-                                            : H5::PredType::NATIVE_DOUBLE)
-#endif  // WITH_HDF5
 
 // Macro to prevent some class from being copied
 #define UFF_MAKE_NONCOPYABLE(ClassName) \
