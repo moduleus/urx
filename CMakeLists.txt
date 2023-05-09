@@ -19,6 +19,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
+message(STATUS "${PROJECT_NAME} BUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}")
 
 add_compile_options($<$<CXX_COMPILER_ID:MSVC>:/MP>)
 
@@ -54,7 +55,6 @@ if(NOT BUILD_SHARED_LIBS)
 endif()
 
 # Target library ###
-set(UFF_LIBRARY ${PROJECT_NAME})
 add_library(${PROJECT_NAME} ${UFF_SRCS})
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 if(ANDROID)
@@ -69,32 +69,49 @@ target_include_directories(
 set_target_properties(${PROJECT_NAME}
                       PROPERTIES OUTPUT_NAME "${PROJECT_NAME}-${git_branch}")
 
-# Link ###
-if(BUILD_SHARED_LIBS)
-  set(LIB_TYPE SHARED)
-else()
-  set(LIB_TYPE STATIC)
-endif()
-string(TOLOWER ${LIB_TYPE} SEARCH_TYPE)
-if(TARGET hdf5-${SEARCH_TYPE})
-  target_compile_definitions(${PROJECT_NAME} PUBLIC WITH_HDF5)
-  target_link_libraries(${PROJECT_NAME} PUBLIC hdf5-${SEARCH_TYPE}
-                                               hdf5_cpp-${SEARCH_TYPE})
-  target_include_directories(
-    ${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${HDF5_CPP_SRC_SOURCE_DIR}>
-                           $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
-  target_include_directories(${PROJECT_NAME}
-                             PUBLIC $<BUILD_INTERFACE:${HDF5_SRC_SOURCE_DIR}>)
-  target_include_directories(${PROJECT_NAME}
-                             PUBLIC $<BUILD_INTERFACE:${HDF5_BINARY_DIR}>)
-else()
-  find_package(HDF5 NAMES hdf5 COMPONENTS CXX ${SEARCH_TYPE})
-  if(${HDF5_FOUND})
+# With HDF5 option
+option(WITH_HDF5 "Build with HDF5" ON)
+message(STATUS "${PROJECT_NAME} WITH_HDF5=${WITH_HDF5}")
+
+if(WITH_HDF5)
+    # Compile definition
     target_compile_definitions(${PROJECT_NAME} PUBLIC WITH_HDF5)
-    target_link_libraries(${PROJECT_NAME} PUBLIC hdf5::hdf5-${SEARCH_TYPE}
-                                                 hdf5::hdf5_cpp-${SEARCH_TYPE})
-  endif()
+
+    # Link ###
+    if(BUILD_SHARED_LIBS)
+      set(LIB_TYPE SHARED)
+    else()
+      set(LIB_TYPE STATIC)
+    endif()
+    string(TOLOWER ${LIB_TYPE} SEARCH_TYPE)
+    
+    if(TARGET hdf5-${SEARCH_TYPE})
+      message(STATUS "Found target hdf5-${SEARCH_TYPE}")
+      target_link_libraries(${PROJECT_NAME} PUBLIC hdf5-${SEARCH_TYPE}
+                                                   hdf5_cpp-${SEARCH_TYPE})
+      target_include_directories(
+        ${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${HDF5_CPP_SRC_SOURCE_DIR}>
+                               $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+      target_include_directories(${PROJECT_NAME}
+                                 PUBLIC $<BUILD_INTERFACE:${HDF5_SRC_SOURCE_DIR}>)
+      target_include_directories(${PROJECT_NAME}
+                                 PUBLIC $<BUILD_INTERFACE:${HDF5_BINARY_DIR}>)
+    else()
+      find_package(HDF5 NAMES hdf5 COMPONENTS CXX ${SEARCH_TYPE})
+      if(${HDF5_FOUND})
+        message(STATUS "Found HDF5 in ${HDF5_DIR}")
+        target_link_libraries(${PROJECT_NAME} PUBLIC hdf5::hdf5-${SEARCH_TYPE}
+                                                     hdf5::hdf5_cpp-${SEARCH_TYPE})
+      else()
+        # Use external project add
+        message(STATUS "Using ExternalProject_add")
+        include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/External-HDF5.cmake)
+        add_dependencies(${PROJECT_NAME} HDF5)
+        target_include_directories(${PROJECT_NAME} PRIVATE ${HDF5_include_dir})
+      endif()
+    endif()
 endif()
+
 # Treat warnings as errors
 target_compile_options(
   ${PROJECT_NAME}
@@ -151,5 +168,6 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
 file(WRITE "${CMAKE_BINARY_DIR}/version.txt" "${CMAKE_PROJECT_VERSION}")
 
 if(BUILD_TESTING)
+  enable_testing()
   add_subdirectory(Testing)
 endif()
