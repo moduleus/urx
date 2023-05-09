@@ -10,6 +10,13 @@ stages:
   - tag
   - install
 
+.install_rules:
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_BRANCH =~ /^v[0-9]+\.[0-9]+$/
+
 format:clang-format:
   stage: format
   tags:
@@ -96,6 +103,8 @@ install:windows-with-HDF5-static:
     - build
   script:
     - cmake.exe --install CI --config Release
+  rules:
+  - !reference [.install_rules, rules]
 
 build:windows-with-HDF5-shared:
   stage: build
@@ -137,6 +146,8 @@ install:windows-with-HDF5-shared:
     - build
   script:
     - cmake.exe --install CI --config Release
+  rules:
+  - !reference [.install_rules, rules]
 
 build:windows-without-HDF5-static:
   stage: build
@@ -234,6 +245,8 @@ install:ubuntu-with-HDF5-static:
     - build
   script:
     - cmake --install CI --config Release
+  rules:
+  - !reference [.install_rules, rules]
 
 build:ubuntu-with-HDF5-shared:
   stage: build
@@ -275,20 +288,15 @@ install:ubuntu-with-HDF5-shared:
     - build
   script:
     - cmake --install CI --config Release
-  artifacts:
-    paths:
-      - CI/version.txt
-    expire_in: 1 day
+  rules:
+  - !reference [.install_rules, rules]
 
 tag-version:
   stage: tag
   needs:
     - build:ubuntu-with-HDF5-shared
   rules:
-    - if: $CI_COMMIT_TAG
-      when: never
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-    - if: $CI_COMMIT_BRANCH =~ /^v[0-9]+\.[0-9]+$/
+    - !reference [.install_rules, rules]
   script:
     - git tag $(cat CI/version.txt)
     - git push --tags
@@ -438,6 +446,8 @@ install:android-ubuntu-with-HDF5-static:
     - build
   script:
     - cmake --install CI --config Release
+  rules:
+  - !reference [.install_rules, rules]
 
 build:android-ubuntu-with-HDF5-shared:
   stage: build
@@ -467,3 +477,5 @@ install:android-ubuntu-with-HDF5-shared:
     - build
   script:
     - cmake --install CI --config Release
+  rules:
+  - !reference [.install_rules, rules]
