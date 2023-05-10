@@ -10,6 +10,13 @@ stages:
   - tag
   - install
 
+.install_rules:
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_BRANCH =~ /^v[0-9]+\.[0-9]+$/
+
 format:clang-format:
   stage: format
   tags:
@@ -62,7 +69,7 @@ build:windows-with-HDF5-static:
     - win10
     - build
   script:
-    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DHDF5_DIR="$HDF5_DIR_2022_64_STATIC_RELEASE" -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF
+    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DHDF5_DIR="$HDF5_DIR_2022_64_STATIC_RELEASE" -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON
     - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
   artifacts:
     paths:
@@ -96,6 +103,8 @@ install:windows-with-HDF5-static:
     - build
   script:
     - cmake.exe --install CI --config Release
+  rules:
+  - !reference [.install_rules, rules]
 
 build:windows-with-HDF5-shared:
   stage: build
@@ -103,7 +112,7 @@ build:windows-with-HDF5-shared:
     - win10
     - build
   script:
-    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DHDF5_DIR="$HDF5_DIR_2022_64_SHARED_RELEASE" -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=ON
+    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DHDF5_DIR="$HDF5_DIR_2022_64_SHARED_RELEASE" -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=ON
     - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
   artifacts:
     paths:
@@ -137,6 +146,8 @@ install:windows-with-HDF5-shared:
     - build
   script:
     - cmake.exe --install CI --config Release
+  rules:
+  - !reference [.install_rules, rules]
 
 build:windows-without-HDF5-static:
   stage: build
@@ -144,7 +155,7 @@ build:windows-without-HDF5-static:
     - win10
     - build
   script:
-    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF
+    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=OFF
     - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
   artifacts:
     paths:
@@ -172,7 +183,7 @@ build:windows-without-HDF5-shared:
     - win10
     - build
   script:
-    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=ON
+    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=OFF
     - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
   artifacts:
     paths:
@@ -200,7 +211,7 @@ build:ubuntu-with-HDF5-static:
     - ubuntu
     - build
   script:
-    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DHDF5_DIR="$HDF5_DIR_GCC_64_STATIC_RELEASE" -DBUILD_SHARED_LIBS=OFF
+    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DHDF5_DIR="$HDF5_DIR_GCC_64_STATIC_RELEASE" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON
     - cmake --build CI --config Release --parallel $NUM_PARALLEL
   artifacts:
     paths:
@@ -234,6 +245,8 @@ install:ubuntu-with-HDF5-static:
     - build
   script:
     - cmake --install CI --config Release
+  rules:
+  - !reference [.install_rules, rules]
 
 build:ubuntu-with-HDF5-shared:
   stage: build
@@ -241,7 +254,7 @@ build:ubuntu-with-HDF5-shared:
     - ubuntu
     - build
   script:
-    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DHDF5_DIR="$HDF5_DIR_GCC_64_SHARED_RELEASE" -DBUILD_SHARED_LIBS=ON
+    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DHDF5_DIR="$HDF5_DIR_GCC_64_SHARED_RELEASE" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=ON
     - cmake --build CI --config Release --parallel $NUM_PARALLEL
   artifacts:
     paths:
@@ -275,20 +288,15 @@ install:ubuntu-with-HDF5-shared:
     - build
   script:
     - cmake --install CI --config Release
-  artifacts:
-    paths:
-      - CI/version.txt
-    expire_in: 1 day
+  rules:
+  - !reference [.install_rules, rules]
 
 tag-version:
   stage: tag
   needs:
     - build:ubuntu-with-HDF5-shared
   rules:
-    - if: $CI_COMMIT_TAG
-      when: never
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-    - if: $CI_COMMIT_BRANCH =~ /^v[0-9]+\.[0-9]+$/
+    - !reference [.install_rules, rules]
   script:
     - git tag $(cat CI/version.txt)
     - git push --tags
@@ -302,7 +310,7 @@ build:ubuntu-without-HDF5-static:
     - ubuntu
     - build
   script:
-    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF
+    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=OFF
     - cmake --build CI --config Release --parallel $NUM_PARALLEL
   artifacts:
     paths:
@@ -330,7 +338,7 @@ build:ubuntu-without-HDF5-shared:
     - ubuntu
     - build
   script:
-    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=ON
+    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=OFF
     - cmake --build CI --config Release --parallel $NUM_PARALLEL
   artifacts:
     paths:
@@ -360,7 +368,7 @@ build:android-ubuntu-without-HDF5-static:
     - build
   script:
     - export ANDROID_NDK_PATH="$ALL_NDK_PATH"/21.4.7075529
-    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_SYSTEM_NAME=Android -DCMAKE_SYSTEM_VERSION=28 -DCMAKE_ANDROID_ARCH_ABI=arm64-v8a -DCMAKE_ANDROID_NDK="$ANDROID_NDK_PATH" -DCMAKE_ANDROID_STL_TYPE=c++_static -DCMAKE_INSTALL_PREFIX="$ANDROID_INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF
+    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_SYSTEM_NAME=Android -DCMAKE_SYSTEM_VERSION=28 -DCMAKE_ANDROID_ARCH_ABI=arm64-v8a -DCMAKE_ANDROID_NDK="$ANDROID_NDK_PATH" -DCMAKE_ANDROID_STL_TYPE=c++_static -DCMAKE_INSTALL_PREFIX="$ANDROID_INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=OFF
     - cmake --build CI --config Release --parallel $NUM_PARALLEL
   artifacts:
     paths:
@@ -389,7 +397,7 @@ build:android-ubuntu-without-HDF5-shared:
     - build
   script:
     - export ANDROID_NDK_PATH="$ALL_NDK_PATH"/21.4.7075529
-    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_SYSTEM_NAME=Android -DCMAKE_SYSTEM_VERSION=28 -DCMAKE_ANDROID_ARCH_ABI=arm64-v8a -DCMAKE_ANDROID_NDK="$ANDROID_NDK_PATH" -DCMAKE_ANDROID_STL_TYPE=c++_static -DCMAKE_INSTALL_PREFIX="$ANDROID_INSTALL_PREFIX" -DBUILD_SHARED_LIBS=ON
+    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_SYSTEM_NAME=Android -DCMAKE_SYSTEM_VERSION=28 -DCMAKE_ANDROID_ARCH_ABI=arm64-v8a -DCMAKE_ANDROID_NDK="$ANDROID_NDK_PATH" -DCMAKE_ANDROID_STL_TYPE=c++_static -DCMAKE_INSTALL_PREFIX="$ANDROID_INSTALL_PREFIX" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=OFF
     - cmake --build CI --config Release --parallel $NUM_PARALLEL
   artifacts:
     paths:
@@ -418,7 +426,7 @@ build:android-ubuntu-with-HDF5-static:
     - build
   script:
     - export ANDROID_NDK_PATH="$ALL_NDK_PATH"/21.4.7075529
-    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_SYSTEM_NAME=Android -DCMAKE_SYSTEM_VERSION=28 -DCMAKE_ANDROID_ARCH_ABI=arm64-v8a -DCMAKE_ANDROID_NDK="$ANDROID_NDK_PATH" -DCMAKE_ANDROID_STL_TYPE=c++_static -DCMAKE_INSTALL_PREFIX="$ANDROID_INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DHDF5_DIR="$HDF5_DIR_ARM_V8A_64_STATIC_RELEASE"
+    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_SYSTEM_NAME=Android -DCMAKE_SYSTEM_VERSION=28 -DCMAKE_ANDROID_ARCH_ABI=arm64-v8a -DCMAKE_ANDROID_NDK="$ANDROID_NDK_PATH" -DCMAKE_ANDROID_STL_TYPE=c++_static -DCMAKE_INSTALL_PREFIX="$ANDROID_INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DHDF5_DIR="$HDF5_DIR_ARM_V8A_64_STATIC_RELEASE" -DWITH_HDF5=ON
     - cmake --build CI --config Release --parallel $NUM_PARALLEL
   artifacts:
     paths:
@@ -438,6 +446,8 @@ install:android-ubuntu-with-HDF5-static:
     - build
   script:
     - cmake --install CI --config Release
+  rules:
+  - !reference [.install_rules, rules]
 
 build:android-ubuntu-with-HDF5-shared:
   stage: build
@@ -447,7 +457,7 @@ build:android-ubuntu-with-HDF5-shared:
     - build
   script:
     - export ANDROID_NDK_PATH="$ALL_NDK_PATH"/21.4.7075529
-    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_SYSTEM_NAME=Android -DCMAKE_SYSTEM_VERSION=28 -DCMAKE_ANDROID_ARCH_ABI=arm64-v8a -DCMAKE_ANDROID_NDK="$ANDROID_NDK_PATH" -DCMAKE_ANDROID_STL_TYPE=c++_static -DCMAKE_INSTALL_PREFIX="$ANDROID_INSTALL_PREFIX" -DBUILD_SHARED_LIBS=ON -DHDF5_DIR="$HDF5_DIR_ARM_V8A_64_SHARED_RELEASE"
+    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_SYSTEM_NAME=Android -DCMAKE_SYSTEM_VERSION=28 -DCMAKE_ANDROID_ARCH_ABI=arm64-v8a -DCMAKE_ANDROID_NDK="$ANDROID_NDK_PATH" -DCMAKE_ANDROID_STL_TYPE=c++_static -DCMAKE_INSTALL_PREFIX="$ANDROID_INSTALL_PREFIX" -DBUILD_SHARED_LIBS=ON -DHDF5_DIR="$HDF5_DIR_ARM_V8A_64_SHARED_RELEASE" -DWITH_HDF5=ON
     - cmake --build CI --config Release --parallel $NUM_PARALLEL
   artifacts:
     paths:
@@ -467,3 +477,5 @@ install:android-ubuntu-with-HDF5-shared:
     - build
   script:
     - cmake --install CI --config Release
+  rules:
+  - !reference [.install_rules, rules]

@@ -12,6 +12,12 @@
 #include <limits>
 #include <ostream>
 
+#define H5DataType \
+  (std::is_same<DataType, float>::value ? H5::PredType::NATIVE_FLOAT : H5::PredType::NATIVE_SHORT)
+#define H5MetadataType                                                   \
+  (std::is_same<MetadataType, float>::value ? H5::PredType::NATIVE_FLOAT \
+                                            : H5::PredType::NATIVE_DOUBLE)
+
 #if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic ignored "-Wformat-truncation"
 #endif
