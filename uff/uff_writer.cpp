@@ -4,6 +4,8 @@
  * \brief
  */
 
+#ifdef WITH_HDF5
+
 #include "uff_writer.h"
 
 namespace uff
@@ -683,3 +685,5 @@ void Writer::writeVersion(H5::Group& group, const uff::Version& version)
     }
 
 } // namespace uff
+
+#endif // WITH_HDF5

@@ -4,6 +4,8 @@
  * \brief
  */
 
+#ifdef WITH_HDF5
+
 #include "uff_reader_v0_2.h"
 
 #include <type_traits>
@@ -615,3 +617,5 @@ namespace uff
     }
 
 } // namespace uff
+
+#endif // WITH_HDF5

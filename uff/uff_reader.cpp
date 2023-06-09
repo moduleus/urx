@@ -4,6 +4,8 @@
  * \brief
  */
 
+#ifdef WITH_HDF5
+
 #include "uff_reader.h"
 
 #include <type_traits>
@@ -674,3 +676,6 @@ std::shared_ptr<uff::Wave> Reader::readWave(const H5::Group& group)
     }
 
 } // namespace uff
+
+
+#endif // WITH_HDF5

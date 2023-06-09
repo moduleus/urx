@@ -7,6 +7,8 @@
 #ifndef UFF_READER_H
 #define UFF_READER_H
 
+#ifdef WITH_HDF5
+
 // UFF
 #include "uff_dataset.h"
 #include "uff_object.h"
@@ -188,5 +190,7 @@ namespace uff
     }
 
 } // namespace uff
+
+#endif // WITH_HDF5
 
 #endif // UFF_READER_H
