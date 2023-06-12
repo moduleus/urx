@@ -1,11 +1,5 @@
-/*!
- * Copyright Moduleus
- * \file uff/reader.h
- * \brief
- */
+#pragma once
 
-#ifdef WITH_HDF5
-#ifndef UFF_READER_H
 #include <uff/aperture.h>
 #include <uff/channel_data.h>
 #include <uff/element.h>
@@ -31,11 +25,8 @@
 #include <string_view>
 #include <vector>
 
-#define UFF_READER_H
-
 #include <H5Cpp.h>
 #include <uff/dataset.h>
-#include <uff/object.h>
 #include <optional>
 
 namespace uff {
@@ -46,13 +37,9 @@ namespace uff {
  * TODO: only read metadata first, then read RF channel data next and only on-demand
  */
 template <typename DataType>
-class Reader : public uff::Object {
-  UFF_TYPE_MACRO(Reader, uff::Object);
-
+class Reader {
  public:
   Reader() = default;
-
-  void printSelf(std::ostream& os, const std::string& indent) const override;
 
   std::shared_ptr<uff::Dataset<DataType>> dataset() { return m_dataset; }
   std::shared_ptr<const uff::Dataset<DataType>> dataset() const { return m_dataset; }
@@ -152,6 +139,3 @@ class Reader : public uff::Object {
 };
 
 }  // namespace uff
-
-#endif  // UFF_READER_H
-#endif  // WITH_HDF5

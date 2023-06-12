@@ -1,55 +1,43 @@
-/*!
- * Copyright Moduleus 2019
- * \file uff/translation.h
- * \brief
- */
+#pragma once
 
-#ifndef UFF_TRANSLATION_H
-#define UFF_TRANSLATION_H
-
-#include <uff/object.h>
 #include <uff/uff.h>
-#include <iosfwd>
-#include <string>
 
 namespace uff {
 
-/**
- * @brief The UFF Translation class
- */
-class Translation : public uff::Object {
-  UFF_TYPE_MACRO(Translation, uff::Object);
-
+class Translation {
+  // CTOR & DTOR
  public:
-  explicit Translation(MetadataType tx = 0.f, MetadataType ty = 0.f, MetadataType tz = 0.f) {
-    setX(tx);
-    setY(ty);
-    setZ(tz);
-  }
+  explicit Translation(MetadataType tx = 0.f, MetadataType ty = 0.f, MetadataType tz = 0.f)
+      : _tx(tx), _ty(ty), _tz(tz) {}
+  Translation(const Translation&) = default;
+  Translation(Translation&&) = default;
+  ~Translation() = default;
 
-  void printSelf(std::ostream& os, const std::string& indent) const override;
-
-  MetadataType x() const { return m_tx; }
-  void setX(MetadataType x) { m_tx = x; }
-
-  MetadataType y() const { return m_ty; }
-  void setY(MetadataType y) { m_ty = y; }
-
-  MetadataType z() const { return m_tz; }
-  void setZ(MetadataType z) { m_tz = z; }
-
+  // Operators
+ public:
+  Translation& operator=(const Translation& other) noexcept = default;
+  Translation& operator=(Translation&& other) noexcept = default;
   bool operator==(const Translation& other) const {
-    return ((m_tx == other.m_tx) && (m_ty == other.m_ty) && (m_tz == other.m_tz));
+    return ((_tx == other._tx) && (_ty == other._ty) && (_tz == other._tz));
   }
-
   inline bool operator!=(const Translation& other) const { return !(*this == other); }
 
+  // Accessors
+ public:
+  inline MetadataType x() const { return _tx; }
+  inline void setX(MetadataType x) { _tx = x; }
+
+  inline MetadataType y() const { return _ty; }
+  inline void setY(MetadataType y) { _ty = y; }
+
+  inline MetadataType z() const { return _tz; }
+  inline void setZ(MetadataType z) { _tz = z; }
+
+  // Members
  private:
-  MetadataType m_tx;
-  MetadataType m_ty;
-  MetadataType m_tz;
+  MetadataType _tx;
+  MetadataType _ty;
+  MetadataType _tz;
 };
 
 }  // namespace uff
-
-#endif  // UFF_TRANSLATION_H

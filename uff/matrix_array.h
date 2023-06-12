@@ -1,14 +1,6 @@
-/*!
- * Copyright Moduleus
- * \file uff/matrix_array.h
- * \brief
- */
-
-#ifndef UFF_MATRIX_ARRAY_H
-#define UFF_MATRIX_ARRAY_H
+#pragma once
 
 #include <uff/element.h>
-#include <uff/object.h>
 #include <uff/probe.h>
 #include <uff/uff.h>
 #include <cstddef>
@@ -26,93 +18,108 @@ namespace uff {
  * element[0] but a higher x-coordinates.
  */
 class MatrixArray : public uff::Probe {
-  UFF_TYPE_MACRO(MatrixArray, uff::Object);
-
+  // CTOR & DTOR
  public:
   MatrixArray() = default;
-  MatrixArray(const uint32_t& nbElementsX, const uint32_t& nbElementsY, const MetadataType& pitchX,
-              const MetadataType& picthY) {
-    m_numberElementsX = nbElementsX;
-    m_numberElementsY = nbElementsY;
-    m_pitchX = pitchX;
-    m_pitchY = picthY;
+  MatrixArray(const uint32_t& _nb_elements_x, const uint32_t& _nb_elements_y,
+              const MetadataType& pitch_x, const MetadataType& pitch_y)
+      : _nb_elements_x(_nb_elements_x),
+        _nb_elements_y(_nb_elements_y),
+        _pitch_x(pitch_x),
+        _pitch_y(pitch_y) {
+    updateElements();
+  }
+  MatrixArray(const RcaArray&) = default;
+  MatrixArray(MatrixArray&&) = default;
+  virtual ~MatrixArray() override = default;
+
+  // Operators
+ public:
+  MatrixArray& operator=(const MatrixArray& other) noexcept = default;
+  MatrixArray& operator=(MatrixArray&& other) noexcept = default;
+  inline bool operator==(const MatrixArray& other) const {
+    return (Probe::operator==(other) && _nb_elements_x == other._nb_elements_x &&
+            _nb_elements_y == other._nb_elements_y && _pitch_x == other._pitch_x &&
+            _pitch_y == other._pitch_y && _element_width_x == other._element_width_x &&
+            _element_width_y == other._element_width_y &&
+            _element_height_x == other._element_height_x &&
+            _element_height_y == other._element_height_y);
+  }
+  inline bool operator!=(const MatrixArray& other) const { return !(*this == other); }
+
+  // Accessors
+ public:
+  inline uint32_t nbElementsX() const { return _nb_elements_x; }
+  inline void setNumberElementsX(uint32_t nb_elements_x) {
+    _nb_elements_x = nb_elements_x;
     updateElements();
   }
 
-  void printSelf(std::ostream& os, const std::string& indent) const override;
-
-  uint32_t numberElementsX() const { return m_numberElementsX; }
-  void setNumberElementsX(uint32_t numberElementsX) {
-    m_numberElementsX = numberElementsX;
+  inline uint32_t nbElementsY() const { return _nb_elements_y; }
+  inline void setNumberElementsY(uint32_t nb_elements_y) {
+    _nb_elements_y = nb_elements_y;
     updateElements();
   }
 
-  uint32_t numberElementsY() const { return m_numberElementsY; }
-  void setNumberElementsY(uint32_t numberElementsY) {
-    m_numberElementsY = numberElementsY;
+  inline MetadataType pitchX() const { return _pitch_x; }
+  inline void setPitchX(const MetadataType& pitch_x) {
+    _pitch_x = pitch_x;
     updateElements();
   }
 
-  MetadataType pitchX() const { return m_pitchX; }
-  void setPitchX(const MetadataType& pitchX) {
-    m_pitchX = pitchX;
+  inline MetadataType pitchY() const { return _pitch_y; }
+  inline void setPitchY(const MetadataType& pitch_y) {
+    _pitch_y = pitch_y;
     updateElements();
   }
 
-  MetadataType pitchY() const { return m_pitchY; }
-  void setPitchY(const MetadataType& pitchY) {
-    m_pitchY = pitchY;
-    updateElements();
+  inline std::optional<MetadataType> element_width() { return _element_width; }
+  inline void setelement_width(std::optional<MetadataType> element_width) {
+    _element_width = element_width;
   }
 
-  std::optional<MetadataType> elementWidth() { return m_elementWidth; }
-  void setElementWidth(std::optional<MetadataType> elementWidth) { m_elementWidth = elementWidth; }
-
-  std::optional<MetadataType> elementHeight() { return m_elementHeight; }
-  void setElementHeight(std::optional<MetadataType> elementHeight) {
-    m_elementHeight = elementHeight;
+  inline std::optional<MetadataType> element_height() { return _element_height; }
+  inline void setelement_height(std::optional<MetadataType> element_height) {
+    _element_height = element_height;
   }
-
-  std::shared_ptr<uff::Probe> clone() override { return std::make_shared<uff::MatrixArray>(*this); }
 
  private:
   // Update elements position
-  void updateElements() {
-    m_elements.resize(static_cast<size_t>(m_numberElementsX) * m_numberElementsY);
+  void updateElements() override {
+    _elements.resize(static_cast<size_t>(_nb_elements_x) * _nb_elements_y);
 
-    MetadataType xmin = -m_pitchX * (m_numberElementsX - 1.f) / 2.f;
-    MetadataType ymin = -m_pitchY * (m_numberElementsY - 1.f) / 2.f;
-    for (uint32_t i = 0; i < m_numberElementsY; i++) {
-      for (uint32_t j = 0; j < m_numberElementsX; j++) {
+    MetadataType xmin = -_pitch_x * (_nb_elements_x - 1.f) / 2.f;
+    MetadataType ymin = -_pitch_y * (_nb_elements_y - 1.f) / 2.f;
+    for (uint32_t i = 0; i < _nb_elements_y; i++) {
+      for (uint32_t j = 0; j < _nb_elements_x; j++) {
         uff::Element element;
-        element.setX(xmin + j * m_pitchX);
-        element.setY(ymin + i * m_pitchY);
+        element.setX(xmin + j * _pitch_x);
+        element.setY(ymin + i * _pitch_y);
         element.setZ(0.f);
-        m_elements[static_cast<size_t>(j) + static_cast<size_t>(i) * m_numberElementsY] = element;
+        _elements[static_cast<size_t>(j) + static_cast<size_t>(i) * _nb_elements_y] = element;
       }
     }
   }
 
+  // Members
  protected:
   // Number of elements in the x-axis
-  uint32_t m_numberElementsX = 0;
+  uint32_t _nb_elements_x = 0;
 
   // Number of elements in the y-axis
-  uint32_t m_numberElementsY = 0;
+  uint32_t _nb_elements_y = 0;
 
   // Distance between the acoustic center of adyacent elements along the x-axis [m]
-  MetadataType m_pitchX = 0;
+  MetadataType _pitch_x = 0;
 
   // Distance between the acoustic center of adyacent elements along the y-axis [m]
-  MetadataType m_pitchY = 0;
+  MetadataType _pitch_y = 0;
 
   // (Optional) Element size in the x-axis [m]
-  std::optional<MetadataType> m_elementWidth = std::nullopt;
+  std::optional<MetadataType> _element_width = std::nullopt;
 
   // (Optional) Element size in the y-axis [m]
-  std::optional<MetadataType> m_elementHeight = std::nullopt;
+  std::optional<MetadataType> _element_height = std::nullopt;
 };
 
 }  // namespace uff
-
-#endif  // UFF_MATRIX_ARRAY_H

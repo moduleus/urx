@@ -1,64 +1,51 @@
-/*!
- * Copyright Moduleus
- * \file uff/element.h
- * \brief
- */
+#pragma once
 
-#ifndef UFF_ELEMENT_H
-#define UFF_ELEMENT_H
-
-#include <uff/object.h>
 #include <uff/uff.h>
 #include <iosfwd>
 #include <optional>
 #include <string>
+
 namespace uff {
 
-/**
- * @brief UFF class to define an ultrasonic element
- */
-class Element : public uff::Object {
-  UFF_TYPE_MACRO(Element, uff::Object);
-
+class Element {
+  // CTOR & DTOR
  public:
   Element() = default;
-  ~Element() override = default;
+  Element(const Element&) = default;
+  Element(Element&&) = default;
+  ~Element() = default;
 
-  void printSelf(std::ostream& os, const std::string& indent) const override;
+  // Operators
+ public:
+  Element& operator=(const Element& other) noexcept = default;
+  Element& operator=(Element&& other) noexcept = default;
+  inline bool operator==(const Element& other) const {
+    return ((_x == other._x) && (_y == other._y) && (_z == other._z));
+  }
+  inline bool operator!=(const Element& other) const { return !(*this == other); }
 
-  std::optional<MetadataType> x() const { return m_x; }
-  std::optional<MetadataType> y() const { return m_y; }
-  std::optional<MetadataType> z() const { return m_z; }
+  // Accessors
+ public:
+  inline std::optional<MetadataType> x() const { return _x; }
+  inline std::optional<MetadataType> y() const { return _y; }
+  inline std::optional<MetadataType> z() const { return _z; }
 
 #if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic warning "-Wmaybe-uninitialized"
 #endif
-  void setX(std::optional<MetadataType> x) { m_x = x; }
-  void setY(std::optional<MetadataType> y) { m_y = y; }
-  void setZ(std::optional<MetadataType> z) { m_z = z; }
+  inline void setX(std::optional<MetadataType> x) { _x = x; }
+  inline void setY(std::optional<MetadataType> y) { _y = y; }
+  inline void setZ(std::optional<MetadataType> z) { _z = z; }
 #if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
-  void setXYZ(std::optional<MetadataType> x, std::optional<MetadataType> y,
-              std::optional<MetadataType> z) {
-    setX(x);
-    setY(y);
-    setZ(z);
-  }
 
-  bool operator==(const Element& other) const {
-    return ((m_x == other.m_x) && (m_y == other.m_y) && (m_z == other.m_z));
-  }
-
-  inline bool operator!=(const Element& other) const { return !(*this == other); }
-
+  // Members
  private:
-  std::optional<MetadataType> m_x = std::nullopt;
-  std::optional<MetadataType> m_y = std::nullopt;
-  std::optional<MetadataType> m_z = std::nullopt;
+  std::optional<MetadataType> _x = std::nullopt;
+  std::optional<MetadataType> _y = std::nullopt;
+  std::optional<MetadataType> _z = std::nullopt;
 };
 
 }  // namespace uff
-
-#endif  // UFF_ELEMENT_H

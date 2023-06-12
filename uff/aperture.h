@@ -1,13 +1,5 @@
-/*!
- * Copyright Moduleus
- * \file uff/aperture.h
- * \brief
- */
+#pragma once
 
-#ifndef UFF_APERTURE_H
-#define UFF_APERTURE_H
-
-#include <uff/object.h>
 #include <uff/transform.h>
 #include <uff/uff.h>
 #include <iosfwd>
@@ -19,51 +11,51 @@ namespace uff {
 /**
  * @brief UFF class to define analytically the aperture use in an ultrasound wave
  */
-class Aperture : public uff::Object {
-  UFF_TYPE_MACRO(Aperture, uff::Object);
-
+class Aperture {
+  // CTOR & DTOR
  public:
   Aperture() = default;
+  Aperture(const Aperture&) = default;
+  Aperture(Aperture&&) = default;
+  ~Aperture() = default;
 
-  void printSelf(std::ostream& os, const std::string& indent) const override;
-
-  // Origin
-  const uff::Transform& origin() const { return m_origin; }
-  void setOrigin(const uff::Transform& origin) { m_origin = origin; }
-
-  // Window
-  const std::optional<std::string>& window() const { return m_window; }
-  void setWindow(const std::optional<std::string>& window) { m_window = window; }
-
-  // F number
-  std::optional<MetadataType> fNumber() const { return m_fNumber; }
-  void setFNumber(std::optional<MetadataType> f_number) { m_fNumber = f_number; }
-
-  // Fixed size
-  std::optional<MetadataType> fixedSize() const { return m_fixedSize; }
-  void setFixedSize(std::optional<MetadataType> fixedSize) { m_fixedSize = fixedSize; }
-
+  // Operators
+ public:
+  Aperture& operator=(const Aperture& other) noexcept = default;
+  Aperture& operator=(Aperture&& other) noexcept = default;
   bool operator==(const Aperture& other) const {
-    return ((m_origin == other.m_origin) && (m_window == other.m_window) &&
-            (m_fNumber == other.m_fNumber) && (m_fixedSize == other.m_fixedSize));
+    return ((_origin == other._origin) && (_window == other._window) &&
+            (_f_number == other._f_number) && (_fixed_size == other._fixed_size));
   }
-
   inline bool operator!=(const Aperture& other) const { return !(*this == other); }
 
+  // Accessors
+ public:
+  inline const uff::Transform& origin() const { return _origin; }
+  inline void setOrigin(const uff::Transform& origin) { _origin = origin; }
+
+  inline const std::optional<std::string>& window() const { return _window; }
+  inline void setWindow(const std::optional<std::string>& window) { _window = window; }
+
+  inline std::optional<MetadataType> fNumber() const { return _f_number; }
+  inline void setFNumber(std::optional<MetadataType> f_number) { _f_number = f_number; }
+
+  inline std::optional<MetadataType> fixedSize() const { return _fixed_size; }
+  inline void setFixedSize(std::optional<MetadataType> fixedSize) { _fixed_size = fixedSize; }
+
+  // Members
  private:
   // Location of the aperture center in space
-  uff::Transform m_origin;
+  uff::Transform _origin;
 
   // String defining the apodization window type and parameter (e.g., 'Rectangular', 'Hamming', 'Gauss(8)', 'Tukey(0.5)')
-  std::optional<std::string> m_window = std::nullopt;
+  std::optional<std::string> _window = std::nullopt;
 
   // Desired F-number of the aperture [Az, El]
-  std::optional<MetadataType> m_fNumber = std::nullopt;
+  std::optional<MetadataType> _f_number = std::nullopt;
 
   // If non-zero, this overwrites the size of the aperture in m [Az, El]
-  std::optional<MetadataType> m_fixedSize = std::nullopt;
+  std::optional<MetadataType> _fixed_size = std::nullopt;
 };
 
 }  // namespace uff
-
-#endif  // UFF_APERTURE_H

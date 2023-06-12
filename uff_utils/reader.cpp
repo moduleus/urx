@@ -1,11 +1,3 @@
-/*!
- * Copyright Moduleus
- * \file uff/reader.cpp
- * \brief
- */
-
-#ifdef WITH_HDF5
-
 #include <uff/aperture.h>
 #include <uff/channel_data.h>
 #include <uff/dataset.h>
@@ -45,8 +37,7 @@
 namespace uff {
 
 template <typename DataType>
-void Reader<DataType>::printSelf(std::ostream& os, const std::string& indent) const {
-  superclass::printSelf(os, indent);
+
 }
 
 template <typename DataType>
@@ -377,11 +368,11 @@ std::shared_ptr<uff::LinearArray> Reader<DataType>::readLinearArray(const H5::Gr
   // Read "pitch"
   linearArray->setPitch(readMetadataTypeDataset(group, "pitch"));
 
-  // Read "element_width"
-  linearArray->setElementWidth(readOptionalMetadataTypeDataset(group, "element_width"));
+  // // Read "element_width"
+  // linearArray->setElementWidth(readOptionalMetadataTypeDataset(group, "element_width"));
 
-  // Read "element_height"
-  linearArray->setElementHeight(readOptionalMetadataTypeDataset(group, "element_height"));
+  // // Read "element_height"
+  // linearArray->setElementHeight(readOptionalMetadataTypeDataset(group, "element_height"));
 
   return linearArray;
 }
@@ -773,4 +764,3 @@ template class Reader<float>;
 template class Reader<short>;
 
 }  // namespace uff
-#endif  // WITH_HDF5

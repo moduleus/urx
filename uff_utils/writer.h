@@ -1,11 +1,5 @@
-/*!
- * Copyright Moduleus
- * \file uff/writer.h
- * \brief
- */
+#pragma once
 
-#ifdef WITH_HDF5
-#ifndef UFF_WRITER_H
 #include <uff/aperture.h>
 #include <uff/channel_data.h>
 #include <uff/element.h>
@@ -31,11 +25,8 @@
 #include <string>
 #include <vector>
 
-#define UFF_WRITER_H
-
 #include <H5Cpp.h>
 #include <uff/dataset.h>
-#include <uff/object.h>
 #include <optional>
 
 namespace uff {
@@ -44,13 +35,9 @@ namespace uff {
  * @brief The UFF Writer class
  */
 template <typename DataType>
-class Writer : public uff::Object {
-  UFF_TYPE_MACRO(Writer, uff::Object);
-
+class Writer {
  public:
   Writer() = default;
-
-  void printSelf(std::ostream& os, const std::string& indent) const override;
 
   //uff::Dataset* dataset() { return m_dataset.get(); }
   void setDataset(std::shared_ptr<const uff::Dataset<DataType>> dataset) { m_dataset = dataset; }
@@ -126,6 +113,3 @@ class Writer : public uff::Object {
 };
 
 }  // namespace uff
-
-#endif  // UFF_WRITER_H
-#endif  // WITH_HDF5

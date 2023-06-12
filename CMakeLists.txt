@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.9)
 
 project(
   Uff
-  VERSION 0.4.6
+  VERSION 0.6.0
   LANGUAGES C CXX
   DESCRIPTION "Ultrasound File Format C++ implementation")
 
@@ -27,8 +27,6 @@ if(BUILD_SHARED_LIBS)
   set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 endif()
 
-add_subdirectory("uff")
-
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${UFF_SRCS})
 
 find_package(Git REQUIRED)
@@ -48,21 +46,44 @@ if(NOT BUILD_SHARED_LIBS)
   set(git_branch "${git_branch}_static")
 endif()
 
-# Target library ###
-set(UFF_LIBRARY ${PROJECT_NAME})
-add_library(${PROJECT_NAME} ${UFF_SRCS})
-add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
-if(ANDROID)
-  target_link_libraries(${PROJECT_NAME} PUBLIC log)
-endif()
-target_include_directories(
-  ${PROJECT_NAME}
-  PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}-${git_branch}>
-)
-set_target_properties(${PROJECT_NAME}
-                      PROPERTIES OUTPUT_NAME "${PROJECT_NAME}-${git_branch}")
+# setup installer
+include(InstallRequiredSystemLibraries)
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/License.txt")
+set(CPACK_PACKAGE_VERSION_MAJOR "${${PROJECT_NAME}_VERSION_MAJOR}")
+set(CPACK_PACKAGE_VERSION_MINOR "${${PROJECT_NAME}_VERSION_MINOR}")
+set(CPACK_PACKAGE_VERSION_PATCH "${${PROJECT_NAME}_VERSION_PATCH}")
+set(CPACK_SOURCE_GENERATOR "ZIP")
+include(CPack)
+
+# Setup compiler flags
+add_library(compiler_flags INTERFACE)
+target_compile_features(compiler_flags INTERFACE cxx_std_17)
+
+# # Treat warnings as errors
+# target_compile_options(
+#   compiler_flags
+#   INTERFACE
+#     $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
+#     -Werror
+#     -Wall>
+#     $<$<CXX_COMPILER_ID:MSVC>:
+#     /W3
+#     /WX
+#     /EHsc
+#     /wd4251>)
+
+# add compiler warning flags just when building this project via
+# the BUILD_INTERFACE genex
+set(gcc_like_cxx "$<COMPILE_LANG_AND_ID:CXX,ARMClang,AppleClang,Clang,GNU,LCC>")
+set(msvc_cxx "$<COMPILE_LANG_AND_ID:CXX,MSVC>")
+target_compile_options(
+  compiler_flags
+  INTERFACE
+    "$<${gcc_like_cxx}:$<BUILD_INTERFACE:-Wall;-Werror;-Wextra;-Wshadow;-Wformat=2;-Wunused>>"
+    "$<${msvc_cxx}:$<BUILD_INTERFACE:-W3;-WX;-EHsc;-wd4251>>")
+
+add_subdirectory("uff")
+add_subdirectory("uff_utils")
 
 # Link ###
 if(BUILD_SHARED_LIBS)
@@ -71,40 +92,8 @@ else()
   set(LIB_TYPE STATIC)
 endif()
 string(TOLOWER ${LIB_TYPE} SEARCH_TYPE)
-if(TARGET hdf5-${SEARCH_TYPE})
-  target_compile_definitions(${PROJECT_NAME} PUBLIC WITH_HDF5)
-  target_link_libraries(${PROJECT_NAME} PUBLIC hdf5-${SEARCH_TYPE}
-                                               hdf5_cpp-${SEARCH_TYPE})
-  target_include_directories(
-    ${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${HDF5_CPP_SRC_SOURCE_DIR}>
-                           $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
-  target_include_directories(${PROJECT_NAME}
-                             PUBLIC $<BUILD_INTERFACE:${HDF5_SRC_SOURCE_DIR}>)
-  target_include_directories(${PROJECT_NAME}
-                             PUBLIC $<BUILD_INTERFACE:${HDF5_BINARY_DIR}>)
-else()
-  find_package(HDF5 NAMES hdf5 COMPONENTS CXX ${SEARCH_TYPE})
-  if(${HDF5_FOUND})
-    target_compile_definitions(${PROJECT_NAME} PUBLIC WITH_HDF5)
-    target_link_libraries(${PROJECT_NAME} PUBLIC hdf5::hdf5-${SEARCH_TYPE}
-                                                 hdf5::hdf5_cpp-${SEARCH_TYPE})
-  endif()
-endif()
-# Treat warnings as errors
-target_compile_options(
-  ${PROJECT_NAME}
-  PRIVATE
-    $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
-    -Werror
-    -Wall>
-    $<$<CXX_COMPILER_ID:MSVC>:
-    /W3
-    /WX
-    /EHsc
-    /wd4251>)
 
 # Create cmake config files ###
-
 configure_package_config_file(
   ${PROJECT_NAME}Config.cmake.in
   ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
@@ -114,38 +103,9 @@ write_basic_package_version_file(
   ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
   COMPATIBILITY SameMajorVersion)
 
-# Install library ###
-
-install(
-  TARGETS ${PROJECT_NAME}
-  EXPORT ${PROJECT_NAME}Targets
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  INCLUDES
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}-${git_branch})
-
-install(
-  EXPORT ${PROJECT_NAME}Targets
-  FILE ${PROJECT_NAME}Targets.cmake
-  NAMESPACE ${PROJECT_NAME}::
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}-${git_branch})
-
-install(
-  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}-${git_branch}
-  FILES_MATCHING
-  PATTERN "*.hpp"
-  PATTERN "*.h"
-  PATTERN ".git" EXCLUDE
-  PATTERN "CI" EXCLUDE
-  PATTERN "log.h" EXCLUDE)
-
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
-              ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}-${git_branch})
-
 file(WRITE "${CMAKE_BINARY_DIR}/version.txt" "${CMAKE_PROJECT_VERSION}")
 
-if(BUILD_TESTING)
-  enable_testing()
-  add_subdirectory(Testing)
-endif()
+# if(BUILD_TESTING)
+#   enable_testing()
+#   add_subdirectory(Testing)
+# endif()

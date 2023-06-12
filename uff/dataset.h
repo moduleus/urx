@@ -1,14 +1,6 @@
-/*!
- * Copyright Moduleus
- * \file uff/dataset.h
- * \brief
- */
-
-#ifndef UFF_DATASET_H
-#define UFF_DATASET_H
+#pragma once
 
 #include <uff/channel_data.h>
-#include <uff/object.h>
 #include <uff/receive_setup.h>
 #include <uff/uff.h>
 #include <uff/version.h>
@@ -23,67 +15,72 @@ namespace uff {
  * @brief The UFF Dataset class
  */
 template <typename DataType>
-class Dataset : public uff::Object {
-  UFF_TYPE_MACRO(Dataset, uff::Object);
-
+class Dataset {
+  // CTOR & DTOR
  public:
   Dataset() = default;
+  Dataset(const Dataset&) = default;
+  Dataset(Dataset&&) = default;
+  ~Dataset() = default;
 
-  void printSelf(std::ostream& os, const std::string& indent) const override;
-
-  uff::ChannelData<DataType>& channelData() { return m_channelData; }
-  const uff::ChannelData<DataType>& channelData() const { return m_channelData; }
-  void setChannelData(const uff::ChannelData<DataType>& channelData) {
-    m_channelData = channelData;
+  // Operators
+ public:
+  Dataset& operator=(const Dataset& other) noexcept = default;
+  Dataset& operator=(Dataset&& other) noexcept = default;
+  inline bool operator==(const Dataset& other) const {
+    return ((_version == other._version) && (_channel_data == other._channel_data));
   }
-  void setChannelData(uff::ChannelData<DataType>&& channelData) {
-    m_channelData = std::move(channelData);
+  inline bool operator!=(const Dataset& other) const { return !(*this == other); }
+
+  // Accessors
+ public:
+  inline uff::ChannelData<DataType>& channelData() { return _channel_data; }
+  inline const uff::ChannelData<DataType>& channelData() const { return _channel_data; }
+  inline void setChannelData(const uff::ChannelData<DataType>& channel_data) {
+    _channel_data = channel_data;
+  }
+  inline void setChannelData(uff::ChannelData<DataType>&& channel_data) {
+    _channel_data = std::move(channel_data);
   }
 
-  const uff::Version& version() const { return m_version; }
-  void setVersion(const uff::Version& version) { m_version = version; }
-
-  // ___________________ Convenience access method ___________________________________
+  inline const uff::Version& version() const { return _version; }
+  inline void setVersion(const uff::Version& version) { _version = version; }
 
   // Returns the channel geometry of the probe used by the 1st receive setup
   template <typename T>
   std::vector<T> getChannelGeometry() const {
-    return m_channelData.template channelGeometry<T>();
+    return _channel_data.template channelGeometry<T>();
   }
 
   // Returns the receive delay of the 1st ReceiveSetup
-  MetadataType getReceiveDelay() const { return m_channelData.receiveDelay(); }
+  MetadataType getReceiveDelay() const { return _channel_data.receiveDelay(); }
 
   // Returns the type of sampling of the 1st ReceiveSetup
-  uff::ReceiveSetup::SAMPLING_TYPE getSamplingType() const { return m_channelData.samplingType(); }
+  uff::ReceiveSetup::SAMPLING_TYPE getSamplingType() const { return _channel_data.samplingType(); }
 
   // Return the sampling frequency associated with the 1st receive event [Hz]
-  MetadataType getSamplingFrequency() const { return m_channelData.samplingFrequency(); }
+  MetadataType getSamplingFrequency() const { return _channel_data.samplingFrequency(); }
 
   // Returns the speed of sound [m/s]
-  MetadataType getSoundSpeed() const { return m_channelData.soundSpeed(); }
+  inline MetadataType getSoundSpeed() const { return _channel_data.soundSpeed(); }
 
   // Return the transmit frequency associated with the 1st Wave of the dataset
-  MetadataType getTransmitFrequency() const { return m_channelData.transmitFrequency(); }
+  MetadataType getTransmitFrequency() const { return _channel_data.transmitFrequency(); }
 
   // Returns true is the 1st probe is of sub-type 'ProbeType'
   // Example: isProbeType<uff::MatrixArray>() == true;
   template <class ProbeType>
   bool isProbeType() const {
-    return m_channelData.template isProbeType<ProbeType>();
+    return _channel_data.template isProbeType<ProbeType>();
   }
 
-  inline bool operator==(const Dataset& other) const {
-    return ((m_version == other.m_version) && (m_channelData == other.m_channelData));
-  }
-
-  inline bool operator!=(const Dataset& other) const { return !(*this == other); }
-
+  // Members
  private:
-  uff::Version m_version;
-  uff::ChannelData<DataType> m_channelData;
+  uff::Version _version;
+  uff::ChannelData<DataType> _channel_data;
 };
 
-}  // namespace uff
+template class Dataset<float>;
+template class Dataset<short>;
 
-#endif  // UFF_DATASET_H
+}  // namespace uff

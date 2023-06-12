@@ -1,15 +1,7 @@
-/*!
- * Copyright Moduleus
- * \file uff/channel_data.h
- * \brief
- */
-
-#ifndef UFF_CHANNEL_DATA_H
-#define UFF_CHANNEL_DATA_H
+#pragma once
 
 #include <uff/event.h>
 #include <uff/excitation.h>
-#include <uff/object.h>
 #include <uff/probe.h>
 #include <uff/receive_setup.h>
 #include <uff/timed_event.h>
@@ -41,48 +33,83 @@ namespace uff {
  * @brief UFF class that contains all the information needed to store and later process channel data.
  */
 template <typename DataType>
-class ChannelData : public uff::Object {
-  UFF_TYPE_MACRO(ChannelData, uff::Object);
-
+class ChannelData {
+  // CTOR & DTOR
  public:
   ChannelData() = default;
-  ChannelData(const ChannelData& other);
-  ChannelData(ChannelData&& other) noexcept = default;
+  ChannelData(const ChannelData&) = default;
+  ChannelData(ChannelData&&) noexcept = default;
+  ~ChannelData() = default;
 
-  void printSelf(std::ostream& os, const std::string& indent) const override;
+  // Operators
+ public:
+  ChannelData& operator=(const ChannelData& other) noexcept = default;
+  ChannelData& operator=(ChannelData&& other) noexcept = default;
+  bool operator==(const ChannelData& other) const {
+    bool are_probes_equaled = true;
+    for (uint32_t i = 0; i < _probes.size() && are_probes_equaled; ++i) {
+      are_probes_equaled = are_probes_equaled && (*_probes[i] == *other._probes[i]);
+    }
 
-  // Authors
-  const std::string& authors() const { return m_authors; }
-  void setAuthors(const std::string& authors) { m_authors = authors; }
+    bool are_unique_waves_equaled = true;
+    for (uint32_t i = 0; i < _unique_waves.size() && are_unique_waves_equaled; ++i) {
+      are_unique_waves_equaled =
+          are_unique_waves_equaled && (*_unique_waves[i] == *other._unique_waves[i]);
+    }
 
-  // Description
-  const std::string& description() const { return m_description; }
-  void setDescription(const std::string& description) { m_description = description; }
+    bool are_unique_events_equaled = true;
+    for (uint32_t i = 0; i < _unique_events.size() && are_unique_events_equaled; ++i) {
+      are_unique_events_equaled =
+          are_unique_events_equaled && (*_unique_events[i] == *other._unique_events[i]);
+    }
+
+    return ((_authors == other._authors) && (_description == other._description) &&
+            (_local_time == other._local_time) && (_country_code == other._country_code) &&
+            (_system == other._system) && (_sound_speed == other._sound_speed) &&
+            (_repetition_rate == other._repetition_rate) && are_probes_equaled &&
+            are_unique_waves_equaled && are_unique_events_equaled &&
+            (_sequence == other._sequence) && (_data == other._data) &&
+            (_nb_frames == other._nb_frames) && (_nb_events == other._nb_events) &&
+            (_nb_samples == other._nb_samples) && (_nb_channels == other._nb_channels));
+  }
+  inline bool operator!=(const ChannelData& other) const { return !(*this == other); }
+
+  // Accessors
+ public:
+  inline const std::string& authors() const { return _authors; }
+  inline void setAuthors(const std::string& authors) { _authors = authors; }
+
+  inline const std::string& description() const { return _description; }
+  inline void setDescription(const std::string& description) { _description = description; }
 
   /**
-     * Format: ISO8601
+     * Should be at format: ISO8601
      * Example: 
      *   "2008-09-15T15:53:00"
      *   "2008-09-15T15:53:00+05:00"
      */
-  const std::string& localTime() const { return m_localTime; }
-  void setLocalTime(const std::string& localTime);
+  inline const std::string& localTime() const { return _local_time; }
+  void setLocalTime(const std::string& local_time) {
+    _local_time = local_time;
+  }
 
   /**
-     * Format: ISO3166-1
+     * Should be at format: ISO3166-1
      * Example:
      *     "FR" for France
      */
-  const std::string& countryCode() const { return m_countryCode; }
-  void setCountryCode(const std::string& countryCode);
+  inline const std::string& countryCode() const { return _country_code; }
+  void setCountryCode(const std::string& country_code) {
+    _country_code = country_code;
+  }
 
   // 'System' describes the acquisition system used to acquire the data
-  const std::string& system() const { return m_system; }
-  void setSystem(const std::string& system) { m_system = system; }
+  inline const std::string& system() const { return _system; }
+  inline void setSystem(const std::string& system) { _system = system; }
 
   // Speed of sound in m/s
-  MetadataType soundSpeed() const { return m_soundSpeed; }
-  void setSoundSpeed(MetadataType soundSpeed) { m_soundSpeed = soundSpeed; }
+  inline MetadataType soundSpeed() const { return _sound_speed; }
+  inline void setSoundSpeed(MetadataType soundSpeed) { _sound_speed = soundSpeed; }
 
   // Returns the channel geometry of the probe used by the 1st receive setup
   template <typename T>
@@ -140,77 +167,88 @@ class ChannelData : public uff::Object {
   }
 
   // Sequence repetition rate in Hz. Sometimes called framerate.
-  std::optional<MetadataType> repetitionRate() const { return m_repetitionRate; }
-  void setRepetitionRate(std::optional<MetadataType> repetitionRate) {
-    m_repetitionRate = repetitionRate;
+  inline std::optional<MetadataType> repetitionRate() const { return _repetition_rate; }
+  inline void setRepetitionRate(std::optional<MetadataType> repetitionRate) {
+    _repetition_rate = repetitionRate;
   }
 
   // List of probes used for this dataset
-  const std::vector<std::shared_ptr<uff::Probe>>& probes() const { return m_probes; }
-  void addProbe(const std::shared_ptr<uff::Probe>& probe) { m_probes.push_back(probe); }
-  void setProbes(const std::vector<std::shared_ptr<uff::Probe>>& probes) { m_probes = probes; }
+  inline const std::vector<std::shared_ptr<uff::Probe>>& probes() const { return _probes; }
+  inline void addProbe(const std::shared_ptr<uff::Probe>& probe) { _probes.push_back(probe); }
+  inline void setProbes(const std::vector<std::shared_ptr<uff::Probe>>& probes) {
+    _probes = probes;
+  }
 
   // List of unique waves used for this dataset
-  const std::vector<std::shared_ptr<uff::Wave>>& uniqueWaves() const { return m_uniqueWaves; }
-  void addUniqueWave(const std::shared_ptr<uff::Wave>& wave) { m_uniqueWaves.push_back(wave); }
-  void setUniqueWaves(const std::vector<std::shared_ptr<uff::Wave>>& uniqueWaves) {
-    m_uniqueWaves = uniqueWaves;
+  inline const std::vector<std::shared_ptr<uff::Wave>>& uniqueWaves() const {
+    return _unique_waves;
+  }
+  inline void addUniqueWave(const std::shared_ptr<uff::Wave>& wave) {
+    _unique_waves.push_back(wave);
+  }
+  inline void setUniqueWaves(const std::vector<std::shared_ptr<uff::Wave>>& uniqueWaves) {
+    _unique_waves = uniqueWaves;
   }
 
   /* List of unique events used for this dataset */
-  const std::vector<std::shared_ptr<uff::Event>>& uniqueEvents() const { return m_uniqueEvents; }
-  void addUniqueEvent(const std::shared_ptr<uff::Event>& event) { m_uniqueEvents.push_back(event); }
-  void setUniqueEvents(const std::vector<std::shared_ptr<uff::Event>>& uniqueEvents) {
-    m_uniqueEvents = uniqueEvents;
+  inline const std::vector<std::shared_ptr<uff::Event>>& uniqueEvents() const {
+    return _unique_events;
+  }
+  inline void addUniqueEvent(const std::shared_ptr<uff::Event>& event) {
+    _unique_events.push_back(event);
+  }
+  inline void setUniqueEvents(const std::vector<std::shared_ptr<uff::Event>>& uniqueEvents) {
+    _unique_events = uniqueEvents;
   }
 
-  const std::vector<uff::TimedEvent>& sequence() const { return m_sequence; }
-  void addTimedEvent(const uff::TimedEvent& timedEvent) { m_sequence.push_back(timedEvent); }
-  void setSequence(const std::vector<uff::TimedEvent>& sequence) { m_sequence = sequence; }
+  inline const std::vector<uff::TimedEvent>& sequence() const { return _sequence; }
+  inline void addTimedEvent(const uff::TimedEvent& timedEvent) { _sequence.push_back(timedEvent); }
+  inline void setSequence(const std::vector<uff::TimedEvent>& sequence) { _sequence = sequence; }
 
   // data
-  std::vector<DataType>& data() {
-    if (m_skipChannelDataData) {
+  inline std::vector<DataType>& data() {
+    if (_skip_data) {
       throw std::logic_error("Can't read data.");
     }
-    return m_data;
+    return _data;
   }
-  const std::vector<DataType>& data() const {
-    if (m_skipChannelDataData) {
+  inline const std::vector<DataType>& data() const {
+    if (_skip_data) {
       throw std::logic_error("Can't read data.");
     }
-    return m_data;
+    return _data;
   }
-  void setData(const std::vector<DataType>& data) { m_data = data; }
+  inline void setData(const std::vector<DataType>& data) { _data = data; }
 
-  const DataType* dataAt(int frame, int event, int channel) const {
-    return m_data.data() +
+  inline const DataType* dataAt(int frame, int event, int channel) const {
+    return _data.data() +
            (static_cast<size_t>(frame) * numberOfEvents() * numberOfChannels() *
             numberOfSamples()) +
            (static_cast<size_t>(event) * numberOfChannels() * numberOfSamples()) +
            (static_cast<size_t>(channel) * numberOfSamples());
   }
-  DataType* dataAt(int frame, int event, int channel) {
-    return m_data.data() +
+  inline DataType* dataAt(int frame, int event, int channel) {
+    return _data.data() +
            (static_cast<size_t>(frame) * numberOfEvents() * numberOfChannels() *
             numberOfSamples()) +
            (static_cast<size_t>(event) * numberOfChannels() * numberOfSamples()) +
            (static_cast<size_t>(channel) * numberOfSamples());
   }
 
-  uint32_t numberOfFrames() const { return m_numberOfFrames; }
-  uint32_t numberOfEvents() const { return m_numberOfEvents; }
-  uint32_t numberOfChannels() const { return m_numberOfChannels; }
-  uint32_t numberOfSamples() const { return m_numberOfSamples; }
-  std::tuple<uint32_t, uint32_t, uint32_t, uint32_t> allNumberOf() const {
-    return {m_numberOfSamples, m_numberOfChannels, m_numberOfEvents, m_numberOfFrames};
+  inline uint32_t numberOfFrames() const { return _nb_frames; }
+  inline uint32_t numberOfEvents() const { return _nb_events; }
+  inline uint32_t numberOfChannels() const { return _nb_channels; }
+  inline uint32_t numberOfSamples() const { return _nb_samples; }
+  inline std::tuple<uint32_t, uint32_t, uint32_t, uint32_t> allNumberOf() const {
+    return {_nb_samples, _nb_channels, _nb_events, _nb_frames};
   }
 
-  void setNumberOfFrames(uint32_t sz) { m_numberOfFrames = sz; }
-  void setNumberOfEvents(uint32_t sz) { m_numberOfEvents = sz; }
-  void setNumberOfChannels(uint32_t sz) { m_numberOfChannels = sz; }
-  void setNumberOfSamples(uint32_t sz) { m_numberOfSamples = sz; }
+  inline void setNumberOfFrames(uint32_t sz) { _nb_frames = sz; }
+  inline void setNumberOfEvents(uint32_t sz) { _nb_events = sz; }
+  inline void setNumberOfChannels(uint32_t sz) { _nb_channels = sz; }
+  inline void setNumberOfSamples(uint32_t sz) { _nb_samples = sz; }
 
+ // MOVE THIS
   size_t numberOfSamplesPerEvent() const {
     return static_cast<size_t>(numberOfChannels()) * numberOfSamples();
   }
@@ -234,113 +272,62 @@ class ChannelData : public uff::Object {
   uint32_t lengthToSample(double distance) const {
     return static_cast<uint32_t>(std::round(distance / soundSpeed() * samplingFrequency() * 2.));
   }
+ // END MOVE THIS
 
-  void setSkipChannelDataData(bool skip) { m_skipChannelDataData = skip; }
+  inline void setSkipChannelDataData(bool skip) { _skip_data = skip; }
 
   void allocate() {
     size_t sz = static_cast<size_t>(numberOfFrames()) * numberOfEvents() * numberOfChannels() *
                 numberOfSamples();
-    m_data.resize(sz, 0);
+    _data.resize(sz, 0);
   }
 
-  /**
-     * Returns true if the input string is ISO8601
-     * Example: "2008-09-15T15:53:00"
-     */
-  static bool isIso8601(const std::string& dateTime) {
-    const std::string r =
-        R"(^([\+-]?\d{4}(?!\d{2}\b))((-?)((0[1-9]|1[0-2])(\3([12]\d|0[1-9]|3[01]))?|W([0-4]\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\d|[12]\d{2}|3([0-5]\d|6[1-6])))([T\s]((([01]\d|2[0-3])((:?)[0-5]\d)?|24\:?00)([\.,]\d+(?!:))?)?(\17[0-5]\d([\.,]\d+)?)?([zZ]|([\+-])([01]\d|2[0-3]):?([0-5]\d)?)?)?)?$)";
-    return std::regex_match(dateTime, std::regex(r));
-  }
-
-  /**
-     * Returns true if the input string is ISO3166
-     * Example: "FR"
-     * Note: only checks that it is a 2-letter uppercase
-     */
-  static bool isIso3166(const std::string& countryCode) {
-    const std::string r = R"(^[A-Z][A-Z]$)";
-    return std::regex_match(countryCode, std::regex(r));
-  }
-
-  ChannelData& operator=(const ChannelData& other);
-  ChannelData& operator=(ChannelData&& other) noexcept = default;
-
-  bool operator==(const ChannelData& other) const {
-    bool areProbesEqualed = true;
-    for (uint32_t i = 0; i < m_probes.size() && areProbesEqualed; ++i) {
-      areProbesEqualed = areProbesEqualed && (*m_probes[i] == *other.m_probes[i]);
-    }
-
-    bool areUniqueWavesEqualed = true;
-    for (uint32_t i = 0; i < m_uniqueWaves.size() && areUniqueWavesEqualed; ++i) {
-      areUniqueWavesEqualed =
-          areUniqueWavesEqualed && (*m_uniqueWaves[i] == *other.m_uniqueWaves[i]);
-    }
-
-    bool areUniqueEventsEqualed = true;
-    for (uint32_t i = 0; i < m_uniqueEvents.size() && areUniqueEventsEqualed; ++i) {
-      areUniqueEventsEqualed =
-          areUniqueEventsEqualed && (*m_uniqueEvents[i] == *other.m_uniqueEvents[i]);
-    }
-
-    return ((m_authors == other.m_authors) && (m_description == other.m_description) &&
-            (m_localTime == other.m_localTime) && (m_countryCode == other.m_countryCode) &&
-            (m_system == other.m_system) && (m_soundSpeed == other.m_soundSpeed) &&
-            (m_repetitionRate == other.m_repetitionRate) && areProbesEqualed &&
-            areUniqueWavesEqualed && areUniqueEventsEqualed && (m_sequence == other.m_sequence) &&
-            (m_data == other.m_data) && (m_numberOfFrames == other.m_numberOfFrames) &&
-            (m_numberOfEvents == other.m_numberOfEvents) &&
-            (m_numberOfSamples == other.m_numberOfSamples) &&
-            (m_numberOfChannels == other.m_numberOfChannels));
-  }
-
-  inline bool operator!=(const ChannelData& other) const { return !(*this == other); }
-
+  // Members
  private:
   // string with the authors of the data
-  std::string m_authors;
+  std::string _authors;
 
   // string describing the data
-  std::string m_description;
+  std::string _description;
 
   // string defining the time the dataset was acquired following ISO 8601
-  std::string m_localTime;
+  std::string _local_time;
 
   // string defining the country, following ISO 3166-1
-  std::string m_countryCode;
+  std::string _country_code;
 
   // string defining the system used to acquired the dataset
-  std::string m_system;
+  std::string _system;
 
   // Reference sound speed for Tx and Rx events [m/s]
-  MetadataType m_soundSpeed = 0;
+  MetadataType _sound_speed = 0;
 
   // Inverse of the time delay between consecutive repetitions of the sequence
-  std::optional<MetadataType> m_repetitionRate = std::nullopt;
+  std::optional<MetadataType> _repetition_rate = std::nullopt;
 
   // List of the probes used to transmit/recive the sequence
-  std::vector<std::shared_ptr<uff::Probe>> m_probes;
+  std::vector<std::shared_ptr<uff::Probe>> _probes;
 
   // List of the unique waves (or beams) used in the sequence
-  std::vector<std::shared_ptr<uff::Wave>> m_uniqueWaves;
+  std::vector<std::shared_ptr<uff::Wave>> _unique_waves;
 
   // List of the unique transmit/receive events used in the sequence
-  std::vector<std::shared_ptr<uff::Event>> m_uniqueEvents;
+  std::vector<std::shared_ptr<uff::Event>> _unique_events;
 
   // List of the times_events that describe the sequence
-  std::vector<uff::TimedEvent> m_sequence;
+  std::vector<uff::TimedEvent> _sequence;
 
   // data[iFrame][iEvent][iChannel][iSample]
-  std::vector<DataType> m_data;
-  uint32_t m_numberOfFrames = 0;
-  uint32_t m_numberOfEvents = 0;
-  uint32_t m_numberOfChannels = 0;
-  uint32_t m_numberOfSamples = 0;
+  std::vector<DataType> _data;
+  uint32_t _nb_frames = 0;
+  uint32_t _nb_events = 0;
+  uint32_t _nb_channels = 0;
+  uint32_t _nb_samples = 0;
 
-  bool m_skipChannelDataData = false;
+  bool _skip_data = false;
 };
 
-}  // namespace uff
+template class ChannelData<float>;
+template class ChannelData<short>;
 
-#endif  // UFF_CHANNEL_DATA_H
+}  // namespace uff

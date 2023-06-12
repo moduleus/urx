@@ -1,67 +1,56 @@
-/*!
- * Copyright Moduleus
- * \file uff/wave.h
- * \brief
- */
-
-#ifndef UFF_WAVE_H
-#define UFF_WAVE_H
+#pragma once
 
 #include <uff/aperture.h>
 #include <uff/excitation.h>
-#include <uff/object.h>
 #include <uff/transform.h>
 #include <uff/types.h>
 #include <uff/uff.h>
-#include <iosfwd>
-#include <string>
 
 namespace uff {
-
-/**
- * @brief UFF class to describe the geometry of a transmitted wave or beam
- */
-class Wave : public uff::Object {
-  UFF_TYPE_MACRO(Wave, uff::Object);
-
+class Wave {
+  // CTOR & DTOR
  public:
   Wave() = default;
+  Wave(const Wave&) = default;
+  Wave(Wave&&) = default;
+  ~Wave() = default;
 
-  void printSelf(std::ostream& os, const std::string& indent) const override;
-
-  const uff::Transform& origin() const { return m_origin; }
-  void setOrigin(const uff::Transform& origin) { m_origin = origin; }
-
-  const uff::WaveType& waveType() const { return m_waveType; }
-  void setWaveType(const uff::WaveType& waveType) { m_waveType = waveType; }
-
-  const uff::Aperture& aperture() const { return m_aperture; }
-  void setAperture(const uff::Aperture& aperture) { m_aperture = aperture; }
-
-  const uff::Excitation& excitation() const { return m_excitation; }
-  void setExcitation(const uff::Excitation& excitation) { m_excitation = excitation; }
-
+  // Operators
+ public:
+  Wave& operator=(const Wave&) noexcept = default;
+  Wave& operator=(Wave&& other) noexcept = default;
   bool operator==(const Wave& other) const {
-    return ((m_origin == other.m_origin) && (m_waveType == other.m_waveType) &&
-            (m_aperture == other.m_aperture) && (m_excitation == other.m_excitation));
+    return ((_origin == other._origin) && (_wave_type == other._wave_type) &&
+            (_aperture == other._aperture) && (_excitation == other._excitation));
   }
-
   inline bool operator!=(const Wave& other) const { return !(*this == other); }
 
+  // Accessors
+ public:
+  inline const uff::Transform& origin() const { return _origin; }
+  inline void setOrigin(const uff::Transform& origin) { _origin = origin; }
+
+  inline const uff::WaveType& waveType() const { return _wave_type; }
+  inline void setWaveType(const uff::WaveType& waveType) { _wave_type = waveType; }
+
+  inline const uff::Aperture& aperture() const { return _aperture; }
+  inline void setAperture(const uff::Aperture& aperture) { _aperture = aperture; }
+
+  inline const uff::Excitation& excitation() const { return _excitation; }
+  inline void setExcitation(const uff::Excitation& excitation) { _excitation = excitation; }
+
+  // Members
  private:
   // Geometric origin of the wave.
-  uff::Transform m_origin;
+  uff::Transform _origin;
 
-  // enumerated type ( [0] -> converging, [1] -> diverging, [2]-> plane, [3]-> cylindrical, [4] -> photoacoustic)
-  uff::WaveType m_waveType = uff::WaveType::PLANE_WAVE;
+  uff::WaveType _wave_type = uff::WaveType::PLANE_WAVE;
 
   // Description of the aperture used to produce the wave
-  uff::Aperture m_aperture;
+  uff::Aperture _aperture;
 
   // [Optional] excitation waveform
-  uff::Excitation m_excitation;
+  uff::Excitation _excitation;
 };
 
 }  // namespace uff
-
-#endif  // UFF_WAVE_H

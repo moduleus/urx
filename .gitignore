@@ -3,6 +3,8 @@ build/
 out/
 CI/
 CI_Android/
+install/
+Temporary/
 
 # IDE dir
 .vs/

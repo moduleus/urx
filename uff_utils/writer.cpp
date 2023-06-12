@@ -1,10 +1,3 @@
-/*!
- * Copyright Moduleus
- * \file uff/writer.cpp
- * \brief
- */
-
-#ifdef WITH_HDF5
 #include <uff/aperture.h>
 #include <uff/channel_data.h>
 #include <uff/dataset.h>
@@ -13,7 +6,6 @@
 #include <uff/excitation.h>
 #include <uff/linear_array.h>
 #include <uff/matrix_array.h>
-#include <uff/object.h>
 #include <uff/probe.h>
 #include <uff/rca_array.h>
 #include <uff/receive_setup.h>
@@ -64,14 +56,13 @@ std::string Writer<DataType>::getIdFromPointer(const std::vector<std::shared_ptr
 }
 
 template <typename DataType>
-void Writer<DataType>::printSelf(std::ostream& os, const std::string& indent) const {
-  superclass::printSelf(os, indent);
-  os << indent << "HDF5 Version: "
-     << "TODO" << std::endl
-     << indent << "UFF Version: "
-     << "TODO" << std::endl
-     << indent << "FileName: " << this->m_fileName << std::endl
-     << indent << "Dataset: " << *this->m_dataset << std::endl;
+
+    os << indent << "HDF5 Version: "
+       << "TODO" << std::endl
+       << indent << "UFF Version: "
+       << "TODO" << std::endl
+       << indent << "FileName: " << this->m_fileName << std::endl
+       << indent << "Dataset: " << *this->m_dataset << std::endl;
 }
 
 template <typename DataType>
@@ -356,20 +347,24 @@ void Writer<DataType>::writeLinearArray(H5::Group& group,
   writeMetadataTypeDataset(group, "pitch", linearArray->pitch());
 
   // Write "element_width"
-  writeOptionalMetadataTypeDataset(group, "element_width", linearArray->elementWidth());
+  writeOptionalMetadataTypeDataset(
+      group, "element_width",
+      linearArray->elementSize().has_value() ? linearArray->elementSize().value().x() : UFF_NAN);
 
   // Write "element_height"
-  writeOptionalMetadataTypeDataset(group, "element_height", linearArray->elementHeight());
+  writeOptionalMetadataTypeDataset(
+      group, "element_height",
+      linearArray->elementSize().has_value() ? linearArray->elementSize().value().y() : UFF_NAN);
 }
 
 template <typename DataType>
 void Writer<DataType>::writeMatrixArray(H5::Group& group,
                                         const std::shared_ptr<uff::MatrixArray>& matrixArray) {
   // Write "number_elements_x"
-  writeIntegerDataset(group, "number_elements_x", matrixArray->numberElementsX());
+  writeIntegerDataset(group, "number_elements_x", matrixArray->nb_elements_x());
 
   // Write "number_elements_y"
-  writeIntegerDataset(group, "number_elements_y", matrixArray->numberElementsY());
+  writeIntegerDataset(group, "number_elements_y", matrixArray->nb_elements_y());
 
   // Write "pitch_x"
   writeMetadataTypeDataset(group, "pitch_x", matrixArray->pitchX());
@@ -388,10 +383,10 @@ template <typename DataType>
 void Writer<DataType>::writeRcaArray(H5::Group& group,
                                      const std::shared_ptr<uff::RcaArray>& rcaArray) {
   // Write "number_elements_x"
-  writeIntegerDataset(group, "number_elements_x", rcaArray->numberElementsX());
+  writeIntegerDataset(group, "number_elements_x", rcaArray->nb_elements_x());
 
   // Write "number_elements_y"
-  writeIntegerDataset(group, "number_elements_y", rcaArray->numberElementsY());
+  writeIntegerDataset(group, "number_elements_y", rcaArray->nb_elements_y());
 
   // Write "pitch_x"
   writeMetadataTypeDataset(group, "pitch_x", rcaArray->pitchX());
@@ -638,5 +633,3 @@ template class Writer<float>;
 template class Writer<short>;
 
 }  // namespace uff
-
-#endif  // WITH_HDF5

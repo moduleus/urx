@@ -1,0 +1,16 @@
+#pragma once
+
+#include <cstdint>
+#include <limits>
+
+namespace uff {
+
+constexpr const uint16_t UFF_VERSION_MAJOR(@Uff_VERSION_MAJOR@);
+constexpr const uint16_t UFF_VERSION_MINOR(@Uff_VERSION_MINOR@);
+constexpr const uint16_t UFF_VERSION_PATCH(@Uff_VERSION_PATCH@);
+
+using DataType = float;
+using MetadataType = double;
+constexpr const MetadataType UFF_NAN(std::numeric_limits<MetadataType>::quiet_NaN());
+
+}  // namespace uff

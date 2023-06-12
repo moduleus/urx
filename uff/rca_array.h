@@ -1,14 +1,5 @@
-/*!
- * Copyright Moduleus
- * \file uff/rca_array.h
- * \brief
- */
+#pragma once
 
-#ifndef UFF_RCA_ARRAY_H
-#define UFF_RCA_ARRAY_H
-
-#include <uff/element.h>
-#include <uff/object.h>
 #include <uff/probe.h>
 #include <uff/uff.h>
 #include <cstddef>
@@ -24,113 +15,126 @@ namespace uff {
  * @brief The UFF RCA Array class describes a RCA (Row Column Address) probe
  */
 class RcaArray : public uff::Probe {
-  UFF_TYPE_MACRO(RcaArray, uff::Object);
-
+  // CTOR & DTOR
  public:
-  explicit RcaArray(uint32_t numberElementsX, uint32_t numberElementsy)
-      : m_numberElementsX(numberElementsX), m_numberElementsY(numberElementsy) {
+  explicit RcaArray(uint32_t nb_elements_x, uint32_t numberElementsy)
+      : _nb_elements_x(nb_elements_x), _nb_elements_y(numberElementsy) {
+    updateElements();
+  }
+  RcaArray(const RcaArray&) = default;
+  RcaArray(RcaArray&&) = default;
+  virtual ~RcaArray() override = default;
+
+  // Operators
+ public:
+  RcaArray& operator=(const RcaArray& other) noexcept = default;
+  RcaArray& operator=(RcaArray&& other) noexcept = default;
+  inline bool operator==(const RcaArray& other) const {
+    return (Probe::operator==(other) && _nb_elements_x == other._nb_elements_x &&
+            _nb_elements_y == other._nb_elements_y && _pitch_x == other._pitch_x &&
+            _pitch_y == other._pitch_y && _element_width_x == other._element_width_x &&
+            _element_width_y == other._element_width_y &&
+            _element_height_x == other._element_height_x &&
+            _element_height_y == other._element_height_y);
+  }
+  inline bool operator!=(const RcaArray& other) const { return !(*this == other); }
+
+  // Accessors
+ public:
+  inline uint32_t nbElementsX() const { return _nb_elements_x; }
+  inline void setNumberElementsX(uint32_t nb_elements_x) {
+    _nb_elements_x = nb_elements_x;
     updateElements();
   }
 
-  void printSelf(std::ostream& os, const std::string& indent) const override;
-
-  uint32_t numberElementsX() const { return m_numberElementsX; }
-  void setNumberElementsX(uint32_t numberElementsX) {
-    m_numberElementsX = numberElementsX;
+  inline uint32_t nbElementsY() const { return _nb_elements_y; }
+  inline void setNumberElementsY(uint32_t nb_elements_y) {
+    _nb_elements_y = nb_elements_y;
     updateElements();
   }
 
-  uint32_t numberElementsY() const { return m_numberElementsY; }
-  void setNumberElementsY(uint32_t numberElementsY) {
-    m_numberElementsY = numberElementsY;
+  inline MetadataType pitchX() const { return _pitch_x; }
+  inline void setPitchX(const MetadataType& pitch_x) {
+    _pitch_x = pitch_x;
     updateElements();
   }
 
-  MetadataType pitchX() const { return m_pitchX; }
-  void setPitchX(const MetadataType& pitchX) {
-    m_pitchX = pitchX;
+  inline MetadataType pitchY() const { return _pitch_x; }
+  inline void setPitchY(const MetadataType& pitch_y) {
+    _pitch_y = pitch_y;
     updateElements();
   }
 
-  MetadataType pitchY() const { return m_pitchX; }
-  void setPitchY(const MetadataType& pitchY) {
-    m_pitchY = pitchY;
-    updateElements();
+  inline std::optional<MetadataType> elementWidthX() const { return _element_width_x; }
+  inline void setElementWidthX(std::optional<MetadataType> elementWidthX) {
+    _element_width_x = elementWidthX;
   }
 
-  std::optional<MetadataType> elementWidthX() const { return m_elementWidthX; }
-  void setElementWidthX(std::optional<MetadataType> elementWidthX) {
-    m_elementWidthX = elementWidthX;
+  inline std::optional<MetadataType> elementWidthY() const { return _element_width_y; }
+  inline void setElementWidthY(std::optional<MetadataType> elementWidthY) {
+    _element_width_y = elementWidthY;
   }
 
-  std::optional<MetadataType> elementWidthY() const { return m_elementWidthY; }
-  void setElementWidthY(std::optional<MetadataType> elementWidthY) {
-    m_elementWidthY = elementWidthY;
+  inline std::optional<MetadataType> elementHeightX() const { return _element_height_x; }
+  inline void setElementHeightX(std::optional<MetadataType> elementHeightX) {
+    _element_height_x = elementHeightX;
   }
 
-  std::optional<MetadataType> elementHeightX() const { return m_elementHeightX; }
-  void setElementHeightX(std::optional<MetadataType> elementHeightX) {
-    m_elementHeightX = elementHeightX;
+  inline std::optional<MetadataType> elementHeightY() const { return _element_height_y; }
+  inline void setElementHeightY(std::optional<MetadataType> elementHeightY) {
+    _element_height_y = elementHeightY;
   }
-
-  std::optional<MetadataType> elementHeightY() const { return m_elementHeightY; }
-  void setElementHeightY(std::optional<MetadataType> elementHeightY) {
-    m_elementHeightY = elementHeightY;
-  }
-
-  std::shared_ptr<uff::Probe> clone() override { return std::make_shared<uff::RcaArray>(*this); }
 
  private:
   // Update elements position
-  void updateElements() {
-    m_elements.resize(static_cast<size_t>(m_numberElementsX) + m_numberElementsY);
+  void updateElements() override {
+    _elements.resize(static_cast<size_t>(_nb_elements_x) + _nb_elements_y);
 
-    MetadataType xmin = -m_pitchX * (m_numberElementsX - 1.f) / 2.f;
+    MetadataType xmin = -_pitch_x * (_nb_elements_x - 1.f) / 2.f;
 
-    for (uint32_t i = 0; i < m_numberElementsX; i++) {
+    for (uint32_t i = 0; i < _nb_elements_x; i++) {
       uff::Element element;
-      element.setX(xmin + i * m_pitchX);
+      element.setX(xmin + i * _pitch_x);
       element.setY(0.f);
       element.setZ(0.f);
-      m_elements[i] = element;
+      _elements[i] = element;
     }
 
-    MetadataType ymin = -m_pitchY * (m_numberElementsY - 1.f) / 2.f;
-    for (uint32_t i = m_numberElementsX; i < m_elements.size(); i++) {
+    MetadataType ymin = -_pitch_y * (_nb_elements_y - 1.f) / 2.f;
+    for (uint32_t i = _nb_elements_x; i < _elements.size(); i++) {
       uff::Element element;
-      element.setY(ymin + (i - m_numberElementsX) * m_pitchY);
+      element.setY(ymin + (i - _nb_elements_x) * _pitch_y);
       element.setX(0.f);
       element.setZ(0.f);
-      m_elements[i] = element;
+      _elements[i] = element;
     }
   }
 
+  // Members
  protected:
   // Number of elements in the x-axis
-  uint32_t m_numberElementsX = 0;
+  uint32_t _nb_elements_x = 0;
 
   // Number of elements in the y-axis
-  uint32_t m_numberElementsY = 0;
+  uint32_t _nb_elements_y = 0;
 
   // Distance between the acoustic center of adyacent elements along the x-axis [m]
-  MetadataType m_pitchX = 0;
+  MetadataType _pitch_x = 0;
 
   // Distance between the acoustic center of adyacent elements along the y-axis [m]
-  MetadataType m_pitchY = 0;
+  MetadataType _pitch_y = 0;
 
   // (Optional) Element size in the x-axis [m]
-  std::optional<MetadataType> m_elementWidthX = std::nullopt;
+  std::optional<MetadataType> _element_width_x = std::nullopt;
 
   // (Optional) Element size in the x-axis [m]
-  std::optional<MetadataType> m_elementWidthY = std::nullopt;
+  std::optional<MetadataType> _element_width_y = std::nullopt;
 
   // (Optional) Element size in the y-axis [m]
-  std::optional<MetadataType> m_elementHeightX = std::nullopt;
+  std::optional<MetadataType> _element_height_x = std::nullopt;
 
   // (Optional) Element size in the y-axis [m]
-  std::optional<MetadataType> m_elementHeightY = std::nullopt;
+  std::optional<MetadataType> _element_height_y = std::nullopt;
 };
 
 }  // namespace uff
-
-#endif  // UFF_RCA_ARRAY_H

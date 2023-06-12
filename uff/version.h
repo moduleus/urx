@@ -1,52 +1,41 @@
-/*!
- * Copyright Moduleus
- * \file uff/version.h
- * \brief
- */
+#pragma once
 
-#ifndef UFF_VERSION_H
-#define UFF_VERSION_H
-
-#include <uff/object.h>
 #include <uff/uff.h>
-#include <cstddef>
-#include <iosfwd>
+#include <cstdint>
 #include <string>
 
 namespace uff {
 
-/**
- * @brief The UFF Version class
- */
-class Version : public uff::Object {
-  UFF_TYPE_MACRO(Version, uff::Object);
-
+class Version {
+  // CTOR & DTOR
  public:
-  explicit Version(uint32_t major = UFF_VERSION_MAJOR, uint32_t minor = UFF_VERSION_MINOR,
-                   uint32_t patch = UFF_VERSION_PATCH) {
-    m_major = major;
-    m_minor = minor;
-    m_patch = patch;
-  }
+  explicit Version(uint16_t major = UFF_VERSION_MAJOR, uint16_t minor = UFF_VERSION_MINOR,
+                   uint16_t patch = UFF_VERSION_PATCH)
+      : _major(major), _minor(minor), _patch(patch) {}
+  Version(const Version&) = default;
+  Version(Version&&) = default;
+  ~Version() = default;
 
-  void printSelf(std::ostream& os, const std::string& indent) const override;
-
-  uint32_t major() const { return m_major; }
-  uint32_t minor() const { return m_minor; }
-  uint32_t patch() const { return m_patch; }
-
+  // Operators
+ public:
+  Version& operator=(const Version&) noexcept = default;
+  Version& operator=(Version&& other) noexcept = default;
   inline bool operator==(const Version& other) const {
-    return ((m_major == other.m_major) && (m_minor == other.m_minor) && (m_patch == other.m_patch));
-  }
+    return _major == other.major() && _minor == other.minor() && _patch == other.patch();
+  };
+  inline bool operator!=(const Version& other) const { return !(*this == other); };
 
-  inline bool operator!=(const Version& other) const { return !(*this == other); }
+  // Accessors
+ public:
+  inline uint16_t major() const { return _major; }
+  inline uint16_t minor() const { return _minor; }
+  inline uint16_t patch() const { return _patch; }
 
+  // Members
  private:
-  uint32_t m_major;
-  uint32_t m_minor;
-  uint32_t m_patch;
+  uint16_t _major;
+  uint16_t _minor;
+  uint16_t _patch;
 };
 
 }  // namespace uff
-
-#endif  // UFF_VERSION_H

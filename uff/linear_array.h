@@ -1,14 +1,6 @@
-/*!
- * Copyright Moduleus
- * \file uff/linear_array.h
- * \brief
- */
-
-#ifndef UFF_LINEAR_ARRAY_H
-#define UFF_LINEAR_ARRAY_H
+#pragma once
 
 #include <uff/element.h>
-#include <uff/object.h>
 #include <uff/probe.h>
 #include <uff/uff.h>
 #include <cstddef>
@@ -23,66 +15,68 @@ namespace uff {
  * @brief The UFF LinearArray class describes a linear array (1D)
  */
 class LinearArray : public uff::Probe {
-  UFF_TYPE_MACRO(LinearArray, uff::Object);
-
+  // CTOR & DTOR
  public:
-  explicit LinearArray(uint32_t numberElements) : m_numberElements(numberElements) {
+  explicit LinearArray(uint32_t numberElements) : _nb_elements(numberElements) { updateElements(); }
+  LinearArray(const LinearArray&) = default;
+  LinearArray(LinearArray&&) = default;
+  virtual ~LinearArray() override = default;
+
+  // Operators
+ public:
+  LinearArray& operator=(const LinearArray& other) noexcept = default;
+  LinearArray& operator=(LinearArray&& other) noexcept = default;
+  inline bool operator==(const LinearArray& other) const {
+    return (Probe::operator==(other) && _nb_elements == other._nb_elements &&
+            _pitch == other._pitch && _element_size == other._element_size);
+  }
+  inline bool operator!=(const LinearArray& other) const { return !(*this == other); }
+
+  // Accessors
+ public:
+  inline uint32_t numberElements() const { return _nb_elements; }
+  inline void setNumberElements(uint32_t numberElements) {
+    _nb_elements = numberElements;
     updateElements();
   }
 
-  void printSelf(std::ostream& os, const std::string& indent) const override;
-
-  uint32_t numberElements() const { return m_numberElements; }
-  void setNumberElements(uint32_t numberElements) {
-    m_numberElements = numberElements;
+  inline MetadataType pitch() const { return _pitch; }
+  inline void setPitch(const MetadataType& pitch) {
+    _pitch = pitch;
     updateElements();
   }
 
-  MetadataType pitch() const { return m_pitch; }
-  void setPitch(const MetadataType& pitch) {
-    m_pitch = pitch;
-    updateElements();
+  inline void setElementSize(std::optional<Point2D<MetadataType>> element_size) {
+    _element_size = element_size;
   }
-
-  std::optional<MetadataType> elementWidth() { return m_elementWidth; }
-  void setElementWidth(std::optional<MetadataType> elementWidth) { m_elementWidth = elementWidth; }
-
-  std::optional<MetadataType> elementHeight() { return m_elementHeight; }
-  void setElementHeight(std::optional<MetadataType> elementHeight) {
-    m_elementHeight = elementHeight;
-  }
-
-  std::shared_ptr<uff::Probe> clone() override { return std::make_shared<uff::LinearArray>(*this); }
+  inline std::optional<Point2D<MetadataType>> elementSize() const { return _element_size; }
 
  private:
   // Update elements position
-  void updateElements() {
-    m_elements.resize(m_numberElements);
-    for (uint32_t i = 0; i < m_numberElements; ++i) {
+  void updateElements() override {
+    _elements.resize(_nb_elements);
+    for (uint32_t i = 0; i < _nb_elements; ++i) {
       // element position
       uff::Element element;
-      MetadataType xmin = -m_pitch * static_cast<float>(m_numberElements - 1) / 2.f;
-      element.setX(xmin + i * m_pitch);
+      MetadataType xmin = -_pitch * static_cast<float>(_nb_elements - 1) / 2.f;
+      element.setX(xmin + i * _pitch);
       element.setY(0.f);
       element.setZ(0.f);
-      m_elements[i] = element;
+      _elements[i] = element;
     }
   }
 
+  // Members
  protected:
   // Number of elements in the array
-  uint32_t m_numberElements = 0;
+  uint32_t _nb_elements = 0;
 
   // Distance between the acoustic ceneter of adyacent elements [m]
-  MetadataType m_pitch = 0;
+  MetadataType _pitch = 0;
 
-  // (Optional) Element size in the x-axis [m]
-  std::optional<MetadataType> m_elementWidth = std::nullopt;
+  // (Optional) Element size in the axis x and y [m]
+  std::optional<Point2D<MetadataType>> _element_size = std::nullopt;
 
-  // (Optional) Element size in the y-axis [m]
-  std::optional<MetadataType> m_elementHeight = std::nullopt;
 };
 
 }  // namespace uff
-
-#endif  // UFF_LINEAR_ARRAY_H

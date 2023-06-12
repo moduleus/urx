@@ -1,11 +1,4 @@
-/*!
- * Copyright Moduleus
- * \file uff/types.h
- * \brief
- */
-
-#ifndef UFF_TYPES_H
-#define UFF_TYPES_H
+#pragma once
 
 namespace uff {
 
@@ -17,5 +10,3 @@ enum class WaveType {
 };
 
 }  // namespace uff
-
-#endif  // UFF_TYPES_H

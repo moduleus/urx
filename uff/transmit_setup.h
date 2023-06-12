@@ -1,68 +1,60 @@
-/*!
- * Copyright Moduleus
- * \file uff/transmit_setup.h
- * \brief
- */
+#pragma once
 
-#ifndef UFF_TRANSMIT_SETUP_H
-#define UFF_TRANSMIT_SETUP_H
-
-#include <iosfwd>
 #include <memory>
-#include <string>
-#include <utility>
 #include <vector>
 
-#include <uff/object.h>
 #include <uff/probe.h>
 #include <uff/transmit_wave.h>
 #include <uff/uff.h>
 
 namespace uff {
 
-/**
- * @brief The UFF TransmitSetup class
- */
-class TransmitSetup : public uff::Object {
-  UFF_TYPE_MACRO(TransmitSetup, uff::Object);
-
+class TransmitSetup {
+  // CTOR & DTOR
  public:
   TransmitSetup() = default;
+  TransmitSetup(const TransmitSetup&) = default;
+  TransmitSetup(TransmitSetup&&) = default;
+  ~TransmitSetup() = default;
 
-  void printSelf(std::ostream& os, const std::string& indent) const override;
-
-  std::weak_ptr<uff::Probe> probe() const { return m_probe; }
-  void setProbe(std::weak_ptr<uff::Probe> probe) { m_probe = std::move(probe); }
-
-  uff::TransmitWave getTransmitWave() const { return m_transmitWave; }
-  uff::TransmitWave& transmitWave() { return m_transmitWave; }
-  void setTransmitWave(const uff::TransmitWave& transmitWave) { m_transmitWave = transmitWave; }
-
-  std::vector<int> channelMapping() const { return m_channelMapping; }
-  void setChannelMapping(std::vector<int> channelMapping) {
-    m_channelMapping = std::move(channelMapping);
-  }
-
+  // Operators
+ public:
+  TransmitSetup& operator=(const TransmitSetup& other) noexcept = default;
+  TransmitSetup& operator=(TransmitSetup&& other) noexcept = default;
   bool operator==(const TransmitSetup& other) const {
-    return ((m_probe.expired() == other.m_probe.expired()) &&
-            (m_probe.expired() || (*(m_probe.lock()) == *(other.m_probe.lock()))) &&
-            (m_transmitWave == other.m_transmitWave) &&
-            (m_channelMapping == other.m_channelMapping));
+    return ((_probe.expired() == other._probe.expired()) &&
+            (_probe.expired() || (*(_probe.lock()) == *(other._probe.lock()))) &&
+            (_transmit_wave == other._transmit_wave) &&
+            (_channel_mapping == other._channel_mapping));
   }
-
   inline bool operator!=(const TransmitSetup& other) const { return !(*this == other); }
 
+  // Accessors
+ public:
+  inline std::weak_ptr<uff::Probe> probe() const { return _probe; }
+  inline void setProbe(std::weak_ptr<uff::Probe> probe) { _probe = std::move(probe); }
+
+  inline uff::TransmitWave getTransmitWave() const { return _transmit_wave; }
+  inline uff::TransmitWave& transmitWave() { return _transmit_wave; }
+  inline void setTransmitWave(const uff::TransmitWave& transmitWave) {
+    _transmit_wave = transmitWave;
+  }
+
+  inline std::vector<int> channelMapping() const { return _channel_mapping; }
+  inline void setChannelMapping(std::vector<int> channelMapping) {
+    _channel_mapping = std::move(channelMapping);
+  }
+
+  // Members
  private:
   // Reference to the probe use in transmission
-  std::weak_ptr<uff::Probe> m_probe;
+  std::weak_ptr<uff::Probe> _probe;
 
   // List of transmit waves used in this event with their respective time offset and weight
-  uff::TransmitWave m_transmitWave;
+  uff::TransmitWave _transmit_wave;
 
   // Map of transmit channels to transducer elements
-  std::vector<int> m_channelMapping;
+  std::vector<int> _channel_mapping;
 };
 
 }  // namespace uff
-
-#endif  // UFF_TRANSMIT_SETUP_H

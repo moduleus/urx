@@ -12,6 +12,4 @@ foreach(TESTI uffTestChannelData)
   endif()
 endforeach()
 
-if(${HDF5_FOUND})
-  add_subdirectory(hdf5)
-endif()
+add_subdirectory(utils)
