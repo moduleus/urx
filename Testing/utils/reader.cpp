@@ -74,7 +74,7 @@ TEST_CASE("Load HDF5 file", "[hdf5_loader]") {
   uff::ReceiveSetup receiveSetup_y;
   receiveSetup_y.setProbe(probe);
   receiveSetup_y.setTimeOffset(0);
-  receiveSetup_y.setSamplingFrequency(dataset->getSamplingFrequency());
+  receiveSetup_y.setSamplingFrequency(dataset->samplingFrequency());
   receiveSetup_y.setChannelMapping(mapping_y);
 
   std::vector<uff::TimedEvent> sequence;
@@ -87,7 +87,7 @@ TEST_CASE("Load HDF5 file", "[hdf5_loader]") {
     wave->setOrigin(uff::Transform(uff::Point3D<MetadataType>(), uff::Point3D<MetadataType>()));
 
     uff::Excitation excitation;
-    excitation.setTransmitFrequency(dataset->getTransmitFrequency());
+    excitation.setTransmitFrequency(dataset->transmitFrequency());
     wave->setExcitation(excitation);
     channelData.addUniqueWave(wave);
 

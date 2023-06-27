@@ -118,9 +118,9 @@ class ChannelData {
       return std::vector<T>();
     }
     if constexpr (std::is_same<T, MetadataType>::value) {
-      return probes()[0]->getChannelGeometry();
+      return probes()[0]->channelGeometry();
     } else {
-      auto& channelGeometry = probes()[0]->getChannelGeometry();
+      auto& channelGeometry = probes()[0]->channelGeometry();
       return std::vector<T>(channelGeometry.begin(), channelGeometry.end());
     }
   }

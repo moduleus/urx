@@ -588,7 +588,7 @@ void Writer<DataType>::writeTransmitSetup(H5::Group& group,
 
   // "transmit_wave"
   H5::Group transmitWave = group.createGroup("transmit_wave");
-  writeTransmitWave(transmitWave, transmitSetup.getTransmitWave());
+  writeTransmitWave(transmitWave, transmitSetup.transmitWave());
 
   // "channel_mapping"
   writeIntegerArrayDataset(group, "channel_mapping", transmitSetup.channelMapping(), {});

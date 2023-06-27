@@ -75,7 +75,7 @@ class Probe {
   }
 
   /* Convenience method */
-  const std::vector<MetadataType>& getChannelGeometry() {
+  const std::vector<MetadataType>& channelGeometry() {
     if (!_channel_geometry_valid) {
       computeChannelGeometry();
       _channel_geometry_valid = true;

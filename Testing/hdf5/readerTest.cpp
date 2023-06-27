@@ -79,7 +79,7 @@ TEST_CASE("Load HDF5 file", "[hdf5_loader]") {
   uff::ReceiveSetup receiveSetup_y;
   receiveSetup_y.setProbe(probe);
   receiveSetup_y.setTimeOffset(0);
-  receiveSetup_y.setSamplingFrequency(dataset->getSamplingFrequency());
+  receiveSetup_y.setSamplingFrequency(dataset->samplingFrequency());
   receiveSetup_y.setChannelMapping(mapping_y);
 
   std::vector<uff::TimedEvent> sequence;
@@ -92,7 +92,7 @@ TEST_CASE("Load HDF5 file", "[hdf5_loader]") {
     wave->setOrigin(uff::Transform(uff::Rotation(), uff::Point3D<MetadataType>()));
 
     uff::Excitation excitation;
-    excitation.setTransmitFrequency(dataset->getTransmitFrequency());
+    excitation.setTransmitFrequency(dataset->transmitFrequency());
     wave->setExcitation(excitation);
     channelData.addUniqueWave(wave);
 
@@ -146,19 +146,19 @@ TEST_CASE("Load HDF5 file", "[hdf5_loader]") {
   REQUIRE(readShortDataset->channelData().countryCode() == channelData.countryCode());
   REQUIRE(readShortDataset->channelData().system() == channelData.system());
   REQUIRE(readShortDataset->channelData().repetitionRate() == channelData.repetitionRate());
-  REQUIRE(readShortDataset->getSoundSpeed() == channelData.soundSpeed());
+  REQUIRE(readShortDataset->soundSpeed() == channelData.soundSpeed());
   {
-    std::vector<double> geometry1 = readShortDataset->getChannelGeometry<double>();
+    std::vector<double> geometry1 = readShortDataset->channelGeometry<double>();
     std::vector<double> geometry2 = channelData.channelGeometry<double>();
     REQUIRE(geometry1.size() == 4UL * 2 * NB_CHANNELS);
     REQUIRE(geometry2.size() == 4UL * 2 * NB_CHANNELS);
     REQUIRE(std::equal(geometry1.begin(), geometry1.end(), geometry2.begin()));
   }
-  REQUIRE(readShortDataset->getReceiveDelay() == channelData.receiveDelay());
-  REQUIRE(readShortDataset->getSamplingType() == channelData.samplingType());
-  REQUIRE(std::isnan(readShortDataset->getSamplingFrequency()));
+  REQUIRE(readShortDataset->receiveDelay() == channelData.receiveDelay());
+  REQUIRE(readShortDataset->samplingType() == channelData.samplingType());
+  REQUIRE(std::isnan(readShortDataset->samplingFrequency()));
   REQUIRE(std::isnan(channelData.samplingFrequency()));
-  REQUIRE(std::isnan(readShortDataset->getTransmitFrequency()));
+  REQUIRE(std::isnan(readShortDataset->transmitFrequency()));
   REQUIRE(std::isnan(channelData.transmitFrequency()));
   REQUIRE(readShortDataset->isProbeType<uff::RcaArray>());
   REQUIRE(channelData.isProbeType<uff::RcaArray>());

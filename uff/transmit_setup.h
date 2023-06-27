@@ -34,8 +34,7 @@ class TransmitSetup {
   inline std::weak_ptr<uff::Probe> probe() const { return _probe; }
   inline void setProbe(std::weak_ptr<uff::Probe> probe) { _probe = std::move(probe); }
 
-  inline uff::TransmitWave getTransmitWave() const { return _transmit_wave; }
-  inline uff::TransmitWave& transmitWave() { return _transmit_wave; }
+  inline uff::TransmitWave transmitWave() const { return _transmit_wave; }
   inline void setTransmitWave(const uff::TransmitWave& transmitWave) {
     _transmit_wave = transmitWave;
   }

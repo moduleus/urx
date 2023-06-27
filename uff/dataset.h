@@ -48,24 +48,24 @@ class Dataset {
 
   // Returns the channel geometry of the probe used by the 1st receive setup
   template <typename T>
-  std::vector<T> getChannelGeometry() const {
+  std::vector<T> channelGeometry() const {
     return _channel_data.template channelGeometry<T>();
   }
 
   // Returns the receive delay of the 1st ReceiveSetup
-  MetadataType getReceiveDelay() const { return _channel_data.receiveDelay(); }
+  MetadataType receiveDelay() const { return _channel_data.receiveDelay(); }
 
   // Returns the type of sampling of the 1st ReceiveSetup
-  uff::ReceiveSetup::SAMPLING_TYPE getSamplingType() const { return _channel_data.samplingType(); }
+  uff::ReceiveSetup::SAMPLING_TYPE samplingType() const { return _channel_data.samplingType(); }
 
   // Return the sampling frequency associated with the 1st receive event [Hz]
-  MetadataType getSamplingFrequency() const { return _channel_data.samplingFrequency(); }
+  MetadataType samplingFrequency() const { return _channel_data.samplingFrequency(); }
 
   // Returns the speed of sound [m/s]
-  inline MetadataType getSoundSpeed() const { return _channel_data.soundSpeed(); }
+  inline MetadataType soundSpeed() const { return _channel_data.soundSpeed(); }
 
   // Return the transmit frequency associated with the 1st Wave of the dataset
-  MetadataType getTransmitFrequency() const { return _channel_data.transmitFrequency(); }
+  MetadataType transmitFrequency() const { return _channel_data.transmitFrequency(); }
 
   // Returns true is the 1st probe is of sub-type 'ProbeType'
   // Example: isProbeType<uff::MatrixArray>() == true;
