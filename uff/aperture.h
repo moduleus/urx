@@ -34,8 +34,8 @@ class Aperture {
   inline const uff::Transform& origin() const { return _origin; }
   inline void setOrigin(const uff::Transform& origin) { _origin = origin; }
 
-  inline const std::optional<std::string>& window() const { return _window; }
-  inline void setWindow(const std::optional<std::string>& window) { _window = window; }
+  inline const std::string& window() const { return _window; }
+  inline void setWindow(const std::string& window) { _window = window; }
 
   inline std::optional<MetadataType> fNumber() const { return _f_number; }
   inline void setFNumber(std::optional<MetadataType> f_number) { _f_number = f_number; }
@@ -49,7 +49,7 @@ class Aperture {
   uff::Transform _origin;
 
   // String defining the apodization window type and parameter (e.g., 'Rectangular', 'Hamming', 'Gauss(8)', 'Tukey(0.5)')
-  std::optional<std::string> _window = std::nullopt;
+  std::string _window;
 
   // Desired F-number of the aperture [Az, El]
   std::optional<MetadataType> _f_number = std::nullopt;

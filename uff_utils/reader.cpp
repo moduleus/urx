@@ -75,7 +75,7 @@ uff::Aperture Reader<DataType>::readAperture(const H5::Group& group) {
   aperture.setOrigin(readTransform(group.openGroup("origin")));
 
   // "window"
-  aperture.setWindow(readOptionalStringDataset(group, "window"));
+  aperture.setWindow(readStringDataset(group, "window"));
 
   // "f_number"
   aperture.setFNumber(readOptionalMetadataTypeDataset(group, "f_number"));
