@@ -1,20 +1,3 @@
-#include <uff/channel_data.h>
-#include <uff/dataset.h>
-#include <uff/event.h>
-#include <uff/excitation.h>
-#include <uff/rca_array.h>
-#include <uff_utils/reader.h>
-#include <uff/receive_setup.h>
-#include <uff/rotation.h>
-#include <uff/timed_event.h>
-#include <uff/transform.h>
-#include <uff/translation.h>
-#include <uff/transmit_setup.h>
-#include <uff/transmit_wave.h>
-#include <uff/types.h>
-#include <uff/uff.h>
-#include <uff/wave.h>
-#include <uff_utils/writer.h>
 #include <catch2/catch.hpp>
 #include <cstddef>
 #include <cstdlib>
@@ -22,6 +5,23 @@
 #include <memory>
 #include <string>
 #include <vector>
+
+#include <uff/channel_data.h>
+#include <uff/dataset.h>
+#include <uff/event.h>
+#include <uff/excitation.h>
+#include <uff/rca_array.h>
+#include <uff/receive_setup.h>
+#include <uff/timed_event.h>
+#include <uff/transform.h>
+#include <uff/transmit_setup.h>
+#include <uff/transmit_wave.h>
+#include <uff/types.h>
+#include <uff/uff.h>
+#include <uff/wave.h>
+
+#include <uff_utils/reader.h>
+#include <uff_utils/writer.h>
 
 namespace uff::test {
 
@@ -56,12 +56,10 @@ TEST_CASE("Load HDF5 file", "[hdf5_loader]") {
 
   // Probe RCA
   // RCA made of 2 linear array
-  auto probe = std::make_shared<uff::RcaArray>(channelData.numberOfChannels(),
-                                               channelData.numberOfChannels());
-  double pitch_x = 0.42;
-  probe->setPitchX(pitch_x);
-  double pitch_y = 0.42;
-  probe->setPitchY(pitch_y);
+  auto probe = std::make_shared<uff::RcaArray>(
+      Point2D<uint32_t>{channelData.numberOfChannels(), channelData.numberOfChannels()});
+  Point2D<double> pitch{0.42, 0.42};
+  probe->setPitch(pitch);
   channelData.addProbe(probe);
 
   // Channel mapping
@@ -86,7 +84,7 @@ TEST_CASE("Load HDF5 file", "[hdf5_loader]") {
     // plane wave. origin.translation is the direction vector
     auto wave = std::make_shared<uff::Wave>();
     wave->setWaveType(uff::WaveType::PLANE_WAVE);
-    wave->setOrigin(uff::Transform(uff::Rotation(), uff::Translation()));
+    wave->setOrigin(uff::Transform(uff::Point3D<MetadataType>(), uff::Point3D<MetadataType>()));
 
     uff::Excitation excitation;
     excitation.setTransmitFrequency(dataset->getTransmitFrequency());

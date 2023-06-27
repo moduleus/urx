@@ -1,61 +1,48 @@
+#include <cmath>
+#include <cstdio>
+#include <iostream>
+#include <stdexcept>
+#include <utility>
+
 #include <uff/aperture.h>
 #include <uff/channel_data.h>
 #include <uff/dataset.h>
-#include <uff/element.h>
 #include <uff/event.h>
 #include <uff/excitation.h>
 #include <uff/linear_array.h>
-#include <uff/log.h>
 #include <uff/matrix_array.h>
 #include <uff/probe.h>
 #include <uff/rca_array.h>
-#include <uff/reader.h>
 #include <uff/receive_setup.h>
-#include <uff/rotation.h>
 #include <uff/timed_event.h>
 #include <uff/transform.h>
-#include <uff/translation.h>
 #include <uff/transmit_setup.h>
 #include <uff/transmit_wave.h>
 #include <uff/types.h>
 #include <uff/uff.h>
 #include <uff/version.h>
 #include <uff/wave.h>
-#include <cmath>
-#include <cstdio>
-#include <ostream>
-#include <stdexcept>
-#include <utility>
 
-#if defined(__GNUC__) && !defined(__clang__)
-#pragma GCC diagnostic ignored "-Wformat-truncation"
-#endif
-
-//static_assert(sizeof (long) == sizeof (long long),
-//              "Architecture not supported, cf. Reader<DataType>::readIntegerArrayDataset");
+#include <uff_utils/reader.h>
 
 namespace uff {
 
 template <typename DataType>
-
-}
-
-template <typename DataType>
 void Reader<DataType>::updateMetadata() {
-  m_dataset = std::make_shared<uff::Dataset<DataType>>();
-  m_dataset->channelData().setSkipChannelDataData(m_skipChannelDataData);
+  _dataset = std::make_shared<uff::Dataset<DataType>>();
+  _dataset->channelData().setSkipChannelDataData(_skip_data);
 
   H5::Exception::dontPrint();
 
-  H5::H5File file(m_fileName, H5F_ACC_RDONLY);
+  H5::H5File file(_filename, H5F_ACC_RDONLY);
 
   // Version
   H5::Group version(file.openGroup("version"));
-  m_dataset->setVersion(readVersion(version));
+  _dataset->setVersion(readVersion(version));
 
   // Channel Data
   H5::Group channelData(file.openGroup("channel_data"));
-  m_dataset->setChannelData(readChannelData(channelData, false, m_skipChannelDataData));
+  _dataset->setChannelData(readChannelData(channelData, false, _skip_data));
 }
 
 template <typename DataType>
@@ -115,7 +102,7 @@ uff::ChannelData<DataType> Reader<DataType>::readChannelData(const H5::Group& gr
   channelData.setRepetitionRate(readOptionalMetadataTypeDataset(group, "repetition_rate"));
 
   if (!skipData && !castData && group.openDataSet("data").getDataType() != H5DataType) {
-    LOG_NO_THIS(ERROR) << "Invalid format of data.\n";
+    std::cerr << "Invalid format of data.\n";
     throw std::logic_error("Invalid format of data.");
   }
   // channel_data.data
@@ -126,7 +113,7 @@ uff::ChannelData<DataType> Reader<DataType>::readChannelData(const H5::Group& gr
                            H5DataType, skipData);
 
   if (dataDims.size() != 4) {
-    LOG_NO_THIS(ERROR) << "Dataset dimension != 4\n";
+    std::cerr << "Dataset dimension != 4\n";
     throw std::logic_error("Dataset dimension != 4.");
   }
   channelData.setNumberOfFrames(static_cast<int>(dataDims[0]));
@@ -178,20 +165,47 @@ std::optional<MetadataType> Reader<DataType>::readOptionalMetadataTypeDataset(
   return result;
 }
 
-template <typename DataType>
-uff::Element Reader<DataType>::readElement(const H5::Group& group) {
-  uff::Element element;
+// template <typename DataType>
+// std::optional<MetadataType> Reader<DataType>::readOptionalPosition2D(
+//     const H5::Group& group, const std::string& name) {
+//   H5::StrType datatype(H5MetadataType);
+//   H5::DataSet dataset = group.openDataSet(name);
+//     value;
+//   dataset.read(&value, datatype);
+//   std::optional<MetadataType> result = std::nullopt;
+//   if (!std::isnan(value)) {
+//     result = value;
+//   }
+//   return result;
+// }
 
-  element.setX(readOptionalMetadataTypeDataset(group, "x"));
-  element.setY(readOptionalMetadataTypeDataset(group, "y"));
-  element.setZ(readOptionalMetadataTypeDataset(group, "z"));
+// template <typename DataType>
+// uff::Element Reader<DataType>::readPosition2D(const H5::Group& group) {
+//   uff::Point2D position{readMetadataTypeDataset(group, "x"), readMetadataTypeDataset(group, "y")};
+
+//   return position;
+// }
+
+// template <typename DataType>
+// uff::Element Reader<DataType>::readPosition3D(const H5::Group& group) {
+//   uff::Point3D position{readMetadataTypeDataset(group, "x"), readMetadataTypeDataset(group, "y"),
+//                            readMetadataTypeDataset(group, "z")};
+
+//   return position;
+// }
+
+template <typename DataType>
+std::optional<uff::Point3D<MetadataType>> Reader<DataType>::readElement(const H5::Group& /*group*/) {
+  std::optional<uff::Point3D<MetadataType>> element;
+
+  // element.setPosition(readMetadataTypeDataset(group, "x"));
 
   return element;
 }
 
 template <typename DataType>
-std::vector<uff::Element> Reader<DataType>::readElementArray(const H5::Group& group) {
-  std::vector<uff::Element> elements;
+std::vector<std::optional<uff::Point3D<MetadataType>>> Reader<DataType>::readElementArray(const H5::Group& group) {
+  std::vector<std::optional<uff::Point3D<MetadataType>>> elements;
 
   char buf[9];
   int id = 1;
@@ -199,7 +213,7 @@ std::vector<uff::Element> Reader<DataType>::readElementArray(const H5::Group& gr
     snprintf(buf, sizeof buf, "%08d", id);
     if (H5Lexists(group.getLocId(), buf, H5P_DEFAULT)) {
       H5::Group element = group.openGroup(buf);
-      elements.push_back(readElement(element));
+      // elements.push_back(readElement(element));
       id++;
     } else {
       break;
@@ -378,49 +392,92 @@ std::shared_ptr<uff::LinearArray> Reader<DataType>::readLinearArray(const H5::Gr
 }
 
 template <typename DataType>
-std::shared_ptr<uff::MatrixArray> Reader<DataType>::readMatrixArray(const H5::Group& group) {
+std::shared_ptr<uff::MatrixArray> Reader<DataType>::readMatrixArray(const H5::Group& /*group*/) {
   auto matrixArray = std::make_shared<uff::MatrixArray>();
 
   // Read "number_elements"
-  matrixArray->setNumberElementsX(readIntegerDataset(group, "number_elements_x"));
-  matrixArray->setNumberElementsY(readIntegerDataset(group, "number_elements_y"));
+  // matrixArray->setNumberElementsX(readIntegerDataset(group, "number_elements_x"));
+  // matrixArray->setNumberElementsY(readIntegerDataset(group, "number_elements_y"));
 
-  // Read "pitch"
-  matrixArray->setPitchX(readMetadataTypeDataset(group, "pitch_x"));
-  matrixArray->setPitchY(readMetadataTypeDataset(group, "pitch_y"));
+  // // Read "pitch"
+  // matrixArray->setPitchX(readMetadataTypeDataset(group, "pitch_x"));
+  // matrixArray->setPitchY(readMetadataTypeDataset(group, "pitch_y"));
 
-  // Read "element_width"
-  matrixArray->setElementWidth(readOptionalMetadataTypeDataset(group, "element_width"));
+  // // Read "element_width"
+  // matrixArray->setElementWidth(readOptionalMetadataTypeDataset(group, "element_width"));
 
-  // Read "element_height"
-  matrixArray->setElementHeight(readOptionalMetadataTypeDataset(group, "element_height"));
+  // // Read "element_height"
+  // matrixArray->setElementHeight(readOptionalMetadataTypeDataset(group, "element_height"));
 
   return matrixArray;
 }
 
 template <typename DataType>
-std::shared_ptr<RcaArray> Reader<DataType>::readRcaArray(const H5::Group& group) {
-  auto rcaArray = std::make_shared<uff::RcaArray>(readIntegerDataset(group, "number_elements_x"),
-                                                  readIntegerDataset(group, "number_elements_y"));
+std::shared_ptr<RcaArray> Reader<DataType>::readRcaArray(const H5::Group& /*group*/) {
+  auto rcaArray = std::make_shared<uff::RcaArray>(Point2D<uint32_t>()/*readIntegerDataset(group, "number_elements_x"),
+                                                  readIntegerDataset(group, "number_elements_y")*/);
 
   // Read "pitch"
-  rcaArray->setPitchX(readMetadataTypeDataset(group, "pitch_x"));
-  rcaArray->setPitchY(readMetadataTypeDataset(group, "pitch_y"));
+  // rcaArray->setPitchX(readMetadataTypeDataset(group, "pitch_x"));
+  // rcaArray->setPitchY(readMetadataTypeDataset(group, "pitch_y"));
 
-  // Read "element_width"
-  rcaArray->setElementWidthX(readOptionalMetadataTypeDataset(group, "element_width_x"));
-  rcaArray->setElementWidthY(readOptionalMetadataTypeDataset(group, "element_width_y"));
+  // // Read "element_width"
+  // rcaArray->setElementWidthX(readOptionalMetadataTypeDataset(group, "element_width_x"));
+  // rcaArray->setElementWidthY(readOptionalMetadataTypeDataset(group, "element_width_y"));
 
-  // Read "element_height"
-  rcaArray->setElementHeightX(readOptionalMetadataTypeDataset(group, "element_height_x"));
-  rcaArray->setElementHeightY(readOptionalMetadataTypeDataset(group, "element_height_y"));
+  // // Read "element_height"
+  // rcaArray->setElementHeightX(readOptionalMetadataTypeDataset(group, "element_height_x"));
+  // rcaArray->setElementHeightY(readOptionalMetadataTypeDataset(group, "element_height_y"));
 
   return rcaArray;
 }
 
 template <typename DataType>
 std::shared_ptr<uff::Probe> Reader<DataType>::readProbe(const H5::Group& group) {
-  auto probe = std::make_shared<uff::Probe>();
+  // probe_type (optional)
+  std::shared_ptr<uff::Probe> probe(nullptr);
+  if (H5Lexists(group.getLocId(), "probe_type", H5P_DEFAULT)) {
+    const int probeType = readIntegerDataset(group, "probe_type");
+    switch (ProbeType(probeType)) {
+      case ProbeType::LinearArray: {
+        auto linearArray = readLinearArray(group);
+        linearArray->setTransform(probe->transform());
+        linearArray->setFocalLength(probe->focalLength());
+        linearArray->setElements(probe->elements());
+        linearArray->setElementGeometries(probe->elementGeometries());
+        linearArray->setImpulseResponses(probe->impulseResponses());
+        probe = linearArray;
+        break;
+      }
+      case ProbeType::MatrixArray: {
+        auto matrixArray = readMatrixArray(group);
+        matrixArray->setTransform(probe->transform());
+        matrixArray->setFocalLength(probe->focalLength());
+        matrixArray->setElements(probe->elements());
+        matrixArray->setElementGeometries(probe->elementGeometries());
+        matrixArray->setImpulseResponses(probe->impulseResponses());
+        probe = matrixArray;
+        break;
+      }
+      case ProbeType::RcaArray: {
+        auto rcaArray = readRcaArray(group);
+        rcaArray->setTransform(probe->transform());
+        rcaArray->setFocalLength(probe->focalLength());
+        rcaArray->setElements(probe->elements());
+        rcaArray->setElementGeometries(probe->elementGeometries());
+        rcaArray->setImpulseResponses(probe->impulseResponses());
+        probe = rcaArray;
+        break;
+      }
+      default: {
+        std::cerr << ": Ignoring unknown probe_type:" << probeType << "\n";
+        throw std::logic_error("unknown probe_type.");
+      }
+    }
+  } else {
+    std::cerr << "No probe_type\n";
+    throw std::logic_error("No probe_type");
+  }
 
   // transform
   H5::Group transform = group.openGroup("transform");
@@ -436,40 +493,6 @@ std::shared_ptr<uff::Probe> Reader<DataType>::readProbe(const H5::Group& group) 
   // element geometries (TODO)
 
   // impulse responses (TODO)
-
-  // probe_type (optional)
-  if (H5Lexists(group.getLocId(), "probe_type", H5P_DEFAULT)) {
-    std::string probeType = readStringDataset(group, "probe_type");
-    if (probeType == "LinearArray") {
-      auto linearArray = readLinearArray(group);
-      linearArray->setTransform(probe->transform());
-      linearArray->setFocalLength(probe->focalLength());
-      linearArray->setElements(probe->elements());
-      linearArray->setElementGeometries(probe->elementGeometries());
-      linearArray->setImpulseResponses(probe->impulseResponses());
-      return linearArray;
-    }
-    if (probeType == "MatrixArray") {
-      auto matrixArray = readMatrixArray(group);
-      matrixArray->setTransform(probe->transform());
-      matrixArray->setFocalLength(probe->focalLength());
-      matrixArray->setElements(probe->elements());
-      matrixArray->setElementGeometries(probe->elementGeometries());
-      matrixArray->setImpulseResponses(probe->impulseResponses());
-      return matrixArray;
-    }
-    if (probeType == "RcaArray") {
-      auto rcaArray = readRcaArray(group);
-      rcaArray->setTransform(probe->transform());
-      rcaArray->setFocalLength(probe->focalLength());
-      rcaArray->setElements(probe->elements());
-      rcaArray->setElementGeometries(probe->elementGeometries());
-      rcaArray->setImpulseResponses(probe->impulseResponses());
-      return rcaArray;
-    }
-    LOG_NO_THIS(ERROR) << ": Ignoring unknown probe_type:" << probeType << "\n";
-    return probe;
-  }
 
   return probe;
 }
@@ -526,7 +549,7 @@ uff::ReceiveSetup Reader<DataType>::readReceiveSetup(
       receiveSetup.setSamplingType(uff::ReceiveSetup::SAMPLING_TYPE::QUADRATURE_2X_F0);
       break;
     default:
-      LOG_NO_THIS(ERROR) << "Unknow sampling type:" << static_cast<int>(st);
+      std::cerr << "Unknow sampling type:" << static_cast<int>(st);
   }
 
   // channel_mapping [optional]
@@ -561,12 +584,10 @@ uff::ReceiveSetup Reader<DataType>::readReceiveSetup(
 }
 
 template <typename DataType>
-uff::Rotation Reader<DataType>::readRotation(const H5::Group& group) {
-  uff::Rotation rotation;
-
-  rotation.setX(readMetadataTypeDataset(group, "x"));
-  rotation.setY(readMetadataTypeDataset(group, "y"));
-  rotation.setZ(readMetadataTypeDataset(group, "z"));
+uff::Point3D<MetadataType> Reader<DataType>::readRotation(const H5::Group& group) {
+  uff::Point3D<MetadataType> rotation{readMetadataTypeDataset(group, "x"),
+                                      readMetadataTypeDataset(group, "y"),
+                                      readMetadataTypeDataset(group, "z")};
 
   return rotation;
 }
@@ -601,7 +622,7 @@ uff::TimedEvent Reader<DataType>::readTimedEvent(
 
   // "event"
   int eventId = std::stoi(readStringDataset(group, "event_id"));
-  //std::cout << "probeId" << probeId << " " << m_dataset.channelData().probes().size();
+  //std::cout << "probeId" << probeId << " " << _dataset.channelData().probes().size();
   timedEvent.setEvent(uniqueEvents[static_cast<size_t>(eventId) - 1]);
 
   // "time_offset"
@@ -635,21 +656,19 @@ std::vector<uff::TimedEvent> Reader<DataType>::readTimedEventArray(
 template <typename DataType>
 uff::Transform Reader<DataType>::readTransform(const H5::Group& group) {
   // rotation
-  uff::Rotation rotation = readRotation(group.openGroup("rotation"));
+  uff::Point3D<MetadataType> rotation = readRotation(group.openGroup("rotation"));
 
   // translation
-  uff::Translation translation = readTranslation(group.openGroup("translation"));
+  uff::Point3D<MetadataType> translation = readTranslation(group.openGroup("translation"));
 
   return {rotation, translation};
 }
 
 template <typename DataType>
-uff::Translation Reader<DataType>::readTranslation(const H5::Group& group) {
-  uff::Translation translation;
-
-  translation.setX(readMetadataTypeDataset(group, "x"));
-  translation.setY(readMetadataTypeDataset(group, "y"));
-  translation.setZ(readMetadataTypeDataset(group, "z"));
+uff::Point3D<MetadataType> Reader<DataType>::readTranslation(const H5::Group& group) {
+  uff::Point3D<MetadataType> translation{readMetadataTypeDataset(group, "x"),
+                                         readMetadataTypeDataset(group, "y"),
+                                         readMetadataTypeDataset(group, "z")};
 
   return translation;
 }

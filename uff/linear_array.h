@@ -1,6 +1,5 @@
 #pragma once
 
-#include <uff/element.h>
 #include <uff/probe.h>
 #include <uff/uff.h>
 #include <cstddef>
@@ -57,12 +56,8 @@ class LinearArray : public uff::Probe {
     _elements.resize(_nb_elements);
     for (uint32_t i = 0; i < _nb_elements; ++i) {
       // element position
-      uff::Element element;
       MetadataType xmin = -_pitch * static_cast<float>(_nb_elements - 1) / 2.f;
-      element.setX(xmin + i * _pitch);
-      element.setY(0.f);
-      element.setZ(0.f);
-      _elements[i] = element;
+      _elements[i] = {xmin + i * _pitch, 0.f, 0.f};
     }
   }
 

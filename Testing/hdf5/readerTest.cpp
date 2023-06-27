@@ -7,10 +7,8 @@
 #include <uff/rca_array.h>
 #include <uff/reader.h>
 #include <uff/receive_setup.h>
-#include <uff/rotation.h>
 #include <uff/timed_event.h>
 #include <uff/transform.h>
-#include <uff/translation.h>
 #include <uff/transmit_setup.h>
 #include <uff/transmit_wave.h>
 #include <uff/types.h>
@@ -91,7 +89,7 @@ TEST_CASE("Load HDF5 file", "[hdf5_loader]") {
     // plane wave. origin.translation is the direction vector
     auto wave = std::make_shared<uff::Wave>();
     wave->setWaveType(uff::WaveType::PLANE_WAVE);
-    wave->setOrigin(uff::Transform(uff::Rotation(), uff::Translation()));
+    wave->setOrigin(uff::Transform(uff::Rotation(), uff::Point3D<MetadataType>()));
 
     uff::Excitation excitation;
     excitation.setTransmitFrequency(dataset->getTransmitFrequency());

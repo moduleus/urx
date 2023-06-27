@@ -1,9 +1,11 @@
 #pragma once
 
-#include <uff/perimeter.h>
+#include <uff/point.h>
 #include <uff/uff.h>
+
 #include <iosfwd>
 #include <string>
+#include <vector>
 
 namespace uff {
 
@@ -27,13 +29,14 @@ class ElementGeometry {
 
   // Accessors
  public:
-  uff::Perimeter& perimeter() { return _perimeter; }
-  void setPerimeter(const uff::Perimeter& perimeter) { _perimeter = perimeter; }
+  std::vector<uff::Point2D<MetadataType>>& perimeter() { return _perimeter; }
+  void setPerimeter(const std::vector<uff::Point2D<MetadataType>>& perimeter) { _perimeter = perimeter; }
 
   // Members
  private:
-  // (Optional) List of positions defining the element perimeter
-  uff::Perimeter _perimeter;
+  // (Optional) List of positions points (x,y) defining the element perimeter
+  // It is assumed that perimeter is always in the X-Y plan
+  std::vector<uff::Point2D<MetadataType>> _perimeter;
 };
 
 }  // namespace uff

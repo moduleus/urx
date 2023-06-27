@@ -1,7 +1,9 @@
-#include <uff/dataset.h>
-#include <catch2/catch.hpp>
 #include <iostream>
 #include <sstream>
+
+#include <catch2/catch.hpp>
+
+#include <uff/dataset.h>
 
 namespace uff::test {
 

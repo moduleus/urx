@@ -1,6 +1,5 @@
 #pragma once
 
-#include <uff/element.h>
 #include <uff/element_geometry.h>
 #include <uff/impulse_response.h>
 #include <uff/transform.h>
@@ -13,6 +12,12 @@
 #include <utility>
 #include <vector>
 namespace uff {
+
+  enum class ProbeType {
+    LinearArray = 0,
+    RcaArray = 1,
+    MatrixArray = 2
+  };
 
 /**
  * @brief The UFF Probe class describes a generic ultrsound probe formed by a collection of elements
@@ -51,8 +56,8 @@ class Probe {
   }
 
   /* List elements in the probe */
-  inline std::vector<uff::Element>& elements() { return _elements; }
-  inline void setElements(const std::vector<uff::Element>& elements) {
+  inline std::vector<std::optional<uff::Point3D<MetadataType>>>& elements() { return _elements; }
+  inline void setElements(const std::vector<std::optional<uff::Point3D<MetadataType>>>& elements) {
     _elements = elements;
     _channel_geometry_valid = false;
   }
@@ -83,9 +88,9 @@ class Probe {
     _channel_geometry.resize(4 * _elements.size());
     auto dst = _channel_geometry.begin();
     for (auto& el : _elements) {
-      *dst++ = el.x().has_value() ? el.x().value() : static_cast<MetadataType>(UFF_NAN);
-      *dst++ = el.y().has_value() ? el.y().value() : static_cast<MetadataType>(UFF_NAN);
-      *dst++ = el.z().has_value() ? el.z().value() : static_cast<MetadataType>(UFF_NAN);
+      *dst++ = el.has_value() ? el.value().x() : static_cast<MetadataType>(UFF_NAN);
+      *dst++ = el.has_value() ? el.value().y() : static_cast<MetadataType>(UFF_NAN);
+      *dst++ = el.has_value() ? el.value().z() : static_cast<MetadataType>(UFF_NAN);
       *dst++ = 0;
     }
   }
@@ -97,7 +102,7 @@ class Probe {
  protected:
   uff::Transform _transform;
   std::optional<MetadataType> _focal_length = std::nullopt;
-  std::vector<uff::Element> _elements;
+  std::vector<std::optional<uff::Point3D<MetadataType>>> _elements;
   std::vector<uff::ElementGeometry> _element_geometries;
   std::vector<uff::ImpulseResponse> _impulse_responses;
 

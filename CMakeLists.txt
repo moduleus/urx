@@ -59,31 +59,15 @@ include(CPack)
 add_library(compiler_flags INTERFACE)
 target_compile_features(compiler_flags INTERFACE cxx_std_17)
 
-# # Treat warnings as errors
-# target_compile_options(
-#   compiler_flags
-#   INTERFACE
-#     $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
-#     -Werror
-#     -Wall>
-#     $<$<CXX_COMPILER_ID:MSVC>:
-#     /W3
-#     /WX
-#     /EHsc
-#     /wd4251>)
-
-# add compiler warning flags just when building this project via
-# the BUILD_INTERFACE genex
+# add compiler warning flags just when building this project via the
+# BUILD_INTERFACE genex
 set(gcc_like_cxx "$<COMPILE_LANG_AND_ID:CXX,ARMClang,AppleClang,Clang,GNU,LCC>")
 set(msvc_cxx "$<COMPILE_LANG_AND_ID:CXX,MSVC>")
 target_compile_options(
   compiler_flags
   INTERFACE
     "$<${gcc_like_cxx}:$<BUILD_INTERFACE:-Wall;-Werror;-Wextra;-Wshadow;-Wformat=2;-Wunused>>"
-    "$<${msvc_cxx}:$<BUILD_INTERFACE:-W3;-WX;-EHsc;-wd4251>>")
-
-add_subdirectory("uff")
-add_subdirectory("uff_utils")
+    "$<${msvc_cxx}:$<BUILD_INTERFACE:/W3;/WX;/EHsc;/wd4251>>")
 
 # Link ###
 if(BUILD_SHARED_LIBS)
@@ -92,6 +76,9 @@ else()
   set(LIB_TYPE STATIC)
 endif()
 string(TOLOWER ${LIB_TYPE} SEARCH_TYPE)
+
+add_subdirectory("uff")
+add_subdirectory("uff_utils")
 
 # Create cmake config files ###
 configure_package_config_file(
@@ -105,7 +92,7 @@ write_basic_package_version_file(
 
 file(WRITE "${CMAKE_BINARY_DIR}/version.txt" "${CMAKE_PROJECT_VERSION}")
 
-# if(BUILD_TESTING)
-#   enable_testing()
-#   add_subdirectory(Testing)
-# endif()
+if(BUILD_TESTING)
+  enable_testing()
+  add_subdirectory(Testing)
+endif()

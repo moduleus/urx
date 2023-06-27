@@ -3,7 +3,6 @@ set(UFF_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/aperture.h
     ${CMAKE_CURRENT_SOURCE_DIR}/channel_data.h
     ${CMAKE_CURRENT_SOURCE_DIR}/dataset.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/element.h
     ${CMAKE_CURRENT_SOURCE_DIR}/element_geometry.h
     ${CMAKE_CURRENT_SOURCE_DIR}/event.h
     ${CMAKE_CURRENT_SOURCE_DIR}/excitation.h
@@ -11,13 +10,12 @@ set(UFF_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/linear_array.h
     ${CMAKE_CURRENT_SOURCE_DIR}/matrix_array.h
     ${CMAKE_CURRENT_SOURCE_DIR}/perimeter.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/point.h
     ${CMAKE_CURRENT_SOURCE_DIR}/probe.h
     ${CMAKE_CURRENT_SOURCE_DIR}/rca_array.h
     ${CMAKE_CURRENT_SOURCE_DIR}/receive_setup.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/rotation.h
     ${CMAKE_CURRENT_SOURCE_DIR}/timed_event.h
     ${CMAKE_CURRENT_SOURCE_DIR}/transform.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/translation.h
     ${CMAKE_CURRENT_SOURCE_DIR}/transmit_setup.h
     ${CMAKE_CURRENT_SOURCE_DIR}/transmit_wave.h
     ${CMAKE_CURRENT_SOURCE_DIR}/types.h
@@ -39,7 +37,7 @@ target_include_directories(
   ${PROJECT_NAME}
   INTERFACE
     $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}-${git_branch}>
 )
 set_target_properties(${PROJECT_NAME}

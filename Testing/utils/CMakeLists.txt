@@ -12,7 +12,7 @@ add_executable(UffTest ${MAIN_CPP} ${SRCS_FILES})
 
 target_include_directories(UffTest PUBLIC ${PROJECT_SOURCE_DIR}/uff)
 
-target_link_libraries(UffTest PRIVATE Uff::Uff ${HDF5_CXX_LIBRARIES}
+target_link_libraries(UffTest PRIVATE Uff::Uff Uff::Uff_Utils ${HDF5_CXX_LIBRARIES}
                                       Catch2::Catch2)
 
 catch_discover_tests(UffTest)

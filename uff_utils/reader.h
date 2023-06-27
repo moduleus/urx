@@ -1,33 +1,32 @@
 #pragma once
 
+#include <iosfwd>
+#include <memory>
+#include <optional>
+#include <string>
+#include <string_view>
+#include <vector>
+
 #include <uff/aperture.h>
 #include <uff/channel_data.h>
-#include <uff/element.h>
+#include <uff/dataset.h>
 #include <uff/event.h>
 #include <uff/excitation.h>
 #include <uff/linear_array.h>
 #include <uff/matrix_array.h>
+#include <uff/point.h>
 #include <uff/probe.h>
 #include <uff/rca_array.h>
 #include <uff/receive_setup.h>
-#include <uff/rotation.h>
 #include <uff/timed_event.h>
 #include <uff/transform.h>
-#include <uff/translation.h>
 #include <uff/transmit_setup.h>
 #include <uff/transmit_wave.h>
 #include <uff/uff.h>
 #include <uff/version.h>
 #include <uff/wave.h>
-#include <iosfwd>
-#include <memory>
-#include <string>
-#include <string_view>
-#include <vector>
 
-#include <H5Cpp.h>
-#include <uff/dataset.h>
-#include <optional>
+#include <uff_utils/io.h>
 
 namespace uff {
 
@@ -41,15 +40,15 @@ class Reader {
  public:
   Reader() = default;
 
-  std::shared_ptr<uff::Dataset<DataType>> dataset() { return m_dataset; }
-  std::shared_ptr<const uff::Dataset<DataType>> dataset() const { return m_dataset; }
+  std::shared_ptr<uff::Dataset<DataType>> dataset() { return _dataset; }
+  std::shared_ptr<const uff::Dataset<DataType>> dataset() const { return _dataset; }
 
-  /* Set/Get the filename of the UFF file. The 'fileName' must contain the file extension. */
-  std::string fileName() const { return m_fileName; }
-  void setFileName(const std::string& fileName) { m_fileName = fileName; }
+  /* Set/Get the filename of the UFF file. The 'filename' must contain the file extension. */
+  std::string filename() const { return _filename; }
+  void setFileName(const std::string& filename) { _filename = filename; }
 
-  bool skipChannelDataData() const { return m_skipChannelDataData; }
-  void setSkipChannelDataData(bool skip) { m_skipChannelDataData = skip; }
+  bool skipData() const { return _skip_data; }
+  void setSkipData(bool skip) { _skip_data = skip; }
 
   // No H5Exception is catched
   void updateMetadata();
@@ -75,8 +74,14 @@ class Reader {
   static uff::ChannelData<DataType> readChannelData(const H5::Group& group, bool castData = false,
                                                     bool skipData = false);
 
-  static uff::Element readElement(const H5::Group& group);
-  static std::vector<uff::Element> readElementArray(const H5::Group& group);
+  //   static uff::Point2D readOptionnalPosition2D(const H5::Group& group);
+  //   static uff::Point2D readOptionnalPosition3D(const H5::Group& group);
+
+  //   static uff::Point2D readPosition2D(const H5::Group& group);
+  //   static uff::Point3D readPosition3D(const H5::Group& group);
+
+  static std::optional<uff::Point3D<MetadataType>> readElement(const H5::Group& group);
+  static std::vector<std::optional<uff::Point3D<MetadataType>>> readElementArray(const H5::Group& group);
 
   static std::shared_ptr<uff::Event> readEvent(
       const H5::Group& group, const std::vector<std::shared_ptr<uff::Probe>>& probes,
@@ -106,7 +111,7 @@ class Reader {
   static uff::ReceiveSetup readReceiveSetup(const H5::Group& group,
                                             const std::vector<std::shared_ptr<uff::Probe>>& probes);
 
-  static uff::Rotation readRotation(const H5::Group& group);
+  static uff::Point3D<MetadataType> readRotation(const H5::Group& group);
 
   static uff::TimedEvent readTimedEvent(
       const H5::Group& group, const std::vector<std::shared_ptr<uff::Event>>& uniqueEvents);
@@ -115,7 +120,7 @@ class Reader {
 
   static uff::Transform readTransform(const H5::Group& group);
 
-  static uff::Translation readTranslation(const H5::Group& group);
+  static uff::Point3D<MetadataType> readTranslation(const H5::Group& group);
 
   static uff::TransmitSetup readTransmitSetup(
       const H5::Group& group, const std::vector<std::shared_ptr<uff::Probe>>& probes,
@@ -131,11 +136,11 @@ class Reader {
 
  private:
   // name of the file to read
-  std::string m_fileName;
-  bool m_skipChannelDataData = false;
+  std::string _filename;
+  bool _skip_data = false;
 
   // dataset
-  std::shared_ptr<uff::Dataset<DataType>> m_dataset;
+  std::shared_ptr<uff::Dataset<DataType>> _dataset;
 };
 
 }  // namespace uff

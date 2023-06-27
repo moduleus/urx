@@ -1,7 +1,6 @@
 #pragma once
 
-#include <uff/rotation.h>
-#include <uff/translation.h>
+#include <uff/point.h>
 #include <uff/uff.h>
 #include <iosfwd>
 #include <string>
@@ -18,10 +17,7 @@ class Transform {
   // CTOR & DTOR
  public:
   Transform() = default;
-  Transform(const uff::Rotation& rotation, const uff::Translation& translation) {
-    this->setRotation(rotation);
-    this->setTranslation(translation);
-  }
+  Transform(const uff::Point3D<MetadataType>& rotation, const uff::Point3D<MetadataType>& translation) : _rotation(rotation), _translation(translation) {}
   Transform(const Transform&) = default;
   Transform(Transform&&) = default;
   ~Transform() = default;
@@ -37,19 +33,19 @@ class Transform {
 
   // Accessors
  public:
-  inline const uff::Rotation& rotation() const { return _rotation; }
-  inline void setRotation(const uff::Rotation& rotation) { _rotation = rotation; }
+  inline const uff::Point3D<MetadataType>& rotation() const { return _rotation; }
+  inline void setRotation(const uff::Point3D<MetadataType>& rotation) { _rotation = rotation; }
 
-  inline const uff::Translation& translation() const { return _translation; }
-  inline void setTranslation(const uff::Translation& translation) { _translation = translation; }
+  inline const uff::Point3D<MetadataType>& translation() const { return _translation; }
+  inline void setTranslation(const uff::Point3D<MetadataType>& translation) { _translation = translation; }
 
   // Members
  private:
-  // rotation in radians
-  uff::Rotation _rotation;
+  // Rotation around the 3 axis X: elevation, Y: azimut and Z: roll in radians
+  uff::Point3D<MetadataType> _rotation;
 
-  // position in meters
-  uff::Translation _translation;
+  // translation in meters on 3 axis X, Y and Z
+  uff::Point3D<MetadataType> _translation;
 };
 
 }  // namespace uff
