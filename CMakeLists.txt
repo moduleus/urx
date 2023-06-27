@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.9)
 
 project(
   Uff
-  VERSION 0.5.3
+  VERSION 0.5.4
   LANGUAGES C CXX
   DESCRIPTION "Ultrasound File Format C++ implementation")
 
@@ -68,6 +68,8 @@ target_include_directories(
 )
 set_target_properties(${PROJECT_NAME}
                       PROPERTIES OUTPUT_NAME "${PROJECT_NAME}-${git_branch}")
+target_compile_definitions(
+  ${PROJECT_NAME} PUBLIC "${PROJECT_NAME}_CMAKE_VERSION=\"${PROJECT_VERSION}\"")
 
 # With HDF5 option
 option(WITH_HDF5 "Build with HDF5" ON)
