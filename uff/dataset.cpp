@@ -19,6 +19,21 @@ void Dataset<DataType>::printSelf(std::ostream& os, const std::string& indent) c
   this->version().printSelf(os, indent + UFF_STD_INDENT);
 }
 
+template <typename DataType>
+Dataset<DataType>& Dataset<DataType>::operator=(const Dataset<DataType>& other) {
+  if (this == &other) {
+    return *this;
+  }
+
+  // Copy version
+  this->setVersion(other.version());
+
+  // Copy channel data
+  this->setChannelData(other.channelData());
+
+  return *this;
+}
+
 template class Dataset<float>;
 template class Dataset<short>;
 

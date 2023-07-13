@@ -171,7 +171,8 @@ ChannelData<DataType>& ChannelData<DataType>::operator=(const ChannelData<DataTy
   // Data
   m_data = other.m_data;
 
-  if (*this != other) throw;
+  const bool differents = *this != other;
+  if (differents) throw;
 
   return *this;
 }

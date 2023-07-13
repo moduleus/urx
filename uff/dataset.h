@@ -119,6 +119,9 @@ class Dataset : public uff::Object {
 
   inline bool operator!=(const Dataset& other) const { return !(*this == other); }
 
+  Dataset& operator=(const Dataset& other);
+  Dataset& operator=(Dataset&& other) noexcept = default;
+
  private:
   uff::Version m_version;
   uff::ChannelData<DataType> m_channelData;
