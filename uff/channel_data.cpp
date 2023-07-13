@@ -66,9 +66,7 @@ void ChannelData<DataType>::printSelf(std::ostream& os, const std::string& inden
 }
 
 template <typename DataType>
-ChannelData<DataType>& ChannelData<DataType>::operator=(const ChannelData<DataType>& other) {
-  if (&other == this) return *this;
-
+ChannelData<DataType>& ChannelData<DataType>::copyStructure(const ChannelData<DataType>& other) {
   m_authors = other.m_authors;
   m_description = other.m_description;
   m_localTime = other.m_localTime;
@@ -167,6 +165,15 @@ ChannelData<DataType>& ChannelData<DataType>::operator=(const ChannelData<DataTy
   m_numberOfEvents = other.m_numberOfEvents;
   m_numberOfChannels = other.m_numberOfChannels;
   m_numberOfSamples = other.m_numberOfSamples;
+
+  return *this;
+}
+
+template <typename DataType>
+ChannelData<DataType>& ChannelData<DataType>::operator=(const ChannelData<DataType>& other) {
+  if (&other == this) return *this;
+
+  copyStructure(other);
 
   // Data
   m_data = other.m_data;

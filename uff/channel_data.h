@@ -174,6 +174,9 @@ class ChannelData : public uff::Object {
     return std::regex_match(countryCode, std::regex(r));
   }
 
+  // Copy structure. Don't throw error if data moved during copy.
+  ChannelData& copyStructure(const ChannelData& other);
+
   ChannelData& operator=(const ChannelData& other);
   ChannelData& operator=(ChannelData&& other) noexcept = default;
 
