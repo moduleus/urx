@@ -17,20 +17,20 @@ namespace uff {
  * Element[0] has the minimum x/y coordinates. Element[1] has the same y-coordinates as
  * element[0] but a higher x-coordinates.
  */
-class MatrixArray : public uff::Probe {
-  // CTOR & DTOR
+class MatrixArray : public Probe {
  public:
-  MatrixArray() = default;
-  MatrixArray(const Point2D<uint32_t>& nb_elements, const Point2D<MetadataType>& pitch)
-      : _nb_elements(nb_elements), _pitch(pitch) {
+  // CTOR & DTOR
+  MatrixArray() = delete;
+  MatrixArray(const Point2D<uint32_t>& nb_elements, const Point2D<MetadataType>& pitch,
+              const std::optional<Point2D<MetadataType>>& element_size = std::nullopt)
+      : _nb_elements(nb_elements), _pitch(pitch), _element_size(element_size) {
     updateElements();
   }
   MatrixArray(const MatrixArray&) = default;
   MatrixArray(MatrixArray&&) = default;
-  virtual ~MatrixArray() override = default;
+  ~MatrixArray() override = default;
 
   // Operators
- public:
   MatrixArray& operator=(const MatrixArray& other) noexcept = default;
   MatrixArray& operator=(MatrixArray&& other) noexcept = default;
   inline bool operator==(const MatrixArray& other) const {
@@ -40,7 +40,6 @@ class MatrixArray : public uff::Probe {
   inline bool operator!=(const MatrixArray& other) const { return !(*this == other); }
 
   // Accessors
- public:
   inline Point2D<uint32_t> nbElements() const { return _nb_elements; }
   inline void setNumberElements(Point2D<uint32_t> nb_elements) {
     _nb_elements = nb_elements;
@@ -60,15 +59,16 @@ class MatrixArray : public uff::Probe {
 
  private:
   // Update elements position
-  void updateElements() override {
+  void updateElements() {
     _elements.resize(static_cast<size_t>(_nb_elements.x()) * _nb_elements.y());
 
     MetadataType xmin = -_pitch.x() * (_nb_elements.x() - 1.f) / 2.f;
     MetadataType ymin = -_pitch.y() * (_nb_elements.y() - 1.f) / 2.f;
     for (uint32_t i = 0; i < _nb_elements.y(); i++) {
       for (uint32_t j = 0; j < _nb_elements.x(); j++) {
-        _elements[static_cast<size_t>(j) + static_cast<size_t>(i) * _nb_elements.y()] = {
-            xmin + j * _pitch.x(), ymin + i * _pitch.y(), 0.f};
+        _elements[static_cast<size_t>(j) + static_cast<size_t>(i) * _nb_elements.y()] =
+            Element({Point3D<MetadataType>{xmin + j * _pitch.x(), ymin + i * _pitch.y(), 0.f},
+                     Point3D<MetadataType>{}});
       }
     }
   }

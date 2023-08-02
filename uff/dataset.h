@@ -1,86 +1,42 @@
 #pragma once
 
-#include <uff/channel_data.h>
-#include <uff/receive_setup.h>
-#include <uff/uff.h>
+#include <uff/acquisition.h>
 #include <uff/version.h>
-#include <iosfwd>
-#include <string>
-#include <utility>
-#include <vector>
 
 namespace uff {
 
 /**
  * @brief The UFF Dataset class
  */
-template <typename DataType>
 class Dataset {
-  // CTOR & DTOR
  public:
+  // CTOR & DTOR
   Dataset() = default;
   Dataset(const Dataset&) = default;
   Dataset(Dataset&&) = default;
   ~Dataset() = default;
 
   // Operators
- public:
   Dataset& operator=(const Dataset& other) noexcept = default;
   Dataset& operator=(Dataset&& other) noexcept = default;
   inline bool operator==(const Dataset& other) const {
-    return ((_version == other._version) && (_channel_data == other._channel_data));
+    return ((_version == other._version) && (_acquisition == other._acquisition));
   }
   inline bool operator!=(const Dataset& other) const { return !(*this == other); }
 
   // Accessors
- public:
-  inline uff::ChannelData<DataType>& channelData() { return _channel_data; }
-  inline const uff::ChannelData<DataType>& channelData() const { return _channel_data; }
-  inline void setChannelData(const uff::ChannelData<DataType>& channel_data) {
-    _channel_data = channel_data;
-  }
-  inline void setChannelData(uff::ChannelData<DataType>&& channel_data) {
-    _channel_data = std::move(channel_data);
-  }
+  inline Acquisition& acquisition() { return _acquisition; }
+  inline const Acquisition& acquisition() const { return _acquisition; }
+  inline void setAcquisition(const Acquisition& acquisition) { _acquisition = acquisition; }
+  inline void setAcquisition(Acquisition&& acquisition) { _acquisition = std::move(acquisition); }
 
-  inline const uff::Version& version() const { return _version; }
-  inline void setVersion(const uff::Version& version) { _version = version; }
-
-  // Returns the channel geometry of the probe used by the 1st receive setup
-  template <typename T>
-  std::vector<T> channelGeometry() const {
-    return _channel_data.template channelGeometry<T>();
-  }
-
-  // Returns the receive delay of the 1st ReceiveSetup
-  MetadataType receiveDelay() const { return _channel_data.receiveDelay(); }
-
-  // Returns the type of sampling of the 1st ReceiveSetup
-  uff::ReceiveSetup::SAMPLING_TYPE samplingType() const { return _channel_data.samplingType(); }
-
-  // Return the sampling frequency associated with the 1st receive event [Hz]
-  MetadataType samplingFrequency() const { return _channel_data.samplingFrequency(); }
-
-  // Returns the speed of sound [m/s]
-  inline MetadataType soundSpeed() const { return _channel_data.soundSpeed(); }
-
-  // Return the transmit frequency associated with the 1st Wave of the dataset
-  MetadataType transmitFrequency() const { return _channel_data.transmitFrequency(); }
-
-  // Returns true is the 1st probe is of sub-type 'ProbeType'
-  // Example: isProbeType<uff::MatrixArray>() == true;
-  template <class ProbeType>
-  bool isProbeType() const {
-    return _channel_data.template isProbeType<ProbeType>();
-  }
+  inline const Version& version() const { return _version; }
+  inline void setVersion(const Version& version) { _version = version; }
 
   // Members
  private:
-  uff::Version _version;
-  uff::ChannelData<DataType> _channel_data;
+  Version _version;
+  Acquisition _acquisition;
 };
-
-template class Dataset<float>;
-template class Dataset<short>;
 
 }  // namespace uff

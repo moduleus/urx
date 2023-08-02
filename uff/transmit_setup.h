@@ -4,56 +4,48 @@
 #include <vector>
 
 #include <uff/probe.h>
-#include <uff/transmit_wave.h>
+#include <uff/time_offset_base.h>
 #include <uff/uff.h>
+#include <uff/wave.h>
 
 namespace uff {
 
-class TransmitSetup {
-  // CTOR & DTOR
+class TransmitSetup : public TimeOffsetBase {
  public:
-  TransmitSetup() = default;
+  // CTOR & DTOR
+  TransmitSetup() = delete;
+  TransmitSetup(const std::weak_ptr<Probe>& probe, const std::weak_ptr<Wave>& wave,
+                MetadataType time_offset = 0.)
+      : TimeOffsetBase(time_offset), _probe(probe), _wave(wave) {}
   TransmitSetup(const TransmitSetup&) = default;
   TransmitSetup(TransmitSetup&&) = default;
-  ~TransmitSetup() = default;
+  ~TransmitSetup() override = default;
 
   // Operators
- public:
   TransmitSetup& operator=(const TransmitSetup& other) noexcept = default;
   TransmitSetup& operator=(TransmitSetup&& other) noexcept = default;
   bool operator==(const TransmitSetup& other) const {
-    return ((_probe.expired() == other._probe.expired()) &&
+    return (TimeOffsetBase::operator==(other) && (_probe.expired() == other._probe.expired()) &&
             (_probe.expired() || (*(_probe.lock()) == *(other._probe.lock()))) &&
-            (_transmit_wave == other._transmit_wave) &&
-            (_channel_mapping == other._channel_mapping));
+            (_wave.expired() == other._wave.expired()) &&
+            (_wave.expired() || (*(_wave.lock()) == *(other._wave.lock()))));
   }
   inline bool operator!=(const TransmitSetup& other) const { return !(*this == other); }
 
   // Accessors
- public:
-  inline std::weak_ptr<uff::Probe> probe() const { return _probe; }
-  inline void setProbe(std::weak_ptr<uff::Probe> probe) { _probe = std::move(probe); }
+  inline std::weak_ptr<Probe> probe() const { return _probe; }
+  inline void setProbe(std::weak_ptr<Probe> probe) { _probe = probe; }
 
-  inline uff::TransmitWave transmitWave() const { return _transmit_wave; }
-  inline void setTransmitWave(const uff::TransmitWave& transmitWave) {
-    _transmit_wave = transmitWave;
-  }
-
-  inline std::vector<int> channelMapping() const { return _channel_mapping; }
-  inline void setChannelMapping(std::vector<int> channelMapping) {
-    _channel_mapping = std::move(channelMapping);
-  }
+  inline std::weak_ptr<Wave> wave() const { return _wave; }
+  inline void setWave(const std::weak_ptr<Wave>& wave) { _wave = wave; }
 
   // Members
  private:
   // Reference to the probe use in transmission
-  std::weak_ptr<uff::Probe> _probe;
+  std::weak_ptr<Probe> _probe;
 
   // List of transmit waves used in this event with their respective time offset and weight
-  uff::TransmitWave _transmit_wave;
-
-  // Map of transmit channels to transducer elements
-  std::vector<int> _channel_mapping;
+  std::weak_ptr<Wave> _wave;
 };
 
 }  // namespace uff

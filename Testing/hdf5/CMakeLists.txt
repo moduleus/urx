@@ -10,8 +10,9 @@ set(SRCS_FILES readerTest.cpp)
 
 add_executable(UffTest ${MAIN_CPP} ${SRCS_FILES})
 
-target_link_libraries(UffTest PRIVATE Uff::Uff Uff::Uff_Utils ${HDF5_CXX_LIBRARIES}
-                                      Catch2::Catch2 compiler_flags)
+target_link_libraries(
+  UffTest PRIVATE Uff::Uff Uff::Uff_Utils ${HDF5_CXX_LIBRARIES} Catch2::Catch2
+                  compiler_flags)
 
 foreach(TESTI UffTest)
   if(WIN32 AND BUILD_SHARED_LIBS)

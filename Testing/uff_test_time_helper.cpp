@@ -6,26 +6,26 @@
 #include <ostream>
 #include <string>
 
-#include <uff/channel_data.h>
+#include <uff_utils/time_helper.h>
 
-#define CHECK_ISO8601(str)                                   \
-  if (uff::ChannelData<float>::isIso8601(str) == false) {    \
-    return -1;                                               \
+#define CHECK_ISO8601(str)            \
+  if (uff::isIso8601(str) == false) { \
+    return -1;                        \
   }
 
-#define CHECK_NOT_ISO8601(str)                           \
-  if (uff::ChannelData<float>::isIso8601(str) == true) { \
-    return -1;                                           \
+#define CHECK_NOT_ISO8601(str)       \
+  if (uff::isIso8601(str) == true) { \
+    return -1;                       \
   }
 
-#define CHECK_ISO3166(str)                                   \
-  if (uff::ChannelData<float>::isIso3166(str) == false) {    \
-    return -1;                                               \
+#define CHECK_ISO3166(str)            \
+  if (uff::isIso3166(str) == false) { \
+    return -1;                        \
   }
 
-#define CHECK_NOT_ISO3166(str)                           \
-  if (uff::ChannelData<float>::isIso3166(str) == true) { \
-    return -1;                                           \
+#define CHECK_NOT_ISO3166(str)       \
+  if (uff::isIso3166(str) == true) { \
+    return -1;                       \
   }
 
 int main(int argc, char* argv[]) {

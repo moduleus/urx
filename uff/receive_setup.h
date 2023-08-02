@@ -1,7 +1,9 @@
 #pragma once
 
 #include <uff/probe.h>
+#include <uff/time_offset_base.h>
 #include <uff/uff.h>
+
 #include <iosfwd>
 #include <memory>
 #include <optional>
@@ -13,26 +15,30 @@ namespace uff {
 /**
  * @brief The UFF ReceiveSetup class
  */
-class ReceiveSetup {
+class ReceiveSetup : public TimeOffsetBase {
  public:
   enum class SAMPLING_TYPE { DIRECT_RF = 0, QUADRATURE_4X_F0 = 1, QUADRATURE_2X_F0 = 2, IQ = 3 };
 
   // CTOR & DTOR
- public:
-  ReceiveSetup() = default;
+  ReceiveSetup() = delete;
+  ReceiveSetup(const std::weak_ptr<Probe>& probe, MetadataType sampling_frequency,
+               uint32_t number_samples, MetadataType time_offset = 0.)
+      : TimeOffsetBase(time_offset),
+        _probe(probe),
+        _sampling_frequency(sampling_frequency),
+        _number_samples(number_samples) {}
   ReceiveSetup(const ReceiveSetup&) = default;
   ReceiveSetup(ReceiveSetup&&) = default;
-  ~ReceiveSetup() = default;
+  ~ReceiveSetup() override = default;
 
   // Operators
- public:
   ReceiveSetup& operator=(const ReceiveSetup& other) noexcept = default;
   ReceiveSetup& operator=(ReceiveSetup&& other) noexcept = default;
   inline bool operator==(const ReceiveSetup& other) const {
-    return ((_probe.expired() == other._probe.expired()) &&
+    return (TimeOffsetBase::operator==(other) && (_probe.expired() == other._probe.expired()) &&
             (_probe.expired() || (*(_probe.lock()) == *(other._probe.lock()))) &&
-            (_time_offset == other._time_offset) &&
             (_sampling_frequency == other._sampling_frequency) &&
+            (_number_samples == other._number_samples) &&
             (_sampling_type == other._sampling_type) &&
             (_channel_mapping == other._channel_mapping) && (_tgc_profile == other._tgc_profile) &&
             (_tgc_sampling_frequency == other._tgc_sampling_frequency) &&
@@ -41,17 +47,16 @@ class ReceiveSetup {
   inline bool operator!=(const ReceiveSetup& other) const { return !(*this == other); }
 
   // Accessors
- public:
-  inline std::weak_ptr<uff::Probe> probe() const { return _probe; }
-  inline void setProbe(std::weak_ptr<uff::Probe> probe) { _probe = std::move(probe); }
-
-  inline MetadataType timeOffset() const { return _time_offset; }
-  inline void setTimeOffset(const MetadataType& timeOffset) { _time_offset = timeOffset; }
+  inline std::weak_ptr<Probe> probe() const { return _probe; }
+  inline void setProbe(std::weak_ptr<Probe> probe) { _probe = std::move(probe); }
 
   inline MetadataType samplingFrequency() const { return _sampling_frequency; }
   inline void setSamplingFrequency(const MetadataType& samplingFrequency) {
     _sampling_frequency = samplingFrequency;
   }
+
+  inline uint32_t numberSamples() const { return _number_samples; }
+  inline void setNumberSamples(uint32_t number_samples) { _number_samples = number_samples; }
 
   inline SAMPLING_TYPE samplingType() const { return _sampling_type; }
   inline void setSamplingType(const SAMPLING_TYPE& samplingType) { _sampling_type = samplingType; }
@@ -81,13 +86,13 @@ class ReceiveSetup {
   // Members
  private:
   // Probes used for this receive setup
-  std::weak_ptr<uff::Probe> _probe;
-
-  // Time before the first samples [s]
-  MetadataType _time_offset = 0.f;
+  std::weak_ptr<Probe> _probe;
 
   // Sampling frequency [Hz]
-  MetadataType _sampling_frequency = 0.f;
+  MetadataType _sampling_frequency = 0.;
+
+  // Number of samples
+  uint32_t _number_samples = 0;
 
   // Type of sampling:
   SAMPLING_TYPE _sampling_type = SAMPLING_TYPE::DIRECT_RF;
@@ -99,10 +104,10 @@ class ReceiveSetup {
   // (Optional) Analog TGC profile sampled at tgc_sampling_frequency [dB]
   std::vector<MetadataType> _tgc_profile = {0.f};
 
-  //     (Optional) Sampling frequency of the TGC profile [Hz]
+  // (Optional) Sampling frequency of the TGC profile [Hz]
   std::optional<MetadataType> _tgc_sampling_frequency = std::nullopt;
 
-  //     (Optional) Modulation frequency used in case of IQ-data [Hz]
+  // (Optional) Modulation frequency used in case of IQ-data [Hz]
   std::optional<MetadataType> _modulation_frequency = std::nullopt;
 };
 

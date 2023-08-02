@@ -1,9 +1,8 @@
 #pragma once
 
+#include <uff/time_offset_base.h>
 #include <uff/uff.h>
-#include <iosfwd>
-#include <memory>
-#include <optional>
+
 #include <string>
 #include <vector>
 
@@ -12,54 +11,52 @@ namespace uff {
 /**
  * @brief The UFF ImpulseResponse class specifies a temporal impulse response
  */
-class ImpulseResponse {
-  // CTOR & DTOR
+class ImpulseResponse : public TimeOffsetBase {
  public:
-  ImpulseResponse() = default;
+  // CTOR & DTOR
+  ImpulseResponse() = delete;
+  ImpulseResponse(MetadataType sampling_frequency, const std::vector<MetadataType>& data = {},
+                  MetadataType time_offset = 0., const std::string& units = "")
+      : TimeOffsetBase(time_offset),
+        _sampling_frequency(sampling_frequency),
+        _data(data),
+        _units(units) {}
   ImpulseResponse(const ImpulseResponse&) = default;
   ImpulseResponse(ImpulseResponse&&) = default;
-  ~ImpulseResponse() = default;
+  ~ImpulseResponse() override = default;
 
   // Operators
- public:
   ImpulseResponse& operator=(const ImpulseResponse& other) noexcept = default;
   ImpulseResponse& operator=(ImpulseResponse&& other) noexcept = default;
   inline bool operator==(const ImpulseResponse& other) const {
-    return ((m_initialTime == other.m_initialTime) &&
-            (_sampling_frequency == other._sampling_frequency) && (m_data == other.m_data) &&
-            (m_units == other.m_units));
+    return (TimeOffsetBase::operator==(other) &&
+            (_sampling_frequency == other._sampling_frequency) && (_data == other._data) &&
+            (_units == other._units));
   }
   inline bool operator!=(const ImpulseResponse& other) const { return !(*this == other); }
 
   // Accessors
- public:
-  inline MetadataType initialTime() const { return m_initialTime; }
-  inline void setInitialTime(MetadataType initialTime) { m_initialTime = initialTime; }
-
-  inline std::optional<MetadataType> samplingFrequency() const { return _sampling_frequency; }
-  inline void setSampleFrequency(std::optional<MetadataType> samplingFrequency) {
-    _sampling_frequency = samplingFrequency;
+  inline MetadataType samplingFrequency() const { return _sampling_frequency; }
+  inline void setSampleFrequency(MetadataType sampling_frequency) {
+    _sampling_frequency = sampling_frequency;
   }
 
-  inline const std::vector<MetadataType>& data() const { return m_data; }
-  inline void setData(const std::vector<MetadataType>& data) { m_data = data; }
+  inline const std::vector<MetadataType>& data() const { return _data; }
+  inline void setData(const std::vector<MetadataType>& data) { _data = data; }
 
-  inline const std::string& units() const { return m_units; }
-  inline void setUnits(const std::string& units) { m_units = units; }
+  inline const std::string& units() const { return _units; }
+  inline void setUnits(const std::string& units) { _units = units; }
 
   // Members
  private:
-  // Time in seconds from the delta excitation until the acquisition of the first sample
-  MetadataType m_initialTime = 0.f;
-
   // Sampling frequency in Hz
-  std::optional<MetadataType> _sampling_frequency = std::nullopt;
+  MetadataType _sampling_frequency;
 
   // Collection of samples containing the impulse response
-  std::vector<MetadataType> m_data;
+  std::vector<MetadataType> _data;
 
   // (Optional) Name of the units of the impulse response
-  std::string m_units;
+  std::string _units;
 };
 
 }  // namespace uff

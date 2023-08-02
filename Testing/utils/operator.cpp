@@ -1,26 +1,44 @@
-#include <iostream>
-#include <sstream>
-
 #include <catch2/catch.hpp>
 
-#include <uff/dataset.h>
+#include <uff/probe.h>
+#include <uff/rca_array.h>
+#include <uff/transmit_setup.h>
+#include <uff/wave.h>
+
+#include <memory>
 
 namespace uff::test {
 
-std::ostream& operator<<(std::ostream& os, const uff::Dataset<short>& d) {
-  os << "toto";
-  return os;
+TEST_CASE("Wave::operator==", "[operator]") {
+  auto w_1 = std::make_shared<Wave>();
+  auto w_2 = std::make_shared<Wave>();
+
+  REQUIRE(*w_1 == *w_2);
+
+  REQUIRE(w_1 != w_2);
 }
 
-TEST_CASE("<< Operator", "[operator]") {
-  uff::Dataset<short> dataset;
-  std::stringstream ss;
-  ss << "toto";
+TEST_CASE("TransmitWave::operator==", "[operator]") {
+  auto rca =
+      std::make_shared<RcaArray>(Point2D<uint32_t>{64u, 64u}, Point2D<MetadataType>{1e-4, 75e-4});
 
-  std::stringstream ss_2;
-  ss_2 << dataset;
+  auto w_1 = std::make_shared<Wave>();
+  auto w_2 = std::make_shared<Wave>();
+  TransmitSetup ts_1(rca, w_1);
+  TransmitSetup ts_2(rca, w_1);
 
-  REQUIRE(ss.str() == ss_2.str());
+  REQUIRE(w_1 != w_2);
+  REQUIRE(*w_1 == *w_2);
+  REQUIRE(ts_1 == ts_2);
+
+  ts_1.wave().lock()->setWaveType(WaveType::CYLINDRICAL_WAVE);
+  REQUIRE(ts_1 == ts_2);
+
+  ts_1.setWave(w_2);
+  REQUIRE(ts_1 != ts_2);
+
+  w_2->setWaveType(WaveType::CYLINDRICAL_WAVE);
+  REQUIRE(ts_1 == ts_2);
 }
 
 }  // namespace uff::test

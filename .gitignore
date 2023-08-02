@@ -5,6 +5,7 @@ CI/
 CI_Android/
 install/
 Temporary/
+doc/
 
 # IDE dir
 .vs/

@@ -14,16 +14,16 @@ namespace uff {
  *  followed by a translation T = (tx, ty, tz).
  */
 class Transform {
-  // CTOR & DTOR
  public:
+  // CTOR & DTOR
   Transform() = default;
-  Transform(const uff::Point3D<MetadataType>& rotation, const uff::Point3D<MetadataType>& translation) : _rotation(rotation), _translation(translation) {}
+  Transform(const Point3D<MetadataType>& rotation, const Point3D<MetadataType>& translation)
+      : _rotation(rotation), _translation(translation) {}
   Transform(const Transform&) = default;
-  Transform(Transform&&) = default;
+  Transform(Transform&&) noexcept = default;
   ~Transform() = default;
 
   // Operators
- public:
   Transform& operator=(const Transform& other) noexcept = default;
   Transform& operator=(Transform&& other) noexcept = default;
   inline bool operator==(const Transform& other) const {
@@ -32,20 +32,22 @@ class Transform {
   inline bool operator!=(const Transform& other) const { return !(*this == other); }
 
   // Accessors
- public:
-  inline const uff::Point3D<MetadataType>& rotation() const { return _rotation; }
-  inline void setRotation(const uff::Point3D<MetadataType>& rotation) { _rotation = rotation; }
+  inline const Point3D<MetadataType>& rotation() const { return _rotation; }
+  inline void setRotation(const Point3D<MetadataType>& rotation) { _rotation = rotation; }
 
-  inline const uff::Point3D<MetadataType>& translation() const { return _translation; }
-  inline void setTranslation(const uff::Point3D<MetadataType>& translation) { _translation = translation; }
+  inline const Point3D<MetadataType>& translation() const { return _translation; }
+  inline void setTranslation(const Point3D<MetadataType>& translation) {
+    _translation = translation;
+  }
 
   // Members
  private:
   // Rotation around the 3 axis X: elevation, Y: azimut and Z: roll in radians
-  uff::Point3D<MetadataType> _rotation;
+  Point3D<MetadataType> _rotation = Point3D<MetadataType>{0, 0, 0};
 
   // translation in meters on 3 axis X, Y and Z
-  uff::Point3D<MetadataType> _translation;
+  Point3D<MetadataType> _translation = Point3D<MetadataType>{0, 0, 0};
+  ;
 };
 
 }  // namespace uff

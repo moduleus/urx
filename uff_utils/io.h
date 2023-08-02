@@ -7,7 +7,4 @@
 #define H5MetadataType                                                   \
   (std::is_same<MetadataType, float>::value ? H5::PredType::NATIVE_FLOAT \
                                             : H5::PredType::NATIVE_DOUBLE)
-namespace uff {
-
-
-}  // namespace uff
+namespace uff {}  // namespace uff

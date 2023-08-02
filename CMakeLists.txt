@@ -55,37 +55,15 @@ set(CPACK_PACKAGE_VERSION_PATCH "${${PROJECT_NAME}_VERSION_PATCH}")
 set(CPACK_SOURCE_GENERATOR "ZIP")
 include(CPack)
 
-# Setup compiler flags
-add_library(compiler_flags INTERFACE)
-target_compile_features(compiler_flags INTERFACE cxx_std_17)
-
-# add compiler warning flags just when building this project via the
-# BUILD_INTERFACE genex
-set(gcc_like_cxx "$<COMPILE_LANG_AND_ID:CXX,ARMClang,AppleClang,Clang,GNU,LCC>")
-set(msvc_cxx "$<COMPILE_LANG_AND_ID:CXX,MSVC>")
-target_compile_options(
-  compiler_flags
-  INTERFACE
-    "$<${gcc_like_cxx}:$<BUILD_INTERFACE:-Wall;-Werror;-Wextra;-Wshadow;-Wformat=2;-Wunused>>"
-    "$<${msvc_cxx}:$<BUILD_INTERFACE:/W3;/WX;/EHsc;/wd4251>>")
-
-# Link ###
-if(BUILD_SHARED_LIBS)
-  set(LIB_TYPE SHARED)
-else()
-  set(LIB_TYPE STATIC)
-endif()
-string(TOLOWER ${LIB_TYPE} SEARCH_TYPE)
+# With HDF5 option
+option(WITH_HDF5 "Build with HDF5" ON)
 
 add_subdirectory("uff")
-add_subdirectory("uff_utils")
+if(WITH_HDF5)
+  add_subdirectory("uff_utils")
+endif()
 
 # Create cmake config files ###
-configure_package_config_file(
-  ${PROJECT_NAME}Config.cmake.in
-  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
-  INSTALL_DESTINATION ${CMAKE_INSTALL_DIR}/${PROJECT_NAME}-${git_branch})
-
 write_basic_package_version_file(
   ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
   COMPATIBILITY SameMajorVersion)

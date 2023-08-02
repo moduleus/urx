@@ -15,18 +15,24 @@ namespace uff {
 /**
  * @brief The UFF RCA Array class describes a RCA (Row Column Address) probe
  */
-class RcaArray : public uff::Probe {
-  // CTOR & DTOR
+class RcaArray : public Probe {
  public:
-  explicit RcaArray(Point2D<uint32_t> nb_elements) : _nb_elements(nb_elements) {
+  // CTOR & DTOR
+  RcaArray() = delete;
+  explicit RcaArray(Point2D<uint32_t> nb_elements, const Point2D<MetadataType>& pitch,
+                    const std::optional<Point2D<MetadataType>>& element_width = std::nullopt,
+                    const std::optional<Point2D<MetadataType>>& element_height = std::nullopt)
+      : _nb_elements(nb_elements),
+        _pitch(pitch),
+        _element_width(element_width),
+        _element_height(element_height) {
     updateElements();
   }
   RcaArray(const RcaArray&) = default;
   RcaArray(RcaArray&&) = default;
-  virtual ~RcaArray() override = default;
+  ~RcaArray() override = default;
 
   // Operators
- public:
   RcaArray& operator=(const RcaArray& other) noexcept = default;
   RcaArray& operator=(RcaArray&& other) noexcept = default;
   inline bool operator==(const RcaArray& other) const {
@@ -37,7 +43,6 @@ class RcaArray : public uff::Probe {
   inline bool operator!=(const RcaArray& other) const { return !(*this == other); }
 
   // Accessors
- public:
   inline Point2D<uint32_t> nbElements() const { return _nb_elements; }
   inline void setNumberElements(Point2D<uint32_t> nb_elements) {
     _nb_elements = nb_elements;
@@ -62,17 +67,20 @@ class RcaArray : public uff::Probe {
 
  private:
   // Update elements position
-  void updateElements() override {
+  void updateElements() {
     _elements.resize(static_cast<size_t>(_nb_elements.x()) + _nb_elements.y());
 
-    MetadataType xmin = -_pitch.x() * (_nb_elements.x() - 1.f) / 2.f;
+    MetadataType xmin = -_pitch.x() * (_nb_elements.x() - 1.) / 2.;
     for (uint32_t i = 0; i < _nb_elements.x(); i++) {
-      _elements[i] = {xmin + i * _pitch.x(), 0.f, 0.f};
+      _elements[i] = Element({Point3D<MetadataType>{xmin + i * _pitch.x(), 0., 0.},
+                              Point3D<MetadataType>{0., 0., 0.}});
     }
 
-    MetadataType ymin = -_pitch.y() * (_nb_elements.y() - 1.f) / 2.f;
+    MetadataType ymin = -_pitch.y() * (_nb_elements.y() - 1.) / 2.;
     for (uint32_t i = _nb_elements.y(); i < _elements.size(); i++) {
-      _elements[i] = {0.f, ymin + (i - _nb_elements.y()) * _pitch.y(), 0.f};
+      _elements[i] =
+          Element({Point3D<MetadataType>{0., ymin + (i - _nb_elements.y()) * _pitch.y(), 0.},
+                   Point3D<MetadataType>{0., 0., 0.}});
     }
   }
 
@@ -82,12 +90,12 @@ class RcaArray : public uff::Probe {
   Point2D<uint32_t> _nb_elements{0u, 0u};
 
   // Distance between the acoustic center of adyacent elements along the axis x and y [m]
-  Point2D<MetadataType> _pitch{0.f, 0.f};
+  Point2D<MetadataType> _pitch{0., 0.};
 
-  // (Optional) Element size in the x-axis [m]
+  // (Optional) Element width for x and y axis [m]
   std::optional<Point2D<MetadataType>> _element_width = std::nullopt;
 
-  // (Optional) Element size in the y-axis [m]
+  // (Optional) Element height for x and y axis [m]
   std::optional<Point2D<MetadataType>> _element_height = std::nullopt;
 };
 

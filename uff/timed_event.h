@@ -4,43 +4,39 @@
 #include <utility>
 
 #include <uff/event.h>
+#include <uff/time_offset_base.h>
+#include <uff/trigger_base.h>
 #include <uff/uff.h>
 
 namespace uff {
 
-class TimedEvent {
-  // CTOR & DTOR
+class TimedEvent : public TimeOffsetBase {
  public:
-  TimedEvent() = default;
+  // CTOR & DTOR
+  TimedEvent() = delete;
+  TimedEvent(const std::weak_ptr<Event>& event, MetadataType time_offset = 0.)
+      : TimeOffsetBase(time_offset), _event(event) {}
   TimedEvent(const TimedEvent&) = default;
   TimedEvent(TimedEvent&&) = default;
-  ~TimedEvent() = default;
+  ~TimedEvent() override = default;
 
   // Operators
- public:
   TimedEvent& operator=(const TimedEvent& other) noexcept = default;
   TimedEvent& operator=(TimedEvent&& other) noexcept = default;
   bool operator==(const TimedEvent& other) const {
-    return ((_time_offset == other._time_offset) && (_event.expired() == other._event.expired()) &&
+    return (TimeOffsetBase::operator==(other) && (_event.expired() == other._event.expired()) &&
             (_event.expired() || (*(_event.lock()) == *(other._event.lock()))));
   }
   inline bool operator!=(const TimedEvent& other) const { return !(*this == other); }
 
   // Accessors
- public:
-  inline std::weak_ptr<uff::Event> evenement() const { return _event; }
-  inline void setEvent(std::weak_ptr<uff::Event> event) { _event = std::move(event); }
-
-  inline MetadataType timeOffset() const { return _time_offset; }
-  inline void setTimeOffset(MetadataType timeOffset) { _time_offset = timeOffset; }
+  inline std::weak_ptr<Event> evenement() const { return _event; }
+  inline void setEvent(std::weak_ptr<Event> event) { _event = std::move(event); }
 
   // Members
  private:
   //    Reference to one of the unique transmit/receive events used in the sequence.
-  std::weak_ptr<uff::Event> _event;
-
-  // time offset relative to start of the sequence repetition (frame) [s]
-  MetadataType _time_offset = 0.f;
+  std::weak_ptr<Event> _event;
 };
 
 }  // namespace uff

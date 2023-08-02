@@ -13,16 +13,20 @@ namespace uff {
 /**
  * @brief The UFF LinearArray class describes a linear array (1D)
  */
-class LinearArray : public uff::Probe {
-  // CTOR & DTOR
+class LinearArray : public Probe {
  public:
-  explicit LinearArray(uint32_t numberElements) : _nb_elements(numberElements) { updateElements(); }
+  // CTOR & DTOR
+  LinearArray() = delete;
+  explicit LinearArray(uint32_t number_elements, MetadataType pitch,
+                       const std::optional<Point2D<MetadataType>>& element_size = std::nullopt)
+      : _nb_elements(number_elements), _pitch(pitch), _element_size(element_size) {
+    updateElements();
+  }
   LinearArray(const LinearArray&) = default;
   LinearArray(LinearArray&&) = default;
-  virtual ~LinearArray() override = default;
+  ~LinearArray() override = default;
 
   // Operators
- public:
   LinearArray& operator=(const LinearArray& other) noexcept = default;
   LinearArray& operator=(LinearArray&& other) noexcept = default;
   inline bool operator==(const LinearArray& other) const {
@@ -32,7 +36,6 @@ class LinearArray : public uff::Probe {
   inline bool operator!=(const LinearArray& other) const { return !(*this == other); }
 
   // Accessors
- public:
   inline uint32_t numberElements() const { return _nb_elements; }
   inline void setNumberElements(uint32_t numberElements) {
     _nb_elements = numberElements;
@@ -45,19 +48,20 @@ class LinearArray : public uff::Probe {
     updateElements();
   }
 
-  inline void setElementSize(std::optional<Point2D<MetadataType>> element_size) {
+  inline void setElementSize(const std::optional<Point2D<MetadataType>>& element_size) {
     _element_size = element_size;
   }
   inline std::optional<Point2D<MetadataType>> elementSize() const { return _element_size; }
 
  private:
   // Update elements position
-  void updateElements() override {
+  void updateElements() {
     _elements.resize(_nb_elements);
     for (uint32_t i = 0; i < _nb_elements; ++i) {
       // element position
       MetadataType xmin = -_pitch * static_cast<float>(_nb_elements - 1) / 2.f;
-      _elements[i] = {xmin + i * _pitch, 0.f, 0.f};
+      _elements[i] = Element(
+          {Point3D<MetadataType>{xmin + i * _pitch, 0., 0.}, Point3D<MetadataType>{0., 0., 0.}});
     }
   }
 
@@ -71,7 +75,6 @@ class LinearArray : public uff::Probe {
 
   // (Optional) Element size in the axis x and y [m]
   std::optional<Point2D<MetadataType>> _element_size = std::nullopt;
-
 };
 
 }  // namespace uff

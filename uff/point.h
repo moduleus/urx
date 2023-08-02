@@ -11,23 +11,20 @@ namespace uff {
  */
 template <typename T>
 class Point3D {
-  // CTOR & DTOR
  public:
-  Point3D(T x = 0.f, T y = 0.f, T z = 0.f)
-      : _data{x, y, z} {}
+  // CTOR & DTOR
+  explicit Point3D(T x = 0., T y = 0., T z = 0.) : _data{x, y, z} {}
   Point3D(const Point3D&) = default;
   Point3D(Point3D&&) = default;
   ~Point3D() = default;
 
   // Operators
- public:
   Point3D& operator=(const Point3D& other) noexcept = default;
   Point3D& operator=(Point3D&& other) noexcept = default;
   inline bool operator==(const Point3D& other) const { return _data == other._data; }
   inline bool operator!=(const Point3D& other) const { return !(*this == other); }
 
   // Accessors
- public:
   inline T x() const { return _data[0]; }
   inline void setX(T x) { _data[0] = x; }
 
@@ -44,23 +41,20 @@ class Point3D {
 
 template <typename T>
 class Point2D {
-  // CTOR & DTOR
  public:
-  explicit Point2D(T x = 0.f, T y = 0.f)
-      : _data{x, y} {}
+  // CTOR & DTOR
+  explicit Point2D(T x = 0.f, T y = 0.f) : _data{x, y} {}
   Point2D(const Point2D&) = default;
   Point2D(Point2D&&) = default;
   ~Point2D() = default;
 
   // Operators
- public:
   Point2D& operator=(const Point2D& other) noexcept = default;
   Point2D& operator=(Point2D&& other) noexcept = default;
   inline bool operator==(const Point2D& other) const { return _data == other._data; }
   inline bool operator!=(const Point2D& other) const { return !(*this == other); }
 
   // Accessors
- public:
   inline T x() const { return _data[0]; }
   inline void setX(T x) { _data[0] = x; }
 
