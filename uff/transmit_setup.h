@@ -14,9 +14,8 @@ class TransmitSetup : public TimeOffsetBase {
  public:
   // CTOR & DTOR
   TransmitSetup() = delete;
-  TransmitSetup(const std::weak_ptr<Probe>& probe, const std::weak_ptr<Wave>& wave,
-                MetadataType time_offset = 0.)
-      : TimeOffsetBase(time_offset), _probe(probe), _wave(wave) {}
+  TransmitSetup(std::weak_ptr<Probe> probe, std::weak_ptr<Wave> wave, MetadataType time_offset = 0.)
+      : TimeOffsetBase(time_offset), _probe(std::move(probe)), _wave(std::move(wave)) {}
   TransmitSetup(const TransmitSetup&) = default;
   TransmitSetup(TransmitSetup&&) = default;
   ~TransmitSetup() override = default;
@@ -34,7 +33,7 @@ class TransmitSetup : public TimeOffsetBase {
 
   // Accessors
   inline std::weak_ptr<Probe> probe() const { return _probe; }
-  inline void setProbe(std::weak_ptr<Probe> probe) { _probe = probe; }
+  inline void setProbe(const std::weak_ptr<Probe>& probe) { _probe = probe; }
 
   inline std::weak_ptr<Wave> wave() const { return _wave; }
   inline void setWave(const std::weak_ptr<Wave>& wave) { _wave = wave; }

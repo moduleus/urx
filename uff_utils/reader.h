@@ -15,7 +15,7 @@ namespace uff {
 
 /**
  * @brief The UFF reader class
- * TODO: setFileName(), update(), 
+ * TODO: setFilename(), update(), 
  * TODO: only read metadata first, then read RF channel data next and only on-demand
  */
 class Reader {
@@ -27,7 +27,7 @@ class Reader {
 
   /* Set/Get the filename of the UFF file. The 'filename' must contain the file extension. */
   std::string filename() const { return _filename; }
-  void setFileName(const std::string& filename) { _filename = filename; }
+  void setFilename(const std::string& filename) { _filename = filename; }
 
   bool skipData() const { return _skip_data; }
   void setSkipData(bool skip) { _skip_data = skip; }

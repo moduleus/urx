@@ -14,8 +14,8 @@ class TimedEvent : public TimeOffsetBase {
  public:
   // CTOR & DTOR
   TimedEvent() = delete;
-  TimedEvent(const std::weak_ptr<Event>& event, MetadataType time_offset = 0.)
-      : TimeOffsetBase(time_offset), _event(event) {}
+  explicit TimedEvent(std::weak_ptr<Event> event, MetadataType time_offset = 0.)
+      : TimeOffsetBase(time_offset), _event(std::move(event)) {}
   TimedEvent(const TimedEvent&) = default;
   TimedEvent(TimedEvent&&) = default;
   ~TimedEvent() override = default;
@@ -31,7 +31,7 @@ class TimedEvent : public TimeOffsetBase {
 
   // Accessors
   inline std::weak_ptr<Event> evenement() const { return _event; }
-  inline void setEvent(std::weak_ptr<Event> event) { _event = std::move(event); }
+  inline void setEvent(const std::weak_ptr<Event>& event) { _event = event; }
 
   // Members
  private:

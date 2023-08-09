@@ -23,13 +23,13 @@ class Probe {
  public:
   // CTOR & DTOR
   Probe() = default;
-  Probe(const Transform& transform, const std::vector<Element>& elements,
-        const std::vector<std::shared_ptr<ElementGeometry>>& element_geometries = {},
-        const std::vector<std::shared_ptr<ImpulseResponse>>& impulse_responses = {})
+  Probe(const Transform& transform, std::vector<Element> elements,
+        std::vector<std::shared_ptr<ElementGeometry>> element_geometries = {},
+        std::vector<std::shared_ptr<ImpulseResponse>> impulse_responses = {})
       : _transform(transform),
-        _elements(elements),
-        _element_geometries(element_geometries),
-        _impulse_responses(impulse_responses) {}
+        _elements(std::move(elements)),
+        _element_geometries(std::move(element_geometries)),
+        _impulse_responses(std::move(impulse_responses)) {}
   Probe(const Probe&) = default;
   Probe(Probe&&) = default;
   virtual ~Probe() = default;
@@ -45,8 +45,7 @@ class Probe {
   inline bool operator!=(const Probe& other) const { return !(*this == other); }
 
   // Members
- public:
-  inline const Transform& transform() const { return _transform; }
+  inline Transform transform() const { return _transform; }
   inline void setTransform(const Transform& transform) { _transform = transform; }
 
   inline std::optional<MetadataType> focalLength() const { return _focal_length; }

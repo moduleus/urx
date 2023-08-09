@@ -15,8 +15,8 @@ class Event : public TriggerBase {
  public:
   // CTOR & DTOR
   Event() = delete;
-  Event(const TransmitSetup& transmit_setup, const ReceiveSetup& receive_setup)
-      : _transmit_setup(transmit_setup), _receive_setup(receive_setup) {}
+  Event(TransmitSetup transmit_setup, ReceiveSetup receive_setup)
+      : _transmit_setup(std::move(transmit_setup)), _receive_setup(std::move(receive_setup)) {}
   Event(const Event&) = default;
   Event(Event&&) = default;
   ~Event() override = default;

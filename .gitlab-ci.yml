@@ -34,6 +34,8 @@ format:clang-tidy:
   tags:
     - ubuntu
   script:
+    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DHDF5_DIR="$HDF5_DIR_GCC_64_STATIC_RELEASE" -DCatch2_DIR="$Catch2_DIR_GCC_64_STATIC_RELEASE" -DBUILD_SHARED_LIBS=OFF
+    - cmake --build CI --config Release --parallel $NUM_PARALLEL
     - cd CI
     - run-clang-tidy || exit 1
   dependencies:

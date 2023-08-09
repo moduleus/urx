@@ -20,11 +20,11 @@ class Writer {
   Writer() = default;
 
   //Dataset* dataset() { return _dataset.get(); }
-  void setDataset(std::shared_ptr<const Dataset> dataset) { _dataset = dataset; }
+  inline void setDataset(const std::shared_ptr<const Dataset>& dataset) { _dataset = dataset; }
 
-  /* Set/Get the filename of the UFF file. The 'fileName' must contain the file extension. */
-  std::string fileName() const { return _fileName; }
-  void setFileName(const std::string& fileName) { _fileName = fileName; }
+  /* Set/Get the filename of the UFF file. The 'filename' must contain the file extension. */
+  inline std::string filename() const { return _filename; }
+  inline void setFilename(const std::string& filename) { _filename = filename; }
 
   /**
      * @brief Write the content of the Dataset in a file.
@@ -34,29 +34,31 @@ class Writer {
 
  private:
   template <typename T>
-  std::string getIdFromPointer(const std::vector<std::shared_ptr<T>>& vec, std::weak_ptr<T> wptr);
+  std::string getIdFromPointer(const std::vector<std::shared_ptr<T>>& vec,
+                               const std::weak_ptr<T>& wptr);
 
-  void writeMetadataTypeDataset(H5::Group& group, const std::string& name, MetadataType value);
-  void writeOptionalMetadataTypeDataset(H5::Group& group, const std::string& name,
-                                        const std::optional<MetadataType>& value);
+  static void writeMetadataTypeDataset(const H5::Group& group, const std::string& name,
+                                       MetadataType value);
+  static void writeOptionalMetadataTypeDataset(const H5::Group& group, const std::string& name,
+                                               const std::optional<MetadataType>& value);
 
-  void writePoint2D(H5::Group& group, const Point2D<MetadataType>& position);
-  void writePoint3D(H5::Group& group, const Point3D<MetadataType>& position);
+  static void writePoint2D(const H5::Group& group, const Point2D<MetadataType>& position);
+  static void writePoint3D(const H5::Group& group, const Point3D<MetadataType>& position);
 
-  void writeDataTypeArrayDataset(H5::Group& group, const std::string& name,
-                                 const std::vector<DataType>& values,
-                                 const std::vector<size_t>& dimensions);
+  static void writeDataTypeArrayDataset(const H5::Group& group, const std::string& name,
+                                        const std::vector<DataType>& values,
+                                        const std::vector<size_t>& dimensions);
 
-  void writeMetadataTypeArrayDataset(H5::Group& group, const std::string& name,
-                                     const std::vector<MetadataType>& values,
-                                     const std::vector<size_t>& dimensions);
+  static void writeMetadataTypeArrayDataset(const H5::Group& group, const std::string& name,
+                                            const std::vector<MetadataType>& values,
+                                            const std::vector<size_t>& dimensions);
 
-  void writeIntegerArrayDataset(H5::Group& group, const std::string& name,
-                                const std::vector<int>& values,
-                                const std::vector<size_t>& dimensions);
-  void writeIntegerDataset(H5::Group& group, const std::string& name, int value);
+  static void writeIntegerArrayDataset(const H5::Group& group, const std::string& name,
+                                       const std::vector<int>& values,
+                                       const std::vector<size_t>& dimensions);
+  static void writeIntegerDataset(const H5::Group& group, const std::string& name, int value);
 
-  std::string _fileName;
+  std::string _filename;
   std::shared_ptr<const Dataset> _dataset;
 };
 

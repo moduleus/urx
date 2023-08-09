@@ -12,8 +12,8 @@ class GroupLink {
  public:
   // CTOR & DTOR
   GroupLink() = default;
-  GroupLink(const std::weak_ptr<IGroup> source, const std::weak_ptr<IGroup> destination)
-      : _source(source), _destination(destination) {}
+  GroupLink(std::weak_ptr<IGroup> source, std::weak_ptr<IGroup> destination)
+      : _source(std::move(source)), _destination(std::move(destination)) {}
   GroupLink(const GroupLink&) = default;
   GroupLink(GroupLink&&) noexcept = default;
   ~GroupLink() = default;
@@ -31,10 +31,12 @@ class GroupLink {
 
   // Accessors
   inline const std::weak_ptr<IGroup>& source() const { return _source; }
-  inline void setSource(std::weak_ptr<IGroup> source) { _source = source; }
+  inline void setSource(const std::weak_ptr<IGroup>& source) { _source = source; }
 
-  inline const std::weak_ptr<IGroup>& destination() const { return _destination; }
-  inline void setDestination(std::weak_ptr<IGroup> destination) { _destination = destination; }
+  inline std::weak_ptr<IGroup> destination() const { return _destination; }
+  inline void setDestination(const std::weak_ptr<IGroup>& destination) {
+    _destination = destination;
+  }
 
   // Members
  private:

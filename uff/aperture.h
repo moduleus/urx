@@ -31,7 +31,7 @@ class Aperture {
   inline const Transform& origin() const { return _origin; }
   inline void setOrigin(const Transform& origin) { _origin = origin; }
 
-  inline const std::string& window() const { return _window; }
+  inline std::string window() const { return _window; }
   inline void setWindow(const std::string& window) { _window = window; }
 
   inline MetadataType fNumber() const { return _f_number; }

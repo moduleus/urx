@@ -14,7 +14,7 @@ class Excitation {
  public:
   // CTOR & DTOR
   Excitation() = delete;
-  Excitation(MetadataType sampling_frequency) : _sampling_frequency(sampling_frequency) {}
+  explicit Excitation(MetadataType sampling_frequency) : _sampling_frequency(sampling_frequency) {}
   Excitation(const Excitation&) = default;
   Excitation(Excitation&&) = default;
   ~Excitation() = default;

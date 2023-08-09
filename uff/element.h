@@ -13,12 +13,13 @@ class Element {
  public:
   // CTOR & DTOR
   Element() = default;
-  Element(const Transform& transform,
-          const std::weak_ptr<ElementGeometry>& element_geometry = std::weak_ptr<ElementGeometry>(),
-          const std::weak_ptr<ImpulseResponse>& impulse_response = std::weak_ptr<ImpulseResponse>())
+  explicit Element(
+      const Transform& transform,
+      std::weak_ptr<ElementGeometry> element_geometry = std::weak_ptr<ElementGeometry>(),
+      std::weak_ptr<ImpulseResponse> impulse_response = std::weak_ptr<ImpulseResponse>())
       : _transform(transform),
-        _element_geometry(element_geometry),
-        _impluse_response(impulse_response) {}
+        _element_geometry(std::move(element_geometry)),
+        _impluse_response(std::move(impulse_response)) {}
   Element(const Element&) = default;
   Element(Element&&) = default;
   ~Element() = default;

@@ -16,7 +16,8 @@ class ElementGeometry {
  public:
   // CTOR & DTOR
   ElementGeometry() = delete;
-  ElementGeometry(const std::vector<Point3D<MetadataType>>& perimeter) : _perimeter(perimeter) {}
+  explicit ElementGeometry(std::vector<Point3D<MetadataType>> perimeter)
+      : _perimeter(std::move(perimeter)) {}
   ElementGeometry(const ElementGeometry&) = default;
   ElementGeometry(ElementGeometry&&) = default;
   ~ElementGeometry() = default;

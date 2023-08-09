@@ -15,12 +15,12 @@ class ImpulseResponse : public TimeOffsetBase {
  public:
   // CTOR & DTOR
   ImpulseResponse() = delete;
-  ImpulseResponse(MetadataType sampling_frequency, const std::vector<MetadataType>& data = {},
-                  MetadataType time_offset = 0., const std::string& units = "")
+  explicit ImpulseResponse(MetadataType sampling_frequency, std::vector<MetadataType> data = {},
+                           MetadataType time_offset = 0., std::string units = "")
       : TimeOffsetBase(time_offset),
         _sampling_frequency(sampling_frequency),
-        _data(data),
-        _units(units) {}
+        _data(std::move(data)),
+        _units(std::move(units)) {}
   ImpulseResponse(const ImpulseResponse&) = default;
   ImpulseResponse(ImpulseResponse&&) = default;
   ~ImpulseResponse() override = default;
@@ -44,7 +44,7 @@ class ImpulseResponse : public TimeOffsetBase {
   inline const std::vector<MetadataType>& data() const { return _data; }
   inline void setData(const std::vector<MetadataType>& data) { _data = data; }
 
-  inline const std::string& units() const { return _units; }
+  inline std::string units() const { return _units; }
   inline void setUnits(const std::string& units) { _units = units; }
 
   // Members

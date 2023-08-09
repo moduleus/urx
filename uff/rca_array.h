@@ -70,13 +70,13 @@ class RcaArray : public Probe {
   void updateElements() {
     _elements.resize(static_cast<size_t>(_nb_elements.x()) + _nb_elements.y());
 
-    MetadataType xmin = -_pitch.x() * (_nb_elements.x() - 1.) / 2.;
+    const MetadataType xmin = -_pitch.x() * (_nb_elements.x() - 1.) / 2.;
     for (uint32_t i = 0; i < _nb_elements.x(); i++) {
       _elements[i] = Element({Point3D<MetadataType>{xmin + i * _pitch.x(), 0., 0.},
                               Point3D<MetadataType>{0., 0., 0.}});
     }
 
-    MetadataType ymin = -_pitch.y() * (_nb_elements.y() - 1.) / 2.;
+    const MetadataType ymin = -_pitch.y() * (_nb_elements.y() - 1.) / 2.;
     for (uint32_t i = _nb_elements.y(); i < _elements.size(); i++) {
       _elements[i] =
           Element({Point3D<MetadataType>{0., ymin + (i - _nb_elements.y()) * _pitch.y(), 0.},

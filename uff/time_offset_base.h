@@ -1,5 +1,7 @@
 #pragma once
 
+#include <uff/uff.h>
+
 namespace uff {
 
 class TimeOffsetBase {
@@ -8,7 +10,7 @@ class TimeOffsetBase {
   TimeOffsetBase() = default;
   TimeOffsetBase(const TimeOffsetBase&) = default;
   TimeOffsetBase(TimeOffsetBase&&) = default;
-  TimeOffsetBase(MetadataType time_offset) : _time_offset(time_offset){};
+  explicit TimeOffsetBase(MetadataType time_offset) : _time_offset(time_offset){};
   virtual ~TimeOffsetBase() = default;
 
   // Operators

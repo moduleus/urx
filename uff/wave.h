@@ -50,9 +50,7 @@ class Wave {
   inline const std::optional<Aperture>& aperture() const { return _aperture; }
   inline void setAperture(const std::optional<Aperture>& aperture) { _aperture = aperture; }
 
-  inline const Point3D<MetadataType> timeZeroReferencePoint() const {
-    return _time_zero_reference_point;
-  }
+  inline Point3D<MetadataType> timeZeroReferencePoint() const { return _time_zero_reference_point; }
   inline void setTimeZeroReferencePoint(const Point3D<MetadataType>& time_zero_reference_point) {
     _time_zero_reference_point = time_zero_reference_point;
   }

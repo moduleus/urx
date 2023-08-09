@@ -21,10 +21,10 @@ class ReceiveSetup : public TimeOffsetBase {
 
   // CTOR & DTOR
   ReceiveSetup() = delete;
-  ReceiveSetup(const std::weak_ptr<Probe>& probe, MetadataType sampling_frequency,
-               uint32_t number_samples, MetadataType time_offset = 0.)
+  ReceiveSetup(std::weak_ptr<Probe> probe, MetadataType sampling_frequency, uint32_t number_samples,
+               MetadataType time_offset = 0.)
       : TimeOffsetBase(time_offset),
-        _probe(probe),
+        _probe(std::move(probe)),
         _sampling_frequency(sampling_frequency),
         _number_samples(number_samples) {}
   ReceiveSetup(const ReceiveSetup&) = default;
@@ -48,7 +48,7 @@ class ReceiveSetup : public TimeOffsetBase {
 
   // Accessors
   inline std::weak_ptr<Probe> probe() const { return _probe; }
-  inline void setProbe(std::weak_ptr<Probe> probe) { _probe = std::move(probe); }
+  inline void setProbe(const std::weak_ptr<Probe>& probe) { _probe = probe; }
 
   inline MetadataType samplingFrequency() const { return _sampling_frequency; }
   inline void setSamplingFrequency(const MetadataType& samplingFrequency) {

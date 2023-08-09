@@ -13,9 +13,9 @@ template <typename T>
 class Point3D {
  public:
   // CTOR & DTOR
-  explicit Point3D(T x = 0., T y = 0., T z = 0.) : _data{x, y, z} {}
+  explicit Point3D(T x, T y, T z) : _data{x, y, z} {}
   Point3D(const Point3D&) = default;
-  Point3D(Point3D&&) = default;
+  Point3D(Point3D&&) noexcept = default;
   ~Point3D() = default;
 
   // Operators
@@ -36,16 +36,16 @@ class Point3D {
 
   // Members
  private:
-  std::array<T, 3> _data;
+  std::array<T, 3> _data{0., 0., 0.};
 };
 
 template <typename T>
 class Point2D {
  public:
   // CTOR & DTOR
-  explicit Point2D(T x = 0.f, T y = 0.f) : _data{x, y} {}
+  explicit Point2D(T x, T y) : _data{x, y} {}
   Point2D(const Point2D&) = default;
-  Point2D(Point2D&&) = default;
+  Point2D(Point2D&&) noexcept = default;
   ~Point2D() = default;
 
   // Operators
@@ -63,7 +63,7 @@ class Point2D {
 
   // Members
  private:
-  std::array<T, 2> _data;
+  std::array<T, 2> _data{0., 0.};
 };
 
 }  // namespace uff

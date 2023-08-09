@@ -14,10 +14,10 @@ void Reader::updateMetadata() {
 
   H5::Exception::dontPrint();
 
-  H5::H5File file(_filename, H5F_ACC_RDONLY);
+  const H5::H5File file(_filename, H5F_ACC_RDONLY);
 
   // Version
-  H5::Group version(file.openGroup("version"));
+  const H5::Group version(file.openGroup("version"));
   // _dataset->setVersion(readVersion(version));
 
   // Channel Data
@@ -48,8 +48,8 @@ std::shared_ptr<Dataset> Reader::loadFile(std::string_view /*filename*/, bool /*
 }
 
 MetadataType Reader::readMetadataTypeDataset(const H5::Group& group, const std::string& name) {
-  H5::StrType datatype(H5MetadataType);
-  H5::DataSet dataset = group.openDataSet(name);
+  const H5::StrType datatype(H5MetadataType);
+  const H5::DataSet dataset = group.openDataSet(name);
   MetadataType value;
   dataset.read(&value, datatype);
   return value;
@@ -57,8 +57,8 @@ MetadataType Reader::readMetadataTypeDataset(const H5::Group& group, const std::
 
 std::optional<MetadataType> Reader::readOptionalMetadataTypeDataset(const H5::Group& group,
                                                                     const std::string& name) {
-  H5::StrType datatype(H5MetadataType);
-  H5::DataSet dataset = group.openDataSet(name);
+  const H5::StrType datatype(H5MetadataType);
+  const H5::DataSet dataset = group.openDataSet(name);
   MetadataType value;
   dataset.read(&value, datatype);
   std::optional<MetadataType> result = std::nullopt;
@@ -72,12 +72,12 @@ void Reader::readDataTypeArrayDataset(const H5::Group& group, const std::string&
                                       std::vector<DataType>& values,
                                       std::vector<hsize_t>& dimensions,
                                       const H5::PredType& targetType, bool skipChannelData) {
-  H5::DataSet dataset = group.openDataSet(name);
-  H5::StrType datatype(targetType);
+  const H5::DataSet dataset = group.openDataSet(name);
+  const H5::StrType datatype(targetType);
 
   // find dataset dimensions
-  H5::DataSpace dataspace = dataset.getSpace();
-  int ndims = dataspace.getSimpleExtentNdims();
+  const H5::DataSpace dataspace = dataset.getSpace();
+  const int ndims = dataspace.getSimpleExtentNdims();
   //std::cout << "ndims:" << ndims << std::endl;
   dimensions.resize(ndims);
   dataspace.getSimpleExtentDims(dimensions.data());
@@ -99,13 +99,13 @@ void Reader::readDataTypeArrayDataset(const H5::Group& group, const std::string&
 void Reader::readMetadataTypeArrayDataset(const H5::Group& group, const std::string& name,
                                           std::vector<MetadataType>& values,
                                           std::vector<hsize_t>& dimensions) {
-  H5::DataSet dataset = group.openDataSet(name);
+  const H5::DataSet dataset = group.openDataSet(name);
   // TODO: check if type is correct : dataset.getTypeClass()
-  H5::StrType datatype(H5MetadataType);
+  const H5::StrType datatype(H5MetadataType);
 
   // find dataset dimensions
-  H5::DataSpace dataspace = dataset.getSpace();
-  int ndims = dataspace.getSimpleExtentNdims();
+  const H5::DataSpace dataspace = dataset.getSpace();
+  const int ndims = dataspace.getSimpleExtentNdims();
   //std::cout << "ndims:" << ndims << std::endl;
   dimensions.resize(ndims);
   dataspace.getSimpleExtentDims(dimensions.data());
@@ -124,13 +124,13 @@ void Reader::readMetadataTypeArrayDataset(const H5::Group& group, const std::str
 
 void Reader::readIntegerArrayDataset(const H5::Group& group, const std::string& name,
                                      std::vector<int>& values, std::vector<hsize_t>& dimensions) {
-  H5::DataSet dataset = group.openDataSet(name);
+  const H5::DataSet dataset = group.openDataSet(name);
   // TODO: check if type is correct : dataset.getTypeClass()
-  H5::StrType datatype(H5::PredType::NATIVE_INT);
+  const H5::StrType datatype(H5::PredType::NATIVE_INT);
 
   // find dataset dimensions
-  H5::DataSpace dataspace = dataset.getSpace();
-  int ndims = dataspace.getSimpleExtentNdims();
+  const H5::DataSpace dataspace = dataset.getSpace();
+  const int ndims = dataspace.getSimpleExtentNdims();
   //std::cout << "ndims:" << ndims << std::endl;
   dimensions.resize(ndims);
   dataspace.getSimpleExtentDims(dimensions.data());
@@ -148,17 +148,17 @@ void Reader::readIntegerArrayDataset(const H5::Group& group, const std::string& 
 }
 
 int Reader::readIntegerDataset(const H5::Group& group, const std::string& name) {
-  H5::StrType datatype(H5::PredType::NATIVE_INT);
-  H5::DataSet dataset = group.openDataSet(name);
+  const H5::StrType datatype(H5::PredType::NATIVE_INT);
+  const H5::DataSet dataset = group.openDataSet(name);
   int value;
   dataset.read(&value, datatype);
   return value;
 }
 
 std::string Reader::readStringDataset(const H5::Group& group, const std::string& name) {
-  H5::StrType datatype(0, H5T_VARIABLE);
-  H5::DataSpace dataspace(H5S_SCALAR);
-  H5::DataSet dataset = group.openDataSet(name);
+  const H5::StrType datatype(0, H5T_VARIABLE);
+  const H5::DataSpace dataspace(H5S_SCALAR);
+  const H5::DataSet dataset = group.openDataSet(name);
   std::string buffer;
   dataset.read(buffer, datatype, dataspace);
   return buffer;
@@ -166,9 +166,9 @@ std::string Reader::readStringDataset(const H5::Group& group, const std::string&
 
 std::optional<std::string> Reader::readOptionalStringDataset(const H5::Group& group,
                                                              const std::string& name) {
-  H5::StrType datatype(0, H5T_VARIABLE);
-  H5::DataSpace dataspace(H5S_SCALAR);
-  H5::DataSet dataset = group.openDataSet(name);
+  const H5::StrType datatype(0, H5T_VARIABLE);
+  const H5::DataSpace dataspace(H5S_SCALAR);
+  const H5::DataSet dataset = group.openDataSet(name);
   std::string buffer;
   dataset.read(buffer, datatype, dataspace);
   std::optional<std::string> result = std::nullopt;

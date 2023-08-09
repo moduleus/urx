@@ -9,8 +9,8 @@ namespace uff {
 class Group : public IGroup {
  public:
   Group() = delete;
-  Group(const Sequence& sequence, MetadataType repetition_rate)
-      : _sequence(sequence), _repetition_rate(repetition_rate) {}
+  Group(Sequence sequence, MetadataType repetition_rate)
+      : _sequence(std::move(sequence)), _repetition_rate(repetition_rate) {}
   Group(const Group&) = default;
   Group(Group&&) noexcept = default;
   ~Group() override = default;

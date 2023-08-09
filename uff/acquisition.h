@@ -87,11 +87,11 @@ class Acquisition : public TimeOffsetBase, TriggerBase {
   inline bool operator!=(const Acquisition& other) const { return !(*this == other); }
 
   // Accessors
-  inline const std::string& authors() const { return _authors; }
-  inline void setAuthors(const std::string& authors) { _authors = authors; }
+  inline std::string authors() const { return _authors; }
+  inline void setAuthors(std::string authors) { _authors = std::move(authors); }
 
-  inline const std::string& description() const { return _description; }
-  inline void setDescription(const std::string& description) { _description = description; }
+  inline std::string description() const { return _description; }
+  inline void setDescription(std::string description) { _description = std::move(description); }
 
   /**
      * Should be at format: ISO8601
@@ -99,7 +99,7 @@ class Acquisition : public TimeOffsetBase, TriggerBase {
      *   "2008-09-15T15:53:00"
      *   "2008-09-15T15:53:00+05:00"
      */
-  inline const std::string& localTime() const { return _local_time; }
+  inline std::string localTime() const { return _local_time; }
   void setLocalTime(const std::string& local_time) { _local_time = local_time; }
 
   /**
@@ -107,11 +107,11 @@ class Acquisition : public TimeOffsetBase, TriggerBase {
      * Example:
      *     "FR" for France
      */
-  inline const std::string& countryCode() const { return _country_code; }
+  inline std::string countryCode() const { return _country_code; }
   void setCountryCode(const std::string& country_code) { _country_code = country_code; }
 
   // 'System' describes the acquisition system used to acquire the data
-  inline const std::string& system() const { return _system; }
+  inline std::string system() const { return _system; }
   inline void setSystem(const std::string& system) { _system = system; }
 
   // Speed of sound in m/s
@@ -172,7 +172,7 @@ class Acquisition : public TimeOffsetBase, TriggerBase {
   inline const std::vector<std::shared_ptr<Excitation>>& uniqueExcitations() const {
     return _unique_excitation;
   }
-  inline void addUniqueExcitation(std::shared_ptr<Excitation> excitation) {
+  inline void addUniqueExcitation(const std::shared_ptr<Excitation>& excitation) {
     _unique_excitation.push_back(excitation);
   }
   inline void setUniqueExcitations(

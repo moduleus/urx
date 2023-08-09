@@ -2,11 +2,8 @@
  * Copyright MODULEUS 2019
  */
 
-#include <memory>
-#include <ostream>
-#include <string>
-
 #include <uff_utils/time_helper.h>
+#include <memory>
 
 #define CHECK_ISO8601(str)            \
   if (uff::isIso8601(str) == false) { \

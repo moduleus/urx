@@ -1,11 +1,13 @@
-#include <catch2/catch.hpp>
-
-#include <uff/probe.h>
 #include <uff/rca_array.h>
 #include <uff/transmit_setup.h>
 #include <uff/wave.h>
-
+#include <catch2/catch.hpp>
+#include <cstddef>
 #include <memory>
+
+#include "point.h"
+#include "types.h"
+#include "uff/uff.h"
 
 namespace uff::test {
 
@@ -25,7 +27,7 @@ TEST_CASE("TransmitWave::operator==", "[operator]") {
   auto w_1 = std::make_shared<Wave>();
   auto w_2 = std::make_shared<Wave>();
   TransmitSetup ts_1(rca, w_1);
-  TransmitSetup ts_2(rca, w_1);
+  const TransmitSetup ts_2(rca, w_1);
 
   REQUIRE(w_1 != w_2);
   REQUIRE(*w_1 == *w_2);

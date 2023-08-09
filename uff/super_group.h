@@ -10,9 +10,9 @@ class SuperGroup : public IGroup {
  public:
   // CTOR & DTOR
   SuperGroup() = delete;
-  SuperGroup(const std::weak_ptr<Group>& initialGroup, uint32_t repetition_count,
-             MetadataType time_offset)
-      : IGroup(repetition_count, time_offset), _initialGroup(initialGroup) {}
+  SuperGroup(std::weak_ptr<Group> initialGroup, uint32_t repetition_count,
+             MetadataType time_offset = 0.)
+      : IGroup(repetition_count, time_offset), _initialGroup(std::move(initialGroup)) {}
   SuperGroup(const SuperGroup&) = default;
   SuperGroup(SuperGroup&&) noexcept = default;
   ~SuperGroup() override = default;

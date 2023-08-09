@@ -1,25 +1,4 @@
 #include <catch2/catch.hpp>
-#include <cstddef>
-#include <cstdlib>
-#include <limits>
-#include <memory>
-#include <string>
-#include <vector>
-
-#include <uff/dataset.h>
-#include <uff/event.h>
-#include <uff/excitation.h>
-#include <uff/rca_array.h>
-#include <uff/receive_setup.h>
-#include <uff/timed_event.h>
-#include <uff/transform.h>
-#include <uff/transmit_setup.h>
-#include <uff/types.h>
-#include <uff/uff.h>
-#include <uff/wave.h>
-
-#include <uff_utils/reader.h>
-#include <uff_utils/writer.h>
 
 namespace uff::test {
 

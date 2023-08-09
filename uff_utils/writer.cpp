@@ -16,7 +16,7 @@ namespace uff {
 
 template <typename T>
 std::string Writer::getIdFromPointer(const std::vector<std::shared_ptr<T>>& vec,
-                                     std::weak_ptr<T> wptr) {
+                                     const std::weak_ptr<T>& wptr) {
   if (auto p1 = wptr.lock()) {
     int cnt = 1;
     for (const auto& p2 : vec) {
@@ -36,30 +36,30 @@ std::string Writer::getIdFromPointer(const std::vector<std::shared_ptr<T>>& vec,
 void Writer::writeToFile() {
   H5::Exception::dontPrint();
 
-  H5::H5File file(_fileName, H5F_ACC_TRUNC);
+  const H5::H5File file(_filename, H5F_ACC_TRUNC);
 
   // Version
-  H5::Group version(file.createGroup("version"));
+  const H5::Group version(file.createGroup("version"));
   // writeVersion(version, _dataset->version());
 
   // Channel Data
-  H5::Group channelData(file.createGroup("channel_data"));
+  const H5::Group channelData(file.createGroup("channel_data"));
   // writeChannelData(channelData, _dataset->channelData());
 }
 
-void Writer::writeMetadataTypeDataset(H5::Group& group, const std::string& name,
+void Writer::writeMetadataTypeDataset(const H5::Group& group, const std::string& name,
                                       MetadataType value) {
-  H5::StrType datatype(H5MetadataType);
-  H5::DataSpace dataspace = H5::DataSpace(H5S_SCALAR);
-  H5::DataSet dataset = group.createDataSet(name, datatype, dataspace);
+  const H5::StrType datatype(H5MetadataType);
+  const H5::DataSpace dataspace = H5::DataSpace(H5S_SCALAR);
+  const H5::DataSet dataset = group.createDataSet(name, datatype, dataspace);
   dataset.write(&value, datatype, dataspace);
 }
 
-void Writer::writeOptionalMetadataTypeDataset(H5::Group& group, const std::string& name,
+void Writer::writeOptionalMetadataTypeDataset(const H5::Group& group, const std::string& name,
                                               const std::optional<MetadataType>& value) {
-  H5::StrType datatype(H5MetadataType);
-  H5::DataSpace dataspace = H5::DataSpace(H5S_SCALAR);
-  H5::DataSet dataset = group.createDataSet(name, datatype, dataspace);
+  const H5::StrType datatype(H5MetadataType);
+  const H5::DataSpace dataspace = H5::DataSpace(H5S_SCALAR);
+  const H5::DataSet dataset = group.createDataSet(name, datatype, dataspace);
   if (value.has_value()) {
     dataset.write(&value.value(), datatype, dataspace);
   } else {
@@ -67,18 +67,18 @@ void Writer::writeOptionalMetadataTypeDataset(H5::Group& group, const std::strin
   }
 }
 
-void Writer::writePoint2D(H5::Group& group, const Point2D<MetadataType>& position) {
+void Writer::writePoint2D(const H5::Group& group, const Point2D<MetadataType>& position) {
   writeMetadataTypeDataset(group, "x", position.x());
   writeMetadataTypeDataset(group, "y", position.y());
 }
 
-void Writer::writePoint3D(H5::Group& group, const Point3D<MetadataType>& position) {
+void Writer::writePoint3D(const H5::Group& group, const Point3D<MetadataType>& position) {
   writeMetadataTypeDataset(group, "x", position.x());
   writeMetadataTypeDataset(group, "y", position.y());
   writeMetadataTypeDataset(group, "z", position.z());
 }
 
-void Writer::writeDataTypeArrayDataset(H5::Group& group, const std::string& name,
+void Writer::writeDataTypeArrayDataset(const H5::Group& group, const std::string& name,
                                        const std::vector<DataType>& values,
                                        const std::vector<size_t>& dimensions) {
   assert(dimensions.size() <= 4);
@@ -105,12 +105,12 @@ void Writer::writeDataTypeArrayDataset(H5::Group& group, const std::string& name
     assert(values.size() == numel);
   }
 
-  H5::DataSpace dataspace = H5::DataSpace(static_cast<int>(ndims), dims);
-  H5::DataSet dataset = group.createDataSet(name, H5DataType, dataspace);
+  const H5::DataSpace dataspace = H5::DataSpace(static_cast<int>(ndims), dims);
+  const H5::DataSet dataset = group.createDataSet(name, H5DataType, dataspace);
   dataset.write(values.data(), H5DataType);
 }
 
-void Writer::writeMetadataTypeArrayDataset(H5::Group& group, const std::string& name,
+void Writer::writeMetadataTypeArrayDataset(const H5::Group& group, const std::string& name,
                                            const std::vector<MetadataType>& values,
                                            const std::vector<size_t>& dimensions) {
   assert(dimensions.size() <= 4);
@@ -137,12 +137,12 @@ void Writer::writeMetadataTypeArrayDataset(H5::Group& group, const std::string& 
     assert(values.size() == numel);
   }
 
-  H5::DataSpace dataspace = H5::DataSpace(static_cast<int>(ndims), dims);
-  H5::DataSet dataset = group.createDataSet(name, H5MetadataType, dataspace);
+  const H5::DataSpace dataspace = H5::DataSpace(static_cast<int>(ndims), dims);
+  const H5::DataSet dataset = group.createDataSet(name, H5MetadataType, dataspace);
   dataset.write(values.data(), H5MetadataType);
 }
 
-void Writer::writeIntegerArrayDataset(H5::Group& group, const std::string& name,
+void Writer::writeIntegerArrayDataset(const H5::Group& group, const std::string& name,
                                       const std::vector<int>& values,
                                       const std::vector<size_t>& dimensions) {
   assert(dimensions.size() <= 4);
@@ -169,15 +169,15 @@ void Writer::writeIntegerArrayDataset(H5::Group& group, const std::string& name,
     assert(values.size() == numel);
   }
 
-  H5::DataSpace dataspace = H5::DataSpace(static_cast<int>(ndims), dims);
-  H5::DataSet dataset = group.createDataSet(name, H5::PredType::NATIVE_INT, dataspace);
+  const H5::DataSpace dataspace = H5::DataSpace(static_cast<int>(ndims), dims);
+  const H5::DataSet dataset = group.createDataSet(name, H5::PredType::NATIVE_INT, dataspace);
   dataset.write(values.data(), H5::PredType::NATIVE_INT);
 }
 
-void Writer::writeIntegerDataset(H5::Group& group, const std::string& name, int value) {
-  H5::StrType datatype(H5::PredType::NATIVE_INT);
-  H5::DataSpace dataspace = H5::DataSpace(H5S_SCALAR);
-  H5::DataSet dataset = group.createDataSet(name, datatype, dataspace);
+void Writer::writeIntegerDataset(const H5::Group& group, const std::string& name, int value) {
+  const H5::StrType datatype(H5::PredType::NATIVE_INT);
+  const H5::DataSpace dataspace = H5::DataSpace(H5S_SCALAR);
+  const H5::DataSet dataset = group.createDataSet(name, datatype, dataspace);
   dataset.write(&value, datatype, dataspace);
 }
 

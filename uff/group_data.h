@@ -45,10 +45,14 @@ class GroupData {
   inline void setTimestamp(uint64_t timestamp) { _timestamp = timestamp; }
 
   inline std::vector<uint64_t>& sequenceTimestamp() { return _sequence_timestamp; }
-  inline void setSequenceTimestamp(std::vector<uint64_t> sequence_timestamp) { _sequence_timestamp = std::move(sequence_timestamp); }
+  inline void setSequenceTimestamp(std::vector<uint64_t> sequence_timestamp) {
+    _sequence_timestamp = std::move(sequence_timestamp);
+  }
 
   inline std::vector<std::vector<uint64_t>>& eventTimestamp() { return _event_timestamp; }
-  inline void setEventTimestamp(std::vector<std::vector<uint64_t>> event_timestamp) { _event_timestamp = std::move(event_timestamp); }
+  inline void setEventTimestamp(std::vector<std::vector<uint64_t>> event_timestamp) {
+    _event_timestamp = std::move(event_timestamp);
+  }
 
   // Members
  private:

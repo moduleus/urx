@@ -11,13 +11,13 @@ class IGroup : public TimeOffsetBase, TriggerBase {
  public:
   // CTOR & DTOR
   IGroup() = default;
-  IGroup(uint32_t repetition_count, MetadataType time_offset = 0.,
-         const std::string& description = "",
-         const std::optional<TriggerIn>& trigger_in = std::nullopt,
-         const std::optional<TriggerOut>& trigger_out = std::nullopt)
+  explicit IGroup(uint32_t repetition_count, MetadataType time_offset = 0.,
+                  std::string description = "",
+                  const std::optional<TriggerIn>& trigger_in = std::nullopt,
+                  const std::optional<TriggerOut>& trigger_out = std::nullopt)
       : TimeOffsetBase(time_offset),
         TriggerBase(trigger_in, trigger_out),
-        _description(description),
+        _description(std::move(description)),
         _repetition_count(repetition_count) {}
   IGroup(const IGroup&) = default;
   IGroup(IGroup&&) noexcept = default;
@@ -33,8 +33,8 @@ class IGroup : public TimeOffsetBase, TriggerBase {
   inline bool operator!=(const IGroup& other) const { return !(*this == other); }
 
   // Accessors
-  inline const std::string& description() const { return _description; }
-  inline void setDescription(std::string description) { _description = description; }
+  inline std::string description() const { return _description; }
+  inline void setDescription(std::string description) { _description = std::move(description); }
 
   inline MetadataType timeOffset() const { return _time_offset; }
   inline void setTimeOffset(MetadataType time_offset) { _time_offset = time_offset; }
@@ -46,7 +46,7 @@ class IGroup : public TimeOffsetBase, TriggerBase {
 
   // Members
  private:
-  std::string _description = "";
+  std::string _description;
 
   // Number of time the sequece will be repeated
   uint32_t _repetition_count = 1u;
