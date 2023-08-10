@@ -1,7 +1,6 @@
 #pragma once
 
 // UFF
-#include <uff/event.h>
 #include <uff/excitation.h>
 #include <uff/group.h>
 #include <uff/group_data.h>
@@ -10,6 +9,7 @@
 #include <uff/probe.h>
 #include <uff/super_group.h>
 #include <uff/time_offset_base.h>
+#include <uff/timed_event.h>
 #include <uff/trigger_base.h>
 #include <uff/wave.h>
 
@@ -160,11 +160,13 @@ class Acquisition : public TimeOffsetBase, TriggerBase {
   }
 
   // List of unique events used for this dataset
-  inline const std::vector<std::shared_ptr<Event>>& uniqueEvents() const { return _unique_events; }
-  inline void addUniqueEvent(const std::shared_ptr<Event>& event) {
+  inline const std::vector<std::shared_ptr<TimedEvent>>& uniqueEvents() const {
+    return _unique_events;
+  }
+  inline void addUniqueEvent(const std::shared_ptr<TimedEvent>& event) {
     _unique_events.push_back(event);
   }
-  inline void setUniqueEvents(const std::vector<std::shared_ptr<Event>>& unique_events) {
+  inline void setUniqueEvents(const std::vector<std::shared_ptr<TimedEvent>>& unique_events) {
     _unique_events = unique_events;
   }
 
@@ -212,7 +214,7 @@ class Acquisition : public TimeOffsetBase, TriggerBase {
   std::vector<std::shared_ptr<Probe>> _probes;
 
   // List of all the unique transmit/receive events used in the sequences in the acquisition
-  std::vector<std::shared_ptr<Event>> _unique_events;
+  std::vector<std::shared_ptr<TimedEvent>> _unique_events;
 
   // List of all the unique waves (or beams) used in the sequences in the acquisition
   std::vector<std::shared_ptr<Wave>> _unique_waves;

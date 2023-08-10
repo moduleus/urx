@@ -1,6 +1,5 @@
 #include <uff/channel_data.h>
 #include <uff/dataset.h>
-#include <uff/event.h>
 #include <uff/excitation.h>
 #include <uff/linear_array.h>
 #include <uff/matrix_array.h>
