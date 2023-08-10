@@ -17,7 +17,7 @@ namespace uff {
  */
 class ReceiveSetup : public TimeOffsetBase {
  public:
-  enum class SAMPLING_TYPE { DIRECT_RF = 0, QUADRATURE_4X_F0 = 1, QUADRATURE_2X_F0 = 2, IQ = 3 };
+  enum class SAMPLING_TYPE { DIRECT_RF = 0, IQ = 1 };
 
   // CTOR & DTOR
   ReceiveSetup() = delete;

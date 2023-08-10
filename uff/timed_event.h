@@ -19,8 +19,8 @@ class TimedEvent : public TimeOffsetBase, TriggerBase {
  public:
   // CTOR & DTOR
   TimedEvent() = delete;
-  explicit TimedEvent(std::weak_ptr<TransmitSetup> transmit_setup, ReceiveSetup receive_setup,
-                      MetadataType time_offset = 0.)
+  explicit TimedEvent(std::weak_ptr<TransmitSetup> transmit_setup,
+                      std::weak_ptr<ReceiveSetup> receive_setup, MetadataType time_offset = 0.)
       : TimeOffsetBase(time_offset),
         _transmit_setup(std::move(transmit_setup)),
         _receive_setup(std::move(receive_setup)) {}
@@ -32,12 +32,12 @@ class TimedEvent : public TimeOffsetBase, TriggerBase {
   TimedEvent& operator=(const TimedEvent& other) noexcept = default;
   TimedEvent& operator=(TimedEvent&& other) noexcept = default;
   bool operator==(const TimedEvent& other) const {
-    return (TimeOffsetBase::operator==(other) &&
-            (TriggerBase::operator==(other) &&
-             (_transmit_setup.expired() == other._transmit_setup.expired()) &&
-             (_transmit_setup.expired() ||
-              *(_transmit_setup.lock()) == *(other._transmit_setup.lock())) &&
-             (_receive_setup == other._receive_setup)));
+    return TimeOffsetBase::operator==(other) && TriggerBase::operator==(other) &&
+           (_transmit_setup.expired() == other._transmit_setup.expired()) &&
+           (_transmit_setup.expired() ||
+            *(_transmit_setup.lock()) == *(other._transmit_setup.lock())) &&
+           (_receive_setup.expired() == other._receive_setup.expired()) &&
+           (_receive_setup.expired() || *(_receive_setup.lock()) == *(other._receive_setup.lock()));
   }
   inline bool operator!=(const TimedEvent& other) const { return !(*this == other); }
 
@@ -47,8 +47,10 @@ class TimedEvent : public TimeOffsetBase, TriggerBase {
     _transmit_setup = std::move(transmit_setup);
   }
 
-  inline ReceiveSetup& receiveSetup() { return _receive_setup; }
-  inline void setReceiveSetup(const ReceiveSetup& receive_setup) { _receive_setup = receive_setup; }
+  inline std::weak_ptr<ReceiveSetup> receiveSetup() { return _receive_setup; }
+  inline void setReceiveSetup(std::weak_ptr<ReceiveSetup> receive_setup) {
+    _receive_setup = std::move(receive_setup);
+  }
 
   // Members
  private:
@@ -56,7 +58,7 @@ class TimedEvent : public TimeOffsetBase, TriggerBase {
   std::weak_ptr<TransmitSetup> _transmit_setup;
 
   // Description of sampled channel data (probe/channels, sampling, TGC, etc.). If more than one probe is used in reception, this is a list of setups.
-  ReceiveSetup _receive_setup;
+  std::weak_ptr<ReceiveSetup> _receive_setup;
 };
 
 }  // namespace uff

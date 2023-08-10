@@ -6,6 +6,7 @@
 #include <uff/group_data.h>
 #include <uff/igroup.h>
 #include <uff/probe.h>
+#include <uff/receive_setup.h>
 #include <uff/super_group.h>
 #include <uff/time_offset_base.h>
 #include <uff/timed_event.h>
@@ -34,12 +35,13 @@ class Acquisition : public TimeOffsetBase, TriggerBase {
   Acquisition& operator=(const Acquisition& other) noexcept = default;
   Acquisition& operator=(Acquisition&& other) noexcept = default;
   bool operator==(const Acquisition& other) const {
-    bool are_probes_equaled = true;
+    bool are_probes_equaled = _probes.size() == other._probes.size();
     for (uint32_t i = 0; i < _probes.size() && are_probes_equaled; ++i) {
       are_probes_equaled = are_probes_equaled && (*_probes[i] == *other._probes[i]);
     }
 
-    bool are_unique_transmit_setups_equaled = true;
+    bool are_unique_transmit_setups_equaled =
+        _unique_transmit_setups.size() == other._unique_transmit_setups.size();
     for (uint32_t i = 0; i < _unique_transmit_setups.size() && are_unique_transmit_setups_equaled;
          ++i) {
       are_unique_transmit_setups_equaled =
@@ -47,24 +49,34 @@ class Acquisition : public TimeOffsetBase, TriggerBase {
           (*_unique_transmit_setups[i] == *other._unique_transmit_setups[i]);
     }
 
-    bool are_unique_events_equaled = true;
+    bool are_unique_receive_setups_equaled =
+        _unique_receive_setups.size() == other._unique_receive_setups.size();
+    for (uint32_t i = 0; i < _unique_receive_setups.size() && are_unique_receive_setups_equaled;
+         ++i) {
+      are_unique_receive_setups_equaled =
+          are_unique_receive_setups_equaled &&
+          (*_unique_receive_setups[i] == *other._unique_receive_setups[i]);
+    }
+
+    bool are_unique_events_equaled = _unique_events.size() == other._unique_events.size();
     for (uint32_t i = 0; i < _unique_events.size() && are_unique_events_equaled; ++i) {
       are_unique_events_equaled =
           are_unique_events_equaled && (*_unique_events[i] == *other._unique_events[i]);
     }
 
-    bool are_groups_equaled = true;
+    bool are_groups_equaled = _groups.size() == other._groups.size();
     for (uint32_t i = 0; i < _groups.size() && are_groups_equaled; ++i) {
       are_groups_equaled = are_groups_equaled && (*_groups[i] == *other._groups[i]);
     }
 
-    bool are_unique_excitations_equaled = true;
+    bool are_unique_excitations_equaled =
+        _unique_excitations.size() == other._unique_excitations.size();
     for (uint32_t i = 0; i < _unique_excitations.size() && are_unique_excitations_equaled; ++i) {
       are_unique_excitations_equaled = are_unique_excitations_equaled &&
                                        (*_unique_excitations[i] == *other._unique_excitations[i]);
     }
 
-    bool are_group_data_equaled = true;
+    bool are_group_data_equaled = _group_data.size() == other._group_data.size();
     for (uint32_t i = 0; i < _group_data.size() && are_group_data_equaled; ++i) {
       are_group_data_equaled = are_group_data_equaled && (*_group_data[i] == *other._group_data[i]);
     }
@@ -75,8 +87,9 @@ class Acquisition : public TimeOffsetBase, TriggerBase {
             (_system == other._system) && (_sound_speed == other._sound_speed) &&
             (_timestamp == other._timestamp) &&
             (_initial_group.lock() == other._initial_group.lock()) && are_probes_equaled &&
-            are_unique_transmit_setups_equaled && are_unique_events_equaled &&
-            are_unique_excitations_equaled && are_groups_equaled && are_group_data_equaled);
+            are_unique_transmit_setups_equaled && are_unique_receive_setups_equaled &&
+            are_unique_events_equaled && are_unique_excitations_equaled && are_groups_equaled &&
+            are_group_data_equaled);
   }
   inline bool operator!=(const Acquisition& other) const { return !(*this == other); }
 
@@ -137,7 +150,7 @@ class Acquisition : public TimeOffsetBase, TriggerBase {
   inline void addProbe(const std::shared_ptr<Probe>& probe) { _probes.push_back(probe); }
   inline void setProbes(const std::vector<std::shared_ptr<Probe>>& probes) { _probes = probes; }
 
-  // List of unique receive_setups used for this dataset
+  // List of unique transmit_setups used for this dataset
   inline const std::vector<std::shared_ptr<TransmitSetup>>& uniqueTransmitSetups() const {
     return _unique_transmit_setups;
   }
@@ -147,6 +160,18 @@ class Acquisition : public TimeOffsetBase, TriggerBase {
   inline void setUniqueTransmitSetups(
       const std::vector<std::shared_ptr<TransmitSetup>>& unique_transmit_setups) {
     _unique_transmit_setups = unique_transmit_setups;
+  }
+
+  // List of unique receive_setups used for this dataset
+  inline const std::vector<std::shared_ptr<ReceiveSetup>>& uniqueReceiveSetups() const {
+    return _unique_receive_setups;
+  }
+  inline void addUniqueReceiveSetup(const std::shared_ptr<ReceiveSetup>& unique_receive_setups) {
+    _unique_receive_setups.push_back(unique_receive_setups);
+  }
+  inline void setUniqueReceiveSetups(
+      const std::vector<std::shared_ptr<ReceiveSetup>>& unique_receive_setups) {
+    _unique_receive_setups = unique_receive_setups;
   }
 
   // List of unique events used for this dataset
@@ -202,6 +227,9 @@ class Acquisition : public TimeOffsetBase, TriggerBase {
 
   // List of all the unique transmit/receive events used in the sequences in the acquisition
   std::vector<std::shared_ptr<TimedEvent>> _unique_events;
+
+  // List of all the unique receive setup used in the sequences in the acquisition
+  std::vector<std::shared_ptr<ReceiveSetup>> _unique_receive_setups;
 
   // List of all the unique transmit setup (wave or beams) used in the sequences in the acquisition
   std::vector<std::shared_ptr<TransmitSetup>> _unique_transmit_setups;
