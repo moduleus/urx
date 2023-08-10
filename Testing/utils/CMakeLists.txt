@@ -1,18 +1,12 @@
-find_package(Catch2 REQUIRED)
+set(UFF_TEST_FILES reader.cpp time_helper.cpp)
 
-include(Catch)
-include(CTest)
+add_executable(UffUtils ${MAIN_CPP} ${UFF_TEST_FILES})
+add_executable(UffTest::UffUtils ALIAS UffUtils)
 
-set(UFF_TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR})
-set(MAIN_CPP ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
+target_include_directories(UffUtils PUBLIC ${PROJECT_SOURCE_DIR}/uff
+                                           ${PROJECT_SOURCE_DIR}/uff_utils)
 
-set(SRCS_FILES reader.cpp operator.cpp)
+target_link_libraries(UffUtils PRIVATE Uff::Uff Uff::Uff_Utils
+                                       ${HDF5_CXX_LIBRARIES} Catch2::Catch2)
 
-add_executable(UffTest ${MAIN_CPP} ${SRCS_FILES})
-
-target_include_directories(UffTest PUBLIC ${PROJECT_SOURCE_DIR}/uff)
-
-target_link_libraries(UffTest PRIVATE Uff::Uff Uff::Uff_Utils
-                                      ${HDF5_CXX_LIBRARIES} Catch2::Catch2)
-
-catch_discover_tests(UffTest)
+catch_discover_tests(UffUtils)
