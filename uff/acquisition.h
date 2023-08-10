@@ -4,7 +4,6 @@
 #include <uff/excitation.h>
 #include <uff/group.h>
 #include <uff/group_data.h>
-#include <uff/group_link.h>
 #include <uff/igroup.h>
 #include <uff/probe.h>
 #include <uff/super_group.h>
@@ -59,12 +58,6 @@ class Acquisition : public TimeOffsetBase, TriggerBase {
       are_groups_equaled = are_groups_equaled && (*_groups[i] == *other._groups[i]);
     }
 
-    bool are_group_links_equaled = true;
-    for (uint32_t i = 0; i < _group_links.size() && are_group_links_equaled; ++i) {
-      are_group_links_equaled =
-          are_group_links_equaled && (*_group_links[i] == *other._group_links[i]);
-    }
-
     bool are_unique_excitations_equaled = true;
     for (uint32_t i = 0; i < _unique_excitations.size() && are_unique_excitations_equaled; ++i) {
       are_unique_excitations_equaled = are_unique_excitations_equaled &&
@@ -83,8 +76,7 @@ class Acquisition : public TimeOffsetBase, TriggerBase {
             (_timestamp == other._timestamp) &&
             (_initial_group.lock() == other._initial_group.lock()) && are_probes_equaled &&
             are_unique_transmit_setups_equaled && are_unique_events_equaled &&
-            are_unique_excitations_equaled && are_group_links_equaled && are_groups_equaled &&
-            are_group_data_equaled);
+            are_unique_excitations_equaled && are_groups_equaled && are_group_data_equaled);
   }
   inline bool operator!=(const Acquisition& other) const { return !(*this == other); }
 
@@ -130,15 +122,6 @@ class Acquisition : public TimeOffsetBase, TriggerBase {
   inline const std::vector<std::shared_ptr<IGroup>>& groups() const { return _groups; }
   inline void addGroup(const std::shared_ptr<IGroup>& group) { _groups.push_back(group); }
   inline void setGroups(const std::vector<std::shared_ptr<IGroup>>& groups) { _groups = groups; }
-
-  // List of group links used for this dataset
-  const std::vector<std::shared_ptr<GroupLink>>& groupLinks() const { return _group_links; }
-  void addGroupLink(const std::shared_ptr<GroupLink>& group_link) {
-    _group_links.push_back(group_link);
-  }
-  void setGroupLink(const std::vector<std::shared_ptr<GroupLink>>& group_links) {
-    _group_links = group_links;
-  }
 
   // List of group data used for this dataset
   const std::vector<std::shared_ptr<GroupData>>& groupData() const { return _group_data; }
@@ -210,9 +193,6 @@ class Acquisition : public TimeOffsetBase, TriggerBase {
 
   // Initial group
   std::weak_ptr<IGroup> _initial_group;
-
-  // List of all group link present in the acquisition
-  std::vector<std::shared_ptr<GroupLink>> _group_links;
 
   // List of all group present in the acquisition
   std::vector<std::shared_ptr<IGroup>> _groups;

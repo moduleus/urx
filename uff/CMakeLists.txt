@@ -7,7 +7,6 @@ set(UFF_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/element_geometry.h
     ${CMAKE_CURRENT_SOURCE_DIR}/excitation.h
     ${CMAKE_CURRENT_SOURCE_DIR}/group_data.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/group_link.h
     ${CMAKE_CURRENT_SOURCE_DIR}/group.h
     ${CMAKE_CURRENT_SOURCE_DIR}/igroup.h
     ${CMAKE_CURRENT_SOURCE_DIR}/impulse_response.h
