@@ -1,6 +1,6 @@
 #pragma once
 
-#include <uff/point.h>
+#include <uff/coordinates.h>
 #include <uff/probe.h>
 #include <uff/uff.h>
 #include <cstddef>
@@ -19,9 +19,9 @@ class RcaArray : public Probe {
  public:
   // CTOR & DTOR
   RcaArray() = delete;
-  explicit RcaArray(Point2D<uint32_t> nb_elements, const Point2D<MetadataType>& pitch,
-                    const std::optional<Point2D<MetadataType>>& element_width = std::nullopt,
-                    const std::optional<Point2D<MetadataType>>& element_height = std::nullopt)
+  explicit RcaArray(Coordinates2D<uint32_t> nb_elements, const Coordinates2D<MetadataType>& pitch,
+                    const std::optional<Coordinates2D<MetadataType>>& element_width = std::nullopt,
+                    const std::optional<Coordinates2D<MetadataType>>& element_height = std::nullopt)
       : _nb_elements(nb_elements),
         _pitch(pitch),
         _element_width(element_width),
@@ -43,25 +43,27 @@ class RcaArray : public Probe {
   inline bool operator!=(const RcaArray& other) const { return !(*this == other); }
 
   // Accessors
-  inline Point2D<uint32_t> nbElements() const { return _nb_elements; }
-  inline void setNumberElements(Point2D<uint32_t> nb_elements) {
+  inline Coordinates2D<uint32_t> nbElements() const { return _nb_elements; }
+  inline void setNumberElements(Coordinates2D<uint32_t> nb_elements) {
     _nb_elements = nb_elements;
     updateElements();
   }
 
-  inline Point2D<MetadataType> pitch() const { return _pitch; }
-  inline void setPitch(const Point2D<MetadataType>& pitch) {
+  inline Coordinates2D<MetadataType> pitch() const { return _pitch; }
+  inline void setPitch(const Coordinates2D<MetadataType>& pitch) {
     _pitch = pitch;
     updateElements();
   }
 
-  inline std::optional<Point2D<MetadataType>> elementWidth() const { return _element_width; }
-  inline void setElementWidth(std::optional<Point2D<MetadataType>> elementWidth) {
+  inline std::optional<Coordinates2D<MetadataType>> elementWidth() const { return _element_width; }
+  inline void setElementWidth(std::optional<Coordinates2D<MetadataType>> elementWidth) {
     _element_width = elementWidth;
   }
 
-  inline std::optional<Point2D<MetadataType>> elementHeight() const { return _element_height; }
-  inline void setElementHeightY(std::optional<Point2D<MetadataType>> elementHeight) {
+  inline std::optional<Coordinates2D<MetadataType>> elementHeight() const {
+    return _element_height;
+  }
+  inline void setElementHeightY(std::optional<Coordinates2D<MetadataType>> elementHeight) {
     _element_height = elementHeight;
   }
 
@@ -72,31 +74,31 @@ class RcaArray : public Probe {
 
     const MetadataType xmin = -_pitch.x() * (_nb_elements.x() - 1.) / 2.;
     for (uint32_t i = 0; i < _nb_elements.x(); i++) {
-      _elements[i] = Element({Point3D<MetadataType>{xmin + i * _pitch.x(), 0., 0.},
-                              Point3D<MetadataType>{0., 0., 0.}});
+      _elements[i] = Element({Coordinates3D<MetadataType>{xmin + i * _pitch.x(), 0., 0.},
+                              Coordinates3D<MetadataType>{0., 0., 0.}});
     }
 
     const MetadataType ymin = -_pitch.y() * (_nb_elements.y() - 1.) / 2.;
     for (uint32_t i = _nb_elements.y(); i < _elements.size(); i++) {
       _elements[i] =
-          Element({Point3D<MetadataType>{0., ymin + (i - _nb_elements.y()) * _pitch.y(), 0.},
-                   Point3D<MetadataType>{0., 0., 0.}});
+          Element({Coordinates3D<MetadataType>{0., ymin + (i - _nb_elements.y()) * _pitch.y(), 0.},
+                   Coordinates3D<MetadataType>{0., 0., 0.}});
     }
   }
 
   // Members
  protected:
   // Number of elements in the axis x and y
-  Point2D<uint32_t> _nb_elements{0u, 0u};
+  Coordinates2D<uint32_t> _nb_elements{0u, 0u};
 
   // Distance between the acoustic center of adyacent elements along the axis x and y [m]
-  Point2D<MetadataType> _pitch{0., 0.};
+  Coordinates2D<MetadataType> _pitch{0., 0.};
 
   // (Optional) Element width for x and y axis [m]
-  std::optional<Point2D<MetadataType>> _element_width = std::nullopt;
+  std::optional<Coordinates2D<MetadataType>> _element_width = std::nullopt;
 
   // (Optional) Element height for x and y axis [m]
-  std::optional<Point2D<MetadataType>> _element_height = std::nullopt;
+  std::optional<Coordinates2D<MetadataType>> _element_height = std::nullopt;
 };
 
 }  // namespace uff

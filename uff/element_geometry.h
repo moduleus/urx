@@ -1,6 +1,6 @@
 #pragma once
 
-#include <uff/point.h>
+#include <uff/coordinates.h>
 #include <uff/uff.h>
 
 #include <iosfwd>
@@ -16,7 +16,7 @@ class ElementGeometry {
  public:
   // CTOR & DTOR
   ElementGeometry() = delete;
-  explicit ElementGeometry(std::vector<Point3D<MetadataType>> perimeter)
+  explicit ElementGeometry(std::vector<Coordinates3D<MetadataType>> perimeter)
       : _perimeter(std::move(perimeter)) {}
   ElementGeometry(const ElementGeometry&) = default;
   ElementGeometry(ElementGeometry&&) = default;
@@ -29,13 +29,15 @@ class ElementGeometry {
   inline bool operator!=(const ElementGeometry& other) const { return !(*this == other); }
 
   // Accessors
-  std::vector<Point3D<MetadataType>>& perimeter() { return _perimeter; }
-  void setPerimeter(const std::vector<Point3D<MetadataType>>& perimeter) { _perimeter = perimeter; }
+  std::vector<Coordinates3D<MetadataType>>& perimeter() { return _perimeter; }
+  void setPerimeter(const std::vector<Coordinates3D<MetadataType>>& perimeter) {
+    _perimeter = perimeter;
+  }
 
   // Members
  private:
   // List of positions points (x,y,z) defining the element perimeter
-  std::vector<Point3D<MetadataType>> _perimeter;
+  std::vector<Coordinates3D<MetadataType>> _perimeter;
 };
 
 }  // namespace uff

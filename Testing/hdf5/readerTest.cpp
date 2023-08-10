@@ -89,7 +89,7 @@ TEST_CASE("Load HDF5 file", "[hdf5_loader]") {
   //   // plane wave. origin.translation is the direction vector
   //   auto wave = std::make_shared<uff::Wave>();
   //   wave->setWaveType(uff::WaveType::PLANE_WAVE);
-  //   wave->setOrigin(uff::Transform(uff::Rotation(), uff::Point3D<MetadataType>()));
+  //   wave->setOrigin(uff::Transform(uff::Rotation(), uff::Coordinates3D<MetadataType>()));
 
   //   uff::Excitation excitation;
   //   excitation.setTransmitFrequency(dataset->transmitFrequency());

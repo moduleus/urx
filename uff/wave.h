@@ -1,8 +1,8 @@
 #pragma once
 
 #include <uff/aperture.h>
+#include <uff/coordinates.h>
 #include <uff/excitation.h>
-#include <uff/point.h>
 #include <uff/transform.h>
 #include <uff/types.h>
 #include <uff/uff.h>
@@ -50,8 +50,11 @@ class Wave {
   inline const std::optional<Aperture>& aperture() const { return _aperture; }
   inline void setAperture(const std::optional<Aperture>& aperture) { _aperture = aperture; }
 
-  inline Point3D<MetadataType> timeZeroReferencePoint() const { return _time_zero_reference_point; }
-  inline void setTimeZeroReferencePoint(const Point3D<MetadataType>& time_zero_reference_point) {
+  inline Coordinates3D<MetadataType> timeZeroReferencePoint() const {
+    return _time_zero_reference_point;
+  }
+  inline void setTimeZeroReferencePoint(
+      const Coordinates3D<MetadataType>& time_zero_reference_point) {
     _time_zero_reference_point = time_zero_reference_point;
   }
 
@@ -87,7 +90,7 @@ class Wave {
   std::optional<Aperture> _aperture = std::nullopt;
 
   // Time zero reference point in Probe orthogonal coordinate system
-  Point3D<MetadataType> _time_zero_reference_point = Point3D<MetadataType>{0, 0, 0};
+  Coordinates3D<MetadataType> _time_zero_reference_point = Coordinates3D<MetadataType>{0, 0, 0};
 
   // Time zero for the wave [s]
   MetadataType _time_zero = 0.;

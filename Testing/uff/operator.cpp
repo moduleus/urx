@@ -5,7 +5,7 @@
 #include <cstddef>
 #include <memory>
 
-#include "point.h"
+#include "coordinates.h"
 #include "types.h"
 #include "uff/uff.h"
 
@@ -21,8 +21,8 @@ TEST_CASE("Wave::operator==", "[operator]") {
 }
 
 TEST_CASE("TransmitWave::operator==", "[operator]") {
-  auto rca =
-      std::make_shared<RcaArray>(Point2D<uint32_t>{64u, 64u}, Point2D<MetadataType>{1e-4, 75e-4});
+  auto rca = std::make_shared<RcaArray>(Coordinates2D<uint32_t>{64u, 64u},
+                                        Coordinates2D<MetadataType>{1e-4, 75e-4});
 
   auto w_1 = std::make_shared<Wave>();
   auto w_2 = std::make_shared<Wave>();

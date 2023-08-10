@@ -17,8 +17,9 @@ class LinearArray : public Probe {
  public:
   // CTOR & DTOR
   LinearArray() = delete;
-  explicit LinearArray(uint32_t number_elements, MetadataType pitch,
-                       const std::optional<Point2D<MetadataType>>& element_size = std::nullopt)
+  explicit LinearArray(
+      uint32_t number_elements, MetadataType pitch,
+      const std::optional<Coordinates2D<MetadataType>>& element_size = std::nullopt)
       : _nb_elements(number_elements), _pitch(pitch), _element_size(element_size) {
     updateElements();
   }
@@ -48,10 +49,10 @@ class LinearArray : public Probe {
     updateElements();
   }
 
-  inline void setElementSize(const std::optional<Point2D<MetadataType>>& element_size) {
+  inline void setElementSize(const std::optional<Coordinates2D<MetadataType>>& element_size) {
     _element_size = element_size;
   }
-  inline std::optional<Point2D<MetadataType>> elementSize() const { return _element_size; }
+  inline std::optional<Coordinates2D<MetadataType>> elementSize() const { return _element_size; }
 
  private:
   // Update elements position
@@ -60,8 +61,8 @@ class LinearArray : public Probe {
     for (uint32_t i = 0; i < _nb_elements; ++i) {
       // element position
       MetadataType xmin = -_pitch * static_cast<float>(_nb_elements - 1) / 2.f;
-      _elements[i] = Element(
-          {Point3D<MetadataType>{xmin + i * _pitch, 0., 0.}, Point3D<MetadataType>{0., 0., 0.}});
+      _elements[i] = Element({Coordinates3D<MetadataType>{xmin + i * _pitch, 0., 0.},
+                              Coordinates3D<MetadataType>{0., 0., 0.}});
     }
   }
 
@@ -74,7 +75,7 @@ class LinearArray : public Probe {
   MetadataType _pitch = 0;
 
   // (Optional) Element size in the axis x and y [m]
-  std::optional<Point2D<MetadataType>> _element_size = std::nullopt;
+  std::optional<Coordinates2D<MetadataType>> _element_size = std::nullopt;
 };
 
 }  // namespace uff

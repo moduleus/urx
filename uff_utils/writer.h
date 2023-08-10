@@ -1,8 +1,8 @@
 #pragma once
 
 #include <H5Cpp.h>
+#include <uff/coordinates.h>
 #include <uff/dataset.h>
-#include <uff/point.h>
 #include <uff/uff.h>
 #include <cstddef>
 #include <memory>
@@ -42,8 +42,8 @@ class Writer {
   static void writeOptionalMetadataTypeDataset(const H5::Group& group, const std::string& name,
                                                const std::optional<MetadataType>& value);
 
-  static void writePoint2D(const H5::Group& group, const Point2D<MetadataType>& position);
-  static void writePoint3D(const H5::Group& group, const Point3D<MetadataType>& position);
+  static void writePoint2D(const H5::Group& group, const Coordinates2D<MetadataType>& position);
+  static void writePoint3D(const H5::Group& group, const Coordinates3D<MetadataType>& position);
 
   static void writeDataTypeArrayDataset(const H5::Group& group, const std::string& name,
                                         const std::vector<DataType>& values,

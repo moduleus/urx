@@ -14,7 +14,7 @@ set(UFF_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/impulse_response.h
     ${CMAKE_CURRENT_SOURCE_DIR}/linear_array.h
     ${CMAKE_CURRENT_SOURCE_DIR}/matrix_array.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/point.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/coordinates.h
     ${CMAKE_CURRENT_SOURCE_DIR}/probe.h
     ${CMAKE_CURRENT_SOURCE_DIR}/rca_array.h
     ${CMAKE_CURRENT_SOURCE_DIR}/receive_setup.h

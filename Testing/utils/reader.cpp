@@ -34,8 +34,8 @@ TEST_CASE("Load HDF5 file", "[hdf5_loader]") {
   // // Probe RCA
   // // RCA made of 2 linear array
   // auto probe = std::make_shared<uff::RcaArray>(
-  //     Point2D<uint32_t>{channelData.numberOfChannels(), channelData.numberOfChannels()});
-  // Point2D<double> pitch{0.42, 0.42};
+  //     Coordinates2D<uint32_t>{channelData.numberOfChannels(), channelData.numberOfChannels()});
+  // Coordinates2D<double> pitch{0.42, 0.42};
   // probe->setPitch(pitch);
   // channelData.addProbe(probe);
 
@@ -61,7 +61,7 @@ TEST_CASE("Load HDF5 file", "[hdf5_loader]") {
   //   // plane wave. origin.translation is the direction vector
   //   auto wave = std::make_shared<uff::Wave>();
   //   wave->setWaveType(uff::WaveType::PLANE_WAVE);
-  //   wave->setOrigin(uff::Transform(uff::Point3D<MetadataType>(), uff::Point3D<MetadataType>()));
+  //   wave->setOrigin(uff::Transform(uff::Coordinates3D<MetadataType>(), uff::Coordinates3D<MetadataType>()));
 
   //   uff::Excitation excitation;
   //   excitation.setTransmitFrequency(dataset->transmitFrequency());
