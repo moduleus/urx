@@ -9,10 +9,8 @@
 #include <uff/timed_event.h>
 #include <uff/transform.h>
 #include <uff/transmit_setup.h>
-#include <uff/transmit_wave.h>
 #include <uff/types.h>
 #include <uff/uff.h>
-#include <uff/wave.h>
 #include <uff/writer.h>
 #include <algorithm>
 #include <catch2/catch.hpp>

@@ -10,8 +10,8 @@
 #include <uff/super_group.h>
 #include <uff/time_offset_base.h>
 #include <uff/timed_event.h>
+#include <uff/transmit_setup.h>
 #include <uff/trigger_base.h>
-#include <uff/wave.h>
 
 // System
 #include <optional>
@@ -40,10 +40,12 @@ class Acquisition : public TimeOffsetBase, TriggerBase {
       are_probes_equaled = are_probes_equaled && (*_probes[i] == *other._probes[i]);
     }
 
-    bool are_unique_waves_equaled = true;
-    for (uint32_t i = 0; i < _unique_waves.size() && are_unique_waves_equaled; ++i) {
-      are_unique_waves_equaled =
-          are_unique_waves_equaled && (*_unique_waves[i] == *other._unique_waves[i]);
+    bool are_unique_transmit_setups_equaled = true;
+    for (uint32_t i = 0; i < _unique_transmit_setups.size() && are_unique_transmit_setups_equaled;
+         ++i) {
+      are_unique_transmit_setups_equaled =
+          are_unique_transmit_setups_equaled &&
+          (*_unique_transmit_setups[i] == *other._unique_transmit_setups[i]);
     }
 
     bool are_unique_events_equaled = true;
@@ -64,9 +66,9 @@ class Acquisition : public TimeOffsetBase, TriggerBase {
     }
 
     bool are_unique_excitations_equaled = true;
-    for (uint32_t i = 0; i < _unique_excitation.size() && are_unique_excitations_equaled; ++i) {
+    for (uint32_t i = 0; i < _unique_excitations.size() && are_unique_excitations_equaled; ++i) {
       are_unique_excitations_equaled = are_unique_excitations_equaled &&
-                                       (*_unique_excitation[i] == *other._unique_excitation[i]);
+                                       (*_unique_excitations[i] == *other._unique_excitations[i]);
     }
 
     bool are_group_data_equaled = true;
@@ -80,7 +82,7 @@ class Acquisition : public TimeOffsetBase, TriggerBase {
             (_system == other._system) && (_sound_speed == other._sound_speed) &&
             (_timestamp == other._timestamp) &&
             (_initial_group.lock() == other._initial_group.lock()) && are_probes_equaled &&
-            are_unique_waves_equaled && are_unique_events_equaled &&
+            are_unique_transmit_setups_equaled && are_unique_events_equaled &&
             are_unique_excitations_equaled && are_group_links_equaled && are_groups_equaled &&
             are_group_data_equaled);
   }
@@ -152,11 +154,16 @@ class Acquisition : public TimeOffsetBase, TriggerBase {
   inline void addProbe(const std::shared_ptr<Probe>& probe) { _probes.push_back(probe); }
   inline void setProbes(const std::vector<std::shared_ptr<Probe>>& probes) { _probes = probes; }
 
-  // List of unique waves used for this dataset
-  inline const std::vector<std::shared_ptr<Wave>>& uniqueWaves() const { return _unique_waves; }
-  inline void addUniqueWave(const std::shared_ptr<Wave>& wave) { _unique_waves.push_back(wave); }
-  inline void setUniqueWaves(const std::vector<std::shared_ptr<Wave>>& unique_waves) {
-    _unique_waves = unique_waves;
+  // List of unique receive_setups used for this dataset
+  inline const std::vector<std::shared_ptr<TransmitSetup>>& uniqueTransmitSetups() const {
+    return _unique_transmit_setups;
+  }
+  inline void addUniqueTransmitSetup(const std::shared_ptr<TransmitSetup>& unique_transmit_setups) {
+    _unique_transmit_setups.push_back(unique_transmit_setups);
+  }
+  inline void setUniqueTransmitSetups(
+      const std::vector<std::shared_ptr<TransmitSetup>>& unique_transmit_setups) {
+    _unique_transmit_setups = unique_transmit_setups;
   }
 
   // List of unique events used for this dataset
@@ -172,14 +179,14 @@ class Acquisition : public TimeOffsetBase, TriggerBase {
 
   // List of unique excitations used for this dataset
   inline const std::vector<std::shared_ptr<Excitation>>& uniqueExcitations() const {
-    return _unique_excitation;
+    return _unique_excitations;
   }
   inline void addUniqueExcitation(const std::shared_ptr<Excitation>& excitation) {
-    _unique_excitation.push_back(excitation);
+    _unique_excitations.push_back(excitation);
   }
   inline void setUniqueExcitations(
       const std::vector<std::shared_ptr<Excitation>>& unique_excitations) {
-    _unique_excitation = unique_excitations;
+    _unique_excitations = unique_excitations;
   }
 
  private:
@@ -216,11 +223,11 @@ class Acquisition : public TimeOffsetBase, TriggerBase {
   // List of all the unique transmit/receive events used in the sequences in the acquisition
   std::vector<std::shared_ptr<TimedEvent>> _unique_events;
 
-  // List of all the unique waves (or beams) used in the sequences in the acquisition
-  std::vector<std::shared_ptr<Wave>> _unique_waves;
+  // List of all the unique transmit setup (wave or beams) used in the sequences in the acquisition
+  std::vector<std::shared_ptr<TransmitSetup>> _unique_transmit_setups;
 
   // List of all the unique excitations used the sequences in the acquisition
-  std::vector<std::shared_ptr<Excitation>> _unique_excitation;
+  std::vector<std::shared_ptr<Excitation>> _unique_excitations;
 
   // Timestamp
   uint64_t _timestamp = 0u;

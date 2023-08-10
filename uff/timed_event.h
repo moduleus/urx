@@ -19,7 +19,7 @@ class TimedEvent : public TimeOffsetBase, TriggerBase {
  public:
   // CTOR & DTOR
   TimedEvent() = delete;
-  explicit TimedEvent(TransmitSetup transmit_setup, ReceiveSetup receive_setup,
+  explicit TimedEvent(std::weak_ptr<TransmitSetup> transmit_setup, ReceiveSetup receive_setup,
                       MetadataType time_offset = 0.)
       : TimeOffsetBase(time_offset),
         _transmit_setup(std::move(transmit_setup)),
@@ -33,15 +33,18 @@ class TimedEvent : public TimeOffsetBase, TriggerBase {
   TimedEvent& operator=(TimedEvent&& other) noexcept = default;
   bool operator==(const TimedEvent& other) const {
     return (TimeOffsetBase::operator==(other) &&
-            (TriggerBase::operator==(other) && (_transmit_setup == other._transmit_setup) &&
+            (TriggerBase::operator==(other) &&
+             (_transmit_setup.expired() == other._transmit_setup.expired()) &&
+             (_transmit_setup.expired() ||
+              *(_transmit_setup.lock()) == *(other._transmit_setup.lock())) &&
              (_receive_setup == other._receive_setup)));
   }
   inline bool operator!=(const TimedEvent& other) const { return !(*this == other); }
 
   // Accessors
-  inline TransmitSetup& transmitSetup() { return _transmit_setup; }
-  inline void setTransmitSetup(const TransmitSetup& transmit_setup) {
-    _transmit_setup = transmit_setup;
+  inline std::weak_ptr<TransmitSetup> transmitSetup() { return _transmit_setup; }
+  inline void setTransmitSetup(std::weak_ptr<TransmitSetup> transmit_setup) {
+    _transmit_setup = std::move(transmit_setup);
   }
 
   inline ReceiveSetup& receiveSetup() { return _receive_setup; }
@@ -50,7 +53,7 @@ class TimedEvent : public TimeOffsetBase, TriggerBase {
   // Members
  private:
   // Description of the transmit event (probe/channels, waves, excitations, etc.). If more than one probe is used in reception, this is a list of setups.
-  TransmitSetup _transmit_setup;
+  std::weak_ptr<TransmitSetup> _transmit_setup;
 
   // Description of sampled channel data (probe/channels, sampling, TGC, etc.). If more than one probe is used in reception, this is a list of setups.
   ReceiveSetup _receive_setup;

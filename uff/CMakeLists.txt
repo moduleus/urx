@@ -23,7 +23,6 @@ set(UFF_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/timed_event.h
     ${CMAKE_CURRENT_SOURCE_DIR}/transform.h
     ${CMAKE_CURRENT_SOURCE_DIR}/transmit_setup.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/transmit_wave.h
     ${CMAKE_CURRENT_SOURCE_DIR}/types.h
     ${CMAKE_CURRENT_SOURCE_DIR}/trigger_base.h
     ${CMAKE_CURRENT_SOURCE_DIR}/trigger_in.h
@@ -31,7 +30,6 @@ set(UFF_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/types.h
     ${CMAKE_CURRENT_SOURCE_DIR}/uff.h
     ${CMAKE_CURRENT_SOURCE_DIR}/version.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/wave.h
     ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt)
 
 # Configure a header file to pass the version number only

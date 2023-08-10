@@ -1,46 +1,31 @@
-#include <uff/rca_array.h>
-#include <uff/transmit_setup.h>
-#include <uff/wave.h>
+#include <uff/coordinates.h>
+#include <uff/transform.h>
+#include <uff/uff.h>
 #include <catch2/catch.hpp>
-#include <cstddef>
-#include <memory>
-
-#include "coordinates.h"
-#include "types.h"
-#include "uff/uff.h"
 
 namespace uff::test {
 
-TEST_CASE("Wave::operator==", "[operator]") {
-  auto w_1 = std::make_shared<Wave>();
-  auto w_2 = std::make_shared<Wave>();
+TEST_CASE("Transform::operator==", "[operator]") {
+  Transform t_1;
+  Transform t_2;
 
-  REQUIRE(*w_1 == *w_2);
+  Coordinates3D<MetadataType> r_1 = t_1.rotation();
+  Coordinates3D<MetadataType> r_2 = t_2.rotation();
 
-  REQUIRE(w_1 != w_2);
-}
+  REQUIRE(r_1 == r_2);
+  REQUIRE(t_1 == t_2);
 
-TEST_CASE("TransmitWave::operator==", "[operator]") {
-  auto rca = std::make_shared<RcaArray>(Coordinates2D<uint32_t>{64u, 64u},
-                                        Coordinates2D<MetadataType>{1e-4, 75e-4});
+  r_1 = Coordinates3D<MetadataType>(42, 0, 5);
+  REQUIRE(r_1 != r_2);
 
-  auto w_1 = std::make_shared<Wave>();
-  auto w_2 = std::make_shared<Wave>();
-  TransmitSetup ts_1(rca, w_1);
-  const TransmitSetup ts_2(rca, w_1);
+  t_1.setRotation(r_1);
+  REQUIRE(t_1 != t_2);
 
-  REQUIRE(w_1 != w_2);
-  REQUIRE(*w_1 == *w_2);
-  REQUIRE(ts_1 == ts_2);
+  r_2 = Coordinates3D<MetadataType>(42, 0, 5);
+  REQUIRE(r_1 == r_2);
 
-  ts_1.wave().lock()->setWaveType(WaveType::CYLINDRICAL_WAVE);
-  REQUIRE(ts_1 == ts_2);
-
-  ts_1.setWave(w_2);
-  REQUIRE(ts_1 != ts_2);
-
-  w_2->setWaveType(WaveType::CYLINDRICAL_WAVE);
-  REQUIRE(ts_1 == ts_2);
+  t_2.setRotation(r_2);
+  REQUIRE(t_1 == t_2);
 }
 
 }  // namespace uff::test
