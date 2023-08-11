@@ -1,4 +1,4 @@
-set(UFF_TEST_FILES operator.cpp)
+set(UFF_TEST_FILES test_coordinates.cpp test_transform.cpp)
 
 add_executable(UffClasses ${MAIN_CPP} ${UFF_TEST_FILES})
 add_executable(UffTest::UffClasses ALIAS UffClasses)

@@ -5,7 +5,7 @@
 
 namespace uff::test {
 
-TEST_CASE("Transform::operator==", "[operator]") {
+TEST_CASE("Transform::operator==", "[test_transform]") {
   Transform t_1;
   Transform t_2;
 
