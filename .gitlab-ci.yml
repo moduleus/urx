@@ -7,10 +7,30 @@ workflow:
 
 stages:
   - build
+  - doc
   - format
   - test
   - tag
   - install
+
+doc:Doxygen:
+  stage: doc
+  tags:
+    - docker
+  image:  $CI_REGISTRY/common/ci/dockerci/doxygen:latest
+  script:
+    - apk update && apk add doxygen graphviz ttf-freefont
+    - doxygen doc/Doxyfile
+    - mv doc/html public
+  dependencies:
+    - build:ubuntu-with-HDF5-static
+  allow_failure: true
+  artifacts:
+    paths:
+      - public
+  only:
+    - main
+
 
 format:clang-format:
   stage: format
