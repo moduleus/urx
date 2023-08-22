@@ -52,7 +52,9 @@ class LinearArray : public Probe {
   inline void setElementSize(const std::optional<Coordinates2D<MetadataType>>& element_size) {
     _element_size = element_size;
   }
-  inline std::optional<Coordinates2D<MetadataType>> elementSize() const { return _element_size; }
+  inline const std::optional<Coordinates2D<MetadataType>>& elementSize() const {
+    return _element_size;
+  }
 
  private:
   // Update elements position

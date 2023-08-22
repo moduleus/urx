@@ -13,7 +13,7 @@ class TriggerBase {
   TriggerBase() = default;
   TriggerBase(const TriggerBase&) = default;
   TriggerBase(TriggerBase&&) = default;
-  TriggerBase(const std::optional<TriggerIn>& trigger_in, std::optional<TriggerOut> trigger_out)
+  TriggerBase(std::optional<TriggerIn> trigger_in, std::optional<TriggerOut> trigger_out)
       : _trigger_in(trigger_in), _trigger_out(std::move(trigger_out)){};
   virtual ~TriggerBase() = default;
 
