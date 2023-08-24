@@ -10,7 +10,7 @@ class SuperGroup : public IGroup {
  public:
   // CTOR & DTOR
   SuperGroup() = delete;
-  SuperGroup(std::weak_ptr<Group> initialGroup, uint32_t repetition_count,
+  SuperGroup(std::weak_ptr<IGroup> initialGroup, uint32_t repetition_count,
              std::vector<std::pair<std::weak_ptr<IGroup>, TriggerIn>> destination_links = {},
              MetadataType time_offset = 0.)
       : IGroup(repetition_count, std::move(destination_links), time_offset),
@@ -28,14 +28,14 @@ class SuperGroup : public IGroup {
   inline bool operator!=(const SuperGroup& other) const { return !(*this == other); }
 
   // Accessors
-  inline const std::weak_ptr<Group>& initialGroup() const { return _initialGroup; }
-  inline void setInitialGroup(const std::weak_ptr<Group>& initialGroup) {
+  inline const std::weak_ptr<IGroup>& initialGroup() const { return _initialGroup; }
+  inline void setInitialGroup(const std::weak_ptr<IGroup>& initialGroup) {
     _initialGroup = initialGroup;
   }
 
   // Members
  private:
-  std::weak_ptr<Group> _initialGroup;
+  std::weak_ptr<IGroup> _initialGroup;
 };
 
 }  // namespace uff
