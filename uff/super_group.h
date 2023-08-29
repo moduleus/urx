@@ -1,5 +1,6 @@
 #pragma once
 
+#include <uff/destination_link.h>
 #include <uff/group.h>
 #include <uff/igroup.h>
 #include <memory>
@@ -11,8 +12,7 @@ class SuperGroup : public IGroup {
   // CTOR & DTOR
   SuperGroup() = delete;
   SuperGroup(std::weak_ptr<IGroup> initialGroup, uint32_t repetition_count,
-             std::vector<std::pair<std::weak_ptr<IGroup>, TriggerIn>> destination_links = {},
-             double time_offset = 0.)
+             std::vector<DestinationLink> destination_links = {}, double time_offset = 0.)
       : IGroup(repetition_count, std::move(destination_links), time_offset),
         _initialGroup(std::move(initialGroup)) {}
   SuperGroup(const SuperGroup&) = default;
