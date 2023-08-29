@@ -10,7 +10,7 @@ class TimeOffsetBase {
   TimeOffsetBase() = default;
   TimeOffsetBase(const TimeOffsetBase&) = default;
   TimeOffsetBase(TimeOffsetBase&&) = default;
-  explicit TimeOffsetBase(MetadataType time_offset) : _time_offset(time_offset){};
+  explicit TimeOffsetBase(double time_offset) : _time_offset(time_offset){};
   virtual ~TimeOffsetBase() = default;
 
   // Operators
@@ -21,13 +21,13 @@ class TimeOffsetBase {
 
   // Accessors
   // Time offset
-  inline MetadataType timeOffset() const { return _time_offset; }
-  inline void setTimeOffset(MetadataType time_offset) { _time_offset = time_offset; }
+  inline double timeOffset() const { return _time_offset; }
+  inline void setTimeOffset(double time_offset) { _time_offset = time_offset; }
 
   // Members
  protected:
   // Time offset delaying the launch of the acquisition element
-  MetadataType _time_offset = 0.;
+  double _time_offset = 0.;
 };
 
 }  // namespace uff

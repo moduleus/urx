@@ -19,7 +19,7 @@ class TransmitSetup : public TimeOffsetBase {
  public:
   // CTOR & DTOR
   TransmitSetup() = delete;
-  explicit TransmitSetup(std::weak_ptr<Probe> probe, MetadataType time_offset = 0.)
+  explicit TransmitSetup(std::weak_ptr<Probe> probe, double time_offset = 0.)
       : TimeOffsetBase(time_offset), _probe(std::move(probe)) {}
   TransmitSetup(const TransmitSetup&) = default;
   TransmitSetup(TransmitSetup&&) = default;
@@ -62,15 +62,13 @@ class TransmitSetup : public TimeOffsetBase {
   inline const std::optional<Aperture>& aperture() const { return _aperture; }
   inline void setAperture(const std::optional<Aperture>& aperture) { _aperture = aperture; }
 
-  inline Vector3D<MetadataType> timeZeroReferencePoint() const {
-    return _time_zero_reference_point;
-  }
-  inline void setTimeZeroReferencePoint(const Vector3D<MetadataType>& time_zero_reference_point) {
+  inline Vector3D<double> timeZeroReferencePoint() const { return _time_zero_reference_point; }
+  inline void setTimeZeroReferencePoint(const Vector3D<double>& time_zero_reference_point) {
     _time_zero_reference_point = time_zero_reference_point;
   }
 
-  inline MetadataType timeZero() const { return _time_zero; }
-  inline void setTimeZero(MetadataType time_zero) { _time_zero = time_zero; }
+  inline double timeZero() const { return _time_zero; }
+  inline void setTimeZero(double time_zero) { _time_zero = time_zero; }
 
   inline const std::vector<int>& channelMapping() const { return _channel_mapping; }
   inline void setChannelMapping(const std::vector<int>& channel_mapping) {
@@ -85,8 +83,8 @@ class TransmitSetup : public TimeOffsetBase {
     _channel_excitations = channel_excitations;
   }
 
-  inline const std::vector<MetadataType>& channelDelays() const { return _channel_delays; }
-  inline void setChannelDelays(const std::vector<MetadataType>& channel_delays) {
+  inline const std::vector<double>& channelDelays() const { return _channel_delays; }
+  inline void setChannelDelays(const std::vector<double>& channel_delays) {
     _channel_delays = channel_delays;
   }
 
@@ -105,10 +103,10 @@ class TransmitSetup : public TimeOffsetBase {
   std::optional<Aperture> _aperture = std::nullopt;
 
   // Time zero reference point in Probe orthogonal coordinate system
-  Vector3D<MetadataType> _time_zero_reference_point = Vector3D<MetadataType>{0, 0, 0};
+  Vector3D<double> _time_zero_reference_point = Vector3D<double>{0, 0, 0};
 
   // Time zero for the wave [s]
-  MetadataType _time_zero = 0.;
+  double _time_zero = 0.;
 
   // Map of channels to transducer elements
   // Each value corresponds to one probe channel index
@@ -118,7 +116,7 @@ class TransmitSetup : public TimeOffsetBase {
   std::vector<std::weak_ptr<Excitation>> _channel_excitations;
 
   // List of the excitation waveform for each channel
-  std::vector<MetadataType> _channel_delays;
+  std::vector<double> _channel_delays;
 };
 
 }  // namespace uff

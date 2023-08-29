@@ -122,8 +122,8 @@ class Acquisition : public TimeOffsetBase, TriggerBase {
   inline void setSystem(const std::string& system) { _system = system; }
 
   // Speed of sound in m/s
-  inline MetadataType soundSpeed() const { return _sound_speed; }
-  inline void setSoundSpeed(MetadataType sound_speed) { _sound_speed = sound_speed; }
+  inline double soundSpeed() const { return _sound_speed; }
+  inline void setSoundSpeed(double sound_speed) { _sound_speed = sound_speed; }
 
   // Initial Group
   inline const std::weak_ptr<IGroup>& initialGroup() const { return _initial_group; }
@@ -214,7 +214,7 @@ class Acquisition : public TimeOffsetBase, TriggerBase {
   std::string _system;
 
   // Reference sound speed for Tx and Rx events [m/s]
-  MetadataType _sound_speed = 0.;
+  double _sound_speed = 0.;
 
   // Initial group
   std::weak_ptr<IGroup> _initial_group;

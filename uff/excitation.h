@@ -14,7 +14,7 @@ class Excitation {
  public:
   // CTOR & DTOR
   Excitation() = delete;
-  explicit Excitation(MetadataType sampling_frequency) : _sampling_frequency(sampling_frequency) {}
+  explicit Excitation(double sampling_frequency) : _sampling_frequency(sampling_frequency) {}
   Excitation(const Excitation&) = default;
   Excitation(Excitation&&) = default;
   ~Excitation() = default;
@@ -35,16 +35,16 @@ class Excitation {
     _pulseShape = pulseShape;
   }
 
-  inline const std::vector<MetadataType>& waveform() const { return _waveform; }
-  inline void setWaveform(const std::vector<MetadataType>& waveform) { _waveform = waveform; }
+  inline const std::vector<double>& waveform() const { return _waveform; }
+  inline void setWaveform(const std::vector<double>& waveform) { _waveform = waveform; }
 
-  inline MetadataType samplingFrequency() const { return _sampling_frequency; }
-  inline void setSamplingFrequency(MetadataType sampling_frequency) {
+  inline double samplingFrequency() const { return _sampling_frequency; }
+  inline void setSamplingFrequency(double sampling_frequency) {
     _sampling_frequency = sampling_frequency;
   }
 
-  inline std::optional<MetadataType> transmitFrequency() const { return _transmit_frequency; }
-  inline void setTransmitFrequency(std::optional<MetadataType> transmit_frequency) {
+  inline std::optional<double> transmitFrequency() const { return _transmit_frequency; }
+  inline void setTransmitFrequency(std::optional<double> transmit_frequency) {
     _transmit_frequency = transmit_frequency;
   }
 
@@ -54,13 +54,13 @@ class Excitation {
   std::optional<std::string> _pulseShape = std::nullopt;
 
   // Transmit frequency [Hz]
-  std::optional<MetadataType> _transmit_frequency = std::nullopt;
+  std::optional<double> _transmit_frequency = std::nullopt;
 
   // Sampling frequency of the excitation waveform [Hz]
-  MetadataType _sampling_frequency;
+  double _sampling_frequency;
 
   // Sampled excitation waveform [normalized units]
-  std::vector<MetadataType> _waveform;
+  std::vector<double> _waveform;
 };
 
 }  // namespace uff

@@ -19,9 +19,9 @@ class RcaArray : public Probe {
  public:
   // CTOR & DTOR
   RcaArray() = delete;
-  explicit RcaArray(Vector2D<uint32_t> nb_elements, const Vector2D<MetadataType>& pitch,
-                    const std::optional<Vector2D<MetadataType>>& element_width = std::nullopt,
-                    const std::optional<Vector2D<MetadataType>>& element_height = std::nullopt)
+  explicit RcaArray(Vector2D<uint32_t> nb_elements, const Vector2D<double>& pitch,
+                    const std::optional<Vector2D<double>>& element_width = std::nullopt,
+                    const std::optional<Vector2D<double>>& element_height = std::nullopt)
       : _nb_elements(nb_elements),
         _pitch(pitch),
         _element_width(element_width),
@@ -49,19 +49,19 @@ class RcaArray : public Probe {
     updateElements();
   }
 
-  inline Vector2D<MetadataType> pitch() const { return _pitch; }
-  inline void setPitch(const Vector2D<MetadataType>& pitch) {
+  inline Vector2D<double> pitch() const { return _pitch; }
+  inline void setPitch(const Vector2D<double>& pitch) {
     _pitch = pitch;
     updateElements();
   }
 
-  inline std::optional<Vector2D<MetadataType>> elementWidth() const { return _element_width; }
-  inline void setElementWidth(std::optional<Vector2D<MetadataType>> elementWidth) {
+  inline std::optional<Vector2D<double>> elementWidth() const { return _element_width; }
+  inline void setElementWidth(std::optional<Vector2D<double>> elementWidth) {
     _element_width = elementWidth;
   }
 
-  inline std::optional<Vector2D<MetadataType>> elementHeight() const { return _element_height; }
-  inline void setElementHeightY(std::optional<Vector2D<MetadataType>> elementHeight) {
+  inline std::optional<Vector2D<double>> elementHeight() const { return _element_height; }
+  inline void setElementHeightY(std::optional<Vector2D<double>> elementHeight) {
     _element_height = elementHeight;
   }
 
@@ -70,17 +70,16 @@ class RcaArray : public Probe {
   void updateElements() {
     _elements.resize(static_cast<size_t>(_nb_elements.x()) + _nb_elements.y());
 
-    const MetadataType xmin = -_pitch.x() * (_nb_elements.x() - 1.) / 2.;
+    const double xmin = -_pitch.x() * (_nb_elements.x() - 1.) / 2.;
     for (uint32_t i = 0; i < _nb_elements.x(); i++) {
-      _elements[i] = Element({Vector3D<MetadataType>{xmin + i * _pitch.x(), 0., 0.},
-                              Vector3D<MetadataType>{0., 0., 0.}});
+      _elements[i] =
+          Element({Vector3D<double>{xmin + i * _pitch.x(), 0., 0.}, Vector3D<double>{0., 0., 0.}});
     }
 
-    const MetadataType ymin = -_pitch.y() * (_nb_elements.y() - 1.) / 2.;
+    const double ymin = -_pitch.y() * (_nb_elements.y() - 1.) / 2.;
     for (uint32_t i = _nb_elements.y(); i < _elements.size(); i++) {
-      _elements[i] =
-          Element({Vector3D<MetadataType>{0., ymin + (i - _nb_elements.y()) * _pitch.y(), 0.},
-                   Vector3D<MetadataType>{0., 0., 0.}});
+      _elements[i] = Element({Vector3D<double>{0., ymin + (i - _nb_elements.y()) * _pitch.y(), 0.},
+                              Vector3D<double>{0., 0., 0.}});
     }
   }
 
@@ -90,13 +89,13 @@ class RcaArray : public Probe {
   Vector2D<uint32_t> _nb_elements{0u, 0u};
 
   // Distance between the acoustic center of adyacent elements along the axis x and y [m]
-  Vector2D<MetadataType> _pitch{0., 0.};
+  Vector2D<double> _pitch{0., 0.};
 
   // (Optional) Element width for x and y axis [m]
-  std::optional<Vector2D<MetadataType>> _element_width = std::nullopt;
+  std::optional<Vector2D<double>> _element_width = std::nullopt;
 
   // (Optional) Element height for x and y axis [m]
-  std::optional<Vector2D<MetadataType>> _element_height = std::nullopt;
+  std::optional<Vector2D<double>> _element_height = std::nullopt;
 };
 
 }  // namespace uff

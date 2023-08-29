@@ -21,8 +21,8 @@ class MatrixArray : public Probe {
  public:
   // CTOR & DTOR
   MatrixArray() = delete;
-  MatrixArray(const Vector2D<uint32_t>& nb_elements, const Vector2D<MetadataType>& pitch,
-              const std::optional<Vector2D<MetadataType>>& element_size = std::nullopt)
+  MatrixArray(const Vector2D<uint32_t>& nb_elements, const Vector2D<double>& pitch,
+              const std::optional<Vector2D<double>>& element_size = std::nullopt)
       : _nb_elements(nb_elements), _pitch(pitch), _element_size(element_size) {
     updateElements();
   }
@@ -46,29 +46,29 @@ class MatrixArray : public Probe {
     updateElements();
   }
 
-  inline Vector2D<MetadataType> pitch() const { return _pitch; }
-  inline void setPitch(const Vector2D<MetadataType>& pitch) {
+  inline Vector2D<double> pitch() const { return _pitch; }
+  inline void setPitch(const Vector2D<double>& pitch) {
     _pitch = pitch;
     updateElements();
   }
 
-  inline void setElementSize(std::optional<Vector2D<MetadataType>> element_size) {
+  inline void setElementSize(std::optional<Vector2D<double>> element_size) {
     _element_size = element_size;
   }
-  inline const std::optional<Vector2D<MetadataType>>& elementSize() const { return _element_size; }
+  inline const std::optional<Vector2D<double>>& elementSize() const { return _element_size; }
 
  private:
   // Update elements position
   void updateElements() {
     _elements.resize(static_cast<size_t>(_nb_elements.x()) * _nb_elements.y());
 
-    MetadataType xmin = -_pitch.x() * (_nb_elements.x() - 1.f) / 2.f;
-    MetadataType ymin = -_pitch.y() * (_nb_elements.y() - 1.f) / 2.f;
+    double xmin = -_pitch.x() * (_nb_elements.x() - 1.f) / 2.f;
+    double ymin = -_pitch.y() * (_nb_elements.y() - 1.f) / 2.f;
     for (uint32_t i = 0; i < _nb_elements.y(); i++) {
       for (uint32_t j = 0; j < _nb_elements.x(); j++) {
         _elements[static_cast<size_t>(j) + static_cast<size_t>(i) * _nb_elements.y()] =
-            Element({Vector3D<MetadataType>{xmin + j * _pitch.x(), ymin + i * _pitch.y(), 0.f},
-                     Vector3D<MetadataType>{}});
+            Element({Vector3D<double>{xmin + j * _pitch.x(), ymin + i * _pitch.y(), 0.f},
+                     Vector3D<double>{}});
       }
     }
   }
@@ -79,10 +79,10 @@ class MatrixArray : public Probe {
   Vector2D<uint32_t> _nb_elements{0u, 0u};
 
   // Distance between the acoustic center of adjacent elements along the axis x and y [m]
-  Vector2D<MetadataType> _pitch{0.f, 0.f};
+  Vector2D<double> _pitch{0.f, 0.f};
 
   // (Optional) Element size in the axis x and y [m]
-  std::optional<Vector2D<MetadataType>> _element_size = std::nullopt;
+  std::optional<Vector2D<double>> _element_size = std::nullopt;
 };
 
 }  // namespace uff

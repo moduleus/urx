@@ -21,8 +21,8 @@ class ReceiveSetup : public TimeOffsetBase {
 
   // CTOR & DTOR
   ReceiveSetup() = delete;
-  ReceiveSetup(std::weak_ptr<Probe> probe, MetadataType sampling_frequency, uint32_t number_samples,
-               MetadataType time_offset = 0.)
+  ReceiveSetup(std::weak_ptr<Probe> probe, double sampling_frequency, uint32_t number_samples,
+               double time_offset = 0.)
       : TimeOffsetBase(time_offset),
         _probe(std::move(probe)),
         _sampling_frequency(sampling_frequency),
@@ -50,8 +50,8 @@ class ReceiveSetup : public TimeOffsetBase {
   inline std::weak_ptr<Probe> probe() const { return _probe; }
   inline void setProbe(const std::weak_ptr<Probe>& probe) { _probe = probe; }
 
-  inline MetadataType samplingFrequency() const { return _sampling_frequency; }
-  inline void setSamplingFrequency(const MetadataType& samplingFrequency) {
+  inline double samplingFrequency() const { return _sampling_frequency; }
+  inline void setSamplingFrequency(const double& samplingFrequency) {
     _sampling_frequency = samplingFrequency;
   }
 
@@ -66,20 +66,16 @@ class ReceiveSetup : public TimeOffsetBase {
     _channel_mapping = channelMapping;
   }
 
-  inline std::vector<MetadataType> tgcProfile() const { return _tgc_profile; }
-  inline void setTgcProfile(const std::vector<MetadataType>& tgcProfile) {
-    _tgc_profile = tgcProfile;
-  }
+  inline std::vector<double> tgcProfile() const { return _tgc_profile; }
+  inline void setTgcProfile(const std::vector<double>& tgcProfile) { _tgc_profile = tgcProfile; }
 
-  inline std::optional<MetadataType> tgcSamplingFrequency() const {
-    return _tgc_sampling_frequency;
-  }
-  inline void setTgcSamplingFrequency(std::optional<MetadataType> tgcSamplingFrequency) {
+  inline std::optional<double> tgcSamplingFrequency() const { return _tgc_sampling_frequency; }
+  inline void setTgcSamplingFrequency(std::optional<double> tgcSamplingFrequency) {
     _tgc_sampling_frequency = tgcSamplingFrequency;
   }
 
-  inline std::optional<MetadataType> modulationFrequency() const { return _modulation_frequency; }
-  inline void setModulationFrequency(std::optional<MetadataType> modulationFrequency) {
+  inline std::optional<double> modulationFrequency() const { return _modulation_frequency; }
+  inline void setModulationFrequency(std::optional<double> modulationFrequency) {
     _modulation_frequency = modulationFrequency;
   }
 
@@ -89,7 +85,7 @@ class ReceiveSetup : public TimeOffsetBase {
   std::weak_ptr<Probe> _probe;
 
   // Sampling frequency [Hz]
-  MetadataType _sampling_frequency = 0.;
+  double _sampling_frequency = 0.;
 
   // Number of samples
   uint32_t _number_samples = 0;
@@ -102,13 +98,13 @@ class ReceiveSetup : public TimeOffsetBase {
   std::vector<int> _channel_mapping;
 
   // (Optional) Analog TGC profile sampled at tgc_sampling_frequency [dB]
-  std::vector<MetadataType> _tgc_profile = {0.f};
+  std::vector<double> _tgc_profile = {0.f};
 
   // (Optional) Sampling frequency of the TGC profile [Hz]
-  std::optional<MetadataType> _tgc_sampling_frequency = std::nullopt;
+  std::optional<double> _tgc_sampling_frequency = std::nullopt;
 
   // (Optional) Modulation frequency used in case of IQ-data [Hz]
-  std::optional<MetadataType> _modulation_frequency = std::nullopt;
+  std::optional<double> _modulation_frequency = std::nullopt;
 };
 
 }  // namespace uff

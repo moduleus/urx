@@ -40,9 +40,9 @@ class Reader {
 
  protected:
   // Read basic types
-  static MetadataType readMetadataTypeDataset(const H5::Group& group, const std::string& name);
-  static std::optional<MetadataType> readOptionalMetadataTypeDataset(const H5::Group& group,
-                                                                     const std::string& name);
+  static double readMetadataTypeDataset(const H5::Group& group, const std::string& name);
+  static std::optional<double> readOptionalMetadataTypeDataset(const H5::Group& group,
+                                                               const std::string& name);
   static void readIntegerArrayDataset(const H5::Group& group, const std::string& name,
                                       std::vector<int>& values, std::vector<hsize_t>& dimensions);
   static int readIntegerDataset(const H5::Group& group, const std::string& name);
@@ -58,7 +58,7 @@ class Reader {
                                        const H5::PredType& targetType = H5DataType,
                                        bool skipChannelData = false);
   static void readMetadataTypeArrayDataset(const H5::Group& group, const std::string& name,
-                                           std::vector<MetadataType>& values,
+                                           std::vector<double>& values,
                                            std::vector<hsize_t>& dimensions);
 
  private:

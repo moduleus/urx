@@ -38,19 +38,19 @@ class Writer {
                                const std::weak_ptr<T>& wptr);
 
   static void writeMetadataTypeDataset(const H5::Group& group, const std::string& name,
-                                       MetadataType value);
+                                       double value);
   static void writeOptionalMetadataTypeDataset(const H5::Group& group, const std::string& name,
-                                               const std::optional<MetadataType>& value);
+                                               const std::optional<double>& value);
 
-  static void writePoint2D(const H5::Group& group, const Vector2D<MetadataType>& position);
-  static void writePoint3D(const H5::Group& group, const Vector3D<MetadataType>& position);
+  static void writePoint2D(const H5::Group& group, const Vector2D<double>& position);
+  static void writePoint3D(const H5::Group& group, const Vector3D<double>& position);
 
   static void writeDataTypeArrayDataset(const H5::Group& group, const std::string& name,
                                         const std::vector<DataType>& values,
                                         const std::vector<size_t>& dimensions);
 
   static void writeMetadataTypeArrayDataset(const H5::Group& group, const std::string& name,
-                                            const std::vector<MetadataType>& values,
+                                            const std::vector<double>& values,
                                             const std::vector<size_t>& dimensions);
 
   static void writeIntegerArrayDataset(const H5::Group& group, const std::string& name,

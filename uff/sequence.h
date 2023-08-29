@@ -15,7 +15,7 @@ class Sequence : public TimeOffsetBase, TriggerBase {
  public:
   // CTOR & DTOR
   Sequence() = delete;
-  explicit Sequence(std::vector<TimedEvent> timed_events, MetadataType time_offset = 0.,
+  explicit Sequence(std::vector<TimedEvent> timed_events, double time_offset = 0.,
                     const std::optional<TriggerIn>& trigger_in = std::nullopt,
                     const std::optional<TriggerOut>& trigger_out = std::nullopt)
       : TimeOffsetBase(time_offset),

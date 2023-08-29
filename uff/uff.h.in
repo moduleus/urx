@@ -10,7 +10,6 @@ constexpr const uint16_t UFF_VERSION_MINOR(@Uff_VERSION_MINOR@);
 constexpr const uint16_t UFF_VERSION_PATCH(@Uff_VERSION_PATCH@);
 
 using DataType = float; // REMOVE THIS (Obsolete)
-using MetadataType = double;
-constexpr const MetadataType UFF_NAN(std::numeric_limits<MetadataType>::quiet_NaN());
+constexpr const double UFF_NAN(std::numeric_limits<double>::quiet_NaN());
 
 }  // namespace uff

@@ -48,8 +48,8 @@ class Probe {
   inline Transform transform() const { return _transform; }
   inline void setTransform(const Transform& transform) { _transform = transform; }
 
-  inline std::optional<MetadataType> focalLength() const { return _focal_length; }
-  inline void setFocalLength(const std::optional<MetadataType>& focal_length) {
+  inline std::optional<double> focalLength() const { return _focal_length; }
+  inline void setFocalLength(const std::optional<double>& focal_length) {
     _focal_length = focal_length;
   }
 
@@ -81,7 +81,7 @@ class Probe {
   std::vector<Element> _elements;
 
   // [optional] For probes with a focal lens, it describes the focal length in m [Az, Ele]
-  std::optional<MetadataType> _focal_length = std::nullopt;
+  std::optional<double> _focal_length = std::nullopt;
 
   // [optional] List of all unique element geometries in the probe
   std::vector<std::shared_ptr<ElementGeometry>> _element_geometries;

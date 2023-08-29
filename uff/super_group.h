@@ -12,7 +12,7 @@ class SuperGroup : public IGroup {
   SuperGroup() = delete;
   SuperGroup(std::weak_ptr<IGroup> initialGroup, uint32_t repetition_count,
              std::vector<std::pair<std::weak_ptr<IGroup>, TriggerIn>> destination_links = {},
-             MetadataType time_offset = 0.)
+             double time_offset = 0.)
       : IGroup(repetition_count, std::move(destination_links), time_offset),
         _initialGroup(std::move(initialGroup)) {}
   SuperGroup(const SuperGroup&) = default;

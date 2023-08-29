@@ -20,7 +20,7 @@ class TimedEvent : public TimeOffsetBase, TriggerBase {
   // CTOR & DTOR
   TimedEvent() = delete;
   explicit TimedEvent(std::weak_ptr<TransmitSetup> transmit_setup,
-                      std::weak_ptr<ReceiveSetup> receive_setup, MetadataType time_offset = 0.)
+                      std::weak_ptr<ReceiveSetup> receive_setup, double time_offset = 0.)
       : TimeOffsetBase(time_offset),
         _transmit_setup(std::move(transmit_setup)),
         _receive_setup(std::move(receive_setup)) {}

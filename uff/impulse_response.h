@@ -15,8 +15,8 @@ class ImpulseResponse : public TimeOffsetBase {
  public:
   // CTOR & DTOR
   ImpulseResponse() = delete;
-  explicit ImpulseResponse(MetadataType sampling_frequency, std::vector<MetadataType> data = {},
-                           MetadataType time_offset = 0., std::string units = "")
+  explicit ImpulseResponse(double sampling_frequency, std::vector<double> data = {},
+                           double time_offset = 0., std::string units = "")
       : TimeOffsetBase(time_offset),
         _sampling_frequency(sampling_frequency),
         _data(std::move(data)),
@@ -36,13 +36,13 @@ class ImpulseResponse : public TimeOffsetBase {
   inline bool operator!=(const ImpulseResponse& other) const { return !(*this == other); }
 
   // Accessors
-  inline MetadataType samplingFrequency() const { return _sampling_frequency; }
-  inline void setSampleFrequency(MetadataType sampling_frequency) {
+  inline double samplingFrequency() const { return _sampling_frequency; }
+  inline void setSampleFrequency(double sampling_frequency) {
     _sampling_frequency = sampling_frequency;
   }
 
-  inline const std::vector<MetadataType>& data() const { return _data; }
-  inline void setData(const std::vector<MetadataType>& data) { _data = data; }
+  inline const std::vector<double>& data() const { return _data; }
+  inline void setData(const std::vector<double>& data) { _data = data; }
 
   inline std::string units() const { return _units; }
   inline void setUnits(const std::string& units) { _units = units; }
@@ -50,10 +50,10 @@ class ImpulseResponse : public TimeOffsetBase {
   // Members
  private:
   // Sampling frequency in Hz
-  MetadataType _sampling_frequency;
+  double _sampling_frequency;
 
   // Collection of samples containing the impulse response
-  std::vector<MetadataType> _data;
+  std::vector<double> _data;
 
   // (Optional) Name of the units of the impulse response
   std::string _units;

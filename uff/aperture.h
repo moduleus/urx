@@ -34,11 +34,11 @@ class Aperture {
   inline std::string window() const { return _window; }
   inline void setWindow(const std::string& window) { _window = window; }
 
-  inline MetadataType fNumber() const { return _f_number; }
-  inline void setFNumber(MetadataType f_number) { _f_number = f_number; }
+  inline double fNumber() const { return _f_number; }
+  inline void setFNumber(double f_number) { _f_number = f_number; }
 
-  inline MetadataType fixedSize() const { return _fixed_size; }
-  inline void setFixedSize(MetadataType fixedSize) { _fixed_size = fixedSize; }
+  inline double fixedSize() const { return _fixed_size; }
+  inline void setFixedSize(double fixedSize) { _fixed_size = fixedSize; }
 
   // Members
  private:
@@ -49,10 +49,10 @@ class Aperture {
   std::string _window;
 
   // Desired F-number of the aperture [Az, El]
-  MetadataType _f_number;
+  double _f_number;
 
   // If non-zero, this overwrites the size of the aperture in m [Az, El]
-  MetadataType _fixed_size;
+  double _fixed_size;
 };
 
 }  // namespace uff

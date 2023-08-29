@@ -11,8 +11,7 @@ class TriggerOut : public TimeOffsetBase {
 
   // CTOR & DTOR
   TriggerOut() = default;
-  TriggerOut(const MetadataType& pulse_duration, const Polarity& polarity,
-             const MetadataType& time_offset = 0.)
+  TriggerOut(const double& pulse_duration, const Polarity& polarity, const double& time_offset = 0.)
       : TimeOffsetBase(time_offset), _pulse_duration(pulse_duration), _polarity(polarity){};
   TriggerOut(const TriggerOut&) = default;
   TriggerOut(TriggerOut&&) = default;
@@ -28,10 +27,8 @@ class TriggerOut : public TimeOffsetBase {
   inline bool operator!=(const TriggerOut& other) const { return !(*this == other); }
 
   // Accessors
-  inline MetadataType pulseDuration() const { return _pulse_duration; }
-  inline void setPulseDuration(const MetadataType& pulse_duration) {
-    _pulse_duration = pulse_duration;
-  }
+  inline double pulseDuration() const { return _pulse_duration; }
+  inline void setPulseDuration(const double& pulse_duration) { _pulse_duration = pulse_duration; }
 
   inline Polarity polarity() const { return _polarity; }
   inline void setPolarity(const Polarity& polarity) { _polarity = polarity; }
@@ -39,7 +36,7 @@ class TriggerOut : public TimeOffsetBase {
   // Members
  private:
   // Duration of the pulse [s]
-  MetadataType _pulse_duration = 0.;
+  double _pulse_duration = 0.;
 
   // Polarity of the trigger
   Polarity _polarity;

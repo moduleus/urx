@@ -14,7 +14,7 @@ class IGroup : public TimeOffsetBase, TriggerBase {
   IGroup() = default;
   explicit IGroup(uint32_t repetition_count,
                   std::vector<std::pair<std::weak_ptr<IGroup>, TriggerIn>> destination_links = {},
-                  MetadataType time_offset = 0., std::string description = "",
+                  double time_offset = 0., std::string description = "",
                   const std::optional<TriggerIn>& trigger_in = std::nullopt,
                   const std::optional<TriggerOut>& trigger_out = std::nullopt)
       : TimeOffsetBase(time_offset),
@@ -52,8 +52,8 @@ class IGroup : public TimeOffsetBase, TriggerBase {
   inline std::string description() const { return _description; }
   inline void setDescription(std::string description) { _description = std::move(description); }
 
-  inline MetadataType timeOffset() const { return _time_offset; }
-  inline void setTimeOffset(MetadataType time_offset) { _time_offset = time_offset; }
+  inline double timeOffset() const { return _time_offset; }
+  inline void setTimeOffset(double time_offset) { _time_offset = time_offset; }
 
   inline uint32_t repetitionCount() const { return _repetition_count; }
   inline void setRepetitionCount(uint32_t repetition_count) {

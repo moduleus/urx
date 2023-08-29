@@ -48,7 +48,7 @@ void Writer::writeToFile() {
 }
 
 void Writer::writeMetadataTypeDataset(const H5::Group& group, const std::string& name,
-                                      MetadataType value) {
+                                      double value) {
   const H5::StrType datatype(H5MetadataType);
   const H5::DataSpace dataspace = H5::DataSpace(H5S_SCALAR);
   const H5::DataSet dataset = group.createDataSet(name, datatype, dataspace);
@@ -56,7 +56,7 @@ void Writer::writeMetadataTypeDataset(const H5::Group& group, const std::string&
 }
 
 void Writer::writeOptionalMetadataTypeDataset(const H5::Group& group, const std::string& name,
-                                              const std::optional<MetadataType>& value) {
+                                              const std::optional<double>& value) {
   const H5::StrType datatype(H5MetadataType);
   const H5::DataSpace dataspace = H5::DataSpace(H5S_SCALAR);
   const H5::DataSet dataset = group.createDataSet(name, datatype, dataspace);
@@ -67,12 +67,12 @@ void Writer::writeOptionalMetadataTypeDataset(const H5::Group& group, const std:
   }
 }
 
-void Writer::writePoint2D(const H5::Group& group, const Vector2D<MetadataType>& position) {
+void Writer::writePoint2D(const H5::Group& group, const Vector2D<double>& position) {
   writeMetadataTypeDataset(group, "x", position.x());
   writeMetadataTypeDataset(group, "y", position.y());
 }
 
-void Writer::writePoint3D(const H5::Group& group, const Vector3D<MetadataType>& position) {
+void Writer::writePoint3D(const H5::Group& group, const Vector3D<double>& position) {
   writeMetadataTypeDataset(group, "x", position.x());
   writeMetadataTypeDataset(group, "y", position.y());
   writeMetadataTypeDataset(group, "z", position.z());
@@ -111,7 +111,7 @@ void Writer::writeDataTypeArrayDataset(const H5::Group& group, const std::string
 }
 
 void Writer::writeMetadataTypeArrayDataset(const H5::Group& group, const std::string& name,
-                                           const std::vector<MetadataType>& values,
+                                           const std::vector<double>& values,
                                            const std::vector<size_t>& dimensions) {
   assert(dimensions.size() <= 4);
 

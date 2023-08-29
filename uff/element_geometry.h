@@ -16,7 +16,7 @@ class ElementGeometry {
  public:
   // CTOR & DTOR
   ElementGeometry() = delete;
-  explicit ElementGeometry(std::vector<Vector3D<MetadataType>> perimeter)
+  explicit ElementGeometry(std::vector<Vector3D<double>> perimeter)
       : _perimeter(std::move(perimeter)) {}
   ElementGeometry(const ElementGeometry&) = default;
   ElementGeometry(ElementGeometry&&) = default;
@@ -29,15 +29,13 @@ class ElementGeometry {
   inline bool operator!=(const ElementGeometry& other) const { return !(*this == other); }
 
   // Accessors
-  std::vector<Vector3D<MetadataType>>& perimeter() { return _perimeter; }
-  void setPerimeter(const std::vector<Vector3D<MetadataType>>& perimeter) {
-    _perimeter = perimeter;
-  }
+  std::vector<Vector3D<double>>& perimeter() { return _perimeter; }
+  void setPerimeter(const std::vector<Vector3D<double>>& perimeter) { _perimeter = perimeter; }
 
   // Members
  private:
   // List of positions points (x,y,z) defining the element perimeter
-  std::vector<Vector3D<MetadataType>> _perimeter;
+  std::vector<Vector3D<double>> _perimeter;
 };
 
 }  // namespace uff

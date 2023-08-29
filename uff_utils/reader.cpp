@@ -47,21 +47,21 @@ std::shared_ptr<Dataset> Reader::loadFile(std::string_view /*filename*/, bool /*
   return std::make_shared<Dataset>();
 }
 
-MetadataType Reader::readMetadataTypeDataset(const H5::Group& group, const std::string& name) {
+double Reader::readMetadataTypeDataset(const H5::Group& group, const std::string& name) {
   const H5::StrType datatype(H5MetadataType);
   const H5::DataSet dataset = group.openDataSet(name);
-  MetadataType value;
+  double value;
   dataset.read(&value, datatype);
   return value;
 }
 
-std::optional<MetadataType> Reader::readOptionalMetadataTypeDataset(const H5::Group& group,
-                                                                    const std::string& name) {
+std::optional<double> Reader::readOptionalMetadataTypeDataset(const H5::Group& group,
+                                                              const std::string& name) {
   const H5::StrType datatype(H5MetadataType);
   const H5::DataSet dataset = group.openDataSet(name);
-  MetadataType value;
+  double value;
   dataset.read(&value, datatype);
-  std::optional<MetadataType> result = std::nullopt;
+  std::optional<double> result = std::nullopt;
   if (!std::isnan(value)) {
     result = value;
   }
@@ -97,7 +97,7 @@ void Reader::readDataTypeArrayDataset(const H5::Group& group, const std::string&
 }
 
 void Reader::readMetadataTypeArrayDataset(const H5::Group& group, const std::string& name,
-                                          std::vector<MetadataType>& values,
+                                          std::vector<double>& values,
                                           std::vector<hsize_t>& dimensions) {
   const H5::DataSet dataset = group.openDataSet(name);
   // TODO: check if type is correct : dataset.getTypeClass()

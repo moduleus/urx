@@ -9,9 +9,9 @@ namespace uff {
 class Group : public IGroup {
  public:
   Group() = delete;
-  Group(Sequence sequence, MetadataType repetition_rate, uint32_t repetition_count,
+  Group(Sequence sequence, double repetition_rate, uint32_t repetition_count,
         std::vector<std::pair<std::weak_ptr<IGroup>, TriggerIn>> destination_links = {},
-        MetadataType time_offset = 0.)
+        double time_offset = 0.)
       : IGroup(repetition_count, std::move(destination_links), time_offset),
         _sequence(std::move(sequence)),
         _repetition_rate(repetition_rate) {}
@@ -29,10 +29,8 @@ class Group : public IGroup {
   inline bool operator!=(const Group& other) const { return !(*this == other); }
 
   // Accessors
-  inline MetadataType repetitionRate() const { return _repetition_rate; }
-  inline void setRepetitionRate(MetadataType repetition_rate) {
-    _repetition_rate = repetition_rate;
-  }
+  inline double repetitionRate() const { return _repetition_rate; }
+  inline void setRepetitionRate(double repetition_rate) { _repetition_rate = repetition_rate; }
 
   inline const Sequence& sequence() const { return _sequence; }
   inline void setSequence(const Sequence& sequence) { _sequence = sequence; }
@@ -41,7 +39,7 @@ class Group : public IGroup {
  private:
   Sequence _sequence;
 
-  MetadataType _repetition_rate = 0.;
+  double _repetition_rate = 0.;
 };
 
 }  // namespace uff
