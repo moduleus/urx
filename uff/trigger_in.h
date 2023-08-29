@@ -1,17 +1,19 @@
 #pragma once
 
 #include <uff/uff.h>
+#include <uff/trigger_location.h>
+
+#include <optional>
 
 namespace uff {
 
-class TriggerIn {
+struct TriggerIn {
  public:
-  enum class TriggerSource { END_OF_GROUP = 0, EXT1 = 1, SW1 = 2, SW2 = 3, SW3 = 4 };
   enum class TriggerType { RISING = 0, FALLING = 1, HIGH = 2, LOW = 3 };
 
   // CTOR & DTOR
   TriggerIn() = default;
-  TriggerIn(const TriggerSource& source, const TriggerType& edge) : _source(source), _edge(edge){};
+  TriggerIn(const std::optional<TriggerLocation>& source, const TriggerType& edge) : _source(source), _edge(edge){};
   TriggerIn(const TriggerIn&) = default;
   TriggerIn(TriggerIn&&) = default;
   ~TriggerIn() = default;
@@ -25,15 +27,14 @@ class TriggerIn {
   inline bool operator!=(const TriggerIn& other) const { return !(*this == other); }
 
   // Accessors
-  inline TriggerSource source() const { return _source; }
-  inline void setSource(const TriggerSource& source) { _source = source; }
+  inline std::optional<TriggerLocation> source() const { return _source; }
+  inline void setSource(const std::optional<TriggerLocation>& source) { _source = source; }
 
   inline TriggerType edge() const { return _edge; }
   inline void setEdge(const TriggerType& edge) { _edge = edge; }
 
-  // Members
- private:
-  TriggerSource _source;
+  // nullopt means that by default the source of the trigger is END_OF_GROUP
+  std::optional<TriggerLocation> _source = std::nullopt;
 
   TriggerType _edge;
 };

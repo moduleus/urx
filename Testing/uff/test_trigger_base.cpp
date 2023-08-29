@@ -3,6 +3,7 @@
 #include <optional>
 
 #include "trigger_in.h"
+#include "trigger_location.h"
 #include "trigger_out.h"
 
 namespace uff::test {
@@ -27,8 +28,8 @@ TEST_CASE("TriggerBase::operator==", "[test_trigger_base]") {
 
   TriggerOut to_1 = TriggerOut(42., TriggerOut::Polarity::NEGATIVE, 100.);
   TriggerOut to_2 = TriggerOut(42., TriggerOut::Polarity::NEGATIVE);
-  TriggerIn ti_1 = TriggerIn(TriggerIn::TriggerSource::EXT1, TriggerIn::TriggerType::HIGH);
-  TriggerIn ti_2 = TriggerIn(TriggerIn::TriggerSource::EXT1, TriggerIn::TriggerType::RISING);
+  TriggerIn ti_1 = TriggerIn(TriggerLocation(TriggerLocation::Location::EXT, 0), TriggerIn::TriggerType::HIGH);
+  TriggerIn ti_2 = TriggerIn(TriggerLocation(TriggerLocation::Location::EXT, 0), TriggerIn::TriggerType::RISING);
   tb_2 = TriggerBase(ti_1, to_1);
 
   tb_1.setTriggerIn(ti_1);
