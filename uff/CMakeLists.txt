@@ -17,12 +17,10 @@ set(UFF_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/receive_setup.h
     ${CMAKE_CURRENT_SOURCE_DIR}/sequence.h
     ${CMAKE_CURRENT_SOURCE_DIR}/super_group.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/time_offset_base.h
     ${CMAKE_CURRENT_SOURCE_DIR}/timed_event.h
     ${CMAKE_CURRENT_SOURCE_DIR}/transform.h
     ${CMAKE_CURRENT_SOURCE_DIR}/transmit_setup.h
     ${CMAKE_CURRENT_SOURCE_DIR}/types.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/trigger_base.h
     ${CMAKE_CURRENT_SOURCE_DIR}/trigger_in.h
     ${CMAKE_CURRENT_SOURCE_DIR}/trigger_location.h
     ${CMAKE_CURRENT_SOURCE_DIR}/trigger_out.h

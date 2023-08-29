@@ -2,35 +2,36 @@
 
 #include <vector>
 
-#include <uff/time_offset_base.h>
 #include <uff/timed_event.h>
-#include <uff/trigger_base.h>
+#include <uff/trigger_in.h>
+#include <uff/trigger_out.h>
 
 namespace uff {
 
 /**
  * @brief UFF class that contains all the information needed to store and later process channel data.
  */
-class Sequence : public TimeOffsetBase, TriggerBase {
+class Sequence {
  public:
   // CTOR & DTOR
   Sequence() = delete;
   explicit Sequence(std::vector<TimedEvent> timed_events, double time_offset = 0.,
                     const std::optional<TriggerIn>& trigger_in = std::nullopt,
                     const std::optional<TriggerOut>& trigger_out = std::nullopt)
-      : TimeOffsetBase(time_offset),
-        TriggerBase(trigger_in, trigger_out),
-        _timed_events(std::move(timed_events)) {}
+      : _timed_events(std::move(timed_events)),
+        _trigger_in(trigger_in),
+        _trigger_out(trigger_out),
+        _time_offset(time_offset) {}
   Sequence(const Sequence&) = default;
   Sequence(Sequence&&) = default;
-  ~Sequence() override = default;
+  ~Sequence() = default;
 
   // Operators
   Sequence& operator=(const Sequence& other) noexcept = default;
   Sequence& operator=(Sequence&& other) noexcept = default;
   bool operator==(const Sequence& other) const {
-    return TimeOffsetBase::operator==(other) && TriggerBase::operator==(other) &&
-           _timed_events == other._timed_events;
+    return (_timed_events == other._timed_events) && (_trigger_in == other._trigger_in) &&
+           (_trigger_out == other._trigger_out) && (_time_offset == other._time_offset);
   }
   inline bool operator!=(const Sequence& other) const { return !(*this == other); }
 
@@ -43,6 +44,15 @@ class Sequence : public TimeOffsetBase, TriggerBase {
   // Members
  private:
   std::vector<TimedEvent> _timed_events;
+
+  // Trigger in for launching the acquisition element
+  std::optional<TriggerIn> _trigger_in = std::nullopt;
+
+  // Trigger out applied by the acquisition element at its launch
+  std::optional<TriggerOut> _trigger_out = std::nullopt;
+
+  // Time offset delaying the launch of the acquisition element
+  double _time_offset = 0.;
 };
 
 }  // namespace uff

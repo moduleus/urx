@@ -1,7 +1,7 @@
 #pragma once
 
-#include <uff/uff.h>
 #include <uff/trigger_location.h>
+#include <uff/uff.h>
 
 #include <optional>
 
@@ -13,7 +13,8 @@ struct TriggerIn {
 
   // CTOR & DTOR
   TriggerIn() = default;
-  TriggerIn(const std::optional<TriggerLocation>& source, const TriggerType& edge) : _source(source), _edge(edge){};
+  TriggerIn(const std::optional<TriggerLocation>& source, const TriggerType& edge)
+      : _source(source), _edge(edge){};
   TriggerIn(const TriggerIn&) = default;
   TriggerIn(TriggerIn&&) = default;
   ~TriggerIn() = default;

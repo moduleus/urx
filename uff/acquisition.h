@@ -8,10 +8,10 @@
 #include <uff/probe.h>
 #include <uff/receive_setup.h>
 #include <uff/super_group.h>
-#include <uff/time_offset_base.h>
 #include <uff/timed_event.h>
 #include <uff/transmit_setup.h>
-#include <uff/trigger_base.h>
+#include <uff/trigger_in.h>
+#include <uff/trigger_out.h>
 
 // System
 #include <optional>
@@ -23,13 +23,13 @@ namespace uff {
 /**
  * @brief UFF class that contains all the information needed to store and later process channel data.
  */
-class Acquisition : public TimeOffsetBase, TriggerBase {
+class Acquisition {
  public:
   // CTOR & DTOR
   Acquisition() = default;
   Acquisition(const Acquisition&) = default;
   Acquisition(Acquisition&&) noexcept = default;
-  ~Acquisition() override = default;
+  ~Acquisition() = default;
 
   // Operators
   Acquisition& operator=(const Acquisition& other) noexcept = default;
@@ -81,11 +81,11 @@ class Acquisition : public TimeOffsetBase, TriggerBase {
       are_group_data_equaled = are_group_data_equaled && (*_group_data[i] == *other._group_data[i]);
     }
 
-    return (TimeOffsetBase::operator==(other) && TriggerBase::operator==(other) &&
-            (_authors == other._authors) && (_description == other._description) &&
+    return ((_authors == other._authors) && (_description == other._description) &&
             (_local_time == other._local_time) && (_country_code == other._country_code) &&
             (_system == other._system) && (_sound_speed == other._sound_speed) &&
-            (_timestamp == other._timestamp) &&
+            (_timestamp == other._timestamp) && (_trigger_in == other._trigger_in) &&
+            (_trigger_out == other._trigger_out) && (_time_offset == other._time_offset) &&
             (_initial_group.lock() == other._initial_group.lock()) && are_probes_equaled &&
             are_unique_transmit_setups_equaled && are_unique_receive_setups_equaled &&
             are_unique_events_equaled && are_unique_excitations_equaled && are_groups_equaled &&
@@ -242,6 +242,15 @@ class Acquisition : public TimeOffsetBase, TriggerBase {
 
   // List of all data acquired by the running groups in the acquisition
   std::vector<std::shared_ptr<GroupData>> _group_data;
+
+  // Trigger in for launching the acquisition element
+  std::optional<TriggerIn> _trigger_in = std::nullopt;
+
+  // Trigger out applied by the acquisition element at its launch
+  std::optional<TriggerOut> _trigger_out = std::nullopt;
+
+  // Time offset delaying the launch of the acquisition element
+  double _time_offset = 0.;
 };
 
 }  // namespace uff

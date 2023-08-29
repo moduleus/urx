@@ -3,12 +3,12 @@
 #include <string>
 #include <vector>
 
-#include <uff/time_offset_base.h>
-#include <uff/trigger_base.h>
+#include <uff/trigger_in.h>
+#include <uff/trigger_out.h>
 
 namespace uff {
 
-class IGroup : public TimeOffsetBase, TriggerBase {
+class IGroup {
  public:
   // CTOR & DTOR
   IGroup() = default;
@@ -17,14 +17,15 @@ class IGroup : public TimeOffsetBase, TriggerBase {
                   double time_offset = 0., std::string description = "",
                   const std::optional<TriggerIn>& trigger_in = std::nullopt,
                   const std::optional<TriggerOut>& trigger_out = std::nullopt)
-      : TimeOffsetBase(time_offset),
-        TriggerBase(trigger_in, trigger_out),
-        _description(std::move(description)),
+      : _description(std::move(description)),
         _repetition_count(repetition_count),
-        _destination_links(std::move(destination_links)) {}
+        _destination_links(std::move(destination_links)),
+        _trigger_in(trigger_in),
+        _trigger_out(trigger_out),
+        _time_offset(time_offset) {}
   IGroup(const IGroup&) = default;
   IGroup(IGroup&&) noexcept = default;
-  ~IGroup() override = default;
+  virtual ~IGroup() = default;
 
   // Operators
   IGroup& operator=(const IGroup& other) noexcept = default;
@@ -43,19 +44,26 @@ class IGroup : public TimeOffsetBase, TriggerBase {
           (_destination_links[i].second == other._destination_links[i].second);
     }
 
-    return (TimeOffsetBase::operator==(other) && TriggerBase::operator==(other) &&
-            _description == other._description && _repetition_count == other._repetition_count);
+    return ((_trigger_in == other._trigger_in) && (_trigger_out == other._trigger_out) &&
+            (_time_offset == other._time_offset) && _description == other._description &&
+            _repetition_count == other._repetition_count);
   }
-  inline bool operator!=(const IGroup& other) const { return !(*this == other); }
+  inline bool operator!=(const IGroup& other) const {
+    return !(*this == other); }
 
   // Accessors
-  inline std::string description() const { return _description; }
-  inline void setDescription(std::string description) { _description = std::move(description); }
+  inline std::string description() const {
+    return _description; }
+  inline void setDescription(std::string description) {
+    _description = std::move(description); }
 
-  inline double timeOffset() const { return _time_offset; }
-  inline void setTimeOffset(double time_offset) { _time_offset = time_offset; }
+  inline double timeOffset() const {
+    return _time_offset; }
+  inline void setTimeOffset(double time_offset) {
+    _time_offset = time_offset; }
 
-  inline uint32_t repetitionCount() const { return _repetition_count; }
+  inline uint32_t repetitionCount() const {
+    return _repetition_count; }
   inline void setRepetitionCount(uint32_t repetition_count) {
     _repetition_count = repetition_count;
   }
@@ -76,6 +84,15 @@ class IGroup : public TimeOffsetBase, TriggerBase {
   uint32_t _repetition_count = 1u;
 
   std::vector<std::pair<std::weak_ptr<IGroup>, TriggerIn>> _destination_links;
+
+  // Trigger in for launching the acquisition element
+  std::optional<TriggerIn> _trigger_in = std::nullopt;
+
+  // Trigger out applied by the acquisition element at its launch
+  std::optional<TriggerOut> _trigger_out = std::nullopt;
+
+  // Time offset delaying the launch of the acquisition element
+  double _time_offset = 0.;
 };
 
 }  // namespace uff

@@ -7,7 +7,6 @@
 #include <uff/aperture.h>
 #include <uff/excitation.h>
 #include <uff/probe.h>
-#include <uff/time_offset_base.h>
 #include <uff/transform.h>
 #include <uff/types.h>
 #include <uff/uff.h>
@@ -15,12 +14,12 @@
 
 namespace uff {
 
-class TransmitSetup : public TimeOffsetBase {
+class TransmitSetup {
  public:
   // CTOR & DTOR
   TransmitSetup() = delete;
   explicit TransmitSetup(std::weak_ptr<Probe> probe, double time_offset = 0.)
-      : TimeOffsetBase(time_offset), _probe(std::move(probe)) {}
+      : _probe(std::move(probe)), _time_offset(time_offset) {}
   TransmitSetup(const TransmitSetup&) = default;
   TransmitSetup(TransmitSetup&&) = default;
   ~TransmitSetup() = default;
@@ -39,7 +38,7 @@ class TransmitSetup : public TimeOffsetBase {
            (*(_channel_excitations[i].lock()) == *(other._channel_excitations[i].lock())));
     }
 
-    return (TimeOffsetBase::operator==(other) && (_probe.expired() == other._probe.expired()) &&
+    return ((_time_offset == other._time_offset) && (_probe.expired() == other._probe.expired()) &&
             (_probe.expired() || (*(_probe.lock()) == *(other._probe.lock()))) &&
             (_origin == other._origin) && (_wave_type == other._wave_type) &&
             (_aperture == other._aperture) &&
@@ -117,6 +116,9 @@ class TransmitSetup : public TimeOffsetBase {
 
   // List of the excitation waveform for each channel
   std::vector<double> _channel_delays;
+
+  // Time offset delaying the launch of the acquisition element
+  double _time_offset = 0.;
 };
 
 }  // namespace uff

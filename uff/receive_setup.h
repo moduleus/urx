@@ -1,7 +1,6 @@
 #pragma once
 
 #include <uff/probe.h>
-#include <uff/time_offset_base.h>
 #include <uff/uff.h>
 
 #include <iosfwd>
@@ -18,14 +17,14 @@ namespace uff {
 class ReceiveSetup {
  public:
   enum class SAMPLING_TYPE { DIRECT_RF = 0, IQ = 1 };
-  
+
   ReceiveSetup(std::weak_ptr<Probe> probe, double sampling_frequency, uint32_t number_samples,
                double time_offset = 0.)
       : _probe(std::move(probe)),
         _sampling_frequency(sampling_frequency),
         _number_samples(number_samples),
         _time_offset(time_offset) {}
-        
+
   inline bool operator==(const ReceiveSetup& other) const {
     return ((_probe.expired() == other._probe.expired()) &&
             (_probe.expired() || (*(_probe.lock()) == *(other._probe.lock()))) &&
