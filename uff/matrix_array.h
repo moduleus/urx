@@ -1,8 +1,8 @@
 #pragma once
 
-#include <uff/coordinates.h>
 #include <uff/probe.h>
 #include <uff/uff.h>
+#include <uff/vector.h>
 #include <cstddef>
 #include <iosfwd>
 #include <memory>
@@ -21,8 +21,8 @@ class MatrixArray : public Probe {
  public:
   // CTOR & DTOR
   MatrixArray() = delete;
-  MatrixArray(const Coordinates2D<uint32_t>& nb_elements, const Coordinates2D<MetadataType>& pitch,
-              const std::optional<Coordinates2D<MetadataType>>& element_size = std::nullopt)
+  MatrixArray(const Vector2D<uint32_t>& nb_elements, const Vector2D<MetadataType>& pitch,
+              const std::optional<Vector2D<MetadataType>>& element_size = std::nullopt)
       : _nb_elements(nb_elements), _pitch(pitch), _element_size(element_size) {
     updateElements();
   }
@@ -40,24 +40,22 @@ class MatrixArray : public Probe {
   inline bool operator!=(const MatrixArray& other) const { return !(*this == other); }
 
   // Accessors
-  inline Coordinates2D<uint32_t> nbElements() const { return _nb_elements; }
-  inline void setNumberElements(Coordinates2D<uint32_t> nb_elements) {
+  inline Vector2D<uint32_t> nbElements() const { return _nb_elements; }
+  inline void setNumberElements(Vector2D<uint32_t> nb_elements) {
     _nb_elements = nb_elements;
     updateElements();
   }
 
-  inline Coordinates2D<MetadataType> pitch() const { return _pitch; }
-  inline void setPitch(const Coordinates2D<MetadataType>& pitch) {
+  inline Vector2D<MetadataType> pitch() const { return _pitch; }
+  inline void setPitch(const Vector2D<MetadataType>& pitch) {
     _pitch = pitch;
     updateElements();
   }
 
-  inline void setElementSize(std::optional<Coordinates2D<MetadataType>> element_size) {
+  inline void setElementSize(std::optional<Vector2D<MetadataType>> element_size) {
     _element_size = element_size;
   }
-  inline const std::optional<Coordinates2D<MetadataType>>& elementSize() const {
-    return _element_size;
-  }
+  inline const std::optional<Vector2D<MetadataType>>& elementSize() const { return _element_size; }
 
  private:
   // Update elements position
@@ -69,8 +67,8 @@ class MatrixArray : public Probe {
     for (uint32_t i = 0; i < _nb_elements.y(); i++) {
       for (uint32_t j = 0; j < _nb_elements.x(); j++) {
         _elements[static_cast<size_t>(j) + static_cast<size_t>(i) * _nb_elements.y()] =
-            Element({Coordinates3D<MetadataType>{xmin + j * _pitch.x(), ymin + i * _pitch.y(), 0.f},
-                     Coordinates3D<MetadataType>{}});
+            Element({Vector3D<MetadataType>{xmin + j * _pitch.x(), ymin + i * _pitch.y(), 0.f},
+                     Vector3D<MetadataType>{}});
       }
     }
   }
@@ -78,13 +76,13 @@ class MatrixArray : public Probe {
   // Members
  protected:
   // Number of elements in the axis x and y
-  Coordinates2D<uint32_t> _nb_elements{0u, 0u};
+  Vector2D<uint32_t> _nb_elements{0u, 0u};
 
   // Distance between the acoustic center of adjacent elements along the axis x and y [m]
-  Coordinates2D<MetadataType> _pitch{0.f, 0.f};
+  Vector2D<MetadataType> _pitch{0.f, 0.f};
 
   // (Optional) Element size in the axis x and y [m]
-  std::optional<Coordinates2D<MetadataType>> _element_size = std::nullopt;
+  std::optional<Vector2D<MetadataType>> _element_size = std::nullopt;
 };
 
 }  // namespace uff

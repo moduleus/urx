@@ -4,7 +4,7 @@
 #include <cstdio>
 
 #include "io.h"
-#include "uff/coordinates.h"
+#include "uff/vector.h"
 
 namespace uff {
 
@@ -67,12 +67,12 @@ void Writer::writeOptionalMetadataTypeDataset(const H5::Group& group, const std:
   }
 }
 
-void Writer::writePoint2D(const H5::Group& group, const Coordinates2D<MetadataType>& position) {
+void Writer::writePoint2D(const H5::Group& group, const Vector2D<MetadataType>& position) {
   writeMetadataTypeDataset(group, "x", position.x());
   writeMetadataTypeDataset(group, "y", position.y());
 }
 
-void Writer::writePoint3D(const H5::Group& group, const Coordinates3D<MetadataType>& position) {
+void Writer::writePoint3D(const H5::Group& group, const Vector3D<MetadataType>& position) {
   writeMetadataTypeDataset(group, "x", position.x());
   writeMetadataTypeDataset(group, "y", position.y());
   writeMetadataTypeDataset(group, "z", position.z());

@@ -5,13 +5,13 @@
 #include <vector>
 
 #include <uff/aperture.h>
-#include <uff/coordinates.h>
 #include <uff/excitation.h>
 #include <uff/probe.h>
 #include <uff/time_offset_base.h>
 #include <uff/transform.h>
 #include <uff/types.h>
 #include <uff/uff.h>
+#include <uff/vector.h>
 
 namespace uff {
 
@@ -62,11 +62,10 @@ class TransmitSetup : public TimeOffsetBase {
   inline const std::optional<Aperture>& aperture() const { return _aperture; }
   inline void setAperture(const std::optional<Aperture>& aperture) { _aperture = aperture; }
 
-  inline Coordinates3D<MetadataType> timeZeroReferencePoint() const {
+  inline Vector3D<MetadataType> timeZeroReferencePoint() const {
     return _time_zero_reference_point;
   }
-  inline void setTimeZeroReferencePoint(
-      const Coordinates3D<MetadataType>& time_zero_reference_point) {
+  inline void setTimeZeroReferencePoint(const Vector3D<MetadataType>& time_zero_reference_point) {
     _time_zero_reference_point = time_zero_reference_point;
   }
 
@@ -106,7 +105,7 @@ class TransmitSetup : public TimeOffsetBase {
   std::optional<Aperture> _aperture = std::nullopt;
 
   // Time zero reference point in Probe orthogonal coordinate system
-  Coordinates3D<MetadataType> _time_zero_reference_point = Coordinates3D<MetadataType>{0, 0, 0};
+  Vector3D<MetadataType> _time_zero_reference_point = Vector3D<MetadataType>{0, 0, 0};
 
   // Time zero for the wave [s]
   MetadataType _time_zero = 0.;
