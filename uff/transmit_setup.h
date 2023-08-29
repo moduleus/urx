@@ -23,7 +23,7 @@ class TransmitSetup : public TimeOffsetBase {
       : TimeOffsetBase(time_offset), _probe(std::move(probe)) {}
   TransmitSetup(const TransmitSetup&) = default;
   TransmitSetup(TransmitSetup&&) = default;
-  ~TransmitSetup() override = default;
+  ~TransmitSetup() = default;
 
   // Operators
   TransmitSetup& operator=(const TransmitSetup& other) noexcept = default;

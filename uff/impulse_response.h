@@ -11,7 +11,7 @@ namespace uff {
 /**
  * @brief The UFF ImpulseResponse class specifies a temporal impulse response
  */
-class ImpulseResponse : public TimeOffsetBase {
+struct ImpulseResponse : public TimeOffsetBase {
  public:
   // CTOR & DTOR
   ImpulseResponse() = delete;
@@ -23,7 +23,7 @@ class ImpulseResponse : public TimeOffsetBase {
         _units(std::move(units)) {}
   ImpulseResponse(const ImpulseResponse&) = default;
   ImpulseResponse(ImpulseResponse&&) = default;
-  ~ImpulseResponse() override = default;
+  ~ImpulseResponse() = default;
 
   // Operators
   ImpulseResponse& operator=(const ImpulseResponse& other) noexcept = default;

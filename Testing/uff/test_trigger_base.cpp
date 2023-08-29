@@ -26,8 +26,8 @@ TEST_CASE("TriggerBase::operator==", "[test_trigger_base]") {
   tb_1 = tb_2;
   REQUIRE(tb_1 == tb_2);
 
-  TriggerOut to_1 = TriggerOut(42., TriggerOut::Polarity::NEGATIVE, 100.);
-  TriggerOut to_2 = TriggerOut(42., TriggerOut::Polarity::NEGATIVE);
+  TriggerOut to_1 = TriggerOut{._pulse_duration = 42., ._polarity = TriggerOut::Polarity::NEGATIVE, ._time_offset = 100.};
+  TriggerOut to_2 = TriggerOut{._pulse_duration = 42., ._polarity = TriggerOut::Polarity::NEGATIVE};
   TriggerIn ti_1 = TriggerIn(TriggerLocation{._location = TriggerLocation::Location::EXT, ._id = 0},
                              TriggerIn::TriggerType::HIGH);
   TriggerIn ti_2 = TriggerIn(TriggerLocation{._location = TriggerLocation::Location::EXT, ._id = 0},

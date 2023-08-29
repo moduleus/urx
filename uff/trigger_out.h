@@ -1,45 +1,27 @@
 #pragma once
 
 #include <uff/time_offset_base.h>
+#include <uff/trigger_location.h>
 #include <uff/uff.h>
 
 namespace uff {
 
-class TriggerOut : public TimeOffsetBase {
- public:
+struct TriggerOut {
   enum class Polarity { POSITIVE = 0, NEGATIVE = 1 };
+  
+  auto operator <=>(const TriggerOut& other) const = default;
 
-  // CTOR & DTOR
-  TriggerOut() = default;
-  TriggerOut(const double& pulse_duration, const Polarity& polarity, const double& time_offset = 0.)
-      : TimeOffsetBase(time_offset), _pulse_duration(pulse_duration), _polarity(polarity){};
-  TriggerOut(const TriggerOut&) = default;
-  TriggerOut(TriggerOut&&) = default;
-  ~TriggerOut() override = default;
-
-  // Operators
-  TriggerOut& operator=(const TriggerOut& other) noexcept = default;
-  TriggerOut& operator=(TriggerOut&& other) noexcept = default;
-  inline bool operator==(const TriggerOut& other) const {
-    return ((_time_offset == other._time_offset) && (_pulse_duration == other._pulse_duration) &&
-            (_polarity == other._polarity));
-  }
-  inline bool operator!=(const TriggerOut& other) const { return !(*this == other); }
-
-  // Accessors
-  inline double pulseDuration() const { return _pulse_duration; }
-  inline void setPulseDuration(const double& pulse_duration) { _pulse_duration = pulse_duration; }
-
-  inline Polarity polarity() const { return _polarity; }
-  inline void setPolarity(const Polarity& polarity) { _polarity = polarity; }
-
-  // Members
- private:
   // Duration of the pulse [s]
   double _pulse_duration = 0.;
 
   // Polarity of the trigger
   Polarity _polarity;
+
+  // Location of the destination: where to send the trigger  
+  TriggerLocation _destination;
+
+  // Time offset delaying the launch of the acquisition element
+  double _time_offset = 0.;
 };
 
 }  // namespace uff

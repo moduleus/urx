@@ -15,72 +15,30 @@ namespace uff {
 /**
  * @brief The UFF ReceiveSetup class
  */
-class ReceiveSetup : public TimeOffsetBase {
+class ReceiveSetup {
  public:
   enum class SAMPLING_TYPE { DIRECT_RF = 0, IQ = 1 };
-
-  // CTOR & DTOR
-  ReceiveSetup() = delete;
+  
   ReceiveSetup(std::weak_ptr<Probe> probe, double sampling_frequency, uint32_t number_samples,
                double time_offset = 0.)
-      : TimeOffsetBase(time_offset),
-        _probe(std::move(probe)),
+      : _probe(std::move(probe)),
         _sampling_frequency(sampling_frequency),
-        _number_samples(number_samples) {}
-  ReceiveSetup(const ReceiveSetup&) = default;
-  ReceiveSetup(ReceiveSetup&&) = default;
-  ~ReceiveSetup() override = default;
-
-  // Operators
-  ReceiveSetup& operator=(const ReceiveSetup& other) noexcept = default;
-  ReceiveSetup& operator=(ReceiveSetup&& other) noexcept = default;
+        _number_samples(number_samples),
+        _time_offset(time_offset) {}
+        
   inline bool operator==(const ReceiveSetup& other) const {
-    return (TimeOffsetBase::operator==(other) && (_probe.expired() == other._probe.expired()) &&
+    return ((_probe.expired() == other._probe.expired()) &&
             (_probe.expired() || (*(_probe.lock()) == *(other._probe.lock()))) &&
             (_sampling_frequency == other._sampling_frequency) &&
             (_number_samples == other._number_samples) &&
             (_sampling_type == other._sampling_type) &&
             (_channel_mapping == other._channel_mapping) && (_tgc_profile == other._tgc_profile) &&
             (_tgc_sampling_frequency == other._tgc_sampling_frequency) &&
-            (_modulation_frequency == other._modulation_frequency));
+            (_modulation_frequency == other._modulation_frequency) &&
+            (_time_offset == other._time_offset));
   }
   inline bool operator!=(const ReceiveSetup& other) const { return !(*this == other); }
 
-  // Accessors
-  inline std::weak_ptr<Probe> probe() const { return _probe; }
-  inline void setProbe(const std::weak_ptr<Probe>& probe) { _probe = probe; }
-
-  inline double samplingFrequency() const { return _sampling_frequency; }
-  inline void setSamplingFrequency(const double& samplingFrequency) {
-    _sampling_frequency = samplingFrequency;
-  }
-
-  inline uint32_t numberSamples() const { return _number_samples; }
-  inline void setNumberSamples(uint32_t number_samples) { _number_samples = number_samples; }
-
-  inline SAMPLING_TYPE samplingType() const { return _sampling_type; }
-  inline void setSamplingType(const SAMPLING_TYPE& samplingType) { _sampling_type = samplingType; }
-
-  inline std::vector<int> channelMapping() const { return _channel_mapping; }
-  inline void setChannelMapping(const std::vector<int>& channelMapping) {
-    _channel_mapping = channelMapping;
-  }
-
-  inline std::vector<double> tgcProfile() const { return _tgc_profile; }
-  inline void setTgcProfile(const std::vector<double>& tgcProfile) { _tgc_profile = tgcProfile; }
-
-  inline std::optional<double> tgcSamplingFrequency() const { return _tgc_sampling_frequency; }
-  inline void setTgcSamplingFrequency(std::optional<double> tgcSamplingFrequency) {
-    _tgc_sampling_frequency = tgcSamplingFrequency;
-  }
-
-  inline std::optional<double> modulationFrequency() const { return _modulation_frequency; }
-  inline void setModulationFrequency(std::optional<double> modulationFrequency) {
-    _modulation_frequency = modulationFrequency;
-  }
-
-  // Members
- private:
   // Probes used for this receive setup
   std::weak_ptr<Probe> _probe;
 
@@ -105,6 +63,9 @@ class ReceiveSetup : public TimeOffsetBase {
 
   // (Optional) Modulation frequency used in case of IQ-data [Hz]
   std::optional<double> _modulation_frequency = std::nullopt;
+
+  // Time offset delaying the launch of the acquisition element
+  double _time_offset = 0.;
 };
 
 }  // namespace uff
