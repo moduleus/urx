@@ -41,10 +41,10 @@ class Transform {
   // Members
  private:
   // Rotation around the 3 axis X: elevation, Y: azimut and Z: roll in radians
-  Vector3D<double> _rotation = Vector3D<double>(0, 0, 0);
+  Vector3D<double> _rotation = Vector3D<double>(0., 0., 0.);
 
   // translation in meters on 3 axis X, Y and Z
-  Vector3D<double> _translation = Vector3D<double>(0, 0, 0);
+  Vector3D<double> _translation = Vector3D<double>(0., 0., 0.);
   ;
 };
 
