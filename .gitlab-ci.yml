@@ -36,8 +36,7 @@ doc:PlantUml:
   script:
     - mkdir -p doc/plantuml
     - hpp2plantuml -i "uff/*.h" -o doc/plantuml/output.puml
-    - sed '/.+\(.*\).*/d' doc/plantuml/output.puml > doc/plantuml/architecture.puml
-    - sed "/.*updateElements.*/d" doc/plantuml/architecture.puml -i
+    - sed -r "/.+\(.*\).*/d" doc/plantuml/output.puml > doc/plantuml/architecture.puml
     - mkdir -p public/plantuml
     - plantuml doc/plantuml/architecture.puml
     - mv doc/plantuml/architecture.* public/plantuml/
