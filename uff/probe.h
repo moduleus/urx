@@ -14,8 +14,6 @@
 #include <vector>
 namespace uff {
 
-enum class ProbeType { LinearArray = 0, RcaArray = 1, MatrixArray = 2 };
-
 /**
  * @brief The UFF Probe class describes a generic ultrsound probe formed by a collection of elements
  */
