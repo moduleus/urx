@@ -14,7 +14,7 @@ class SuperGroup : public IGroup {
   SuperGroup(std::weak_ptr<IGroup> initialGroup, uint32_t repetition_count,
              std::vector<DestinationLink> destination_links = {}, double time_offset = 0.)
       : IGroup(repetition_count, std::move(destination_links), time_offset),
-        _initialGroup(std::move(initialGroup)) {}
+        _initial_group(std::move(initialGroup)) {}
   SuperGroup(const SuperGroup&) = default;
   SuperGroup(SuperGroup&&) noexcept = default;
   ~SuperGroup() override = default;
@@ -23,19 +23,19 @@ class SuperGroup : public IGroup {
   SuperGroup& operator=(const SuperGroup& other) noexcept = default;
   SuperGroup& operator=(SuperGroup&& other) noexcept = default;
   inline bool operator==(const SuperGroup& other) const {
-    return _initialGroup.lock() == other._initialGroup.lock();
+    return _initial_group.lock() == other._initial_group.lock();
   }
   inline bool operator!=(const SuperGroup& other) const { return !(*this == other); }
 
   // Accessors
-  inline const std::weak_ptr<IGroup>& initialGroup() const { return _initialGroup; }
+  inline const std::weak_ptr<IGroup>& initialGroup() const { return _initial_group; }
   inline void setInitialGroup(const std::weak_ptr<IGroup>& initialGroup) {
-    _initialGroup = initialGroup;
+    _initial_group = initialGroup;
   }
 
   // Members
  private:
-  std::weak_ptr<IGroup> _initialGroup;
+  std::weak_ptr<IGroup> _initial_group;
 };
 
 }  // namespace uff
