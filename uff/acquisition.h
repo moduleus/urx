@@ -16,6 +16,7 @@
 // System
 #include <optional>
 #include <string>
+#include <variant>
 #include <vector>
 
 namespace uff {
@@ -23,17 +24,13 @@ namespace uff {
 /**
  * @brief UFF class that contains all the information needed to store and later process channel data.
  */
-class Acquisition {
- public:
-  // CTOR & DTOR
-  Acquisition() = default;
-  Acquisition(const Acquisition&) = default;
-  Acquisition(Acquisition&&) noexcept = default;
-  ~Acquisition() = default;
+struct Acquisition {
+  using VecGroupDataType = std::variant<std::vector<std::shared_ptr<GroupData<int16_t>>>,
+                                        std::vector<std::shared_ptr<GroupData<float>>>,
+                                        std::vector<std::shared_ptr<GroupData<double>>>>;
 
-  // Operators
-  Acquisition& operator=(const Acquisition& other) noexcept = default;
-  Acquisition& operator=(Acquisition&& other) noexcept = default;
+  enum class DATA_TYPE { INT16 = 0, FLOAT = 1, DOUBLE = 2 };
+
   bool operator==(const Acquisition& other) const {
     bool are_probes_equaled = _probes.size() == other._probes.size();
     for (uint32_t i = 0; i < _probes.size() && are_probes_equaled; ++i) {
@@ -76,9 +73,30 @@ class Acquisition {
                                        (*_unique_excitations[i] == *other._unique_excitations[i]);
     }
 
-    bool are_group_data_equaled = _group_data.size() == other._group_data.size();
-    for (uint32_t i = 0; i < _group_data.size() && are_group_data_equaled; ++i) {
-      are_group_data_equaled = are_group_data_equaled && (*_group_data[i] == *other._group_data[i]);
+    size_t group_data_size = 0u;
+    size_t other_group_data_size = 0u;
+
+    bool are_data_type_equaled = _data_type == other._data_type &&
+                                 std::is_same_v<decltype(_group_data), decltype(other._group_data)>;
+    bool are_group_data_equaled = are_data_type_equaled;
+    if (are_data_type_equaled) {
+      std::visit(
+          [&other_group_data_variant = other._group_data, &group_data_size, &other_group_data_size,
+           &are_group_data_equaled](auto&& group_data) {
+            using group_data_type =
+                std::remove_const_t<std::remove_reference_t<decltype(group_data)>>;
+            auto& other_group_data = std::get<group_data_type>(other_group_data_variant);
+
+            group_data_size = group_data.size();
+            other_group_data_size = other_group_data.size();
+
+            are_group_data_equaled &= group_data_size == other_group_data_size;
+            for (uint32_t i = 0; i < group_data_size && are_group_data_equaled; ++i) {
+              are_group_data_equaled =
+                  are_group_data_equaled && (*group_data[i] == *other_group_data[i]);
+            }
+          },
+          _group_data);
     }
 
     return ((_authors == other._authors) && (_description == other._description) &&
@@ -93,111 +111,6 @@ class Acquisition {
   }
   inline bool operator!=(const Acquisition& other) const { return !(*this == other); }
 
-  // Accessors
-  inline std::string authors() const { return _authors; }
-  inline void setAuthors(std::string authors) { _authors = std::move(authors); }
-
-  inline std::string description() const { return _description; }
-  inline void setDescription(std::string description) { _description = std::move(description); }
-
-  /**
-     * Should be at format: ISO8601
-     * Example: 
-     *   "2008-09-15T15:53:00"
-     *   "2008-09-15T15:53:00+05:00"
-     */
-  inline std::string localTime() const { return _local_time; }
-  void setLocalTime(const std::string& local_time) { _local_time = local_time; }
-
-  /**
-     * Should be at format: ISO3166-1
-     * Example:
-     *     "FR" for France
-     */
-  inline std::string countryCode() const { return _country_code; }
-  void setCountryCode(const std::string& country_code) { _country_code = country_code; }
-
-  // 'System' describes the acquisition system used to acquire the data
-  inline std::string system() const { return _system; }
-  inline void setSystem(const std::string& system) { _system = system; }
-
-  // Speed of sound in m/s
-  inline double soundSpeed() const { return _sound_speed; }
-  inline void setSoundSpeed(double sound_speed) { _sound_speed = sound_speed; }
-
-  // Initial Group
-  inline const std::weak_ptr<IGroup>& initialGroup() const { return _initial_group; }
-  inline void setInitialGroup(const std::weak_ptr<IGroup>& initial_group) {
-    _initial_group = initial_group;
-  }
-
-  // List of groups used for this dataset
-  inline const std::vector<std::shared_ptr<IGroup>>& groups() const { return _groups; }
-  inline void addGroup(const std::shared_ptr<IGroup>& group) { _groups.push_back(group); }
-  inline void setGroups(const std::vector<std::shared_ptr<IGroup>>& groups) { _groups = groups; }
-
-  // List of group data used for this dataset
-  const std::vector<std::shared_ptr<GroupData>>& groupData() const { return _group_data; }
-  void addGroupData(const std::shared_ptr<GroupData>& group_data) {
-    _group_data.push_back(group_data);
-  }
-  void setGroupData(const std::vector<std::shared_ptr<GroupData>>& group_data) {
-    _group_data = group_data;
-  }
-
-  // List of probes used for this dataset
-  inline const std::vector<std::shared_ptr<Probe>>& probes() const { return _probes; }
-  inline void addProbe(const std::shared_ptr<Probe>& probe) { _probes.push_back(probe); }
-  inline void setProbes(const std::vector<std::shared_ptr<Probe>>& probes) { _probes = probes; }
-
-  // List of unique transmit_setups used for this dataset
-  inline const std::vector<std::shared_ptr<TransmitSetup>>& uniqueTransmitSetups() const {
-    return _unique_transmit_setups;
-  }
-  inline void addUniqueTransmitSetup(const std::shared_ptr<TransmitSetup>& unique_transmit_setups) {
-    _unique_transmit_setups.push_back(unique_transmit_setups);
-  }
-  inline void setUniqueTransmitSetups(
-      const std::vector<std::shared_ptr<TransmitSetup>>& unique_transmit_setups) {
-    _unique_transmit_setups = unique_transmit_setups;
-  }
-
-  // List of unique receive_setups used for this dataset
-  inline const std::vector<std::shared_ptr<ReceiveSetup>>& uniqueReceiveSetups() const {
-    return _unique_receive_setups;
-  }
-  inline void addUniqueReceiveSetup(const std::shared_ptr<ReceiveSetup>& unique_receive_setups) {
-    _unique_receive_setups.push_back(unique_receive_setups);
-  }
-  inline void setUniqueReceiveSetups(
-      const std::vector<std::shared_ptr<ReceiveSetup>>& unique_receive_setups) {
-    _unique_receive_setups = unique_receive_setups;
-  }
-
-  // List of unique events used for this dataset
-  inline const std::vector<std::shared_ptr<TimedEvent>>& uniqueEvents() const {
-    return _unique_events;
-  }
-  inline void addUniqueEvent(const std::shared_ptr<TimedEvent>& event) {
-    _unique_events.push_back(event);
-  }
-  inline void setUniqueEvents(const std::vector<std::shared_ptr<TimedEvent>>& unique_events) {
-    _unique_events = unique_events;
-  }
-
-  // List of unique excitations used for this dataset
-  inline const std::vector<std::shared_ptr<Excitation>>& uniqueExcitations() const {
-    return _unique_excitations;
-  }
-  inline void addUniqueExcitation(const std::shared_ptr<Excitation>& excitation) {
-    _unique_excitations.push_back(excitation);
-  }
-  inline void setUniqueExcitations(
-      const std::vector<std::shared_ptr<Excitation>>& unique_excitations) {
-    _unique_excitations = unique_excitations;
-  }
-
- private:
   // string with the authors of the data
   std::string _authors;
 
@@ -241,7 +154,10 @@ class Acquisition {
   uint64_t _timestamp = 0u;
 
   // List of all data acquired by the running groups in the acquisition
-  std::vector<std::shared_ptr<GroupData>> _group_data;
+  VecGroupDataType _group_data;
+
+  // Data type contained in the group data containers
+  DATA_TYPE _data_type = DATA_TYPE::INT16;
 
   // Trigger in for launching the acquisition element
   std::optional<TriggerIn> _trigger_in = std::nullopt;
