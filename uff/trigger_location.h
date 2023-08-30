@@ -4,10 +4,10 @@
 
 namespace uff {
 
-struct TriggerLocation {
+struct Type {
   enum class Location { EXT = 0, SW = 1 };
 
-  auto operator<=>(const TriggerLocation& other) const = default;
+  auto operator<=>(const Type& other) const = default;
 
   Location _location = Location::EXT;
 

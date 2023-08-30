@@ -17,7 +17,7 @@ struct TriggerOut {
   Polarity _polarity;
 
   // Location of the destination: where to send the trigger
-  TriggerLocation _destination;
+  Type _destination;
 
   // Time offset delaying the launch of the acquisition element
   double _time_offset = 0.;
