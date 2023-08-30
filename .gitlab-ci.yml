@@ -27,8 +27,6 @@ doc:Doxygen:
   artifacts:
     paths:
       - public
-  only:
-    - main
 
 doc:PlantUml:
   stage: doc
@@ -49,8 +47,6 @@ doc:PlantUml:
   artifacts:
     paths:
       - public
-  only:
-    - main
 
 
 format:clang-format:
