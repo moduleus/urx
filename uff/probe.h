@@ -17,75 +17,28 @@ namespace uff {
 /**
  * @brief The UFF Probe class describes a generic ultrsound probe formed by a collection of elements
  */
-class Probe {
- public:
-  // CTOR & DTOR
-  Probe() = default;
-  Probe(const Transform& transform, std::vector<Element> elements,
-        std::vector<std::shared_ptr<ElementGeometry>> element_geometries = {},
-        std::vector<std::shared_ptr<ImpulseResponse>> impulse_responses = {})
-      : _transform(transform),
-        _elements(std::move(elements)),
-        _element_geometries(std::move(element_geometries)),
-        _impulse_responses(std::move(impulse_responses)) {}
-  Probe(const Probe&) = default;
-  Probe(Probe&&) = default;
-  virtual ~Probe() = default;
-
-  // Operators
-  Probe& operator=(const Probe& other) noexcept = default;
-  Probe& operator=(Probe&& other) noexcept = default;
+struct Probe {
   bool operator==(const Probe& other) const {
-    return ((_transform == other._transform) && (_focal_length == other._focal_length) &&
-            (_elements == other._elements) && (_element_geometries == other._element_geometries) &&
-            (_impulse_responses == other._impulse_responses));
+    return ((transform == other.transform) && (focal_length == other.focal_length) &&
+            (elements == other.elements) && (element_geometries == other.element_geometries) &&
+            (impulse_responses == other.impulse_responses));
   }
   inline bool operator!=(const Probe& other) const { return !(*this == other); }
 
-  // Members
-  inline Transform transform() const { return _transform; }
-  inline void setTransform(const Transform& transform) { _transform = transform; }
-
-  inline std::optional<double> focalLength() const { return _focal_length; }
-  inline void setFocalLength(const std::optional<double>& focal_length) {
-    _focal_length = focal_length;
-  }
-
-  inline std::vector<Element>& elements() { return _elements; }
-  inline void setElements(const std::vector<Element>& elements) { _elements = elements; }
-
-  inline std::vector<std::shared_ptr<ElementGeometry>>& elementGeometries() {
-    return _element_geometries;
-  }
-  inline void setElementGeometries(
-      const std::vector<std::shared_ptr<ElementGeometry>>& elementGeometries) {
-    _element_geometries = elementGeometries;
-  }
-
-  inline std::vector<std::shared_ptr<ImpulseResponse>>& impulseResponses() {
-    return _impulse_responses;
-  }
-  inline void setImpulseResponses(
-      const std::vector<std::shared_ptr<ImpulseResponse>>& impulseResponses) {
-    _impulse_responses = impulseResponses;
-  }
-
-  // Members
- protected:
   // Attitude of the probe in 3D
-  Transform _transform;
+  Transform transform;
 
   // List all the elements in the probe
-  std::vector<Element> _elements;
+  std::vector<Element> elements;
 
   // [optional] For probes with a focal lens, it describes the focal length in m [Az, Ele]
-  std::optional<double> _focal_length = std::nullopt;
+  std::optional<double> focal_length = std::nullopt;
 
   // [optional] List of all unique element geometries in the probe
-  std::vector<std::shared_ptr<ElementGeometry>> _element_geometries;
+  std::vector<std::shared_ptr<ElementGeometry>> element_geometries;
 
   // [optional] List of unique electromechanical impulse responses of the elements in the probe
-  std::vector<std::shared_ptr<ImpulseResponse>> _impulse_responses;
+  std::vector<std::shared_ptr<ImpulseResponse>> impulse_responses;
 };
 
 }  // namespace uff

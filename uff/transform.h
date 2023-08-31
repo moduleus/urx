@@ -13,39 +13,14 @@ namespace uff {
  *  A transform is composed by a rotation R = (rx, ry, rz)
  *  followed by a translation T = (tx, ty, tz).
  */
-class Transform {
- public:
-  // CTOR & DTOR
-  Transform() = default;
-  Transform(const Vector3D<double>& rotation, const Vector3D<double>& translation)
-      : _rotation(rotation), _translation(translation) {}
-  Transform(const Transform&) = default;
-  Transform(Transform&&) noexcept = default;
-  ~Transform() = default;
+struct Transform {
+  auto operator<=>(const Transform& other) const = default;
 
-  // Operators
-  Transform& operator=(const Transform& other) noexcept = default;
-  Transform& operator=(Transform&& other) noexcept = default;
-  inline bool operator==(const Transform& other) const {
-    return ((_rotation == other._rotation) && (_translation == other._translation));
-  }
-  inline bool operator!=(const Transform& other) const { return !(*this == other); }
-
-  // Accessors
-  inline const Vector3D<double>& rotation() const { return _rotation; }
-  inline void setRotation(const Vector3D<double>& rotation) { _rotation = rotation; }
-
-  inline const Vector3D<double>& translation() const { return _translation; }
-  inline void setTranslation(const Vector3D<double>& translation) { _translation = translation; }
-
-  // Members
- private:
   // Rotation around the 3 axis X: elevation, Y: azimut and Z: roll in radians
-  Vector3D<double> _rotation = Vector3D<double>(0., 0., 0.);
+  Vector3D<double> rotation = Vector3D<double>(0., 0., 0.);
 
   // translation in meters on 3 axis X, Y and Z
-  Vector3D<double> _translation = Vector3D<double>(0., 0., 0.);
-  ;
+  Vector3D<double> translation = Vector3D<double>(0., 0., 0.);
 };
 
 }  // namespace uff

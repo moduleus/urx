@@ -9,46 +9,23 @@
 
 namespace uff {
 
-class Element {
- public:
-  // CTOR & DTOR
-  Element() = default;
-  explicit Element(
-      const Transform& transform,
-      std::weak_ptr<ElementGeometry> element_geometry = std::weak_ptr<ElementGeometry>(),
-      std::weak_ptr<ImpulseResponse> impulse_response = std::weak_ptr<ImpulseResponse>())
-      : _transform(transform),
-        _element_geometry(std::move(element_geometry)),
-        _impluse_response(std::move(impulse_response)) {}
-  Element(const Element&) = default;
-  Element(Element&&) = default;
-  ~Element() = default;
-
-  // Operators
-  Element& operator=(const Element& other) noexcept = default;
-  Element& operator=(Element&& other) noexcept = default;
+struct Element {
   inline bool operator==(const Element& other) const {
-    return (_transform == other._transform) &&
-           (_element_geometry.expired() == other._element_geometry.expired()) &&
-           (_element_geometry.expired() ||
-            *(_element_geometry.lock()) == *(other._element_geometry.lock())) &&
-           (_impluse_response.expired() == other._impluse_response.expired()) &&
-           (_impluse_response.expired() ||
-            *(_impluse_response.lock()) == *(other._impluse_response.lock()));
+    return (transform == other.transform) &&
+           (element_geometry.expired() == other.element_geometry.expired()) &&
+           (element_geometry.expired() ||
+            *(element_geometry.lock()) == *(other.element_geometry.lock())) &&
+           (impluse_response.expired() == other.impluse_response.expired()) &&
+           (impluse_response.expired() ||
+            *(impluse_response.lock()) == *(other.impluse_response.lock()));
   }
   inline bool operator!=(const Element& other) const { return !(*this == other); }
 
-  // Accessors
-  inline Transform transform() const { return _transform; }
-  inline void setTransform(const Transform& transform) { _transform = transform; }
+  Transform transform;
 
-  // Members
- private:
-  Transform _transform;
+  std::weak_ptr<ElementGeometry> element_geometry;
 
-  std::weak_ptr<ElementGeometry> _element_geometry;
-
-  std::weak_ptr<ImpulseResponse> _impluse_response;
+  std::weak_ptr<ImpulseResponse> impluse_response;
 };
 
 }  // namespace uff

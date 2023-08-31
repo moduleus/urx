@@ -68,14 +68,14 @@ void Writer::writeOptionalMetadataTypeDataset(const H5::Group& group, const std:
 }
 
 void Writer::writePoint2D(const H5::Group& group, const Vector2D<double>& position) {
-  writeMetadataTypeDataset(group, "x", position._x);
-  writeMetadataTypeDataset(group, "y", position._y);
+  writeMetadataTypeDataset(group, "x", position.x);
+  writeMetadataTypeDataset(group, "y", position.y);
 }
 
 void Writer::writePoint3D(const H5::Group& group, const Vector3D<double>& position) {
-  writeMetadataTypeDataset(group, "x", position._x);
-  writeMetadataTypeDataset(group, "y", position._y);
-  writeMetadataTypeDataset(group, "z", position._z);
+  writeMetadataTypeDataset(group, "x", position.x);
+  writeMetadataTypeDataset(group, "y", position.y);
+  writeMetadataTypeDataset(group, "z", position.z);
 }
 
 void Writer::writeDataTypeArrayDataset(const H5::Group& group, const std::string& name,

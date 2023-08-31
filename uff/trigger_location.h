@@ -4,14 +4,14 @@
 
 namespace uff {
 
-struct Type {
-  enum class Location { EXT = 0, SW = 1 };
+struct TriggerLocation {
+  enum class Type { EXT = 0, SW = 1, UNDEFINED = -1 };
 
-  auto operator<=>(const Type& other) const = default;
+  auto operator<=>(const TriggerLocation& other) const = default;
 
-  Location _location = Location::EXT;
+  Type location = Type::UNDEFINED;
 
-  uint16_t _id = 0;
+  uint16_t id = 0xFFFF;
 };
 
 }  // namespace uff

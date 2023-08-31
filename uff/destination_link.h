@@ -9,17 +9,17 @@ namespace uff {
 
 struct DestinationLink {
   bool operator==(const DestinationLink& other) const {
-    return (_destination.expired() == other._destination.expired()) &&
-           (_destination.expired() ||
+    return (destination.expired() == other.destination.expired()) &&
+           (destination.expired() ||
             // Compare pointer instead of object to avoid recursive cycling of operator== from IGroup
-            (_destination.lock().get() == other._destination.lock().get())) &&
-           (_link_trigger == other._link_trigger);
+            (destination.lock().get() == other.destination.lock().get())) &&
+           (link_trigger == other.link_trigger);
   }
   inline bool operator!=(const DestinationLink& other) const { return !(*this == other); }
 
-  std::weak_ptr<IGroup> _destination;
+  std::weak_ptr<IGroup> destination;
 
-  TriggerIn _link_trigger;
+  TriggerIn link_trigger;
 };
 
 }  // namespace uff
