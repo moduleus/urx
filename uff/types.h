@@ -3,7 +3,6 @@
 namespace uff {
 
 enum class WaveType {
-  UNDEFINED = -1,
   CONVERGING_WAVE = 0,
   DIVERGING_WAVE = 1,
   PLANE_WAVE = 2,

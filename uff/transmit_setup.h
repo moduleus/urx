@@ -43,7 +43,7 @@ struct TransmitSetup {
   Transform origin;
 
   // Type of wave
-  WaveType wave_type = WaveType::UNDEFINED;
+  std::optional<WaveType> wave_type = std::nullopt;
 
   // Description of the aperture used to produce the wave
   std::optional<Aperture> aperture = std::nullopt;
