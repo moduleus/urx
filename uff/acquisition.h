@@ -14,6 +14,7 @@
 #include <uff/trigger_out.h>
 
 // System
+#include <limits>
 #include <optional>
 #include <string>
 #include <variant>
@@ -151,7 +152,7 @@ struct Acquisition {
   std::vector<std::shared_ptr<Excitation>> unique_excitations;
 
   // Timestamp
-  uint64_t timestamp = 0u;
+  uint64_t timestamp = std::numeric_limits<uint64_t>::max();
 
   // List of all data acquired by the running groups in the acquisition
   VecGroupDataType group_data;

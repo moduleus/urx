@@ -17,10 +17,10 @@ struct Transform {
   auto operator<=>(const Transform& other) const = default;
 
   // Rotation around the 3 axis X: elevation, Y: azimut and Z: roll in radians
-  Vector3D<double> rotation = Vector3D<double>(0., 0., 0.);
+  Vector3D<double> rotation;
 
   // translation in meters on 3 axis X, Y and Z
-  Vector3D<double> translation = Vector3D<double>(0., 0., 0.);
+  Vector3D<double> translation;
 };
 
 }  // namespace uff
