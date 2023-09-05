@@ -20,7 +20,7 @@ struct Excitation {
   std::optional<double> transmit_frequency = std::nullopt;
 
   // Sampling frequency of the excitation waveform [Hz]
-  double sampling_frequency;
+  double sampling_frequency = UFF_NAN;
 
   // Sampled excitation waveform [normalized units]
   std::vector<double> waveform;
