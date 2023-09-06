@@ -26,12 +26,6 @@ namespace uff {
  * @brief UFF class that contains all the information needed to store and later process channel data.
  */
 struct Acquisition {
-  using VecGroupDataType = std::variant<std::vector<std::shared_ptr<GroupData<int16_t>>>,
-                                        std::vector<std::shared_ptr<GroupData<float>>>,
-                                        std::vector<std::shared_ptr<GroupData<double>>>>;
-
-  enum class DATA_TYPE { INT16 = 0, FLOAT = 1, DOUBLE = 2 };
-
   bool operator==(const Acquisition& other) const {
     bool are_probes_equaled = probes.size() == other.probes.size();
     for (uint32_t i = 0; i < probes.size() && are_probes_equaled; ++i) {
@@ -67,37 +61,16 @@ struct Acquisition {
       are_groups_equaled = are_groups_equaled && (*groups[i] == *other.groups[i]);
     }
 
+    bool are_group_data_equaled = group_data.size() == other.group_data.size();
+    for (uint32_t i = 0; i < group_data.size() && are_group_data_equaled; ++i) {
+      are_group_data_equaled = are_group_data_equaled && (*group_data[i] == *other.group_data[i]);
+    }
+
     bool are_unique_excitations_equaled =
         unique_excitations.size() == other.unique_excitations.size();
     for (uint32_t i = 0; i < unique_excitations.size() && are_unique_excitations_equaled; ++i) {
       are_unique_excitations_equaled = are_unique_excitations_equaled &&
                                        (*unique_excitations[i] == *other.unique_excitations[i]);
-    }
-
-    size_t group_data_size = 0u;
-    size_t other_group_data_size = 0u;
-
-    bool are_data_type_equaled = data_type == other.data_type &&
-                                 std::is_same_v<decltype(group_data), decltype(other.group_data)>;
-    bool are_group_data_equaled = are_data_type_equaled;
-    if (are_data_type_equaled) {
-      std::visit(
-          [&other_group_data_variant = other.group_data, &group_data_size, &other_group_data_size,
-           &are_group_data_equaled](auto&& this_group_data) {
-            using group_data_type =
-                std::remove_const_t<std::remove_reference_t<decltype(this_group_data)>>;
-            auto& other_group_data = std::get<group_data_type>(other_group_data_variant);
-
-            group_data_size = this_group_data.size();
-            other_group_data_size = other_group_data.size();
-
-            are_group_data_equaled &= group_data_size == other_group_data_size;
-            for (uint32_t i = 0; i < group_data_size && are_group_data_equaled; ++i) {
-              are_group_data_equaled =
-                  are_group_data_equaled && (*this_group_data[i] == *other_group_data[i]);
-            }
-          },
-          group_data);
     }
 
     return ((authors == other.authors) && (description == other.description) &&
@@ -155,10 +128,7 @@ struct Acquisition {
   uint64_t timestamp = std::numeric_limits<uint64_t>::max();
 
   // List of all data acquired by the running groups in the acquisition
-  VecGroupDataType group_data;
-
-  // Data type contained in the group data containers
-  DATA_TYPE data_type = DATA_TYPE::INT16;
+  std::vector<std::shared_ptr<GroupData>> group_data;
 
   // Trigger in for launching the acquisition element
   std::optional<TriggerIn> trigger_in = std::nullopt;

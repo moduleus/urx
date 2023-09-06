@@ -42,7 +42,7 @@ TEST_CASE("Instantiate all classes to check build", "[test_build]") {
   const Element element;
   const EventData<int16_t> event_data;
   const Excitation excitation;
-  const GroupData<int16_t> group_data;
+  const GroupData group_data;
   const Group group;
   const IGroup igroup;
   const ImpulseResponse impulse_response;
