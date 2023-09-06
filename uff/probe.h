@@ -19,11 +19,15 @@ namespace uff {
  */
 struct Probe {
   bool operator==(const Probe& other) const {
-    return ((transform == other.transform) && (focal_length == other.focal_length) &&
-            (elements == other.elements) && (element_geometries == other.element_geometries) &&
+    return ((description == other.description) && (transform == other.transform) &&
+            (focal_length == other.focal_length) && (elements == other.elements) &&
+            (element_geometries == other.element_geometries) &&
             (impulse_responses == other.impulse_responses));
   }
   inline bool operator!=(const Probe& other) const { return !(*this == other); }
+
+  // Description of the probe with serial ID
+  std::string description;
 
   // Attitude of the probe in 3D
   Transform transform;
