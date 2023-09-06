@@ -26,12 +26,6 @@ namespace uff {
  * @brief UFF class that contains all the information needed to store and later process channel data.
  */
 struct Acquisition {
-  using VecGroupDataType = std::variant<std::vector<std::shared_ptr<GroupData<int16_t>>>,
-                                        std::vector<std::shared_ptr<GroupData<float>>>,
-                                        std::vector<std::shared_ptr<GroupData<double>>>>;
-
-  enum class DATA_TYPE { INT16 = 0, FLOAT = 1, DOUBLE = 2 };
-
   bool operator==(const Acquisition& other) const {
     bool are_probes_equaled = probes.size() == other.probes.size();
     for (uint32_t i = 0; i < probes.size() && are_probes_equaled; ++i) {
@@ -155,10 +149,7 @@ struct Acquisition {
   uint64_t timestamp = std::numeric_limits<uint64_t>::max();
 
   // List of all data acquired by the running groups in the acquisition
-  VecGroupDataType group_data;
-
-  // Data type contained in the group data containers
-  DATA_TYPE data_type = DATA_TYPE::INT16;
+  std::vector<GroupData> group_data;
 
   // Trigger in for launching the acquisition element
   std::optional<TriggerIn> trigger_in = std::nullopt;
