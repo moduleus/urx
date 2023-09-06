@@ -1,4 +1,4 @@
-set(UFF_TEST_FILES test_vector.cpp test_transform.cpp test_version.cpp)
+set(UFF_TEST_FILES test_build.cpp test_vector.cpp test_transform.cpp test_version.cpp)
 
 add_executable(UffClasses ${MAIN_CPP} ${UFF_TEST_FILES})
 add_executable(UffTest::UffClasses ALIAS UffClasses)
