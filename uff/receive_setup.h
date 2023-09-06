@@ -15,13 +15,11 @@ namespace uff {
  * @brief The UFF ReceiveSetup class
  */
 struct ReceiveSetup {
-  enum class SAMPLING_TYPE { DIRECT_RF = 0, IQ = 1 };
-
   inline bool operator==(const ReceiveSetup& other) const {
     return ((probe.expired() == other.probe.expired()) &&
             (probe.expired() || (*(probe.lock()) == *(other.probe.lock()))) &&
             (sampling_frequency == other.sampling_frequency) &&
-            (number_samples == other.number_samples) && (sampling_type == other.sampling_type) &&
+            (number_samples == other.number_samples) &&
             (channel_mapping == other.channel_mapping) && (tgc_profile == other.tgc_profile) &&
             (tgc_sampling_frequency == other.tgc_sampling_frequency) &&
             (modulation_frequency == other.modulation_frequency) &&
@@ -37,9 +35,6 @@ struct ReceiveSetup {
 
   // Number of samples
   uint32_t number_samples = 0;
-
-  // Type of sampling:
-  SAMPLING_TYPE sampling_type = SAMPLING_TYPE::DIRECT_RF;
 
   // Maps the RF line with the corresponding element
   // channel_element_index = _channel_mapping[rf_index]
