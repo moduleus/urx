@@ -20,7 +20,7 @@ struct EventData {
   // Data organized as _channel_data[ReceiveSetup::_channel_mapping.size()][ReceiveSetup::_number_samples]
   std::vector<ChannelData<T>> channel_data;
 
-  uint64_t event_timestamp = 0;
+  double event_timestamp = std::numeric_limits<double>::max();
 
   std::weak_ptr<TimedEvent> event;
 };

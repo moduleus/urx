@@ -125,7 +125,7 @@ struct Acquisition {
   std::vector<std::shared_ptr<Excitation>> unique_excitations;
 
   // Timestamp
-  uint64_t timestamp = std::numeric_limits<uint64_t>::max();
+  double timestamp = std::numeric_limits<double>::max();
 
   // List of all data acquired by the running groups in the acquisition
   std::vector<std::shared_ptr<GroupData>> group_data;

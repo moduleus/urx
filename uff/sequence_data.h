@@ -16,7 +16,7 @@ struct SequenceData {
   // Data organized as _event_data[Sequence::_timed_events.size()][ReceiveSetup::_channel_mapping.size()][ReceiveSetup::_number_samples]
   std::vector<EventData<T>> event_data;
 
-  uint64_t sequence_timestamp = 0;
+  double sequence_timestamp = std::numeric_limits<double>::max();
 
   std::optional<uint16_t> sequence_id;
 };

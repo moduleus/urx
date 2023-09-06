@@ -67,7 +67,7 @@ struct GroupData {
   // Data organized as _sequence_data[IGroup::_repetition_count][Sequence::_timed_events.size()][ReceiveSetup::_channel_mapping.size()][ReceiveSetup::_number_samples]
   VecSequenceDataType sequence_data;
 
-  uint64_t group_timestamp = 0;
+  double group_timestamp = std::numeric_limits<double>::max();
 
   // Number of bit to encode data to binary file, can be different of C++ type to optimize data space
   uint8_t size_of_data_type = 0;
