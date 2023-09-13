@@ -23,9 +23,9 @@ struct Element {
 
   Transform transform;
 
-  std::weak_ptr<ElementGeometry> element_geometry;
+  std::weak_ptr<ElementGeometry> element_geometry = std::weak_ptr<ElementGeometry>();
 
-  std::weak_ptr<ImpulseResponse> impluse_response;
+  std::weak_ptr<ImpulseResponse> impluse_response = std::weak_ptr<ImpulseResponse>();
 };
 
 }  // namespace uff
