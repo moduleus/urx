@@ -26,7 +26,7 @@ struct IGroup {
   std::string description;
 
   // Number of time the sequece will be repeated
-  uint32_t repetition_count = 1u;
+  int32_t repetition_count = 0;
 
   std::vector<DestinationLink> destination_links;
 
