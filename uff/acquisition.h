@@ -50,12 +50,6 @@ struct Acquisition {
           (*unique_receive_setups[i] == *other.unique_receive_setups[i]);
     }
 
-    bool are_unique_events_equaled = unique_events.size() == other.unique_events.size();
-    for (uint32_t i = 0; i < unique_events.size() && are_unique_events_equaled; ++i) {
-      are_unique_events_equaled =
-          are_unique_events_equaled && (*unique_events[i] == *other.unique_events[i]);
-    }
-
     bool are_groups_equaled = groups.size() == other.groups.size();
     for (uint32_t i = 0; i < groups.size() && are_groups_equaled; ++i) {
       are_groups_equaled = are_groups_equaled && (*groups[i] == *other.groups[i]);
@@ -80,8 +74,7 @@ struct Acquisition {
             (trigger_out == other.trigger_out) && (time_offset == other.time_offset) &&
             (initial_group.lock() == other.initial_group.lock()) && are_probes_equaled &&
             are_unique_transmit_setups_equaled && are_unique_receive_setups_equaled &&
-            are_unique_events_equaled && are_unique_excitations_equaled && are_groups_equaled &&
-            are_group_data_equaled);
+            are_unique_excitations_equaled && are_groups_equaled && are_group_data_equaled);
   }
   inline bool operator!=(const Acquisition& other) const { return !(*this == other); }
 
@@ -111,9 +104,6 @@ struct Acquisition {
 
   // List of all the probes used to transmit/receive sequences in the acquisition
   std::vector<std::shared_ptr<Probe>> probes;
-
-  // List of all the unique transmit/receive events used in the sequences in the acquisition
-  std::vector<std::shared_ptr<TimedEvent>> unique_events;
 
   // List of all the unique receive setup used in the sequences in the acquisition
   std::vector<std::shared_ptr<ReceiveSetup>> unique_receive_setups;
