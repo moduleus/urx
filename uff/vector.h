@@ -11,7 +11,7 @@ namespace uff {
  */
 template <typename T>
 struct Vector3D {
-  explicit Vector3D(T x = 0., T y = 0., T z = 0.) : x(x), y(y), z(z) {}
+  explicit Vector3D(T x_ = 0., T y_ = 0., T z_ = 0.) : x(x_), y(y_), z(z_) {}
 
   auto operator<=>(const Vector3D<T>& other) const = default;
 
@@ -22,7 +22,7 @@ struct Vector3D {
 
 template <typename T>
 struct Vector2D {
-  explicit Vector2D(T x = 0., T y = 0.) : x(x), y(y) {}
+  explicit Vector2D(T x_ = 0., T y_ = 0.) : x(x_), y(y_) {}
 
   auto operator<=>(const Vector2D<T>& other) const = default;
 
