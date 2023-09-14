@@ -10,9 +10,10 @@
 namespace uff {
 
 struct GroupData {
-  enum class DataType { INT16 = 0, FLOAT = 1, DOUBLE = 2 };
-  using VecData = std::variant<std::vector<int16_t>, std::vector<float>, std::vector<double>,
-                               std::vector<std::complex<int16_t>>, std::vector<std::complex<float>>,
+  enum class DataType { INT16 = 0, INT32 = 1, FLOAT = 2, DOUBLE = 3 };
+  using VecData = std::variant<std::vector<int16_t>, std::vector<int32_t>, std::vector<float>,
+                               std::vector<double>, std::vector<std::complex<int16_t>>,
+                               std::vector<std::complex<int32_t>>, std::vector<std::complex<float>>,
                                std::vector<std::complex<double>>>;
 
   bool operator==(const GroupData& other) const {
