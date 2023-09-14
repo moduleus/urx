@@ -19,7 +19,8 @@ struct DestinationLink {
 
   std::weak_ptr<IGroup> destination;
 
-  TriggerIn link_trigger;
+  // By default link_trigger is nullopt, that means it is triggered by the end of the current group execution
+  std::optional<TriggerIn> link_trigger = std::nullopt;
 };
 
 }  // namespace uff
