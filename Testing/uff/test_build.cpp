@@ -1,6 +1,5 @@
 #include <uff/acquisition.h>
 #include <uff/aperture.h>
-#include <uff/channel_data.h>
 #include <uff/dataset.h>
 #include <uff/destination_link.h>
 #include <uff/element.h>
@@ -35,7 +34,6 @@ namespace uff::test {
 TEST_CASE("Instantiate all classes to check build", "[test_build]") {
   const Acquisition acquisition;
   const Aperture aperture;
-  const ChannelData<int16_t> channel_Data;
   const Dataset dataset;
   const DestinationLink destination_link;
   const ElementGeometry element_geometry;

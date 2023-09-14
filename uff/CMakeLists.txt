@@ -2,7 +2,6 @@
 set(UFF_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/acquisition.h
     ${CMAKE_CURRENT_SOURCE_DIR}/aperture.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/channel_data.h
     ${CMAKE_CURRENT_SOURCE_DIR}/dataset.h
     ${CMAKE_CURRENT_SOURCE_DIR}/destination_link.h
     ${CMAKE_CURRENT_SOURCE_DIR}/element.h
