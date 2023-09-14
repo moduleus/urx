@@ -6,7 +6,6 @@ set(UFF_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/destination_link.h
     ${CMAKE_CURRENT_SOURCE_DIR}/element.h
     ${CMAKE_CURRENT_SOURCE_DIR}/element_geometry.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/event_data.h
     ${CMAKE_CURRENT_SOURCE_DIR}/excitation.h
     ${CMAKE_CURRENT_SOURCE_DIR}/group_data.h
     ${CMAKE_CURRENT_SOURCE_DIR}/group.h

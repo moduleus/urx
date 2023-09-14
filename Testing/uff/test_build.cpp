@@ -4,7 +4,6 @@
 #include <uff/destination_link.h>
 #include <uff/element.h>
 #include <uff/element_geometry.h>
-#include <uff/event_data.h>
 #include <uff/excitation.h>
 #include <uff/group.h>
 #include <uff/group_data.h>
@@ -38,7 +37,6 @@ TEST_CASE("Instantiate all classes to check build", "[test_build]") {
   const DestinationLink destination_link;
   const ElementGeometry element_geometry;
   const Element element;
-  const EventData<int16_t> event_data;
   const Excitation excitation;
   const GroupData group_data;
   const Group group;
