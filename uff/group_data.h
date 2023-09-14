@@ -11,10 +11,13 @@ namespace uff {
 
 struct GroupData {
   enum class DataType { INT16 = 0, INT32 = 1, FLOAT = 2, DOUBLE = 3 };
-  using VecData = std::variant<std::vector<int16_t>, std::vector<int32_t>, std::vector<float>,
-                               std::vector<double>, std::vector<std::complex<int16_t>>,
-                               std::vector<std::complex<int32_t>>, std::vector<std::complex<float>>,
-                               std::vector<std::complex<double>>>;
+
+  template <class... Args>
+  struct VecDataType {
+    using real_and_complex = std::variant<std::vector<Args>..., std::vector<std::complex<Args>>...>;
+  };
+
+  using VecDataTypeVariant = VecDataType<int16_t, int32_t, float, double>::real_and_complex;
 
   bool operator==(const GroupData& other) const {
     return (group.expired() == other.group.expired()) &&
@@ -33,7 +36,7 @@ struct GroupData {
 
   // Data organized as _sequence_data[IGroup::_repetition_count][Sequence::_timed_events.size()][ReceiveSetup::_channel_mapping.size()][ReceiveSetup::_number_samples] but in 1D array
   // Create your helper or use Uff_Utils to access correctly to the data
-  VecData raw_data;
+  VecDataTypeVariant raw_data;
 
   double group_timestamp = UFF_NAN;
 
