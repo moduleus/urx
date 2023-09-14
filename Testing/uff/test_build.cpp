@@ -15,7 +15,6 @@
 #include <uff/rca_array.h>
 #include <uff/receive_setup.h>
 #include <uff/sequence.h>
-#include <uff/sequence_data.h>
 #include <uff/super_group.h>
 #include <uff/timed_event.h>
 #include <uff/transform.h>
@@ -47,7 +46,6 @@ TEST_CASE("Instantiate all classes to check build", "[test_build]") {
   const Probe probe;
   const RcaArray rca_array;
   const ReceiveSetup receive_setup;
-  const SequenceData<int16_t> sequence_data;
   const Sequence sequence;
   const SuperGroup super_group;
   const TimedEvent timed_event;
