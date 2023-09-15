@@ -37,11 +37,11 @@ doc:PlantUml:
     - mkdir -p doc/plantuml
     - hpp2plantuml -i "uff/*.h" -o doc/plantuml/architecture.puml
     - sed -r -i "/.+\(.*\).*/d" doc/plantuml/architecture.puml
-    - sed -r -i "/uff\.Acquisition.*\*--.*/d" doc/plantuml/architecture.puml
-    - sed -r -i "/--\ uff\.TriggerIn.*/d" doc/plantuml/architecture.puml
-    - sed -r -i "/--\ uff\.TriggerOut.*/d" doc/plantuml/architecture.puml
-    - sed -r -i "s/variant<std::vector<SequenceData<int16_t>>, std::vector<SequenceData<float>>, std::vector<SequenceData<double>>, std::vector<SequenceData<std::complex<int16_t>>>, std::vector<SequenceData<std::complex<float>>>, std::vector<SequenceData<std::complex<double>>>>/VecSequenceDataType/g" doc/plantuml/architecture.puml
-    - sed -r -i "s/variant<std::vector<int16_t>, std::vector<float>, std::vector<double>, std::vector<std::complex<int16_t>>, std::vector<std::complex<float>>, std::vector<std::complex<double>>>/VecDataType/g" doc/plantuml/architecture.puml
+    - perl -0777 -i -pe "s/^.*uff\.Acquisition.*\*--.*\n\n\n//gm" doc/plantuml/architecture.puml
+    - sed -r -i "/\*--\ uff\.TriggerIn.*/d" doc/plantuml/architecture.puml
+    - sed -r -i "/\*--\ uff\.TriggerOut.*/d" doc/plantuml/architecture.puml
+    - sed -r -i "/\+--\ uff\.GroupData::VecDataType.*/d" doc/plantuml/architecture.puml
+    - perl -0777 -i -pe "s/^.*class\ GroupData::VecDataType.*\n.*}\n\n//gm" doc/plantuml/architecture.puml 
     - mkdir -p public/plantuml
     - plantuml doc/plantuml/architecture.puml
     - mv doc/plantuml/architecture.* public/plantuml/
