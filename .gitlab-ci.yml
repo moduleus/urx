@@ -27,6 +27,7 @@ doc:Doxygen:
   artifacts:
     paths:
       - public
+    expire_in: 1 day
 
 doc:PlantUml:
   stage: doc
@@ -51,6 +52,7 @@ doc:PlantUml:
   artifacts:
     paths:
       - public
+    expire_in: 1 day
 
 
 format:clang-format:
