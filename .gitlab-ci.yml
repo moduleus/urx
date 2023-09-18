@@ -59,6 +59,7 @@ format:clang-format:
   stage: format
   tags:
     - ubuntu
+    - clang-format
   script:
     - find . -type f -name "*.cpp" -or -name "*.cc" -or -name "*.hpp" -or -name "*.h" |xargs clang-format-14 --style=file --dry-run --Werror
   dependencies: []
@@ -67,6 +68,7 @@ format:cmake-format:
   stage: format
   tags:
     - ubuntu
+    - cmake-format
   script:
     - find . -name "CMakeLists.txt" | xargs cmake-format -i
     - if [ -n "$(git diff-index --name-only HEAD --)" ]; then echo "Please, format your CMake files."; echo "$(git diff-index --name-only HEAD --)"; exit 1; fi
@@ -76,6 +78,7 @@ format:clang-tidy:
   stage: format
   tags:
     - ubuntu
+    - clang-tidy
   script:
     - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DHDF5_DIR="$HDF5_DIR_GCC_64_STATIC_RELEASE" -DCatch2_DIR="$Catch2_DIR_GCC_64_STATIC_RELEASE" -DBUILD_SHARED_LIBS=OFF
     - cmake --build CI --config Release --parallel $NUM_PARALLEL
@@ -88,6 +91,7 @@ format:iwyu:
   stage: format
   tags:
     - ubuntu
+    - iwyu
   script:
     - iwyu_tool.py -p CI -j $NUM_PARALLEL -- -Xiwyu --no_default_mappings -Xiwyu --mapping_file="$(pwd)/.iwyu-imp" -Xiwyu --no_fwd_decls > CI/iwyu_tool.log
     - fix_includes.py --nosafe_headers < CI/iwyu_tool.log
