@@ -41,7 +41,7 @@ struct ReceiveSetup {
   std::vector<int> channel_mapping;
 
   // (Optional) Analog TGC profile sampled at tgc_sampling_frequency [dB]
-  std::vector<double> tgc_profile = {0.f};
+  std::vector<double> tgc_profile;
 
   // (Optional) Sampling frequency of the TGC profile [Hz]
   std::optional<double> tgc_sampling_frequency = std::nullopt;
