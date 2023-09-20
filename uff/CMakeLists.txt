@@ -18,7 +18,7 @@ set(UFF_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/receive_setup.h
     ${CMAKE_CURRENT_SOURCE_DIR}/sequence.h
     ${CMAKE_CURRENT_SOURCE_DIR}/super_group.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/timed_event.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/event.h
     ${CMAKE_CURRENT_SOURCE_DIR}/transform.h
     ${CMAKE_CURRENT_SOURCE_DIR}/transmit_setup.h
     ${CMAKE_CURRENT_SOURCE_DIR}/types.h

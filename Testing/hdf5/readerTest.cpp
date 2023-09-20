@@ -6,7 +6,7 @@
 #include <uff/rca_array.h>
 #include <uff/reader.h>
 #include <uff/receive_setup.h>
-#include <uff/timed_event.h>
+#include <uff/event.h>
 #include <uff/transform.h>
 #include <uff/transmit_setup.h>
 #include <uff/types.h>
@@ -79,7 +79,7 @@ TEST_CASE("Load HDF5 file", "[hdf5_loader]") {
   // receiveSetup_y.setSamplingFrequency(dataset->samplingFrequency());
   // receiveSetup_y.setChannelMapping(mapping_y);
 
-  // std::vector<uff::TimedEvent> sequence;
+  // std::vector<uff::Event> sequence;
 
   // // Plane waves
   // for (int pw = 0; pw < NB_PW; ++pw) {
@@ -107,12 +107,12 @@ TEST_CASE("Load HDF5 file", "[hdf5_loader]") {
   //   channelData.addUniqueEvent(event);
 
   //   // plane-waves have 125us delay
-  //   uff::TimedEvent timedEvent;
-  //   timedEvent.setEvent(event);
-  //   timedEvent.setTimeOffset(pw * 125e-6);
+  //   uff::Event Event;
+  //   Event.setEvent(event);
+  //   Event.setTimeOffset(pw * 125e-6);
 
   //   // Enqueue the plane-wave
-  //   sequence.push_back(timedEvent);
+  //   sequence.push_back(Event);
   // }
 
   // channelData.setSequence(sequence);

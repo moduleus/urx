@@ -8,7 +8,7 @@
 #include <uff/probe.h>
 #include <uff/receive_setup.h>
 #include <uff/super_group.h>
-#include <uff/timed_event.h>
+#include <uff/event.h>
 #include <uff/transmit_setup.h>
 #include <uff/trigger_in.h>
 #include <uff/trigger_out.h>

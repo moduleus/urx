@@ -34,7 +34,7 @@ struct GroupData {
   // Data type contained in the group data containers
   DataType data_type = DataType::INT16;
 
-  // Data organized as _sequence_data[IGroup::_repetition_count][Sequence::_timed_events.size()][ReceiveSetup::_channel_mapping.size()][ReceiveSetup::_number_samples] but in 1D array
+  // Data organized as _sequence_data[IGroup::_repetition_count][Sequence::_events.size()][ReceiveSetup::_channel_mapping.size()][ReceiveSetup::_number_samples] but in 1D array
   // Create your helper or use Uff_Utils to access correctly to the data
   VecDataTypeVariant raw_data;
 

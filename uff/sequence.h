@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include <uff/timed_event.h>
+#include <uff/event.h>
 #include <uff/trigger_in.h>
 #include <uff/trigger_out.h>
 
@@ -13,12 +13,12 @@ namespace uff {
  */
 struct Sequence {
   bool operator==(const Sequence& other) const {
-    return (timed_events == other.timed_events) && (trigger_in == other.trigger_in) &&
+    return (events == other.events) && (trigger_in == other.trigger_in) &&
            (trigger_out == other.trigger_out) && (time_offset == other.time_offset);
   }
   inline bool operator!=(const Sequence& other) const { return !(*this == other); }
 
-  std::vector<TimedEvent> timed_events;
+  std::vector<Event> events;
 
   // Trigger in for launching the acquisition element
   std::optional<TriggerIn> trigger_in = std::nullopt;

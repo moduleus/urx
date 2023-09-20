@@ -16,7 +16,7 @@
 #include <uff/receive_setup.h>
 #include <uff/sequence.h>
 #include <uff/super_group.h>
-#include <uff/timed_event.h>
+#include <uff/event.h>
 #include <uff/transform.h>
 #include <uff/transmit_setup.h>
 #include <uff/trigger_in.h>
@@ -48,7 +48,7 @@ TEST_CASE("Instantiate all classes to check build", "[test_build]") {
   const ReceiveSetup receive_setup;
   const Sequence sequence;
   const SuperGroup super_group;
-  const TimedEvent timed_event;
+  const Event event;
   const Transform transform;
   const TransmitSetup transmit_setup;
   const TriggerIn trigger_in;

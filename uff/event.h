@@ -15,8 +15,8 @@ namespace uff {
 /**
  * @brief UFF class to describe an unique ultrasound event, composed by a single transmit and receive setup
  */
-struct TimedEvent {
-  bool operator==(const TimedEvent& other) const {
+struct Event {
+  bool operator==(const Event& other) const {
     return (trigger_in == other.trigger_in) && (trigger_out == other.trigger_out) &&
            (time_offset == other.time_offset) &&
            (transmit_setup.expired() == other.transmit_setup.expired()) &&
@@ -25,7 +25,7 @@ struct TimedEvent {
            (receive_setup.expired() == other.receive_setup.expired()) &&
            (receive_setup.expired() || *(receive_setup.lock()) == *(other.receive_setup.lock()));
   }
-  inline bool operator!=(const TimedEvent& other) const { return !(*this == other); }
+  inline bool operator!=(const Event& other) const { return !(*this == other); }
 
   // Description of the transmit event (probe/channels, waves, excitations, etc.). If more than one probe is used in reception, this is a list of setups.
   std::weak_ptr<TransmitSetup> transmit_setup;
