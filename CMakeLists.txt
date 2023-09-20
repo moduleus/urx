@@ -27,8 +27,6 @@ if(BUILD_SHARED_LIBS)
   set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 endif()
 
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${UFF_SRCS})
-
 find_package(Git REQUIRED)
 execute_process(
   COMMAND ${GIT_EXECUTABLE} branch --remote --points-at HEAD
@@ -62,6 +60,8 @@ add_subdirectory("uff")
 if(WITH_HDF5)
   add_subdirectory("uff_utils")
 endif()
+
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${UFF_SRCS} ${UFF_UTILS_SRCS})
 
 # Create cmake config files ###
 write_basic_package_version_file(
