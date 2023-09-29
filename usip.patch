@@ -1,0 +1,17 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 15df112..72fdf3e 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -67,6 +67,12 @@ message(STATUS "HDF5_DIR=${HDF5_DIR}")
+ message(STATUS "VTK_DIR=${VTK_DIR}")
+ message(STATUS "Eigen3_DIR=${Eigen3_DIR}")
+ 
++set(ZLIB_LIBRARY "C:/temp/uff_zip/vcpkg_installed/x64-windows-static-md/lib/zlib.lib")
++set(ZLIB_INCLUDE_DIR "C:/temp/uff_zip/vcpkg_installed/x64-windows-static-md/include")
++find_package(ZLIB REQUIRED)
++set(SZIP_DIR "C:/temp/uff_zip/vcpkg_installed/x64-windows-static-md/share/szip")
++find_package(szip REQUIRED)
++
+ if(USE_DEPENDENCIES_CMAKE)
+   message(STATUS "Using USIP dependencies.cmake")
+   include("dependencies.cmake")

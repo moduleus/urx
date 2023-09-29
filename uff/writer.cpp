@@ -11,6 +11,7 @@
 #include <cstdio>
 #include <limits>
 #include <ostream>
+#include <algorithm>
 
 #define H5DataType \
   (std::is_same<DataType, float>::value ? H5::PredType::NATIVE_FLOAT : H5::PredType::NATIVE_SHORT)
@@ -259,9 +260,51 @@ H5::DataSet Writer<DataType>::writeDataTypeArrayDataset(H5::Group& group, const 
     assert(values.size() == numel);
   }
 
+  // Read all at once.
+  // H5::DataSpace dataspace = H5::DataSpace(static_cast<int>(ndims), dims);
+  // H5::DataSet dataset = group.createDataSet(name, H5DataType, dataspace);
+  // dataset.write(values.data(), H5DataType);
+
+  // H5D_CHUNKED
+  /*
+  H5::DataSpace dataspace = H5::DataSpace(static_cast<int>(ndims), dims);
+  H5::DSetCreatPropList propList = H5::DSetCreatPropList();
+  hsize_t cdims[4];
+  cdims[0] = 1;
+  cdims[1] = dimensions[1];
+  cdims[2] = dimensions[2];
+  cdims[3] = dimensions[3];
+  propList.setChunk(4, cdims);
+  //propList.setDeflate(1);
+  propList.setFletcher32();
+
+  H5::DataSet dataset = group.createDataSet(name, H5DataType, dataspace, propList);
+
+  H5::DataSpace memspace(static_cast<int>(ndims), cdims);
+  std::vector<hsize_t> start(ndims);  // ie bloc
+
+  for (hsize_t i = 0; i < dimensions[0]; i++) {
+    start[0] = i;
+    dataspace.selectHyperslab(H5S_SELECT_SET, cdims, start.data());
+    dataset.write(&values[i * dimensions[1] * dimensions[2] * dimensions[3]], H5DataType, memspace,
+                  dataspace);
+  }
+  */
+
+  // H5D_CONTIGUOUS
   H5::DataSpace dataspace = H5::DataSpace(static_cast<int>(ndims), dims);
   H5::DataSet dataset = group.createDataSet(name, H5DataType, dataspace);
-  dataset.write(values.data(), H5DataType);
+  std::vector<hsize_t> start(ndims);  // ie bloc
+  std::vector<hsize_t> count{dimensions};
+  count[0] = 1;
+  H5::DataSpace memspace(static_cast<int>(ndims), count.data());
+  for (hsize_t i = 0; i < dimensions[0]; i++) {
+    start[0] = i;
+    dataspace.selectHyperslab(H5S_SELECT_SET, count.data(), start.data());
+    dataset.write(&values[i * dimensions[1] * dimensions[2] * dimensions[3]], H5DataType, memspace,
+                 dataspace);
+  }
+
   dataset.close();
   return dataset;
 }

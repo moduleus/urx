@@ -1,0 +1,41 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 0d14761b..f2fde2b7 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -108,6 +108,11 @@ set(BUILD_SAMPLES_SAVE ${BUILD_SAMPLES})
+ set(BUILD_TESTING OFF)
+ set(BUILD_SAMPLES OFF)
+ 
++set(ZLIB_LIBRARY "C:/temp/uff_zip/vcpkg_installed/x64-windows-static-md/lib/zlib.lib")
++set(ZLIB_INCLUDE_DIR "C:/temp/uff_zip/vcpkg_installed/x64-windows-static-md/include")
++find_package(ZLIB REQUIRED)
++set(szip_DIR "C:/temp/uff_zip/vcpkg_installed/x64-windows-static-md/share/szip")
++find_package(szip REQUIRED)
+ if(USE_DEPENDENCIES_CMAKE)
+   message(STATUS "Using USP dependencies.cmake")
+   include("dependencies.cmake")
+diff --git a/Superbuild/External-HDF5.cmake b/Superbuild/External-HDF5.cmake
+index 03f1eaf6..12d9a2ff 100644
+--- a/Superbuild/External-HDF5.cmake
++++ b/Superbuild/External-HDF5.cmake
+@@ -33,7 +33,7 @@ ExternalProject_add(HDF5
+ )
+ 
+ if(WIN32)
+-  set(HDF5_DIR ${CMAKE_BINARY_DIR}/HDF5-install/cmake/hdf5/)
++  set(HDF5_DIR C:/temp/uff_zip/vcpkg_installed/x64-windows-static-md/share/hdf5/)
+ else(WIN32)
+   set(HDF5_DIR ${CMAKE_BINARY_DIR}/HDF5-install/share/cmake/hdf5/)
+ endif(WIN32)
+diff --git a/uff b/uff
+--- a/uff
++++ b/uff
+@@ -1 +1 @@
+-Subproject commit 8d8de72a818c574e31b7c67e2789fcfe0bd21b93
++Subproject commit 8d8de72a818c574e31b7c67e2789fcfe0bd21b93-dirty
+diff --git a/usip b/usip
+--- a/usip
++++ b/usip
+@@ -1 +1 @@
+-Subproject commit 0780d978ee962086b102314824368ffbd0f68dc1
++Subproject commit 0780d978ee962086b102314824368ffbd0f68dc1-dirty

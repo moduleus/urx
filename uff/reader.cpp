@@ -8,10 +8,15 @@
 
 #include "uff/reader.h"
 
+#include <chrono>
 #include <cmath>
 #include <cstdio>
+#include <functional>
+#include <numeric>
 #include <ostream>
 #include <utility>
+
+#include <windows.h>
 
 #include "uff/channel_data.h"
 #include "uff/log.h"
@@ -248,8 +253,8 @@ void Reader<DataType>::readDataTypeArrayDataset(const H5::Group& group, const st
   int ndims = dataspace.getSimpleExtentNdims();
   //std::cout << "ndims:" << ndims << std::endl;
   dimensions.resize(ndims);
-  dataspace.getSimpleExtentDims(
-      reinterpret_cast<unsigned long long*>(dimensions.data()));  // Poor casting
+  static_assert(sizeof(hsize_t) == sizeof(size_t));
+  dataspace.getSimpleExtentDims(reinterpret_cast<hsize_t*>(dimensions.data()));
   size_t numel = 1;
   for (auto sz : dimensions) {
     numel *= sz;
@@ -260,8 +265,102 @@ void Reader<DataType>::readDataTypeArrayDataset(const H5::Group& group, const st
     // reserve space in the output buffer
     values.resize(numel);
 
-    // read data
-    dataset.read(values.data(), datatype);
+    H5::DSetCreatPropList props = dataset.getCreatePlist();
+    switch (props.getLayout()) {
+      case H5D_CHUNKED: {
+        // Read all chunk at once.
+        // dataset.read(values.data(), datatype);
+
+        int rank = props.getChunk(0, nullptr);  // Obtient la dimension du chunk (rank)
+        std::vector<hsize_t> chunk_dims;
+        chunk_dims.resize(rank);  // Alloue de la m�moire pour stocker les tailles des chunks
+        props.getChunk(rank, chunk_dims.data());  // R�cup�re les tailles des chunks
+
+        std::vector<hsize_t> count(chunk_dims.size());
+        std::transform(dimensions.begin(), dimensions.end(), chunk_dims.begin(), count.begin(),
+                       [](hsize_t a, hsize_t b) { return a - b + 1; });
+        std::vector<DataType> chunk(std::accumulate(std::begin(chunk_dims), std::end(chunk_dims),
+                                                    1LLU, std::multiplies<size_t>()));
+
+        H5::DataSpace memspace(ndims, chunk_dims.data());
+
+        // Generate all combinaison of chunk.
+        std::function<void(int level, const std::vector<hsize_t>& limits,
+                           const std::function<void(const std::vector<hsize_t>&)>& callback,
+                           std::vector<hsize_t>& currentCombination)>
+            generateCombinationsRecursive =
+                [&generateCombinationsRecursive](
+                    int level, const std::vector<hsize_t>& limits,
+                    const std::function<void(const std::vector<hsize_t>&)>& callback,
+                    std::vector<hsize_t>& currentCombination) -> void {
+          if (level == limits.size()) {
+            // Appeler la callback avec la combinaison actuelle
+            callback(currentCombination);
+            return;
+          }
+
+          for (hsize_t i = 0; i < limits[level]; ++i) {
+            currentCombination[level] = i;
+            generateCombinationsRecursive(level + 1, limits, callback, currentCombination);
+          }
+        };
+
+        std::vector<hsize_t> combination_read = std::vector<hsize_t>(count.size(), 0);
+
+        // Use callback_write is you can't use memcpy (i.e. chunk size : 800, 64, 1, 1)
+        auto callback_write = [&dataspace, &memspace, &chunk_dims, &dataset,
+                               chunk_data = chunk.data(), &combination_read, &dimensions,
+                               &values](const std::vector<hsize_t>& combination) {
+          std::vector<hsize_t> sum(combination.size());
+          std::transform(combination_read.begin(), combination_read.end(), combination.begin(),
+                         sum.begin(), [](hsize_t a, hsize_t b) { return a + b; });
+          values[sum[0] * (dimensions[1] * dimensions[2] * dimensions[3]) +
+                 sum[1] * (dimensions[2] * dimensions[3]) + sum[2] * (dimensions[3]) + sum[3]] =
+              (chunk_data[combination[0] * (dimensions[1] * dimensions[2] * dimensions[3]) +
+                          combination[1] * (dimensions[2] * dimensions[3]) +
+                          combination[2] * (dimensions[3]) + combination[3]]);
+        };
+
+        auto callback_read = [&dataspace, &memspace, &chunk_dims, &dataset, &chunk,
+                              &generateCombinationsRecursive, &callback_write, &values,
+                              &dimensions](const std::vector<hsize_t>& combination) {
+          dataspace.selectHyperslab(H5S_SELECT_SET, chunk_dims.data(), combination.data());
+          /*
+          // Use callback_write is you can't use memcpy
+          dataset.read(chunk.data(), H5DataType, memspace, dataspace);
+          generateCombinationsRecursive(0, chunk_dims, callback_write,
+                                        std::vector<hsize_t>(chunk_dims.size(), 0));
+                                        */
+          dataset.read(&values[combination[0] * (dimensions[1] * dimensions[2] * dimensions[3]) +
+                               combination[1] * (dimensions[2] * dimensions[3]) +
+                               combination[2] * (dimensions[3]) + combination[3]],
+                       H5DataType, memspace, dataspace);
+        };
+
+        generateCombinationsRecursive(0, count, callback_read, combination_read);
+
+        break;
+      }
+      case H5D_CONTIGUOUS: {
+        // Read all at once.
+        // dataset.read(values.data(), datatype);
+
+        std::vector<hsize_t> start(ndims);  // ie bloc
+        std::vector<hsize_t> count{dimensions};
+        count[0] = 1;
+        H5::DataSpace memspace(ndims, count.data());
+        for (hsize_t i = 0; i < dimensions[0]; i++) {
+          start[0] = i;
+          dataspace.selectHyperslab(H5S_SELECT_SET, count.data(), start.data());
+          dataset.read(&values[i * dimensions[1] * dimensions[2] * dimensions[3]], datatype,
+                       memspace,
+                       dataspace);
+        }
+        break;
+      }
+      default:
+        assert(false);
+    }
   }
 }
 

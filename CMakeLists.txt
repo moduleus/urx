@@ -73,8 +73,13 @@ target_compile_definitions(
 
 # With HDF5 option
 option(WITH_HDF5 "Build with HDF5" ON)
-message(STATUS "${PROJECT_NAME} WITH_HDF5=${WITH_HDF5}")
+message (STATUS "${PROJECT_NAME} WITH_HDF5=${WITH_HDF5}")
 
+set(ZLIB_LIBRARY "C:/temp/uff_zip/vcpkg_installed/x64-windows-static-md/lib/zlib.lib")
+set(ZLIB_INCLUDE_DIR "C:/temp/uff_zip/vcpkg_installed/x64-windows-static-md/include")
+find_package(ZLIB REQUIRED)
+set(szip_DIR "C:/temp/uff_zip/vcpkg_installed/x64-windows-static-md/share/szip")
+find_package(szip REQUIRED)
 if(WITH_HDF5)
   # Compile definition
   target_compile_definitions(${PROJECT_NAME} PUBLIC WITH_HDF5)
