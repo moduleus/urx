@@ -9,3 +9,5 @@ CI_Android/
 .vscode/
 
 *.swp
+
+vcpkg_installed/

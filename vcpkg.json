@@ -1,0 +1,9 @@
+{
+    "dependencies": [
+        {
+            "name": "hdf5",
+            "features": ["cpp"]
+        }
+    ],
+    "builtin-baseline": "972ca20ed21036c8b80a69cbc7dafa2aad51a37d"
+}
