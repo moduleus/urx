@@ -21,9 +21,6 @@ struct ImpulseResponse {
 
   // (Optional) Name of the units of the impulse response
   std::string units = "";
-
-  // Time offset delaying the launch of the acquisition element
-  double time_offset = 0.;
 };
 
 }  // namespace uff

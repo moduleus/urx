@@ -39,8 +39,6 @@ doc:PlantUml:
     - hpp2plantuml -i "uff/*.h" -o doc/plantuml/architecture.puml
     - sed -r -i "/.+\(.*\).*/d" doc/plantuml/architecture.puml
     - perl -0777 -i -pe "s/^.*uff\.Acquisition.*\*--.*\n\n\n//gm" doc/plantuml/architecture.puml
-    - sed -r -i "/\*--\ uff\.TriggerIn.*/d" doc/plantuml/architecture.puml
-    - sed -r -i "/\*--\ uff\.TriggerOut.*/d" doc/plantuml/architecture.puml
     - sed -r -i "/\+--\ uff\.GroupData::VecDataType.*/d" doc/plantuml/architecture.puml
     - perl -0777 -i -pe "s/^.*class\ GroupData::VecDataType.*\n.*}\n\n//gm" doc/plantuml/architecture.puml 
     - mkdir -p public/plantuml

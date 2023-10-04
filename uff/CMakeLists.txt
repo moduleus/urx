@@ -9,22 +9,15 @@ set(UFF_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/excitation.h
     ${CMAKE_CURRENT_SOURCE_DIR}/group_data.h
     ${CMAKE_CURRENT_SOURCE_DIR}/group.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/igroup.h
     ${CMAKE_CURRENT_SOURCE_DIR}/impulse_response.h
     ${CMAKE_CURRENT_SOURCE_DIR}/linear_array.h
     ${CMAKE_CURRENT_SOURCE_DIR}/matrix_array.h
     ${CMAKE_CURRENT_SOURCE_DIR}/probe.h
     ${CMAKE_CURRENT_SOURCE_DIR}/rca_array.h
     ${CMAKE_CURRENT_SOURCE_DIR}/receive_setup.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/sequence.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/super_group.h
     ${CMAKE_CURRENT_SOURCE_DIR}/event.h
     ${CMAKE_CURRENT_SOURCE_DIR}/transform.h
     ${CMAKE_CURRENT_SOURCE_DIR}/transmit_setup.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/types.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/trigger_in.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/trigger_location.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/trigger_out.h
     ${CMAKE_CURRENT_SOURCE_DIR}/types.h
     ${CMAKE_CURRENT_SOURCE_DIR}/uff.h
     ${CMAKE_CURRENT_SOURCE_DIR}/vector.h

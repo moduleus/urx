@@ -1,17 +1,13 @@
 #pragma once
 
 // UFF
+#include <uff/event.h>
 #include <uff/excitation.h>
 #include <uff/group.h>
 #include <uff/group_data.h>
-#include <uff/igroup.h>
 #include <uff/probe.h>
 #include <uff/receive_setup.h>
-#include <uff/super_group.h>
-#include <uff/event.h>
 #include <uff/transmit_setup.h>
-#include <uff/trigger_in.h>
-#include <uff/trigger_out.h>
 
 // System
 #include <limits>
@@ -70,9 +66,7 @@ struct Acquisition {
     return ((authors == other.authors) && (description == other.description) &&
             (local_time == other.local_time) && (country_code == other.country_code) &&
             (system == other.system) && (sound_speed == other.sound_speed) &&
-            (timestamp == other.timestamp) && (trigger_in == other.trigger_in) &&
-            (trigger_out == other.trigger_out) && (time_offset == other.time_offset) &&
-            (initial_group.lock() == other.initial_group.lock()) && are_probes_equaled &&
+            (timestamp == other.timestamp) && are_probes_equaled &&
             are_unique_transmit_setups_equaled && are_unique_receive_setups_equaled &&
             are_unique_excitations_equaled && are_groups_equaled && are_group_data_equaled);
   }
@@ -96,11 +90,8 @@ struct Acquisition {
   // Reference sound speed for Tx and Rx events [m/s]
   double sound_speed = 0.;
 
-  // Initial group
-  std::weak_ptr<IGroup> initial_group;
-
   // List of all group present in the acquisition
-  std::vector<std::shared_ptr<IGroup>> groups;
+  std::vector<std::shared_ptr<Group>> groups;
 
   // List of all the probes used to transmit/receive sequences in the acquisition
   std::vector<std::shared_ptr<Probe>> probes;
@@ -119,15 +110,6 @@ struct Acquisition {
 
   // List of all data acquired by the running groups in the acquisition
   std::vector<std::shared_ptr<GroupData>> group_data;
-
-  // Trigger in for launching the acquisition element
-  std::optional<TriggerIn> trigger_in = std::nullopt;
-
-  // Trigger out applied by the acquisition element at its launch
-  std::optional<TriggerOut> trigger_out = std::nullopt;
-
-  // Time offset delaying the launch of the acquisition element
-  double time_offset = 0.;
 };
 
 }  // namespace uff
