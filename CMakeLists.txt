@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.9)
 
 project(
   Uff
-  VERSION 0.6.0
+  VERSION 0.6.6
   LANGUAGES C CXX
   DESCRIPTION "Ultrasound File Format C++ implementation")
 
@@ -46,6 +46,15 @@ if(NOT BUILD_SHARED_LIBS)
   set(git_branch "${git_branch}_static")
 endif()
 
+set(INSTALL_NAME "${PROJECT_NAME}-${git_branch}")
+
+if(CALL_FROM_SETUP_PY)
+  set(PYTHON_INSTALL_LIBDIR ${CMAKE_INSTALL_PREFIX})
+else()
+  set(PYTHON_INSTALL_LIBDIR
+      ${CMAKE_INSTALL_LIBDIR}/${INSTALL_NAME}/python)
+endif()
+
 # setup installer
 include(InstallRequiredSystemLibraries)
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/License.txt")
@@ -55,12 +64,25 @@ set(CPACK_PACKAGE_VERSION_PATCH "${${PROJECT_NAME}_VERSION_PATCH}")
 set(CPACK_SOURCE_GENERATOR "ZIP")
 include(CPack)
 
-# With HDF5 option
-option(WITH_HDF5 "Build with HDF5" ON)
+# With options
+option(WITH_HDF5 "Build with HDF5" OFF)
+option(WITH_PYTHON "Build Python module" OFF)
+option(WITH_TEST "Build unit tests" OFF)
 
 add_subdirectory("uff")
+
 if(WITH_HDF5)
   add_subdirectory("uff_utils")
+endif()
+
+if(WITH_PYTHON)
+  find_package(pybind11 CONFIG REQUIRED)
+  add_subdirectory(python)
+endif()
+
+if(WITH_TEST)
+  enable_testing()
+  find_package(Catch2 REQUIRED)
 endif()
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${UFF_SRCS} ${UFF_UTILS_SRCS})
@@ -72,7 +94,6 @@ write_basic_package_version_file(
 
 file(WRITE "${CMAKE_BINARY_DIR}/version.txt" "${CMAKE_PROJECT_VERSION}")
 
-if(BUILD_TESTING)
-  enable_testing()
-  add_subdirectory(Testing)
+if(WITH_TEST)
+  add_subdirectory(test)
 endif()

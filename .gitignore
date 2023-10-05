@@ -6,6 +6,8 @@ CI_Android/
 install/
 Temporary/
 doc/
+pyusff/
+pyusff.egg-info/
 
 # IDE dir
 .vs/

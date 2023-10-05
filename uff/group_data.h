@@ -3,6 +3,7 @@
 #include <uff/group.h>
 
 #include <complex>
+#include <iostream>
 #include <memory>
 #include <variant>
 #include <vector>
@@ -46,6 +47,22 @@ struct GroupData {
 
   // Number of bit to encode data to binary file, can be different of C++ type to optimize data space
   uint8_t size_of_data_type = 0;
+
+  void printData() {
+    auto printVec = []<typename T>(std::vector<T> vec) -> void {
+      for (auto v : vec) std::cout << v << "; ";
+      std::cout << std::endl;
+    };
+    std::visit([&printVec](auto&& vec) { printVec(vec); }, raw_data);
+  }
+
+  template <typename T>
+  bool checkType() {
+    if (auto d = std::get_if<T>(&raw_data)) {
+      return true;
+    }
+    return false;
+  }
 };
 
 }  // namespace uff

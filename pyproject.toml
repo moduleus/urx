@@ -1,0 +1,13 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = [
+    "wheel",
+    "setuptools",
+    "cmake",
+    # Version 0.5.1 is only using Ninja generator which doesn't work well to compile libs for x64 archs 
+    "cmake_build_extension @ git+https://git.moduleus.com/common/sw/3rdparty/cmake-build-extension.git",
+    "importlib_metadata",
+    "numpy",
+    "parameterized",
+    "pybind11"
+]
