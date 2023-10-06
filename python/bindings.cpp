@@ -9,6 +9,7 @@
 #include <complex>
 #include <iostream>
 #include <iterator>  // for std::ostream_iterator
+#include <variant>
 #include <vector>
 
 #include <uff/group_data.h>
@@ -32,6 +33,16 @@ PYBIND11_MAKE_OPAQUE(VecCompInt16);
 PYBIND11_MAKE_OPAQUE(VecCompInt32);
 PYBIND11_MAKE_OPAQUE(VecCompFloat32);
 PYBIND11_MAKE_OPAQUE(VecCompFloat64);
+
+
+  
+template <typename VecDataType>
+bool checkType(uff::GroupData& vec) {
+  if (auto d = std::get_if<VecDataType>(&vec.raw_data)) {
+    return true;
+  }
+  return false;
+}
 
 template <typename T>
 std::ostream &operator<<(std::ostream &out, const std::vector<T> &v) {
@@ -269,14 +280,15 @@ PYBIND11_MODULE(bindings, m) {
 
   py::class_<uff::GroupData>(m, "GroupData")
       .def(py::init())
-      .def("printData", &uff::GroupData::printData)
-      .def("checkInt16Type", &uff::GroupData::checkType<std::vector<int16_t>>)
-      .def("checkInt32Type", &uff::GroupData::checkType<std::vector<int32_t>>)
-      .def("checkFloat32Type", &uff::GroupData::checkType<std::vector<float>>)
-      .def("checkFloat64Type", &uff::GroupData::checkType<std::vector<double>>)
-      .def("checkComplexInt16Type", &uff::GroupData::checkType<std::vector<std::complex<int16_t>>>)
-      .def("checkComplexInt32Type", &uff::GroupData::checkType<std::vector<std::complex<int32_t>>>)
-      .def("checkComplexFloat32Type", &uff::GroupData::checkType<std::vector<std::complex<float>>>)
-      .def("checkComplexFloat64Type", &uff::GroupData::checkType<std::vector<std::complex<double>>>)
       .def_readwrite("raw_data", &uff::GroupData::raw_data);
+
+  m.def("checkInt16Type", &checkType<std::vector<int16_t>>);
+  m.def("checkInt32Type", &checkType<std::vector<int32_t>>);
+  m.def("checkFloat32Type", &checkType<std::vector<float>>);
+  m.def("checkFloat64Type", &checkType<std::vector<double>>);
+  
+  m.def("checkComplexInt16Type", &checkType<std::vector<std::complex<int16_t>>>);
+  m.def("checkComplexInt32Type", &checkType<std::vector<std::complex<int32_t>>>);
+  m.def("checkComplexFloat32Type", &checkType<std::vector<std::complex<float>>>);
+  m.def("checkComplexFloat64Type", &checkType<std::vector<std::complex<double>>>);
 }
