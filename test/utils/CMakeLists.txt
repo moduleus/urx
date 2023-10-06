@@ -1,4 +1,4 @@
-set(UFF_TEST_FILES reader.cpp time_helper.cpp)
+set(UFF_TEST_FILES reader.cpp time_helper.cpp group_data_reader.cpp)
 
 add_executable(UffUtils ${MAIN_CPP} ${UFF_TEST_FILES})
 add_executable(UffTest::UffUtils ALIAS UffUtils)
