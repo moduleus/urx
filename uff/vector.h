@@ -7,7 +7,7 @@
 namespace uff {
 
 /**
- * @brief Contains a location in space in Cartesian coordinates and SI units.
+ * @brief The UFF class containing a location in 3D Cartesian coordinate
  */
 template <typename T>
 struct Vector3D {
@@ -15,18 +15,29 @@ struct Vector3D {
 
   auto operator<=>(const Vector3D<T>& other) const = default;
 
+  /// x [m]
   T x = 0.;
+
+  /// y [m]
   T y = 0.;
+
+  /// z [m]
   T z = 0.;
 };
 
+/**
+ * @brief The UFF class containing a location in 2D Cartesian coordinate
+ */
 template <typename T>
 struct Vector2D {
   explicit Vector2D(T x_ = 0., T y_ = 0.) : x(x_), y(y_) {}
 
   auto operator<=>(const Vector2D<T>& other) const = default;
 
+  /// x [m]
   T x = 0.;
+
+  /// y [m]
   T y = 0.;
 };
 

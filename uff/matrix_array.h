@@ -13,9 +13,10 @@
 namespace uff {
 
 /**
- * @brief The UFF MatrixArray class describes a 2D matrix array of elements
- * Element[0] has the minimum x/y coordinates. Element[1] has the same y-coordinates as
- * element[0] but a higher x-coordinates.
+ * @brief The UFF class describing a probe containing a 2D matrix array of elements
+ * 
+ * First element from the matrix is at the minimum coordinates on both x and y axis
+ * Following element are increasing coordinates on x axis first and then on y axis each time the x axis limit is reached
  */
 struct MatrixArray : public Probe {
   inline bool operator==(const MatrixArray& other) const {
@@ -24,13 +25,13 @@ struct MatrixArray : public Probe {
   }
   inline bool operator!=(const MatrixArray& other) const { return !(*this == other); }
 
-  // Number of elements in the axis x and y
+  /// Number of elements in the axis x and y
   Vector2D<uint32_t> nb_elements{0u, 0u};
 
-  // Distance between the acoustic center of adjacent elements along the axis x and y [m]
-  Vector2D<double> pitch{0.f, 0.f};
+  /// Distance between the acoustic center of adjacent elements along the axis x and y [m]
+  Vector2D<double> pitch{0., 0.};
 
-  // (Optional) Element size in the axis x and y [m]
+  /// (Optional) Element size in the axis x and y [m]
   std::optional<Vector2D<double>> element_size = std::nullopt;
 };
 

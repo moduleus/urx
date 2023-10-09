@@ -9,6 +9,9 @@
 
 namespace uff {
 
+/**
+ * @brief The UFF class describing the ultrasonic element.
+ */
 struct Element {
   inline bool operator==(const Element& other) const {
     return (transform == other.transform) &&
@@ -21,10 +24,13 @@ struct Element {
   }
   inline bool operator!=(const Element& other) const { return !(*this == other); }
 
+  /// Location of the element center in space reference
   Transform transform;
 
+  /// Reference the corresponfing element geometry in the probe the element belong to
   std::weak_ptr<ElementGeometry> element_geometry = std::weak_ptr<ElementGeometry>();
 
+  /// Reference the corresponfing impulse responce in the probe the element belong to
   std::weak_ptr<ImpulseResponse> impluse_response = std::weak_ptr<ImpulseResponse>();
 };
 

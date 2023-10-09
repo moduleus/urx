@@ -15,7 +15,7 @@
 namespace uff {
 
 /**
- * @brief The UFF Probe class describes a generic ultrsound probe formed by a collection of elements
+ * @brief The UFF class describing a generic ultrsound probe formed by a collection of elements
  */
 struct Probe {
   bool operator==(const Probe& other) const {
@@ -26,22 +26,24 @@ struct Probe {
   }
   inline bool operator!=(const Probe& other) const { return !(*this == other); }
 
-  // Description of the probe with serial ID
-  std::string description;
+  /// Description of the probe with serial ID
+  /// This description aims to identify correctly the probe used during the acquisition
+  std::string description = "";
 
-  // Attitude of the probe in 3D
+  /// Location of the probe center in space reference
   Transform transform;
 
-  // List all the elements in the probe
+  /// List of all the elements in the probe
   std::vector<Element> elements;
 
-  // [optional] For probes with a focal lens, it describes the focal length in m [Az, Ele]
+  /// (Optional) For probes with a focal length only.
+  /// Description of the focal length (Az, Ele) [m] 
   std::optional<double> focal_length = std::nullopt;
 
-  // [optional] List of all unique element geometries in the probe
+  /// (Optional) List of all unique element geometries in the probe
   std::vector<std::shared_ptr<ElementGeometry>> element_geometries;
 
-  // [optional] List of unique electromechanical impulse responses of the elements in the probe
+  /// (Optional) List of all unique electromechanical impulse responses of the elements in the probe
   std::vector<std::shared_ptr<ImpulseResponse>> impulse_responses;
 };
 

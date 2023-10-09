@@ -19,7 +19,15 @@
 namespace uff {
 
 /**
- * @brief UFF class that contains all the information needed to store and later process channel data.
+ * @brief Main UFF class containing all macro information
+ * 
+ * The acquisition class is used to store the memory allocation of all main UFF classes.
+ * All classes used in the acquisition must be stored in its lists. 
+ * If not, the acquisition will be corrupted and retrieved data cannot be processed.
+ * 
+ * It also reference all data retrieved from the experimentation.
+ * 
+ * Context information should be described in it, in order to keep track of experience. 
  */
 struct Acquisition {
   bool operator==(const Acquisition& other) const {
@@ -72,43 +80,44 @@ struct Acquisition {
   }
   inline bool operator!=(const Acquisition& other) const { return !(*this == other); }
 
-  // string with the authors of the data
-  std::string authors;
+  /// Experimentation authors
+  std::string authors = "";
 
-  // string describing the data
-  std::string description;
+  /// Description of the experimentation
+  std::string description = "";
 
-  // string defining the time the dataset was acquired following ISO 8601
-  std::string local_time;
+  /// Date of the experimentation acquisition following ISO 8601
+  std::string local_time = "";
 
-  // string defining the country, following ISO 3166-1
-  std::string country_code;
+  /// Contry identification following ISO 3166-1
+  std::string country_code = "";
 
-  // string defining the system used to acquired the dataset
-  std::string system;
+  /// Description of the system used to acquired the dataset
+  std::string system = "";
 
-  // Reference sound speed for Tx and Rx events [m/s]
+  /// Reference sound speed for Tx and Rx events [m/s]
+  /// You must provide the sound speed inside the studied material in order to process the data
   double sound_speed = 0.;
 
-  // List of all group present in the acquisition
+  /// List of all group present in the acquisition
   std::vector<std::shared_ptr<Group>> groups;
 
-  // List of all the probes used to transmit/receive sequences in the acquisition
+  /// List of all the probes used to transmit/receive sequences in the acquisition
   std::vector<std::shared_ptr<Probe>> probes;
 
-  // List of all the unique receive setup used in the sequences in the acquisition
+  /// List of all the unique receive setup used in the sequences in the acquisition
   std::vector<std::shared_ptr<ReceiveSetup>> unique_receive_setups;
 
-  // List of all the unique transmit setup (wave or beams) used in the sequences in the acquisition
+  /// List of all the unique transmit setup (wave or beams) used in the sequences in the acquisition
   std::vector<std::shared_ptr<TransmitSetup>> unique_transmit_setups;
 
-  // List of all the unique excitations used the sequences in the acquisition
+  /// List of all the unique excitations used the sequences in the acquisition
   std::vector<std::shared_ptr<Excitation>> unique_excitations;
 
-  // Timestamp
+  /// Timestamp of the launch of the acquisition [s]
   double timestamp = std::numeric_limits<double>::max();
 
-  // List of all data acquired by the running groups in the acquisition
+  /// List of all data acquired by the running groups in the acquisition
   std::vector<std::shared_ptr<GroupData>> group_data;
 };
 

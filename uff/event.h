@@ -11,7 +11,9 @@
 namespace uff {
 
 /**
- * @brief UFF class to describe an unique ultrasound event, composed by a single transmit and receive setup
+ * @brief The UFF class describing an unique ultrasound event
+ * 
+ * The event is composed by a single transmit and receive setup
  */
 struct Event {
   bool operator==(const Event& other) const {
@@ -23,10 +25,10 @@ struct Event {
   }
   inline bool operator!=(const Event& other) const { return !(*this == other); }
 
-  // Description of the transmit event (probe/channels, waves, excitations, etc.). If more than one probe is used in reception, this is a list of setups.
+  /// Description of the transmit event (probe/channels, waves, excitations, etc.)
   std::weak_ptr<TransmitSetup> transmit_setup;
 
-  // Description of sampled channel data (probe/channels, sampling, TGC, etc.). If more than one probe is used in reception, this is a list of setups.
+  /// Description of sampled channel data (probe/channels, sampling, TGC, etc.)
   std::weak_ptr<ReceiveSetup> receive_setup;
 };
 

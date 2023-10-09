@@ -10,8 +10,11 @@
 
 namespace uff {
 
+/**
+ * @brief The UFF class containing all the retrieved data from the acquisition
+ */
 struct GroupData {
-  enum class DataType { INT16 = 0, INT32 = 1, FLOAT = 2, DOUBLE = 3 };
+  enum class DataType { INT16 = 0, INT32 = 1, FLOAT = 2, DOUBLE = 3, UNDEFINED = -1 };
 
   template <class... Args>
   struct VecDataType {
@@ -30,22 +33,27 @@ struct GroupData {
   }
   inline bool operator!=(const GroupData& other) const { return !(*this == other); }
 
+  /// Reference of the group whose data have been retrieved 
   std::weak_ptr<Group> group;
 
-  // Data type contained in the group data containers
-  DataType data_type = DataType::INT16;
+  /// Data type contained in the raw_data array
+  DataType data_type = DataType::UNDEFINED;
 
-  // Data organized as _sequence_data[IGroup::_repetition_count][Sequence::_events.size()][ReceiveSetup::_channel_mapping.size()][ReceiveSetup::_number_samples] but in 1D array
-  // Create your helper or use Uff_Utils to access correctly to the data
+  /// Data are organized as raw_data[Group repetition count][Number of event][Number of channel activated during the event][Number of samples]
+  /// Data are in 1D array since the dimensions of the data array is dynamic for the number of activated channels and for the number of samples 
+  /// Create your helper to deduce the dimensions or use Uff_Utils to access correctly to the data
   VecDataTypeVariant raw_data;
 
+  /// Timestamp of the group launch [s]
   double group_timestamp = UFF_NAN;
 
+  /// Timestamp list for each sequence launch [s]
   std::vector<double> sequence_timestamps;
 
+  /// Timestamp 2D list for each event of each sequence launch [s]
   std::vector<std::vector<double>> event_timestamps;
 
-  // Number of bit to encode data to binary file, can be different of C++ type to optimize data space
+  /// Number of bit to encode data to binary file, can be different of C++ type to optimize data space
   uint8_t size_of_data_type = 0;
 };
 

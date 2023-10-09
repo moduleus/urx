@@ -8,18 +8,19 @@
 namespace uff {
 
 /**
- * @brief The UFF ImpulseResponse class specifies a temporal impulse response
+ * @brief The UFF class describing the temporal impulse response
  */
 struct ImpulseResponse {
   auto operator<=>(const ImpulseResponse& other) const = default;
 
-  // Sampling frequency in Hz
+  /// Sampling frequency [Hz]
   double sampling_frequency = UFF_NAN;
 
-  // Collection of samples containing the impulse response
+  /// Collection of samples containing the impulse response
+  /// The impulse response data values are spaced by a delay equal to 1/sampling_frequency
   std::vector<double> data;
 
-  // (Optional) Name of the units of the impulse response
+  /// (Optional) Name of the units of the impulse response
   std::string units = "";
 };
 

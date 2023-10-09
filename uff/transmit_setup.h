@@ -14,6 +14,9 @@
 
 namespace uff {
 
+/**
+ * @brief The UFF class describing the transmission of the ultrasonic wave
+ */
 struct TransmitSetup {
   bool operator==(const TransmitSetup& other) const {
     bool are_channel_excitations_equaled =
@@ -36,35 +39,35 @@ struct TransmitSetup {
   }
   inline bool operator!=(const TransmitSetup& other) const { return !(*this == other); }
 
-  // Reference to the probe use in transmission
+  /// Reference to the probe use in transmission
   std::weak_ptr<Probe> probe;
 
-  // Geometric origin of the wave.
+  /// Location of the wave center in space reference
   Transform origin;
 
-  // Type of wave
+  /// (Optionnal) Type of wave
   std::optional<WaveType> wave_type = std::nullopt;
 
-  // Description of the aperture used to produce the wave
+  /// (Optionnal) Description of the aperture used to produce the wave
   std::optional<Aperture> aperture = std::nullopt;
 
-  // Time zero reference point in Probe orthogonal coordinate system
+  /// Time zero reference point in Probe orthogonal coordinate system
   Vector3D<double> time_zero_reference_point = Vector3D<double>{0, 0, 0};
 
-  // Time zero for the wave [s]
+  /// Time zero for the wave [s]
   double time_zero = 0.;
 
-  // Map of channels to transducer elements
-  // Each value corresponds to one probe channel index
+  /// Map of channels to transducer elements
+  /// Each value corresponds to one probe channel index
   std::vector<int> channel_mapping;
 
-  // List of the excitation waveform for each channel
+  /// List of the excitation waveform for each channel
   std::vector<std::weak_ptr<Excitation>> channel_excitations;
 
-  // List of the excitation waveform for each channel
+  /// List of delay applied before the transmission for each channel
   std::vector<double> channel_delays;
 
-  // Time offset delaying the launch of the acquisition element
+  /// Time offset delaying the launch of the whole transmission related to the beginning of the 
   double time_offset = 0.;
 };
 

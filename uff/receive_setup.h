@@ -12,7 +12,7 @@
 namespace uff {
 
 /**
- * @brief The UFF ReceiveSetup class
+ * @brief The UFF class describing the reception of the wave echos
  */
 struct ReceiveSetup {
   inline bool operator==(const ReceiveSetup& other) const {
@@ -27,29 +27,29 @@ struct ReceiveSetup {
   }
   inline bool operator!=(const ReceiveSetup& other) const { return !(*this == other); }
 
-  // Probes used for this receive setup
+  /// Probe used for this receive setup
   std::weak_ptr<Probe> probe;
 
-  // Sampling frequency [Hz]
+  /// Sampling frequency [Hz]
   double sampling_frequency = 0.;
 
-  // Number of samples
+  /// Number of samples
   uint32_t number_samples = 0;
 
-  // Maps the RF line with the corresponding element
-  // channel_element_index = _channel_mapping[rf_index]
+  /// Maps the RF line with the corresponding element
+  /// channel_element_index = channel_mapping[rf_index]
   std::vector<int> channel_mapping;
 
-  // (Optional) Analog TGC profile sampled at tgc_sampling_frequency [dB]
+  /// (Optional) Analog TGC profile sampled at tgc_sampling_frequency [dB]
   std::vector<double> tgc_profile;
 
-  // (Optional) Sampling frequency of the TGC profile [Hz]
+  /// (Optional) Sampling frequency of the TGC profile [Hz]
   std::optional<double> tgc_sampling_frequency = std::nullopt;
 
-  // (Optional) Modulation frequency used in case of IQ-data [Hz]
+  /// (Optional) Modulation frequency used in case of IQ-data [Hz]
   std::optional<double> modulation_frequency = std::nullopt;
 
-  // Time offset delaying the launch of the acquisition element
+  /// Time offset delaying the launch of the reception related to the beginning of the event
   double time_offset = 0.;
 };
 
