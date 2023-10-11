@@ -48,6 +48,10 @@ endif()
 
 set(INSTALL_NAME "${PROJECT_NAME}-${git_branch}")
 
+
+set(MATLAB_INSTALL_LIBDIR
+    ${CMAKE_INSTALL_LIBDIR}/${INSTALL_NAME}/matlab)
+
 if(CALL_FROM_SETUP_PY)
   set(PYTHON_INSTALL_LIBDIR ${CMAKE_INSTALL_PREFIX})
 else()
@@ -66,6 +70,7 @@ include(CPack)
 
 # With options
 option(WITH_HDF5 "Build with HDF5" OFF)
+option(WITH_MATLAB "Build Matlab wrappers" OFF)
 option(WITH_PYTHON "Build Python module" OFF)
 option(WITH_TEST "Build unit tests" OFF)
 
@@ -73,6 +78,10 @@ add_subdirectory("uff")
 
 if(WITH_HDF5)
   add_subdirectory("uff_utils")
+endif()
+
+if(WITH_MATLAB)
+  find_package(Matlab REQUIRED)
 endif()
 
 if(WITH_PYTHON)
