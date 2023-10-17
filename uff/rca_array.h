@@ -23,10 +23,10 @@ struct RcaArray : public Probe {
   inline bool operator!=(const RcaArray& other) const { return !(*this == other); }
 
   /// Number of elements in the axis x and y
-  Vector2D<uint32_t> nb_elements{0u, 0u};
+  Vector2D<uint32_t> nb_elements = Vector2D<uint32_t>(0u, 0u);
 
   /// Distance between the acoustic center of adyacent elements along the axis x and y [m]
-  Vector2D<double> pitch{0., 0.};
+  Vector2D<double> pitch = Vector2D<double>(0., 0.);
 
   /// (Optional) Element width for x and y axis [m]
   std::optional<Vector2D<double>> element_width = std::nullopt;
