@@ -13,7 +13,7 @@ namespace uff {
 struct Aperture {
   auto operator<=>(const Aperture& other) const = default;
 
-  /// Location of the aperture center in space reference
+  /// Location of the aperture center in the probe space reference
   Transform origin;
 
   /// Apodization window type and parameter description (e.g., 'Rectangular', 'Hamming', 'Gauss(8)', 'Tukey(0.5)')

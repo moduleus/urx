@@ -31,8 +31,8 @@ struct TransmitSetup {
 
     return ((time_offset == other.time_offset) && (probe.expired() == other.probe.expired()) &&
             (probe.expired() || (*(probe.lock()) == *(other.probe.lock()))) &&
-            (origin == other.origin) && (wave_type == other.wave_type) &&
-            (aperture == other.aperture) &&
+            (origin == other.origin) && (probe_transform == other.probe_transform) &&
+            (wave_type == other.wave_type) && (aperture == other.aperture) &&
             (time_zero_reference_point == other.time_zero_reference_point) &&
             (time_zero == other.time_zero) && (channel_mapping == other.channel_mapping) &&
             are_channel_excitations_equaled && (channel_delays == other.channel_delays));
@@ -44,6 +44,9 @@ struct TransmitSetup {
 
   /// Location of the wave center in space reference
   Transform origin;
+
+  /// Location of the probe in space reference for this TransmitSetup
+  Transform probe_transform;
 
   /// (Optionnal) Type of wave
   std::optional<WaveType> wave_type = std::nullopt;
@@ -67,7 +70,7 @@ struct TransmitSetup {
   /// List of delay applied before the transmission for each channel
   std::vector<double> channel_delays;
 
-  /// Time offset delaying the launch of the whole transmission related to the beginning of the 
+  /// Time offset delaying the launch of the whole transmission related to the beginning of the
   double time_offset = 0.;
 };
 

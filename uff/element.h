@@ -24,7 +24,7 @@ struct Element {
   }
   inline bool operator!=(const Element& other) const { return !(*this == other); }
 
-  /// Location of the element center in space reference
+  /// Location of the aperture center in the probe space reference
   Transform transform;
 
   /// Reference the corresponfing element geometry in the probe the element belong to
