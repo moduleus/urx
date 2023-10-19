@@ -1,0 +1,30 @@
+classdef @MATLAB_STRUCT_NAME@ < handle
+  properties (GetAccess = public, SetAccess = protected)
+    id
+  end
+
+  properties (Dependent)
+@MATLAB_STRUCT_PROPERTIES_CODE@
+  end
+
+  methods
+    function this = @MATLAB_STRUCT_NAME@(arg)
+      if exist('arg', 'var')
+        assert(isa(arg, '@MATLAB_STRUCT_NAMESPACE@.@MATLAB_STRUCT_NAME@'))
+        this.id = @MEX_STRUCT_LIBRARY@('new', arg.id);
+      else
+        this.id = @MEX_STRUCT_LIBRARY@('new');
+      end
+    end
+
+    function delete(this)
+      @MEX_STRUCT_LIBRARY@('delete', this.id);
+    end
+
+    function res = copy(this)
+      res = @MATLAB_STRUCT_NAMESPACE@.@MATLAB_STRUCT_NAME@(this);
+    end
+
+@MATLAB_STRUCT_METHODS_CODE@
+  end
+end

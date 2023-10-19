@@ -1,0 +1,19 @@
+#include <mexplus.h>
+#include <@CPP_STRUCT_MODULE_PATH@Configuration.cuh>
+#include <Mex/Macros.hpp>
+
+using namespace mexplus;
+using namespace @CPP_STRUCT_MODULE_NAMESPACE@;
+
+template class Session<@CPP_STRUCT_NAME@>;
+
+namespace {
+  
+MEX_DEFINE_DEFAULT_COPY_CONSTRUCTOR(@CPP_STRUCT_NAME@)
+MEX_DEFINE_DESTRUCTOR(@CPP_STRUCT_NAME@)
+
+@MEX_STRUCT_METHODS_CODE@
+
+}  // namespace
+
+MEX_DISPATCH
