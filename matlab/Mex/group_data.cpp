@@ -1,7 +1,4 @@
-#pragma once
-
 #include <mexplus.h>
-#include <mexplus/dispatch.h>
 #include <typeinfo>
 
 #include <complex>
@@ -9,19 +6,22 @@
 #include <memory>
 #include <vector>
 
-#include <stdio.h>
-#include <stdlib.h>
-
 #include <uff/group_data.h>
 
 using namespace mexplus;
 
 namespace {
 
-MEX_DEFINE(newGroupData)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
+MEX_DEFINE(new_GroupData)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
   InputArguments input(nrhs, prhs, 0);
   OutputArguments output(nlhs, plhs, 1);
   output.set(0, Session<uff::GroupData>::create(new uff::GroupData()));
+}
+
+MEX_DEFINE(delete_GroupData)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
+  InputArguments input(nrhs, prhs, 1);
+  OutputArguments output(nlhs, plhs, 0);
+  Session<uff::GroupData>::destroy(input.get(0));
 }
 
 MEX_DEFINE(get_group_timestamp)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
@@ -33,10 +33,9 @@ MEX_DEFINE(get_group_timestamp)(int nlhs, mxArray* plhs[], int nrhs, const mxArr
 
 MEX_DEFINE(set_group_timestamp)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
   InputArguments input(nrhs, prhs, 2);
-  OutputArguments output(nlhs, plhs, 1);
+  OutputArguments output(nlhs, plhs, 0);
   uff::GroupData* grp_data = Session<uff::GroupData>::get(input.get(0));
   grp_data->group_timestamp = input.get<double>(1);
-  output.set(0, grp_data->group_timestamp);
 }
 
 MEX_DEFINE(get_size_of_data_type)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
@@ -48,10 +47,23 @@ MEX_DEFINE(get_size_of_data_type)(int nlhs, mxArray* plhs[], int nrhs, const mxA
 
 MEX_DEFINE(set_size_of_data_type)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
   InputArguments input(nrhs, prhs, 2);
-  OutputArguments output(nlhs, plhs, 1);
+  OutputArguments output(nlhs, plhs, 0);
   uff::GroupData* grp_data = Session<uff::GroupData>::get(input.get(0));
   grp_data->size_of_data_type = input.get<uint8_t>(1);
-  output.set(0, grp_data->size_of_data_type);
+}
+
+MEX_DEFINE(get_data_type)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
+  InputArguments input(nrhs, prhs, 1);
+  OutputArguments output(nlhs, plhs, 1);
+  uff::GroupData* grp_data = Session<uff::GroupData>::get(input.get(0));
+  output.set(0, int32_t(grp_data->data_type));
+}
+
+MEX_DEFINE(set_data_type)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
+  InputArguments input(nrhs, prhs, 2);
+  OutputArguments output(nlhs, plhs, 0);
+  uff::GroupData* grp_data = Session<uff::GroupData>::get(input.get(0));
+  grp_data->data_type = uff::GroupData::DataType(input.get<int32_t>(1));
 }
 
 MEX_DEFINE(get_sequence_timestamps)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
@@ -85,7 +97,7 @@ MEX_DEFINE(get_raw_data)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prh
 
 MEX_DEFINE(set_raw_data)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
   InputArguments input(nrhs, prhs, 2);
-  OutputArguments output(nlhs, plhs, 1);
+  OutputArguments output(nlhs, plhs, 0);
 
   uff::GroupData* grp_data = Session<uff::GroupData>::get(input.get(0));
 
@@ -154,49 +166,6 @@ MEX_DEFINE(set_raw_data)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prh
   }
 }
 
-MEX_DEFINE(unlock)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
-  InputArguments input(nrhs, prhs, 0);
-  OutputArguments output(nlhs, plhs, 0);
-  mexUnlock();
-}
-
 }  // namespace
 
-MEX_DISPATCH
-
-#ifdef __cplusplus
-#define INITIALIZER(f)    \
-  static void f(void);    \
-  struct f##_t_ {         \
-    f##_t_(void) { f(); } \
-  };                      \
-  static f##_t_ f##_;     \
-  static void f(void)
-#elif defined(_MSC_VER)
-#pragma section(".CRT$XCU", read)
-#define INITIALIZER2_(f, p)                                \
-  static void f(void);                                     \
-  __declspec(allocate(".CRT$XCU")) void (*f##_)(void) = f; \
-  __pragma(comment(linker, "/include:" p #f "_")) static void f(void)
-#ifdef _WIN64
-#define INITIALIZER(f) INITIALIZER2_(f, "")
-#else
-#define INITIALIZER(f) INITIALIZER2_(f, "_")
-#endif
-#else
-#define INITIALIZER(f)                              \
-  static void f(void) __attribute__((constructor)); \
-  static void f(void)
-#endif
-
-static void finalize(void) { printf("finalize\n"); }
-
-INITIALIZER(initialize) {
-  printf("initialize\n");
-  atexit(finalize);
-}
-
-int main(int argc, char** argv) {
-  printf("main\n");
-  return 0;
-}
+// MEX_DISPATCH

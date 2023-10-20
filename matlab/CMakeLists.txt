@@ -6,13 +6,13 @@ find_package(mexplus 0.0.1 REQUIRED)
 # Define mex wrapper targets
 
 matlab_add_mex(
-  NAME MexGroupData
-  SRC Mex/group_data.cpp
+  NAME MexUFF
+  SRC Mex/group_data.cpp Mex/group.cpp Mex/load_lib.cpp
   LINK_TO Uff::Uff mexplus::mexplus R2018a)
 
 # # Install matlab eGal package files along with mex libraries ###
 
-install(TARGETS MexGroupData
+install(TARGETS MexUFF
         LIBRARY DESTINATION "${MATLAB_INSTALL_LIBDIR}/+uff/private")
 
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/+uff"
