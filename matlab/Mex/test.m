@@ -1,6 +1,7 @@
 cd 'E:\Users\Matlab\Documents\MATLAB\TGY_Workspace\PythonWS'
-addpath(genpath(pwd))
+addpath(genpath(uff/install))
 toto=uff.GroupData()
+dataType=uff.GroupData.DataType.INT16
 
 toto.sequence_timestamps=double([1.2,.2,3.2,42,59]);
 toto.sequence_timestamps

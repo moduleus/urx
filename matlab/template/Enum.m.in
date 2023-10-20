@@ -1,5 +1,0 @@
-classdef @MATLAB_ENUM_NAME@ < int32
-  enumeration
-@MATLAB_ENUM_VALUES_CODE@
-  end
-end
