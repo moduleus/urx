@@ -6,6 +6,7 @@ classdef GroupData < handle
   properties (Access = public)
     group_timestamp
     sequence_timestamps
+    event_timestamps
     raw_data
     size_of_data_type
     data_type
@@ -17,6 +18,7 @@ classdef GroupData < handle
       this.id_ = MexUFF('new_GroupData');
       this.group_timestamp = MexUFF('get_group_timestamp',this.id_);
       this.sequence_timestamps = MexUFF('get_sequence_timestamps',this.id_);
+      this.event_timestamps = MexUFF('get_event_timestamps',this.id_);
       this.raw_data = MexUFF('get_raw_data',this.id_);
       this.size_of_data_type = MexUFF('get_size_of_data_type',this.id_);
       this.data_type = uff.GroupData.DataType(MexUFF('get_data_type',this.id_));
@@ -29,6 +31,11 @@ classdef GroupData < handle
     function setSeqenceTimestamps(this,value)
         MexUFF('set_sequence_timestamps',this.id_,value);
         this.sequence_timestamps = MexUFF('get_sequence_timestamps',this.id_);
+    end
+    
+    function setEventTimestamps(this,value)
+        MexUFF('set_event_timestamps',this.id_,value);
+        this.event_timestamps = MexUFF('get_event_timestamps',this.id_);
     end
     
     function setGroupTimestamp(this,value)
@@ -54,6 +61,8 @@ classdef GroupData < handle
     function a = subsasgn(a,s,b)
         if strcmp(s.subs,'sequence_timestamps')
             setSeqenceTimestamps(a,b);
+        elseif strcmp(s.subs,'event_timestamps')
+            setEventTimestamps(a,b);
         elseif strcmp(s.subs,'group_timestamp')
             setGroupTimestamp(a,b);
         elseif strcmp(s.subs,'raw_data')

@@ -78,9 +78,22 @@ MEX_DEFINE(set_sequence_timestamps)(int nlhs, mxArray* plhs[], int nrhs, const m
   OutputArguments output(nlhs, plhs, 0);
 
   uff::GroupData* grp_data = Session<uff::GroupData>::get(input.get(0));
-  double* data = (double*)mxGetData(prhs[1]);
-  mwSize n = mxGetNumberOfElements(prhs[1]);  // Number of elements of input variable
-  grp_data->sequence_timestamps = std::vector<double>(data, data + n);
+  grp_data->sequence_timestamps = input.get<std::vector<double>>(1);
+}
+
+MEX_DEFINE(get_event_timestamps)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
+  InputArguments input(nrhs, prhs, 1);
+  OutputArguments output(nlhs, plhs, 1);
+  uff::GroupData* grp_data = Session<uff::GroupData>::get(input.get(0));
+  output.set(0, grp_data->event_timestamps);
+}
+
+MEX_DEFINE(set_event_timestamps)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
+  InputArguments input(nrhs, prhs, 2);
+  OutputArguments output(nlhs, plhs, 0);
+
+  uff::GroupData* grp_data = Session<uff::GroupData>::get(input.get(0));
+  grp_data->event_timestamps = input.get<std::vector<std::vector<double>>>(1);
 }
 
 MEX_DEFINE(get_raw_data)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
@@ -88,11 +101,7 @@ MEX_DEFINE(get_raw_data)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prh
   OutputArguments output(nlhs, plhs, 1);
   uff::GroupData* grp_data = Session<uff::GroupData>::get(input.get(0));
 
-  std::visit(
-      [&](auto&& vec) {
-        output.set(0, vec);
-      },
-      grp_data->raw_data);
+  std::visit([&](auto&& vec) { output.set(0, vec); }, grp_data->raw_data);
 }
 
 MEX_DEFINE(set_raw_data)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
@@ -109,30 +118,24 @@ MEX_DEFINE(set_raw_data)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prh
     switch (category) {
       case mxINT16_CLASS: {
         mxComplexInt16* data = (mxComplexInt16*)mxGetData(prhs[1]);
-        std::copy(data, data + n, mxGetComplexInt16s(plhs[0]));
-        grp_data->raw_data =
-            std::vector<std::complex<int16_t>>((std::complex<int16_t>*)mxGetData(plhs[0]),
-                                               (std::complex<int16_t>*)mxGetData(plhs[0]) + n);
+        grp_data->raw_data = std::vector<std::complex<int16_t>>((std::complex<int16_t>*)data,
+                                                                (std::complex<int16_t>*)data + n);
       } break;
       case mxINT32_CLASS: {
         mxComplexInt32* data = (mxComplexInt32*)mxGetData(prhs[1]);
-        std::copy(data, data + n, mxGetComplexInt32s(plhs[0]));
-        grp_data->raw_data =
-            std::vector<std::complex<int32_t>>((std::complex<int32_t>*)mxGetData(plhs[0]),
-                                               (std::complex<int32_t>*)mxGetData(plhs[0]) + n);
+        grp_data->raw_data = std::vector<std::complex<int32_t>>((std::complex<int32_t>*)data,
+                                                                (std::complex<int32_t>*)data + n);
       } break;
       case mxSINGLE_CLASS: {
         mxComplexSingle* data = (mxComplexSingle*)mxGetData(prhs[1]);
-        std::copy(data, data + n, mxGetComplexSingles(plhs[0]));
-        grp_data->raw_data = std::vector<std::complex<float>>(
-            (std::complex<float>*)mxGetData(plhs[0]), (std::complex<float>*)mxGetData(plhs[0]) + n);
+        grp_data->raw_data = std::vector<std::complex<float>>((std::complex<float>*)data,
+                                                              (std::complex<float>*)data + n);
       } break;
       case mxDOUBLE_CLASS: {
         mxComplexDouble* data = (mxComplexDouble*)mxGetData(prhs[1]);
         std::copy(data, data + n, mxGetComplexDoubles(plhs[0]));
-        grp_data->raw_data =
-            std::vector<std::complex<double>>((std::complex<double>*)mxGetData(plhs[0]),
-                                              (std::complex<double>*)mxGetData(plhs[0]) + n);
+        grp_data->raw_data = std::vector<std::complex<double>>((std::complex<double>*)data,
+                                                               (std::complex<double>*)data + n);
       } break;
       default:
         break;
@@ -141,24 +144,19 @@ MEX_DEFINE(set_raw_data)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prh
     switch (category) {
       case mxINT16_CLASS: {
         int16_t* data = (int16_t*)mxGetData(prhs[1]);
-        std::copy(data, data + n, mxGetInt16s(plhs[0]));
-        grp_data->raw_data =
-            std::vector<int16_t>((int16_t*)mxGetData(plhs[0]), (int16_t*)mxGetData(plhs[0]) + n);
+        grp_data->raw_data = std::vector<int16_t>((int16_t*)data, (int16_t*)data + n);
       } break;
       case mxINT32_CLASS: {
         int32_t* data = (int32_t*)mxGetData(prhs[1]);
-        std::copy(data, data + n, mxGetInt32s(plhs[0]));
-        grp_data->raw_data = std::vector<int32_t>(mxGetInt32s(plhs[0]), mxGetInt32s(plhs[0]) + n);
+        grp_data->raw_data = std::vector<int32_t>(data, data + n);
       } break;
       case mxSINGLE_CLASS: {
         float* data = (float*)mxGetData(prhs[1]);
-        std::copy(data, data + n, mxGetSingles(plhs[0]));
-        grp_data->raw_data = std::vector<float>(mxGetSingles(plhs[0]), mxGetSingles(plhs[0]) + n);
+        grp_data->raw_data = std::vector<float>(data, data + n);
       } break;
       case mxDOUBLE_CLASS: {
         double* data = (double*)mxGetData(prhs[1]);
-        std::copy(data, data + n, mxGetDoubles(plhs[0]));
-        grp_data->raw_data = std::vector<double>(mxGetDoubles(plhs[0]), mxGetDoubles(plhs[0]) + n);
+        grp_data->raw_data = std::vector<double>(data, data + n);
       } break;
       default:
         break;

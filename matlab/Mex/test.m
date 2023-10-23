@@ -8,6 +8,11 @@ grp_data=uff.GroupData()
 grp_data.sequence_timestamps=double([1.2,.2,3.2,42,59]);
 grp_data.sequence_timestamps
 
+%tmp=double([1.1 1.2 1.3 -1 -1;2.1 2.2 2.3 2.4 2.5;3.1 -1 -1 -1 -1;4.1 4.2 4.3 4.4 -1])
+tmp={[1.1 1.2 1.3] [2.1 2.2 2.3 2.4 2.5] [3.1] [4.1 4.2 4.3 4.4]};
+grp_data.event_timestamps=tmp;
+grp_data.event_timestamps
+
 grp_data.raw_data=int16([1+i,2,3]);
 grp_data.raw_data
 
