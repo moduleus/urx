@@ -28,7 +28,7 @@ classdef Group < handle
     
     function setDescription(this,value)
         MexUFF('set_description',this.id_,value);
-        this.sequence_timestamps = MexUFF('get_description',this.id_);
+        this.description = MexUFF('get_description',this.id_);
     end
     
     function a = subsasgn(a,s,b)

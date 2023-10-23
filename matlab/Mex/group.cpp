@@ -1,6 +1,7 @@
 #include <mexplus.h>
 
 #include <iostream>
+#include <string>
 #include <memory>
 
 #include <uff/group.h>
@@ -32,23 +33,6 @@ MEX_DEFINE(set_description)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* 
   InputArguments input(nrhs, prhs, 2);
   OutputArguments output(nlhs, plhs, 0);
   uff::Group* grp = Session<uff::Group>::get(input.get(0));
-  printf("set_description\n");
-  /* Examine input (right-hand-side) arguments. */
-  mexPrintf("\n%d input argument(s).", nrhs);
-  for (int i = 1; i < nrhs; i++) {
-    mexPrintf("\n\tInput Arg %i is of type:\t%s ", i, mxGetClassName(prhs[i]));
-  }
-  std::string desc = mxArrayToString(prhs[0]);
-  // std::string desc(mxGetChars(prhs[1]), mxGetChars(prhs[1]));
-  
-  printf("\n%s\n", desc);
-
-  char* str;
-  mxGetString(prhs[1], str, mxGetNumberOfElements(prhs[1]));
-
-  printf("\n%s\n", str);
-
-  printf("%s\n", input.get<std::string>(1));
   grp->description = input.get<std::string>(1);
 }
 

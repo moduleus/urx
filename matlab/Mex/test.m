@@ -19,7 +19,10 @@ grp_data.data_type
 
 grp = uff.Group()
 
-grp.description = "Hello World";
+% str = "Hello World" Does NOT work!
+str = 'Hello World'
+class(str)
+grp.description = str;
 grp.description
 
 MexUFF('unlock')
