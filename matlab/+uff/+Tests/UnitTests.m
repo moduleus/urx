@@ -91,5 +91,56 @@ classdef UnitTests < matlab.unittest.TestCase
             MexUFF('unlock')
             clear all
         end
+        
+        function testPtr(testCase)
+            cd 'E:\Users\Matlab\Documents\MATLAB\TGY_Workspace\PythonWS'
+            addpath(genpath("uff/matlab"))
+            addpath(genpath("uff/install/bin"))
+            acq = uff.Acquisition();
+            grp_data=uff.GroupData();
+            grp=uff.Group();
+            
+            testCase.verifyEqual(length(acq.groups),0)
+            acq.addGroup()
+            testCase.verifyEqual(length(acq.groups),1)
+            acq.addGroup(grp)
+            testCase.verifyEqual(length(acq.groups),2)
+            try
+                acq.addGroup(grp)
+            catch exceptions
+                testCase.verifyEqual(exceptions.identifier, 'MATLAB:unexpectedCPPexception')
+            end
+            testCase.verifyEqual(length(acq.groups),2)
+            
+            testCase.verifyEmpty(grp_data.group)
+            grp_data.setGroup(grp, acq);
+            
+            grp.sampling_type = uff.Group.SamplingType.RF;
+            testCase.verifyEqual(grp_data.group.sampling_type,uff.Group.SamplingType.RF)
+
+            acq.delGroup(1)
+            testCase.verifyEqual(length(acq.groups),1)
+            acq.delGroup(1)
+            testCase.verifyEqual(length(acq.groups),0)
+            
+            try
+                acq.delGroup(1)
+            catch exceptions
+                testCase.verifyEqual(exceptions.identifier, 'MATLAB:unexpectedCPPexception')
+            end
+
+            g=grp_data.group;
+            g.description = 'crash';
+            testCase.verifyEqual(grp.description,'crash')
+            clear grp
+            try
+                g.description = 'crash';
+            catch exceptions
+                testCase.verifyEqual(exceptions.identifier, 'mexplus:session:notFound')
+            end
+
+            MexUFF('unlock')
+            clear all 
+        end
     end
 end

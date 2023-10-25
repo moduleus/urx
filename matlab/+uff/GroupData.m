@@ -10,52 +10,58 @@ classdef GroupData < handle
     raw_data
     size_of_data_type
     data_type
+    group
   end
 
 
   methods 
     function this = GroupData()
-      this.id_ = MexUFF('new_GroupData');
-      this.group_timestamp = MexUFF('get_group_timestamp',this.id_);
-      this.sequence_timestamps = MexUFF('get_sequence_timestamps',this.id_);
-      this.event_timestamps = MexUFF('get_event_timestamps',this.id_);
-      this.raw_data = MexUFF('get_raw_data',this.id_);
-      this.size_of_data_type = MexUFF('get_size_of_data_type',this.id_);
-      this.data_type = uff.GroupData.DataType(MexUFF('get_data_type',this.id_));
+      this.id_ = MexUFF('GroupData_new');
+      this.group_timestamp = MexUFF('GroupData_get_group_timestamp',this.id_);
+      this.sequence_timestamps = MexUFF('GroupData_get_sequence_timestamps',this.id_);
+      this.event_timestamps = MexUFF('GroupData_get_event_timestamps',this.id_);
+      this.raw_data = MexUFF('GroupData_get_raw_data',this.id_);
+      this.size_of_data_type = MexUFF('GroupData_get_size_of_data_type',this.id_);
+      this.data_type = uff.GroupData.DataType(MexUFF('GroupData_get_data_type',this.id_));
     end
 
     function delete(this)
-      MexUFF('delete_GroupData', this.id_);
+      MexUFF('GroupData_delete', this.id_);
     end
     
     function setSeqenceTimestamps(this,value)
-        MexUFF('set_sequence_timestamps',this.id_,value);
-        this.sequence_timestamps = MexUFF('get_sequence_timestamps',this.id_);
+        MexUFF('GroupData_set_sequence_timestamps',this.id_,value);
+        this.sequence_timestamps = MexUFF('GroupData_get_sequence_timestamps',this.id_);
     end
     
     function setEventTimestamps(this,value)
-        MexUFF('set_event_timestamps',this.id_,value);
-        this.event_timestamps = MexUFF('get_event_timestamps',this.id_);
+        MexUFF('GroupData_set_event_timestamps',this.id_,value);
+        this.event_timestamps = MexUFF('GroupData_get_event_timestamps',this.id_);
     end
     
     function setGroupTimestamp(this,value)
-        MexUFF('set_group_timestamp',this.id_,value);
-        this.group_timestamp = MexUFF('get_group_timestamp',this.id_);
+        MexUFF('GroupData_set_group_timestamp',this.id_,value);
+        this.group_timestamp = MexUFF('GroupData_get_group_timestamp',this.id_);
     end
     
     function setRawData(this,value)
-        MexUFF('set_raw_data',this.id_,value);
-        this.raw_data = MexUFF('get_raw_data',this.id_);
+        MexUFF('GroupData_set_raw_data',this.id_,value);
+        this.raw_data = MexUFF('GroupData_get_raw_data',this.id_);
     end
     
     function setSizeDataType(this,value)
-        MexUFF('set_size_of_data_type',this.id_, value);
-        this.size_of_data_type = MexUFF('get_size_of_data_type',this.id_);
+        MexUFF('GroupData_set_size_of_data_type',this.id_, value);
+        this.size_of_data_type = MexUFF('GroupData_get_size_of_data_type',this.id_);
     end
     
     function setDataType(this,value)
-        MexUFF('set_data_type',this.id_, int32(value));
-        this.data_type = uff.GroupData.DataType(MexUFF('get_data_type',this.id_));
+        MexUFF('GroupData_set_data_type',this.id_, int32(value));
+        this.data_type = uff.GroupData.DataType(MexUFF('GroupData_get_data_type',this.id_));
+    end
+    
+    function setGroup(this,group,acq)
+        MexUFF('GroupData_set_group',this.id_,group.id,acq.id);
+        this.group = uff.Group(MexUFF('GroupData_get_group',this.id_));
     end
     
     function a = subsasgn(a,s,b)

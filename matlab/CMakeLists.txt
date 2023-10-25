@@ -1,7 +1,7 @@
 # Create matlab mex libraries ###
 
 # Define mexplus library as local third party
-find_package(mexplus 0.0.1 REQUIRED)
+find_package(mexplus 0.0.2 REQUIRED)
 
 # Define mex wrapper targets
 
