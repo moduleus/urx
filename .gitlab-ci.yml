@@ -38,9 +38,16 @@ doc:PlantUml:
     - mkdir -p doc/plantuml
     - hpp2plantuml -i "uff/*.h" -o doc/plantuml/architecture.puml
     - sed -r -i "/.+\(.*\).*/d" doc/plantuml/architecture.puml
-    - perl -0777 -i -pe "s/^.*uff\.Acquisition.*\*--.*\n\n\n//gm" doc/plantuml/architecture.puml
-    - sed -r -i "/\+--\ uff\.GroupData::VecDataType.*/d" doc/plantuml/architecture.puml
-    - perl -0777 -i -pe "s/^.*class\ GroupData::VecDataType.*\n.*}\n\n//gm" doc/plantuml/architecture.puml 
+    - perl -0777 -i -pe "s/^.*uff\.Acquisition.*\*-- uff.Excitation\n\n\n//gm" doc/plantuml/architecture.puml
+    - perl -0777 -i -pe "s/^.*uff\.Acquisition.*\*-- uff.Group\n\n\n//gm" doc/plantuml/architecture.puml
+    - perl -0777 -i -pe "s/^.*uff\.Acquisition.*\*-- uff.Probe\n\n\n//gm" doc/plantuml/architecture.puml
+    - perl -0777 -i -pe "s/^.*uff\.Acquisition.*\*-- uff.ReceiveSetup\n\n\n//gm" doc/plantuml/architecture.puml
+    - perl -0777 -i -pe "s/^.*uff\.Acquisition.*\*-- uff.Wave\n\n\n//gm" doc/plantuml/architecture.puml
+    - perl -0777 -i -pe "s/^.*\*-- uff.Transform\n\n\n//gm" doc/plantuml/architecture.puml
+    - perl -0777 -i -pe "s/^.*\*-- uff.Vector.*D\n\n\n//gm" doc/plantuml/architecture.puml
+    - perl -0777 -i -pe "s/^.*uff\.Element.*\*-- .*\n\n\n//gm" doc/plantuml/architecture.puml
+    # - sed -r -i "/\+--\ uff\.GroupData::VecDataType.*/d" doc/plantuml/architecture.puml
+    # - perl -0777 -i -pe "s/^.*class\ GroupData::VecDataType.*\n.*}\n\n//gm" doc/plantuml/architecture.puml 
     - mkdir -p public/plantuml
     - plantuml doc/plantuml/architecture.puml
     - mv doc/plantuml/architecture.* public/plantuml/
