@@ -7,7 +7,8 @@ enum class WaveType {
   DIVERGING_WAVE = 1,
   PLANE_WAVE = 2,
   CYLINDRICAL_WAVE = 3,
-  PHOTOACOUSTIC_WAVE = 4
+  PHOTOACOUSTIC_WAVE = 4,
+  UNDEFINED = -1
 };
 
 }  // namespace uff

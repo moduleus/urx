@@ -40,6 +40,7 @@ TEST_CASE("Instantiate all classes to check build", "[test_build]") {
   const Event event;
   const Transform transform;
   const TransmitSetup transmit_setup;
+  const Wave wave;
   const WaveType waveType = WaveType::PLANE_WAVE;
   const Vector2D<double> vector2D;
   const Vector3D<double> vector3D;

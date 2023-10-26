@@ -22,6 +22,7 @@ set(UFF_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/uff.h
     ${CMAKE_CURRENT_SOURCE_DIR}/vector.h
     ${CMAKE_CURRENT_SOURCE_DIR}/version.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/wave.h
     ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt)
 
 # Configure a header file to pass the version number only

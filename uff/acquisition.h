@@ -36,13 +36,13 @@ struct Acquisition {
       are_probes_equaled = are_probes_equaled && (*probes[i] == *other.probes[i]);
     }
 
-    bool are_unique_transmit_setups_equaled =
-        unique_transmit_setups.size() == other.unique_transmit_setups.size();
-    for (uint32_t i = 0; i < unique_transmit_setups.size() && are_unique_transmit_setups_equaled;
+    bool are_unique_waves_equaled =
+        unique_waves.size() == other.unique_waves.size();
+    for (uint32_t i = 0; i < unique_waves.size() && are_unique_waves_equaled;
          ++i) {
-      are_unique_transmit_setups_equaled =
-          are_unique_transmit_setups_equaled &&
-          (*unique_transmit_setups[i] == *other.unique_transmit_setups[i]);
+      are_unique_waves_equaled =
+          are_unique_waves_equaled &&
+          (*unique_waves[i] == *other.unique_waves[i]);
     }
 
     bool are_unique_receive_setups_equaled =
@@ -75,7 +75,7 @@ struct Acquisition {
             (local_time == other.local_time) && (country_code == other.country_code) &&
             (system == other.system) && (sound_speed == other.sound_speed) &&
             (timestamp == other.timestamp) && are_probes_equaled &&
-            are_unique_transmit_setups_equaled && are_unique_receive_setups_equaled &&
+            are_unique_waves_equaled && are_unique_receive_setups_equaled &&
             are_unique_excitations_equaled && are_groups_equaled && are_group_data_equaled);
   }
   inline bool operator!=(const Acquisition& other) const { return !(*this == other); }
@@ -108,8 +108,8 @@ struct Acquisition {
   /// List of all the unique receive setup used in the sequences in the acquisition
   std::vector<std::shared_ptr<ReceiveSetup>> unique_receive_setups;
 
-  /// List of all the unique transmit setup (wave or beams) used in the sequences in the acquisition
-  std::vector<std::shared_ptr<TransmitSetup>> unique_transmit_setups;
+  /// List of all the unique waves used in the sequences in the acquisition
+  std::vector<std::shared_ptr<Wave>> unique_waves;
 
   /// List of all the unique excitations used the sequences in the acquisition
   std::vector<std::shared_ptr<Excitation>> unique_excitations;
