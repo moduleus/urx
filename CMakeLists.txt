@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.9)
 
 project(
   Uff
-  VERSION 0.6.6
+  VERSION 0.6.7
   LANGUAGES C CXX
   DESCRIPTION "Ultrasound File Format C++ implementation")
 
