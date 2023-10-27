@@ -270,8 +270,16 @@ PYBIND11_MODULE(bindings, m) {
   py::bind_vector<VecCompFloat32>(m, "VecCompFloat32", py::buffer_protocol());
   py::bind_vector<VecCompFloat64>(m, "VecCompFloat64", py::buffer_protocol());
 
+  py::enum_<uff::GroupData::DataType>(m, "GroupData.DataType")
+      .value("INT16", uff::GroupData::DataType::INT16)
+      .value("INT32", uff::GroupData::DataType::INT32)
+      .value("FLOAT", uff::GroupData::DataType::FLOAT)
+      .value("DOUBLE", uff::GroupData::DataType::DOUBLE)
+      .value("UNDEFINED", uff::GroupData::DataType::UNDEFINED);
+
   py::class_<uff::GroupData>(m, "GroupData")
       .def(py::init())
+      .def_readwrite("data_type", &uff::GroupData::data_type)
       .def_readwrite("raw_data", &uff::GroupData::raw_data);
 
   m.def("checkInt16Type", &checkType<std::vector<int16_t>>);
