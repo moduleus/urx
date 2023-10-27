@@ -24,9 +24,7 @@ struct Wave {
     for (uint32_t i = 0; i < channel_excitations.size() && are_channel_excitations_equaled; ++i) {
       are_channel_excitations_equaled =
           are_channel_excitations_equaled &&
-          (channel_excitations[i].expired() == other.channel_excitations[i].expired()) &&
-          (channel_excitations[i].expired() ||
-           (*(channel_excitations[i].lock()) == *(other.channel_excitations[i].lock())));
+          (channel_excitations[i] == other.channel_excitations[i]);
     }
 
     return ((origin == other.origin) && (wave_type == other.wave_type) &&
@@ -57,7 +55,7 @@ struct Wave {
   std::vector<int32_t> channel_mapping;
 
   /// List of the excitation waveform for each channel
-  std::vector<std::weak_ptr<Excitation>> channel_excitations;
+  std::vector<std::shared_ptr<Excitation>> channel_excitations;
 
   /// List of delay applied before the transmission for each channel
   std::vector<double> channel_delays;

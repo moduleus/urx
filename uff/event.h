@@ -17,19 +17,16 @@ namespace uff {
  */
 struct Event {
   bool operator==(const Event& other) const {
-    return (transmit_setup.expired() == other.transmit_setup.expired()) &&
-           (transmit_setup.expired() ||
-            *(transmit_setup.lock()) == *(other.transmit_setup.lock())) &&
-           (receive_setup.expired() == other.receive_setup.expired()) &&
-           (receive_setup.expired() || *(receive_setup.lock()) == *(other.receive_setup.lock()));
+    return (transmit_setup == other.transmit_setup) &&
+           (receive_setup == other.receive_setup);
   }
   inline bool operator!=(const Event& other) const { return !(*this == other); }
 
   /// Description of the transmit event (probe/channels, waves, excitations, etc.)
-  std::weak_ptr<TransmitSetup> transmit_setup;
+  std::shared_ptr<TransmitSetup> transmit_setup;
 
   /// Description of sampled channel data (probe/channels, sampling, TGC, etc.)
-  std::weak_ptr<ReceiveSetup> receive_setup;
+  std::shared_ptr<ReceiveSetup> receive_setup;
 };
 
 }  // namespace uff

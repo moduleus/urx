@@ -12,7 +12,11 @@
 #include <variant>
 #include <vector>
 
+#include <uff/acquisition.h>
+#include <uff/dataset.h>
+#include <uff/group.h>
 #include <uff/group_data.h>
+#include <uff/version.h>
 
 namespace py = pybind11;
 
@@ -270,17 +274,61 @@ PYBIND11_MODULE(bindings, m) {
   py::bind_vector<VecCompFloat32>(m, "VecCompFloat32", py::buffer_protocol());
   py::bind_vector<VecCompFloat64>(m, "VecCompFloat64", py::buffer_protocol());
 
-  py::enum_<uff::GroupData::DataType>(m, "GroupData.DataType")
+  py::enum_<uff::Group::SamplingType>(m, "SamplingType")
+      .value("DIRECT_RF", uff::Group::SamplingType::DIRECT_RF)
+      .value("IQ", uff::Group::SamplingType::IQ)
+      .value("UNDEFINED", uff::Group::SamplingType::UNDEFINED);
+
+  py::class_<uff::Group, std::shared_ptr<uff::Group>>(m, "Group")
+      .def(py::init())
+      .def(pybind11::self == pybind11::self)
+      .def(pybind11::self != pybind11::self)
+      .def_readwrite("sampling_type", &uff::Group::sampling_type)
+      .def_readwrite("description", &uff::Group::description);
+
+  py::enum_<uff::GroupData::DataType>(m, "DataType")
       .value("INT16", uff::GroupData::DataType::INT16)
       .value("INT32", uff::GroupData::DataType::INT32)
       .value("FLOAT", uff::GroupData::DataType::FLOAT)
       .value("DOUBLE", uff::GroupData::DataType::DOUBLE)
       .value("UNDEFINED", uff::GroupData::DataType::UNDEFINED);
 
-  py::class_<uff::GroupData>(m, "GroupData")
+  py::class_<uff::GroupData, std::shared_ptr<uff::GroupData>>(m, "GroupData")
       .def(py::init())
+      .def(pybind11::self == pybind11::self)
+      .def(pybind11::self != pybind11::self)
+      .def_readwrite("group", &uff::GroupData::group)
       .def_readwrite("data_type", &uff::GroupData::data_type)
+      .def_readwrite("group_timestamp", &uff::GroupData::group_timestamp)
+      .def_readwrite("sequence_timestamps", &uff::GroupData::sequence_timestamps)
+      .def_readwrite("event_timestamps", &uff::GroupData::event_timestamps)
+      .def_readwrite("size_of_data_type", &uff::GroupData::size_of_data_type)
       .def_readwrite("raw_data", &uff::GroupData::raw_data);
+
+  py::class_<uff::Version>(m, "Version")
+      .def(py::init())
+      .def(pybind11::self == pybind11::self)
+      .def(pybind11::self != pybind11::self)
+      .def_readwrite("major", &uff::Version::major)
+      .def_readwrite("minor", &uff::Version::minor)
+      .def_readwrite("patch", &uff::Version::patch);
+
+  py::class_<uff::Dataset>(m, "Dataset")
+      .def(py::init())
+      .def(pybind11::self == pybind11::self)
+      .def(pybind11::self != pybind11::self)
+      .def_readwrite("version", &uff::Dataset::version)
+      .def_readwrite("acquisition", &uff::Dataset::acquisition);
+
+  py::class_<uff::Acquisition>(m, "Acquisition")
+      .def(py::init())
+      .def(pybind11::self == pybind11::self)
+      .def(pybind11::self != pybind11::self)
+      .def_readwrite("system", &uff::Acquisition::system)
+      .def_readwrite("sound_speed", &uff::Acquisition::sound_speed)
+      .def_readwrite("timestamp", &uff::Acquisition::timestamp)
+      .def_readwrite("groups", &uff::Acquisition::groups)
+      .def_readwrite("group_data", &uff::Acquisition::group_data);
 
   m.def("checkInt16Type", &checkType<std::vector<int16_t>>);
   m.def("checkInt32Type", &checkType<std::vector<int32_t>>);

@@ -178,6 +178,59 @@ class TestBindings(unittest.TestCase):
 
         print("--Test %s END--" % testName)
 
+    def testGroupData(self):
+        testName = "GroupData & Group binding"
+        print("\n--Test %s BEGIN--" % testName)
+
+        group_data = uff.GroupData()
+        self.assertTrue(np.isnan(group_data.group_timestamp))
+        group_data.group_timestamp = np.float64("nan")
+
+        group_data.sequence_timestamps = uff.VecFloat64([1, 2, 3, 4.56])
+        self.assertTrue(np.array_equal(group_data.sequence_timestamps, np.array([1, 2, 3, 4.56]))
+                        )
+        group_data.event_timestamps = [uff.VecFloat64(
+            [1, 2, 3, 4.56]), uff.VecFloat64([7.8, 9])]
+        self.assertTrue(
+            group_data.event_timestamps == [uff.VecFloat64(
+                [1, 2, 3, 4.56]), uff.VecFloat64([7.8, 9])])
+
+        self.assertEqual(group_data.size_of_data_type, np.uint8(0))
+        group_data.size_of_data_type, np.uint8(0)
+
+        group = uff.Group()
+        self.assertEqual(group.description, "")
+        self.assertEqual(group.sampling_type, uff.SamplingType.UNDEFINED)
+
+        self.assertTrue(not group_data.group)
+        group_data.group = group
+        self.assertEqual(group_data.group, group)
+        group_data.group.description = "Hello world"
+        self.assertEqual(group_data.group, group)
+
+        print("--Test %s END--" % testName)
+
+    def testDataset(self):
+        testName = "Dataset binding"
+        print("\n--Test %s BEGIN--" % testName)
+
+        dataset = uff.Dataset()
+        acq = uff.Acquisition()
+        version = uff.Version()
+
+        self.assertNotEqual(dataset.acquisition, acq)
+        dataset.acquisition.timestamp = 42
+        acq.timestamp = 42
+        self.assertEqual(dataset.acquisition, acq)
+
+        self.assertEqual(dataset.version, version)
+        dataset.version.major = 42
+        self.assertNotEqual(dataset.version, version)
+        version.major = 42
+        self.assertEqual(dataset.version, version)
+
+        print("--Test %s END--" % testName)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -115,7 +115,7 @@ struct Acquisition {
   std::vector<std::shared_ptr<Excitation>> unique_excitations;
 
   /// Timestamp of the launch of the acquisition [s]
-  double timestamp = std::numeric_limits<double>::max();
+  double timestamp = UFF_NAN;
 
   /// List of all data acquired by the running groups in the acquisition
   std::vector<std::shared_ptr<GroupData>> group_data;

@@ -16,7 +16,7 @@ namespace uff {
 
 template <typename T>
 std::string Writer::getIdFromPointer(const std::vector<std::shared_ptr<T>>& vec,
-                                     const std::weak_ptr<T>& wptr) {
+                                     const std::shared_ptr<T>& wptr) {
   if (auto p1 = wptr.lock()) {
     int cnt = 1;
     for (const auto& p2 : vec) {

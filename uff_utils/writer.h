@@ -35,7 +35,7 @@ class Writer {
  private:
   template <typename T>
   std::string getIdFromPointer(const std::vector<std::shared_ptr<T>>& vec,
-                               const std::weak_ptr<T>& wptr);
+                               const std::shared_ptr<T>& wptr);
 
   static void writeMetadataTypeDataset(const H5::Group& group, const std::string& name,
                                        double value);
