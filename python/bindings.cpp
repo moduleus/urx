@@ -34,10 +34,8 @@ PYBIND11_MAKE_OPAQUE(VecCompInt32);
 PYBIND11_MAKE_OPAQUE(VecCompFloat32);
 PYBIND11_MAKE_OPAQUE(VecCompFloat64);
 
-
-  
 template <typename VecDataType>
-bool checkType(uff::GroupData& vec) {
+bool checkType(uff::GroupData &vec) {
   if (auto d = std::get_if<VecDataType>(&vec.raw_data)) {
     return true;
   }
@@ -114,30 +112,23 @@ PYBIND11_MODULE(bindings, m) {
         py::buffer_info info = b.request();
 
         /* Some basic validation checks ... */
-        if (info.format != py::format_descriptor<int16_t>::format() &&
-            info.format != py::format_descriptor<int32_t>::format() &&
-            info.format != py::format_descriptor<std::complex<float>>::format() &&
-            info.format != py::format_descriptor<std::complex<double>>::format())
-          throw std::runtime_error(
-              "Incompatible format: expected a int16 array of pair, int32 array of pair, complex64 array or complex128 array!");
-
-        if ((info.format == py::format_descriptor<int16_t>::format() ||
-             info.format == py::format_descriptor<int32_t>::format()) &&
+        if ((info.item_type_is_equivalent_to<int16_t>() ||
+             info.item_type_is_equivalent_to<int32_t>()) &&
             (info.ndim != 2 || info.shape[1] != 2))
           throw std::runtime_error("Incompatible buffer dimension!");
 
-        if ((info.format == py::format_descriptor<std::complex<float>>::format() ||
-             info.format == py::format_descriptor<std::complex<double>>::format()) &&
+        if ((info.item_type_is_equivalent_to<std::complex<float>>() ||
+             info.item_type_is_equivalent_to<std::complex<double>>()) &&
             (info.ndim != 1))
           throw std::runtime_error("Incompatible buffer dimension!");
 
-        if (info.format == py::format_descriptor<int16_t>::format()) {
+        if (info.item_type_is_equivalent_to<int16_t>()) {
           auto ptr = static_cast<std::complex<int16_t> *>(info.ptr);
           VecCompInt16 vec;
           vec.reserve(info.shape[0]);
           vec.insert(vec.begin(), ptr, ptr + info.shape[0]);
           return vec;
-        } else if (info.format == py::format_descriptor<int32_t>::format()) {
+        } else if (info.item_type_is_equivalent_to<int32_t>()) {
           auto ptr = static_cast<std::complex<int32_t> *>(info.ptr);
           VecCompInt16 vec;
           vec.resize(info.shape[0]);
@@ -145,7 +136,7 @@ PYBIND11_MODULE(bindings, m) {
             vec[i] = static_cast<std::complex<int32_t>>(ptr[i]);
           }
           return vec;
-        } else if (info.format == py::format_descriptor<std::complex<float>>::format()) {
+        } else if (info.item_type_is_equivalent_to<std::complex<float>>()) {
           auto ptr = static_cast<std::complex<float> *>(info.ptr);
           VecCompInt16 vec;
           vec.resize(info.shape[0]);
@@ -153,13 +144,17 @@ PYBIND11_MODULE(bindings, m) {
             vec[i] = static_cast<std::complex<int16_t>>(ptr[i]);
           }
           return vec;
-        } else if (info.format == py::format_descriptor<std::complex<double>>::format()) {
+        } else if (info.item_type_is_equivalent_to<std::complex<double>>()) {
           auto ptr = static_cast<std::complex<double> *>(info.ptr);
           auto vec = VecCompInt16(info.shape[0]);
           for (size_t i = 0; i < info.shape[0]; ++i) {
             vec[i] = static_cast<std::complex<int16_t>>(ptr[i]);
           }
           return vec;
+        } else {
+          throw std::runtime_error(
+              "Incompatible format: expected a int16 array of pair, int32 array of pair, complex64 "
+              "array or complex128 array!");
         }
       }));
 
@@ -222,30 +217,23 @@ PYBIND11_MODULE(bindings, m) {
         py::buffer_info info = b.request();
 
         /* Some basic validation checks ... */
-        if (info.format != py::format_descriptor<int16_t>::format() &&
-            info.format != py::format_descriptor<int32_t>::format() &&
-            info.format != py::format_descriptor<std::complex<float>>::format() &&
-            info.format != py::format_descriptor<std::complex<double>>::format())
-          throw std::runtime_error(
-              "Incompatible format: expected a int16 array of pair, int32 array of pair, complex64 array or complex128 array!");
-
-        if ((info.format == py::format_descriptor<int16_t>::format() ||
-             info.format == py::format_descriptor<int32_t>::format()) &&
+        if ((info.item_type_is_equivalent_to<int16_t>() ||
+             info.item_type_is_equivalent_to<int32_t>()) &&
             (info.ndim != 2 || info.shape[1] != 2))
           throw std::runtime_error("Incompatible buffer dimension!");
 
-        if ((info.format == py::format_descriptor<std::complex<float>>::format() ||
-             info.format == py::format_descriptor<std::complex<double>>::format()) &&
+        if ((info.item_type_is_equivalent_to<std::complex<float>>() ||
+             info.item_type_is_equivalent_to<std::complex<double>>()) &&
             (info.ndim != 1))
           throw std::runtime_error("Incompatible buffer dimension!");
 
-        if (info.format == py::format_descriptor<int32_t>::format()) {
+        if (info.item_type_is_equivalent_to<int32_t>()) {
           auto ptr = static_cast<std::complex<int32_t> *>(info.ptr);
           VecCompInt32 vec;
           vec.reserve(info.shape[0]);
           vec.insert(vec.begin(), ptr, ptr + info.shape[0]);
           return vec;
-        } else if (info.format == py::format_descriptor<int16_t>::format()) {
+        } else if (info.item_type_is_equivalent_to<int16_t>()) {
           auto ptr = static_cast<std::complex<int16_t> *>(info.ptr);
           VecCompInt32 vec;
           vec.resize(info.shape[0]);
@@ -253,7 +241,7 @@ PYBIND11_MODULE(bindings, m) {
             vec[i] = static_cast<std::complex<int32_t>>(ptr[i]);
           }
           return vec;
-        } else if (info.format == py::format_descriptor<std::complex<float>>::format()) {
+        } else if (info.item_type_is_equivalent_to<std::complex<float>>()) {
           auto ptr = static_cast<std::complex<float> *>(info.ptr);
           VecCompInt32 vec;
           vec.resize(info.shape[0]);
@@ -261,13 +249,17 @@ PYBIND11_MODULE(bindings, m) {
             vec[i] = static_cast<std::complex<int32_t>>(ptr[i]);
           }
           return vec;
-        } else if (info.format == py::format_descriptor<std::complex<double>>::format()) {
+        } else if (info.item_type_is_equivalent_to<std::complex<double>>()) {
           auto ptr = static_cast<std::complex<double> *>(info.ptr);
           auto vec = VecCompInt32(info.shape[0]);
           for (size_t i = 0; i < info.shape[0]; ++i) {
             vec[i] = static_cast<std::complex<int32_t>>(ptr[i]);
           }
           return vec;
+        } else {
+          throw std::runtime_error(
+              "Incompatible format: expected a int16 array of pair, int32 array of pair, complex64 "
+              "array or complex128 array!");
         }
       }));
 
@@ -286,7 +278,7 @@ PYBIND11_MODULE(bindings, m) {
   m.def("checkInt32Type", &checkType<std::vector<int32_t>>);
   m.def("checkFloat32Type", &checkType<std::vector<float>>);
   m.def("checkFloat64Type", &checkType<std::vector<double>>);
-  
+
   m.def("checkComplexInt16Type", &checkType<std::vector<std::complex<int16_t>>>);
   m.def("checkComplexInt32Type", &checkType<std::vector<std::complex<int32_t>>>);
   m.def("checkComplexFloat32Type", &checkType<std::vector<std::complex<float>>>);
