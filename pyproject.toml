@@ -11,3 +11,16 @@ requires = [
     "parameterized",
     "pybind11"
 ]
+
+[project]
+name = "pyusff"
+version = "0.0.1"
+dependencies = [
+    "cmake_build_extension",
+    "numpy",
+    "parameterized",
+    "pybind11"
+]
+
+[tool.setuptools]
+py-modules = []
