@@ -15,8 +15,7 @@ struct Group {
   enum class SamplingType { DIRECT_RF = 0, IQ = 1, UNDEFINED = -1 };
 
   bool operator==(const Group& other) const {
-    return (sampling_type == other.sampling_type &&
-            sequence == other.sequence &&
+    return (sampling_type == other.sampling_type && sequence == other.sequence &&
             description == other.description);
   }
   inline bool operator!=(const Group& other) const { return !(*this == other); }

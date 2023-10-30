@@ -3,11 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
 namespace {
-MEX_DEFINE(unlock)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
-  mexUnlock();
-}
+MEX_DEFINE(unlock)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) { mexUnlock(); }
 }  // namespace
 
 MEX_DISPATCH

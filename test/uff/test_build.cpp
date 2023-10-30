@@ -3,6 +3,7 @@
 #include <uff/dataset.h>
 #include <uff/element.h>
 #include <uff/element_geometry.h>
+#include <uff/event.h>
 #include <uff/excitation.h>
 #include <uff/group.h>
 #include <uff/group_data.h>
@@ -12,7 +13,6 @@
 #include <uff/probe.h>
 #include <uff/rca_array.h>
 #include <uff/receive_setup.h>
-#include <uff/event.h>
 #include <uff/transform.h>
 #include <uff/transmit_setup.h>
 #include <uff/types.h>

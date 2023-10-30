@@ -36,13 +36,10 @@ struct Acquisition {
       are_probes_equaled = are_probes_equaled && (*probes[i] == *other.probes[i]);
     }
 
-    bool are_unique_waves_equaled =
-        unique_waves.size() == other.unique_waves.size();
-    for (uint32_t i = 0; i < unique_waves.size() && are_unique_waves_equaled;
-         ++i) {
+    bool are_unique_waves_equaled = unique_waves.size() == other.unique_waves.size();
+    for (uint32_t i = 0; i < unique_waves.size() && are_unique_waves_equaled; ++i) {
       are_unique_waves_equaled =
-          are_unique_waves_equaled &&
-          (*unique_waves[i] == *other.unique_waves[i]);
+          are_unique_waves_equaled && (*unique_waves[i] == *other.unique_waves[i]);
     }
 
     bool are_unique_receive_setups_equaled =
@@ -74,9 +71,9 @@ struct Acquisition {
     return ((authors == other.authors) && (description == other.description) &&
             (local_time == other.local_time) && (country_code == other.country_code) &&
             (system == other.system) && (sound_speed == other.sound_speed) &&
-            (timestamp == other.timestamp) && are_probes_equaled &&
-            are_unique_waves_equaled && are_unique_receive_setups_equaled &&
-            are_unique_excitations_equaled && are_groups_equaled && are_group_data_equaled);
+            (timestamp == other.timestamp) && are_probes_equaled && are_unique_waves_equaled &&
+            are_unique_receive_setups_equaled && are_unique_excitations_equaled &&
+            are_groups_equaled && are_group_data_equaled);
   }
   inline bool operator!=(const Acquisition& other) const { return !(*this == other); }
 

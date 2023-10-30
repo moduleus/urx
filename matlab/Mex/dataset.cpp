@@ -5,7 +5,6 @@
 #include <memory>
 #include <vector>
 
-
 #include <uff/dataset.h>
 
 using namespace mexplus;
@@ -38,7 +37,7 @@ MEX_DEFINE(set_Dataset_version)(int nlhs, mxArray* plhs[], int nrhs, const mxArr
   OutputArguments output(nlhs, plhs, 0);
   std::shared_ptr<uff::Dataset> dataset = Session<uff::Dataset>::get_shared(input.get(0));
   auto version_prop = input.get<std::vector<uint16_t>>(1);
-  dataset->version = {.major=version_prop[0], .minor=version_prop[1], .patch=version_prop[2]};
+  dataset->version = {.major = version_prop[0], .minor = version_prop[1], .patch = version_prop[2]};
 }
 
 }  // namespace

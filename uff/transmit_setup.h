@@ -8,8 +8,8 @@
 #include <uff/transform.h>
 #include <uff/types.h>
 #include <uff/uff.h>
-#include <uff/wave.h>
 #include <uff/vector.h>
+#include <uff/wave.h>
 
 namespace uff {
 
@@ -19,8 +19,7 @@ namespace uff {
 struct TransmitSetup {
   bool operator==(const TransmitSetup& other) const {
     return ((time_offset == other.time_offset) && (probe == other.probe) &&
-            (probe_transform == other.probe_transform) &&
-            (wave == other.wave));
+            (probe_transform == other.probe_transform) && (wave == other.wave));
   }
   inline bool operator!=(const TransmitSetup& other) const { return !(*this == other); }
 

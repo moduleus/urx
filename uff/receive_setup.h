@@ -16,13 +16,13 @@ namespace uff {
  */
 struct ReceiveSetup {
   inline bool operator==(const ReceiveSetup& other) const {
-    return (
-        (probe_transform == other.probe_transform) && (probe == other.probe) &&
-        (sampling_frequency == other.sampling_frequency) &&
-        (number_samples == other.number_samples) && (channel_mapping == other.channel_mapping) &&
-        (tgc_profile == other.tgc_profile) &&
-        (tgc_sampling_frequency == other.tgc_sampling_frequency) &&
-        (modulation_frequency == other.modulation_frequency) && (time_offset == other.time_offset));
+    return ((probe_transform == other.probe_transform) && (probe == other.probe) &&
+            (sampling_frequency == other.sampling_frequency) &&
+            (number_samples == other.number_samples) &&
+            (channel_mapping == other.channel_mapping) && (tgc_profile == other.tgc_profile) &&
+            (tgc_sampling_frequency == other.tgc_sampling_frequency) &&
+            (modulation_frequency == other.modulation_frequency) &&
+            (time_offset == other.time_offset));
   }
   inline bool operator!=(const ReceiveSetup& other) const { return !(*this == other); }
 

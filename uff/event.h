@@ -17,8 +17,7 @@ namespace uff {
  */
 struct Event {
   bool operator==(const Event& other) const {
-    return (transmit_setup == other.transmit_setup) &&
-           (receive_setup == other.receive_setup);
+    return (transmit_setup == other.transmit_setup) && (receive_setup == other.receive_setup);
   }
   inline bool operator!=(const Event& other) const { return !(*this == other); }
 

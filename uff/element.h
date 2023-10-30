@@ -14,8 +14,7 @@ namespace uff {
  */
 struct Element {
   inline bool operator==(const Element& other) const {
-    return (transform == other.transform) &&
-           (element_geometry == other.element_geometry) &&
+    return (transform == other.transform) && (element_geometry == other.element_geometry) &&
            (impluse_response == other.impluse_response);
   }
   inline bool operator!=(const Element& other) const { return !(*this == other); }

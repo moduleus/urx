@@ -24,22 +24,22 @@ struct GroupData {
   using VecDataTypeVariant = VecDataType<int16_t, int32_t, float, double>::real_and_complex;
 
   bool operator==(const GroupData& other) const {
-    return (group == other.group) &&
-           (raw_data == other.raw_data) && (size_of_data_type == other.size_of_data_type) &&
+    return (group == other.group) && (raw_data == other.raw_data) &&
+           (size_of_data_type == other.size_of_data_type) &&
            (group_timestamp == other.group_timestamp) &&
            (sequence_timestamps == other.sequence_timestamps) &&
            (event_timestamps == other.event_timestamps);
   }
   inline bool operator!=(const GroupData& other) const { return !(*this == other); }
 
-  /// Reference of the group whose data have been retrieved 
+  /// Reference of the group whose data have been retrieved
   std::shared_ptr<Group> group;
 
   /// Data type contained in the raw_data array
   DataType data_type = DataType::UNDEFINED;
 
   /// Data are organized as raw_data[Group repetition count][Number of event][Number of channel activated during the event][Number of samples]
-  /// Data are in 1D array since the dimensions of the data array is dynamic for the number of activated channels and for the number of samples 
+  /// Data are in 1D array since the dimensions of the data array is dynamic for the number of activated channels and for the number of samples
   /// Create your helper to deduce the dimensions or use Uff_Utils to access correctly to the data
   VecDataTypeVariant raw_data;
 

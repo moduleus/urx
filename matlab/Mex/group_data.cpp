@@ -177,10 +177,9 @@ MEX_DEFINE(GroupData_get_group)(int nlhs, mxArray* plhs[], int nrhs, const mxArr
   InputArguments input(nrhs, prhs, 1);
   OutputArguments output(nlhs, plhs, 1);
   std::shared_ptr<uff::GroupData> grp_data = Session<uff::GroupData>::get_shared(input.get(0));
-  if (!grp_data->group.expired())
-  {
+  if (!grp_data->group.expired()) {
     intptr_t id = reinterpret_cast<intptr_t>(grp_data->group.lock().get());
-    if(Session<uff::Group>::exist(id))
+    if (Session<uff::Group>::exist(id))
       output.set(0, id);
     else
       output.set(0, Session<uff::Group>::create(grp_data->group.lock().get()));
@@ -195,8 +194,7 @@ MEX_DEFINE(GroupData_set_group)(int nlhs, mxArray* plhs[], int nrhs, const mxArr
   std::shared_ptr<uff::Group> grp = Session<uff::Group>::get_shared(input.get(1));
   std::shared_ptr<uff::Acquisition> acq = Session<uff::Acquisition>::get_shared(input.get(2));
   for (size_t i = 0; i < acq->groups.size(); ++i) {
-    if(grp == acq->groups[i])
-      grp_data->group = acq->groups[i];
+    if (grp == acq->groups[i]) grp_data->group = acq->groups[i];
   }
 }
 

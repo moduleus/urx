@@ -37,7 +37,7 @@ struct Probe {
   std::vector<Element> elements;
 
   /// (Optional) For probes with a focal length only.
-  /// Description of the focal length (Az, Ele) [m] 
+  /// Description of the focal length (Az, Ele) [m]
   std::optional<double> focal_length = std::nullopt;
 
   /// (Optional) List of all unique element geometries in the probe

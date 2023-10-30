@@ -22,9 +22,8 @@ struct Wave {
     bool are_channel_excitations_equaled =
         channel_excitations.size() == other.channel_excitations.size();
     for (uint32_t i = 0; i < channel_excitations.size() && are_channel_excitations_equaled; ++i) {
-      are_channel_excitations_equaled =
-          are_channel_excitations_equaled &&
-          (channel_excitations[i] == other.channel_excitations[i]);
+      are_channel_excitations_equaled = are_channel_excitations_equaled &&
+                                        (channel_excitations[i] == other.channel_excitations[i]);
     }
 
     return ((origin == other.origin) && (wave_type == other.wave_type) &&
