@@ -10,30 +10,30 @@ namespace uff::test {
 TEST_CASE("Read back group data complex float data", "[group_data]") {
   using CompInt32 = std::complex<int32_t>;
 
-  auto group = std::make_shared<uff::Group>();
-  group->sampling_type = uff::Group::SamplingType::IQ;
+  uff::Group group;
+  group.sampling_type = uff::Group::SamplingType::IQ;
 
-  auto& sequence = group->sequence;
+  auto& sequence = group.sequence;
 
-  auto receive_setup_c_3_s_2 = std::make_shared<uff::ReceiveSetup>();
-  receive_setup_c_3_s_2->channel_mapping.resize(3);
-  receive_setup_c_3_s_2->number_samples = 2;
+  uff::ReceiveSetup receive_setup_c_3_s_2;
+  receive_setup_c_3_s_2.channel_mapping.resize(3);
+  receive_setup_c_3_s_2.number_samples = 2;
 
-  auto receive_setup_c_4_s_3 = std::make_shared<uff::ReceiveSetup>();
-  receive_setup_c_4_s_3->channel_mapping.resize(4);
-  receive_setup_c_4_s_3->number_samples = 3;
+  uff::ReceiveSetup receive_setup_c_4_s_3;
+  receive_setup_c_4_s_3.channel_mapping.resize(4);
+  receive_setup_c_4_s_3.number_samples = 3;
 
   const int n_events = 5;
   sequence.resize(n_events);
-  sequence[0].receive_setup = receive_setup_c_3_s_2;
-  sequence[1].receive_setup = receive_setup_c_4_s_3;
-  sequence[2].receive_setup = receive_setup_c_4_s_3;
-  sequence[3].receive_setup = receive_setup_c_3_s_2;
-  sequence[4].receive_setup = receive_setup_c_3_s_2;
+  sequence[0].receive_setup = &receive_setup_c_3_s_2;
+  sequence[1].receive_setup = &receive_setup_c_4_s_3;
+  sequence[2].receive_setup = &receive_setup_c_4_s_3;
+  sequence[3].receive_setup = &receive_setup_c_3_s_2;
+  sequence[4].receive_setup = &receive_setup_c_3_s_2;
 
   uff::GroupData group_data;
   group_data.data_type = uff::GroupData::DataType::INT32;
-  group_data.group = group;
+  group_data.group = &group;
   const int n_frames = 3;
   const int size = n_frames * 42;  // (42 = 3*2*3+4*3*2)
   auto tmp = std::vector<CompInt32>(size);

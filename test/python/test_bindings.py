@@ -183,9 +183,29 @@ class TestBindings(unittest.TestCase):
         print("\n--Test %s BEGIN--" % testName)
 
         group_data = uff.GroupData()
+        group_data_bis = uff.GroupData()
+
+        # Compare two GroupData
+        self.assertNotEqual(group_data, group_data_bis)
+        group_data.group_timestamp = 42
+        group_data_bis.group_timestamp = 42
+        self.assertEqual(group_data, group_data_bis)
+        group_data.group = uff.Group()
+        group_data_bis.group = uff.Group()
+        self.assertNotEqual(group_data, group_data_bis)
+
+        # Compare two Group inside and outside of GroupData
+        g1 = uff.Group()
+        g2 = uff.Group()
+        self.assertEqual(g1, g2)
+        group_data.group = g1
+        group_data_bis.group = g2
+        self.assertNotEqual(group_data, group_data_bis)
+
+        # Affect timestamps
+        group_data = uff.GroupData()
         self.assertTrue(np.isnan(group_data.group_timestamp))
         group_data.group_timestamp = np.float64("nan")
-
         group_data.sequence_timestamps = uff.VecFloat64([1, 2, 3, 4.56])
         self.assertTrue(np.array_equal(group_data.sequence_timestamps, np.array([1, 2, 3, 4.56]))
                         )
@@ -195,13 +215,15 @@ class TestBindings(unittest.TestCase):
             group_data.event_timestamps == [uff.VecFloat64(
                 [1, 2, 3, 4.56]), uff.VecFloat64([7.8, 9])])
 
+        # Affect size_of_data_type
         self.assertEqual(group_data.size_of_data_type, np.uint8(0))
         group_data.size_of_data_type, np.uint8(0)
 
+        # Check group ptr modification
+        group_data = uff.GroupData()
         group = uff.Group()
         self.assertEqual(group.description, "")
         self.assertEqual(group.sampling_type, uff.SamplingType.UNDEFINED)
-
         self.assertTrue(not group_data.group)
         group_data.group = group
         self.assertEqual(group_data.group, group)

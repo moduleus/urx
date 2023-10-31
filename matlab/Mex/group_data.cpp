@@ -29,7 +29,7 @@ MEX_DEFINE(GroupData_get_group_timestamp)
 (int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
   InputArguments input(nrhs, prhs, 1);
   OutputArguments output(nlhs, plhs, 1);
-  std::shared_ptr<uff::GroupData> grp_data = Session<uff::GroupData>::get_shared(input.get(0));
+  uff::GroupData* grp_data = Session<uff::GroupData>::get(input.get(0));
   output.set(0, grp_data->group_timestamp);
 }
 
@@ -37,7 +37,7 @@ MEX_DEFINE(GroupData_set_group_timestamp)
 (int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
   InputArguments input(nrhs, prhs, 2);
   OutputArguments output(nlhs, plhs, 0);
-  std::shared_ptr<uff::GroupData> grp_data = Session<uff::GroupData>::get_shared(input.get(0));
+  uff::GroupData* grp_data = Session<uff::GroupData>::get(input.get(0));
   grp_data->group_timestamp = input.get<double>(1);
 }
 
@@ -45,7 +45,7 @@ MEX_DEFINE(GroupData_get_size_of_data_type)
 (int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
   InputArguments input(nrhs, prhs, 1);
   OutputArguments output(nlhs, plhs, 1);
-  std::shared_ptr<uff::GroupData> grp_data = Session<uff::GroupData>::get_shared(input.get(0));
+  uff::GroupData* grp_data = Session<uff::GroupData>::get(input.get(0));
   output.set(0, grp_data->size_of_data_type);
 }
 
@@ -53,21 +53,21 @@ MEX_DEFINE(GroupData_set_size_of_data_type)
 (int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
   InputArguments input(nrhs, prhs, 2);
   OutputArguments output(nlhs, plhs, 0);
-  std::shared_ptr<uff::GroupData> grp_data = Session<uff::GroupData>::get_shared(input.get(0));
+  uff::GroupData* grp_data = Session<uff::GroupData>::get(input.get(0));
   grp_data->size_of_data_type = input.get<uint8_t>(1);
 }
 
 MEX_DEFINE(GroupData_get_data_type)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
   InputArguments input(nrhs, prhs, 1);
   OutputArguments output(nlhs, plhs, 1);
-  std::shared_ptr<uff::GroupData> grp_data = Session<uff::GroupData>::get_shared(input.get(0));
+  uff::GroupData* grp_data = Session<uff::GroupData>::get(input.get(0));
   output.set(0, int32_t(grp_data->data_type));
 }
 
 MEX_DEFINE(GroupData_set_data_type)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
   InputArguments input(nrhs, prhs, 2);
   OutputArguments output(nlhs, plhs, 0);
-  std::shared_ptr<uff::GroupData> grp_data = Session<uff::GroupData>::get_shared(input.get(0));
+  uff::GroupData* grp_data = Session<uff::GroupData>::get(input.get(0));
   grp_data->data_type = uff::GroupData::DataType(input.get<int32_t>(1));
 }
 
@@ -75,7 +75,7 @@ MEX_DEFINE(GroupData_get_sequence_timestamps)
 (int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
   InputArguments input(nrhs, prhs, 1);
   OutputArguments output(nlhs, plhs, 1);
-  std::shared_ptr<uff::GroupData> grp_data = Session<uff::GroupData>::get_shared(input.get(0));
+  uff::GroupData* grp_data = Session<uff::GroupData>::get(input.get(0));
   output.set(0, grp_data->sequence_timestamps);
 }
 
@@ -84,7 +84,7 @@ MEX_DEFINE(GroupData_set_sequence_timestamps)
   InputArguments input(nrhs, prhs, 2);
   OutputArguments output(nlhs, plhs, 0);
 
-  std::shared_ptr<uff::GroupData> grp_data = Session<uff::GroupData>::get_shared(input.get(0));
+  uff::GroupData* grp_data = Session<uff::GroupData>::get(input.get(0));
   grp_data->sequence_timestamps = input.get<std::vector<double>>(1);
 }
 
@@ -92,7 +92,7 @@ MEX_DEFINE(GroupData_get_event_timestamps)
 (int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
   InputArguments input(nrhs, prhs, 1);
   OutputArguments output(nlhs, plhs, 1);
-  std::shared_ptr<uff::GroupData> grp_data = Session<uff::GroupData>::get_shared(input.get(0));
+  uff::GroupData* grp_data = Session<uff::GroupData>::get(input.get(0));
   output.set(0, grp_data->event_timestamps);
 }
 
@@ -101,14 +101,14 @@ MEX_DEFINE(GroupData_set_event_timestamps)
   InputArguments input(nrhs, prhs, 2);
   OutputArguments output(nlhs, plhs, 0);
 
-  std::shared_ptr<uff::GroupData> grp_data = Session<uff::GroupData>::get_shared(input.get(0));
+  uff::GroupData* grp_data = Session<uff::GroupData>::get(input.get(0));
   grp_data->event_timestamps = input.get<std::vector<std::vector<double>>>(1);
 }
 
 MEX_DEFINE(GroupData_get_raw_data)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
   InputArguments input(nrhs, prhs, 1);
   OutputArguments output(nlhs, plhs, 1);
-  std::shared_ptr<uff::GroupData> grp_data = Session<uff::GroupData>::get_shared(input.get(0));
+  uff::GroupData* grp_data = Session<uff::GroupData>::get(input.get(0));
 
   std::visit([&](auto&& vec) { output.set(0, vec); }, grp_data->raw_data);
 }
@@ -117,7 +117,7 @@ MEX_DEFINE(GroupData_set_raw_data)(int nlhs, mxArray* plhs[], int nrhs, const mx
   InputArguments input(nrhs, prhs, 2);
   OutputArguments output(nlhs, plhs, 0);
 
-  std::shared_ptr<uff::GroupData> grp_data = Session<uff::GroupData>::get_shared(input.get(0));
+  uff::GroupData* grp_data = Session<uff::GroupData>::get(input.get(0));
 
   const mxClassID category = mxGetClassID(prhs[1]);
   const mwSize n = mxGetNumberOfElements(prhs[1]);  // Number of elements of input variable
@@ -176,7 +176,7 @@ MEX_DEFINE(GroupData_set_raw_data)(int nlhs, mxArray* plhs[], int nrhs, const mx
 MEX_DEFINE(GroupData_get_group)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
   InputArguments input(nrhs, prhs, 1);
   OutputArguments output(nlhs, plhs, 1);
-  std::shared_ptr<uff::GroupData> grp_data = Session<uff::GroupData>::get_shared(input.get(0));
+  uff::GroupData* grp_data = Session<uff::GroupData>::get(input.get(0));
   if (!grp_data->group.expired()) {
     intptr_t id = reinterpret_cast<intptr_t>(grp_data->group.lock().get());
     if (Session<uff::Group>::exist(id))
@@ -190,9 +190,9 @@ MEX_DEFINE(GroupData_set_group)(int nlhs, mxArray* plhs[], int nrhs, const mxArr
   InputArguments input(nrhs, prhs, 3);
   OutputArguments output(nlhs, plhs, 0);
 
-  std::shared_ptr<uff::GroupData> grp_data = Session<uff::GroupData>::get_shared(input.get(0));
-  std::shared_ptr<uff::Group> grp = Session<uff::Group>::get_shared(input.get(1));
-  std::shared_ptr<uff::Acquisition> acq = Session<uff::Acquisition>::get_shared(input.get(2));
+  uff::GroupData* grp_data = Session<uff::GroupData>::get(input.get(0));
+  uff::Group* grp = Session<uff::Group>::get(input.get(1));
+  uff::Acquisition* acq = Session<uff::Acquisition>::get(input.get(2));
   for (size_t i = 0; i < acq->groups.size(); ++i) {
     if (grp == acq->groups[i]) grp_data->group = acq->groups[i];
   }

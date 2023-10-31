@@ -279,7 +279,7 @@ PYBIND11_MODULE(bindings, m) {
       .value("IQ", uff::Group::SamplingType::IQ)
       .value("UNDEFINED", uff::Group::SamplingType::UNDEFINED);
 
-  py::class_<uff::Group, std::shared_ptr<uff::Group>>(m, "Group")
+  py::class_<uff::Group>(m, "Group")
       .def(py::init())
       .def(pybind11::self == pybind11::self)
       .def(pybind11::self != pybind11::self)
@@ -293,7 +293,7 @@ PYBIND11_MODULE(bindings, m) {
       .value("DOUBLE", uff::GroupData::DataType::DOUBLE)
       .value("UNDEFINED", uff::GroupData::DataType::UNDEFINED);
 
-  py::class_<uff::GroupData, std::shared_ptr<uff::GroupData>>(m, "GroupData")
+  py::class_<uff::GroupData>(m, "GroupData")
       .def(py::init())
       .def(pybind11::self == pybind11::self)
       .def(pybind11::self != pybind11::self)
