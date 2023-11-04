@@ -1,7 +1,7 @@
 classdef Acquisition < handle
   properties (Access = public)
     id = libpointer
-    groupsFactory(1,1) uff.GroupFactory
+    stdVectorGroup uff.StdVectorGroup {mustBeScalarOrEmpty} = uff.StdVectorGroup.empty(0,1)
   end
   
   properties (Access = public, SetObservable, GetObservable)
@@ -15,7 +15,7 @@ classdef Acquisition < handle
   methods 
     function this = Acquisition()
       this.id = calllib('libMatlabCppGlueAcquisition', 'acquisition_new');
-      this.groupsFactory = uff.GroupFactory(this);
+      this.stdVectorGroup = uff.StdVectorGroup(this);
       mc = metaclass(this);
       props = mc.PropertyList;%properties(this);
       for i = 1:numel(props)
@@ -41,11 +41,10 @@ classdef Acquisition < handle
       end
       affectedObj = evnt.AffectedObject;
       affectedObjClass = class(affectedObj);
-      name = src.Name;
-      functionAccessor = [lower(affectedObjClass(5:end)) '_' name];
-      evnt.EventName;
+      pptName = src.Name;
+      functionAccessor = [lower(affectedObjClass(5:end)) '_' pptName];
       ptr = calllib('libMatlabCppGlueAcquisition', functionAccessor, affectedObj.id);
-      affectedPpt = affectedObj.(name);
+      affectedPpt = affectedObj.(pptName);
       switch evnt.EventName
         case 'PostSet'
           switch class(affectedPpt)
@@ -55,23 +54,35 @@ classdef Acquisition < handle
               ptr.setdatatype('doublePtr', numel(affectedPpt));
               ptr.Value = affectedPpt;
           end
-          if strncmp(class(affectedPpt), 'uff.', 4) && ...
-                any(strcmp(properties(affectedObj), [name 'Factory']))
-            for i = find(cellfun(@(x)isempty(x), {affectedPpt.factoryId}));
-              affectedObj.([name 'Factory']).insert(i-1, affectedPpt(i));
+          if strncmp(class(affectedPpt), 'uff.', 4) && ~strncmp(class(affectedPpt), 'uff.stdV', 9) ...
+                && any(strncmp(properties(affectedObj), 'stdVector', 9))
+            tiedStdVecName = ['stdVector' upper(pptName(1)) pptName(2:(end-1))];
+            tiedStdVecClass = class(affectedObj.(tiedStdVecName));
+            tmpStdVec = eval([tiedStdVecClass '()']);
+            for i=1:numel(affectedPpt)
+              tmpStdVec.pushBack(affectedPpt(i));
+              if affectedPpt(i).isAnAllocatedObject()
+                affectedPpt(i).deleteCpp();
+              end
             end
+            tmpStdVec.(pptName) = affectedPpt;
+            tmpStdVec.updateFromCpp();
+            affectedObj.(tiedStdVecName).copy(tmpStdVec);
+            affectedObj.(tiedStdVecName).(pptName) = affectedPpt;
           end
         case 'PreGet'
           switch class(affectedPpt)
             case 'char'
-              affectedObj.(name) = calllib('libMatlabCppGlueAcquisition', 'std_string_get', ptr);
+              affectedObj.(pptName) = calllib('libMatlabCppGlueAcquisition', 'std_string_get', ptr);
             case 'double'
               ptr.setdatatype('doublePtr', numel(affectedPpt));
-              affectedObj.(name) = ptr.Value;
+              affectedObj.(pptName) = ptr.Value;
           end
-          if strncmp(class(affectedPpt), 'uff.', 4) && ...
-                any(strcmp(properties(affectedObj), [name 'Factory']))
-            affectedObj.([name 'Factory']).updateFromCpp();
+          if strncmp(class(affectedPpt), 'uff.', 4) && ~strncmp(class(affectedPpt), 'uff.stdV', 9) ...
+                && any(strncmp(properties(affectedObj), 'stdVector', 9))
+            tiedStdVecName = ['stdVector' upper(pptName(1)) pptName(2:(end-1))];
+            affectedObj.(tiedStdVecName).updateFromCpp();
+            affectedObj.(pptName) = affectedObj.(tiedStdVecName).(pptName);
           end
       end
     end

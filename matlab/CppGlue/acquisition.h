@@ -35,10 +35,15 @@ extern "C" {
   void* group_sampling_type(void *this_ptr);
   void* group_description(void* this_ptr);
 
+  void* std_vector_uff_group_new(void);
+  void std_vector_uff_group_delete(void* this_ptr);
   void* std_vector_uff_group_data(void *this_ptr);
   void std_vector_uff_group_insert(void *this_ptr, int pos, void *val);
   void std_vector_uff_group_erase(void *this_ptr, int pos);
   size_t std_vector_uff_group_size(void *this_ptr);
+  void std_vector_uff_group_clear(void *this_ptr);
+  void std_vector_uff_group_push_back(void *this_ptr, void *val);
+  void std_vector_uff_group_copy(void *this_ptr, void *other_ptr);
 #ifdef __cplusplus
 }
 #endif

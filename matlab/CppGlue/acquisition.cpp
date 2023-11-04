@@ -29,6 +29,8 @@ int group_sampling_type_sizeof(void) { return sizeof(uff::Group::SamplingType); 
 void* group_sampling_type(void *this_ptr) { return &((uff::Group*)this_ptr)->sampling_type; }
 void* group_description(void *this_ptr) { return &((uff::Group*)this_ptr)->description; }
 
+void* std_vector_uff_group_new(void) { return new std::vector<uff::Group>; }
+void std_vector_uff_group_delete(void* this_ptr) { delete (std::vector<uff::Group>*)this_ptr; }
 void* std_vector_uff_group_data(void *this_ptr) { return ((std::vector<uff::Group>*)this_ptr)->data(); }
 void std_vector_uff_group_insert(void *this_ptr, int pos, void *val) {
   std::vector<uff::Group>* ptr = (std::vector<uff::Group>*)this_ptr;
@@ -39,3 +41,10 @@ void std_vector_uff_group_erase(void *this_ptr, int pos) {
   ptr->erase(ptr->begin() + pos);
 }
 size_t std_vector_uff_group_size(void *this_ptr) { return ((std::vector<uff::Group>*)this_ptr)->size(); }
+void std_vector_uff_group_clear(void *this_ptr) { ((std::vector<uff::Group>*)this_ptr)->clear(); }
+void std_vector_uff_group_push_back(void *this_ptr, void *val) {
+  ((std::vector<uff::Group>*)this_ptr)->push_back(*(uff::Group*)val);
+}
+void std_vector_uff_group_copy(void *this_ptr, void *other_ptr) {
+  *(std::vector<uff::Group>*)this_ptr = *(std::vector<uff::Group>*)other_ptr;
+}
