@@ -1,4 +1,4 @@
-#include <mexplus.h>
+#include <mexplus/mexplus.h>
 
 #include <iostream>
 #include <memory>
