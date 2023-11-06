@@ -28,6 +28,7 @@ classdef StdVectorGroup < handle
     end
 
     function clear(this)
+      this.clear();
       calllib('libMatlabCppGlueAcquisition', 'std_vector_uff_group_clear', this.id);
     end
 
@@ -52,6 +53,13 @@ classdef StdVectorGroup < handle
           this.groups(i).id = groupsBasePtr + (i-1) * sizeofGroup;
           this.groups(i).containerId = int32(i - 1);
           this.groups(i).container = this;
+          groupsPpt = properties(this.groups);
+          groupsPptStdVecInd = find(strncmp(groupsPpt, 'stdVector', 9));
+          for i=1:numel(groupsPptStdVecInd)
+            for j=1:numel(this.groups)
+              this.groups(j).(groupsPpt{groupsPptStdVecInd(i)}).updateContainer(this.groups(i));
+            end
+          end
         end
       end
       if numel(this.groups) > nbGroup

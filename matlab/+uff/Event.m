@@ -1,28 +1,25 @@
-classdef Group < uff.Object % handle
-  properties (Access = public)
-    % id(1,1) = libpointer
-    % container uff.StdVectorGroup {mustBeScalarOrEmpty}
-    % containerId int32 {mustBeScalarOrEmpty}
-    stdVectorSequence uff.StdVectorEvent {mustBeScalarOrEmpty} = uff.StdVectorEvent.empty(0,1)
-  end
+classdef Event < uff.Object % handle
+  % properties (Access = public)
+  %   id(1,1) = libpointer
+  %   container uff.StdVectorEvent {mustBeScalarOrEmpty}
+  %   containerId int32 {mustBeScalarOrEmpty}
+  % end
 
   properties (Access = public, SetObservable, GetObservable)
-    sampling_type(1,1) uff.Group.SamplingType
-    sequence(:,1) = uff.Event.empty(0,1)
-    description char
+    % transmit_setup
+    % receive_setup
   end
 
   methods
-    function this = Group(varargin)
+    function this = Event(varargin)
       this@uff.Object(varargin{:});
       % if nargin < 1
-      %   this.id = calllib('libMatlabCppGlueAcquisition', 'group_new');
+      %   this.id = calllib('libMatlabCppGlueAcquisition', 'event_new');
       % else
       %   this.id = id;
       %   this.containerId = containerId;
       %   this.container = container;
       % end
-      this.stdVectorSequence = uff.StdVectorEvent(this);
       % mc = metaclass(this);
       % props = mc.PropertyList;
       % for i = 1:numel(props)
@@ -36,7 +33,7 @@ classdef Group < uff.Object % handle
     end
 
     % function deleteCpp(this)
-    %   calllib('libMatlabCppGlueAcquisition', 'group_delete', this.id);
+    %   calllib('libMatlabCppGlueAcquisition', 'event_delete', this.id);
     %   this.id = libpointer;
     % end
 

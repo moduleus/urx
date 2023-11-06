@@ -1,12 +1,15 @@
 classdef Acquisition < handle
   properties (Access = public)
     id = libpointer
-    stdVectorGroup uff.StdVectorGroup {mustBeScalarOrEmpty} = uff.StdVectorGroup.empty(0,1)
+    stdVectorGroups uff.StdVectorGroup {mustBeScalarOrEmpty} = uff.StdVectorGroup.empty(0,1)
   end
   
   properties (Access = public, SetObservable, GetObservable)
     authors char
     description char
+    local_time char
+    country_code char
+    system char
     sound_speed(1,1) double
     groups(:,1) = uff.Group.empty(0,1)
   end
@@ -15,7 +18,7 @@ classdef Acquisition < handle
   methods 
     function this = Acquisition()
       this.id = calllib('libMatlabCppGlueAcquisition', 'acquisition_new');
-      this.stdVectorGroup = uff.StdVectorGroup(this);
+      this.stdVectorGroups = uff.StdVectorGroup(this);
       mc = metaclass(this);
       props = mc.PropertyList;%properties(this);
       for i = 1:numel(props)
@@ -45,18 +48,22 @@ classdef Acquisition < handle
       functionAccessor = [lower(affectedObjClass(5:end)) '_' pptName];
       ptr = calllib('libMatlabCppGlueAcquisition', functionAccessor, affectedObj.id);
       affectedPpt = affectedObj.(pptName);
+      affectedPptClass = class(affectedPpt);
       switch evnt.EventName
         case 'PostSet'
-          switch class(affectedPpt)
+          switch affectedPptClass
             case 'char'
               calllib('libMatlabCppGlueAcquisition', 'std_string_set', ptr, affectedPpt);
             case 'double'
               ptr.setdatatype('doublePtr', numel(affectedPpt));
               ptr.Value = affectedPpt;
           end
-          if strncmp(class(affectedPpt), 'uff.', 4) && ~strncmp(class(affectedPpt), 'uff.stdV', 9) ...
+          if isa(affectedPpt, 'int32') % int32 + enum
+            ptr.setdatatype('int32Ptr', numel(affectedPpt));
+            ptr.Value = int32(affectedPpt);
+          elseif strncmp(affectedPptClass, 'uff.', 4) && ~strncmp(affectedPptClass, 'uff.stdV', 9) ...
                 && any(strncmp(properties(affectedObj), 'stdVector', 9))
-            tiedStdVecName = ['stdVector' upper(pptName(1)) pptName(2:(end-1))];
+            tiedStdVecName = ['stdVector' upper(pptName(1)) pptName(2:end)];
             tiedStdVecClass = class(affectedObj.(tiedStdVecName));
             tmpStdVec = eval([tiedStdVecClass '()']);
             for i=1:numel(affectedPpt)
@@ -71,16 +78,23 @@ classdef Acquisition < handle
             affectedObj.(tiedStdVecName).(pptName) = affectedPpt;
           end
         case 'PreGet'
-          switch class(affectedPpt)
+          switch affectedPptClass
             case 'char'
               affectedObj.(pptName) = calllib('libMatlabCppGlueAcquisition', 'std_string_get', ptr);
             case 'double'
               ptr.setdatatype('doublePtr', numel(affectedPpt));
               affectedObj.(pptName) = ptr.Value;
           end
-          if strncmp(class(affectedPpt), 'uff.', 4) && ~strncmp(class(affectedPpt), 'uff.stdV', 9) ...
+          if isa(affectedPpt, 'int32') % int32 + enum
+            ptr.setdatatype('int32Ptr', numel(affectedPpt));
+            if strncmp(affectedPptClass, 'uff.', 4)
+              affectedObj.(pptName) = uff.(affectedPptClass(5:end))(ptr.Value);
+            else
+              affectedObj.(pptName) = ptr.Value;
+            end
+          elseif strncmp(affectedPptClass, 'uff.', 4) && ~strncmp(affectedPptClass, 'uff.stdV', 9) ...
                 && any(strncmp(properties(affectedObj), 'stdVector', 9))
-            tiedStdVecName = ['stdVector' upper(pptName(1)) pptName(2:(end-1))];
+            tiedStdVecName = ['stdVector' upper(pptName(1)) pptName(2:end)];
             affectedObj.(tiedStdVecName).updateFromCpp();
             affectedObj.(pptName) = affectedObj.(tiedStdVecName).(pptName);
           end

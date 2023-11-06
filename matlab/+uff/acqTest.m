@@ -10,6 +10,14 @@ g = uff.Group();
 g.description = 'my description 0';
 g1 = uff.Group();
 g1.description = 'my description 1';
+% return
 acqObj.groups = [g g1];
-acqObj.groups(1) == g
-acqObj.groups(2) == g1
+assert(acqObj.groups(1) == g)
+assert(acqObj.groups(2) == g1)
+
+
+ev = uff.Event();
+ev1 = uff.Event();
+g.sequence = [ev ev1];
+assert(g.sequence(1) == ev)
+assert(g.sequence(2) == ev1)
