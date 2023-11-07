@@ -33,7 +33,7 @@ struct GroupData {
   inline bool operator!=(const GroupData& other) const { return !(*this == other); }
 
   /// Reference of the group whose data have been retrieved
-  Group* group = nullptr;
+  std::shared_ptr<Group> group;
 
   /// Data type contained in the raw_data array
   DataType data_type = DataType::UNDEFINED;

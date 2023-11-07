@@ -41,10 +41,10 @@ struct Probe {
   std::optional<double> focal_length = std::nullopt;
 
   /// (Optional) List of all unique element geometries in the probe
-  std::vector<ElementGeometry> element_geometries;
+  std::vector<std::shared_ptr<ElementGeometry>> element_geometries;
 
   /// (Optional) List of all unique electromechanical impulse responses of the elements in the probe
-  std::vector<ImpulseResponse> impulse_responses;
+  std::vector<std::shared_ptr<ImpulseResponse>> impulse_responses;
 };
 
 }  // namespace uff

@@ -23,10 +23,10 @@ struct Element {
   Transform transform;
 
   /// Reference the corresponfing element geometry in the probe the element belong to
-  ElementGeometry* element_geometry = nullptr;
+  std::shared_ptr<ElementGeometry> element_geometry;
 
   /// Reference the corresponfing impulse responce in the probe the element belong to
-  ImpulseResponse* impluse_response = nullptr;
+  std::shared_ptr<ImpulseResponse> impluse_response;
 };
 
 }  // namespace uff

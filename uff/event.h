@@ -22,10 +22,10 @@ struct Event {
   inline bool operator!=(const Event& other) const { return !(*this == other); }
 
   /// Description of the transmit event (probe/channels, waves, excitations, etc.)
-  TransmitSetup* transmit_setup = nullptr;
+  std::shared_ptr<TransmitSetup> transmit_setup;
 
   /// Description of sampled channel data (probe/channels, sampling, TGC, etc.)
-  ReceiveSetup* receive_setup = nullptr;
+  std::shared_ptr<ReceiveSetup> receive_setup;
 };
 
 }  // namespace uff

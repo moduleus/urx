@@ -24,7 +24,7 @@ struct TransmitSetup {
   inline bool operator!=(const TransmitSetup& other) const { return !(*this == other); }
 
   /// Reference to the probe use in transmission
-  Probe* probe = nullptr;
+  std::shared_ptr<Probe> probe;
 
   /// Location of the probe in space reference for this TransmitSetup
   std::optional<Transform> probe_transform = std::nullopt;
@@ -33,7 +33,7 @@ struct TransmitSetup {
   double time_offset = 0.;
 
   /// The wave emitted by this TransmitSetup
-  Wave* wave = nullptr;
+  std::shared_ptr<Wave> wave;
 };
 
 }  // namespace uff
