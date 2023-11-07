@@ -43,6 +43,12 @@ struct GroupData {
   /// Create your helper to deduce the dimensions or use Uff_Utils to access correctly to the data
   VecDataTypeVariant raw_data;
 
+  /// Test void*
+  void* void_raw_data;
+
+  /// Test void* length
+  uint64_t void_raw_data_length;
+
   /// Timestamp of the group launch [s]
   double group_timestamp = UFF_NAN;
 

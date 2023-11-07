@@ -105,6 +105,42 @@ MEX_DEFINE(GroupData_set_event_timestamps)
   grp_data->event_timestamps = input.get<std::vector<std::vector<double>>>(1);
 }
 
+MEX_DEFINE(GroupData_get_void_raw_data_length)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
+  InputArguments input(nrhs, prhs, 1);
+  OutputArguments output(nlhs, plhs, 1);
+  std::shared_ptr<uff::GroupData> grp_data = Session<uff::GroupData>::get_shared(input.get(0));
+
+  output.set(0, grp_data->void_raw_data_length);
+}
+
+MEX_DEFINE(GroupData_set_void_raw_data_length)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
+  InputArguments input(nrhs, prhs, 2);
+  OutputArguments output(nlhs, plhs, 0);
+  std::shared_ptr<uff::GroupData> grp_data = Session<uff::GroupData>::get_shared(input.get(0));
+
+  grp_data->void_raw_data_length = input.get<uint64_t>(1);
+}
+
+MEX_DEFINE(GroupData_get_void_raw_data)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
+  InputArguments input(nrhs, prhs, 1);
+  OutputArguments output(nlhs, plhs, 1);
+  std::shared_ptr<uff::GroupData> grp_data = Session<uff::GroupData>::get_shared(input.get(0));
+
+  // output.set(0, grp_data->void_raw_data);
+}
+
+MEX_DEFINE(GroupData_set_void_raw_data)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
+  InputArguments input(nrhs, prhs, 2);
+  OutputArguments output(nlhs, plhs, 0);
+  std::shared_ptr<uff::GroupData> grp_data = Session<uff::GroupData>::get_shared(input.get(0));
+
+  const mxClassID category = mxGetClassID(prhs[1]);
+  const mwSize n = mxGetNumberOfElements(prhs[1]);  // Number of elements of input variable
+  bool isComplex = mxIsComplex(prhs[1]);
+  plhs[0] = mxCreateNumericArray(1, &n, category, mxComplexity(isComplex));
+  grp_data->void_raw_data = mxGetData(prhs[1]);
+}
+
 MEX_DEFINE(GroupData_get_raw_data)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
   InputArguments input(nrhs, prhs, 1);
   OutputArguments output(nlhs, plhs, 1);
@@ -177,13 +213,11 @@ MEX_DEFINE(GroupData_get_group)(int nlhs, mxArray* plhs[], int nrhs, const mxArr
   InputArguments input(nrhs, prhs, 1);
   OutputArguments output(nlhs, plhs, 1);
   std::shared_ptr<uff::GroupData> grp_data = Session<uff::GroupData>::get_shared(input.get(0));
-  if (!grp_data->group.expired()) {
-    intptr_t id = reinterpret_cast<intptr_t>(grp_data->group.lock().get());
-    if (Session<uff::Group>::exist(id))
-      output.set(0, id);
-    else
-      output.set(0, Session<uff::Group>::create(grp_data->group.lock().get()));
-  }
+  intptr_t id = reinterpret_cast<intptr_t>(grp_data->group.get());
+  if (Session<uff::Group>::exist(id))
+    output.set(0, id);
+  else
+    output.set(0, Session<uff::Group>::create_shared(grp_data->group));
 }
 
 MEX_DEFINE(GroupData_set_group)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
