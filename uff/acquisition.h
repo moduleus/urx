@@ -36,19 +36,15 @@ struct Acquisition {
       are_probes_equaled = are_probes_equaled && (*probes[i] == *other.probes[i]);
     }
 
-    bool are_unique_waves_equaled = unique_waves.size() == other.unique_waves.size();
-    for (uint32_t i = 0; i < unique_waves.size() && are_unique_waves_equaled; ++i) {
-      are_unique_waves_equaled =
-          are_unique_waves_equaled && (*unique_waves[i] == *other.unique_waves[i]);
+    bool are_waves_equaled = waves.size() == other.waves.size();
+    for (uint32_t i = 0; i < waves.size() && are_waves_equaled; ++i) {
+      are_waves_equaled = are_waves_equaled && (*waves[i] == *other.waves[i]);
     }
 
-    bool are_unique_receive_setups_equaled =
-        unique_receive_setups.size() == other.unique_receive_setups.size();
-    for (uint32_t i = 0; i < unique_receive_setups.size() && are_unique_receive_setups_equaled;
-         ++i) {
-      are_unique_receive_setups_equaled =
-          are_unique_receive_setups_equaled &&
-          (*unique_receive_setups[i] == *other.unique_receive_setups[i]);
+    bool are_receive_setups_equaled = receive_setups.size() == other.receive_setups.size();
+    for (uint32_t i = 0; i < receive_setups.size() && are_receive_setups_equaled; ++i) {
+      are_receive_setups_equaled =
+          are_receive_setups_equaled && (*receive_setups[i] == *other.receive_setups[i]);
     }
 
     bool are_groups_equaled = groups.size() == other.groups.size();
@@ -61,19 +57,18 @@ struct Acquisition {
       are_group_data_equaled = are_group_data_equaled && (*group_data[i] == *other.group_data[i]);
     }
 
-    bool are_unique_excitations_equaled =
-        unique_excitations.size() == other.unique_excitations.size();
-    for (uint32_t i = 0; i < unique_excitations.size() && are_unique_excitations_equaled; ++i) {
-      are_unique_excitations_equaled = are_unique_excitations_equaled &&
-                                       (*unique_excitations[i] == *other.unique_excitations[i]);
+    bool are_excitations_equaled = excitations.size() == other.excitations.size();
+    for (uint32_t i = 0; i < excitations.size() && are_excitations_equaled; ++i) {
+      are_excitations_equaled =
+          are_excitations_equaled && (*excitations[i] == *other.excitations[i]);
     }
 
     return ((authors == other.authors) && (description == other.description) &&
             (local_time == other.local_time) && (country_code == other.country_code) &&
             (system == other.system) && (sound_speed == other.sound_speed) &&
-            (timestamp == other.timestamp) && are_probes_equaled && are_unique_waves_equaled &&
-            are_unique_receive_setups_equaled && are_unique_excitations_equaled &&
-            are_groups_equaled && are_group_data_equaled);
+            (timestamp == other.timestamp) && are_probes_equaled && are_waves_equaled &&
+            are_receive_setups_equaled && are_excitations_equaled && are_groups_equaled &&
+            are_group_data_equaled);
   }
   inline bool operator!=(const Acquisition& other) const { return !(*this == other); }
 
@@ -103,13 +98,13 @@ struct Acquisition {
   std::vector<std::shared_ptr<Probe>> probes;
 
   /// List of all the unique receive setup used in the sequences in the acquisition
-  std::vector<std::shared_ptr<ReceiveSetup>> unique_receive_setups;
+  std::vector<std::shared_ptr<ReceiveSetup>> receive_setups;
 
   /// List of all the unique waves used in the sequences in the acquisition
-  std::vector<std::shared_ptr<Wave>> unique_waves;
+  std::vector<std::shared_ptr<Wave>> waves;
 
   /// List of all the unique excitations used the sequences in the acquisition
-  std::vector<std::shared_ptr<Excitation>> unique_excitations;
+  std::vector<std::shared_ptr<Excitation>> excitations;
 
   /// Timestamp of the launch of the acquisition [s]
   double timestamp = UFF_NAN;
