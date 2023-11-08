@@ -37,7 +37,7 @@ class GroupDataReader {
     _samples_offset.emplace_back(0);
 
     for (auto event : _group_data.group->sequence) {
-      auto& receive_setup = *event.receive_setup;
+      auto& receive_setup = event.receive_setup;
       const size_t samples_count = receive_setup.number_samples;
       const size_t samples_offset = receive_setup.channel_mapping.size() * samples_count;
 

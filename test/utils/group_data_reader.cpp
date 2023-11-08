@@ -15,13 +15,13 @@ TEST_CASE("Read back group data complex float data", "[group_data]") {
 
   auto& sequence = group->sequence;
 
-  auto receive_setup_c_3_s_2 = std::make_shared<uff::ReceiveSetup>();
-  receive_setup_c_3_s_2->channel_mapping.resize(3);
-  receive_setup_c_3_s_2->number_samples = 2;
+  auto receive_setup_c_3_s_2 = uff::ReceiveSetup();
+  receive_setup_c_3_s_2.channel_mapping.resize(3);
+  receive_setup_c_3_s_2.number_samples = 2;
 
-  auto receive_setup_c_4_s_3 = std::make_shared<uff::ReceiveSetup>();
-  receive_setup_c_4_s_3->channel_mapping.resize(4);
-  receive_setup_c_4_s_3->number_samples = 3;
+  auto receive_setup_c_4_s_3 = uff::ReceiveSetup();
+  receive_setup_c_4_s_3.channel_mapping.resize(4);
+  receive_setup_c_4_s_3.number_samples = 3;
 
   const int n_events = 5;
   sequence.resize(n_events);

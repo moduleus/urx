@@ -41,12 +41,6 @@ struct Acquisition {
       are_waves_equaled = are_waves_equaled && (*waves[i] == *other.waves[i]);
     }
 
-    bool are_receive_setups_equaled = receive_setups.size() == other.receive_setups.size();
-    for (uint32_t i = 0; i < receive_setups.size() && are_receive_setups_equaled; ++i) {
-      are_receive_setups_equaled =
-          are_receive_setups_equaled && (*receive_setups[i] == *other.receive_setups[i]);
-    }
-
     bool are_groups_equaled = groups.size() == other.groups.size();
     for (uint32_t i = 0; i < groups.size() && are_groups_equaled; ++i) {
       are_groups_equaled = are_groups_equaled && (*groups[i] == *other.groups[i]);
@@ -67,8 +61,7 @@ struct Acquisition {
             (local_time == other.local_time) && (country_code == other.country_code) &&
             (system == other.system) && (sound_speed == other.sound_speed) &&
             (timestamp == other.timestamp) && are_probes_equaled && are_waves_equaled &&
-            are_receive_setups_equaled && are_excitations_equaled && are_groups_equaled &&
-            are_group_data_equaled);
+            are_excitations_equaled && are_groups_equaled && are_group_data_equaled);
   }
   inline bool operator!=(const Acquisition& other) const { return !(*this == other); }
 
@@ -96,9 +89,6 @@ struct Acquisition {
 
   /// List of all the probes used to transmit/receive sequences in the acquisition
   std::vector<std::shared_ptr<Probe>> probes;
-
-  /// List of all the unique receive setup used in the sequences in the acquisition
-  std::vector<std::shared_ptr<ReceiveSetup>> receive_setups;
 
   /// List of all the unique waves used in the sequences in the acquisition
   std::vector<std::shared_ptr<Wave>> waves;
