@@ -4,7 +4,6 @@
 #include <optional>
 #include <vector>
 
-#include <uff/aperture.h>
 #include <uff/excitation.h>
 #include <uff/probe.h>
 #include <uff/transform.h>
@@ -27,7 +26,6 @@ struct Wave {
     }
 
     return ((origin == other.origin) && (wave_type == other.wave_type) &&
-            (aperture == other.aperture) &&
             (time_zero_reference_point == other.time_zero_reference_point) &&
             (time_zero == other.time_zero) && (channel_mapping == other.channel_mapping) &&
             are_channel_excitations_equaled && (channel_delays == other.channel_delays));
@@ -39,9 +37,6 @@ struct Wave {
 
   /// Description of the wave origin, its interpretation depends on the WaveType
   Transform origin;
-
-  /// (Optionnal) Description of the aperture used to produce the wave
-  std::optional<Aperture> aperture = std::nullopt;
 
   /// Time zero reference point in Probe orthogonal coordinate system
   Vector3D<double> time_zero_reference_point = Vector3D<double>{0, 0, 0};

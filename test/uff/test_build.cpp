@@ -1,5 +1,4 @@
 #include <uff/acquisition.h>
-#include <uff/aperture.h>
 #include <uff/dataset.h>
 #include <uff/element.h>
 #include <uff/element_geometry.h>
@@ -24,7 +23,6 @@ namespace uff::test {
 
 TEST_CASE("Instantiate all classes to check build", "[test_build]") {
   const Acquisition acquisition;
-  const Aperture aperture;
   const Dataset dataset;
   const ElementGeometry element_geometry;
   const Element element;
