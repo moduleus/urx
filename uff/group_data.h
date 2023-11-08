@@ -36,7 +36,10 @@ struct GroupData {
   std::shared_ptr<Group> group;
 
   /// Data type contained in the raw_data array
-  DataType data_type = DataType::UNDEFINED;
+  DataType data_type = DataType::DOUBLE;
+
+  /// Type of sampling
+  Group::SamplingType sampling_type = Group::SamplingType::DIRECT_RF;
 
   /// Data are organized as raw_data[Group repetition count][Number of event][Number of channel activated during the event][Number of samples]
   /// Data are in 1D array since the dimensions of the data array is dynamic for the number of activated channels and for the number of samples
@@ -44,10 +47,10 @@ struct GroupData {
   VecDataTypeVariant raw_data;
 
   /// Test void*
-  void* void_raw_data;
+  void* void_raw_data = nullptr;
 
   /// Test void* length
-  uint64_t void_raw_data_length;
+  uint64_t void_raw_data_length = 0;
 
   /// Timestamp of the group launch [s]
   double group_timestamp = UFF_NAN;

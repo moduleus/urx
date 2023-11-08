@@ -13,6 +13,7 @@ classdef GroupData < handle
     size_of_data_type
     data_type
     group
+    vrd
   end
 
 
@@ -34,75 +35,75 @@ classdef GroupData < handle
     end
     
     function set.sequence_timestamps(this,value)
-        MexUFF('GroupData_set_sequence_timestamps',this.id_,value);
+       MexUFF('GroupData_set_sequence_timestamps',this.id_,value);
     end
     
     function st = get.sequence_timestamps(this,value)
-        st=MexUFF('GroupData_get_sequence_timestamps',this.id_);
+       st=MexUFF('GroupData_get_sequence_timestamps',this.id_);
     end
     
     function set.event_timestamps(this,value)
-        MexUFF('GroupData_set_event_timestamps',this.id_,value);
+       MexUFF('GroupData_set_event_timestamps',this.id_,value);
     end
     
     function et = get.event_timestamps(this,value)
-        et = MexUFF('GroupData_get_event_timestamps',this.id_);
+       et = MexUFF('GroupData_get_event_timestamps',this.id_);
     end
     
     function set.group_timestamp(this,value)
-        MexUFF('GroupData_set_group_timestamp',this.id_,value);
+       MexUFF('GroupData_set_group_timestamp',this.id_,value);
     end
     
     function gt = get.group_timestamp(this,value)
-        gt = MexUFF('GroupData_get_group_timestamp',this.id_);
+       gt = MexUFF('GroupData_get_group_timestamp',this.id_);
     end
     
     function set.raw_data(this,value)
-        MexUFF('GroupData_set_raw_data',this.id_,value);
+       MexUFF('GroupData_set_raw_data',this.id_,value);
     end
     
     function rd = get.raw_data(this,value)
-        rd = MexUFF('GroupData_get_raw_data',this.id_);
+       rd = MexUFF('GroupData_get_raw_data',this.id_);
     end
     
     function set.void_raw_data(this,value)
-        MexUFF('GroupData_set_void_raw_data',this.id_,value);
+       MexUFF('GroupData_set_void_raw_data',this.id_,value);
     end
     
     function vrd = get.void_raw_data(this,value)
-        vrd = MexUFF('GroupData_get_void_raw_data',this.id_);
+       this.vrd = MexUFF('GroupData_get_void_raw_data',this.id_);
+       vrd = this.vrd;
     end
     
     function set.void_raw_data_length(this,value)
-        MexUFF('GroupData_set_void_raw_data_length',this.id_,value);
     end
     
     function vrdl = get.void_raw_data_length(this,value)
-        vrdl = MexUFF('GroupData_get_void_raw_data_length',this.id_);
+       vrdl = MexUFF('GroupData_get_void_raw_data_length',this.id_);
     end
     
     function set.size_of_data_type(this,value)
-        MexUFF('GroupData_set_size_of_data_type',this.id_, value);
+       MexUFF('GroupData_set_size_of_data_type',this.id_, value);
     end
     
     function size_of_data_type = get.size_of_data_type(this,value)
-        size_of_data_type = MexUFF('GroupData_get_size_of_data_type',this.id_);
+       size_of_data_type = MexUFF('GroupData_get_size_of_data_type',this.id_);
     end
     
     function set.data_type(this,value)
-        MexUFF('GroupData_set_data_type',this.id_, int32(value));
+       MexUFF('GroupData_set_data_type',this.id_, int32(value));
     end
     
     function data_type = get.data_type(this,value)
-        data_type = uff.GroupData.DataType(MexUFF('GroupData_get_data_type',this.id_));
+       data_type = uff.GroupData.DataType(MexUFF('GroupData_get_data_type',this.id_));
     end
     
     function set.group(this,group,acq)
-        MexUFF('GroupData_set_group',this.id_,group.id,acq.id);
+       MexUFF('GroupData_set_group',this.id_,group.id,acq.id);
     end
 
     function group = get.group(this)
-        group = uff.Group(MexUFF('GroupData_get_group',this.id_));
+       group = uff.Group(MexUFF('GroupData_get_group',this.id_));
     end
     
   end

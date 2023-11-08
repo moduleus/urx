@@ -5,6 +5,8 @@ find_package(mexplus 0.0.2 REQUIRED)
 
 # Define mex wrapper targets
 
+link_directories("C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/Llvm/x64/lib/clang/16/lib/windows")
+
 matlab_add_mex(
   NAME MexUFF
   SRC 
