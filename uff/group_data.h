@@ -23,7 +23,6 @@ struct GroupData {
 
   bool operator==(const GroupData& other) const {
     return (group == other.group) && (raw_data == other.raw_data) &&
-           (size_of_data_type == other.size_of_data_type) &&
            is_nan_or_equal(group_timestamp, other.group_timestamp) &&
            (sequence_timestamps == other.sequence_timestamps) &&
            (event_timestamps == other.event_timestamps);
@@ -46,9 +45,6 @@ struct GroupData {
 
   /// Timestamp 2D list for each event of each sequence launch [s]
   std::vector<std::vector<double>> event_timestamps;
-
-  /// Number of bit to encode data to binary file, can be different of C++ type to optimize data space
-  uint8_t size_of_data_type = 0;
 };
 
 }  // namespace uff

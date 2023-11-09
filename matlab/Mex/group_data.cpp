@@ -41,22 +41,6 @@ MEX_DEFINE(GroupData_set_group_timestamp)
   grp_data->group_timestamp = input.get<double>(1);
 }
 
-MEX_DEFINE(GroupData_get_size_of_data_type)
-(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
-  InputArguments input(nrhs, prhs, 1);
-  OutputArguments output(nlhs, plhs, 1);
-  std::shared_ptr<uff::GroupData> grp_data = Session<uff::GroupData>::get_shared(input.get(0));
-  output.set(0, grp_data->size_of_data_type);
-}
-
-MEX_DEFINE(GroupData_set_size_of_data_type)
-(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
-  InputArguments input(nrhs, prhs, 2);
-  OutputArguments output(nlhs, plhs, 0);
-  std::shared_ptr<uff::GroupData> grp_data = Session<uff::GroupData>::get_shared(input.get(0));
-  grp_data->size_of_data_type = input.get<uint8_t>(1);
-}
-
 MEX_DEFINE(GroupData_get_data_type)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
   InputArguments input(nrhs, prhs, 1);
   OutputArguments output(nlhs, plhs, 1);

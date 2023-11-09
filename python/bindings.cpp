@@ -302,7 +302,6 @@ PYBIND11_MODULE(bindings, m) {
       .def_readwrite("group_timestamp", &uff::GroupData::group_timestamp)
       .def_readwrite("sequence_timestamps", &uff::GroupData::sequence_timestamps)
       .def_readwrite("event_timestamps", &uff::GroupData::event_timestamps)
-      .def_readwrite("size_of_data_type", &uff::GroupData::size_of_data_type)
       .def_readwrite("raw_data", &uff::GroupData::raw_data);
 
   py::class_<uff::Version>(m, "Version")
