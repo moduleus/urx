@@ -14,8 +14,6 @@ namespace uff {
  * @brief The UFF class containing all the retrieved data from the acquisition
  */
 struct GroupData {
-  enum class DataType { INT16 = 0, INT32 = 1, FLOAT = 2, DOUBLE = 3, UNDEFINED = -1 };
-
   template <class... Args>
   struct VecDataType {
     using real_and_complex = std::variant<std::vector<Args>..., std::vector<std::complex<Args>>...>;
@@ -34,9 +32,6 @@ struct GroupData {
 
   /// Reference of the group whose data have been retrieved
   std::shared_ptr<Group> group;
-
-  /// Data type contained in the raw_data array
-  DataType data_type = DataType::UNDEFINED;
 
   /// Data are organized as raw_data[Group repetition count][Number of event][Number of channel activated during the event][Number of samples]
   /// Data are in 1D array since the dimensions of the data array is dynamic for the number of activated channels and for the number of samples

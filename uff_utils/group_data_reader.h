@@ -6,27 +6,27 @@
 
 namespace uff {
 
-size_t elementByteSize(GroupData& group_data) {
+size_t elementByteSize(const Group& group) {
   size_t byte_size = 0;
 
-  switch (group_data.data_type) {
-    case GroupData::DataType::INT16:
+  switch (group.data_type) {
+    case Group::DataType::INT16:
       byte_size = sizeof(int16_t);
       break;
-    case GroupData::DataType::INT32:
+    case Group::DataType::INT32:
       byte_size = sizeof(int32_t);
       break;
-    case GroupData::DataType::FLOAT:
+    case Group::DataType::FLOAT:
       byte_size = sizeof(float);
       break;
-    case GroupData::DataType::DOUBLE:
+    case Group::DataType::DOUBLE:
       byte_size = sizeof(double);
       break;
     default:
       throw std::runtime_error("Not handled data type enum value");
   }
 
-  if (group_data.group->sampling_type == Group::SamplingType::IQ) byte_size *= 2;
+  if (group.sampling_type == Group::SamplingType::IQ) byte_size *= 2;
 
   return byte_size;
 }

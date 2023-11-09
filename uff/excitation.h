@@ -21,8 +21,8 @@ struct Excitation {
   /// Desciption of the pulse shape (e.g., sinusoidal, square wave, chirp), including necessary parameters
   std::string pulseShape = "";
 
-  /// (Optionnal) Transmit frequency of the pulser [Hz]
-  std::optional<double> transmit_frequency = std::nullopt;
+  /// Transmit frequency of the pulser [Hz]
+  double transmit_frequency = UFF_NAN;
 
   /// Sampling frequency of the excitation waveform [Hz]
   double sampling_frequency = UFF_NAN;

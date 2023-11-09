@@ -12,6 +12,7 @@ TEST_CASE("Read back group data complex float data", "[group_data]") {
 
   auto group = std::make_shared<uff::Group>();
   group->sampling_type = uff::Group::SamplingType::IQ;
+  group->data_type = uff::Group::DataType::INT32;
 
   auto& sequence = group->sequence;
 
@@ -32,7 +33,6 @@ TEST_CASE("Read back group data complex float data", "[group_data]") {
   sequence[4].receive_setup = receive_setup_c_3_s_2;
 
   uff::GroupData group_data;
-  group_data.data_type = uff::GroupData::DataType::INT32;
   group_data.group = group;
   const int n_frames = 3;
   const int size = n_frames * 42;  // (42 = 3*2*3+4*3*2)
