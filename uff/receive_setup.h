@@ -33,26 +33,29 @@ struct ReceiveSetup {
   Transform probe_transform;
 
   /// Sampling frequency [Hz]
-  double sampling_frequency = 0.;
+  double sampling_frequency = UFF_NAN;
 
   /// Number of samples
   uint32_t number_samples = 0;
 
-  /// Maps the RF line with the corresponding element
-  /// channel_element_index = channel_mapping[rf_index]
-  std::vector<int> channel_mapping;
+  /// Maps probe elements to receive channels.
+  /// The first dimension is the probe element index, the second is an array of receive channel indexes.
+  /// The receive channel index is the index of the data in group_data.data.
+  /// When the channel_mapping is not defined it is assumed that the n-th receive channel maps to the n-th probe element.
+  /// If probe element i-th is not connected then channel_mapping[i] is empty.
+  std::vector<std::vector<uint32_t>> channel_mapping;
 
   /// (Optional) Analog TGC profile sampled at tgc_sampling_frequency [dB]
   std::vector<double> tgc_profile;
 
   /// (Optional) Sampling frequency of the TGC profile [Hz]
-  std::optional<double> tgc_sampling_frequency = std::nullopt;
+  double tgc_sampling_frequency = UFF_NAN;
 
   /// (Optional) Modulation frequency used in case of IQ-data [Hz]
-  std::optional<double> modulation_frequency = std::nullopt;
+  double modulation_frequency = UFF_NAN;
 
   /// Time offset delaying the launch of the reception related to the beginning of the event
-  double time_offset = 0.;
+  double time_offset = UFF_NAN;
 };
 
 }  // namespace uff
