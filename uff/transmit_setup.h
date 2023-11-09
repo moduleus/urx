@@ -27,10 +27,10 @@ struct TransmitSetup {
   std::shared_ptr<Probe> probe;
 
   /// Location of the probe in space reference for this TransmitSetup
-  std::optional<Transform> probe_transform = std::nullopt;
+  Transform probe_transform;
 
   /// Time offset delaying the launch of the whole transmission related to the beginning of the
-  double time_offset = 0.;
+  double time_offset = UFF_NAN;
 
   /// The wave emitted by this TransmitSetup
   std::shared_ptr<Wave> wave;
