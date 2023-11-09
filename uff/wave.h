@@ -52,7 +52,7 @@ struct Wave {
   std::vector<std::vector<uint32_t>> channel_mapping;
 
   /// List of the excitation waveform for each channel
-  std::vector<std::shared_ptr<Excitation>> channel_excitations;
+  std::vector<Excitation*> channel_excitations;
 
   /// List of delay applied before the transmission for each channel
   std::vector<double> channel_delays;

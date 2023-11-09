@@ -33,7 +33,7 @@ TEST_CASE("Read back group data complex float data", "[group_data]") {
   sequence[4].receive_setup = receive_setup_c_3_s_2;
 
   uff::GroupData group_data;
-  group_data.group = group;
+  group_data.group = group.get();
   const int n_frames = 3;
   const int size = n_frames * 42;  // (42 = 3*2*3+4*3*2)
   auto tmp = std::vector<CompInt32>(size);

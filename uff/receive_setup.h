@@ -27,7 +27,7 @@ struct ReceiveSetup {
   inline bool operator!=(const ReceiveSetup& other) const { return !(*this == other); }
 
   /// Probe used for this receive setup
-  std::shared_ptr<Probe> probe;
+  Probe* probe = nullptr;
 
   /// Location of the probe in space reference for this ReceiveSetup
   Transform probe_transform;

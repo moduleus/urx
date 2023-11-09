@@ -30,7 +30,7 @@ struct GroupData {
   inline bool operator!=(const GroupData& other) const { return !(*this == other); }
 
   /// Reference of the group whose data have been retrieved
-  std::shared_ptr<Group> group;
+  Group* group = nullptr;
 
   /// Data are organized as raw_data[Group repetition count][Number of event][Number of channel activated during the event][Number of samples]
   /// Data are in 1D array since the dimensions of the data array is dynamic for the number of activated channels and for the number of samples
