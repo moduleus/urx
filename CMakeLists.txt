@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.9)
 
 project(
   Uff
-  VERSION 0.6.7
+  VERSION 0.6.8
   LANGUAGES C CXX
   DESCRIPTION "Ultrasound File Format C++ implementation")
 
@@ -54,15 +54,12 @@ endif()
 
 set(INSTALL_NAME "${PROJECT_NAME}-${git_branch}")
 
-
-set(MATLAB_INSTALL_LIBDIR
-    ${CMAKE_INSTALL_LIBDIR}/${INSTALL_NAME}/matlab/)
+set(MATLAB_INSTALL_LIBDIR ${CMAKE_INSTALL_LIBDIR}/${INSTALL_NAME}/matlab/)
 
 if(CALL_FROM_SETUP_PY)
   set(PYTHON_INSTALL_LIBDIR ${CMAKE_INSTALL_PREFIX})
 else()
-  set(PYTHON_INSTALL_LIBDIR
-      ${CMAKE_INSTALL_LIBDIR}/${INSTALL_NAME}/python)
+  set(PYTHON_INSTALL_LIBDIR ${CMAKE_INSTALL_LIBDIR}/${INSTALL_NAME}/python)
 endif()
 
 # setup installer
@@ -101,7 +98,8 @@ if(WITH_TEST)
   find_package(Catch2 REQUIRED)
 endif()
 
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${UFF_SRCS} ${UFF_UTILS_SRCS})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${UFF_SRCS}
+                                                    ${UFF_UTILS_SRCS})
 
 # Create cmake config files ###
 write_basic_package_version_file(
