@@ -279,26 +279,26 @@ PYBIND11_MODULE(bindings, m) {
       .value("IQ", uff::Group::SamplingType::IQ)
       .value("UNDEFINED", uff::Group::SamplingType::UNDEFINED);
 
+  py::enum_<uff::Group::DataType>(m, "DataType")
+      .value("INT16", uff::Group::DataType::INT16)
+      .value("INT32", uff::Group::DataType::INT32)
+      .value("FLOAT", uff::Group::DataType::FLOAT)
+      .value("DOUBLE", uff::Group::DataType::DOUBLE)
+      .value("UNDEFINED", uff::Group::DataType::UNDEFINED);
+
   py::class_<uff::Group, std::shared_ptr<uff::Group>>(m, "Group")
       .def(py::init())
       .def(pybind11::self == pybind11::self)
       .def(pybind11::self != pybind11::self)
+      .def_readwrite("data_type", &uff::Group::data_type)
       .def_readwrite("sampling_type", &uff::Group::sampling_type)
       .def_readwrite("description", &uff::Group::description);
-
-  py::enum_<uff::GroupData::DataType>(m, "DataType")
-      .value("INT16", uff::GroupData::DataType::INT16)
-      .value("INT32", uff::GroupData::DataType::INT32)
-      .value("FLOAT", uff::GroupData::DataType::FLOAT)
-      .value("DOUBLE", uff::GroupData::DataType::DOUBLE)
-      .value("UNDEFINED", uff::GroupData::DataType::UNDEFINED);
 
   py::class_<uff::GroupData, std::shared_ptr<uff::GroupData>>(m, "GroupData")
       .def(py::init())
       .def(pybind11::self == pybind11::self)
       .def(pybind11::self != pybind11::self)
       .def_readwrite("group", &uff::GroupData::group)
-      .def_readwrite("data_type", &uff::GroupData::data_type)
       .def_readwrite("group_timestamp", &uff::GroupData::group_timestamp)
       .def_readwrite("sequence_timestamps", &uff::GroupData::sequence_timestamps)
       .def_readwrite("event_timestamps", &uff::GroupData::event_timestamps)

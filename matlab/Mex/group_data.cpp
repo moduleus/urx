@@ -68,7 +68,7 @@ MEX_DEFINE(GroupData_set_data_type)(int nlhs, mxArray* plhs[], int nrhs, const m
   InputArguments input(nrhs, prhs, 2);
   OutputArguments output(nlhs, plhs, 0);
   std::shared_ptr<uff::GroupData> grp_data = Session<uff::GroupData>::get_shared(input.get(0));
-  grp_data->data_type = uff::GroupData::DataType(input.get<int32_t>(1));
+  grp_data->data_type = uff::Group::DataType(input.get<int32_t>(1));
 }
 
 MEX_DEFINE(GroupData_get_sequence_timestamps)
