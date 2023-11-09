@@ -275,7 +275,7 @@ PYBIND11_MODULE(bindings, m) {
   py::bind_vector<VecCompFloat64>(m, "VecCompFloat64", py::buffer_protocol());
 
   py::enum_<uff::Group::SamplingType>(m, "SamplingType")
-      .value("DIRECT_RF", uff::Group::SamplingType::DIRECT_RF)
+      .value("RF", uff::Group::SamplingType::RF)
       .value("IQ", uff::Group::SamplingType::IQ)
       .value("UNDEFINED", uff::Group::SamplingType::UNDEFINED);
 

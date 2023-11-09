@@ -12,7 +12,7 @@ namespace uff {
  * All sequences are the same and are repeated for a certain amount of time.
  */
 struct Group {
-  enum class SamplingType { DIRECT_RF = 0, IQ = 1, UNDEFINED = -1 };
+  enum class SamplingType { RF = 0, IQ = 1, UNDEFINED = -1 };
   enum class DataType { INT16 = 0, INT32 = 1, FLOAT = 2, DOUBLE = 3, UNDEFINED = -1 };
 
   bool operator==(const Group& other) const {
