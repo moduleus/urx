@@ -60,8 +60,9 @@ struct Acquisition {
     return ((authors == other.authors) && (description == other.description) &&
             (local_time == other.local_time) && (country_code == other.country_code) &&
             (system == other.system) && (sound_speed == other.sound_speed) &&
-            (timestamp == other.timestamp) && are_probes_equaled && are_waves_equaled &&
-            are_excitations_equaled && are_groups_equaled && are_group_data_equaled);
+            is_nan_or_equal(timestamp, other.timestamp) && are_probes_equaled &&
+            are_waves_equaled && are_excitations_equaled && are_groups_equaled &&
+            are_group_data_equaled);
   }
   inline bool operator!=(const Acquisition& other) const { return !(*this == other); }
 

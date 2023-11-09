@@ -18,7 +18,7 @@ namespace uff {
  */
 struct TransmitSetup {
   bool operator==(const TransmitSetup& other) const {
-    return ((time_offset == other.time_offset) && (probe == other.probe) &&
+    return (is_nan_or_equal(time_offset, other.time_offset) && (probe == other.probe) &&
             (probe_transform == other.probe_transform) && (wave == other.wave));
   }
   inline bool operator!=(const TransmitSetup& other) const { return !(*this == other); }

@@ -24,7 +24,7 @@ struct GroupData {
   bool operator==(const GroupData& other) const {
     return (group == other.group) && (raw_data == other.raw_data) &&
            (size_of_data_type == other.size_of_data_type) &&
-           (group_timestamp == other.group_timestamp) &&
+           is_nan_or_equal(group_timestamp, other.group_timestamp) &&
            (sequence_timestamps == other.sequence_timestamps) &&
            (event_timestamps == other.event_timestamps);
   }

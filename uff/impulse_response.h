@@ -11,7 +11,11 @@ namespace uff {
  * @brief The UFF class describing the temporal impulse response
  */
 struct ImpulseResponse {
-  auto operator<=>(const ImpulseResponse& other) const = default;
+  inline bool operator==(const ImpulseResponse& other) const {
+    return (is_nan_or_equal(sampling_frequency, other.sampling_frequency) && (data == other.data) &&
+            (units == other.units) && is_nan_or_equal(time_offset, other.time_offset));
+  }
+  inline bool operator!=(const ImpulseResponse& other) const { return !(*this == other); }
 
   /// Sampling frequency [Hz]
   double sampling_frequency = UFF_NAN;

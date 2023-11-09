@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cmath>
 #include <cstdint>
 #include <limits>
 
@@ -9,7 +10,11 @@ constexpr const uint16_t UFF_VERSION_MAJOR(@Uff_VERSION_MAJOR@);
 constexpr const uint16_t UFF_VERSION_MINOR(@Uff_VERSION_MINOR@);
 constexpr const uint16_t UFF_VERSION_PATCH(@Uff_VERSION_PATCH@);
 
-using DataType = float; // REMOVE THIS (Obsolete)
+using DataType = float;  // REMOVE THIS (Obsolete)
 constexpr const double UFF_NAN(std::numeric_limits<double>::quiet_NaN());
+
+constexpr bool is_nan_or_equal(double val_1, double val_2) {
+  return (std::isnan(val_1) && std::isnan(val_2)) || (val_1 == val_2);
+}
 
 }  // namespace uff
