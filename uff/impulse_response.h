@@ -22,6 +22,9 @@ struct ImpulseResponse {
 
   /// (Optional) Name of the units of the impulse response
   std::string units = "";
+
+  /// Time offset of the impulse response
+  double time_offset = UFF_NAN;
 };
 
 }  // namespace uff
