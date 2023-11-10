@@ -8,6 +8,7 @@ grp=uff.Group();
 
 tmp=13.13;
 grp_data.group_timestamp=tmp;
+grp_data.group=grp;
 
 tmp=int16([1+i,2,3]);
 grp_data.raw_data=tmp;

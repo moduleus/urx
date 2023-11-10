@@ -41,20 +41,6 @@ MEX_DEFINE(GroupData_set_group_timestamp)
   grp_data->group_timestamp = input.get<double>(1);
 }
 
-MEX_DEFINE(GroupData_get_data_type)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
-  InputArguments input(nrhs, prhs, 1);
-  OutputArguments output(nlhs, plhs, 1);
-  std::shared_ptr<uff::GroupData> grp_data = Session<uff::GroupData>::get_shared(input.get(0));
-  output.set(0, int32_t(grp_data->data_type));
-}
-
-MEX_DEFINE(GroupData_set_data_type)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
-  InputArguments input(nrhs, prhs, 2);
-  OutputArguments output(nlhs, plhs, 0);
-  std::shared_ptr<uff::GroupData> grp_data = Session<uff::GroupData>::get_shared(input.get(0));
-  grp_data->data_type = uff::Group::DataType(input.get<int32_t>(1));
-}
-
 MEX_DEFINE(GroupData_get_sequence_timestamps)
 (int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
   InputArguments input(nrhs, prhs, 1);
@@ -161,25 +147,25 @@ MEX_DEFINE(GroupData_get_group)(int nlhs, mxArray* plhs[], int nrhs, const mxArr
   InputArguments input(nrhs, prhs, 1);
   OutputArguments output(nlhs, plhs, 1);
   std::shared_ptr<uff::GroupData> grp_data = Session<uff::GroupData>::get_shared(input.get(0));
-  if (!grp_data->group.expired()) {
-    intptr_t id = reinterpret_cast<intptr_t>(grp_data->group.lock().get());
-    if (Session<uff::Group>::exist(id))
+  if (grp_data->group) {
+    intptr_t id = reinterpret_cast<intptr_t>(grp_data->group);
+    if (Session<uff::Group>::exist(id)) {
       output.set(0, id);
-    else
-      output.set(0, Session<uff::Group>::create(grp_data->group.lock().get()));
-  }
+    }
+    else{
+      throw std::runtime_error("group reference if not valid any more");
+    }
+  } else
+    throw std::runtime_error("group equaled to nullptr");
 }
 
 MEX_DEFINE(GroupData_set_group)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
-  InputArguments input(nrhs, prhs, 3);
+  InputArguments input(nrhs, prhs, 2);
   OutputArguments output(nlhs, plhs, 0);
 
   std::shared_ptr<uff::GroupData> grp_data = Session<uff::GroupData>::get_shared(input.get(0));
   std::shared_ptr<uff::Group> grp = Session<uff::Group>::get_shared(input.get(1));
-  std::shared_ptr<uff::Acquisition> acq = Session<uff::Acquisition>::get_shared(input.get(2));
-  for (size_t i = 0; i < acq->groups.size(); ++i) {
-    if (grp == acq->groups[i]) grp_data->group = acq->groups[i];
-  }
+  grp_data->group = grp.get();
 }
 
 }  // namespace

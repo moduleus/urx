@@ -22,16 +22,7 @@ classdef UnitTests < matlab.unittest.TestCase
 
             tmp=int16([1+i,2,3]);
             grp_data.raw_data=tmp;
-            testCase.verifyEqual(grp_data.raw_data,tmp)
-
-            tmp=uint8(42);
-            grp_data.size_of_data_type=tmp;
-            testCase.verifyEqual(grp_data.size_of_data_type,tmp)
-
-            tmp=uff.GroupData.DataType.INT16;
-            grp_data.data_type=tmp;
-            testCase.verifyEqual(grp_data.data_type,tmp)
-            
+            testCase.verifyEqual(grp_data.raw_data,tmp)            
             
             MexUFF('unlock')
             clear all
@@ -47,6 +38,14 @@ classdef UnitTests < matlab.unittest.TestCase
             str = 'Hello World';
             grp.description = str;
             testCase.verifyEqual(grp.description,str)
+
+            tmp=uff.Group.DataType.INT16;
+            grp.data_type=tmp;
+            testCase.verifyEqual(grp.data_type,tmp)
+
+            tmp=uff.Group.SamplingType.RF;
+            grp.sampling_type=tmp;
+            testCase.verifyEqual(grp.sampling_type,tmp)
 
             MexUFF('unlock')
             clear all
@@ -112,8 +111,7 @@ classdef UnitTests < matlab.unittest.TestCase
             end
             testCase.verifyEqual(length(acq.groups),2)
             
-            testCase.verifyEmpty(grp_data.group)
-            grp_data.setGroup(grp, acq);
+            grp_data.group = grp;
             
             grp.sampling_type = uff.Group.SamplingType.RF;
             testCase.verifyEqual(grp_data.group.sampling_type,uff.Group.SamplingType.RF)
@@ -129,14 +127,13 @@ classdef UnitTests < matlab.unittest.TestCase
                 testCase.verifyEqual(exceptions.identifier, 'MATLAB:unexpectedCPPexception')
             end
 
-            g=grp_data.group;
-            g.description = 'crash';
-            testCase.verifyEqual(grp.description,'crash')
+            grp_data.group.description = 'not crash';
+            testCase.verifyEqual(grp.description,'not crash')
             clear grp
             try
-                g.description = 'crash';
+                grp_data.group.description = 'crash';
             catch exceptions
-                testCase.verifyEqual(exceptions.identifier, 'mexplus:session:notFound')
+                testCase.verifyEqual(exceptions.identifier, 'MATLAB:unexpectedCPPexception')
             end
 
             MexUFF('unlock')
