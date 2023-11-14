@@ -30,6 +30,8 @@ using VecCompInt32 = std::vector<std::complex<int32_t>>;
 using VecCompFloat32 = std::vector<std::complex<float>>;
 using VecCompFloat64 = std::vector<std::complex<double>>;
 
+using VecGroup = std::vector<std::shared_ptr<uff::Group>>;
+
 PYBIND11_MAKE_OPAQUE(VecInt16);
 PYBIND11_MAKE_OPAQUE(VecInt32);
 PYBIND11_MAKE_OPAQUE(VecFloat32);
@@ -38,6 +40,8 @@ PYBIND11_MAKE_OPAQUE(VecCompInt16);
 PYBIND11_MAKE_OPAQUE(VecCompInt32);
 PYBIND11_MAKE_OPAQUE(VecCompFloat32);
 PYBIND11_MAKE_OPAQUE(VecCompFloat64);
+
+PYBIND11_MAKE_OPAQUE(VecGroup);
 
 template <typename VecDataType>
 bool checkType(uff::GroupData &vec) {
@@ -274,6 +278,8 @@ PYBIND11_MODULE(bindings, m) {
   py::bind_vector<VecFloat64>(m, "VecFloat64", py::buffer_protocol());
   py::bind_vector<VecCompFloat32>(m, "VecCompFloat32", py::buffer_protocol());
   py::bind_vector<VecCompFloat64>(m, "VecCompFloat64", py::buffer_protocol());
+
+  py::bind_vector<VecGroup>(m, "VecGroup");
 
   py::enum_<uff::Group::SamplingType>(m, "SamplingType")
       .value("RF", uff::Group::SamplingType::RF)
