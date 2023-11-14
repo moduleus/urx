@@ -147,16 +147,16 @@ MEX_DEFINE(GroupData_get_group)(int nlhs, mxArray* plhs[], int nrhs, const mxArr
   InputArguments input(nrhs, prhs, 1);
   OutputArguments output(nlhs, plhs, 1);
   std::shared_ptr<uff::GroupData> grp_data = Session<uff::GroupData>::get_shared(input.get(0));
-  if (grp_data->group) {
-    intptr_t id = reinterpret_cast<intptr_t>(grp_data->group);
+  if (!grp_data->group.expired()) {
+    intptr_t id = reinterpret_cast<intptr_t>(grp_data->group.lock().get());
     if (Session<uff::Group>::exist(id)) {
       output.set(0, id);
     }
     else{
-      throw std::runtime_error("group reference if not valid any more");
+      throw std::runtime_error("group reference is not valid any more in the Matlab context");
     }
   } else
-    throw std::runtime_error("group equaled to nullptr");
+    throw std::runtime_error("group is not valid any more, and is not referenced by an acquisition");
 }
 
 MEX_DEFINE(GroupData_set_group)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
@@ -165,7 +165,7 @@ MEX_DEFINE(GroupData_set_group)(int nlhs, mxArray* plhs[], int nrhs, const mxArr
 
   std::shared_ptr<uff::GroupData> grp_data = Session<uff::GroupData>::get_shared(input.get(0));
   std::shared_ptr<uff::Group> grp = Session<uff::Group>::get_shared(input.get(1));
-  grp_data->group = grp.get();
+  grp_data->group = grp;
 }
 
 }  // namespace

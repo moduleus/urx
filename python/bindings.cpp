@@ -299,7 +299,19 @@ PYBIND11_MODULE(bindings, m) {
       .def(py::init())
       .def(pybind11::self == pybind11::self)
       .def(pybind11::self != pybind11::self)
-      .def_readwrite("group", &uff::GroupData::group)
+      .def_property(
+          "group",
+          [](uff::GroupData &self, py::kwargs kwargs) {
+            if (self.group.expired()) {
+              throw std::runtime_error("Current group is not referenced by the acquisition.\n");
+              // return std::shared_ptr<uff::Group>(nullptr);
+            } else {
+              return self.group.lock();
+            }
+          },
+          [](uff::GroupData &self, std::shared_ptr<uff::Group> group, py::kwargs kwargs) {
+            self.group = group;
+          })
       .def_readwrite("group_timestamp", &uff::GroupData::group_timestamp)
       .def_readwrite("sequence_timestamps", &uff::GroupData::sequence_timestamps)
       .def_readwrite("event_timestamps", &uff::GroupData::event_timestamps)

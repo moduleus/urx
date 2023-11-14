@@ -22,7 +22,9 @@ struct GroupData {
   using VecDataTypeVariant = VecDataType<int16_t, int32_t, float, double>::real_and_complex;
 
   bool operator==(const GroupData& other) const {
-    return (group == other.group) && (raw_data == other.raw_data) &&
+    return (group.expired() == other.group.expired()) &&
+           (group.expired() || *(group.lock()) == *(other.group.lock())) &&
+           (raw_data == other.raw_data) &&
            is_nan_or_equal(group_timestamp, other.group_timestamp) &&
            (sequence_timestamps == other.sequence_timestamps) &&
            (event_timestamps == other.event_timestamps);
@@ -30,7 +32,7 @@ struct GroupData {
   inline bool operator!=(const GroupData& other) const { return !(*this == other); }
 
   /// Reference of the group whose data have been retrieved
-  Group* group = nullptr;
+  std::weak_ptr<Group> group;
 
   /// Data are organized as raw_data[Group repetition count][Number of event][Number of channel activated during the event][Number of samples]
   /// Data are in 1D array since the dimensions of the data array is dynamic for the number of activated channels and for the number of samples

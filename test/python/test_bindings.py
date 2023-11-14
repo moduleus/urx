@@ -178,7 +178,7 @@ class TestBindings(unittest.TestCase):
 
         print("--Test %s END--" % testName)
 
-    def testGroupData(self):
+    def testGroupData_Group(self):
         testName = "GroupData & Group binding"
         print("\n--Test %s BEGIN--" % testName)
 
@@ -195,18 +195,22 @@ class TestBindings(unittest.TestCase):
             group_data.event_timestamps == [uff.VecFloat64(
                 [1, 2, 3, 4.56]), uff.VecFloat64([7.8, 9])])
 
-        self.assertEqual(group_data.size_of_data_type, np.uint8(0))
-        group_data.size_of_data_type, np.uint8(0)
-
         group = uff.Group()
         self.assertEqual(group.description, "")
         self.assertEqual(group.sampling_type, uff.SamplingType.UNDEFINED)
+        self.assertEqual(group.data_type, uff.DataType.UNDEFINED)
 
-        self.assertTrue(not group_data.group)
+        self.assertRaises(RuntimeError, lambda group_data: group_data.group, group_data)
         group_data.group = group
         self.assertEqual(group_data.group, group)
         group_data.group.description = "Hello world"
+        group_data.group.data_type = uff.DataType.FLOAT
+        group_data.group.sampling_type = uff.SamplingType.IQ
         self.assertEqual(group_data.group, group)
+        import gc
+        del group
+        gc.collect()
+        self.assertRaises(RuntimeError, lambda group_data: group_data.group, group_data)
 
         print("--Test %s END--" % testName)
 
@@ -218,7 +222,7 @@ class TestBindings(unittest.TestCase):
         acq = uff.Acquisition()
         version = uff.Version()
 
-        self.assertNotEqual(dataset.acquisition, acq)
+        self.assertEqual(dataset.acquisition, acq)
         dataset.acquisition.timestamp = 42
         acq.timestamp = 42
         self.assertEqual(dataset.acquisition, acq)
