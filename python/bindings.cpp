@@ -138,7 +138,7 @@ PYBIND11_MODULE(bindings, m) {
           VecCompInt16 vec;
           vec.resize(info.shape[0]);
           for (size_t i = 0; i < info.shape[0]; ++i) {
-            vec[i] = static_cast<std::complex<int32_t>>(ptr[i]);
+            vec[i] = static_cast<std::complex<int16_t>>(ptr[i]);
           }
           return vec;
         } else if (info.item_type_is_equivalent_to<std::complex<float>>()) {
