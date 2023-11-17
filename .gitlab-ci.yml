@@ -46,6 +46,8 @@ doc:PlantUml:
     - perl -0777 -i -pe "s/^.*\*-- uff.Transform\n\n\n//gm" doc/plantuml/architecture.puml
     - perl -0777 -i -pe "s/^.*\*-- uff.Vector.*D\n\n\n//gm" doc/plantuml/architecture.puml
     - perl -0777 -i -pe "s/^.*uff\.Element.*\*-- .*\n\n\n//gm" doc/plantuml/architecture.puml
+    - perl -0777 -i -pe "s/^.*uff\.Element.*\*-- .*\n\n\n//gm" doc/plantuml/architecture.puml
+    - sed -i 's/std:://g' doc/plantuml/architecture.puml
     # - sed -r -i "/\+--\ uff\.GroupData::VecDataType.*/d" doc/plantuml/architecture.puml
     # - perl -0777 -i -pe "s/^.*class\ GroupData::VecDataType.*\n.*}\n\n//gm" doc/plantuml/architecture.puml
     - mkdir -p public/plantuml
