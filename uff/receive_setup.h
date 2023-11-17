@@ -16,7 +16,9 @@ namespace uff {
  */
 struct ReceiveSetup {
   inline bool operator==(const ReceiveSetup& other) const {
-    return ((probe_transform == other.probe_transform) && (probe == other.probe) &&
+    return ((probe_transform == other.probe_transform) &&
+            (probe.expired() == other.probe.expired()) &&
+            (probe.expired() || *(probe.lock()) == *(other.probe.lock())) &&
             is_nan_or_equal(sampling_frequency, other.sampling_frequency) &&
             (number_samples == other.number_samples) &&
             (channel_mapping == other.channel_mapping) && (tgc_profile == other.tgc_profile) &&
@@ -27,7 +29,7 @@ struct ReceiveSetup {
   inline bool operator!=(const ReceiveSetup& other) const { return !(*this == other); }
 
   /// Probe used for this receive setup
-  Probe* probe = nullptr;
+  std::weak_ptr<Probe> probe;
 
   /// Location of the probe in space reference for this ReceiveSetup
   Transform probe_transform;

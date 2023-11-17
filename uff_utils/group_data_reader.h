@@ -36,7 +36,7 @@ class GroupDataReader {
   GroupDataReader(GroupData& group_data) : _group_data{group_data} {
     _samples_offset.emplace_back(0);
 
-    for (auto event : _group_data.group->sequence) {
+    for (auto event : _group_data.group.lock()->sequence) {
       auto& receive_setup = event.receive_setup;
       const size_t samples_count = receive_setup.number_samples;
       const size_t samples_offset = receive_setup.channel_mapping.size() * samples_count;
@@ -63,7 +63,7 @@ class GroupDataReader {
 
   size_t framesCount() { return size() / _samples_offset.back(); }
 
-  size_t eventsCount() { return _group_data.group->sequence.size(); }
+  size_t eventsCount() { return _group_data.group.lock()->sequence.size(); }
 
   size_t channelsCount(const size_t event_idx) {
     return (_samples_offset[event_idx + 1] - _samples_offset[event_idx]) / samplesCount(event_idx);

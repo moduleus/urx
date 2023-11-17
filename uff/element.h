@@ -14,8 +14,13 @@ namespace uff {
  */
 struct Element {
   inline bool operator==(const Element& other) const {
-    return (transform == other.transform) && (element_geometry == other.element_geometry) &&
-           (impluse_response == other.impluse_response);
+    return (transform == other.transform) &&
+           (element_geometry.expired() == other.element_geometry.expired()) &&
+           (element_geometry.expired() ||
+            *(element_geometry.lock()) == *(other.element_geometry.lock())) &&
+           (impluse_response.expired() == other.impluse_response.expired()) &&
+           (impluse_response.expired() ||
+            *(impluse_response.lock()) == *(other.impluse_response.lock()));
   }
   inline bool operator!=(const Element& other) const { return !(*this == other); }
 
@@ -23,10 +28,10 @@ struct Element {
   Transform transform;
 
   /// Reference the corresponfing element geometry in the probe the element belong to
-  ElementGeometry* element_geometry = nullptr;
+  std::weak_ptr<ElementGeometry> element_geometry;
 
   /// Reference the corresponfing impulse responce in the probe the element belong to
-  ImpulseResponse* impluse_response = nullptr;
+  std::weak_ptr<ImpulseResponse> impluse_response;
 };
 
 }  // namespace uff

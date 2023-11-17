@@ -18,13 +18,17 @@ namespace uff {
  */
 struct TransmitSetup {
   bool operator==(const TransmitSetup& other) const {
-    return (is_nan_or_equal(time_offset, other.time_offset) && (probe == other.probe) &&
-            (probe_transform == other.probe_transform) && (wave == other.wave));
+    return (is_nan_or_equal(time_offset, other.time_offset) &&
+            (probe.expired() == other.probe.expired()) &&
+            (probe.expired() || *(probe.lock()) == *(other.probe.lock())) &&
+            (probe_transform == other.probe_transform) &&
+            (wave.expired() == other.wave.expired()) &&
+            (wave.expired() || *(wave.lock()) == *(other.wave.lock())));
   }
   inline bool operator!=(const TransmitSetup& other) const { return !(*this == other); }
 
   /// Reference to the probe use in transmission
-  Probe* probe = nullptr;
+  std::weak_ptr<Probe> probe;
 
   /// Location of the probe in space reference for this TransmitSetup
   Transform probe_transform;
@@ -33,7 +37,7 @@ struct TransmitSetup {
   double time_offset = UFF_NAN;
 
   /// The wave emitted by this TransmitSetup
-  Wave* wave = nullptr;
+  std::weak_ptr<Wave> wave;
 };
 
 }  // namespace uff
