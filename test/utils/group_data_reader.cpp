@@ -54,7 +54,7 @@ TEST_CASE("Read back group data complex float data", "[group_data]") {
   const int n_frames = 3;
   const int size = n_frames * 42;  // (42 = 3*2*3+4*3*2)
   auto tmp = std::vector<CompInt32>(size);
-  for (size_t i = 0; i < size; ++i) {
+  for (int i = 0; i < size; ++i) {
     tmp[i] = CompInt32(i * 2, i * 2 + 1);
   }
   group_data.raw_data = std::move(tmp);

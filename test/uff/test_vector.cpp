@@ -22,7 +22,7 @@ TEST_CASE("Vector2D<int>::operator==", "[test_vector]") {
   REQUIRE(v_1.x == v_3.x);
   REQUIRE(v_1.y == v_3.y);
 
-  v_1.x = 0.;
+  v_1.x = 0;
   REQUIRE(v_1 != v_2);
   REQUIRE(v_1.x == v_2.x);
   REQUIRE(v_1.y != v_2.y);
@@ -30,7 +30,7 @@ TEST_CASE("Vector2D<int>::operator==", "[test_vector]") {
   REQUIRE(v_1.x != v_3.x);
   REQUIRE(v_1.y == v_3.y);
 
-  v_1.y = 0.;
+  v_1.y = 0;
   REQUIRE(v_1 == v_2);
   REQUIRE(v_1.x == v_2.x);
   REQUIRE(v_1.y == v_2.y);

@@ -180,7 +180,7 @@ PYBIND11_MODULE(bindings, m) {
           auto ptr = static_cast<std::complex<int32_t> *>(info.ptr);
           VecCompInt16 vec;
           vec.reserve(info.shape[0]);
-          for (size_t i = 0; i < info.shape[0]; ++i) {
+          for (auto i = 0; i < info.shape[0]; ++i) {
             vec.push_back(static_cast<std::complex<int16_t>>(ptr[i]));
           }
           return vec;
@@ -188,7 +188,7 @@ PYBIND11_MODULE(bindings, m) {
           auto ptr = static_cast<std::complex<float> *>(info.ptr);
           VecCompInt16 vec;
           vec.reserve(info.shape[0]);
-          for (size_t i = 0; i < info.shape[0]; ++i) {
+          for (auto i = 0; i < info.shape[0]; ++i) {
             vec.push_back(static_cast<std::complex<int16_t>>(ptr[i]));
           }
           return vec;
@@ -196,7 +196,7 @@ PYBIND11_MODULE(bindings, m) {
           auto ptr = static_cast<std::complex<double> *>(info.ptr);
           VecCompInt16 vec;
           vec.reserve(info.shape[0]);
-          for (size_t i = 0; i < info.shape[0]; ++i) {
+          for (auto i = 0; i < info.shape[0]; ++i) {
             vec.push_back(static_cast<std::complex<int16_t>>(ptr[i]));
           }
           return vec;
@@ -286,7 +286,7 @@ PYBIND11_MODULE(bindings, m) {
           auto ptr = static_cast<std::complex<int16_t> *>(info.ptr);
           VecCompInt32 vec;
           vec.reserve(info.shape[0]);
-          for (size_t i = 0; i < info.shape[0]; ++i) {
+          for (auto i = 0; i < info.shape[0]; ++i) {
             vec.push_back(static_cast<std::complex<int32_t>>(ptr[i]));
           }
           return vec;
@@ -294,7 +294,7 @@ PYBIND11_MODULE(bindings, m) {
           auto ptr = static_cast<std::complex<float> *>(info.ptr);
           VecCompInt32 vec;
           vec.reserve(info.shape[0]);
-          for (size_t i = 0; i < info.shape[0]; ++i) {
+          for (auto i = 0; i < info.shape[0]; ++i) {
             vec.push_back(static_cast<std::complex<int32_t>>(ptr[i]));
           }
           return vec;
@@ -302,7 +302,7 @@ PYBIND11_MODULE(bindings, m) {
           auto ptr = static_cast<std::complex<double> *>(info.ptr);
           VecCompInt32 vec;
           vec.reserve(info.shape[0]);
-          for (size_t i = 0; i < info.shape[0]; ++i) {
+          for (auto i = 0; i < info.shape[0]; ++i) {
             vec.push_back(static_cast<std::complex<int32_t>>(ptr[i]));
           }
           return vec;
