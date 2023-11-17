@@ -13,7 +13,7 @@
 #include <uff/uff.h>
 #include <uff/writer.h>
 #include <algorithm>
-#include <catch2/catch.hpp>
+#include <catch2/catch_all.hpp>
 #include <cmath>
 #include <cstddef>
 #include <cstdlib>

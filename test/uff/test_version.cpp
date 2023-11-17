@@ -1,6 +1,6 @@
 #include <uff/uff.h>
 #include <uff/version.h>
-#include <catch2/catch.hpp>
+#include <catch2/catch_all.hpp>
 
 namespace uff::test {
 

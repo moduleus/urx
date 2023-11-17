@@ -6,6 +6,6 @@ add_executable(UffTest::UffClasses ALIAS UffClasses)
 
 target_include_directories(UffClasses PUBLIC ${PROJECT_SOURCE_DIR}/uff)
 
-target_link_libraries(UffClasses PRIVATE Uff::Uff Catch2::Catch2)
+target_link_libraries(UffClasses PRIVATE Uff::Uff Catch2::Catch2WithMain)
 
 catch_discover_tests(UffClasses)
