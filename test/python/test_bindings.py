@@ -25,13 +25,13 @@ class TestBindings(unittest.TestCase):
                 else:
                     self.assertFalse(mapTypeToCheckFunc[item](group_data))
 
-        self.assertEqual(group_data.raw_data, uff.VecInt16())
+        self.assertTrue(np.array_equal(group_data.raw_data, uff.VecInt16()))
         group_data.raw_data = uff.VecFloat64([1., 2., 3., 4.])
         checkInternalType(self, "float64", group_data)
-        group_data.raw_data.append(42.)
-        group_data.raw_data = uff.VecFloat64(np.asarray(group_data.raw_data)*2)
-        self.assertEqual(group_data.raw_data,
-                         uff.VecFloat64([2., 4., 6., 8., 84]))
+        group_data.raw_data = np.append(group_data.raw_data, 42.)
+        group_data.raw_data *= 2
+        self.assertTrue(np.array_equal(group_data.raw_data,
+                         np.array([2., 4., 6., 8., 84],dtype=np.float64)))
         checkInternalType(self, "float64", group_data)
 
         group_data.raw_data = uff.VecInt16(
@@ -50,8 +50,7 @@ class TestBindings(unittest.TestCase):
             np.array([1, 2, -1], dtype=np.float64))
         checkInternalType(self, "float64", group_data)
 
-        group_data.raw_data = uff.VecCompInt16(
-            np.array([[1, 3], [2, 4], [1, 5]], dtype=np.int16))
+        group_data.raw_data = np.array([[1, 3], [2, 4], [1, 5]], dtype=np.int16)
         checkInternalType(self, "complexInt16", group_data)
 
         group_data.raw_data = uff.VecCompInt32(
@@ -74,9 +73,8 @@ class TestBindings(unittest.TestCase):
 
         data_size = 100000000
         group_data = uff.GroupData()
-        group_data.raw_data = uff.VecFloat32(
-            np.array(range(data_size), dtype=np.float32))
-        ref = np.array(group_data.raw_data, copy=False)
+        group_data.raw_data = np.array(range(data_size), dtype=np.float32)
+        ref = group_data.raw_data
         tic = perf_counter()
         ref /= 20
         toc = perf_counter() - tic
@@ -98,33 +96,33 @@ class TestBindings(unittest.TestCase):
         group_data = uff.GroupData()
         group_data.raw_data = uffType()
         self.assertEqual(len(group_data.raw_data), 0)
-        self.assertEqual(type(group_data.raw_data), uffType)
 
         group_data.raw_data = uffType([1.+2.j, 2.+3.j])
         self.assertEqual(len(group_data.raw_data), 2)
-        self.assertEqual(type(group_data.raw_data), uffType)
+
+        group_data.raw_data = numpyType([1.+2.j, 2.+3.j])
+        self.assertEqual(len(group_data.raw_data), 2)
 
         group_data.raw_data = uffType(
             np.array([1.+2.j, 2.+3.j], dtype=numpyType))
         self.assertEqual(len(group_data.raw_data), 2)
-        self.assertEqual(type(group_data.raw_data), uffType)
 
-        ref = np.array(group_data.raw_data, copy=False)
-        for i in range(len(group_data.raw_data)):
-            self.assertEqual(group_data.raw_data[i].real, ref[i].real)
-            self.assertEqual(group_data.raw_data[i].imag, ref[i].imag)
+        group_data.raw_data = np.array([1.+2.j, 2.+3.j], dtype=numpyType)
+        self.assertEqual(len(group_data.raw_data), 2)
 
-        ref[0] = 45.+67.j
-        for i in range(len(group_data.raw_data)):
-            self.assertEqual(group_data.raw_data[i].real, ref[i].real)
-            self.assertEqual(group_data.raw_data[i].imag, ref[i].imag)
+        ref = group_data.raw_data.view(numpyType)[:,0]
+        self.assertTrue(np.array_equal(np.array(
+            [1.+2.j, 2.+3.j], dtype=numpyType), ref))
+        self.assertTrue(np.array_equal(np.array(
+            [[1,2], [2,3]], dtype=numpyType), group_data.raw_data))
+
+        ref[0] = 45.+67j
+        self.assertTrue(np.array_equal(group_data.raw_data.view(numpyType)[:,0], ref))
 
         ref += 1
         self.assertTrue(np.array_equal(ref, np.array(
             [46.+67.j, 3.+3.j], dtype=numpyType)))
-        for i in range(len(group_data.raw_data)):
-            self.assertEqual(group_data.raw_data[i].real, ref[i].real)
-            self.assertEqual(group_data.raw_data[i].imag, ref[i].imag)
+        self.assertTrue(np.array_equal(group_data.raw_data.view(numpyType)[:,0], ref))
 
         print("--Test %s END--" % testName)
 
