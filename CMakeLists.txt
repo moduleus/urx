@@ -81,9 +81,7 @@ option(WITH_TEST "Build unit tests" OFF)
 
 add_subdirectory("uff")
 
-if(WITH_HDF5)
-  add_subdirectory("uff_utils")
-endif()
+add_subdirectory("uff_utils")
 
 if(WITH_MATLAB)
   find_package(Matlab REQUIRED)
@@ -91,6 +89,7 @@ if(WITH_MATLAB)
 endif()
 
 if(WITH_PYTHON)
+  find_package(Python COMPONENTS Interpreter Development)
   find_package(pybind11 CONFIG REQUIRED)
   add_subdirectory(python)
 endif()
@@ -98,6 +97,7 @@ endif()
 if(WITH_TEST)
   enable_testing()
   find_package(Catch2 REQUIRED)
+  add_subdirectory(test)
 endif()
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${UFF_SRCS}
@@ -109,7 +109,3 @@ write_basic_package_version_file(
   COMPATIBILITY SameMajorVersion)
 
 file(WRITE "${CMAKE_BINARY_DIR}/version.txt" "${CMAKE_PROJECT_VERSION}")
-
-if(WITH_TEST)
-  add_subdirectory(test)
-endif()
