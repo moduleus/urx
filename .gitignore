@@ -16,3 +16,6 @@ pyusff.egg-info/
 *.swp
 
 *.asv
+
+/.venv/
+/vcpkg*/

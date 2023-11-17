@@ -1,0 +1,14 @@
+{
+    "dependencies": [
+        {
+            "name": "hdf5",
+            "default-features": false,
+            "features": [
+                "cpp"
+            ]
+        },
+        "pybind11",
+        "catch2",
+        "python3"
+    ]
+}
