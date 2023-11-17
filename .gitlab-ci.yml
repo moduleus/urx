@@ -17,7 +17,7 @@ doc:Doxygen:
   stage: doc
   tags:
     - docker
-  image:  $CI_REGISTRY/common/ci/dockerci/doxygen:latest
+  image: $CI_REGISTRY/common/ci/dockerci/doxygen:latest
   script:
     - doxygen doc/Doxyfile
     - mv doc/html public
@@ -33,7 +33,7 @@ doc:PlantUml:
   stage: doc
   tags:
     - docker
-  image:  $CI_REGISTRY/common/ci/dockerci/hpp2plantuml:latest
+  image: $CI_REGISTRY/common/ci/dockerci/hpp2plantuml:latest
   script:
     - mkdir -p doc/plantuml
     - hpp2plantuml -i "uff/*.h" -o doc/plantuml/architecture.puml
@@ -47,7 +47,7 @@ doc:PlantUml:
     - perl -0777 -i -pe "s/^.*\*-- uff.Vector.*D\n\n\n//gm" doc/plantuml/architecture.puml
     - perl -0777 -i -pe "s/^.*uff\.Element.*\*-- .*\n\n\n//gm" doc/plantuml/architecture.puml
     # - sed -r -i "/\+--\ uff\.GroupData::VecDataType.*/d" doc/plantuml/architecture.puml
-    # - perl -0777 -i -pe "s/^.*class\ GroupData::VecDataType.*\n.*}\n\n//gm" doc/plantuml/architecture.puml 
+    # - perl -0777 -i -pe "s/^.*class\ GroupData::VecDataType.*\n.*}\n\n//gm" doc/plantuml/architecture.puml
     - mkdir -p public/plantuml
     - plantuml doc/plantuml/architecture.puml
     - mv doc/plantuml/architecture.* public/plantuml/
@@ -58,7 +58,6 @@ doc:PlantUml:
     paths:
       - public
     expire_in: 1 day
-
 
 format:clang-format:
   stage: format
@@ -134,7 +133,7 @@ build:windows-with-HDF5-static:
     - win10
     - build
   script:
-    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DHDF5_DIR="$HDF5_DIR_2022_64_STATIC_RELEASE" -DCatch2_DIR="$Catch2_DIR_2022_64_STATIC_RELEASE" -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF
+    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DHDF5_DIR="$HDF5_DIR_2022_64_STATIC_RELEASE" -DCatch2_DIR="$Catch2_DIR_2022_64_STATIC_RELEASE" -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON  -DWITH_TEST=ON
     - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
   artifacts:
     paths:
@@ -170,7 +169,7 @@ build:windows-with-HDF5-shared:
     - win10
     - build
   script:
-    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DHDF5_DIR="$HDF5_DIR_2022_64_SHARED_RELEASE" -DCatch2_DIR="$Catch2_DIR_2022_64_SHARED_RELEASE" -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=ON
+    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DHDF5_DIR="$HDF5_DIR_2022_64_SHARED_RELEASE" -DCatch2_DIR="$Catch2_DIR_2022_64_SHARED_RELEASE" -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=ON  -DWITH_TEST=ON
     - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
   artifacts:
     paths:
@@ -206,7 +205,7 @@ build:windows-without-HDF5-static:
     - win10
     - build
   script:
-    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCatch2_DIR="$Catch2_DIR_2022_64_STATIC_RELEASE" -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=OFF
+    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCatch2_DIR="$Catch2_DIR_2022_64_STATIC_RELEASE" -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=OFF -DWITH_TEST=ON
     - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
   artifacts:
     paths:
@@ -230,7 +229,7 @@ build:windows-without-HDF5-shared:
     - win10
     - build
   script:
-    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCatch2_DIR="$Catch2_DIR_2022_64_SHARED_RELEASE" -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=OFF
+    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCatch2_DIR="$Catch2_DIR_2022_64_SHARED_RELEASE" -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=OFF -DWITH_TEST=ON
     - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
   artifacts:
     paths:
@@ -254,7 +253,7 @@ build:ubuntu-with-HDF5-static:
     - ubuntu
     - build
   script:
-    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DHDF5_DIR="$HDF5_DIR_GCC_64_STATIC_RELEASE" -DCatch2_DIR="$Catch2_DIR_GCC_64_STATIC_RELEASE" -DBUILD_SHARED_LIBS=OFF
+    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DHDF5_DIR="$HDF5_DIR_GCC_64_STATIC_RELEASE" -DCatch2_DIR="$Catch2_DIR_GCC_64_STATIC_RELEASE" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DWITH_TEST=ON
     - cmake --build CI --config Release --parallel $NUM_PARALLEL
   artifacts:
     paths:
@@ -290,7 +289,7 @@ build:ubuntu-with-HDF5-shared:
     - ubuntu
     - build
   script:
-    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DHDF5_DIR="$HDF5_DIR_GCC_64_SHARED_RELEASE" -DCatch2_DIR="$Catch2_DIR_GCC_64_SHARED_RELEASE" -DBUILD_SHARED_LIBS=ON
+    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DHDF5_DIR="$HDF5_DIR_GCC_64_SHARED_RELEASE" -DCatch2_DIR="$Catch2_DIR_GCC_64_SHARED_RELEASE" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=ON -DWITH_TEST=ON
     - cmake --build CI --config Release --parallel $NUM_PARALLEL
   artifacts:
     paths:
@@ -326,7 +325,7 @@ build:ubuntu-without-HDF5-static:
     - ubuntu
     - build
   script:
-    - cmake -S . -B CI -DCatch2_DIR="$Catch2_DIR_GCC_64_STATIC_RELEASE" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=OFF
+    - cmake -S . -B CI -DCatch2_DIR="$Catch2_DIR_GCC_64_STATIC_RELEASE" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=OFF -DWITH_TEST=ON
     - cmake --build CI --config Release --parallel $NUM_PARALLEL
   artifacts:
     paths:
@@ -350,7 +349,7 @@ build:ubuntu-without-HDF5-shared:
     - ubuntu
     - build
   script:
-    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=OFF -DCatch2_DIR="$Catch2_DIR_GCC_64_SHARED_RELEASE"
+    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=OFF -DCatch2_DIR="$Catch2_DIR_GCC_64_SHARED_RELEASE" -DWITH_TEST=ON
     - cmake --build CI --config Release --parallel $NUM_PARALLEL
   artifacts:
     paths:
