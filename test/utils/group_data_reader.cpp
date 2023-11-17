@@ -1,9 +1,26 @@
-#include <catch2/catch.hpp>
-
-#include <iostream>
-#include <variant>
+#include <uff/group.h>
+#include <uff/group_data.h>
+#include <uff/receive_setup.h>
 
 #include <uff_utils/group_data_reader.h>
+
+#include <catch2/catch.hpp>
+
+#include <complex>
+#include <cstddef>
+#include <cstdint>
+#include <ios>
+#include <iosfwd>
+#include <iostream>
+#include <locale>
+#include <memory>
+#include <ostream>
+#include <sstream>
+#include <streambuf>
+#include <string>
+#include <utility>
+#include <variant>
+#include <vector>
 
 namespace uff::test {
 

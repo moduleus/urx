@@ -12,10 +12,12 @@
 #include <uff/transform.h>
 #include <uff/transmit_setup.h>
 #include <uff/types.h>
-#include <uff/uff.h>
+#include <uff/vector.h>
 #include <uff/version.h>
+#include <uff/wave.h>
 
 #include <catch2/catch.hpp>
+
 namespace uff::test {
 
 TEST_CASE("Instantiate all classes to check build", "[test_build]") {

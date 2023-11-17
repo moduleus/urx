@@ -13,6 +13,7 @@ namespace uff {
  * The version follow the standard on software version : major.minor.patch 
  */
 struct Version {
+  // NOLINTNEXTLINE(hicpp-use-nullptr,modernize-use-nullptr)
   auto operator<=>(const Version& other) const = default;
 
   /// Major is the first version component

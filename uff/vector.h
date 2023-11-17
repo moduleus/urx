@@ -13,6 +13,7 @@ template <typename T>
 struct Vector3D {
   explicit Vector3D(T x_ = 0., T y_ = 0., T z_ = 0.) : x(x_), y(y_), z(z_) {}
 
+  // NOLINTNEXTLINE(hicpp-use-nullptr,modernize-use-nullptr)
   auto operator<=>(const Vector3D<T>& other) const = default;
 
   /// x [m]
@@ -32,6 +33,7 @@ template <typename T>
 struct Vector2D {
   explicit Vector2D(T x_ = 0., T y_ = 0.) : x(x_), y(y_) {}
 
+  // NOLINTNEXTLINE(hicpp-use-nullptr,modernize-use-nullptr)
   auto operator<=>(const Vector2D<T>& other) const = default;
 
   /// x [m]

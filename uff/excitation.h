@@ -24,7 +24,7 @@ struct Excitation {
   inline bool operator!=(const Excitation& other) const { return !(*this == other); }
 
   /// Desciption of the pulse shape (e.g., sinusoidal, square wave, chirp), including necessary parameters
-  std::string pulseShape = "";
+  std::string pulseShape;
 
   /// Transmit frequency of the pulser [Hz]
   double transmit_frequency = UFF_NAN;

@@ -1,6 +1,6 @@
 #include <uff/transform.h>
-#include <uff/uff.h>
 #include <uff/vector.h>
+
 #include <catch2/catch.hpp>
 
 namespace uff::test {

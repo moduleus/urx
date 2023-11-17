@@ -36,7 +36,7 @@ struct Probe {
 
   /// Description of the probe with serial ID
   /// This description aims to identify correctly the probe used during the acquisition
-  std::string description = "";
+  std::string description;
 
   /// Type of the probe, used to determine element geometries
   ProbeType type = ProbeType::UNDEFINED;

@@ -151,12 +151,12 @@ MEX_DEFINE(GroupData_get_group)(int nlhs, mxArray* plhs[], int nrhs, const mxArr
     intptr_t id = reinterpret_cast<intptr_t>(grp_data->group.lock().get());
     if (Session<uff::Group>::exist(id)) {
       output.set(0, id);
-    }
-    else{
+    } else {
       throw std::runtime_error("group reference is not valid any more in the Matlab context");
     }
   } else
-    throw std::runtime_error("group is not valid any more, and is not referenced by an acquisition");
+    throw std::runtime_error(
+        "group is not valid any more, and is not referenced by an acquisition");
 }
 
 MEX_DEFINE(GroupData_set_group)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {

@@ -15,6 +15,7 @@ namespace uff {
  *  followed by a translation T = (tx, ty, tz).
  */
 struct Transform {
+  // NOLINTNEXTLINE(hicpp-use-nullptr,modernize-use-nullptr)
   auto operator<=>(const Transform& other) const = default;
 
   /// Rotation around the 3 axis X: elevation, Y: azimut and Z: roll [rad]

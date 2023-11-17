@@ -25,7 +25,7 @@ struct ImpulseResponse {
   std::vector<double> data;
 
   /// (Optional) Name of the units of the impulse response
-  std::string units = "";
+  std::string units;
 
   /// Time offset of the impulse response
   double time_offset = UFF_NAN;

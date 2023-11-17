@@ -67,19 +67,19 @@ struct Acquisition {
   inline bool operator!=(const Acquisition& other) const { return !(*this == other); }
 
   /// Experimentation authors
-  std::string authors = "";
+  std::string authors;
 
   /// Description of the experimentation
-  std::string description = "";
+  std::string description;
 
   /// Date of the experimentation acquisition following ISO 8601
-  std::string local_time = "";
+  std::string local_time;
 
   /// Contry identification following ISO 3166-1
-  std::string country_code = "";
+  std::string country_code;
 
   /// Description of the system used to acquired the dataset
-  std::string system = "";
+  std::string system;
 
   /// Reference sound speed for Tx and Rx events [m/s]
   /// You must provide the sound speed inside the studied material in order to process the data

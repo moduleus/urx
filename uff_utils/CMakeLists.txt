@@ -19,8 +19,9 @@ target_include_directories(
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${UFF_UTILS_LIBRARY}-${git_branch}>
 )
-set_target_properties(${UFF_UTILS_LIBRARY}
-                      PROPERTIES OUTPUT_NAME "${UFF_UTILS_LIBRARY}-${git_branch}")
+set_target_properties(
+  ${UFF_UTILS_LIBRARY} PROPERTIES OUTPUT_NAME
+                                  "${UFF_UTILS_LIBRARY}-${git_branch}")
 
 # Link ###
 if(BUILD_SHARED_LIBS)

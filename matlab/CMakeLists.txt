@@ -7,13 +7,8 @@ find_package(mexplus 0.0.2 REQUIRED)
 
 matlab_add_mex(
   NAME MexUFF
-  SRC 
-  Mex/acquisition.cpp 
-  Mex/dataset.cpp 
-  Mex/group_data.cpp 
-  Mex/group.cpp 
-  Mex/load_lib.cpp 
-  Mex/version.cpp
+  SRC Mex/acquisition.cpp Mex/dataset.cpp Mex/group_data.cpp Mex/group.cpp
+      Mex/load_lib.cpp Mex/version.cpp
   LINK_TO Uff::Uff mexplus::mexplus R2018a)
 
 # # Install matlab eGal package files along with mex libraries ###
