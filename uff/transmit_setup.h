@@ -28,7 +28,7 @@ struct TransmitSetup {
   inline bool operator!=(const TransmitSetup& other) const { return !(*this == other); }
 
   /// Reference to the probe use in transmission
-  std::weak_ptr<Probe> probe;
+  std::weak_ptr<Probe> probe = std::weak_ptr<Probe>();
 
   /// Location of the probe in space reference for this TransmitSetup
   Transform probe_transform;
@@ -37,7 +37,7 @@ struct TransmitSetup {
   double time_offset = UFF_NAN;
 
   /// The wave emitted by this TransmitSetup
-  std::weak_ptr<Wave> wave;
+  std::weak_ptr<Wave> wave = std::weak_ptr<Wave>();
 };
 
 }  // namespace uff

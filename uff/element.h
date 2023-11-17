@@ -28,10 +28,10 @@ struct Element {
   Transform transform;
 
   /// Reference the corresponfing element geometry in the probe the element belong to
-  std::weak_ptr<ElementGeometry> element_geometry;
+  std::weak_ptr<ElementGeometry> element_geometry = std::weak_ptr<ElementGeometry>();
 
   /// Reference the corresponfing impulse responce in the probe the element belong to
-  std::weak_ptr<ImpulseResponse> impluse_response;
+  std::weak_ptr<ImpulseResponse> impluse_response = std::weak_ptr<ImpulseResponse>();
 };
 
 }  // namespace uff

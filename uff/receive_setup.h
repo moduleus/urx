@@ -29,7 +29,7 @@ struct ReceiveSetup {
   inline bool operator!=(const ReceiveSetup& other) const { return !(*this == other); }
 
   /// Probe used for this receive setup
-  std::weak_ptr<Probe> probe;
+  std::weak_ptr<Probe> probe = std::weak_ptr<Probe>();
 
   /// Location of the probe in space reference for this ReceiveSetup
   Transform probe_transform;
