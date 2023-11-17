@@ -1,10 +1,11 @@
 # Set UFF sources
 set(UFF_UTILS_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/io.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/io/reader.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/io/writer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/io/writer.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/probe_helper.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/reader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/time_helper.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/writer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt)
 
 # Target library ### Create target
