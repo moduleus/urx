@@ -29,3 +29,7 @@ if(TARGET Uff::Uff_Utils)
 endif()
 
 add_subdirectory(uff)
+
+if(WITH_HDF5)
+  add_subdirectory(io)
+endif()

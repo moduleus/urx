@@ -474,7 +474,7 @@ PYBIND11_MODULE(bindings, m) {
       .def_readwrite("sound_speed", &uff::Acquisition::sound_speed)
       .def_readwrite("timestamp", &uff::Acquisition::timestamp)
       .def_readwrite("groups", &uff::Acquisition::groups)
-      .def_readwrite("group_data", &uff::Acquisition::group_data);
+      .def_readwrite("group_data", &uff::Acquisition::groups_data);
 
   m.def("checkInt16Type", &checkType<std::vector<int16_t>>);
   m.def("checkInt32Type", &checkType<std::vector<int32_t>>);

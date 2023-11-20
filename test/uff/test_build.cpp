@@ -11,7 +11,7 @@
 #include <uff/receive_setup.h>
 #include <uff/transform.h>
 #include <uff/transmit_setup.h>
-#include <uff/types.h>
+#include <uff/uff.h>
 #include <uff/vector.h>
 #include <uff/version.h>
 #include <uff/wave.h>
@@ -35,7 +35,6 @@ TEST_CASE("Instantiate all classes to check build", "[test_build]") {
   const Transform transform;
   const TransmitSetup transmit_setup;
   const Wave wave;
-  const WaveType waveType = WaveType::PLANE_WAVE;
   const Vector2D<double> vector2D;
   const Vector3D<double> vector3D;
   const Version version;

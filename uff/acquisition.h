@@ -46,9 +46,9 @@ struct Acquisition {
       are_groups_equaled = are_groups_equaled && (*groups[i] == *other.groups[i]);
     }
 
-    bool are_group_data_equaled = group_data.size() == other.group_data.size();
-    for (uint32_t i = 0; i < group_data.size() && are_group_data_equaled; ++i) {
-      are_group_data_equaled = are_group_data_equaled && (*group_data[i] == *other.group_data[i]);
+    bool are_group_data_equaled = groups_data.size() == other.groups_data.size();
+    for (uint32_t i = 0; i < groups_data.size() && are_group_data_equaled; ++i) {
+      are_group_data_equaled = are_group_data_equaled && (*groups_data[i] == *other.groups_data[i]);
     }
 
     bool are_excitations_equaled = excitations.size() == other.excitations.size();
@@ -85,23 +85,23 @@ struct Acquisition {
   /// You must provide the sound speed inside the studied material in order to process the data
   double sound_speed = 0.;
 
-  /// List of all group present in the acquisition
-  std::vector<std::shared_ptr<Group>> groups;
-
   /// List of all the probes used to transmit/receive sequences in the acquisition
   std::vector<std::shared_ptr<Probe>> probes;
+
+  /// List of all the unique excitations used the sequences in the acquisition
+  std::vector<std::shared_ptr<Excitation>> excitations;
 
   /// List of all the unique waves used in the sequences in the acquisition
   std::vector<std::shared_ptr<Wave>> waves;
 
-  /// List of all the unique excitations used the sequences in the acquisition
-  std::vector<std::shared_ptr<Excitation>> excitations;
+  /// List of all group present in the acquisition
+  std::vector<std::shared_ptr<Group>> groups;
 
   /// Timestamp of the launch of the acquisition [s]
   double timestamp = UFF_NAN;
 
   /// List of all data acquired by the running groups in the acquisition
-  std::vector<std::shared_ptr<GroupData>> group_data;
+  std::vector<std::shared_ptr<GroupData>> groups_data;
 };
 
 }  // namespace uff

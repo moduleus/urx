@@ -9,6 +9,8 @@
         },
         "pybind11",
         "catch2",
-        "python3"
+        "python3",
+        "boost-pfr",
+        "magic-enum"
     ]
 }

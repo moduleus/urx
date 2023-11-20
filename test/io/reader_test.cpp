@@ -1,17 +1,4 @@
-#include <uff/channel_data.h>
 #include <uff/dataset.h>
-#include <uff/event.h>
-#include <uff/excitation.h>
-#include <uff/linear_array.h>
-#include <uff/matrix_array.h>
-#include <uff/rca_array.h>
-#include <uff/reader.h>
-#include <uff/receive_setup.h>
-#include <uff/transform.h>
-#include <uff/transmit_setup.h>
-#include <uff/types.h>
-#include <uff/uff.h>
-#include <uff/writer.h>
 #include <algorithm>
 #include <catch2/catch_all.hpp>
 #include <cmath>

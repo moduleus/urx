@@ -1,3 +1,29 @@
+find_file(BOOST_PFR_HPP "boost/pfr.hpp")
+find_package(magic_enum CONFIG REQUIRED)
+
+# Link ###
+if(BUILD_SHARED_LIBS)
+  set(LIB_TYPE SHARED)
+else()
+  set(LIB_TYPE STATIC)
+endif()
+string(TOLOWER ${LIB_TYPE} SEARCH_TYPE)
+
+find_package(HDF5 NAMES hdf5 COMPONENTS CXX ${SEARCH_TYPE})
+
+# Setup compiler flags
+add_library(compiler_flags INTERFACE)
+
+# add compiler warning flags just when building this project via the
+# BUILD_INTERFACE genex
+set(gcc_like_cxx "$<COMPILE_LANG_AND_ID:CXX,ARMClang,AppleClang,Clang,GNU,LCC>")
+set(msvc_cxx "$<COMPILE_LANG_AND_ID:CXX,MSVC>")
+target_compile_options(
+  compiler_flags
+  INTERFACE
+    "$<${gcc_like_cxx}:$<BUILD_INTERFACE:-Wall;-Werror;-Wextra;-Wshadow;-Wformat=2;-Wunused>>"
+    "$<${msvc_cxx}:$<BUILD_INTERFACE:/W3;/WX;/EHsc;/wd4251>>")
+
 # Set UFF sources
 set(UFF_UTILS_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/io.h
@@ -18,41 +44,17 @@ add_library(Uff::${UFF_UTILS_LIBRARY} ALIAS ${UFF_UTILS_LIBRARY})
 target_include_directories(
   ${UFF_UTILS_LIBRARY}
   PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${UFF_UTILS_LIBRARY}-${git_branch}>
 )
 set_target_properties(
   ${UFF_UTILS_LIBRARY} PROPERTIES OUTPUT_NAME
                                   "${UFF_UTILS_LIBRARY}-${git_branch}")
 
-# Link ###
-if(BUILD_SHARED_LIBS)
-  set(LIB_TYPE SHARED)
-else()
-  set(LIB_TYPE STATIC)
-endif()
-string(TOLOWER ${LIB_TYPE} SEARCH_TYPE)
-
-find_package(HDF5 NAMES hdf5 COMPONENTS CXX ${SEARCH_TYPE})
-
-# Setup compiler flags
-add_library(compiler_flags INTERFACE)
-target_compile_features(compiler_flags INTERFACE cxx_std_17)
-
-# add compiler warning flags just when building this project via the
-# BUILD_INTERFACE genex
-set(gcc_like_cxx "$<COMPILE_LANG_AND_ID:CXX,ARMClang,AppleClang,Clang,GNU,LCC>")
-set(msvc_cxx "$<COMPILE_LANG_AND_ID:CXX,MSVC>")
-target_compile_options(
-  compiler_flags
-  INTERFACE
-    "$<${gcc_like_cxx}:$<BUILD_INTERFACE:-Wall;-Werror;-Wextra;-Wshadow;-Wformat=2;-Wunused>>"
-    "$<${msvc_cxx}:$<BUILD_INTERFACE:/W3;/WX;/EHsc;/wd4251>>")
-
 target_link_libraries(
   ${UFF_UTILS_LIBRARY}
   PUBLIC Uff::Uff hdf5::hdf5-${SEARCH_TYPE} hdf5::hdf5_cpp-${SEARCH_TYPE}
-  PRIVATE compiler_flags)
+  PRIVATE compiler_flags magic_enum::magic_enum)
 
 # Create cmake config files ###
 configure_package_config_file(

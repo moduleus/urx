@@ -17,14 +17,14 @@ namespace uff {
  */
 struct Excitation {
   inline bool operator==(const Excitation& other) const {
-    return ((pulseShape == other.pulseShape) && (waveform == other.waveform) &&
+    return ((pulse_shape == other.pulse_shape) && (waveform == other.waveform) &&
             is_nan_or_equal(transmit_frequency, other.transmit_frequency) &&
             is_nan_or_equal(sampling_frequency, other.sampling_frequency));
   }
   inline bool operator!=(const Excitation& other) const { return !(*this == other); }
 
   /// Desciption of the pulse shape (e.g., sinusoidal, square wave, chirp), including necessary parameters
-  std::string pulseShape;
+  std::string pulse_shape;
 
   /// Transmit frequency of the pulser [Hz]
   double transmit_frequency = UFF_NAN;

@@ -4,17 +4,16 @@ include(Catch)
 include(CTest)
 
 set(UFF_TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR})
-set(MAIN_CPP ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
 
-set(SRCS_FILES readerTest.cpp)
+set(SRCS_FILES reader_test.cpp writer_test.cpp)
 
-add_executable(UffTest ${MAIN_CPP} ${SRCS_FILES})
+add_executable(UffIo ${SRCS_FILES})
 
 target_link_libraries(
-  UffTest PRIVATE Uff::Uff Uff::Uff_Utils ${HDF5_CXX_LIBRARIES} Catch2::Catch2
-                  compiler_flags)
+  UffIo PRIVATE Uff::Uff Uff::Uff_Utils ${HDF5_CXX_LIBRARIES}
+                Catch2::Catch2WithMain compiler_flags)
 
-foreach(TESTI UffTest)
+foreach(TESTI UffIo)
   if(WIN32 AND BUILD_SHARED_LIBS)
     add_custom_command(
       TARGET ${TESTI}
@@ -25,4 +24,4 @@ foreach(TESTI UffTest)
   endif()
 endforeach()
 
-catch_discover_tests(UffTest)
+catch_discover_tests(UffIo)

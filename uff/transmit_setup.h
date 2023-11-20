@@ -6,7 +6,6 @@
 
 #include <uff/probe.h>
 #include <uff/transform.h>
-#include <uff/types.h>
 #include <uff/uff.h>
 #include <uff/vector.h>
 #include <uff/wave.h>
