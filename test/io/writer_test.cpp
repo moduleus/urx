@@ -14,11 +14,6 @@
 namespace uff::test {
 
 TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
-  constexpr uint8_t NB_CHANNELS = 32;
-  constexpr uint8_t NB_SAMPLES = 10;
-  constexpr uint8_t NB_FRAMES = 1;
-  constexpr uint8_t NB_PW = 1;
-
   auto dataset = std::make_shared<uff::Dataset>();
 
   dataset->version.major = 123;
@@ -44,7 +39,9 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
     probe->transform.translation.z = 3.2;
     {
       auto element_geometry = std::make_shared<ElementGeometry>();
-      element_geometry->perimeter = {{.x = 1.2, .y = 2.4, .z = 543},
+      element_geometry->perimeter = {{.x = std::numeric_limits<double>::quiet_NaN(),
+                                      .y = std::numeric_limits<double>::signaling_NaN(),
+                                      .z = 543},
                                      {.x = 2.2, .y = 1.4, .z = 0.2}};
       probe->element_geometries.push_back(element_geometry);
 

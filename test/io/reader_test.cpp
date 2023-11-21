@@ -13,10 +13,12 @@
 namespace uff::test {
 
 TEST_CASE("Load HDF5 file", "[hdf5_loader]") {
+  /*
   constexpr uint8_t NB_CHANNELS = 32;
   constexpr uint8_t NB_SAMPLES = 10;
   constexpr uint8_t NB_FRAMES = 1;
   constexpr uint8_t NB_PW = 1;
+  */
 
   auto dataset = std::make_shared<uff::Dataset>();
 

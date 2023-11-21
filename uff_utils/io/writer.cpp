@@ -89,11 +89,11 @@ void serialize_hdf5(const std::string& name, const std::weak_ptr<T>& field, cons
         all_shared.begin(), all_shared.end(),
         [&shared](const std::shared_ptr<T>& data) { return shared.get() == data.get(); });
     if (idx == all_shared.end()) {
-      throw std::exception(("Failed to read data from " + name).c_str());
+      throw std::runtime_error(("Failed to read data from " + name).c_str());
     }
     serialize_hdf5(name, std::distance(all_shared.begin(), idx), group, map);
   } else {
-    throw std::exception(("Failed to read data from " + name).c_str());
+    throw std::runtime_error(("Failed to read data from " + name).c_str());
   }
 }
 
@@ -159,7 +159,7 @@ void serialize_all(const Probe& field, const H5::Group& group, MapToSharedPtr& m
 // for_each_field doesn't support std::variant.
 template <>
 void serialize_all(const GroupData::VecDataTypeVariant& field, const H5::Group& group,
-                   MapToSharedPtr& map) {
+                   MapToSharedPtr&) {
   size_t size = std::visit(
       [](const auto& vec) {
         using type = std::remove_cvref_t<decltype(vec)>::value_type;

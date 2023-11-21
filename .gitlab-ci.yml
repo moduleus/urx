@@ -86,8 +86,6 @@ format:clang-tidy:
     - ubuntu
     - clang-tidy
   script:
-    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DHDF5_DIR="$HDF5_DIR_GCC_64_STATIC_RELEASE" -DCatch2_DIR="$Catch2_DIR_GCC_64_STATIC_RELEASE" -DBUILD_SHARED_LIBS=OFF
-    - cmake --build CI --config Release --parallel $NUM_PARALLEL
     - cd CI
     - run-clang-tidy || exit 1
   dependencies:
@@ -135,11 +133,14 @@ build:windows-with-HDF5-static:
     - win10
     - build
   script:
-    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DHDF5_DIR="$HDF5_DIR_2022_64_STATIC_RELEASE" -DCatch2_DIR="$Catch2_DIR_2022_64_STATIC_RELEASE" -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON  -DWITH_TEST=ON
+    - git clone --depth 1 --branch boost-pfr-with-get_name https://git.moduleus.com/common/sw/3rdparty/vcpkg.git
+    - .\vcpkg\bootstrap-vcpkg.bat
+    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows-static-md -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DWITH_TEST=ON -DWITH_PYTHON:BOOL=ON
     - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
   artifacts:
     paths:
       - CI
+      - vcpkg_installed
     expire_in: 1 day
 
 test:windows-with-HDF5-static:
@@ -171,11 +172,14 @@ build:windows-with-HDF5-shared:
     - win10
     - build
   script:
-    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DHDF5_DIR="$HDF5_DIR_2022_64_SHARED_RELEASE" -DCatch2_DIR="$Catch2_DIR_2022_64_SHARED_RELEASE" -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=ON  -DWITH_TEST=ON
+    - git clone --depth 1 --branch boost-pfr-with-get_name https://git.moduleus.com/common/sw/3rdparty/vcpkg.git
+    - .\vcpkg\bootstrap-vcpkg.bat
+    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=ON -DWITH_TEST=ON -DWITH_PYTHON:BOOL=ON
     - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
   artifacts:
     paths:
       - CI
+      - vcpkg_installed
     expire_in: 1 day
 
 test:windows-with-HDF5-shared:
@@ -201,65 +205,20 @@ install:windows-with-HDF5-shared:
   script:
     - cmake.exe --install CI --config Release
 
-build:windows-without-HDF5-static:
-  stage: build
-  tags:
-    - win10
-    - build
-  script:
-    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCatch2_DIR="$Catch2_DIR_2022_64_STATIC_RELEASE" -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=OFF -DWITH_TEST=ON
-    - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
-  artifacts:
-    paths:
-      - CI
-    expire_in: 1 day
-
-test:windows-without-HDF5-static:
-  stage: test
-  dependencies:
-    - build:windows-without-HDF5-static
-  tags:
-    - win10
-    - test
-  script:
-    - cd CI
-    - ctest --output-on-failure -C Release
-
-build:windows-without-HDF5-shared:
-  stage: build
-  tags:
-    - win10
-    - build
-  script:
-    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCatch2_DIR="$Catch2_DIR_2022_64_SHARED_RELEASE" -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=OFF -DWITH_TEST=ON
-    - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
-  artifacts:
-    paths:
-      - CI
-    expire_in: 1 day
-
-test:windows-without-HDF5-shared:
-  stage: test
-  dependencies:
-    - build:windows-without-HDF5-shared
-  tags:
-    - win10
-    - test
-  script:
-    - cd CI
-    - ctest --output-on-failure -C Release
-
 build:ubuntu-with-HDF5-static:
   stage: build
   tags:
     - ubuntu
     - build
   script:
-    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DHDF5_DIR="$HDF5_DIR_GCC_64_STATIC_RELEASE" -DCatch2_DIR="$Catch2_DIR_GCC_64_STATIC_RELEASE" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DWITH_TEST=ON
+    - git clone --depth 1 --branch boost-pfr-with-get_name https://git.moduleus.com/common/sw/3rdparty/vcpkg.git
+    - ./vcpkg/bootstrap-vcpkg.sh
+    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-linux -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DWITH_TEST=ON -DWITH_PYTHON:BOOL=ON
     - cmake --build CI --config Release --parallel $NUM_PARALLEL
   artifacts:
     paths:
       - CI
+      - vcpkg_installed
     expire_in: 1 day
 
 test:ubuntu-with-HDF5-static:
@@ -291,11 +250,14 @@ build:ubuntu-with-HDF5-shared:
     - ubuntu
     - build
   script:
-    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DHDF5_DIR="$HDF5_DIR_GCC_64_SHARED_RELEASE" -DCatch2_DIR="$Catch2_DIR_GCC_64_SHARED_RELEASE" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=ON -DWITH_TEST=ON
+    - git clone --depth 1 --branch boost-pfr-with-get_name https://git.moduleus.com/common/sw/3rdparty/vcpkg.git
+    - ./vcpkg/bootstrap-vcpkg.sh
+    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-linux-dynamic -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=ON -DWITH_TEST=ON -DWITH_PYTHON:BOOL=ON
     - cmake --build CI --config Release --parallel $NUM_PARALLEL
   artifacts:
     paths:
       - CI
+      - vcpkg_installed
     expire_in: 1 day
 
 test:ubuntu-with-HDF5-shared:
@@ -321,47 +283,27 @@ install:ubuntu-with-HDF5-shared:
   script:
     - cmake --install CI --config Release
 
+# Check only once WITH_HDF5=OFF
 build:ubuntu-without-HDF5-static:
   stage: build
   tags:
     - ubuntu
     - build
   script:
-    - cmake -S . -B CI -DCatch2_DIR="$Catch2_DIR_GCC_64_STATIC_RELEASE" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=OFF -DWITH_TEST=ON
+    - git clone --depth 1 --branch boost-pfr-with-get_name https://git.moduleus.com/common/sw/3rdparty/vcpkg.git
+    - ./vcpkg/bootstrap-vcpkg.sh
+    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-linux -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=OFF -DWITH_TEST=ON -DWITH_PYTHON:BOOL=ON
     - cmake --build CI --config Release --parallel $NUM_PARALLEL
   artifacts:
     paths:
       - CI
+      - vcpkg_installed
     expire_in: 1 day
 
 test:ubuntu-without-HDF5-static:
   stage: test
   dependencies:
     - build:ubuntu-without-HDF5-static
-  tags:
-    - ubuntu
-    - build
-  script:
-    - cd CI
-    - ctest --output-on-failure -C Release
-
-build:ubuntu-without-HDF5-shared:
-  stage: build
-  tags:
-    - ubuntu
-    - build
-  script:
-    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=OFF -DCatch2_DIR="$Catch2_DIR_GCC_64_SHARED_RELEASE" -DWITH_TEST=ON
-    - cmake --build CI --config Release --parallel $NUM_PARALLEL
-  artifacts:
-    paths:
-      - CI
-    expire_in: 1 day
-
-test:ubuntu-without-HDF5-shared:
-  stage: test
-  dependencies:
-    - build:ubuntu-without-HDF5-shared
   tags:
     - ubuntu
     - build
