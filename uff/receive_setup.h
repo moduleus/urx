@@ -1,5 +1,6 @@
 #pragma once
 
+#include <uff/detail/compare.h>
 #include <uff/probe.h>
 #include <uff/uff.h>
 
@@ -9,24 +10,14 @@
 #include <string>
 #include <utility>
 #include <vector>
+
 namespace uff {
 
 /**
  * @brief The UFF class describing the reception of the wave echos
  */
 struct ReceiveSetup {
-  inline bool operator==(const ReceiveSetup& other) const {
-    return ((probe_transform == other.probe_transform) &&
-            (probe.expired() == other.probe.expired()) &&
-            (probe.expired() || *(probe.lock()) == *(other.probe.lock())) &&
-            is_nan_or_equal(sampling_frequency, other.sampling_frequency) &&
-            (number_samples == other.number_samples) &&
-            (channel_mapping == other.channel_mapping) && (tgc_profile == other.tgc_profile) &&
-            is_nan_or_equal(tgc_sampling_frequency, other.tgc_sampling_frequency) &&
-            is_nan_or_equal(modulation_frequency, other.modulation_frequency) &&
-            is_nan_or_equal(time_offset, other.time_offset));
-  }
-  inline bool operator!=(const ReceiveSetup& other) const { return !(*this == other); }
+  bool operator==(const ReceiveSetup& other) const = default;
 
   /// Probe used for this receive setup
   std::weak_ptr<Probe> probe = std::weak_ptr<Probe>();

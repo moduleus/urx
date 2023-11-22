@@ -16,10 +16,7 @@ namespace uff {
  * The event is composed by a single transmit and receive setup
  */
 struct Event {
-  bool operator==(const Event& other) const {
-    return (transmit_setup == other.transmit_setup) && (receive_setup == other.receive_setup);
-  }
-  inline bool operator!=(const Event& other) const { return !(*this == other); }
+  bool operator==(const Event& other) const = default;
 
   /// Description of the transmit event (probe/channels, waves, excitations, etc.)
   TransmitSetup transmit_setup;
@@ -27,5 +24,6 @@ struct Event {
   /// Description of sampled channel data (probe/channels, sampling, TGC, etc.)
   ReceiveSetup receive_setup;
 };
+
 
 }  // namespace uff

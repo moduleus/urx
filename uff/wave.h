@@ -4,6 +4,7 @@
 #include <optional>
 #include <vector>
 
+#include <uff/detail/compare.h>
 #include <uff/excitation.h>
 #include <uff/probe.h>
 #include <uff/transform.h>
@@ -25,23 +26,7 @@ struct Wave {
     UNDEFINED = -1
   };
 
-  bool operator==(const Wave& other) const {
-    bool are_channel_excitations_equaled =
-        channel_excitations.size() == other.channel_excitations.size();
-    for (uint32_t i = 0; i < channel_excitations.size() && are_channel_excitations_equaled; ++i) {
-      are_channel_excitations_equaled =
-          are_channel_excitations_equaled &&
-          (channel_excitations[i].expired() ||
-           *(channel_excitations[i].lock()) == *(other.channel_excitations[i].lock()));
-    }
-
-    return ((origin == other.origin) && (wave_type == other.wave_type) &&
-            (time_zero_reference_point == other.time_zero_reference_point) &&
-            is_nan_or_equal(time_zero, other.time_zero) &&
-            (channel_mapping == other.channel_mapping) && are_channel_excitations_equaled &&
-            (channel_delays == other.channel_delays));
-  }
-  inline bool operator!=(const Wave& other) const { return !(*this == other); }
+  bool operator==(const Wave& other) const = default;
 
   /// Type of wave
   WaveType wave_type = WaveType::UNDEFINED;

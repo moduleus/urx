@@ -16,12 +16,7 @@ namespace uff {
  * The excitation caracterized the ultrasonic wave at a channel level
  */
 struct Excitation {
-  inline bool operator==(const Excitation& other) const {
-    return ((pulse_shape == other.pulse_shape) && (waveform == other.waveform) &&
-            is_nan_or_equal(transmit_frequency, other.transmit_frequency) &&
-            is_nan_or_equal(sampling_frequency, other.sampling_frequency));
-  }
-  inline bool operator!=(const Excitation& other) const { return !(*this == other); }
+  bool operator==(const Excitation& other) const = default;
 
   /// Desciption of the pulse shape (e.g., sinusoidal, square wave, chirp), including necessary parameters
   std::string pulse_shape;

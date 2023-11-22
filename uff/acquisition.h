@@ -1,6 +1,6 @@
 #pragma once
 
-// UFF
+#include <uff/detail/compare.h>
 #include <uff/event.h>
 #include <uff/excitation.h>
 #include <uff/group.h>
@@ -9,8 +9,8 @@
 #include <uff/receive_setup.h>
 #include <uff/transmit_setup.h>
 
-// System
 #include <limits>
+#include <memory>
 #include <optional>
 #include <string>
 #include <variant>
@@ -30,41 +30,7 @@ namespace uff {
  * Context information should be described in it, in order to keep track of experience. 
  */
 struct Acquisition {
-  bool operator==(const Acquisition& other) const {
-    bool are_probes_equaled = probes.size() == other.probes.size();
-    for (uint32_t i = 0; i < probes.size() && are_probes_equaled; ++i) {
-      are_probes_equaled = are_probes_equaled && (*probes[i] == *other.probes[i]);
-    }
-
-    bool are_waves_equaled = waves.size() == other.waves.size();
-    for (uint32_t i = 0; i < waves.size() && are_waves_equaled; ++i) {
-      are_waves_equaled = are_waves_equaled && (*waves[i] == *other.waves[i]);
-    }
-
-    bool are_groups_equaled = groups.size() == other.groups.size();
-    for (uint32_t i = 0; i < groups.size() && are_groups_equaled; ++i) {
-      are_groups_equaled = are_groups_equaled && (*groups[i] == *other.groups[i]);
-    }
-
-    bool are_group_data_equaled = groups_data.size() == other.groups_data.size();
-    for (uint32_t i = 0; i < groups_data.size() && are_group_data_equaled; ++i) {
-      are_group_data_equaled = are_group_data_equaled && (*groups_data[i] == *other.groups_data[i]);
-    }
-
-    bool are_excitations_equaled = excitations.size() == other.excitations.size();
-    for (uint32_t i = 0; i < excitations.size() && are_excitations_equaled; ++i) {
-      are_excitations_equaled =
-          are_excitations_equaled && (*excitations[i] == *other.excitations[i]);
-    }
-
-    return ((authors == other.authors) && (description == other.description) &&
-            (local_time == other.local_time) && (country_code == other.country_code) &&
-            (system == other.system) && (sound_speed == other.sound_speed) &&
-            is_nan_or_equal(timestamp, other.timestamp) && are_probes_equaled &&
-            are_waves_equaled && are_excitations_equaled && are_groups_equaled &&
-            are_group_data_equaled);
-  }
-  inline bool operator!=(const Acquisition& other) const { return !(*this == other); }
+  bool operator==(const Acquisition& other) const = default;
 
   /// Experimentation authors
   std::string authors;

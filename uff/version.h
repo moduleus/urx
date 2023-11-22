@@ -3,6 +3,7 @@
 #include <uff/uff.h>
 
 #include <cstdint>
+#include <memory>
 #include <string>
 
 namespace uff {
@@ -13,8 +14,7 @@ namespace uff {
  * The version follow the standard on software version : major.minor.patch 
  */
 struct Version {
-  // NOLINTNEXTLINE(hicpp-use-nullptr,modernize-use-nullptr)
-  auto operator<=>(const Version& other) const = default;
+  bool operator==(const Version& other) const = default;
 
   /// Major is the first version component
   /// The major is increased when modifications can break the API

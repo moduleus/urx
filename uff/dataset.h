@@ -3,6 +3,8 @@
 #include <uff/acquisition.h>
 #include <uff/version.h>
 
+#include <memory>
+
 namespace uff {
 
 /**
@@ -11,10 +13,7 @@ namespace uff {
  * This class is the header class that references the acquisition and its version
  */
 struct Dataset {
-  inline bool operator==(const Dataset& other) const {
-    return ((version == other.version) && (acquisition == other.acquisition));
-  }
-  inline bool operator!=(const Dataset& other) const { return !(*this == other); }
+  bool operator==(const Dataset& other) const = default;
 
   /// Uff version of this dataset
   Version version;

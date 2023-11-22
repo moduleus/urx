@@ -14,15 +14,13 @@ void updateRcaElementsPositions(Probe& rca, const Vector2D<uint32_t>& nb_element
 
   const double xmin = -pitch.x * (nb_elements.x - 1.) / 2.;
   for (uint32_t i = 0; i < nb_elements.x; i++) {
-    rca.elements[i] = Element{
-        .transform = {Vector3D<double>(xmin + i * pitch.x, 0., 0.), Vector3D<double>(0., 0., 0.)}};
+    rca.elements[i] = Element{.transform = {{xmin + i * pitch.x, 0., 0.}, {0., 0., 0.}}};
   }
 
   const double ymin = -pitch.y * (nb_elements.y - 1.) / 2.;
   for (uint32_t i = nb_elements.y; i < rca.elements.size(); i++) {
     rca.elements[i] =
-        Element{.transform = {Vector3D<double>(0., ymin + (i - nb_elements.y) * pitch.y, 0.),
-                              Vector3D<double>(0., 0., 0.)}};
+        Element{.transform = {{0., ymin + (i - nb_elements.y) * pitch.y, 0.}, {0., 0., 0.}}};
   }
 }
 
@@ -35,8 +33,7 @@ void updateMatrixElementsPositions(Probe& matrix, const Vector2D<uint32_t>& nb_e
   for (uint32_t i = 0; i < nb_elements.y; i++) {
     for (uint32_t j = 0; j < nb_elements.x; j++) {
       matrix.elements[static_cast<size_t>(j) + static_cast<size_t>(i) * nb_elements.y] =
-          Element{.transform = {Vector3D<double>(xmin + j * pitch.x, ymin + i * pitch.y, 0.f),
-                                Vector3D<double>()}};
+          Element{.transform = {{xmin + j * pitch.x, ymin + i * pitch.y, 0.f}, {}}};
     }
   }
 }
@@ -46,8 +43,7 @@ void updateLinearElementsPositions(Probe& linear, uint32_t nb_elements, double p
   for (uint32_t i = 0; i < nb_elements; ++i) {
     // element position
     double xmin = -pitch * static_cast<float>(nb_elements - 1) / 2.f;
-    linear.elements[i] = Element{
-        .transform = {Vector3D<double>(xmin + i * pitch, 0., 0.), Vector3D<double>(0., 0., 0.)}};
+    linear.elements[i] = Element{.transform = {{xmin + i * pitch, 0., 0.}, {0., 0., 0.}}};
   }
 }
 

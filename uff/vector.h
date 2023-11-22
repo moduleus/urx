@@ -11,7 +11,7 @@ namespace uff {
  */
 template <typename T>
 struct Vector3D {
-  auto operator<=>(const Vector3D<T>& other) const = default;
+  bool operator==(const Vector3D<T>& other) const = default;
 
   /// x [m]
   T x = 0.;
@@ -28,7 +28,7 @@ struct Vector3D {
  */
 template <typename T>
 struct Vector2D {
-  auto operator<=>(const Vector2D<T>& other) const = default;
+  bool operator==(const Vector2D<T>& other) const = default;
 
   /// x [m]
   T x = 0.;

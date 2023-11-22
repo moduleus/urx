@@ -7,7 +7,7 @@ namespace uff::test {
 
 TEST_CASE("Transform CTOR", "[test_transform]") {
   const Transform t_1;
-  const Vector3D<double> c_1 = Vector3D<double>{0, 0, 0};
+  const Vector3D<double> c_1{.x = 0, .y = 0, .z = 0};
   const Transform t_2 = {c_1, c_1};
 
   REQUIRE(t_1 == t_2);
@@ -25,14 +25,14 @@ TEST_CASE("Transform::operator==", "[test_transform]") {
   REQUIRE(r_1 == r_2);
   REQUIRE(t_1 == t_2);
 
-  r_1 = Vector3D<double>(42, 0, 5);
+  r_1 = {42, 0, 5};
   REQUIRE(r_1 != r_2);
   REQUIRE(t_1 == t_2);
 
   t_1.rotation = r_1;
   REQUIRE(t_1 != t_2);
 
-  r_2 = Vector3D<double>(42, 0, 5);
+  r_2 = {42, 0, 5};
   REQUIRE(r_1 == r_2);
   REQUIRE(t_1 != t_2);
 

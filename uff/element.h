@@ -1,5 +1,6 @@
 #pragma once
 
+#include <uff/detail/compare.h>
 #include <uff/element_geometry.h>
 #include <uff/impulse_response.h>
 #include <uff/transform.h>
@@ -13,16 +14,7 @@ namespace uff {
  * @brief The UFF class describing the ultrasonic element.
  */
 struct Element {
-  inline bool operator==(const Element& other) const {
-    return (transform == other.transform) &&
-           (element_geometry.expired() == other.element_geometry.expired()) &&
-           (element_geometry.expired() ||
-            *(element_geometry.lock()) == *(other.element_geometry.lock())) &&
-           (impluse_response.expired() == other.impluse_response.expired()) &&
-           (impluse_response.expired() ||
-            *(impluse_response.lock()) == *(other.impluse_response.lock()));
-  }
-  inline bool operator!=(const Element& other) const { return !(*this == other); }
+  bool operator==(const Element& other) const = default;
 
   /// Location of the aperture center in the probe space reference
   Transform transform;

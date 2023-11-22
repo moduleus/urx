@@ -1,5 +1,6 @@
 #pragma once
 
+#include <uff/detail/compare.h>
 #include <uff/element.h>
 #include <uff/element_geometry.h>
 #include <uff/impulse_response.h>
@@ -12,6 +13,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+
 namespace uff {
 
 /**
@@ -27,12 +29,7 @@ struct Probe {
     UNDEFINED = -1
   };
 
-  bool operator==(const Probe& other) const {
-    return ((description == other.description) && (transform == other.transform) &&
-            (elements == other.elements) && (element_geometries == other.element_geometries) &&
-            (impulse_responses == other.impulse_responses));
-  }
-  inline bool operator!=(const Probe& other) const { return !(*this == other); }
+  bool operator==(const Probe& other) const = default;
 
   /// Description of the probe with serial ID
   /// This description aims to identify correctly the probe used during the acquisition

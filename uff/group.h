@@ -3,6 +3,8 @@
 #include <uff/event.h>
 #include <uff/uff.h>
 
+#include <memory>
+
 namespace uff {
 
 /**
@@ -15,11 +17,7 @@ struct Group {
   enum class SamplingType { RF = 0, IQ = 1, UNDEFINED = -1 };
   enum class DataType { INT16 = 0, INT32 = 1, FLOAT = 2, DOUBLE = 3, UNDEFINED = -1 };
 
-  bool operator==(const Group& other) const {
-    return (sampling_type == other.sampling_type && data_type == other.data_type &&
-            sequence == other.sequence && description == other.description);
-  }
-  inline bool operator!=(const Group& other) const { return !(*this == other); }
+  bool operator==(const Group& other) const = default;
 
   /// Type of sampling
   SamplingType sampling_type = SamplingType::UNDEFINED;
