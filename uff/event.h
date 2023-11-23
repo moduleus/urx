@@ -25,5 +25,4 @@ struct Event {
   ReceiveSetup receive_setup;
 };
 
-
 }  // namespace uff

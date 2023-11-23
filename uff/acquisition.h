@@ -1,6 +1,7 @@
 #pragma once
 
 #include <uff/detail/compare.h>
+#include <uff/detail/double_nan.h>
 #include <uff/event.h>
 #include <uff/excitation.h>
 #include <uff/group.h>
@@ -64,7 +65,7 @@ struct Acquisition {
   std::vector<std::shared_ptr<Group>> groups;
 
   /// Timestamp of the launch of the acquisition [s]
-  double timestamp = UFF_NAN;
+  DoubleNan timestamp;
 
   /// List of all data acquired by the running groups in the acquisition
   std::vector<std::shared_ptr<GroupData>> groups_data;

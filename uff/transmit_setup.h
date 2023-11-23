@@ -5,6 +5,7 @@
 #include <vector>
 
 #include <uff/detail/compare.h>
+#include <uff/detail/double_nan.h>
 #include <uff/probe.h>
 #include <uff/transform.h>
 #include <uff/uff.h>
@@ -26,7 +27,7 @@ struct TransmitSetup {
   Transform probe_transform;
 
   /// Time offset delaying the launch of the whole transmission related to the beginning of the
-  double time_offset = UFF_NAN;
+  DoubleNan time_offset;
 
   /// The wave emitted by this TransmitSetup
   std::weak_ptr<Wave> wave = std::weak_ptr<Wave>();

@@ -4,7 +4,6 @@ include(Catch)
 include(CTest)
 
 set(UFF_TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR})
-set(MAIN_CPP ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
 
 # set(SRCS_FILES reader.cpp operator.cpp)
 

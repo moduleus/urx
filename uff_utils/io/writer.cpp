@@ -70,6 +70,13 @@ void serialize_hdf5(const std::string& name, const std::string& field, const H5:
   dataset.write(field, datatype, dataspace);
 }
 
+// DoubleNan
+template <>
+void serialize_hdf5(const std::string& name, const DoubleNan& field, const H5::Group& group,
+                    MapToSharedPtr& map) {
+  serialize_hdf5(name, field.value, group, map);
+}
+
 // shared_ptr
 template <typename T>
 void serialize_hdf5(const std::string& name, const std::shared_ptr<T>& field,

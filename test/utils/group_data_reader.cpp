@@ -4,7 +4,7 @@
 
 #include <uff_utils/group_data_reader.h>
 
-#include <catch2/catch_all.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 #include <complex>
 #include <cstddef>

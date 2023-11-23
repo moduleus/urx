@@ -1,7 +1,6 @@
 set(UFF_TEST_FILES reader.cpp time_helper.cpp group_data_reader.cpp)
 
-add_executable(UffUtils ${MAIN_CPP} ${UFF_TEST_FILES})
-add_executable(UffTest::UffUtils ALIAS UffUtils)
+add_executable(UffUtils ${UFF_TEST_FILES})
 
 target_include_directories(UffUtils PUBLIC ${PROJECT_SOURCE_DIR}/uff
                                            ${PROJECT_SOURCE_DIR}/uff_utils)

@@ -87,7 +87,7 @@ format:clang-tidy:
     - clang-tidy
   script:
     - cd CI
-    - run-clang-tidy || exit 1
+    - run-clang-tidy-17 || exit 1
   dependencies:
     - build:ubuntu-with-HDF5-static
 

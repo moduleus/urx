@@ -1,6 +1,7 @@
 #pragma once
 
 #include <uff/detail/compare.h>
+#include <uff/detail/double_nan.h>
 #include <uff/probe.h>
 #include <uff/uff.h>
 
@@ -26,7 +27,7 @@ struct ReceiveSetup {
   Transform probe_transform;
 
   /// Sampling frequency [Hz]
-  double sampling_frequency = UFF_NAN;
+  DoubleNan sampling_frequency;
 
   /// Number of samples
   uint32_t number_samples = 0;
@@ -42,13 +43,13 @@ struct ReceiveSetup {
   std::vector<double> tgc_profile;
 
   /// (Optional) Sampling frequency of the TGC profile [Hz]
-  double tgc_sampling_frequency = UFF_NAN;
+  DoubleNan tgc_sampling_frequency;
 
   /// (Optional) Modulation frequency used in case of IQ-data [Hz]
-  double modulation_frequency = UFF_NAN;
+  DoubleNan modulation_frequency;
 
   /// Time offset delaying the launch of the reception related to the beginning of the event
-  double time_offset = UFF_NAN;
+  DoubleNan time_offset;
 };
 
 }  // namespace uff

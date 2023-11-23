@@ -10,6 +10,7 @@
 #include <vector>
 
 #include <uff/detail/compare.h>
+#include <uff/detail/double_nan.h>
 
 namespace uff {
 
@@ -35,7 +36,7 @@ struct GroupData {
   VecDataTypeVariant raw_data;
 
   /// Timestamp of the group launch [s]
-  double group_timestamp = UFF_NAN;
+  DoubleNan group_timestamp;
 
   /// Timestamp list for each sequence launch [s]
   std::vector<double> sequence_timestamps;

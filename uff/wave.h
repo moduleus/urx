@@ -5,6 +5,7 @@
 #include <vector>
 
 #include <uff/detail/compare.h>
+#include <uff/detail/double_nan.h>
 #include <uff/excitation.h>
 #include <uff/probe.h>
 #include <uff/transform.h>
@@ -38,7 +39,7 @@ struct Wave {
   Vector3D<double> time_zero_reference_point;
 
   /// Time zero for the wave [s]
-  double time_zero = UFF_NAN;
+  DoubleNan time_zero;
 
   /// Maps probe elements to transmit channels.
   /// The first dimension is the probe element index, the second is an array of transmit channel indexes.
