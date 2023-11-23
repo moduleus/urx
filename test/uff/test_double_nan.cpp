@@ -1,7 +1,10 @@
 #include <uff/detail/double_nan.h>
-
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
+#include <memory>
+#include <utility>
+#include <vector>
 
 namespace uff::test {
 

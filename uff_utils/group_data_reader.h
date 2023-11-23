@@ -48,8 +48,13 @@ class GroupDataReader {
 
     std::cout << "samples offset [ ";
     for (auto o : _samples_offset) std::cout << o << " ";
-    std::cout << "]" << std::endl;
+    std::cout << "]\n";
   }
+
+  GroupDataReader(GroupDataReader&& other) noexcept = delete;
+  GroupDataReader(GroupDataReader const& other) = delete;
+  GroupDataReader& operator=(GroupDataReader&& other) noexcept = delete;
+  GroupDataReader& operator=(GroupDataReader const& other) = delete;
 
   template <typename T>
   T& at(const size_t frame_idx, const size_t event_idx, const size_t channel_idx,

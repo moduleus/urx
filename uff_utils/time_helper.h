@@ -5,12 +5,9 @@
 #include <ios>
 #include <istream>
 #include <locale>
-#include <map>
 #include <memory>
-#include <new>
 #include <regex>
 #include <sstream>
-#include <streambuf>
 #include <string>
 #include <utility>
 #include <vector>

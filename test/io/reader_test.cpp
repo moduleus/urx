@@ -1,14 +1,6 @@
 #include <uff/dataset.h>
-#include <algorithm>
 #include <catch2/catch_test_macros.hpp>
-#include <cmath>
-#include <cstddef>
-#include <cstdlib>
-#include <limits>
 #include <memory>
-#include <optional>
-#include <string>
-#include <vector>
 
 namespace uff::test {
 

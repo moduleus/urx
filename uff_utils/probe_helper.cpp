@@ -28,8 +28,8 @@ void updateMatrixElementsPositions(Probe& matrix, const Vector2D<uint32_t>& nb_e
                                    const Vector2D<double>& pitch) {
   matrix.elements.resize(static_cast<size_t>(nb_elements.x) * nb_elements.y);
 
-  double xmin = -pitch.x * (nb_elements.x - 1.f) / 2.f;
-  double ymin = -pitch.y * (nb_elements.y - 1.f) / 2.f;
+  const double xmin = -pitch.x * (nb_elements.x - 1.f) / 2.f;
+  const double ymin = -pitch.y * (nb_elements.y - 1.f) / 2.f;
   for (uint32_t i = 0; i < nb_elements.y; i++) {
     for (uint32_t j = 0; j < nb_elements.x; j++) {
       matrix.elements[static_cast<size_t>(j) + static_cast<size_t>(i) * nb_elements.y] =
@@ -42,7 +42,7 @@ void updateLinearElementsPositions(Probe& linear, uint32_t nb_elements, double p
   linear.elements.resize(nb_elements);
   for (uint32_t i = 0; i < nb_elements; ++i) {
     // element position
-    double xmin = -pitch * static_cast<float>(nb_elements - 1) / 2.f;
+    const double xmin = -pitch * static_cast<float>(nb_elements - 1) / 2.f;
     linear.elements[i] = Element{.transform = {{xmin + i * pitch, 0., 0.}, {0., 0., 0.}}};
   }
 }

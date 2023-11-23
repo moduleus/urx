@@ -1,14 +1,26 @@
+#include <uff/acquisition.h>
 #include <uff/dataset.h>
-#include <algorithm>
+#include <uff/detail/double_nan.h>
+#include <uff/element.h>
+#include <uff/element_geometry.h>
+#include <uff/event.h>
+#include <uff/excitation.h>
+#include <uff/group.h>
+#include <uff/group_data.h>
+#include <uff/impulse_response.h>
+#include <uff/probe.h>
+#include <uff/receive_setup.h>
+#include <uff/transform.h>
+#include <uff/transmit_setup.h>
+#include <uff/vector.h>
+#include <uff/version.h>
+#include <uff/wave.h>
 #include <catch2/catch_test_macros.hpp>
-#include <cmath>
-#include <cstddef>
-#include <cstdlib>
+#include <complex>
 #include <limits>
 #include <memory>
-#include <optional>
-#include <string>
 #include <uff_utils/io/writer.hpp>
+#include <utility>
 #include <vector>
 
 namespace uff::test {
@@ -76,7 +88,10 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
       element.element_geometry = probe->element_geometries[0];
       element.impluse_response = probe->impulse_responses[1];
       probe->elements.push_back(std::move(element));
+    }
 
+    {
+      Element element;
       element.transform.rotation.x = 33;
       element.transform.rotation.y = 22;
       element.transform.rotation.z = 44;
@@ -135,7 +150,10 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
       element.element_geometry = probe->element_geometries[1];
       element.impluse_response = probe->impulse_responses[1];
       probe->elements.push_back(std::move(element));
+    }
 
+    {
+      Element element;
       element.transform.rotation.x = 33;
       element.transform.rotation.y = 11;
       element.transform.rotation.z = 22;
@@ -253,7 +271,10 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
       event.receive_setup.modulation_frequency = 125;
       event.receive_setup.time_offset = 1205;
       group->sequence.push_back(std::move(event));
+    }
 
+    {
+      Event event;
       event.transmit_setup.probe = dataset->acquisition.probes[1];
       event.transmit_setup.probe_transform.rotation.x = 55;
       event.transmit_setup.probe_transform.rotation.y = 48;
@@ -312,7 +333,10 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
       event.receive_setup.modulation_frequency = 1925;
       event.receive_setup.time_offset = 1 + 205;
       group->sequence.push_back(std::move(event));
+    }
 
+    {
+      Event event;
       event.transmit_setup.probe = dataset->acquisition.probes[0];
       event.transmit_setup.probe_transform.rotation.x = 5;
       event.transmit_setup.probe_transform.rotation.y = 8;

@@ -134,8 +134,12 @@ build:windows-with-HDF5-static:
     - build
   script:
     - git clone --depth 1 --branch boost-pfr-with-get_name https://git.moduleus.com/common/sw/3rdparty/vcpkg.git
-    - .\vcpkg\bootstrap-vcpkg.bat
-    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows-static-md -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DWITH_TEST=ON -DWITH_PYTHON:BOOL=ON
+    - $vcpkg_tag = (Get-Content vcpkg\scripts\vcpkg-tool-metadata.txt) | Select-String -Pattern '^VCPKG_TOOL_RELEASE_TAG=(.*)'  | %{$_.Matches.Groups[1].value}
+    - $url="https://github.com/microsoft/vcpkg-tool/releases/download/$vcpkg_tag/vcpkg.exe"
+    - $destination="$Env:VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag.exe"
+    - if(-not(Test-Path $destination)){Invoke-WebRequest -Uri $url -OutFile $destination}
+    - Copy-Item $destination vcpkg/vcpkg.exe
+    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows-static-md -DVCPKG_HOST_TRIPLET=x64-windows-static-md -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DWITH_TEST=ON -DWITH_PYTHON:BOOL=ON
     - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
   artifacts:
     paths:
@@ -173,8 +177,12 @@ build:windows-with-HDF5-shared:
     - build
   script:
     - git clone --depth 1 --branch boost-pfr-with-get_name https://git.moduleus.com/common/sw/3rdparty/vcpkg.git
-    - .\vcpkg\bootstrap-vcpkg.bat
-    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=ON -DWITH_TEST=ON -DWITH_PYTHON:BOOL=ON
+    - $vcpkg_tag = (Get-Content vcpkg\scripts\vcpkg-tool-metadata.txt) | Select-String -Pattern '^VCPKG_TOOL_RELEASE_TAG=(.*)'  | %{$_.Matches.Groups[1].value}
+    - $url="https://github.com/microsoft/vcpkg-tool/releases/download/$vcpkg_tag/vcpkg.exe"
+    - $destination="$Env:VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag.exe"
+    - if(-not(Test-Path $destination)){Invoke-WebRequest -Uri $url -OutFile $destination}
+    - Copy-Item $destination vcpkg/vcpkg.exe
+    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows -DVCPKG_HOST_TRIPLET=x64-windows -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=ON -DWITH_TEST=ON -DWITH_PYTHON:BOOL=ON
     - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
   artifacts:
     paths:
@@ -212,8 +220,10 @@ build:ubuntu-with-HDF5-static:
     - build
   script:
     - git clone --depth 1 --branch boost-pfr-with-get_name https://git.moduleus.com/common/sw/3rdparty/vcpkg.git
-    - ./vcpkg/bootstrap-vcpkg.sh
-    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-linux -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DWITH_TEST=ON -DWITH_PYTHON:BOOL=ON
+    - vcpkg_tag=$(sed -n 's/^VCPKG_TOOL_RELEASE_TAG=\(.*\)/\1/p' < vcpkg/scripts/vcpkg-tool-metadata.txt)
+    - if [ ! -f "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag" ]; then wget -O "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag" "https://github.com/microsoft/vcpkg-tool/releases/download/$vcpkg_tag/vcpkg-glibc" || exit 1; chmod +x "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag"; fi
+    - cp $VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag vcpkg/vcpkg || exit 1
+    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/usr/bin/clang-17 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-17 -DCMAKE_AR=/usr/bin/llvm-ar-17 -DCMAKE_AS=/usr/bin/llvm-as-17 -DCMAKE_RANLIB=/usr/bin/llvm-ranlib-17 -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-linux -DVCPKG_HOST_TRIPLET=x64-linux -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DWITH_TEST=ON -DWITH_PYTHON:BOOL=ON
     - cmake --build CI --config Release --parallel $NUM_PARALLEL
   artifacts:
     paths:
@@ -251,8 +261,10 @@ build:ubuntu-with-HDF5-shared:
     - build
   script:
     - git clone --depth 1 --branch boost-pfr-with-get_name https://git.moduleus.com/common/sw/3rdparty/vcpkg.git
-    - ./vcpkg/bootstrap-vcpkg.sh
-    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-linux-dynamic -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=ON -DWITH_TEST=ON -DWITH_PYTHON:BOOL=ON
+    - vcpkg_tag=$(sed -n 's/^VCPKG_TOOL_RELEASE_TAG=\(.*\)/\1/p' < vcpkg/scripts/vcpkg-tool-metadata.txt)
+    - if [ ! -f "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag" ]; then wget -O "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag" "https://github.com/microsoft/vcpkg-tool/releases/download/$vcpkg_tag/vcpkg-glibc" || exit 1; chmod +x "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag"; fi
+    - cp $VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag vcpkg/vcpkg || exit 1
+    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-linux-dynamic -DVCPKG_HOST_TRIPLET=x64-linux-dynamic -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=ON -DWITH_TEST=ON -DWITH_PYTHON:BOOL=ON
     - cmake --build CI --config Release --parallel $NUM_PARALLEL
   artifacts:
     paths:
@@ -291,8 +303,10 @@ build:ubuntu-without-HDF5-static:
     - build
   script:
     - git clone --depth 1 --branch boost-pfr-with-get_name https://git.moduleus.com/common/sw/3rdparty/vcpkg.git
-    - ./vcpkg/bootstrap-vcpkg.sh
-    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-linux -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=OFF -DWITH_TEST=ON -DWITH_PYTHON:BOOL=ON
+    - vcpkg_tag=$(sed -n 's/^VCPKG_TOOL_RELEASE_TAG=\(.*\)/\1/p' < vcpkg/scripts/vcpkg-tool-metadata.txt)
+    - if [ ! -f "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag" ]; then wget -O "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag" "https://github.com/microsoft/vcpkg-tool/releases/download/$vcpkg_tag/vcpkg-glibc" || exit 1; chmod +x "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag"; fi
+    - cp $VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag vcpkg/vcpkg || exit 1
+    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-linux -DVCPKG_HOST_TRIPLET=x64-linux -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=OFF -DWITH_TEST=ON -DWITH_PYTHON:BOOL=ON
     - cmake --build CI --config Release --parallel $NUM_PARALLEL
   artifacts:
     paths:

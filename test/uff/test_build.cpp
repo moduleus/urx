@@ -11,7 +11,6 @@
 #include <uff/receive_setup.h>
 #include <uff/transform.h>
 #include <uff/transmit_setup.h>
-#include <uff/uff.h>
 #include <uff/vector.h>
 #include <uff/version.h>
 #include <uff/wave.h>

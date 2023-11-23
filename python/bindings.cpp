@@ -1,23 +1,35 @@
-#include <pybind11/complex.h>
-#include <pybind11/functional.h>
+#include <pybind11/attr.h>
+#include <pybind11/buffer_info.h>
+#include <pybind11/cast.h>
+#include <pybind11/detail/common.h>
+#include <pybind11/detail/descr.h>
 #include <pybind11/numpy.h>
 #include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <pybind11/pytypes.h>
 #include <pybind11/stl_bind.h>
-
-#include <algorithm>  // for std::ranges::copy depending on lib support
-#include <complex>
-#include <iostream>
-#include <iterator>  // for std::ostream_iterator
-#include <variant>
-#include <vector>
-
 #include <uff/acquisition.h>
 #include <uff/dataset.h>
+#include <uff/detail/compare.h>
+#include <uff/detail/double_nan.h>
 #include <uff/group.h>
 #include <uff/group_data.h>
 #include <uff/version.h>
+#include <algorithm>
+#include <complex>
+#include <cstddef>
+#include <cstdint>
+#include <iosfwd>
+#include <iterator>
+#include <memory>
+#include <ostream>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <type_traits>
+#include <utility>
+#include <variant>
+#include <vector>
 
 namespace py = pybind11;
 
@@ -98,19 +110,15 @@ constexpr std::string get_format(const std::vector<T> &v) {
   return py::format_descriptor<T>::format();
 }
 
+// NOLINTBEGIN(misc-redundant-expression)
 PYBIND11_MODULE(bindings, m) {
   m.doc() = "Variant C++ binding POC";
 
   py::class_<VecCompInt16>(m, "VecCompInt16", py::buffer_protocol())
       .def_buffer([](VecCompInt16 &v) -> py::buffer_info {
-        return py::buffer_info(v.data(),                                 /* Pointer to buffer */
-                               sizeof(int16_t),                          /* Size of one scalar */
-                               py::format_descriptor<int16_t>::format(), /* Python struct-style
-                                                           format descriptor */
-                               2,                                        /* Number of dimensions */
-                               {size_t(v.size()), size_t(2)},            /* Buffer dimensions */
-                               {sizeof(int16_t) * size_t(2), /* Strides (in bytes) for each index */
-                                sizeof(int16_t)});
+        return py::buffer_info(v.data(), sizeof(int16_t), py::format_descriptor<int16_t>::format(),
+                               2, {v.size(), static_cast<size_t>(2)},
+                               {sizeof(int16_t) * 2, sizeof(int16_t)});
       })
       .def("__getitem__",
            [](VecCompInt16 &v, py::ssize_t i) {
@@ -126,9 +134,8 @@ PYBIND11_MODULE(bindings, m) {
              }
              if (i.second == 0) {
                return v[i.first].real();
-             } else {
-               return v[i.first].imag();
              }
+             return v[i.first].imag();
            })
       .def("__setitem__",
            [](VecCompInt16 &v, py::ssize_t i, std::pair<int16_t, int16_t> p) {
@@ -155,7 +162,7 @@ PYBIND11_MODULE(bindings, m) {
              stream << v;
              return stream.str();
            })
-      .def(py::init([](py::buffer b) {
+      .def(py::init([](const py::buffer &b) {
         /* Request a buffer descriptor from Python */
         py::buffer_info info = b.request();
 
@@ -171,52 +178,50 @@ PYBIND11_MODULE(bindings, m) {
           throw std::runtime_error("Incompatible buffer dimension!");
 
         if (info.item_type_is_equivalent_to<int16_t>()) {
-          auto ptr = static_cast<std::complex<int16_t> *>(info.ptr);
+          auto *ptr = static_cast<std::complex<int16_t> *>(info.ptr);
           VecCompInt16 vec;
           vec.reserve(info.shape[0]);
           vec.insert(vec.begin(), ptr, ptr + info.shape[0]);
           return vec;
-        } else if (info.item_type_is_equivalent_to<int32_t>()) {
-          auto ptr = static_cast<std::complex<int32_t> *>(info.ptr);
-          VecCompInt16 vec;
-          vec.reserve(info.shape[0]);
-          for (auto i = 0; i < info.shape[0]; ++i) {
-            vec.push_back(static_cast<std::complex<int16_t>>(ptr[i]));
-          }
-          return vec;
-        } else if (info.item_type_is_equivalent_to<std::complex<float>>()) {
-          auto ptr = static_cast<std::complex<float> *>(info.ptr);
-          VecCompInt16 vec;
-          vec.reserve(info.shape[0]);
-          for (auto i = 0; i < info.shape[0]; ++i) {
-            vec.push_back(static_cast<std::complex<int16_t>>(ptr[i]));
-          }
-          return vec;
-        } else if (info.item_type_is_equivalent_to<std::complex<double>>()) {
-          auto ptr = static_cast<std::complex<double> *>(info.ptr);
-          VecCompInt16 vec;
-          vec.reserve(info.shape[0]);
-          for (auto i = 0; i < info.shape[0]; ++i) {
-            vec.push_back(static_cast<std::complex<int16_t>>(ptr[i]));
-          }
-          return vec;
-        } else {
-          throw std::runtime_error(
-              "Incompatible format: expected a int16 array of pair, int32 array of pair, complex64 "
-              "array or complex128 array!");
         }
+        if (info.item_type_is_equivalent_to<int32_t>()) {
+          auto *ptr = static_cast<std::complex<int32_t> *>(info.ptr);
+          VecCompInt16 vec;
+          vec.reserve(info.shape[0]);
+          for (auto i = 0; i < info.shape[0]; ++i) {
+            vec.push_back(static_cast<std::complex<int16_t>>(ptr[i]));
+          }
+          return vec;
+        }
+        if (info.item_type_is_equivalent_to<std::complex<float>>()) {
+          auto *ptr = static_cast<std::complex<float> *>(info.ptr);
+          VecCompInt16 vec;
+          vec.reserve(info.shape[0]);
+          for (auto i = 0; i < info.shape[0]; ++i) {
+            vec.push_back(static_cast<std::complex<int16_t>>(ptr[i]));
+          }
+          return vec;
+        }
+        if (info.item_type_is_equivalent_to<std::complex<double>>()) {
+          auto *ptr = static_cast<std::complex<double> *>(info.ptr);
+          VecCompInt16 vec;
+          vec.reserve(info.shape[0]);
+          for (auto i = 0; i < info.shape[0]; ++i) {
+            vec.push_back(static_cast<std::complex<int16_t>>(ptr[i]));
+          }
+          return vec;
+        }
+        throw std::runtime_error(
+            "Incompatible format: expected a int16 array of pair, int32 array of pair, complex64 "
+            "array or complex128 array!");
       }));
 
   py::class_<VecCompInt32>(m, "VecCompInt32", py::buffer_protocol())
       .def_buffer([](VecCompInt32 &v) -> py::buffer_info {
-        return py::buffer_info(v.data(),                                 /* Pointer to buffer */
-                               sizeof(int32_t),                          /* Size of one scalar */
-                               py::format_descriptor<int32_t>::format(), /* Python struct-style
-                                                           format descriptor */
-                               2,                                        /* Number of dimensions */
-                               {size_t(v.size()), size_t(2)},            /* Buffer dimensions */
-                               {sizeof(int32_t) * size_t(2), /* Strides (in bytes) for each index */
-                                sizeof(int32_t)});
+        return py::buffer_info(v.data(), sizeof(int32_t), py::format_descriptor<int32_t>::format(),
+
+                               2, {v.size(), static_cast<size_t>(2)},
+                               {sizeof(int32_t) * 2, sizeof(int32_t)});
       })
       .def("__getitem__",
            [](VecCompInt32 &v, py::ssize_t i) {
@@ -232,9 +237,8 @@ PYBIND11_MODULE(bindings, m) {
              }
              if (i.second == 0) {
                return v[i.first].real();
-             } else {
-               return v[i.first].imag();
              }
+             return v[i.first].imag();
            })
       .def("__setitem__",
            [](VecCompInt32 &v, py::ssize_t i, std::pair<int32_t, int32_t> p) {
@@ -261,7 +265,7 @@ PYBIND11_MODULE(bindings, m) {
              stream << v;
              return stream.str();
            })
-      .def(py::init([](py::buffer b) {
+      .def(py::init([](const py::buffer &b) {
         /* Request a buffer descriptor from Python */
         py::buffer_info info = b.request();
 
@@ -277,40 +281,42 @@ PYBIND11_MODULE(bindings, m) {
           throw std::runtime_error("Incompatible buffer dimension!");
 
         if (info.item_type_is_equivalent_to<int32_t>()) {
-          auto ptr = static_cast<std::complex<int32_t> *>(info.ptr);
+          auto *ptr = static_cast<std::complex<int32_t> *>(info.ptr);
           VecCompInt32 vec;
           vec.reserve(info.shape[0]);
           vec.insert(vec.begin(), ptr, ptr + info.shape[0]);
           return vec;
-        } else if (info.item_type_is_equivalent_to<int16_t>()) {
-          auto ptr = static_cast<std::complex<int16_t> *>(info.ptr);
-          VecCompInt32 vec;
-          vec.reserve(info.shape[0]);
-          for (auto i = 0; i < info.shape[0]; ++i) {
-            vec.push_back(static_cast<std::complex<int32_t>>(ptr[i]));
-          }
-          return vec;
-        } else if (info.item_type_is_equivalent_to<std::complex<float>>()) {
-          auto ptr = static_cast<std::complex<float> *>(info.ptr);
-          VecCompInt32 vec;
-          vec.reserve(info.shape[0]);
-          for (auto i = 0; i < info.shape[0]; ++i) {
-            vec.push_back(static_cast<std::complex<int32_t>>(ptr[i]));
-          }
-          return vec;
-        } else if (info.item_type_is_equivalent_to<std::complex<double>>()) {
-          auto ptr = static_cast<std::complex<double> *>(info.ptr);
-          VecCompInt32 vec;
-          vec.reserve(info.shape[0]);
-          for (auto i = 0; i < info.shape[0]; ++i) {
-            vec.push_back(static_cast<std::complex<int32_t>>(ptr[i]));
-          }
-          return vec;
-        } else {
-          throw std::runtime_error(
-              "Incompatible format: expected a int16 array of pair, int32 array of pair, complex64 "
-              "array or complex128 array!");
         }
+        if (info.item_type_is_equivalent_to<int16_t>()) {
+          auto *ptr = static_cast<std::complex<int16_t> *>(info.ptr);
+          VecCompInt32 vec;
+          vec.reserve(info.shape[0]);
+          for (auto i = 0; i < info.shape[0]; ++i) {
+            vec.push_back(static_cast<std::complex<int32_t>>(ptr[i]));
+          }
+          return vec;
+        }
+        if (info.item_type_is_equivalent_to<std::complex<float>>()) {
+          auto *ptr = static_cast<std::complex<float> *>(info.ptr);
+          VecCompInt32 vec;
+          vec.reserve(info.shape[0]);
+          for (auto i = 0; i < info.shape[0]; ++i) {
+            vec.push_back(static_cast<std::complex<int32_t>>(ptr[i]));
+          }
+          return vec;
+        }
+        if (info.item_type_is_equivalent_to<std::complex<double>>()) {
+          auto *ptr = static_cast<std::complex<double> *>(info.ptr);
+          VecCompInt32 vec;
+          vec.reserve(info.shape[0]);
+          for (auto i = 0; i < info.shape[0]; ++i) {
+            vec.push_back(static_cast<std::complex<int32_t>>(ptr[i]));
+          }
+          return vec;
+        }
+        throw std::runtime_error(
+            "Incompatible format: expected a int16 array of pair, int32 array of pair, complex64 "
+            "array or complex128 array!");
       }));
 
   py::bind_vector<VecInt16>(m, "VecInt16", py::buffer_protocol());
@@ -348,69 +354,61 @@ PYBIND11_MODULE(bindings, m) {
       .def(pybind11::self != pybind11::self)
       .def_property(
           "group",
-          [](uff::GroupData &self, py::kwargs kwargs) {
+          [](uff::GroupData &self) {
             if (self.group.expired()) {
               throw std::runtime_error("Current group is not referenced by the acquisition.\n");
               // return std::shared_ptr<uff::Group>(nullptr);
-            } else {
-              return self.group.lock();
             }
+            return self.group.lock();
           },
-          [](uff::GroupData &self, std::shared_ptr<uff::Group> group, py::kwargs kwargs) {
+          [](uff::GroupData &self, const std::shared_ptr<uff::Group> &group) {
             self.group = group;
           })
       .def_readwrite("group_timestamp", &uff::GroupData::group_timestamp)
       // .def_readwrite("sequence_timestamps", &uff::GroupData::sequence_timestamps)
       .def_property(
           "sequence_timestamps",
-          [](uff::GroupData &self, py::kwargs kwargs) {
+          [](uff::GroupData &self) {
             return py::array_t<double>(
-                py::buffer_info(self.sequence_timestamps.data(), /* Pointer to buffer */
-                                sizeof(double),                  /* Size of one scalar */
-                                py::format_descriptor<
-                                    double>::format(), /* Python struct-style format descriptor */
-                                1,                     /* Number of dimensions */
-                                {self.sequence_timestamps.size()}, /* Buffer dimensions */
-                                {sizeof(double)}),
+                py::buffer_info(self.sequence_timestamps.data(), sizeof(double),
+                                py::format_descriptor<double>::format(), 1,
+                                {self.sequence_timestamps.size()}, {sizeof(double)}),
                 py::cast(&self.sequence_timestamps));
           },
-          [](uff::GroupData &self, py::buffer vec, py::kwargs kwargs) {
+          [](uff::GroupData &self, const py::buffer &vec) {
             py::buffer_info info = vec.request();
             if (info.item_type_is_equivalent_to<double>()) {
-              self.sequence_timestamps =
-                  VecFloat64((double *)info.ptr, (double *)info.ptr + info.shape[0]);
+              self.sequence_timestamps = VecFloat64(
+                  static_cast<double *>(info.ptr), static_cast<double *>(info.ptr) + info.shape[0]);
             }
           })
       .def_readwrite("event_timestamps", &uff::GroupData::event_timestamps)
       // .def_readwrite("raw_data", &uff::GroupData::raw_data)
       .def_property(
           "raw_data",
-          [](uff::GroupData &self, py::kwargs kwargs) {
+          [](uff::GroupData &self) {
             const bool are_data_complex =
                 std::visit([](auto &&vec) { return is_complex(vec); }, self.raw_data);
-            py::ssize_t data_size =
+            const py::ssize_t data_size =
                 std::visit([](auto &&vec) { return vec.size(); }, self.raw_data);
-            void *data_ptr =
-                std::visit([](auto &&vec) { return (void *)vec.data(); }, self.raw_data);
-            py::ssize_t sizeof_data_type_var =
+            void *data_ptr = std::visit([](auto &&vec) { return static_cast<void *>(vec.data()); },
+                                        self.raw_data);
+            const py::ssize_t sizeof_data_type_var =
                 std::visit([](auto &&vec) { return sizeof_data_type(vec); }, self.raw_data);
-            std::string data_format =
+            const std::string data_format =
                 std::visit([](auto &&vec) { return get_format(vec); }, self.raw_data);
 
             auto buffer = py::buffer_info(
-                data_ptr,                 /* Pointer to buffer */
-                sizeof_data_type_var,     /* Size of one scalar */
-                data_format,              /* Python struct-style format descriptor */
-                are_data_complex ? 2 : 1, /* Number of dimensions */
-                are_data_complex ? std::vector<py::ssize_t>{data_size, py::ssize_t(2)}
-                                 : std::vector<py::ssize_t>{data_size}, /* Buffer dimensions */
+                data_ptr, sizeof_data_type_var, data_format, are_data_complex ? 2 : 1,
+                are_data_complex ? std::vector<py::ssize_t>{data_size, 2}
+                                 : std::vector<py::ssize_t>{data_size},
                 are_data_complex
                     ? std::vector<py::ssize_t>{sizeof_data_type_var * 2, sizeof_data_type_var}
                     : std::vector<py::ssize_t>{sizeof_data_type_var});
 
             return py::array(buffer, py::cast(&self.raw_data));
           },
-          [](uff::GroupData &self, py::buffer vec, py::kwargs kwargs) {
+          [](uff::GroupData &self, const py::buffer &vec) {
             py::buffer_info info = vec.request();
             if (info.ndim > 2)
               throw std::runtime_error("Dimension error: Too many dimensions in this data array");
@@ -420,34 +418,44 @@ PYBIND11_MODULE(bindings, m) {
 
             if (info.item_type_is_equivalent_to<double>()) {
               if (info.ndim == 1)  // RF
-                self.raw_data = VecFloat64((double *)info.ptr, (double *)info.ptr + info.shape[0]);
+                self.raw_data = VecFloat64(static_cast<double *>(info.ptr),
+                                           static_cast<double *>(info.ptr) + info.shape[0]);
               else  // IQ
-                self.raw_data = VecCompFloat64((std::complex<double> *)info.ptr,
-                                               (std::complex<double> *)info.ptr + info.shape[0]);
+                self.raw_data =
+                    VecCompFloat64(static_cast<std::complex<double> *>(info.ptr),
+                                   static_cast<std::complex<double> *>(info.ptr) + info.shape[0]);
             } else if (info.item_type_is_equivalent_to<float>()) {
               if (info.ndim == 1)  // RF
-                self.raw_data = VecFloat32((float *)info.ptr, (float *)info.ptr + info.shape[0]);
+                self.raw_data = VecFloat32(static_cast<float *>(info.ptr),
+                                           static_cast<float *>(info.ptr) + info.shape[0]);
               else  // IQ
-                self.raw_data = VecCompFloat32((std::complex<float> *)info.ptr,
-                                               (std::complex<float> *)info.ptr + info.shape[0]);
+                self.raw_data =
+                    VecCompFloat32(static_cast<std::complex<float> *>(info.ptr),
+                                   static_cast<std::complex<float> *>(info.ptr) + info.shape[0]);
             } else if (info.item_type_is_equivalent_to<int32_t>()) {
               if (info.ndim == 1)  // RF
-                self.raw_data = VecInt32((int32_t *)info.ptr, (int32_t *)info.ptr + info.shape[0]);
+                self.raw_data = VecInt32(static_cast<int32_t *>(info.ptr),
+                                         static_cast<int32_t *>(info.ptr) + info.shape[0]);
               else  // IQ
-                self.raw_data = VecCompInt32((std::complex<int32_t> *)info.ptr,
-                                             (std::complex<int32_t> *)info.ptr + info.shape[0]);
+                self.raw_data =
+                    VecCompInt32(static_cast<std::complex<int32_t> *>(info.ptr),
+                                 static_cast<std::complex<int32_t> *>(info.ptr) + info.shape[0]);
             } else if (info.item_type_is_equivalent_to<int16_t>()) {
               if (info.ndim == 1)  // RF
-                self.raw_data = VecInt16((int16_t *)info.ptr, (int16_t *)info.ptr + info.shape[0]);
+                self.raw_data = VecInt16(static_cast<int16_t *>(info.ptr),
+                                         static_cast<int16_t *>(info.ptr) + info.shape[0]);
               else  // IQ
-                self.raw_data = VecCompInt16((std::complex<int16_t> *)info.ptr,
-                                             (std::complex<int16_t> *)info.ptr + info.shape[0]);
+                self.raw_data =
+                    VecCompInt16(static_cast<std::complex<int16_t> *>(info.ptr),
+                                 static_cast<std::complex<int16_t> *>(info.ptr) + info.shape[0]);
             } else if (info.item_type_is_equivalent_to<std::complex<double>>()) {
-              self.raw_data = VecCompFloat64((std::complex<double> *)info.ptr,
-                                             (std::complex<double> *)info.ptr + info.shape[0]);
+              self.raw_data =
+                  VecCompFloat64(static_cast<std::complex<double> *>(info.ptr),
+                                 static_cast<std::complex<double> *>(info.ptr) + info.shape[0]);
             } else if (info.item_type_is_equivalent_to<std::complex<float>>()) {
-              self.raw_data = VecCompFloat32((std::complex<float> *)info.ptr,
-                                             (std::complex<float> *)info.ptr + info.shape[0]);
+              self.raw_data =
+                  VecCompFloat32(static_cast<std::complex<float> *>(info.ptr),
+                                 static_cast<std::complex<float> *>(info.ptr) + info.shape[0]);
             }
           });
 
@@ -486,3 +494,4 @@ PYBIND11_MODULE(bindings, m) {
   m.def("checkComplexFloat32Type", &checkType<std::vector<std::complex<float>>>);
   m.def("checkComplexFloat64Type", &checkType<std::vector<std::complex<double>>>);
 }
+// NOLINTEND(misc-redundant-expression)

@@ -1,22 +1,17 @@
+#include <uff/Event.h>
 #include <uff/group.h>
 #include <uff/group_data.h>
 #include <uff/receive_setup.h>
-
 #include <uff_utils/group_data_reader.h>
-
 #include <catch2/catch_test_macros.hpp>
-
 #include <complex>
 #include <cstddef>
 #include <cstdint>
 #include <ios>
-#include <iosfwd>
 #include <iostream>
-#include <locale>
 #include <memory>
 #include <ostream>
 #include <sstream>
-#include <streambuf>
 #include <string>
 #include <utility>
 #include <variant>
@@ -78,20 +73,20 @@ TEST_CASE("Read back group data complex float data", "[group_data]") {
 
   size_t i = 0;
   for (size_t fi = 0; fi < group_data_reader.framesCount(); fi++) {
-    std::cout << "f" << fi << " {" << std::endl;
+    std::cout << "f" << fi << " {\n";
     for (size_t ei = 0; ei < group_data_reader.eventsCount(); ei++) {
-      std::cout << "  e" << ei << " {" << std::endl;
+      std::cout << "  e" << ei << " {\n";
       for (size_t ci = 0; ci < group_data_reader.channelsCount(ei); ci++) {
         std::cout << "    c" << ei << " [ ";
         for (size_t si = 0; si < group_data_reader.samplesCount(ei); si++) {
           std::cout << group_data_reader.at<CompInt32>(fi, ei, ci, si) << " ";
           REQUIRE(group_data_reader.at<CompInt32>(fi, ei, ci, si) == raw_data_ptr[i++]);
         }
-        std::cout << "]" << std::endl;
+        std::cout << "]\n";
       }
-      std::cout << "  }" << std::endl;
+      std::cout << "  }\n";
     }
-    std::cout << "}" << std::endl;
+    std::cout << "}\n";
   }
 }
 
