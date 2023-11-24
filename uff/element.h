@@ -1,12 +1,12 @@
 #pragma once
 
+#include <memory>
+
 #include <uff/detail/compare.h>
 #include <uff/element_geometry.h>
 #include <uff/impulse_response.h>
 #include <uff/transform.h>
 #include <uff/uff.h>
-
-#include <memory>
 
 namespace uff {
 

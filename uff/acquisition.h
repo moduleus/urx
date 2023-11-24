@@ -1,5 +1,12 @@
 #pragma once
 
+#include <limits>
+#include <memory>
+#include <optional>
+#include <string>
+#include <variant>
+#include <vector>
+
 #include <uff/detail/compare.h>
 #include <uff/detail/double_nan.h>
 #include <uff/event.h>
@@ -9,13 +16,6 @@
 #include <uff/probe.h>
 #include <uff/receive_setup.h>
 #include <uff/transmit_setup.h>
-
-#include <limits>
-#include <memory>
-#include <optional>
-#include <string>
-#include <variant>
-#include <vector>
 
 namespace uff {
 

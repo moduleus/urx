@@ -1,9 +1,9 @@
 #pragma once
 
+#include <memory>
+
 #include <uff/event.h>
 #include <uff/uff.h>
-
-#include <memory>
 
 namespace uff {
 

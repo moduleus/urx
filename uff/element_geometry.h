@@ -1,12 +1,12 @@
 #pragma once
 
-#include <uff/uff.h>
-#include <uff/vector.h>
-
 #include <iosfwd>
 #include <memory>
 #include <string>
 #include <vector>
+
+#include <uff/uff.h>
+#include <uff/vector.h>
 
 namespace uff {
 

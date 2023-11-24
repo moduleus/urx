@@ -1,11 +1,5 @@
 #pragma once
 
-#include <uff/detail/compare.h>
-#include <uff/element.h>
-#include <uff/element_geometry.h>
-#include <uff/impulse_response.h>
-#include <uff/transform.h>
-#include <uff/uff.h>
 #include <cassert>
 #include <iosfwd>
 #include <memory>
@@ -13,6 +7,13 @@
 #include <string>
 #include <utility>
 #include <vector>
+
+#include <uff/detail/compare.h>
+#include <uff/element.h>
+#include <uff/element_geometry.h>
+#include <uff/impulse_response.h>
+#include <uff/transform.h>
+#include <uff/uff.h>
 
 namespace uff {
 

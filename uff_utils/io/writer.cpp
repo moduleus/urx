@@ -1,26 +1,13 @@
-#include "writer.hpp"
-#include <H5Cpp.h>
-#include <uff/acquisition.h>
-#include <uff/dataset.h>
-#include <uff/detail/double_nan.h>
-#include <uff/element_geometry.h>
-#include <uff/excitation.h>
-#include <uff/group.h>
-#include <uff/group_data.h>
-#include <uff/impulse_response.h>
-#include <uff/probe.h>
-#include <uff/wave.h>
+#include "writer.h"
+
 #include <algorithm>
 #include <array>
-#include <boost/pfr.hpp>
-#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <iomanip>
 #include <iosfwd>
 #include <istream>
 #include <iterator>
-#include <magic_enum.hpp>
 #include <memory>
 #include <ostream>
 #include <sstream>
@@ -33,6 +20,21 @@
 #include <variant>
 #include <vector>
 #include <version>
+
+#include <H5Cpp.h>
+#include <boost/pfr.hpp>
+#include <magic_enum.hpp>
+
+#include <uff/acquisition.h>
+#include <uff/dataset.h>
+#include <uff/detail/double_nan.h>
+#include <uff/element_geometry.h>
+#include <uff/excitation.h>
+#include <uff/group.h>
+#include <uff/group_data.h>
+#include <uff/impulse_response.h>
+#include <uff/probe.h>
+#include <uff/wave.h>
 
 namespace uff {
 

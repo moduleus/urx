@@ -67,7 +67,7 @@ format:clang-format:
     - ubuntu
     - clang-format
   script:
-    - find . -type f -name "*.cpp" -or -name "*.cc" -or -name "*.hpp" -or -name "*.h" |xargs clang-format-14 --style=file --dry-run --Werror
+    - find . -type f -name "*.cpp" -or -name "*.cc" -or -name "*.hpp" -or -name "*.h" |xargs clang-format-17 --style=file --dry-run --Werror
   dependencies: []
 
 format:cmake-format:

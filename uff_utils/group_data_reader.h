@@ -1,9 +1,9 @@
 #pragma once
 
-#include <uff/group_data.h>
-
 #include <variant>
 #include <vector>
+
+#include <uff/group_data.h>
 
 namespace uff {
 

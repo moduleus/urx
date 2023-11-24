@@ -1,10 +1,10 @@
-#include <uff/element.h>
-#include <uff/probe.h>
-#include <uff/vector.h>
-
 #include <cstddef>
 #include <memory>
 #include <vector>
+
+#include <uff/element.h>
+#include <uff/probe.h>
+#include <uff/vector.h>
 
 namespace uff::utils {
 

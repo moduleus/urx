@@ -1,11 +1,11 @@
 #pragma once
 
-#include <uff/detail/double_nan.h>
-#include <uff/uff.h>
-
 #include <memory>
 #include <string>
 #include <vector>
+
+#include <uff/detail/double_nan.h>
+#include <uff/uff.h>
 
 namespace uff {
 

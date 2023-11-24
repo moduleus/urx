@@ -2,6 +2,35 @@
 Language: Cpp
 BasedOnStyle:  Google
 ColumnLimit: 100 
-IncludeBlocks: Preserve
 ReflowComments: false
 PointerAlignment: Left
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex: '^<uff/.*\.h>'
+    Priority: 4
+    SortPriority: 0
+    CaseSensitive: true
+  - Regex: '^<uff_utils/.*\.h>'
+    Priority: 4
+    SortPriority: 0
+    CaseSensitive: true
+  - Regex: '^<.*\.h>'
+    Priority: 2
+    SortPriority: 0
+    CaseSensitive: true
+  - Regex: '^<.*\.hpp>'
+    Priority: 2
+    SortPriority: 0
+    CaseSensitive: true
+  - Regex: '<restbed>'
+    Priority: 2
+    SortPriority: 0
+    CaseSensitive: true
+  - Regex: '^<.*'
+    Priority: 1
+    SortPriority: 0
+    CaseSensitive: true
+  - Regex: '.*'
+    Priority: 3
+    SortPriority: 0
+    CaseSensitive: true

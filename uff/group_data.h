@@ -1,7 +1,5 @@
 #pragma once
 
-#include <uff/group.h>
-
 #include <complex>
 #include <iostream>
 #include <memory>
@@ -11,6 +9,7 @@
 
 #include <uff/detail/compare.h>
 #include <uff/detail/double_nan.h>
+#include <uff/group.h>
 
 namespace uff {
 

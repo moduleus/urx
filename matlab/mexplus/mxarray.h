@@ -50,13 +50,15 @@
 #ifndef INCLUDE_MEXPLUS_MXARRAY_H_
 #define INCLUDE_MEXPLUS_MXARRAY_H_
 
-#include <mex.h>
 #include <algorithm>
 #include <cstdint>
 #include <set>
 #include <string>
 #include <typeinfo>
 #include <vector>
+
+#include <mex.h>
+
 #include "mxtypes.h"
 
 #pragma warning(once : 4244)

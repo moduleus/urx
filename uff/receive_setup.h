@@ -1,16 +1,16 @@
 #pragma once
 
-#include <uff/detail/compare.h>
-#include <uff/detail/double_nan.h>
-#include <uff/probe.h>
-#include <uff/uff.h>
-
 #include <iosfwd>
 #include <memory>
 #include <optional>
 #include <string>
 #include <utility>
 #include <vector>
+
+#include <uff/detail/compare.h>
+#include <uff/detail/double_nan.h>
+#include <uff/probe.h>
+#include <uff/uff.h>
 
 namespace uff {
 

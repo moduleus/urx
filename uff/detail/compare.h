@@ -14,8 +14,9 @@ struct Probe;
 struct Wave;
 
 template <typename T>
-concept AllowedCompareClasses = std::is_same_v<ElementGeometry, T> ||
-    std::is_same_v<Excitation, T> || std::is_same_v<Group, T> || std::is_same_v<GroupData, T> ||
+concept AllowedCompareClasses =
+    std::is_same_v<ElementGeometry, T> || std::is_same_v<Excitation, T> ||
+    std::is_same_v<Group, T> || std::is_same_v<GroupData, T> ||
     std::is_same_v<ImpulseResponse, T> || std::is_same_v<Probe, T> || std::is_same_v<Wave, T>;
 
 template <AllowedCompareClasses T>

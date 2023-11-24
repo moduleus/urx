@@ -1,3 +1,5 @@
+#include <catch2/catch_test_macros.hpp>
+
 #include <uff/acquisition.h>
 #include <uff/dataset.h>
 #include <uff/element.h>
@@ -14,8 +16,6 @@
 #include <uff/vector.h>
 #include <uff/version.h>
 #include <uff/wave.h>
-
-#include <catch2/catch_test_macros.hpp>
 
 namespace uff::test {
 

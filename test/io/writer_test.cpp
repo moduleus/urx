@@ -1,3 +1,11 @@
+#include <complex>
+#include <limits>
+#include <memory>
+#include <utility>
+#include <vector>
+
+#include <catch2/catch_test_macros.hpp>
+
 #include <uff/acquisition.h>
 #include <uff/dataset.h>
 #include <uff/detail/double_nan.h>
@@ -15,13 +23,7 @@
 #include <uff/vector.h>
 #include <uff/version.h>
 #include <uff/wave.h>
-#include <catch2/catch_test_macros.hpp>
-#include <complex>
-#include <limits>
-#include <memory>
-#include <uff_utils/io/writer.hpp>
-#include <utility>
-#include <vector>
+#include <uff_utils/io/writer.h>
 
 namespace uff::test {
 

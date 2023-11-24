@@ -1,7 +1,7 @@
+#include <catch2/catch_test_macros.hpp>
+
 #include <uff/transform.h>
 #include <uff/vector.h>
-
-#include <catch2/catch_test_macros.hpp>
 
 namespace uff::test {
 

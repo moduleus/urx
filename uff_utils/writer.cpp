@@ -1,10 +1,10 @@
-#include <uff/uff.h>
-#include <uff_utils/writer.h>
 #include <cassert>
 #include <cstdio>
 
-#include "io.h"
-#include "uff/vector.h"
+#include <uff/uff.h>
+#include <uff/vector.h>
+#include <uff_utils/io.h>
+#include <uff_utils/writer.h>
 
 namespace uff {
 

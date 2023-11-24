@@ -1,10 +1,10 @@
 #pragma once
 
-#include <uff/uff.h>
-
 #include <cstdint>
 #include <memory>
 #include <string>
+
+#include <uff/uff.h>
 
 namespace uff {
 

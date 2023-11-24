@@ -60,10 +60,11 @@
 #ifndef INCLUDE_MEXPLUS_DISPATCH_H_
 #define INCLUDE_MEXPLUS_DISPATCH_H_
 
-#include <mex.h>
 #include <map>
 #include <memory>
 #include <string>
+
+#include <mex.h>
 
 #ifndef MEXPLUS_AT_EXIT
 #define MEXPLUS_AT_EXIT

@@ -1,14 +1,16 @@
 #pragma once
 
-#include <H5Cpp.h>
-#include <uff/dataset.h>
-#include <uff/uff.h>
-#include <uff/vector.h>
 #include <cstddef>
 #include <memory>
 #include <optional>
 #include <string>
 #include <vector>
+
+#include <H5Cpp.h>
+
+#include <uff/dataset.h>
+#include <uff/uff.h>
+#include <uff/vector.h>
 
 namespace uff {
 

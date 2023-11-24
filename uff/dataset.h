@@ -1,9 +1,9 @@
 #pragma once
 
+#include <memory>
+
 #include <uff/acquisition.h>
 #include <uff/version.h>
-
-#include <memory>
 
 namespace uff {
 

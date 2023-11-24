@@ -1,24 +1,8 @@
-#include <pybind11/attr.h>
-#include <pybind11/buffer_info.h>
-#include <pybind11/cast.h>
-#include <pybind11/detail/common.h>
-#include <pybind11/detail/descr.h>
-#include <pybind11/numpy.h>
-#include <pybind11/operators.h>
-#include <pybind11/pybind11.h>
-#include <pybind11/pytypes.h>
-#include <pybind11/stl_bind.h>
-#include <uff/acquisition.h>
-#include <uff/dataset.h>
-#include <uff/detail/compare.h>
-#include <uff/detail/double_nan.h>
-#include <uff/group.h>
-#include <uff/group_data.h>
-#include <uff/version.h>
 #include <algorithm>
 #include <complex>
 #include <cstddef>
 #include <cstdint>
+#include <ios>
 #include <iosfwd>
 #include <iterator>
 #include <memory>
@@ -30,6 +14,24 @@
 #include <utility>
 #include <variant>
 #include <vector>
+
+#include <pybind11/attr.h>
+#include <pybind11/buffer_info.h>
+#include <pybind11/cast.h>
+#include <pybind11/detail/common.h>
+#include <pybind11/numpy.h>
+#include <pybind11/operators.h>
+#include <pybind11/pybind11.h>
+#include <pybind11/pytypes.h>
+#include <pybind11/stl_bind.h>
+
+#include <uff/acquisition.h>
+#include <uff/dataset.h>
+#include <uff/detail/compare.h>
+#include <uff/detail/double_nan.h>
+#include <uff/group.h>
+#include <uff/group_data.h>
+#include <uff/version.h>
 
 namespace py = pybind11;
 

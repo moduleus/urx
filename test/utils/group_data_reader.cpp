@@ -1,9 +1,3 @@
-#include <uff/Event.h>
-#include <uff/group.h>
-#include <uff/group_data.h>
-#include <uff/receive_setup.h>
-#include <uff_utils/group_data_reader.h>
-#include <catch2/catch_test_macros.hpp>
 #include <complex>
 #include <cstddef>
 #include <cstdint>
@@ -16,6 +10,14 @@
 #include <utility>
 #include <variant>
 #include <vector>
+
+#include <catch2/catch_test_macros.hpp>
+
+#include <uff/event.h>
+#include <uff/group.h>
+#include <uff/group_data.h>
+#include <uff/receive_setup.h>
+#include <uff_utils/group_data_reader.h>
 
 namespace uff::test {
 

@@ -1,6 +1,7 @@
+#include <catch2/catch_test_macros.hpp>
+
 #include <uff/uff.h>
 #include <uff/version.h>
-#include <catch2/catch_test_macros.hpp>
 
 namespace uff::test {
 
