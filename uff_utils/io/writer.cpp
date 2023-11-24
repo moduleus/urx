@@ -147,7 +147,9 @@ void serialize_hdf5(const std::string& name, const T& field, const H5::Group& gr
   const H5::StrType datatype(0, H5T_VARIABLE);
   const H5::DataSpace dataspace(H5S_SCALAR);
   const H5::DataSet dataset = group.createDataSet(name, datatype, dataspace);
-  dataset.write(std::string{magic_enum::enum_name(field)}, datatype, dataspace);
+  const std::string_view sv = magic_enum::enum_name(field);
+  const std::string value = sv.empty() ? std::to_string(static_cast<int>(field)) : std::string{sv};
+  dataset.write(value, datatype, dataspace);
 }
 
 template <typename T>
