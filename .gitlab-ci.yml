@@ -21,8 +21,6 @@ doc:Doxygen:
   script:
     - doxygen doc/Doxyfile
     - mv doc/html public
-  dependencies:
-    - build:ubuntu-with-HDF5-static
   allow_failure: true
   artifacts:
     paths:
@@ -48,13 +46,16 @@ doc:PlantUml:
     - perl -0777 -i -pe "s/^.*uff\.Element.*\*-- .*\n\n\n//gm" doc/plantuml/architecture.puml
     - perl -0777 -i -pe "s/^.*uff\.Element.*\*-- .*\n\n\n//gm" doc/plantuml/architecture.puml
     - sed -i 's/std:://g' doc/plantuml/architecture.puml
+    - sed -i 's/weak_ptr<\([^>]*\)>/\1*/g' doc/plantuml/architecture.puml
+    - sed -i 's/shared_ptr<\([^>]*\)>/\1/g' doc/plantuml/architecture.puml
+    - sed -i 's/vector<\(.*\)>/\1[ ]/g' doc/plantuml/architecture.puml
+    - sed -i 's/vector<\(.*\)>/\1[ ]/g' doc/plantuml/architecture.puml
+    - sed -i 's/DoubleNan/double/g' doc/plantuml/architecture.puml
     # - sed -r -i "/\+--\ uff\.GroupData::VecDataType.*/d" doc/plantuml/architecture.puml
     # - perl -0777 -i -pe "s/^.*class\ GroupData::VecDataType.*\n.*}\n\n//gm" doc/plantuml/architecture.puml
     - mkdir -p public/plantuml
     - plantuml doc/plantuml/architecture.puml
     - mv doc/plantuml/architecture.* public/plantuml/
-  dependencies:
-    - build:ubuntu-with-HDF5-static
   allow_failure: true
   artifacts:
     paths:
