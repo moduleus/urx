@@ -88,7 +88,7 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
       element.transform.translation.y = 44255;
       element.transform.translation.z = 44355;
       element.element_geometry = probe->element_geometries[0];
-      element.impluse_response = probe->impulse_responses[1];
+      element.impulse_response = probe->impulse_responses[1];
       probe->elements.push_back(std::move(element));
     }
 
@@ -101,7 +101,7 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
       element.transform.translation.y = 88;
       element.transform.translation.z = 978;
       element.element_geometry = probe->element_geometries[1];
-      element.impluse_response = probe->impulse_responses[0];
+      element.impulse_response = probe->impulse_responses[0];
       probe->elements.push_back(std::move(element));
     }
     dataset->acquisition.probes.push_back(probe);
@@ -150,7 +150,7 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
       element.transform.translation.y = 852;
       element.transform.translation.z = 963;
       element.element_geometry = probe->element_geometries[1];
-      element.impluse_response = probe->impulse_responses[1];
+      element.impulse_response = probe->impulse_responses[1];
       probe->elements.push_back(std::move(element));
     }
 
@@ -163,7 +163,7 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
       element.transform.translation.y = 753;
       element.transform.translation.z = 42;
       element.element_geometry = probe->element_geometries[0];
-      element.impluse_response = probe->impulse_responses[0];
+      element.impulse_response = probe->impulse_responses[0];
       probe->elements.push_back(std::move(element));
     }
     dataset->acquisition.probes.push_back(probe);
@@ -187,13 +187,7 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
 
   {
     auto wave = std::make_shared<Wave>();
-    wave->wave_type = uff::Wave::WaveType::CYLINDRICAL_WAVE;
-    wave->origin.rotation.x = 3;
-    wave->origin.rotation.y = 4;
-    wave->origin.rotation.z = 5;
-    wave->origin.translation.x = 3.2;
-    wave->origin.translation.y = 4.2;
-    wave->origin.translation.z = 5.2;
+    wave->type = uff::Wave::WaveType::CYLINDRICAL_WAVE;
     wave->time_zero_reference_point.x = 3;
     wave->time_zero_reference_point.y = 4;
     wave->time_zero_reference_point.z = 5;
@@ -212,16 +206,11 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
     wave->channel_excitations = {dataset->acquisition.excitations[0],
                                  dataset->acquisition.excitations[1]};
     wave->channel_delays = {1.2, 45, .26, 1.2, 5};
+    wave->parameters = {1, .2, 4, 3, 6, 4.5};
     dataset->acquisition.waves.push_back(wave);
 
     wave = std::make_shared<Wave>();
-    wave->wave_type = uff::Wave::WaveType::PHOTOACOUSTIC_WAVE;
-    wave->origin.rotation.x = 5;
-    wave->origin.rotation.y = 8;
-    wave->origin.rotation.z = 7;
-    wave->origin.translation.x = 5.2;
-    wave->origin.translation.y = 4.3;
-    wave->origin.translation.z = 8.2;
+    wave->type = uff::Wave::WaveType::CONVERGING_WAVE;
     wave->time_zero_reference_point.x = 5;
     wave->time_zero_reference_point.y = 4;
     wave->time_zero_reference_point.z = 4;
@@ -239,6 +228,7 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
     wave->channel_excitations = {dataset->acquisition.excitations[1],
                                  dataset->acquisition.excitations[0]};
     wave->channel_delays = {1.2, .3, .5, 10.4};
+    wave->parameters = {7, 53, .2, 1, .3, 5.6, 7};
     dataset->acquisition.waves.push_back(wave);
   }
 
@@ -306,7 +296,7 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
     dataset->acquisition.groups.push_back(group);
 
     group = std::make_shared<uff::Group>();
-    group->sampling_type = uff::Group::SamplingType::RF;
+    group->sampling_type = static_cast<uff::Group::SamplingType>(123);
     group->data_type = uff::Group::DataType::FLOAT;
     {
       Event event;

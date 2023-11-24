@@ -39,17 +39,17 @@ struct ReceiveSetup {
   /// If probe element i-th is not connected then channel_mapping[i] is empty.
   std::vector<std::vector<uint32_t>> channel_mapping;
 
-  /// (Optional) Analog TGC profile sampled at tgc_sampling_frequency [dB]
+  /// Analog TGC profile sampled at tgc_sampling_frequency [dB]
   std::vector<double> tgc_profile;
 
-  /// (Optional) Sampling frequency of the TGC profile [Hz]
+  /// Sampling frequency of the TGC profile [Hz]
   DoubleNan tgc_sampling_frequency;
 
-  /// (Optional) Modulation frequency used in case of IQ-data [Hz]
+  /// Modulation frequency used in case of IQ-data [Hz]
   DoubleNan modulation_frequency;
 
   /// Time offset delaying the launch of the reception related to the beginning of the event
-  DoubleNan time_offset;
+  DoubleNan time_offset{0};
 };
 
 }  // namespace uff

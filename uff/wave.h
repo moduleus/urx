@@ -23,23 +23,19 @@ struct Wave {
     DIVERGING_WAVE = 1,
     PLANE_WAVE = 2,
     CYLINDRICAL_WAVE = 3,
-    PHOTOACOUSTIC_WAVE = 4,
     UNDEFINED = -1
   };
 
   bool operator==(const Wave& other) const = default;
 
   /// Type of wave
-  WaveType wave_type = WaveType::UNDEFINED;
-
-  /// Description of the wave origin, its interpretation depends on the WaveType
-  Transform origin;
-
-  /// Time zero reference point in Probe orthogonal coordinate system
-  Vector3D<double> time_zero_reference_point;
+  WaveType type = WaveType::UNDEFINED;
 
   /// Time zero for the wave [s]
   DoubleNan time_zero;
+
+  /// Time zero reference point in Probe orthogonal coordinate system
+  Vector3D<double> time_zero_reference_point;
 
   /// Maps probe elements to transmit channels.
   /// The first dimension is the probe element index, the second is an array of transmit channel indexes.
@@ -52,6 +48,9 @@ struct Wave {
 
   /// List of delay applied before the transmission for each channel
   std::vector<double> channel_delays;
+
+  /// Transform but must be more flexible than the Transform struct.
+  std::vector<double> parameters;
 };
 
 }  // namespace uff

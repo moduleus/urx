@@ -50,7 +50,10 @@ struct Acquisition {
 
   /// Reference sound speed for Tx and Rx events [m/s]
   /// You must provide the sound speed inside the studied material in order to process the data
-  double sound_speed = 0.;
+  DoubleNan sound_speed;
+
+  /// Timestamp of the launch of the acquisition [s]
+  DoubleNan timestamp;
 
   /// List of all the probes used to transmit/receive sequences in the acquisition
   std::vector<std::shared_ptr<Probe>> probes;
@@ -63,9 +66,6 @@ struct Acquisition {
 
   /// List of all group present in the acquisition
   std::vector<std::shared_ptr<Group>> groups;
-
-  /// Timestamp of the launch of the acquisition [s]
-  DoubleNan timestamp;
 
   /// List of all data acquired by the running groups in the acquisition
   std::vector<std::shared_ptr<GroupData>> groups_data;

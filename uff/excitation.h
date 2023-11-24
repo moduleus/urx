@@ -20,7 +20,7 @@ namespace uff {
 struct Excitation {
   bool operator==(const Excitation& other) const = default;
 
-  /// Desciption of the pulse shape (e.g., sinusoidal, square wave, chirp), including necessary parameters
+  /// Description of the pulse shape (e.g., sinusoidal, square wave, chirp), including necessary parameters
   std::string pulse_shape;
 
   /// Transmit frequency of the pulser [Hz]

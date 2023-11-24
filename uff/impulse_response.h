@@ -22,11 +22,11 @@ struct ImpulseResponse {
   /// The impulse response data values are spaced by a delay equal to 1/sampling_frequency
   std::vector<double> data;
 
-  /// (Optional) Name of the units of the impulse response
+  /// Name of the units of the impulse response
   std::string units;
 
   /// Time offset of the impulse response
-  DoubleNan time_offset;
+  DoubleNan time_offset{0};
 };
 
 }  // namespace uff

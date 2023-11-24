@@ -19,7 +19,7 @@ namespace uff {
 struct Transform {
   bool operator==(const Transform& other) const = default;
 
-  /// Rotation around the 3 axis X: elevation, Y: azimut and Z: roll [rad]
+  /// Rotation around the 3 axis X: elevation, Y: azimuth and Z: roll [rad]
   Vector3D<double> rotation;
 
   /// translation on 3 axis X, Y and Z [m]

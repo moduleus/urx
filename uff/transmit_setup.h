@@ -27,7 +27,7 @@ struct TransmitSetup {
   Transform probe_transform;
 
   /// Time offset delaying the launch of the whole transmission related to the beginning of the
-  DoubleNan time_offset;
+  DoubleNan time_offset{0};
 
   /// The wave emitted by this TransmitSetup
   std::weak_ptr<Wave> wave = std::weak_ptr<Wave>();

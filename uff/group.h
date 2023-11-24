@@ -25,12 +25,12 @@ struct Group {
   /// Data type contained in the raw_data array
   DataType data_type = DataType::UNDEFINED;
 
+  /// Description of what should do the group acquisition
+  std::string description;
+
   /// List of all event composing an sequence
   /// The number of sequence can be determined from GroupData or you can use Uff_Utils to get it
   std::vector<Event> sequence;
-
-  /// Description of what should do the group acquisition
-  std::string description;
 };
 
 }  // namespace uff
