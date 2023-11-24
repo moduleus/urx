@@ -44,6 +44,8 @@ using MapToSharedPtr = std::unordered_map<std::type_index, const void*>;
 
 std::unordered_map<std::type_index, const H5::PredType*> std_to_h5;
 
+constexpr int iter_length = 8;
+
 template <typename T>
 void serialize_all(const T& field, const H5::Group& group, MapToSharedPtr& map);
 
@@ -127,11 +129,9 @@ void serialize_hdf5(const std::string& name, const std::vector<T>& field, const 
     const H5::Group group_child(group.createGroup(name));
 
     size_t i = 0;
-    const int length =
-        field.size() == 1 ? 0 : static_cast<int>(std::trunc(std::log10(field.size() - 1))) + 1;
     for (const auto& iter : field) {
       std::stringstream stream;
-      stream << std::setfill('0') << std::setw(length) << i;
+      stream << std::setfill('0') << std::setw(iter_length) << i;
       serialize_hdf5(stream.str(), iter, group_child, map);
       i++;
     }
@@ -244,7 +244,7 @@ void Writer::saveToFile(const std::string& filename, const Dataset& dataset) {
                                    {typeid(Excitation), &dataset.acquisition.excitations},
                                    {typeid(GroupData), &dataset.acquisition.groups_data}};
 
-  serialize_all(dataset, file, map_to_shared_ptr);
+  serialize_hdf5("dataset", dataset, file, map_to_shared_ptr);
 }
 
 }  // namespace uff
