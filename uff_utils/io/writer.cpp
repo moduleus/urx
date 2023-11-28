@@ -48,6 +48,9 @@ constexpr int iter_length = 8;
 
 template <typename T>
 void serialize_all(const T& field, const H5::Group& group, MapToSharedPtr& map);
+template <>
+void serialize_all(const GroupData::VecDataTypeVariant& field, const H5::Group& group,
+                   MapToSharedPtr& map);
 
 // Default
 template <typename T>
@@ -59,7 +62,7 @@ void serialize_hdf5(const std::string& name, const T& field, const H5::Group& gr
 }
 
 // Number
-template <class T>
+template <typename T>
 concept Number = std::is_integral_v<T> || std::is_floating_point_v<T>;
 template <Number T>
 void serialize_hdf5(const std::string& name, const T& field, const H5::Group& group,
@@ -85,6 +88,13 @@ template <>
 void serialize_hdf5(const std::string& name, const DoubleNan& field, const H5::Group& group,
                     MapToSharedPtr& map) {
   serialize_hdf5(name, field.value, group, map);
+}
+
+// GroupData::VecDataTypeVariant
+template <>
+void serialize_hdf5(const std::string&, const GroupData::VecDataTypeVariant& field,
+                    const H5::Group& group, MapToSharedPtr& map) {
+  serialize_all(field, group, map);
 }
 
 // shared_ptr
@@ -203,38 +213,68 @@ void serialize_all(const Probe& field, const H5::Group& group, MapToSharedPtr& m
 template <>
 void serialize_all(const GroupData::VecDataTypeVariant& field, const H5::Group& group,
                    MapToSharedPtr&) {
-  const size_t size = std::visit(
-      [](const auto& vec) {
-        using type = typename std::remove_cvref_t<decltype(vec)>::value_type;
-        if constexpr (Number<type>) {
-          return vec.size();
-        } else
-        // Complex
-        {
-          return vec.size() * 2;
-        }
-      },
-      field);
-  hsize_t dims[1] = {size};
-  const H5::DataSpace dataspace = H5::DataSpace(1, dims);
+  enum class Format { ARRAY_2D, COMPOUND };
+  constexpr Format format = Format::ARRAY_2D;
 
-  const H5::PredType* datatype = std::visit(
+  const auto [size, datatype, data] = std::visit(
       [](const auto& vec) {
+        const size_t size = vec.size();
+        const H5::PredType* datatype;
+
         using type = typename std::remove_cvref_t<decltype(vec)>::value_type;
         if constexpr (Number<type>) {
-          return std_to_h5.at(typeid(type));
+          datatype = std_to_h5.at(typeid(type));
         } else
         // Complex
         {
           using type2 = typename type::value_type;
-          return std_to_h5.at(typeid(type2));
+          datatype = std_to_h5.at(typeid(type2));
         }
+
+        const void* data = static_cast<const void*>(vec.data());
+
+        return std::tuple(size, datatype, data);
       },
       field);
-  const H5::DataSet dataset = group.createDataSet("raw_data", *datatype, dataspace);
-  const void* data =
-      std::visit([](const auto& vec) { return static_cast<const void*>(vec.data()); }, field);
-  dataset.write(data, *datatype);
+
+  if constexpr (format == Format::ARRAY_2D) {
+    const bool isComplex = std::visit(
+        [](const auto& vec) {
+          using type = typename std::remove_cvref_t<decltype(vec)>::value_type;
+          return !Number<type>;
+        },
+        field);
+    hsize_t dims[2] = {size, isComplex ? 2ULL : 1ULL};
+    const H5::DataSpace dataspace = H5::DataSpace(2, dims);
+    const H5::DataSet dataset = group.createDataSet("raw_data", *datatype, dataspace);
+    dataset.write(data, *datatype);
+  } else {
+    hsize_t dims[1] = {size};
+    const H5::DataSpace dataspace = H5::DataSpace(1, dims);
+
+    const size_t sizeOf = std::visit(
+        [](const auto& vec) {
+          return sizeof(typename std::remove_cvref_t<decltype(vec)>::value_type);
+        },
+        field);
+
+    H5::CompType complexType(sizeOf);
+
+    std::visit(
+        [&complexType, datatype](const auto& vec) {
+          using type = typename std::remove_cvref_t<decltype(vec)>::value_type;
+          if constexpr (Number<type>) {
+            complexType.insertMember("real", 0ULL, *datatype);
+          } else {
+            using type2 = typename type::value_type;
+            complexType.insertMember("real", 0ULL, *datatype);
+            complexType.insertMember("imag", sizeof(type2), *datatype);
+          }
+        },
+        field);
+    const H5::DataSet dataset = group.createDataSet("raw_data", complexType, dataspace);
+    dataset.write(data, complexType);
+  }
 }
 }  // namespace
 

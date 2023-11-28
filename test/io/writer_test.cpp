@@ -23,6 +23,7 @@
 #include <uff/vector.h>
 #include <uff/version.h>
 #include <uff/wave.h>
+#include <uff_utils/io/reader.h>
 #include <uff_utils/io/writer.h>
 
 namespace uff::test {
@@ -53,10 +54,7 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
     probe->transform.translation.z = 3.2;
     {
       auto element_geometry = std::make_shared<ElementGeometry>();
-      element_geometry->perimeter = {{.x = std::numeric_limits<double>::quiet_NaN(),
-                                      .y = std::numeric_limits<double>::signaling_NaN(),
-                                      .z = 543},
-                                     {.x = 2.2, .y = 1.4, .z = 0.2}};
+      element_geometry->perimeter = {{.x = 15, .y = 23, .z = 543}, {.x = 2.2, .y = 1.4, .z = 0.2}};
       probe->element_geometries.push_back(element_geometry);
 
       element_geometry = std::make_shared<ElementGeometry>();
@@ -73,10 +71,10 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
       probe->impulse_responses.push_back(impulse_response);
 
       impulse_response = std::make_shared<ImpulseResponse>();
-      impulse_response->sampling_frequency = 50000002;
+      impulse_response->sampling_frequency = std::numeric_limits<double>::quiet_NaN();
       impulse_response->data = {2.2, 2.3, 2.4};
       impulse_response->units = "milli";
-      impulse_response->time_offset = 20000;
+      impulse_response->time_offset = std::numeric_limits<double>::signaling_NaN();
       probe->impulse_responses.push_back(impulse_response);
     }
     {
@@ -381,6 +379,10 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
   }
 
   uff::Writer::saveToFile("writer.uff", *dataset);
+
+  auto dataset_loaded = uff::Reader::loadFromFile("writer.uff");
+
+  REQUIRE(*dataset_loaded == *dataset);
 
   // uff::ChannelData<float>& channelData = dataset->channelData();
   // channelData.setAuthors("Unknown");

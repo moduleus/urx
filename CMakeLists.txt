@@ -28,8 +28,7 @@ set(CMAKE_LINK_WHAT_YOU_USE ON)
 option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
 
 add_compile_options($<$<CXX_COMPILER_ID:MSVC>:/MP>)
-add_compile_definitions(
-  $<$<CXX_COMPILER_ID:MSVC>:_SILENCE_NONFLOATING_COMPLEX_DEPRECATION_WARNING>)
+add_compile_definitions(_SILENCE_NONFLOATING_COMPLEX_DEPRECATION_WARNING)
 
 include(CTest)
 

@@ -7,7 +7,7 @@ struct DoubleNan {
   double value = std::numeric_limits<double>::quiet_NaN();
 
   DoubleNan() = default;
-  explicit DoubleNan(double v) : value(v){};
+  explicit DoubleNan(double v) : value(v) {}
   DoubleNan(const DoubleNan&) = default;
 
   auto operator<=>(const DoubleNan& other) const {
@@ -22,7 +22,7 @@ struct DoubleNan {
     if (std::isnan(value) && std::isnan(other.value)) {
       return true;
     }
-    return value == other.value;
+    return std::equal_to<>()(value, other.value);
   }
 
   // NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)
