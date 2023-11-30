@@ -76,7 +76,7 @@ ChannelData<DataType>& ChannelData<DataType>::copyStructure(const ChannelData<Da
 
   // Probe
   for (auto& probe : other.m_probes) {
-    std::shared_ptr<urx::Probe> newProbe = probe->clone();
+    std::shared_ptr<Probe> newProbe = probe->clone();
     m_probes.push_back(newProbe);
     if (*newProbe != *probe) throw;
     if (m_probes.back() == probe) throw;
@@ -84,7 +84,7 @@ ChannelData<DataType>& ChannelData<DataType>::copyStructure(const ChannelData<Da
 
   // Waves
   for (auto& uniqueWave : other.m_uniqueWaves) {
-    m_uniqueWaves.push_back(std::make_shared<urx::Wave>(*uniqueWave));
+    m_uniqueWaves.push_back(std::make_shared<Wave>(*uniqueWave));
     if (*m_uniqueWaves.back() != *uniqueWave) throw;
     if (m_uniqueWaves.back() == uniqueWave) throw;
   }
@@ -96,7 +96,7 @@ ChannelData<DataType>& ChannelData<DataType>::copyStructure(const ChannelData<Da
 
     // Transmit Probe weak pointer
     {
-      std::shared_ptr<urx::Probe> transmitProbe;
+      std::shared_ptr<Probe> transmitProbe;
       for (size_t iProbe = 0; iProbe < m_probes.size() && !transmitProbe; iProbe++) {
         if (*m_probes[iProbe] == *uniqueEvent->transmitSetup().probe().lock()) {
           transmitProbe = m_probes[iProbe];
@@ -111,7 +111,7 @@ ChannelData<DataType>& ChannelData<DataType>::copyStructure(const ChannelData<Da
 
     // Receive Probe weak pointer
     {
-      std::shared_ptr<urx::Probe> receiveProbe;
+      std::shared_ptr<Probe> receiveProbe;
       for (size_t iProbe = 0; iProbe < m_probes.size() && !receiveProbe; iProbe++) {
         if (*m_probes[iProbe] == *uniqueEvent->receiveSetup().probe().lock()) {
           receiveProbe = m_probes[iProbe];
@@ -126,7 +126,7 @@ ChannelData<DataType>& ChannelData<DataType>::copyStructure(const ChannelData<Da
 
     // Wave weak pointer
     {
-      std::shared_ptr<urx::Wave> wave;
+      std::shared_ptr<Wave> wave;
       for (size_t iWave = 0; iWave < m_uniqueWaves.size() && !wave; iWave++) {
         if (*m_uniqueWaves[iWave] == *uniqueEvent->transmitSetup().transmitWave().wave().lock()) {
           wave = m_uniqueWaves[iWave];
@@ -149,7 +149,7 @@ ChannelData<DataType>& ChannelData<DataType>::copyStructure(const ChannelData<Da
     m_sequence.push_back(timedEvent);
 
     // Event weak pointer
-    std::shared_ptr<urx::Event> evenement;
+    std::shared_ptr<Event> evenement;
     for (size_t iEvent = 0; iEvent < m_uniqueEvents.size() && !evenement; iEvent++) {
       if (*m_uniqueEvents[iEvent] == *timedEvent.evenement().lock()) {
         evenement = m_uniqueEvents[iEvent];

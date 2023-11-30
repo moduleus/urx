@@ -19,7 +19,7 @@
 namespace urx::v0_5 {
 
 /**
- * The urx::Object class is the base class for all URX components.
+ * The Object class is the base class for all URX components.
  */
 class Object {
  public:
@@ -41,7 +41,7 @@ class Object {
   virtual void printTrailer(std::ostream& os, const std::string& indent) const;
 
  private:
-  friend std::ostream& operator<<(std::ostream& os, const urx::Object& o);
+  friend std::ostream& operator<<(std::ostream& os, const Object& o);
 };
 
 }  // namespace urx::v0_5

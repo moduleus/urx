@@ -36,12 +36,12 @@ void Object::printTrailer(std::ostream& os, const std::string& indent) const {
 }
 
 /**
- * This operator allows all subclasses of urx::Object to be printed via <<.
+ * This operator allows all subclasses of Object to be printed via <<.
  * It in turn invokes the 'print' method, which in turn will invoke the
  * 'printSelf' method that all objects should define, if they have anything
  * interesting to print out.
  */
-std::ostream& operator<<(std::ostream& os, const urx::Object& o) {
+std::ostream& operator<<(std::ostream& os, const Object& o) {
   o.print(os);
   return os;
 }

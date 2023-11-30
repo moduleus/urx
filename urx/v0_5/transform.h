@@ -23,24 +23,24 @@ namespace urx::v0_5 {
  *  A transform is composed by a rotation R = (rx, ry, rz)
  *  followed by a translation T = (tx, ty, tz).
  */
-class Transform : public urx::Object {
-  URX_TYPE_MACRO(Transform, urx::Object);
+class Transform : public Object {
+  URX_TYPE_MACRO(Transform, Object);
 
  public:
   Transform() = default;
 
-  Transform(const urx::Rotation& rotation, const urx::Translation& translation) {
+  Transform(const Rotation& rotation, const Translation& translation) {
     this->setRotation(rotation);
     this->setTranslation(translation);
   }
 
   void printSelf(std::ostream& os, const std::string& indent) const override;
 
-  const urx::Rotation& rotation() const { return m_rotation; }
-  void setRotation(const urx::Rotation& rotation) { m_rotation = rotation; }
+  const Rotation& rotation() const { return m_rotation; }
+  void setRotation(const Rotation& rotation) { m_rotation = rotation; }
 
-  const urx::Translation& translation() const { return m_translation; }
-  void setTranslation(const urx::Translation& translation) { m_translation = translation; }
+  const Translation& translation() const { return m_translation; }
+  void setTranslation(const Translation& translation) { m_translation = translation; }
 
   bool operator==(const Transform& other) const {
     return ((m_rotation == other.m_rotation) && (m_translation == other.m_translation));
@@ -57,10 +57,10 @@ class Transform : public urx::Object {
 
  private:
   // rotation in radians
-  urx::Rotation m_rotation;
+  Rotation m_rotation;
 
   // position in meters
-  urx::Translation m_translation;
+  Translation m_translation;
 };
 
 }  // namespace urx::v0_5

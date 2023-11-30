@@ -19,16 +19,16 @@ namespace urx::v0_5 {
 /**
  * @brief Describes the geometry of an ultrasonic element.
  */
-class ElementGeometry : public urx::Object {
-  URX_TYPE_MACRO(ElementGeometry, urx::Object);
+class ElementGeometry : public Object {
+  URX_TYPE_MACRO(ElementGeometry, Object);
 
  public:
   ElementGeometry() = default;
 
   void printSelf(std::ostream& os, const std::string& indent) const override;
 
-  urx::Perimeter& perimeter() { return m_perimeter; }
-  void setPerimeter(const urx::Perimeter& perimeter) { m_perimeter = perimeter; }
+  Perimeter& perimeter() { return m_perimeter; }
+  void setPerimeter(const Perimeter& perimeter) { m_perimeter = perimeter; }
 
   bool operator==(const ElementGeometry& other) const { return (m_perimeter == other.m_perimeter); }
 
@@ -36,7 +36,7 @@ class ElementGeometry : public urx::Object {
 
  private:
   // (Optional) List of positions defining the element perimeter
-  urx::Perimeter m_perimeter;
+  Perimeter m_perimeter;
 };
 
 }  // namespace urx::v0_5

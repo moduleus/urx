@@ -13,7 +13,7 @@
 namespace urx::v0_5 {
 
 void RcaArray::printSelf(std::ostream& os, const std::string& indent) const {
-  urx::Probe::printSelf(os, indent);
+  Probe::printSelf(os, indent);
   os << indent;
   superclass::printSelf(os, indent + URX_STD_INDENT);  // NOLINT(bugprone-parent-virtual-call)
   os << indent + URX_STD_INDENT << "NumberElementsX: " << m_numberElementsX << std::endl;

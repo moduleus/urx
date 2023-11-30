@@ -21,8 +21,8 @@ namespace urx::v0_5 {
 /**
  * @brief URX class to define analytically the aperture use in an ultrasound wave
  */
-class Aperture : public urx::Object {
-  URX_TYPE_MACRO(Aperture, urx::Object);
+class Aperture : public Object {
+  URX_TYPE_MACRO(Aperture, Object);
 
  public:
   Aperture() = default;
@@ -30,8 +30,8 @@ class Aperture : public urx::Object {
   void printSelf(std::ostream& os, const std::string& indent) const override;
 
   // Origin
-  const urx::Transform& origin() const { return m_origin; }
-  void setOrigin(const urx::Transform& origin) { m_origin = origin; }
+  const Transform& origin() const { return m_origin; }
+  void setOrigin(const Transform& origin) { m_origin = origin; }
 
   // Window
   const std::optional<std::string>& window() const { return m_window; }
@@ -54,7 +54,7 @@ class Aperture : public urx::Object {
 
  private:
   // Location of the aperture center in space
-  urx::Transform m_origin;
+  Transform m_origin;
 
   // String defining the apodization window type and parameter (e.g., 'Rectangular', 'Hamming', 'Gauss(8)', 'Tukey(0.5)')
   std::optional<std::string> m_window = std::nullopt;

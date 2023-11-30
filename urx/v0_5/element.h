@@ -19,8 +19,8 @@ namespace urx::v0_5 {
 /**
  * @brief URX class to define an ultrasonic element
  */
-class Element : public urx::Object {
-  URX_TYPE_MACRO(Element, urx::Object);
+class Element : public Object {
+  URX_TYPE_MACRO(Element, Object);
 
  public:
   Element() = default;

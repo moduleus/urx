@@ -23,8 +23,8 @@ namespace urx::v0_5 {
 /**
  * @brief The URX ReceiveSetup class
  */
-class ReceiveSetup : public urx::Object {
-  URX_TYPE_MACRO(ReceiveSetup, urx::Object);
+class ReceiveSetup : public Object {
+  URX_TYPE_MACRO(ReceiveSetup, Object);
 
  public:
   enum class SAMPLING_TYPE { DIRECT_RF = 0, QUADRATURE_4X_F0 = 1, QUADRATURE_2X_F0 = 2, IQ = 3 };
@@ -33,8 +33,8 @@ class ReceiveSetup : public urx::Object {
 
   void printSelf(std::ostream& os, const std::string& indent) const override;
 
-  std::weak_ptr<urx::Probe> probe() const { return m_probe; }
-  void setProbe(std::weak_ptr<urx::Probe> probe) { m_probe = std::move(probe); }
+  std::weak_ptr<Probe> probe() const { return m_probe; }
+  void setProbe(std::weak_ptr<Probe> probe) { m_probe = std::move(probe); }
 
   MetadataType timeOffset() const { return m_timeOffset; }
   void setTimeOffset(const MetadataType& timeOffset) { m_timeOffset = timeOffset; }
@@ -80,7 +80,7 @@ class ReceiveSetup : public urx::Object {
 
  private:
   // Probes used for this receive setup
-  std::weak_ptr<urx::Probe> m_probe;
+  std::weak_ptr<Probe> m_probe;
 
   // Time before the first samples [s]
   MetadataType m_timeOffset = 0.;

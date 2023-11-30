@@ -18,8 +18,8 @@ namespace urx::v0_5 {
 /**
  * @brief The URX Translation class
  */
-class Translation : public urx::Object {
-  URX_TYPE_MACRO(Translation, urx::Object);
+class Translation : public Object {
+  URX_TYPE_MACRO(Translation, Object);
 
  public:
   explicit Translation(MetadataType tx = 0.f, MetadataType ty = 0.f, MetadataType tz = 0.f) {

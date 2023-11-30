@@ -20,8 +20,8 @@ namespace urx::v0_5 {
 /**
  * @brief The URX ImpulseResponse class specifies a temporal impulse response
  */
-class ImpulseResponse : public urx::Object {
-  URX_TYPE_MACRO(ImpulseResponse, urx::Object);
+class ImpulseResponse : public Object {
+  URX_TYPE_MACRO(ImpulseResponse, Object);
 
  public:
   ImpulseResponse() = default;

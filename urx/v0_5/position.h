@@ -24,7 +24,7 @@ class Position {
     this->setZ(z);
   }
 
-  friend std::ostream& operator<<(std::ostream& os, const urx::Position& r);
+  friend std::ostream& operator<<(std::ostream& os, const Position& r);
 
   MetadataType x() const { return m_x; }
   void setX(MetadataType x) { m_x = x; }

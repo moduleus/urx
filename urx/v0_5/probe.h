@@ -27,8 +27,8 @@ namespace urx::v0_5 {
 /**
  * @brief The URX Probe class describes a generic ultrsound probe formed by a collection of elements
  */
-class Probe : public urx::Object {
-  URX_TYPE_MACRO(Probe, urx::Object);
+class Probe : public Object {
+  URX_TYPE_MACRO(Probe, Object);
 
  public:
   Probe() = default;
@@ -36,29 +36,29 @@ class Probe : public urx::Object {
   void printSelf(std::ostream& os, const std::string& indent) const override;
 
   /* Attitude of the probe in 3D */
-  const urx::Transform& transform() const { return m_transform; }
-  void setTransform(const urx::Transform& transform) { m_transform = transform; }
+  const Transform& transform() const { return m_transform; }
+  void setTransform(const Transform& transform) { m_transform = transform; }
 
   /* [optional] For probes with a focal lens, it describes the focal length in m [Az, Ele] */
   std::optional<MetadataType> focalLength() const { return m_focalLength; }
   void setFocalLength(std::optional<MetadataType> focalLength) { m_focalLength = focalLength; }
 
   /* List elements in the probe */
-  std::vector<urx::Element>& elements() { return m_elements; }
-  void setElements(const std::vector<urx::Element>& elements) {
+  std::vector<Element>& elements() { return m_elements; }
+  void setElements(const std::vector<Element>& elements) {
     m_elements = elements;
     _channelGeometryValid = false;
   }
 
   /* [optional] List of unique element geometries in the probe */
-  std::vector<urx::ElementGeometry>& elementGeometries() { return m_elementGeometries; }
-  void setElementGeometries(const std::vector<urx::ElementGeometry>& elementGeometries) {
+  std::vector<ElementGeometry>& elementGeometries() { return m_elementGeometries; }
+  void setElementGeometries(const std::vector<ElementGeometry>& elementGeometries) {
     m_elementGeometries = elementGeometries;
   }
 
   /* [optional] List of unique electromechanical impulse responses of the elements in the probe */
-  std::vector<urx::ImpulseResponse>& impulseResponses() { return m_impulseResponses; }
-  void setImpulseResponses(const std::vector<urx::ImpulseResponse>& impulseResponses) {
+  std::vector<ImpulseResponse>& impulseResponses() { return m_impulseResponses; }
+  void setImpulseResponses(const std::vector<ImpulseResponse>& impulseResponses) {
     m_impulseResponses = impulseResponses;
   }
 
@@ -104,14 +104,14 @@ class Probe : public urx::Object {
     return *this;
   }
 
-  virtual std::shared_ptr<urx::Probe> clone() { return std::make_shared<urx::Probe>(*this); }
+  virtual std::shared_ptr<Probe> clone() { return std::make_shared<Probe>(*this); }
 
  protected:
-  urx::Transform m_transform;
+  Transform m_transform;
   std::optional<MetadataType> m_focalLength = std::nullopt;
-  std::vector<urx::Element> m_elements;
-  std::vector<urx::ElementGeometry> m_elementGeometries;
-  std::vector<urx::ImpulseResponse> m_impulseResponses;
+  std::vector<Element> m_elements;
+  std::vector<ElementGeometry> m_elementGeometries;
+  std::vector<ImpulseResponse> m_impulseResponses;
 
   bool _channelGeometryValid = false;
   std::vector<MetadataType> _channelGeometry;

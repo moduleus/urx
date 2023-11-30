@@ -24,8 +24,8 @@ namespace urx::v0_5 {
 /**
  * @brief The URX RCA Array class describes a RCA (Row Column Address) probe
  */
-class RcaArray : public urx::Probe {
-  URX_TYPE_MACRO(RcaArray, urx::Object);
+class RcaArray : public Probe {
+  URX_TYPE_MACRO(RcaArray, Object);
 
  public:
   explicit RcaArray(uint32_t numberElementsX, uint32_t numberElementsy)
@@ -79,7 +79,7 @@ class RcaArray : public urx::Probe {
     m_elementHeightY = elementHeightY;
   }
 
-  std::shared_ptr<urx::Probe> clone() override { return std::make_shared<urx::RcaArray>(*this); }
+  std::shared_ptr<Probe> clone() override { return std::make_shared<RcaArray>(*this); }
 
  private:
   // Update elements position
@@ -89,7 +89,7 @@ class RcaArray : public urx::Probe {
     MetadataType xmin = -m_pitchX * (m_numberElementsX - 1.f) / 2.f;
 
     for (uint32_t i = 0; i < m_numberElementsX; i++) {
-      urx::Element element;
+      Element element;
       element.setX(xmin + i * m_pitchX);
       element.setY(0.f);
       element.setZ(0.f);
@@ -98,7 +98,7 @@ class RcaArray : public urx::Probe {
 
     MetadataType ymin = -m_pitchY * (m_numberElementsY - 1.f) / 2.f;
     for (uint32_t i = m_numberElementsX; i < m_elements.size(); i++) {
-      urx::Element element;
+      Element element;
       element.setY(ymin + (i - m_numberElementsX) * m_pitchY);
       element.setX(0.f);
       element.setZ(0.f);

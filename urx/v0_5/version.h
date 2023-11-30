@@ -19,8 +19,8 @@ namespace urx::v0_5 {
 /**
  * @brief The URX Version class
  */
-class Version : public urx::Object {
-  URX_TYPE_MACRO(Version, urx::Object);
+class Version : public Object {
+  URX_TYPE_MACRO(Version, Object);
 
  public:
   explicit Version(uint32_t major = URX_VERSION_MAJOR, uint32_t minor = URX_VERSION_MINOR,

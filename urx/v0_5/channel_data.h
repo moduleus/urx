@@ -36,8 +36,8 @@ namespace urx::v0_5 {
  * @brief URX class that contains all the information needed to store and later process channel data.
  */
 template <typename DataType>
-class ChannelData : public urx::Object {
-  URX_TYPE_MACRO(ChannelData, urx::Object);
+class ChannelData : public Object {
+  URX_TYPE_MACRO(ChannelData, Object);
 
  public:
   ChannelData() = default;
@@ -84,27 +84,27 @@ class ChannelData : public urx::Object {
   }
 
   // List of probes used for this dataset
-  const std::vector<std::shared_ptr<urx::Probe>>& probes() const { return m_probes; }
-  void addProbe(const std::shared_ptr<urx::Probe>& probe) { m_probes.push_back(probe); }
-  void setProbes(const std::vector<std::shared_ptr<urx::Probe>>& probes) { m_probes = probes; }
+  const std::vector<std::shared_ptr<Probe>>& probes() const { return m_probes; }
+  void addProbe(const std::shared_ptr<Probe>& probe) { m_probes.push_back(probe); }
+  void setProbes(const std::vector<std::shared_ptr<Probe>>& probes) { m_probes = probes; }
 
   // List of unique waves used for this dataset
-  const std::vector<std::shared_ptr<urx::Wave>>& uniqueWaves() const { return m_uniqueWaves; }
-  void addUniqueWave(const std::shared_ptr<urx::Wave>& wave) { m_uniqueWaves.push_back(wave); }
-  void setUniqueWaves(const std::vector<std::shared_ptr<urx::Wave>>& uniqueWaves) {
+  const std::vector<std::shared_ptr<Wave>>& uniqueWaves() const { return m_uniqueWaves; }
+  void addUniqueWave(const std::shared_ptr<Wave>& wave) { m_uniqueWaves.push_back(wave); }
+  void setUniqueWaves(const std::vector<std::shared_ptr<Wave>>& uniqueWaves) {
     m_uniqueWaves = uniqueWaves;
   }
 
   /* List of unique events used for this dataset */
-  const std::vector<std::shared_ptr<urx::Event>>& uniqueEvents() const { return m_uniqueEvents; }
-  void addUniqueEvent(const std::shared_ptr<urx::Event>& event) { m_uniqueEvents.push_back(event); }
-  void setUniqueEvents(const std::vector<std::shared_ptr<urx::Event>>& uniqueEvents) {
+  const std::vector<std::shared_ptr<Event>>& uniqueEvents() const { return m_uniqueEvents; }
+  void addUniqueEvent(const std::shared_ptr<Event>& event) { m_uniqueEvents.push_back(event); }
+  void setUniqueEvents(const std::vector<std::shared_ptr<Event>>& uniqueEvents) {
     m_uniqueEvents = uniqueEvents;
   }
 
-  const std::vector<urx::TimedEvent>& sequence() const { return m_sequence; }
-  void addTimedEvent(const urx::TimedEvent& timedEvent) { m_sequence.push_back(timedEvent); }
-  void setSequence(const std::vector<urx::TimedEvent>& sequence) { m_sequence = sequence; }
+  const std::vector<TimedEvent>& sequence() const { return m_sequence; }
+  void addTimedEvent(const TimedEvent& timedEvent) { m_sequence.push_back(timedEvent); }
+  void setSequence(const std::vector<TimedEvent>& sequence) { m_sequence = sequence; }
 
   // data
   std::vector<DataType>& data() {
@@ -234,16 +234,16 @@ class ChannelData : public urx::Object {
   std::optional<MetadataType> m_repetitionRate = std::nullopt;
 
   // List of the probes used to transmit/recive the sequence
-  std::vector<std::shared_ptr<urx::Probe>> m_probes;
+  std::vector<std::shared_ptr<Probe>> m_probes;
 
   // List of the unique waves (or beams) used in the sequence
-  std::vector<std::shared_ptr<urx::Wave>> m_uniqueWaves;
+  std::vector<std::shared_ptr<Wave>> m_uniqueWaves;
 
   // List of the unique transmit/receive events used in the sequence
-  std::vector<std::shared_ptr<urx::Event>> m_uniqueEvents;
+  std::vector<std::shared_ptr<Event>> m_uniqueEvents;
 
   // List of the times_events that describe the sequence
-  std::vector<urx::TimedEvent> m_sequence;
+  std::vector<TimedEvent> m_sequence;
 
   // data[iFrame][iEvent][iChannel][iSample]
   std::vector<DataType> m_data;

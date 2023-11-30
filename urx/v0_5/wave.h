@@ -22,25 +22,25 @@ namespace urx::v0_5 {
 /**
  * @brief URX class to describe the geometry of a transmitted wave or beam
  */
-class Wave : public urx::Object {
-  URX_TYPE_MACRO(Wave, urx::Object);
+class Wave : public Object {
+  URX_TYPE_MACRO(Wave, Object);
 
  public:
   Wave() = default;
 
   void printSelf(std::ostream& os, const std::string& indent) const override;
 
-  const urx::Transform& origin() const { return m_origin; }
-  void setOrigin(const urx::Transform& origin) { m_origin = origin; }
+  const Transform& origin() const { return m_origin; }
+  void setOrigin(const Transform& origin) { m_origin = origin; }
 
-  const urx::WaveType& waveType() const { return m_waveType; }
-  void setWaveType(const urx::WaveType& waveType) { m_waveType = waveType; }
+  const WaveType& waveType() const { return m_waveType; }
+  void setWaveType(const WaveType& waveType) { m_waveType = waveType; }
 
-  const urx::Aperture& aperture() const { return m_aperture; }
-  void setAperture(const urx::Aperture& aperture) { m_aperture = aperture; }
+  const Aperture& aperture() const { return m_aperture; }
+  void setAperture(const Aperture& aperture) { m_aperture = aperture; }
 
-  const urx::Excitation& excitation() const { return m_excitation; }
-  void setExcitation(const urx::Excitation& excitation) { m_excitation = excitation; }
+  const Excitation& excitation() const { return m_excitation; }
+  void setExcitation(const Excitation& excitation) { m_excitation = excitation; }
 
   bool operator==(const Wave& other) const {
     return ((m_origin == other.m_origin) && (m_waveType == other.m_waveType) &&
@@ -51,16 +51,16 @@ class Wave : public urx::Object {
 
  private:
   // Geometric origin of the wave.
-  urx::Transform m_origin;
+  Transform m_origin;
 
   // enumerated type ( [0] -> converging, [1] -> diverging, [2]-> plane, [3]-> cylindrical, [4] -> photoacoustic)
-  urx::WaveType m_waveType = urx::WaveType::PLANE_WAVE;
+  WaveType m_waveType = WaveType::PLANE_WAVE;
 
   // Description of the aperture used to produce the wave
-  urx::Aperture m_aperture;
+  Aperture m_aperture;
 
   // [Optional] excitation waveform
-  urx::Excitation m_excitation;
+  Excitation m_excitation;
 };
 
 }  // namespace urx::v0_5

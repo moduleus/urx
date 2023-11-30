@@ -58,19 +58,18 @@ class MyStream {
 }  // namespace urx::v0_5
 
 #define LOG_THIS(LOG_LEVEL)    \
-  urx::MyStream(               \
+  MyStream(                    \
       ANDROID_LOG_##LOG_LEVEL, \
-      urx::GetTypeName<        \
+      GetTypeName<             \
           std::remove_reference_t<std::remove_pointer_t<std::remove_cv_t<decltype(this)>>>>())
-#define LOG_NO_THIS(LOG_LEVEL)                                                                    \
-  urx::MyStream(                                                                                  \
-      ANDROID_LOG_##LOG_LEVEL,                                                                    \
-      urx::ReplaceAll(                                                                            \
-          std::string{__PRETTY_FUNCTION__}                                                        \
-              .substr(0, std::string{__PRETTY_FUNCTION__}.find(__FUNCTION__ + std::string{"("}) + \
-                             sizeof(__FUNCTION__) - 1)                                            \
-              .substr(std::string{__PRETTY_FUNCTION__}.find(" ") + 1),                            \
-          "::", "."))
+#define LOG_NO_THIS(LOG_LEVEL)                                                                 \
+  MyStream(ANDROID_LOG_##LOG_LEVEL,                                                            \
+           ReplaceAll(std::string{__PRETTY_FUNCTION__}                                         \
+                          .substr(0, std::string{__PRETTY_FUNCTION__}.find(__FUNCTION__ +      \
+                                                                           std::string{"("}) + \
+                                         sizeof(__FUNCTION__) - 1)                             \
+                          .substr(std::string{__PRETTY_FUNCTION__}.find(" ") + 1),             \
+                      "::", "."))
 
 #else
 

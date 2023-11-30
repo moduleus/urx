@@ -24,8 +24,8 @@ namespace urx::v0_5 {
 /**
  * @brief The URX LinearArray class describes a linear array (1D)
  */
-class LinearArray : public urx::Probe {
-  URX_TYPE_MACRO(LinearArray, urx::Object);
+class LinearArray : public Probe {
+  URX_TYPE_MACRO(LinearArray, Object);
 
  public:
   explicit LinearArray(uint32_t numberElements) : m_numberElements(numberElements) {
@@ -54,7 +54,7 @@ class LinearArray : public urx::Probe {
     m_elementHeight = elementHeight;
   }
 
-  std::shared_ptr<urx::Probe> clone() override { return std::make_shared<urx::LinearArray>(*this); }
+  std::shared_ptr<Probe> clone() override { return std::make_shared<LinearArray>(*this); }
 
  private:
   // Update elements position
@@ -62,7 +62,7 @@ class LinearArray : public urx::Probe {
     m_elements.resize(m_numberElements);
     for (uint32_t i = 0; i < m_numberElements; ++i) {
       // element position
-      urx::Element element;
+      Element element;
       MetadataType xmin = -m_pitch * static_cast<float>(m_numberElements - 1) / 2.f;
       element.setX(xmin + i * m_pitch);
       element.setY(0.f);

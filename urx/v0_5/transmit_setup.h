@@ -23,20 +23,20 @@ namespace urx::v0_5 {
 /**
  * @brief The URX TransmitSetup class
  */
-class TransmitSetup : public urx::Object {
-  URX_TYPE_MACRO(TransmitSetup, urx::Object);
+class TransmitSetup : public Object {
+  URX_TYPE_MACRO(TransmitSetup, Object);
 
  public:
   TransmitSetup() = default;
 
   void printSelf(std::ostream& os, const std::string& indent) const override;
 
-  std::weak_ptr<urx::Probe> probe() const { return m_probe; }
-  void setProbe(std::weak_ptr<urx::Probe> probe) { m_probe = std::move(probe); }
+  std::weak_ptr<Probe> probe() const { return m_probe; }
+  void setProbe(std::weak_ptr<Probe> probe) { m_probe = std::move(probe); }
 
-  urx::TransmitWave getTransmitWave() const { return m_transmitWave; }
-  urx::TransmitWave& transmitWave() { return m_transmitWave; }
-  void setTransmitWave(const urx::TransmitWave& transmitWave) { m_transmitWave = transmitWave; }
+  TransmitWave getTransmitWave() const { return m_transmitWave; }
+  TransmitWave& transmitWave() { return m_transmitWave; }
+  void setTransmitWave(const TransmitWave& transmitWave) { m_transmitWave = transmitWave; }
 
   std::vector<int> channelMapping() const { return m_channelMapping; }
   void setChannelMapping(std::vector<int> channelMapping) {
@@ -54,10 +54,10 @@ class TransmitSetup : public urx::Object {
 
  private:
   // Reference to the probe use in transmission
-  std::weak_ptr<urx::Probe> m_probe;
+  std::weak_ptr<Probe> m_probe;
 
   // List of transmit waves used in this event with their respective time offset and weight
-  urx::TransmitWave m_transmitWave;
+  TransmitWave m_transmitWave;
 
   // Map of transmit channels to transducer elements
   std::vector<int> m_channelMapping;

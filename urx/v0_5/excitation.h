@@ -21,8 +21,8 @@ namespace urx::v0_5 {
 /**
  * @brief The URX Excitation class
  */
-class Excitation : public urx::Object {
-  URX_TYPE_MACRO(Excitation, urx::Object);
+class Excitation : public Object {
+  URX_TYPE_MACRO(Excitation, Object);
 
  public:
   Excitation() = default;

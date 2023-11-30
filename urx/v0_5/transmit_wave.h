@@ -21,8 +21,8 @@ namespace urx::v0_5 {
 /**
  * @brief The URX TransmitWave class
  */
-class TransmitWave : public urx::Object {
-  URX_TYPE_MACRO(TransmitWave, urx::Object);
+class TransmitWave : public Object {
+  URX_TYPE_MACRO(TransmitWave, Object);
 
  public:
   TransmitWave() = default;
@@ -30,8 +30,8 @@ class TransmitWave : public urx::Object {
   void printSelf(std::ostream& os, const std::string& indent) const override;
 
   /* */
-  std::weak_ptr<urx::Wave> wave() const { return m_wave; }
-  void setWave(std::weak_ptr<urx::Wave> wave) { m_wave = std::move(wave); }
+  std::weak_ptr<Wave> wave() const { return m_wave; }
+  void setWave(std::weak_ptr<Wave> wave) { m_wave = std::move(wave); }
 
   MetadataType timeOffset() const { return m_timeOffset; }
   void setTimeOffset(MetadataType timeOffset) { m_timeOffset = timeOffset; }
@@ -49,7 +49,7 @@ class TransmitWave : public urx::Object {
 
  private:
   // Reference to the geometry of the wave that was transmitted
-  std::weak_ptr<urx::Wave> m_wave;
+  std::weak_ptr<Wave> m_wave;
 
   // Time delay between the start of the event and the moment this wave reaches the closest element in the probe [s]. [Default = 0s]
   MetadataType m_timeOffset = 0.f;

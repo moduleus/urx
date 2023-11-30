@@ -39,7 +39,7 @@ void Reader<DataType>::printSelf(std::ostream& os, const std::string& indent) co
 
 template <typename DataType>
 void Reader<DataType>::updateMetadata() {
-  m_dataset = std::make_shared<urx::Dataset<DataType>>();
+  m_dataset = std::make_shared<Dataset<DataType>>();
   m_dataset->channelData().setSkipChannelDataData(m_skipChannelDataData);
 
   H5::Exception::dontPrint();
@@ -58,8 +58,8 @@ void Reader<DataType>::updateMetadata() {
 }
 
 template <typename DataType>
-urx::Aperture Reader<DataType>::readAperture(const H5::Group& group) {
-  urx::Aperture aperture;
+Aperture Reader<DataType>::readAperture(const H5::Group& group) {
+  Aperture aperture;
 
   // origin
   aperture.setOrigin(readTransform(group.openGroup("origin")));
@@ -81,7 +81,7 @@ urx::Aperture Reader<DataType>::readAperture(const H5::Group& group) {
 
 template <typename DataType>
 void Reader<DataType>::readChannelData(const H5::Group& group) {
-  urx::ChannelData<DataType>& channelData = m_dataset->channelData();
+  ChannelData<DataType>& channelData = m_dataset->channelData();
   channelData.setAuthors(readStringDataset(group, "authors"));
   channelData.setDescription(readStringDataset(group, "description"));
   channelData.setLocalTime(readStringDataset(group, "local_time"));
@@ -152,8 +152,8 @@ std::optional<MetadataType> Reader<DataType>::readOptionalMetadataTypeDataset(
 }
 
 template <typename DataType>
-urx::Element Reader<DataType>::readElement(const H5::Group& group) {
-  urx::Element element;
+Element Reader<DataType>::readElement(const H5::Group& group) {
+  Element element;
 
   element.setX(readOptionalMetadataTypeDataset(group, "x"));
   element.setY(readOptionalMetadataTypeDataset(group, "y"));
@@ -163,8 +163,8 @@ urx::Element Reader<DataType>::readElement(const H5::Group& group) {
 }
 
 template <typename DataType>
-std::vector<urx::Element> Reader<DataType>::readElementArray(const H5::Group& group) {
-  std::vector<urx::Element> elements;
+std::vector<Element> Reader<DataType>::readElementArray(const H5::Group& group) {
+  std::vector<Element> elements;
 
   char buf[9];
   int id = 1;
@@ -183,8 +183,8 @@ std::vector<urx::Element> Reader<DataType>::readElementArray(const H5::Group& gr
 }
 
 template <typename DataType>
-std::shared_ptr<urx::Event> Reader<DataType>::readEvent(const H5::Group& group) {
-  auto event = std::make_shared<urx::Event>();
+std::shared_ptr<Event> Reader<DataType>::readEvent(const H5::Group& group) {
+  auto event = std::make_shared<Event>();
 
   // "receive_setup"
   event->setReceiveSetup(readReceiveSetup(group.openGroup("receive_setup")));
@@ -196,8 +196,8 @@ std::shared_ptr<urx::Event> Reader<DataType>::readEvent(const H5::Group& group) 
 }
 
 template <typename DataType>
-std::vector<std::shared_ptr<urx::Event>> Reader<DataType>::readEventArray(const H5::Group& group) {
-  std::vector<std::shared_ptr<urx::Event>> events;
+std::vector<std::shared_ptr<Event>> Reader<DataType>::readEventArray(const H5::Group& group) {
+  std::vector<std::shared_ptr<Event>> events;
 
   char buf[9];
   int id = 1;
@@ -217,8 +217,8 @@ std::vector<std::shared_ptr<urx::Event>> Reader<DataType>::readEventArray(const 
 }
 
 template <typename DataType>
-urx::Excitation Reader<DataType>::readExcitation(const H5::Group& group) {
-  urx::Excitation excitation;
+Excitation Reader<DataType>::readExcitation(const H5::Group& group) {
+  Excitation excitation;
 
   // "pulse_shape"
   excitation.setPulseShape(readOptionalStringDataset(group, "pulse_shape"));
@@ -334,9 +334,8 @@ int Reader<DataType>::readIntegerDataset(const H5::Group& group, const std::stri
 }
 
 template <typename DataType>
-std::shared_ptr<urx::LinearArray> Reader<DataType>::readLinearArray(const H5::Group& group) {
-  auto linearArray =
-      std::make_shared<urx::LinearArray>(readIntegerDataset(group, "number_elements"));
+std::shared_ptr<LinearArray> Reader<DataType>::readLinearArray(const H5::Group& group) {
+  auto linearArray = std::make_shared<LinearArray>(readIntegerDataset(group, "number_elements"));
 
   // Read "pitch"
   linearArray->setPitch(readMetadataTypeDataset(group, "pitch"));
@@ -351,8 +350,8 @@ std::shared_ptr<urx::LinearArray> Reader<DataType>::readLinearArray(const H5::Gr
 }
 
 template <typename DataType>
-std::shared_ptr<urx::MatrixArray> Reader<DataType>::readMatrixArray(const H5::Group& group) {
-  auto matrixArray = std::make_shared<urx::MatrixArray>();
+std::shared_ptr<MatrixArray> Reader<DataType>::readMatrixArray(const H5::Group& group) {
+  auto matrixArray = std::make_shared<MatrixArray>();
 
   // Read "number_elements"
   matrixArray->setNumberElementsX(readIntegerDataset(group, "number_elements_x"));
@@ -373,8 +372,8 @@ std::shared_ptr<urx::MatrixArray> Reader<DataType>::readMatrixArray(const H5::Gr
 
 template <typename DataType>
 std::shared_ptr<RcaArray> Reader<DataType>::readRcaArray(const H5::Group& group) {
-  auto rcaArray = std::make_shared<urx::RcaArray>(readIntegerDataset(group, "number_elements_x"),
-                                                  readIntegerDataset(group, "number_elements_y"));
+  auto rcaArray = std::make_shared<RcaArray>(readIntegerDataset(group, "number_elements_x"),
+                                             readIntegerDataset(group, "number_elements_y"));
 
   // Read "pitch"
   rcaArray->setPitchX(readMetadataTypeDataset(group, "pitch_x"));
@@ -392,8 +391,8 @@ std::shared_ptr<RcaArray> Reader<DataType>::readRcaArray(const H5::Group& group)
 }
 
 template <typename DataType>
-std::shared_ptr<urx::Probe> Reader<DataType>::readProbe(const H5::Group& group) {
-  auto probe = std::make_shared<urx::Probe>();
+std::shared_ptr<Probe> Reader<DataType>::readProbe(const H5::Group& group) {
+  auto probe = std::make_shared<Probe>();
 
   // transform
   H5::Group transform = group.openGroup("transform");
@@ -449,8 +448,8 @@ std::shared_ptr<urx::Probe> Reader<DataType>::readProbe(const H5::Group& group) 
 }
 
 template <typename DataType>
-std::vector<std::shared_ptr<urx::Probe>> Reader<DataType>::readProbeArray(const H5::Group& group) {
-  std::vector<std::shared_ptr<urx::Probe>> probes;
+std::vector<std::shared_ptr<Probe>> Reader<DataType>::readProbeArray(const H5::Group& group) {
+  std::vector<std::shared_ptr<Probe>> probes;
 
   char buf[9];
   int id = 1;
@@ -469,8 +468,8 @@ std::vector<std::shared_ptr<urx::Probe>> Reader<DataType>::readProbeArray(const 
 }
 
 template <typename DataType>
-urx::ReceiveSetup Reader<DataType>::readReceiveSetup(const H5::Group& group) {
-  urx::ReceiveSetup receiveSetup;
+ReceiveSetup Reader<DataType>::readReceiveSetup(const H5::Group& group) {
+  ReceiveSetup receiveSetup;
 
   // "probe"
   int probeId = std::stoi(readStringDataset(group, "probe_id"));
@@ -483,20 +482,20 @@ urx::ReceiveSetup Reader<DataType>::readReceiveSetup(const H5::Group& group) {
   receiveSetup.setSamplingFrequency(readMetadataTypeDataset(group, "sampling_frequency"));
 
   // "sampling_type"
-  const urx::ReceiveSetup::SAMPLING_TYPE st =
-      static_cast<urx::ReceiveSetup::SAMPLING_TYPE>(readIntegerDataset(group, "sampling_type"));
+  const ReceiveSetup::SAMPLING_TYPE st =
+      static_cast<ReceiveSetup::SAMPLING_TYPE>(readIntegerDataset(group, "sampling_type"));
   switch (st) {
-    case urx::ReceiveSetup::SAMPLING_TYPE::DIRECT_RF:
-      receiveSetup.setSamplingType(urx::ReceiveSetup::SAMPLING_TYPE::DIRECT_RF);
+    case ReceiveSetup::SAMPLING_TYPE::DIRECT_RF:
+      receiveSetup.setSamplingType(ReceiveSetup::SAMPLING_TYPE::DIRECT_RF);
       break;
-    case urx::ReceiveSetup::SAMPLING_TYPE::IQ:
-      receiveSetup.setSamplingType(urx::ReceiveSetup::SAMPLING_TYPE::IQ);
+    case ReceiveSetup::SAMPLING_TYPE::IQ:
+      receiveSetup.setSamplingType(ReceiveSetup::SAMPLING_TYPE::IQ);
       break;
-    case urx::ReceiveSetup::SAMPLING_TYPE::QUADRATURE_4X_F0:
-      receiveSetup.setSamplingType(urx::ReceiveSetup::SAMPLING_TYPE::QUADRATURE_4X_F0);
+    case ReceiveSetup::SAMPLING_TYPE::QUADRATURE_4X_F0:
+      receiveSetup.setSamplingType(ReceiveSetup::SAMPLING_TYPE::QUADRATURE_4X_F0);
       break;
-    case urx::ReceiveSetup::SAMPLING_TYPE::QUADRATURE_2X_F0:
-      receiveSetup.setSamplingType(urx::ReceiveSetup::SAMPLING_TYPE::QUADRATURE_2X_F0);
+    case ReceiveSetup::SAMPLING_TYPE::QUADRATURE_2X_F0:
+      receiveSetup.setSamplingType(ReceiveSetup::SAMPLING_TYPE::QUADRATURE_2X_F0);
       break;
     default:
       LOG_THIS(ERROR) << "Unknow sampling type:" << static_cast<int>(st);
@@ -534,8 +533,8 @@ urx::ReceiveSetup Reader<DataType>::readReceiveSetup(const H5::Group& group) {
 }
 
 template <typename DataType>
-urx::Rotation Reader<DataType>::readRotation(const H5::Group& group) {
-  urx::Rotation rotation;
+Rotation Reader<DataType>::readRotation(const H5::Group& group) {
+  Rotation rotation;
 
   rotation.setX(readMetadataTypeDataset(group, "x"));
   rotation.setY(readMetadataTypeDataset(group, "y"));
@@ -568,8 +567,8 @@ std::optional<std::string> Reader<DataType>::readOptionalStringDataset(const H5:
 }
 
 template <typename DataType>
-urx::TimedEvent Reader<DataType>::readTimedEvent(const H5::Group& group) {
-  urx::TimedEvent timedEvent;
+TimedEvent Reader<DataType>::readTimedEvent(const H5::Group& group) {
+  TimedEvent timedEvent;
 
   // "event"
   int eventId = std::stoi(readStringDataset(group, "event_id"));
@@ -583,8 +582,8 @@ urx::TimedEvent Reader<DataType>::readTimedEvent(const H5::Group& group) {
 }
 
 template <typename DataType>
-std::vector<urx::TimedEvent> Reader<DataType>::readTimedEventArray(const H5::Group& group) {
-  std::vector<urx::TimedEvent> timedEvents;
+std::vector<TimedEvent> Reader<DataType>::readTimedEventArray(const H5::Group& group) {
+  std::vector<TimedEvent> timedEvents;
 
   char buf[9];
   int id = 1;
@@ -604,19 +603,19 @@ std::vector<urx::TimedEvent> Reader<DataType>::readTimedEventArray(const H5::Gro
 }
 
 template <typename DataType>
-urx::Transform Reader<DataType>::readTransform(const H5::Group& group) {
+Transform Reader<DataType>::readTransform(const H5::Group& group) {
   // rotation
-  urx::Rotation rotation = readRotation(group.openGroup("rotation"));
+  Rotation rotation = readRotation(group.openGroup("rotation"));
 
   // translation
-  urx::Translation translation = readTranslation(group.openGroup("translation"));
+  Translation translation = readTranslation(group.openGroup("translation"));
 
   return {rotation, translation};
 }
 
 template <typename DataType>
-urx::Translation Reader<DataType>::readTranslation(const H5::Group& group) {
-  urx::Translation translation;
+Translation Reader<DataType>::readTranslation(const H5::Group& group) {
+  Translation translation;
 
   translation.setX(readMetadataTypeDataset(group, "x"));
   translation.setY(readMetadataTypeDataset(group, "y"));
@@ -626,8 +625,8 @@ urx::Translation Reader<DataType>::readTranslation(const H5::Group& group) {
 }
 
 template <typename DataType>
-urx::TransmitSetup Reader<DataType>::readTransmitSetup(const H5::Group& group) {
-  urx::TransmitSetup transmitSetup;
+TransmitSetup Reader<DataType>::readTransmitSetup(const H5::Group& group) {
+  TransmitSetup transmitSetup;
 
   // "probe"
   int probeId = std::stoi(readStringDataset(group, "probe_id"));
@@ -648,8 +647,8 @@ urx::TransmitSetup Reader<DataType>::readTransmitSetup(const H5::Group& group) {
 }
 
 template <typename DataType>
-urx::TransmitWave Reader<DataType>::readTransmitWave(const H5::Group& group) {
-  urx::TransmitWave transmitWave;
+TransmitWave Reader<DataType>::readTransmitWave(const H5::Group& group) {
+  TransmitWave transmitWave;
 
   // "wave"
   int waveId = std::stoi(readStringDataset(group, "wave_id"));
@@ -669,31 +668,31 @@ void Reader<DataType>::readVersion(const H5::Group& group) {
   int major = readIntegerDataset(group, "major");
   int minor = readIntegerDataset(group, "minor");
   int patch = readIntegerDataset(group, "patch");
-  urx::Version version(major, minor, patch);
+  Version version(major, minor, patch);
   m_dataset->setVersion(version);
 }
 
 template <typename DataType>
-std::shared_ptr<urx::Wave> Reader<DataType>::readWave(const H5::Group& group) {
-  auto wave = std::make_shared<urx::Wave>();
+std::shared_ptr<Wave> Reader<DataType>::readWave(const H5::Group& group) {
+  auto wave = std::make_shared<Wave>();
 
   // write "origin"
   wave->setOrigin(readTransform(group.openGroup("origin")));
 
   // write "wave_type"
-  const urx::WaveType wt = static_cast<urx::WaveType>(readIntegerDataset(group, "wave_type"));
+  const WaveType wt = static_cast<WaveType>(readIntegerDataset(group, "wave_type"));
   switch (wt) {
-    case urx::WaveType::CONVERGING_WAVE:
-      wave->setWaveType(urx::WaveType::CONVERGING_WAVE);
+    case WaveType::CONVERGING_WAVE:
+      wave->setWaveType(WaveType::CONVERGING_WAVE);
       break;
-    case urx::WaveType::CYLINDRICAL_WAVE:
-      wave->setWaveType(urx::WaveType::CYLINDRICAL_WAVE);
+    case WaveType::CYLINDRICAL_WAVE:
+      wave->setWaveType(WaveType::CYLINDRICAL_WAVE);
       break;
-    case urx::WaveType::DIVERGING_WAVE:
-      wave->setWaveType(urx::WaveType::DIVERGING_WAVE);
+    case WaveType::DIVERGING_WAVE:
+      wave->setWaveType(WaveType::DIVERGING_WAVE);
       break;
-    case urx::WaveType::PLANE_WAVE:
-      wave->setWaveType(urx::WaveType::PLANE_WAVE);
+    case WaveType::PLANE_WAVE:
+      wave->setWaveType(WaveType::PLANE_WAVE);
       break;
     default:
       // TODO: unknown wave type ?!?
@@ -710,8 +709,8 @@ std::shared_ptr<urx::Wave> Reader<DataType>::readWave(const H5::Group& group) {
 }
 
 template <typename DataType>
-std::vector<std::shared_ptr<urx::Wave>> Reader<DataType>::readWaveArray(const H5::Group& group) {
-  std::vector<std::shared_ptr<urx::Wave>> waves;
+std::vector<std::shared_ptr<Wave>> Reader<DataType>::readWaveArray(const H5::Group& group) {
+  std::vector<std::shared_ptr<Wave>> waves;
 
   char buf[9];
   int id = 1;

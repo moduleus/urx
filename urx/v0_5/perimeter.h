@@ -19,11 +19,11 @@ namespace urx::v0_5 {
 
 /**
  * @brief The URX Perimeter class
- * TODO: replace std<<>> by urx::Position
+ * TODO: replace std<<>> by Position
  * TODO: << operator for adding points to perimeter
  */
-class Perimeter : public urx::Object {
-  URX_TYPE_MACRO(Perimeter, urx::Object);
+class Perimeter : public Object {
+  URX_TYPE_MACRO(Perimeter, Object);
 
  public:
   Perimeter() = default;

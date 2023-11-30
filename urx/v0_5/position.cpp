@@ -8,7 +8,7 @@
 
 namespace urx::v0_5 {
 
-std::ostream& operator<<(std::ostream& os, const urx::Position& p) {
+std::ostream& operator<<(std::ostream& os, const Position& p) {
   os << "Position(" << p.x() << ", " << p.y() << ", " << p.z() << ')';
   return os;
 }

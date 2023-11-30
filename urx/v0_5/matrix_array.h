@@ -26,8 +26,8 @@ namespace urx::v0_5 {
  * Element[0] has the minimum x/y coordinates. Element[1] has the same y-coordinates as
  * element[0] but a higher x-coordinates.
  */
-class MatrixArray : public urx::Probe {
-  URX_TYPE_MACRO(MatrixArray, urx::Object);
+class MatrixArray : public Probe {
+  URX_TYPE_MACRO(MatrixArray, Object);
 
  public:
   MatrixArray() = default;
@@ -74,7 +74,7 @@ class MatrixArray : public urx::Probe {
     m_elementHeight = elementHeight;
   }
 
-  std::shared_ptr<urx::Probe> clone() override { return std::make_shared<urx::MatrixArray>(*this); }
+  std::shared_ptr<Probe> clone() override { return std::make_shared<MatrixArray>(*this); }
 
  private:
   // Update elements position
@@ -85,7 +85,7 @@ class MatrixArray : public urx::Probe {
     MetadataType ymin = -m_pitchY * (m_numberElementsY - 1.f) / 2.f;
     for (uint32_t i = 0; i < m_numberElementsY; i++) {
       for (uint32_t j = 0; j < m_numberElementsX; j++) {
-        urx::Element element;
+        Element element;
         element.setX(xmin + j * m_pitchX);
         element.setY(ymin + i * m_pitchY);
         element.setZ(0.f);

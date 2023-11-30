@@ -21,16 +21,16 @@ namespace urx::v0_5 {
 /**
  * @brief The URX TimedEvent class
  */
-class TimedEvent : public urx::Object {
-  URX_TYPE_MACRO(TimedEvent, urx::Object);
+class TimedEvent : public Object {
+  URX_TYPE_MACRO(TimedEvent, Object);
 
  public:
   TimedEvent() = default;
 
   void printSelf(std::ostream& os, const std::string& indent) const override;
 
-  std::weak_ptr<urx::Event> evenement() const { return m_event; }
-  void setEvent(std::weak_ptr<urx::Event> event) { m_event = std::move(event); }
+  std::weak_ptr<Event> evenement() const { return m_event; }
+  void setEvent(std::weak_ptr<Event> event) { m_event = std::move(event); }
 
   MetadataType timeOffset() const { return m_timeOffset; }
   void setTimeOffset(MetadataType timeOffset) { m_timeOffset = timeOffset; }
@@ -45,7 +45,7 @@ class TimedEvent : public urx::Object {
 
  private:
   //    Reference to one of the unique transmit/receive events used in the sequence.
-  std::weak_ptr<urx::Event> m_event;
+  std::weak_ptr<Event> m_event;
 
   // time offset relative to start of the sequence repetition (frame) [s]
   MetadataType m_timeOffset = 0.f;

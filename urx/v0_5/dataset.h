@@ -30,25 +30,23 @@ namespace urx::v0_5 {
  * @brief The URX Dataset class
  */
 template <typename DataType>
-class Dataset : public urx::Object {
-  URX_TYPE_MACRO(Dataset, urx::Object);
+class Dataset : public Object {
+  URX_TYPE_MACRO(Dataset, Object);
 
  public:
   Dataset() = default;
 
   void printSelf(std::ostream& os, const std::string& indent) const override;
 
-  urx::ChannelData<DataType>& channelData() { return m_channelData; }
-  const urx::ChannelData<DataType>& channelData() const { return m_channelData; }
-  void setChannelData(const urx::ChannelData<DataType>& channelData) {
-    m_channelData = channelData;
-  }
-  void setChannelData(urx::ChannelData<DataType>&& channelData) {
+  ChannelData<DataType>& channelData() { return m_channelData; }
+  const ChannelData<DataType>& channelData() const { return m_channelData; }
+  void setChannelData(const ChannelData<DataType>& channelData) { m_channelData = channelData; }
+  void setChannelData(ChannelData<DataType>&& channelData) {
     m_channelData = std::move(channelData);
   }
 
-  const urx::Version& version() const { return m_version; }
-  void setVersion(const urx::Version& version) { m_version = version; }
+  const Version& version() const { return m_version; }
+  void setVersion(const Version& version) { m_version = version; }
 
   // ___________________ Convenience access method ___________________________________
 
@@ -75,9 +73,9 @@ class Dataset : public urx::Object {
   }
 
   // Returns the type of sampling of the 1st ReceiveSetup
-  urx::ReceiveSetup::SAMPLING_TYPE getSamplingType() const {
+  ReceiveSetup::SAMPLING_TYPE getSamplingType() const {
     if (m_channelData.uniqueEvents().empty()) {
-      return urx::ReceiveSetup::SAMPLING_TYPE::DIRECT_RF;
+      return ReceiveSetup::SAMPLING_TYPE::DIRECT_RF;
     }
     return m_channelData.uniqueEvents()[0]->receiveSetup().samplingType();
   }
@@ -103,7 +101,7 @@ class Dataset : public urx::Object {
   }
 
   // Returns true is the 1st probe is of sub-type 'ProbeType'
-  // Example: isProbeType<urx::MatrixArray>() == true;
+  // Example: isProbeType<MatrixArray>() == true;
   template <class ProbeType>
   bool isProbeType() const {
     if (m_channelData.probes().empty()) {
@@ -123,8 +121,8 @@ class Dataset : public urx::Object {
   Dataset& operator=(Dataset&& other) noexcept = default;
 
  private:
-  urx::Version m_version;
-  urx::ChannelData<DataType> m_channelData;
+  Version m_version;
+  ChannelData<DataType> m_channelData;
 };
 
 }  // namespace urx::v0_5

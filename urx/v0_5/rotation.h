@@ -19,8 +19,8 @@ namespace urx::v0_5 {
  * @brief The URX Rotation class contains a rotation in space in spherical coordinates and SI units. 
  * The rotation is specified using Euler angles that are applied in the order ZYX.
  */
-class Rotation : public urx::Object {
-  URX_TYPE_MACRO(Rotation, urx::Object);
+class Rotation : public Object {
+  URX_TYPE_MACRO(Rotation, Object);
 
  public:
   explicit Rotation(MetadataType rx = 0.f, MetadataType ry = 0.f, MetadataType rz = 0.f) {
