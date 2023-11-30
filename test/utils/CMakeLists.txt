@@ -1,12 +1,12 @@
-set(UFF_TEST_FILES reader.cpp time_helper.cpp group_data_reader.cpp)
+set(URX_TEST_FILES reader.cpp time_helper.cpp group_data_reader.cpp)
 
-add_executable(UffUtilsTest ${UFF_TEST_FILES})
+add_executable(UrxUtilsTest ${URX_TEST_FILES})
 
-target_include_directories(UffUtilsTest PUBLIC ${PROJECT_SOURCE_DIR}/uff
-                                               ${PROJECT_SOURCE_DIR}/uff_utils)
+target_include_directories(UrxUtilsTest PUBLIC ${PROJECT_SOURCE_DIR}/urx
+                                               ${PROJECT_SOURCE_DIR}/urx_utils)
 
 target_link_libraries(
-  UffUtilsTest PRIVATE Uff::Uff Uff::UffUtils ${HDF5_CXX_LIBRARIES}
+  UrxUtilsTest PRIVATE Urx::Urx Urx::UrxUtils ${HDF5_CXX_LIBRARIES}
                        Catch2::Catch2WithMain)
 
-catch_discover_tests(UffUtilsTest)
+catch_discover_tests(UrxUtilsTest)

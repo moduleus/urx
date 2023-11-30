@@ -12,28 +12,28 @@
 #include <catch2/catch_test_macros.hpp>
 #include <detail/raw_data.h>
 
-#include <uff/event.h>
-#include <uff/group.h>
-#include <uff/group_data.h>
-#include <uff/receive_setup.h>
-#include <uff_utils/group_data_reader.h>
+#include <urx/event.h>
+#include <urx/group.h>
+#include <urx/group_data.h>
+#include <urx/receive_setup.h>
+#include <urx_utils/group_data_reader.h>
 
-namespace uff::test {
+namespace urx::test {
 
 TEST_CASE("Read back group data complex float data", "[group_data]") {
   using CompInt32 = std::complex<int32_t>;
 
-  auto group = std::make_shared<uff::Group>();
-  group->sampling_type = uff::Group::SamplingType::IQ;
-  group->data_type = uff::Group::DataType::INT32;
+  auto group = std::make_shared<urx::Group>();
+  group->sampling_type = urx::Group::SamplingType::IQ;
+  group->data_type = urx::Group::DataType::INT32;
 
   auto& sequence = group->sequence;
 
-  auto receive_setup_c_3_s_2 = uff::ReceiveSetup();
+  auto receive_setup_c_3_s_2 = urx::ReceiveSetup();
   receive_setup_c_3_s_2.channel_mapping.resize(3);
   receive_setup_c_3_s_2.number_samples = 2;
 
-  auto receive_setup_c_4_s_3 = uff::ReceiveSetup();
+  auto receive_setup_c_4_s_3 = urx::ReceiveSetup();
   receive_setup_c_4_s_3.channel_mapping.resize(4);
   receive_setup_c_4_s_3.number_samples = 3;
 
@@ -45,7 +45,7 @@ TEST_CASE("Read back group data complex float data", "[group_data]") {
   sequence[3].receive_setup = receive_setup_c_3_s_2;
   sequence[4].receive_setup = receive_setup_c_3_s_2;
 
-  uff::GroupData group_data;
+  urx::GroupData group_data;
   group_data.group = group;
   const int n_frames = 3;
   const int size = n_frames * 42;  // (42 = 3*2*3+4*3*2)
@@ -58,7 +58,7 @@ TEST_CASE("Read back group data complex float data", "[group_data]") {
   group_data.raw_data.buffer = raw_data_ptr;
   group_data.raw_data.size = size;
 
-  uff::GroupDataReader group_data_reader{group_data};
+  urx::GroupDataReader group_data_reader{group_data};
 
   REQUIRE(group_data_reader.framesCount() == n_frames);
   REQUIRE(group_data_reader.eventsCount() == n_events);
@@ -92,4 +92,4 @@ TEST_CASE("Read back group data complex float data", "[group_data]") {
   }
 }
 
-}  // namespace uff::test
+}  // namespace urx::test

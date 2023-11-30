@@ -6,11 +6,11 @@ ReflowComments: false
 PointerAlignment: Left
 IncludeBlocks: Regroup
 IncludeCategories:
-  - Regex: '^<uff/.*\.h>'
+  - Regex: '^<urx/.*\.h>'
     Priority: 4
     SortPriority: 0
     CaseSensitive: true
-  - Regex: '^<uff_utils/.*\.h>'
+  - Regex: '^<urx_utils/.*\.h>'
     Priority: 4
     SortPriority: 0
     CaseSensitive: true

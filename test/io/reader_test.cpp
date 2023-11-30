@@ -2,9 +2,9 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <uff/dataset.h>
+#include <urx/dataset.h>
 
-namespace uff::test {
+namespace urx::test {
 
 TEST_CASE("Load HDF5 file", "[hdf5_loader]") {
   /*
@@ -14,9 +14,9 @@ TEST_CASE("Load HDF5 file", "[hdf5_loader]") {
   constexpr uint8_t NB_PW = 1;
   */
 
-  auto dataset = std::make_shared<uff::Dataset>();
+  auto dataset = std::make_shared<urx::Dataset>();
 
-  // uff::ChannelData<float>& channelData = dataset->channelData();
+  // urx::ChannelData<float>& channelData = dataset->channelData();
   // channelData.setAuthors("Unknown");
   // channelData.setDescription("Missing description");
   // channelData.setLocalTime("1970-01-01T00:00:00");
@@ -39,7 +39,7 @@ TEST_CASE("Load HDF5 file", "[hdf5_loader]") {
 
   // // Probe RCA
   // // RCA made of 2 linear array
-  // auto probe = std::make_shared<uff::RcaArray>(channelData.numberOfChannels(),
+  // auto probe = std::make_shared<urx::RcaArray>(channelData.numberOfChannels(),
   //                                              channelData.numberOfChannels());
   // double pitch_x = 0.42;
   // probe->setPitchX(pitch_x);
@@ -56,41 +56,41 @@ TEST_CASE("Load HDF5 file", "[hdf5_loader]") {
   // }
 
   // // Receive setup
-  // uff::ReceiveSetup receiveSetup_y;
+  // urx::ReceiveSetup receiveSetup_y;
   // receiveSetup_y.setProbe(probe);
   // receiveSetup_y.setTimeOffset(0);
   // receiveSetup_y.setSamplingFrequency(dataset->samplingFrequency());
   // receiveSetup_y.setChannelMapping(mapping_y);
 
-  // std::vector<uff::Event> sequence;
+  // std::vector<urx::Event> sequence;
 
   // // Plane waves
   // for (int pw = 0; pw < NB_PW; ++pw) {
   //   // plane wave. origin.translation is the direction vector
-  //   auto wave = std::make_shared<uff::Wave>();
-  //   wave->setWaveType(uff::WaveType::PLANE_WAVE);
-  //   wave->setOrigin(uff::Transform(uff::Rotation(), uff::Vector3D<double>()));
+  //   auto wave = std::make_shared<urx::Wave>();
+  //   wave->setWaveType(urx::WaveType::PLANE_WAVE);
+  //   wave->setOrigin(urx::Transform(urx::Rotation(), urx::Vector3D<double>()));
 
-  //   uff::Excitation excitation;
+  //   urx::Excitation excitation;
   //   excitation.setTransmitFrequency(dataset->transmitFrequency());
   //   wave->setExcitation(excitation);
   //   channelData.addUniqueWave(wave);
 
-  //   uff::TransmitWave transmitWave;
+  //   urx::TransmitWave transmitWave;
   //   transmitWave.setWave(wave);
   //   transmitWave.setTimeOffset(0.);
 
-  //   uff::TransmitSetup transmitSetup;
+  //   urx::TransmitSetup transmitSetup;
   //   transmitSetup.setProbe(probe);
   //   transmitSetup.setTransmitWave(transmitWave);
 
-  //   auto event = std::make_shared<uff::Event>();
+  //   auto event = std::make_shared<urx::Event>();
   //   event->setTransmitSetup(transmitSetup);
   //   event->setReceiveSetup(receiveSetup_y);
   //   channelData.addUniqueEvent(event);
 
   //   // plane-waves have 125us delay
-  //   uff::Event Event;
+  //   urx::Event Event;
   //   Event.setEvent(event);
   //   Event.setTimeOffset(pw * 125e-6);
 
@@ -102,19 +102,19 @@ TEST_CASE("Load HDF5 file", "[hdf5_loader]") {
 
   // dataset->setChannelData(channelData);
 
-  // std::string filename = "tmp.uff";
-  // uff::Writer<float> floatWriter;
-  // uff::Reader<float> floatReader;
+  // std::string filename = "tmp.urx";
+  // urx::Writer<float> floatWriter;
+  // urx::Reader<float> floatReader;
 
   // floatWriter.setFileName(filename);
   // floatWriter.setDataset(dataset);
   // floatWriter.writeToFile();
 
-  // std::shared_ptr<uff::Dataset<short>> readShortDataset =
-  //     uff::Reader<short>::loadFile(filename, true, false);
+  // std::shared_ptr<urx::Dataset<short>> readShortDataset =
+  //     urx::Reader<short>::loadFile(filename, true, false);
   // floatReader.setFileName(filename);
   // floatReader.updateMetadata();
-  // std::shared_ptr<uff::Dataset<float>> readFloatDataset = floatReader.dataset();
+  // std::shared_ptr<urx::Dataset<float>> readFloatDataset = floatReader.dataset();
 
   // const std::vector<short>& shortVec = readShortDataset->channelData().data();
   // const std::vector<float>& floatVec = readFloatDataset->channelData().data();
@@ -140,12 +140,12 @@ TEST_CASE("Load HDF5 file", "[hdf5_loader]") {
   // REQUIRE(std::isnan(channelData.samplingFrequency()));
   // REQUIRE(std::isnan(readShortDataset->transmitFrequency()));
   // REQUIRE(std::isnan(channelData.transmitFrequency()));
-  // REQUIRE(readShortDataset->isProbeType<uff::RcaArray>());
-  // REQUIRE(channelData.isProbeType<uff::RcaArray>());
-  // REQUIRE(!readShortDataset->isProbeType<uff::MatrixArray>());
-  // REQUIRE(!channelData.isProbeType<uff::MatrixArray>());
-  // REQUIRE(!readShortDataset->isProbeType<uff::LinearArray>());
-  // REQUIRE(!channelData.isProbeType<uff::LinearArray>());
+  // REQUIRE(readShortDataset->isProbeType<urx::RcaArray>());
+  // REQUIRE(channelData.isProbeType<urx::RcaArray>());
+  // REQUIRE(!readShortDataset->isProbeType<urx::MatrixArray>());
+  // REQUIRE(!channelData.isProbeType<urx::MatrixArray>());
+  // REQUIRE(!readShortDataset->isProbeType<urx::LinearArray>());
+  // REQUIRE(!channelData.isProbeType<urx::LinearArray>());
 }
 
-}  // namespace uff::test
+}  // namespace urx::test

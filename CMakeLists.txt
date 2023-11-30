@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.9)
 
 project(
-  Uff
+  Urx
   VERSION 0.6.8
   LANGUAGES C CXX
   DESCRIPTION "Ultrasound File Format C++ implementation")
@@ -79,7 +79,7 @@ option(WITH_MATLAB "Build Matlab wrappers" OFF)
 option(WITH_PYTHON "Build Python module" OFF)
 option(WITH_TEST "Build unit tests" OFF)
 
-add_subdirectory("uff")
+add_subdirectory("urx")
 
 if(WITH_PYTHON)
   find_package(
@@ -89,7 +89,7 @@ if(WITH_PYTHON)
   find_package(pybind11 CONFIG REQUIRED)
 endif()
 
-add_subdirectory("uff_utils")
+add_subdirectory("urx_utils")
 
 if(WITH_MATLAB)
   find_package(Matlab REQUIRED)
@@ -106,8 +106,8 @@ if(WITH_TEST)
   add_subdirectory(test)
 endif()
 
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${UFF_SRCS}
-                                                    ${UFF_UTILS_SRCS})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${URX_SRCS}
+                                                    ${URX_UTILS_SRCS})
 
 # Create cmake config files ###
 write_basic_package_version_file(

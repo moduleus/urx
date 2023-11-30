@@ -3,9 +3,9 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <uff_utils/time_helper.h>
+#include <urx_utils/time_helper.h>
 
-namespace uff::test {
+namespace urx::test {
 
 TEST_CASE("CHECK_ISO8601", "[DATE ISO]") {
   REQUIRE(isIso8601("2008-09-12T15:53:00"));
@@ -44,4 +44,4 @@ TEST_CASE("CHECK_NOT_ISO3166", "[DATE ISO]") {
   REQUIRE(!isIso3166(""));
 }
 
-}  // namespace uff::test
+}  // namespace urx::test

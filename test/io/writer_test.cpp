@@ -7,32 +7,32 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <uff/acquisition.h>
-#include <uff/dataset.h>
-#include <uff/detail/compare.h>
-#include <uff/detail/double_nan.h>
-#include <uff/detail/raw_data.h>
-#include <uff/element.h>
-#include <uff/element_geometry.h>
-#include <uff/event.h>
-#include <uff/excitation.h>
-#include <uff/group.h>
-#include <uff/group_data.h>
-#include <uff/impulse_response.h>
-#include <uff/probe.h>
-#include <uff/receive_setup.h>
-#include <uff/transform.h>
-#include <uff/transmit_setup.h>
-#include <uff/vector.h>
-#include <uff/version.h>
-#include <uff/wave.h>
-#include <uff_utils/io/reader.h>
-#include <uff_utils/io/writer.h>
+#include <urx/acquisition.h>
+#include <urx/dataset.h>
+#include <urx/detail/compare.h>
+#include <urx/detail/double_nan.h>
+#include <urx/detail/raw_data.h>
+#include <urx/element.h>
+#include <urx/element_geometry.h>
+#include <urx/event.h>
+#include <urx/excitation.h>
+#include <urx/group.h>
+#include <urx/group_data.h>
+#include <urx/impulse_response.h>
+#include <urx/probe.h>
+#include <urx/receive_setup.h>
+#include <urx/transform.h>
+#include <urx/transmit_setup.h>
+#include <urx/vector.h>
+#include <urx/version.h>
+#include <urx/wave.h>
+#include <urx_utils/io/reader.h>
+#include <urx_utils/io/writer.h>
 
-namespace uff::test {
+namespace urx::test {
 
 TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
-  auto dataset = std::make_shared<uff::Dataset>();
+  auto dataset = std::make_shared<urx::Dataset>();
 
   dataset->version.major = 123;
   dataset->version.minor = 456;
@@ -48,7 +48,7 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
   {
     auto probe = std::make_shared<Probe>();
     probe->description = "Probe 1";
-    probe->type = uff::Probe::ProbeType::MATRIX;
+    probe->type = urx::Probe::ProbeType::MATRIX;
     probe->transform.rotation.x = 1;
     probe->transform.rotation.y = 2;
     probe->transform.rotation.z = 3;
@@ -109,7 +109,7 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
 
     probe = std::make_shared<Probe>();
     probe->description = "Probe 2";
-    probe->type = uff::Probe::ProbeType::SPARSE;
+    probe->type = urx::Probe::ProbeType::SPARSE;
     probe->transform.rotation.x = 3;
     probe->transform.rotation.y = 4;
     probe->transform.rotation.z = 5;
@@ -188,7 +188,7 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
 
   {
     auto wave = std::make_shared<Wave>();
-    wave->type = uff::Wave::WaveType::CYLINDRICAL_WAVE;
+    wave->type = urx::Wave::WaveType::CYLINDRICAL_WAVE;
     wave->time_zero_reference_point.x = 3;
     wave->time_zero_reference_point.y = 4;
     wave->time_zero_reference_point.z = 5;
@@ -211,7 +211,7 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
     dataset->acquisition.waves.push_back(wave);
 
     wave = std::make_shared<Wave>();
-    wave->type = uff::Wave::WaveType::CONVERGING_WAVE;
+    wave->type = urx::Wave::WaveType::CONVERGING_WAVE;
     wave->time_zero_reference_point.x = 5;
     wave->time_zero_reference_point.y = 4;
     wave->time_zero_reference_point.z = 4;
@@ -234,9 +234,9 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
   }
 
   {
-    auto group = std::make_shared<uff::Group>();
-    group->sampling_type = uff::Group::SamplingType::IQ;
-    group->data_type = uff::Group::DataType::INT16;
+    auto group = std::make_shared<urx::Group>();
+    group->sampling_type = urx::Group::SamplingType::IQ;
+    group->data_type = urx::Group::DataType::INT16;
     {
       Event event;
       event.transmit_setup.probe = dataset->acquisition.probes[0];
@@ -296,9 +296,9 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
     group->description = "group description";
     dataset->acquisition.groups.push_back(group);
 
-    group = std::make_shared<uff::Group>();
-    group->sampling_type = uff::Group::SamplingType::RF;
-    group->data_type = uff::Group::DataType::DOUBLE;
+    group = std::make_shared<urx::Group>();
+    group->sampling_type = urx::Group::SamplingType::RF;
+    group->data_type = urx::Group::DataType::DOUBLE;
     {
       Event event;
       event.transmit_setup.probe = dataset->acquisition.probes[1];
@@ -399,9 +399,9 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
     dataset->acquisition.groups_data.push_back(group_data);
   }
 
-  uff::Writer::saveToFile("writer.uff", *dataset);
+  urx::Writer::saveToFile("writer.urx", *dataset);
 
-  auto dataset_loaded = uff::Reader::loadFromFile("writer.uff");
+  auto dataset_loaded = urx::Reader::loadFromFile("writer.urx");
 
   REQUIRE(dataset_loaded->acquisition.probes == dataset->acquisition.probes);
   REQUIRE(dataset_loaded->acquisition.excitations == dataset->acquisition.excitations);
@@ -410,7 +410,7 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
   REQUIRE(dataset_loaded->acquisition.groups_data == dataset->acquisition.groups_data);
   REQUIRE(*dataset_loaded == *dataset);
 
-  // uff::ChannelData<float>& channelData = dataset->channelData();
+  // urx::ChannelData<float>& channelData = dataset->channelData();
   // channelData.setAuthors("Unknown");
   // channelData.setDescription("Missing description");
   // channelData.setLocalTime("1970-01-01T00:00:00");
@@ -433,7 +433,7 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
 
   // // Probe RCA
   // // RCA made of 2 linear array
-  // auto probe = std::make_shared<uff::RcaArray>(channelData.numberOfChannels(),
+  // auto probe = std::make_shared<urx::RcaArray>(channelData.numberOfChannels(),
   //                                              channelData.numberOfChannels());
   // double pitch_x = 0.42;
   // probe->setPitchX(pitch_x);
@@ -450,41 +450,41 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
   // }
 
   // // Receive setup
-  // uff::ReceiveSetup receiveSetup_y;
+  // urx::ReceiveSetup receiveSetup_y;
   // receiveSetup_y.setProbe(probe);
   // receiveSetup_y.setTimeOffset(0);
   // receiveSetup_y.setSamplingFrequency(dataset->samplingFrequency());
   // receiveSetup_y.setChannelMapping(mapping_y);
 
-  // std::vector<uff::Event> sequence;
+  // std::vector<urx::Event> sequence;
 
   // // Plane waves
   // for (int pw = 0; pw < NB_PW; ++pw) {
   //   // plane wave. origin.translation is the direction vector
-  //   auto wave = std::make_shared<uff::Wave>();
-  //   wave->setWaveType(uff::WaveType::PLANE_WAVE);
-  //   wave->setOrigin(uff::Transform(uff::Rotation(), uff::Vector3D<double>()));
+  //   auto wave = std::make_shared<urx::Wave>();
+  //   wave->setWaveType(urx::WaveType::PLANE_WAVE);
+  //   wave->setOrigin(urx::Transform(urx::Rotation(), urx::Vector3D<double>()));
 
-  //   uff::Excitation excitation;
+  //   urx::Excitation excitation;
   //   excitation.setTransmitFrequency(dataset->transmitFrequency());
   //   wave->setExcitation(excitation);
   //   channelData.addUniqueWave(wave);
 
-  //   uff::TransmitWave transmitWave;
+  //   urx::TransmitWave transmitWave;
   //   transmitWave.setWave(wave);
   //   transmitWave.setTimeOffset(0.);
 
-  //   uff::TransmitSetup transmitSetup;
+  //   urx::TransmitSetup transmitSetup;
   //   transmitSetup.setProbe(probe);
   //   transmitSetup.setTransmitWave(transmitWave);
 
-  //   auto event = std::make_shared<uff::Event>();
+  //   auto event = std::make_shared<urx::Event>();
   //   event->setTransmitSetup(transmitSetup);
   //   event->setReceiveSetup(receiveSetup_y);
   //   channelData.addUniqueEvent(event);
 
   //   // plane-waves have 125us delay
-  //   uff::Event Event;
+  //   urx::Event Event;
   //   Event.setEvent(event);
   //   Event.setTimeOffset(pw * 125e-6);
 
@@ -496,19 +496,19 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
 
   // dataset->setChannelData(channelData);
 
-  // std::string filename = "tmp.uff";
-  // uff::Writer<float> floatWriter;
-  // uff::Reader<float> floatReader;
+  // std::string filename = "tmp.urx";
+  // urx::Writer<float> floatWriter;
+  // urx::Reader<float> floatReader;
 
   // floatWriter.setFileName(filename);
   // floatWriter.setDataset(dataset);
   // floatWriter.writeToFile();
 
-  // std::shared_ptr<uff::Dataset<short>> readShortDataset =
-  //     uff::Reader<short>::loadFile(filename, true, false);
+  // std::shared_ptr<urx::Dataset<short>> readShortDataset =
+  //     urx::Reader<short>::loadFile(filename, true, false);
   // floatReader.setFileName(filename);
   // floatReader.updateMetadata();
-  // std::shared_ptr<uff::Dataset<float>> readFloatDataset = floatReader.dataset();
+  // std::shared_ptr<urx::Dataset<float>> readFloatDataset = floatReader.dataset();
 
   // const std::vector<short>& shortVec = readShortDataset->channelData().data();
   // const std::vector<float>& floatVec = readFloatDataset->channelData().data();
@@ -534,12 +534,12 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
   // REQUIRE(std::isnan(channelData.samplingFrequency()));
   // REQUIRE(std::isnan(readShortDataset->transmitFrequency()));
   // REQUIRE(std::isnan(channelData.transmitFrequency()));
-  // REQUIRE(readShortDataset->isProbeType<uff::RcaArray>());
-  // REQUIRE(channelData.isProbeType<uff::RcaArray>());
-  // REQUIRE(!readShortDataset->isProbeType<uff::MatrixArray>());
-  // REQUIRE(!channelData.isProbeType<uff::MatrixArray>());
-  // REQUIRE(!readShortDataset->isProbeType<uff::LinearArray>());
-  // REQUIRE(!channelData.isProbeType<uff::LinearArray>());
+  // REQUIRE(readShortDataset->isProbeType<urx::RcaArray>());
+  // REQUIRE(channelData.isProbeType<urx::RcaArray>());
+  // REQUIRE(!readShortDataset->isProbeType<urx::MatrixArray>());
+  // REQUIRE(!channelData.isProbeType<urx::MatrixArray>());
+  // REQUIRE(!readShortDataset->isProbeType<urx::LinearArray>());
+  // REQUIRE(!channelData.isProbeType<urx::LinearArray>());
 }
 
-}  // namespace uff::test
+}  // namespace urx::test

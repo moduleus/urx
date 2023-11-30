@@ -34,24 +34,24 @@ doc:PlantUml:
   image: $CI_REGISTRY/common/ci/dockerci/hpp2plantuml:latest
   script:
     - mkdir -p doc/plantuml
-    - hpp2plantuml -i "uff/*.h" -o doc/plantuml/architecture.puml
+    - hpp2plantuml -i "urx/*.h" -o doc/plantuml/architecture.puml
     - sed -r -i "/.+\(.*\).*/d" doc/plantuml/architecture.puml
-    - perl -0777 -i -pe "s/^.*uff\.Acquisition.*\*-- uff.Excitation\n\n\n//gm" doc/plantuml/architecture.puml
-    - perl -0777 -i -pe "s/^.*uff\.Acquisition.*\*-- uff.Group\n\n\n//gm" doc/plantuml/architecture.puml
-    - perl -0777 -i -pe "s/^.*uff\.Acquisition.*\*-- uff.Probe\n\n\n//gm" doc/plantuml/architecture.puml
-    - perl -0777 -i -pe "s/^.*uff\.Acquisition.*\*-- uff.ReceiveSetup\n\n\n//gm" doc/plantuml/architecture.puml
-    - perl -0777 -i -pe "s/^.*uff\.Acquisition.*\*-- uff.Wave\n\n\n//gm" doc/plantuml/architecture.puml
-    - perl -0777 -i -pe "s/^.*\*-- uff.Transform\n\n\n//gm" doc/plantuml/architecture.puml
-    - perl -0777 -i -pe "s/^.*\*-- uff.Vector.*D\n\n\n//gm" doc/plantuml/architecture.puml
-    - perl -0777 -i -pe "s/^.*uff\.Element.*\*-- .*\n\n\n//gm" doc/plantuml/architecture.puml
-    - perl -0777 -i -pe "s/^.*uff\.Element.*\*-- .*\n\n\n//gm" doc/plantuml/architecture.puml
+    - perl -0777 -i -pe "s/^.*urx\.Acquisition.*\*-- urx.Excitation\n\n\n//gm" doc/plantuml/architecture.puml
+    - perl -0777 -i -pe "s/^.*urx\.Acquisition.*\*-- urx.Group\n\n\n//gm" doc/plantuml/architecture.puml
+    - perl -0777 -i -pe "s/^.*urx\.Acquisition.*\*-- urx.Probe\n\n\n//gm" doc/plantuml/architecture.puml
+    - perl -0777 -i -pe "s/^.*urx\.Acquisition.*\*-- urx.ReceiveSetup\n\n\n//gm" doc/plantuml/architecture.puml
+    - perl -0777 -i -pe "s/^.*urx\.Acquisition.*\*-- urx.Wave\n\n\n//gm" doc/plantuml/architecture.puml
+    - perl -0777 -i -pe "s/^.*\*-- urx.Transform\n\n\n//gm" doc/plantuml/architecture.puml
+    - perl -0777 -i -pe "s/^.*\*-- urx.Vector.*D\n\n\n//gm" doc/plantuml/architecture.puml
+    - perl -0777 -i -pe "s/^.*urx\.Element.*\*-- .*\n\n\n//gm" doc/plantuml/architecture.puml
+    - perl -0777 -i -pe "s/^.*urx\.Element.*\*-- .*\n\n\n//gm" doc/plantuml/architecture.puml
     - sed -i 's/std:://g' doc/plantuml/architecture.puml
     - sed -i 's/weak_ptr<\([^>]*\)>/\1*/g' doc/plantuml/architecture.puml
     - sed -i 's/shared_ptr<\([^>]*\)>/\1/g' doc/plantuml/architecture.puml
     - sed -i 's/vector<\(.*\)>/\1[ ]/g' doc/plantuml/architecture.puml
     - sed -i 's/vector<\(.*\)>/\1[ ]/g' doc/plantuml/architecture.puml
     - sed -i 's/DoubleNan/double/g' doc/plantuml/architecture.puml
-    # - sed -r -i "/\+--\ uff\.GroupData::VecDataType.*/d" doc/plantuml/architecture.puml
+    # - sed -r -i "/\+--\ urx\.GroupData::VecDataType.*/d" doc/plantuml/architecture.puml
     # - perl -0777 -i -pe "s/^.*class\ GroupData::VecDataType.*\n.*}\n\n//gm" doc/plantuml/architecture.puml
     - mkdir -p public/plantuml
     - plantuml doc/plantuml/architecture.puml

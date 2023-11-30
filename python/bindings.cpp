@@ -18,22 +18,22 @@
 #include <pybind11/pytypes.h>
 #include <pybind11/stl_bind.h>
 
-#include <uff/acquisition.h>
-#include <uff/dataset.h>
-#include <uff/detail/compare.h>
-#include <uff/detail/double_nan.h>
-#include <uff/detail/raw_data.h>
-#include <uff/group.h>
-#include <uff/group_data.h>
-#include <uff/version.h>
-#include <uff_utils/group_helper.h>
+#include <urx/acquisition.h>
+#include <urx/dataset.h>
+#include <urx/detail/compare.h>
+#include <urx/detail/double_nan.h>
+#include <urx/detail/raw_data.h>
+#include <urx/group.h>
+#include <urx/group_data.h>
+#include <urx/version.h>
+#include <urx_utils/group_helper.h>
 
 namespace py = pybind11;
 
 using VecFloat32 = std::vector<float>;
 using VecFloat64 = std::vector<double>;
 
-using VecGroup = std::vector<std::shared_ptr<uff::Group>>;
+using VecGroup = std::vector<std::shared_ptr<urx::Group>>;
 
 PYBIND11_MAKE_OPAQUE(VecFloat32);
 PYBIND11_MAKE_OPAQUE(VecFloat64);
@@ -96,70 +96,70 @@ PYBIND11_MODULE(bindings, m) {
 
   py::bind_vector<VecGroup>(m, "VecGroup");
 
-  py::enum_<uff::Group::SamplingType>(m, "SamplingType")
-      .value("RF", uff::Group::SamplingType::RF)
-      .value("IQ", uff::Group::SamplingType::IQ)
-      .value("UNDEFINED", uff::Group::SamplingType::UNDEFINED);
+  py::enum_<urx::Group::SamplingType>(m, "SamplingType")
+      .value("RF", urx::Group::SamplingType::RF)
+      .value("IQ", urx::Group::SamplingType::IQ)
+      .value("UNDEFINED", urx::Group::SamplingType::UNDEFINED);
 
-  py::enum_<uff::Group::DataType>(m, "DataType")
-      .value("INT16", uff::Group::DataType::INT16)
-      .value("INT32", uff::Group::DataType::INT32)
-      .value("FLOAT", uff::Group::DataType::FLOAT)
-      .value("DOUBLE", uff::Group::DataType::DOUBLE)
-      .value("UNDEFINED", uff::Group::DataType::UNDEFINED);
+  py::enum_<urx::Group::DataType>(m, "DataType")
+      .value("INT16", urx::Group::DataType::INT16)
+      .value("INT32", urx::Group::DataType::INT32)
+      .value("FLOAT", urx::Group::DataType::FLOAT)
+      .value("DOUBLE", urx::Group::DataType::DOUBLE)
+      .value("UNDEFINED", urx::Group::DataType::UNDEFINED);
 
-  py::class_<uff::Group, std::shared_ptr<uff::Group>>(m, "Group")
+  py::class_<urx::Group, std::shared_ptr<urx::Group>>(m, "Group")
       .def(py::init())
       .def(pybind11::self == pybind11::self)
       .def(pybind11::self != pybind11::self)
-      .def_readwrite("data_type", &uff::Group::data_type)
-      .def_readwrite("sampling_type", &uff::Group::sampling_type)
-      .def_readwrite("description", &uff::Group::description);
+      .def_readwrite("data_type", &urx::Group::data_type)
+      .def_readwrite("sampling_type", &urx::Group::sampling_type)
+      .def_readwrite("description", &urx::Group::description);
 
-  py::class_<uff::GroupData, std::shared_ptr<uff::GroupData>>(m, "GroupData")
+  py::class_<urx::GroupData, std::shared_ptr<urx::GroupData>>(m, "GroupData")
       .def(py::init())
       .def(pybind11::self == pybind11::self)
       .def(pybind11::self != pybind11::self)
       .def_property(
           "group",
-          [](uff::GroupData &self) {
+          [](urx::GroupData &self) {
             if (self.group.expired()) {
               throw std::runtime_error("Current group is not referenced by the acquisition.\n");
-              // return std::shared_ptr<uff::Group>(nullptr);
+              // return std::shared_ptr<urx::Group>(nullptr);
             }
             return self.group.lock();
           },
-          [](uff::GroupData &self, const std::shared_ptr<uff::Group> &group) {
+          [](urx::GroupData &self, const std::shared_ptr<urx::Group> &group) {
             self.group = group;
           })
-      .def_readwrite("group_timestamp", &uff::GroupData::group_timestamp)
-      // .def_readwrite("sequence_timestamps", &uff::GroupData::sequence_timestamps)
+      .def_readwrite("group_timestamp", &urx::GroupData::group_timestamp)
+      // .def_readwrite("sequence_timestamps", &urx::GroupData::sequence_timestamps)
       .def_property(
           "sequence_timestamps",
-          [](uff::GroupData &self) {
+          [](urx::GroupData &self) {
             return py::array_t<double>(
                 py::buffer_info(self.sequence_timestamps.data(), sizeof(double),
                                 py::format_descriptor<double>::format(), 1,
                                 {self.sequence_timestamps.size()}, {sizeof(double)}),
                 py::cast(&self.sequence_timestamps));
           },
-          [](uff::GroupData &self, const py::buffer &vec) {
+          [](urx::GroupData &self, const py::buffer &vec) {
             py::buffer_info info = vec.request();
             if (info.item_type_is_equivalent_to<double>()) {
               self.sequence_timestamps = VecFloat64(
                   static_cast<double *>(info.ptr), static_cast<double *>(info.ptr) + info.shape[0]);
             }
           })
-      .def_readwrite("event_timestamps", &uff::GroupData::event_timestamps)
-      // .def_readwrite("raw_data", &uff::GroupData::raw_data)
+      .def_readwrite("event_timestamps", &urx::GroupData::event_timestamps)
+      // .def_readwrite("raw_data", &urx::GroupData::raw_data)
       .def_property(
           "raw_data",
-          [](uff::GroupData &self) {
-            const std::shared_ptr<uff::Group> shared_group = self.group.lock();
+          [](urx::GroupData &self) {
+            const std::shared_ptr<urx::Group> shared_group = self.group.lock();
             const bool are_data_complex =
-                shared_group->sampling_type == uff::Group::SamplingType::IQ;
+                shared_group->sampling_type == urx::Group::SamplingType::IQ;
             const py::ssize_t data_size = self.raw_data.size;
-            uff::GroupHelper group_helper{*shared_group};
+            urx::GroupHelper group_helper{*shared_group};
             void *data_ptr = self.raw_data.buffer.get();
             const py::ssize_t sizeof_data_type_var = group_helper.sizeof_data_type();
             const std::string data_format = group_helper.py_get_format();
@@ -174,7 +174,7 @@ PYBIND11_MODULE(bindings, m) {
 
             return py::array(buffer, py::cast(&self.raw_data));
           },
-          [](uff::GroupData &self, const py::buffer &vec) {
+          [](urx::GroupData &self, const py::buffer &vec) {
             py::buffer_info info = vec.request();
             if (info.ndim > 2)
               throw std::runtime_error("Dimension error: Too many dimensions in this data array");
@@ -188,29 +188,29 @@ PYBIND11_MODULE(bindings, m) {
             self.raw_data.size = info.shape[0];
           });
 
-  py::class_<uff::Version>(m, "Version")
+  py::class_<urx::Version>(m, "Version")
       .def(py::init())
       .def(pybind11::self == pybind11::self)
       .def(pybind11::self != pybind11::self)
-      .def_readwrite("major", &uff::Version::major)
-      .def_readwrite("minor", &uff::Version::minor)
-      .def_readwrite("patch", &uff::Version::patch);
+      .def_readwrite("major", &urx::Version::major)
+      .def_readwrite("minor", &urx::Version::minor)
+      .def_readwrite("patch", &urx::Version::patch);
 
-  py::class_<uff::Dataset>(m, "Dataset")
+  py::class_<urx::Dataset>(m, "Dataset")
       .def(py::init())
       .def(pybind11::self == pybind11::self)
       .def(pybind11::self != pybind11::self)
-      .def_readwrite("version", &uff::Dataset::version)
-      .def_readwrite("acquisition", &uff::Dataset::acquisition);
+      .def_readwrite("version", &urx::Dataset::version)
+      .def_readwrite("acquisition", &urx::Dataset::acquisition);
 
-  py::class_<uff::Acquisition>(m, "Acquisition")
+  py::class_<urx::Acquisition>(m, "Acquisition")
       .def(py::init())
       .def(pybind11::self == pybind11::self)
       .def(pybind11::self != pybind11::self)
-      .def_readwrite("system", &uff::Acquisition::system)
-      .def_readwrite("sound_speed", &uff::Acquisition::sound_speed)
-      .def_readwrite("timestamp", &uff::Acquisition::timestamp)
-      .def_readwrite("groups", &uff::Acquisition::groups)
-      .def_readwrite("group_data", &uff::Acquisition::groups_data);
+      .def_readwrite("system", &urx::Acquisition::system)
+      .def_readwrite("sound_speed", &urx::Acquisition::sound_speed)
+      .def_readwrite("timestamp", &urx::Acquisition::timestamp)
+      .def_readwrite("groups", &urx::Acquisition::groups)
+      .def_readwrite("group_data", &urx::Acquisition::groups_data);
 }
 // NOLINTEND(misc-redundant-expression)
