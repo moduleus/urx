@@ -10,7 +10,7 @@ set(SRCS_FILES reader_test.cpp writer_test.cpp)
 add_executable(UffIo ${SRCS_FILES})
 
 target_link_libraries(
-  UffIo PRIVATE Uff::Uff Uff::Uff_Utils ${HDF5_CXX_LIBRARIES}
+  UffIo PRIVATE Uff::Uff Uff::UffUtils ${HDF5_CXX_LIBRARIES}
                 Catch2::Catch2WithMain compiler_flags)
 
 foreach(TESTI UffIo)

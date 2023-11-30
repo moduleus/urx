@@ -1,17 +1,16 @@
 #include <complex>
-#include <cstddef>
 #include <cstdint>
+#include <cstdlib>
 #include <ios>
 #include <iostream>
 #include <memory>
 #include <ostream>
 #include <sstream>
 #include <string>
-#include <utility>
-#include <variant>
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
+#include <detail/raw_data.h>
 
 #include <uff/event.h>
 #include <uff/group.h>
@@ -50,16 +49,17 @@ TEST_CASE("Read back group data complex float data", "[group_data]") {
   group_data.group = group;
   const int n_frames = 3;
   const int size = n_frames * 42;  // (42 = 3*2*3+4*3*2)
-  auto tmp = std::vector<CompInt32>(size);
+  const std::shared_ptr<CompInt32[]> raw_data_ptr =
+      std::shared_ptr<CompInt32[]>(static_cast<CompInt32*>(malloc(size * sizeof(CompInt32))), free);
   for (int i = 0; i < size; ++i) {
-    tmp[i] = CompInt32(i * 2, i * 2 + 1);
+    raw_data_ptr[i] = {i * 2, i * 2 + 1};
   }
-  group_data.raw_data = std::move(tmp);
-  CompInt32* raw_data_ptr = std::get<std::vector<CompInt32>>(group_data.raw_data).data();
+
+  group_data.raw_data.buffer = raw_data_ptr;
+  group_data.raw_data.size = size;
 
   uff::GroupDataReader group_data_reader{group_data};
 
-  REQUIRE(group_data_reader.size() == size);
   REQUIRE(group_data_reader.framesCount() == n_frames);
   REQUIRE(group_data_reader.eventsCount() == n_events);
   REQUIRE(group_data_reader.channelsCount(0) == 3);

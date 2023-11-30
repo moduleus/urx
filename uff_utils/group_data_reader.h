@@ -4,6 +4,7 @@
 #include <vector>
 
 #include <uff/group_data.h>
+#include <uff_utils/group_helper.h>
 
 namespace uff {
 
@@ -59,15 +60,62 @@ class GroupDataReader {
   template <typename T>
   T& at(const size_t frame_idx, const size_t event_idx, const size_t channel_idx,
         const size_t sample_idx) {
-    auto& data = std::get<std::vector<T>>(_group_data.raw_data);
-    return reinterpret_cast<T*>(data.data())[offset(frame_idx, event_idx, channel_idx, sample_idx)];
+    void* data = _group_data.raw_data.buffer.get();
+    const std::shared_ptr<Group> group = _group_data.group.lock();
+
+    if constexpr (std::is_same_v<T, int16_t>) {
+      if (group->data_type != Group::DataType::INT16 ||
+          group->sampling_type != Group::SamplingType::RF) {
+        throw std::runtime_error("Invalid cast with raw_data");
+      }
+    }
+    if constexpr (std::is_same_v<T, int32_t>) {
+      if (group->data_type != Group::DataType::INT32 ||
+          group->sampling_type != Group::SamplingType::RF) {
+        throw std::runtime_error("Invalid cast with raw_data");
+      }
+    }
+    if constexpr (std::is_same_v<T, float>) {
+      if (group->data_type != Group::DataType::FLOAT ||
+          group->sampling_type != Group::SamplingType::RF) {
+        throw std::runtime_error("Invalid cast with raw_data");
+      }
+    }
+    if constexpr (std::is_same_v<T, double>) {
+      if (group->data_type != Group::DataType::DOUBLE ||
+          group->sampling_type != Group::SamplingType::RF) {
+        throw std::runtime_error("Invalid cast with raw_data");
+      }
+    }
+    if constexpr (std::is_same_v<T, std::complex<int16_t>>) {
+      if (group->data_type != Group::DataType::INT16 ||
+          group->sampling_type != Group::SamplingType::IQ) {
+        throw std::runtime_error("Invalid cast with raw_data");
+      }
+    }
+    if constexpr (std::is_same_v<T, std::complex<int32_t>>) {
+      if (group->data_type != Group::DataType::INT32 ||
+          group->sampling_type != Group::SamplingType::IQ) {
+        throw std::runtime_error("Invalid cast with raw_data");
+      }
+    }
+    if constexpr (std::is_same_v<T, std::complex<float>>) {
+      if (group->data_type != Group::DataType::FLOAT ||
+          group->sampling_type != Group::SamplingType::IQ) {
+        throw std::runtime_error("Invalid cast with raw_data");
+      }
+    }
+    if constexpr (std::is_same_v<T, std::complex<double>>) {
+      if (group->data_type != Group::DataType::DOUBLE ||
+          group->sampling_type != Group::SamplingType::IQ) {
+        throw std::runtime_error("Invalid cast with raw_data");
+      }
+    }
+
+    return static_cast<T*>(data)[offset(frame_idx, event_idx, channel_idx, sample_idx)];
   }
 
-  size_t size() const {
-    return std::visit([](auto&& vec) { return vec.size(); }, _group_data.raw_data);
-  }
-
-  size_t framesCount() const { return size() / _samples_offset.back(); }
+  size_t framesCount() const { return _group_data.raw_data.size / _samples_offset.back(); }
 
   size_t eventsCount() const { return _group_data.group.lock()->sequence.size(); }
 

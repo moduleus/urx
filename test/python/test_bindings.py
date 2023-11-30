@@ -8,65 +8,6 @@ from parameterized import parameterized
 
 class TestBindings(unittest.TestCase):
 
-    def testVariantVectorInternalType(self):
-        testName = "Variant Vector Internal Type"
-        print("\n--Test %s BEGIN--" % testName)
-
-        group_data = uff.GroupData()
-        mapTypeToCheckFunc = {"int16": uff.checkInt16Type, "int32": uff.checkInt32Type,
-                              "float32": uff.checkFloat32Type, "float64": uff.checkFloat64Type,
-                              "complexInt16": uff.checkComplexInt16Type, "complexInt32": uff.checkComplexInt32Type,
-                              "complexFloat32": uff.checkComplexFloat32Type, "complexFloat64": uff.checkComplexFloat64Type}
-
-        def checkInternalType(self, type, group_data):
-            for item in mapTypeToCheckFunc:
-                if item == type:
-                    self.assertTrue(mapTypeToCheckFunc[item](group_data))
-                else:
-                    self.assertFalse(mapTypeToCheckFunc[item](group_data))
-
-        self.assertTrue(np.array_equal(group_data.raw_data, uff.VecInt16()))
-        group_data.raw_data = uff.VecFloat64([1., 2., 3., 4.])
-        checkInternalType(self, "float64", group_data)
-        group_data.raw_data = np.append(group_data.raw_data, 42.)
-        group_data.raw_data *= 2
-        self.assertTrue(np.array_equal(group_data.raw_data,
-                         np.array([2., 4., 6., 8., 84],dtype=np.float64)))
-        checkInternalType(self, "float64", group_data)
-
-        group_data.raw_data = uff.VecInt16(
-            np.array([1, 2, -1], dtype=np.int16))
-        checkInternalType(self, "int16", group_data)
-
-        group_data.raw_data = uff.VecInt32(
-            np.array([1, 2, -1], dtype=np.int32))
-        checkInternalType(self, "int32", group_data)
-
-        group_data.raw_data = uff.VecFloat32(
-            np.array([1, 2, -1], dtype=np.float32))
-        checkInternalType(self, "float32", group_data)
-
-        group_data.raw_data = uff.VecFloat64(
-            np.array([1, 2, -1], dtype=np.float64))
-        checkInternalType(self, "float64", group_data)
-
-        group_data.raw_data = np.array([[1, 3], [2, 4], [1, 5]], dtype=np.int16)
-        checkInternalType(self, "complexInt16", group_data)
-
-        group_data.raw_data = uff.VecCompInt32(
-            np.array([[1, 3], [2, 4], [1, 5]], dtype=np.int32))
-        checkInternalType(self, "complexInt32", group_data)
-
-        group_data.raw_data = uff.VecCompFloat32(
-            np.array([1+3j, 2-4j, -1+5j], dtype=np.complex64))
-        checkInternalType(self, "complexFloat32", group_data)
-
-        group_data.raw_data = uff.VecCompFloat64(
-            np.array([1+3j, 2-4j, -1+5j], dtype=np.complex128))
-        checkInternalType(self, "complexFloat64", group_data)
-
-        print("--Test %s END--" % testName)
-
     def testHugeDataTransform(self):
         testName = "Do computation on huge data vector"
         print("\n--Test %s BEGIN--" % testName)
@@ -123,56 +64,6 @@ class TestBindings(unittest.TestCase):
         self.assertTrue(np.array_equal(ref, np.array(
             [46.+67.j, 3.+3.j], dtype=numpyType)))
         self.assertTrue(np.array_equal(group_data.raw_data.view(numpyType)[:,0], ref))
-
-        print("--Test %s END--" % testName)
-
-    @parameterized.expand([
-        ["Variant Vector Int 16 Complex", uff.VecCompInt16, np.int16, "complexInt16"],
-        ["Variant Vector Int 32 Complex", uff.VecCompInt32, np.int32, "complexInt32"]
-    ])
-    def testVariantVectorIntComplex(self, testName, uffType, numpyType, internalType):
-        print("\n--Test %s BEGIN--" % testName)
-
-        group_data = uff.GroupData()
-        self.assertEqual(len(group_data.raw_data), 0)
-
-        group_data = uff.GroupData()
-        mapTypeToCheckFunc = {"int16": uff.checkInt16Type, "int32": uff.checkInt32Type,
-                              "float32": uff.checkFloat32Type, "float64": uff.checkFloat64Type,
-                              "complexInt16": uff.checkComplexInt16Type, "complexInt32": uff.checkComplexInt32Type,
-                              "complexFloat32": uff.checkComplexFloat32Type, "complexFloat64": uff.checkComplexFloat64Type}
-
-        def checkInternalType(self, type, group_data):
-            for item in mapTypeToCheckFunc:
-                if item == type:
-                    self.assertTrue(mapTypeToCheckFunc[item](group_data))
-                else:
-                    self.assertFalse(mapTypeToCheckFunc[item](group_data))
-
-        arr = np.array([[1, 3], [2, 4], [1, 5]], dtype=numpyType)
-        group_data.raw_data = uffType(
-            np.array([[1, 3], [2, 4], [1, 5]], dtype=np.int16))
-        self.assertTrue(np.array_equal(
-            arr, np.array(group_data.raw_data, copy=False)))
-        checkInternalType(self, internalType, group_data)
-
-        group_data.raw_data = uffType(
-            np.array([[1, 3], [2, 4], [1, 5]], dtype=np.int32))
-        self.assertTrue(np.array_equal(
-            arr, np.array(group_data.raw_data, copy=False)))
-        checkInternalType(self, internalType, group_data)
-
-        group_data.raw_data = uffType(
-            np.array([1.9+3.9j, 2.9+4.9j, 1.9+5.9j], dtype=np.complex64))
-        self.assertTrue(np.array_equal(
-            arr, np.array(group_data.raw_data, copy=False)))
-        checkInternalType(self, internalType, group_data)
-
-        group_data.raw_data = uffType(
-            np.array([1.9+3.9j, 2.9+4.9j, 1.9+5.9j], dtype=np.complex128))
-        self.assertTrue(np.array_equal(
-            arr, np.array(group_data.raw_data, copy=False)))
-        checkInternalType(self, internalType, group_data)
 
         print("--Test %s END--" % testName)
 

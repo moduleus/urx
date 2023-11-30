@@ -3,6 +3,8 @@
 #include <cmath>
 #include <limits>
 
+namespace uff {
+
 struct DoubleNan {
   double value = std::numeric_limits<double>::quiet_NaN();
 
@@ -63,3 +65,5 @@ inline DoubleNan operator+(double n1, const DoubleNan& n2) { return DoubleNan(n1
 inline DoubleNan operator-(double n1, const DoubleNan& n2) { return DoubleNan(n1 - n2.value); }
 inline DoubleNan operator/(double n1, const DoubleNan& n2) { return DoubleNan(n1 / n2.value); }
 inline DoubleNan operator*(double n1, const DoubleNan& n2) { return DoubleNan(n1 * n2.value); }
+
+}  // namespace uff

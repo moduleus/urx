@@ -1,5 +1,5 @@
 pybind11_add_module(BindingsPython bindings.cpp)
-target_link_libraries(BindingsPython PUBLIC ${PROJECT_NAME})
+target_link_libraries(BindingsPython PUBLIC ${PROJECT_NAME} Uff::UffUtils)
 
 set_target_properties(BindingsPython PROPERTIES OUTPUT_NAME "bindings")
 

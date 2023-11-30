@@ -15,6 +15,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE
@@ -80,6 +81,14 @@ option(WITH_TEST "Build unit tests" OFF)
 
 add_subdirectory("uff")
 
+if(WITH_PYTHON)
+  find_package(
+    Python3
+    COMPONENTS Interpreter Development
+    REQUIRED)
+  find_package(pybind11 CONFIG REQUIRED)
+endif()
+
 add_subdirectory("uff_utils")
 
 if(WITH_MATLAB)
@@ -88,8 +97,6 @@ if(WITH_MATLAB)
 endif()
 
 if(WITH_PYTHON)
-  find_package(Python COMPONENTS Interpreter Development)
-  find_package(pybind11 CONFIG REQUIRED)
   add_subdirectory(python)
 endif()
 

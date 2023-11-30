@@ -1,6 +1,7 @@
 #pragma once
 
 #include <complex>
+#include <cstring>
 #include <iostream>
 #include <memory>
 #include <utility>
@@ -9,6 +10,7 @@
 
 #include <uff/detail/compare.h>
 #include <uff/detail/double_nan.h>
+#include <uff/detail/raw_data.h>
 #include <uff/group.h>
 
 namespace uff {
@@ -17,22 +19,32 @@ namespace uff {
  * @brief The UFF class containing all the retrieved data from the acquisition
  */
 struct GroupData {
-  template <class... Args>
-  struct VecDataType {
-    using real_and_complex = std::variant<std::vector<Args>..., std::vector<std::complex<Args>>...>;
-  };
+  bool operator==(const GroupData& other) const {
+    static std::unordered_map<Group::DataType, size_t> group_dt_to_sizeof{
+        {Group::DataType::INT16, sizeof(int16_t)},
+        {Group::DataType::INT32, sizeof(int32_t)},
+        {Group::DataType::FLOAT, sizeof(float)},
+        {Group::DataType::DOUBLE, sizeof(double)}};
 
-  using VecDataTypeVariant = VecDataType<int16_t, int32_t, float, double>::real_and_complex;
+    const std::shared_ptr<Group> ptr_locked = group.lock();
 
-  bool operator==(const GroupData& other) const = default;
+    return group == other.group && raw_data.size == other.raw_data.size &&
+           group_timestamp == other.group_timestamp &&
+           sequence_timestamps == other.sequence_timestamps &&
+           event_timestamps == other.event_timestamps &&
+           (ptr_locked &&
+            std::memcmp(raw_data.buffer.get(), other.raw_data.buffer.get(),
+                        raw_data.size * group_dt_to_sizeof.at(ptr_locked->data_type) *
+                            (ptr_locked->sampling_type == Group::SamplingType::RF ? 1 : 2)) == 0);
+  }
 
   /// Reference of the group whose data have been retrieved
   std::weak_ptr<Group> group = std::weak_ptr<Group>();
 
   /// Data are organized as raw_data[Group repetition count][Number of event][Number of channel activated during the event][Number of samples]
   /// Data are in 1D array since the dimensions of the data array is dynamic for the number of activated channels and for the number of samples
-  /// Create your helper to deduce the dimensions or use Uff_Utils to access correctly to the data
-  VecDataTypeVariant raw_data;
+  /// Create your helper to deduce the dimensions or use UffUtils to access correctly to the data
+  RawData raw_data;
 
   /// Timestamp of the group launch [s]
   DoubleNan group_timestamp;

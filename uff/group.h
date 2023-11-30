@@ -29,7 +29,7 @@ struct Group {
   std::string description;
 
   /// List of all event composing an sequence
-  /// The number of sequence can be determined from GroupData or you can use Uff_Utils to get it
+  /// The number of sequence can be determined from GroupData or you can use UffUtils to get it
   std::vector<Event> sequence;
 };
 

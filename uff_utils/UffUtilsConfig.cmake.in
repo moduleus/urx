@@ -4,6 +4,6 @@ include(CMakeFindDependencyMacro)
 set(HDF5_DIR "@HDF5_DIR@")
 find_dependency(HDF5 NAMES hdf5 COMPONENTS CXX @SEARCH_TYPE@ CONFIG NO_DEFAULT_PATH)
 
-include("${CMAKE_CURRENT_LIST_DIR}/Uff_UtilsTargets.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/UffUtilsTargets.cmake")
 
-check_required_components(Uff Uff_Utils)
+check_required_components(Uff UffUtils)

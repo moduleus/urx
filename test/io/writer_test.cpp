@@ -1,4 +1,5 @@
 #include <complex>
+#include <cstdlib>
 #include <limits>
 #include <memory>
 #include <utility>
@@ -8,7 +9,9 @@
 
 #include <uff/acquisition.h>
 #include <uff/dataset.h>
+#include <uff/detail/compare.h>
 #include <uff/detail/double_nan.h>
+#include <uff/detail/raw_data.h>
 #include <uff/element.h>
 #include <uff/element_geometry.h>
 #include <uff/event.h>
@@ -294,8 +297,8 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
     dataset->acquisition.groups.push_back(group);
 
     group = std::make_shared<uff::Group>();
-    group->sampling_type = static_cast<uff::Group::SamplingType>(123);
-    group->data_type = uff::Group::DataType::FLOAT;
+    group->sampling_type = uff::Group::SamplingType::RF;
+    group->data_type = uff::Group::DataType::DOUBLE;
     {
       Event event;
       event.transmit_setup.probe = dataset->acquisition.probes[1];
@@ -361,7 +364,17 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
   {
     auto group_data = std::make_shared<GroupData>();
     group_data->group = dataset->acquisition.groups[1];
-    group_data->raw_data = std::vector<double>{1.2, 2.3, 3.4, 4.5, 5.6, 6.7};
+    group_data->raw_data.size = 6;
+    const std::shared_ptr<double[]> buffer = std::shared_ptr<double[]>(
+        static_cast<double*>(malloc(sizeof(double) * group_data->raw_data.size)), free);
+    buffer[0] = 1.2;
+    buffer[1] = 2.3;
+    buffer[2] = 3.4;
+    buffer[3] = 4.5;
+    buffer[4] = 5.6;
+    buffer[5] = 6.7;
+    group_data->raw_data.buffer = buffer;
+
     group_data->group_timestamp = 283954.334;
     group_data->sequence_timestamps = {1, 2, 4.2, 1, .5, 5.6};
     group_data->event_timestamps = {{1, .24, 1., 5.2, 4.5, 7, .964, .5},
@@ -370,8 +383,16 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
 
     group_data = std::make_shared<GroupData>();
     group_data->group = dataset->acquisition.groups[0];
-    group_data->raw_data =
-        std::vector<std::complex<short>>{{123, 456}, {159, 753}, {789, 456}, {123, 753}};
+    group_data->raw_data.size = 4;
+    const std::shared_ptr<std::complex<short>[]> buffer2 = std::shared_ptr<std::complex<short>[]>(
+        static_cast<std::complex<short>*>(
+            malloc(sizeof(std::complex<short>) * group_data->raw_data.size)),
+        free);
+    buffer2[0] = {123, 456};
+    buffer2[1] = {159, 753};
+    buffer2[2] = {789, 456};
+    buffer2[3] = {123, 753};
+    group_data->raw_data.buffer = buffer2;
     group_data->group_timestamp = 123;
     group_data->sequence_timestamps = {1, 2, 34};
     group_data->event_timestamps = {{4, 5, 7}, {8, 7, 6}};
@@ -382,6 +403,11 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
 
   auto dataset_loaded = uff::Reader::loadFromFile("writer.uff");
 
+  REQUIRE(dataset_loaded->acquisition.probes == dataset->acquisition.probes);
+  REQUIRE(dataset_loaded->acquisition.excitations == dataset->acquisition.excitations);
+  REQUIRE(dataset_loaded->acquisition.waves == dataset->acquisition.waves);
+  REQUIRE(dataset_loaded->acquisition.groups == dataset->acquisition.groups);
+  REQUIRE(dataset_loaded->acquisition.groups_data == dataset->acquisition.groups_data);
   REQUIRE(*dataset_loaded == *dataset);
 
   // uff::ChannelData<float>& channelData = dataset->channelData();

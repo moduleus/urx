@@ -4,20 +4,15 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
-#include <iomanip>
-#include <iosfwd>
-#include <istream>
+#include <format>
 #include <iterator>
 #include <memory>
-#include <ostream>
-#include <sstream>
 #include <stdexcept>
 #include <string_view>
 #include <type_traits>
 #include <typeindex>
 #include <unordered_map>
 #include <utility>
-#include <variant>
 #include <vector>
 #include <version>
 
@@ -28,6 +23,7 @@
 #include <uff/acquisition.h>
 #include <uff/dataset.h>
 #include <uff/detail/double_nan.h>
+#include <uff/detail/raw_data.h>
 #include <uff/element_geometry.h>
 #include <uff/excitation.h>
 #include <uff/group.h>
@@ -48,9 +44,6 @@ constexpr int iter_length = 8;
 
 template <typename T>
 void serialize_all(const T& field, const H5::Group& group, MapToSharedPtr& map);
-template <>
-void serialize_all(const GroupData::VecDataTypeVariant& field, const H5::Group& group,
-                   MapToSharedPtr& map);
 
 // Default
 template <typename T>
@@ -88,13 +81,6 @@ template <>
 void serialize_hdf5(const std::string& name, const DoubleNan& field, const H5::Group& group,
                     MapToSharedPtr& map) {
   serialize_hdf5(name, field.value, group, map);
-}
-
-// GroupData::VecDataTypeVariant
-template <>
-void serialize_hdf5(const std::string&, const GroupData::VecDataTypeVariant& field,
-                    const H5::Group& group, MapToSharedPtr& map) {
-  serialize_all(field, group, map);
 }
 
 // shared_ptr
@@ -140,9 +126,7 @@ void serialize_hdf5(const std::string& name, const std::vector<T>& field, const 
 
     size_t i = 0;
     for (const auto& iter : field) {
-      std::stringstream stream;
-      stream << std::setfill('0') << std::setw(iter_length) << i;
-      serialize_hdf5(stream.str(), iter, group_child, map);
+      serialize_hdf5(std::format("{:0{}}", i, iter_length), iter, group_child, map);
       i++;
     }
   }
@@ -161,6 +145,9 @@ void serialize_hdf5(const std::string& name, const T& field, const H5::Group& gr
   const std::string value = sv.empty() ? std::to_string(static_cast<int>(field)) : std::string{sv};
   dataset.write(value, datatype, dataspace);
 }
+
+void serialize_all(const std::shared_ptr<Group>& gr, const RawData& field, const H5::Group& group,
+                   MapToSharedPtr&);
 
 template <typename T>
 void serialize_all(const T& field, const H5::Group& group, MapToSharedPtr& map) {
@@ -191,8 +178,13 @@ void serialize_all(const T& field, const H5::Group& group, MapToSharedPtr& map) 
   }
 
   auto a = boost::pfr::names_as_array<T>();
-  boost::pfr::for_each_field(field, [&a, &group, &map](const auto& child, std::size_t idx) {
-    serialize_hdf5(std::string{a[idx]}, child, group, map);
+  boost::pfr::for_each_field(field, [&a, &group, &map, &field](const auto& child, std::size_t idx) {
+    if constexpr (std::is_same_v<std::remove_cvref_t<decltype(child)>, RawData> &&
+                  std::is_same_v<std::remove_cvref_t<T>, GroupData>) {
+      serialize_all(reinterpret_cast<const GroupData&>(field).group.lock(), child, group, map);
+    } else {
+      serialize_hdf5(std::string{a[idx]}, child, group, map);
+    }
   });
 }
 
@@ -210,70 +202,46 @@ void serialize_all(const Probe& field, const H5::Group& group, MapToSharedPtr& m
 }
 
 // for_each_field doesn't support std::variant.
-template <>
-void serialize_all(const GroupData::VecDataTypeVariant& field, const H5::Group& group,
+void serialize_all(const std::shared_ptr<Group>& gr, const RawData& field, const H5::Group& group,
                    MapToSharedPtr&) {
   enum class Format { ARRAY_2D, COMPOUND };
   constexpr Format format = Format::ARRAY_2D;
 
-  const auto [size, datatype, data] = std::visit(
-      [](const auto& vec) {
-        const size_t size = vec.size();
-        const H5::PredType* datatype;
+  static std::unordered_map<Group::DataType, std::type_index> group_dt_to_typeid{
+      {Group::DataType::INT16, typeid(int16_t)},
+      {Group::DataType::INT32, typeid(int32_t)},
+      {Group::DataType::FLOAT, typeid(float)},
+      {Group::DataType::DOUBLE, typeid(double)}};
+  static std::unordered_map<Group::DataType, size_t> group_dt_to_sizeof{
+      {Group::DataType::INT16, sizeof(int16_t)},
+      {Group::DataType::INT32, sizeof(int32_t)},
+      {Group::DataType::FLOAT, sizeof(float)},
+      {Group::DataType::DOUBLE, sizeof(double)}};
 
-        using type = typename std::remove_cvref_t<decltype(vec)>::value_type;
-        if constexpr (Number<type>) {
-          datatype = std_to_h5.at(typeid(type));
-        } else
-        // Complex
-        {
-          using type2 = typename type::value_type;
-          datatype = std_to_h5.at(typeid(type2));
-        }
+  const H5::PredType* datatype = std_to_h5.at(group_dt_to_typeid.at(gr->data_type));
 
-        const void* data = static_cast<const void*>(vec.data());
-
-        return std::tuple(size, datatype, data);
-      },
-      field);
-
+  const bool isComplex = gr->sampling_type == Group::SamplingType::IQ;
   if constexpr (format == Format::ARRAY_2D) {
-    const bool isComplex = std::visit(
-        [](const auto& vec) {
-          using type = typename std::remove_cvref_t<decltype(vec)>::value_type;
-          return !Number<type>;
-        },
-        field);
-    hsize_t dims[2] = {size, isComplex ? 2ULL : 1ULL};
+    const hsize_t dims[2] = {field.size, isComplex ? 2ULL : 1ULL};
     const H5::DataSpace dataspace = H5::DataSpace(2, dims);
     const H5::DataSet dataset = group.createDataSet("raw_data", *datatype, dataspace);
-    dataset.write(data, *datatype);
+    dataset.write(field.buffer.get(), *datatype);
   } else {
-    hsize_t dims[1] = {size};
+    const hsize_t dims[1] = {field.size};
     const H5::DataSpace dataspace = H5::DataSpace(1, dims);
 
-    const size_t sizeOf = std::visit(
-        [](const auto& vec) {
-          return sizeof(typename std::remove_cvref_t<decltype(vec)>::value_type);
-        },
-        field);
+    const size_t sizeOf = group_dt_to_sizeof.at(gr->data_type);
 
-    H5::CompType complexType(sizeOf);
+    const H5::CompType complexType(sizeOf);
 
-    std::visit(
-        [&complexType, datatype](const auto& vec) {
-          using type = typename std::remove_cvref_t<decltype(vec)>::value_type;
-          if constexpr (Number<type>) {
-            complexType.insertMember("real", 0ULL, *datatype);
-          } else {
-            using type2 = typename type::value_type;
-            complexType.insertMember("real", 0ULL, *datatype);
-            complexType.insertMember("imag", sizeof(type2), *datatype);
-          }
-        },
-        field);
+    if (isComplex) {
+      complexType.insertMember("real", 0ULL, *datatype);
+      complexType.insertMember("imag", sizeOf, *datatype);
+    } else {
+      complexType.insertMember("real", 0ULL, *datatype);
+    }
     const H5::DataSet dataset = group.createDataSet("raw_data", complexType, dataspace);
-    dataset.write(data, complexType);
+    dataset.write(field.buffer.get(), complexType);
   }
 }
 }  // namespace

@@ -30,5 +30,6 @@
   { include: ["<bits/stdint-intn.h>", private, "<cstdint>", public] },
   { include: ["<bits/stdint-uintn.h>", private, "<cstddef>", public] },
   { include: ["<boost/pfr/core.hpp>", private, "<boost/pfr.hpp>", public] },
+  { include: ["<pybind11/detail/common.h>", private, "<pybind11/pybind11.h>", public] },
   { include: ["<boost/pfr/core_name.hpp>", private, "<boost/pfr.hpp>", public] }
 ]

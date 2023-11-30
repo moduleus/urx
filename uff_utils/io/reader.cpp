@@ -1,23 +1,18 @@
 #include "reader.h"
 
 #include <array>
-#include <complex>
 #include <cstddef>
 #include <cstdint>
-#include <iomanip>
-#include <iosfwd>
-#include <istream>
+#include <cstdlib>
+#include <format>
 #include <memory>
 #include <optional>
-#include <ostream>
-#include <sstream>
 #include <stdexcept>
 #include <string_view>
 #include <type_traits>
 #include <typeindex>
 #include <unordered_map>
 #include <utility>
-#include <variant>
 #include <vector>
 #include <version>
 
@@ -28,6 +23,7 @@
 #include <uff/acquisition.h>
 #include <uff/dataset.h>
 #include <uff/detail/double_nan.h>
+#include <uff/detail/raw_data.h>
 #include <uff/element_geometry.h>
 #include <uff/excitation.h>
 #include <uff/group.h>
@@ -49,8 +45,7 @@ constexpr int iter_length = 8;
 template <typename T>
 void deserialize_all(T& field, const H5::Group& group, MapToSharedPtr& map);
 template <>
-void deserialize_all(GroupData::VecDataTypeVariant& field, const H5::Group& group,
-                     MapToSharedPtr& map);
+void deserialize_all(RawData& field, const H5::Group& group, MapToSharedPtr& map);
 
 // Default
 template <typename T>
@@ -90,8 +85,8 @@ void deserialize_hdf5(const std::string& name, DoubleNan& field, const H5::Group
 
 // GroupData::VecDataTypeVariant
 template <>
-void deserialize_hdf5(const std::string&, GroupData::VecDataTypeVariant& field,
-                      const H5::Group& group, MapToSharedPtr& map) {
+void deserialize_hdf5(const std::string&, RawData& field, const H5::Group& group,
+                      MapToSharedPtr& map) {
   deserialize_all(field, group, map);
 }
 
@@ -136,9 +131,7 @@ void deserialize_hdf5(const std::string& name, std::vector<T>& field, const H5::
 
     for (size_t i = 0; i < group_child.getNumObjs(); i++) {
       field.push_back(T{});
-      std::stringstream stream;
-      stream << std::setfill('0') << std::setw(iter_length) << i;
-      deserialize_hdf5(stream.str(), field.back(), group_child, map);
+      deserialize_hdf5(std::format("{:0{}}", i, iter_length), field.back(), group_child, map);
     }
   }
 }
@@ -211,17 +204,15 @@ void deserialize_all(Probe& field, const H5::Group& group, MapToSharedPtr& map) 
 
 // for_each_field doesn't support std::variant.
 template <>
-void deserialize_all(GroupData::VecDataTypeVariant& field, const H5::Group& group,
-                     MapToSharedPtr&) {
+void deserialize_all(RawData& field, const H5::Group& group, MapToSharedPtr&) {
   const H5::DataSet dataset = group.openDataSet("raw_data");
   const H5::DataSpace dataspace = dataset.getSpace();
   const H5::DataType datatype_raw = dataset.getDataType();
   const H5::DataType datatype = [&dataset, &datatype_raw]() {
     if (datatype_raw.getClass() == H5T_COMPOUND) {
       return dataset.getCompType().getMemberDataType(0);
-    } else {
-      return datatype_raw;
     }
+    return datatype_raw;
   }();
 
   const int ndims = dataspace.getSimpleExtentNdims();
@@ -236,28 +227,23 @@ void deserialize_all(GroupData::VecDataTypeVariant& field, const H5::Group& grou
     dimension[1] = dataset.getCompType().getNmembers();
   }
 
-  field = [&datatype, &dimension]() -> GroupData::VecDataTypeVariant {
-    if (datatype == H5::PredType::NATIVE_INT16 && dimension[1] == 1) return std::vector<int16_t>{};
-    if (datatype == H5::PredType::NATIVE_INT32 && dimension[1] == 1) return std::vector<int32_t>{};
-    if (datatype == H5::PredType::NATIVE_FLOAT && dimension[1] == 1) return std::vector<float>{};
-    if (datatype == H5::PredType::NATIVE_DOUBLE && dimension[1] == 1) return std::vector<double>{};
-    if (datatype == H5::PredType::NATIVE_INT16 && dimension[1] == 2)
-      return std::vector<std::complex<int16_t>>{};
-    if (datatype == H5::PredType::NATIVE_INT32 && dimension[1] == 2)
-      return std::vector<std::complex<int32_t>>{};
-    if (datatype == H5::PredType::NATIVE_FLOAT && dimension[1] == 2)
-      return std::vector<std::complex<float>>{};
-    if (datatype == H5::PredType::NATIVE_DOUBLE && dimension[1] == 2)
-      return std::vector<std::complex<double>>{};
-    throw std::runtime_error("Invalid format of raw_data");
-  }();
+  field.size = dimension[0];
 
-  std::visit(
-      [&dimension, &datatype_raw, &dataset](auto& vec) {
-        vec.resize(dimension[0]);
-        dataset.read(vec.data(), datatype_raw);
-      },
-      field);
+  if (datatype == H5::PredType::NATIVE_INT16) {
+    field.buffer =
+        std::shared_ptr<void>(malloc(sizeof(int16_t) * dimension[0] * dimension[1]), free);
+  } else if (datatype == H5::PredType::NATIVE_INT32) {
+    field.buffer =
+        std::shared_ptr<void>(malloc(sizeof(int32_t) * dimension[0] * dimension[1]), free);
+  } else if (datatype == H5::PredType::NATIVE_FLOAT) {
+    field.buffer = std::shared_ptr<void>(malloc(sizeof(float) * dimension[0] * dimension[1]), free);
+  } else if (datatype == H5::PredType::NATIVE_DOUBLE) {
+    field.buffer =
+        std::shared_ptr<void>(malloc(sizeof(double) * dimension[0] * dimension[1]), free);
+  } else
+    throw std::runtime_error("Invalid format of raw_data");
+
+  dataset.read(field.buffer.get(), datatype_raw);
 }
 }  // namespace
 

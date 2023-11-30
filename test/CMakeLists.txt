@@ -7,10 +7,10 @@ set(UFF_TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
 # set(SRCS_FILES reader.cpp operator.cpp)
 
-# if(TARGET Uff::Uff_Utils)
+# if(TARGET Uff::UffUtils)
 #   foreach(TESTI uff_test_time_helper)
 #     add_executable(${TESTI} ${TESTI}.cpp)
-#     target_link_libraries(${TESTI} PRIVATE Uff::Uff Uff::Uff_Utils)
+#     target_link_libraries(${TESTI} PRIVATE Uff::Uff Uff::UffUtils)
 #     add_test(NAME ${TESTI} COMMAND $<TARGET_FILE:${TESTI}>)
 #     if(WIN32 AND BUILD_SHARED_LIBS)
 #       add_custom_command(
@@ -23,7 +23,7 @@ set(UFF_TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 #   endforeach()
 # endif()
 
-if(TARGET Uff::Uff_Utils)
+if(TARGET Uff::UffUtils)
   add_subdirectory(utils)
 endif()
 

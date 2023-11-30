@@ -26,6 +26,8 @@ target_compile_options(
 # Set UFF sources
 set(UFF_UTILS_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/io.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/group_helper.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/group_helper.h
     ${CMAKE_CURRENT_SOURCE_DIR}/probe_helper.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/probe_helper.h
     ${CMAKE_CURRENT_SOURCE_DIR}/time_helper.h
@@ -42,9 +44,14 @@ if(WITH_HDF5)
 endif()
 
 # Target library ### Create target
-set(UFF_UTILS_LIBRARY Uff_Utils)
+set(UFF_UTILS_LIBRARY UffUtils)
 add_library(${UFF_UTILS_LIBRARY} ${UFF_UTILS_SRCS})
 add_library(Uff::${UFF_UTILS_LIBRARY} ALIAS ${UFF_UTILS_LIBRARY})
+if(WITH_PYTHON)
+  target_compile_definitions(${UFF_UTILS_LIBRARY} PRIVATE WITH_PYTHON)
+  target_link_libraries(${UFF_UTILS_LIBRARY} PRIVATE Python3::Python
+                                                     pybind11::headers)
+endif()
 
 # Define include directories
 target_include_directories(

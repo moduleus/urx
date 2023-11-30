@@ -1,24 +1,17 @@
 #include <algorithm>
 #include <complex>
-#include <cstddef>
-#include <cstdint>
-#include <ios>
 #include <iosfwd>
 #include <iterator>
 #include <memory>
-#include <ostream>
-#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <type_traits>
 #include <utility>
-#include <variant>
 #include <vector>
 
 #include <pybind11/attr.h>
 #include <pybind11/buffer_info.h>
 #include <pybind11/cast.h>
-#include <pybind11/detail/common.h>
 #include <pybind11/numpy.h>
 #include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
@@ -29,41 +22,23 @@
 #include <uff/dataset.h>
 #include <uff/detail/compare.h>
 #include <uff/detail/double_nan.h>
+#include <uff/detail/raw_data.h>
 #include <uff/group.h>
 #include <uff/group_data.h>
 #include <uff/version.h>
+#include <uff_utils/group_helper.h>
 
 namespace py = pybind11;
 
-using VecInt16 = std::vector<int16_t>;
-using VecInt32 = std::vector<int32_t>;
 using VecFloat32 = std::vector<float>;
 using VecFloat64 = std::vector<double>;
-using VecCompInt16 = std::vector<std::complex<int16_t>>;
-using VecCompInt32 = std::vector<std::complex<int32_t>>;
-using VecCompFloat32 = std::vector<std::complex<float>>;
-using VecCompFloat64 = std::vector<std::complex<double>>;
 
 using VecGroup = std::vector<std::shared_ptr<uff::Group>>;
 
-PYBIND11_MAKE_OPAQUE(VecInt16);
-PYBIND11_MAKE_OPAQUE(VecInt32);
 PYBIND11_MAKE_OPAQUE(VecFloat32);
 PYBIND11_MAKE_OPAQUE(VecFloat64);
-PYBIND11_MAKE_OPAQUE(VecCompInt16);
-PYBIND11_MAKE_OPAQUE(VecCompInt32);
-PYBIND11_MAKE_OPAQUE(VecCompFloat32);
-PYBIND11_MAKE_OPAQUE(VecCompFloat64);
 
 PYBIND11_MAKE_OPAQUE(VecGroup);
-
-template <typename VecDataType>
-bool checkType(uff::GroupData &vec) {
-  if (auto d = std::get_if<VecDataType>(&vec.raw_data)) {
-    return true;
-  }
-  return false;
-}
 
 template <typename T>
 std::ostream &operator<<(std::ostream &out, const std::vector<T> &v) {
@@ -116,217 +91,8 @@ constexpr std::string get_format(const std::vector<T> &v) {
 PYBIND11_MODULE(bindings, m) {
   m.doc() = "Variant C++ binding POC";
 
-  py::class_<VecCompInt16>(m, "VecCompInt16", py::buffer_protocol())
-      .def_buffer([](VecCompInt16 &v) -> py::buffer_info {
-        return py::buffer_info(v.data(), sizeof(int16_t), py::format_descriptor<int16_t>::format(),
-                               2, {v.size(), static_cast<size_t>(2)},
-                               {sizeof(int16_t) * 2, sizeof(int16_t)});
-      })
-      .def("__getitem__",
-           [](VecCompInt16 &v, py::ssize_t i) {
-             if (i >= v.size()) {
-               throw py::index_error();
-             }
-             return v[i];
-           })
-      .def("__getitem__",
-           [](VecCompInt16 &v, std::pair<py::ssize_t, py::ssize_t> i) {
-             if (i.first >= v.size() || i.second >= 2) {
-               throw py::index_error();
-             }
-             if (i.second == 0) {
-               return v[i.first].real();
-             }
-             return v[i.first].imag();
-           })
-      .def("__setitem__",
-           [](VecCompInt16 &v, py::ssize_t i, std::pair<int16_t, int16_t> p) {
-             if (i >= v.size()) {
-               throw py::index_error();
-             }
-             v[i] = std::complex<int16_t>(p.first, p.second);
-           })
-      .def("__setitem__",
-           [](VecCompInt16 &v, std::pair<py::ssize_t, py::ssize_t> i, int16_t value) {
-             if (i.first >= v.size() || i.second >= 2) {
-               throw py::index_error();
-             }
-             if (i.second == 0) {
-               v[i.first].real(value);
-             } else {
-               v[i.first].imag(value);
-             }
-           })
-      .def("__len__", [](VecCompInt16 &v) { return v.size(); })
-      .def("__repr__",
-           [](const VecCompInt16 &v) {
-             std::ostringstream stream;
-             stream << v;
-             return stream.str();
-           })
-      .def(py::init([](const py::buffer &b) {
-        /* Request a buffer descriptor from Python */
-        py::buffer_info info = b.request();
-
-        /* Some basic validation checks ... */
-        if ((info.item_type_is_equivalent_to<int16_t>() ||
-             info.item_type_is_equivalent_to<int32_t>()) &&
-            (info.ndim != 2 || info.shape[1] != 2))
-          throw std::runtime_error("Incompatible buffer dimension!");
-
-        if ((info.item_type_is_equivalent_to<std::complex<float>>() ||
-             info.item_type_is_equivalent_to<std::complex<double>>()) &&
-            (info.ndim != 1))
-          throw std::runtime_error("Incompatible buffer dimension!");
-
-        if (info.item_type_is_equivalent_to<int16_t>()) {
-          auto *ptr = static_cast<std::complex<int16_t> *>(info.ptr);
-          VecCompInt16 vec;
-          vec.reserve(info.shape[0]);
-          vec.insert(vec.begin(), ptr, ptr + info.shape[0]);
-          return vec;
-        }
-        if (info.item_type_is_equivalent_to<int32_t>()) {
-          auto *ptr = static_cast<std::complex<int32_t> *>(info.ptr);
-          VecCompInt16 vec;
-          vec.reserve(info.shape[0]);
-          for (auto i = 0; i < info.shape[0]; ++i) {
-            vec.push_back(static_cast<std::complex<int16_t>>(ptr[i]));
-          }
-          return vec;
-        }
-        if (info.item_type_is_equivalent_to<std::complex<float>>()) {
-          auto *ptr = static_cast<std::complex<float> *>(info.ptr);
-          VecCompInt16 vec;
-          vec.reserve(info.shape[0]);
-          for (auto i = 0; i < info.shape[0]; ++i) {
-            vec.push_back(static_cast<std::complex<int16_t>>(ptr[i]));
-          }
-          return vec;
-        }
-        if (info.item_type_is_equivalent_to<std::complex<double>>()) {
-          auto *ptr = static_cast<std::complex<double> *>(info.ptr);
-          VecCompInt16 vec;
-          vec.reserve(info.shape[0]);
-          for (auto i = 0; i < info.shape[0]; ++i) {
-            vec.push_back(static_cast<std::complex<int16_t>>(ptr[i]));
-          }
-          return vec;
-        }
-        throw std::runtime_error(
-            "Incompatible format: expected a int16 array of pair, int32 array of pair, complex64 "
-            "array or complex128 array!");
-      }));
-
-  py::class_<VecCompInt32>(m, "VecCompInt32", py::buffer_protocol())
-      .def_buffer([](VecCompInt32 &v) -> py::buffer_info {
-        return py::buffer_info(v.data(), sizeof(int32_t), py::format_descriptor<int32_t>::format(),
-
-                               2, {v.size(), static_cast<size_t>(2)},
-                               {sizeof(int32_t) * 2, sizeof(int32_t)});
-      })
-      .def("__getitem__",
-           [](VecCompInt32 &v, py::ssize_t i) {
-             if (i >= v.size()) {
-               throw py::index_error();
-             }
-             return v[i];
-           })
-      .def("__getitem__",
-           [](VecCompInt32 &v, std::pair<py::ssize_t, py::ssize_t> i) {
-             if (i.first >= v.size() || i.second >= 2) {
-               throw py::index_error();
-             }
-             if (i.second == 0) {
-               return v[i.first].real();
-             }
-             return v[i.first].imag();
-           })
-      .def("__setitem__",
-           [](VecCompInt32 &v, py::ssize_t i, std::pair<int32_t, int32_t> p) {
-             if (i >= v.size()) {
-               throw py::index_error();
-             }
-             v[i] = std::complex<int32_t>(p.first, p.second);
-           })
-      .def("__setitem__",
-           [](VecCompInt32 &v, std::pair<py::ssize_t, py::ssize_t> i, int32_t value) {
-             if (i.first >= v.size() || i.second >= 2) {
-               throw py::index_error();
-             }
-             if (i.second == 0) {
-               v[i.first].real(value);
-             } else {
-               v[i.first].imag(value);
-             }
-           })
-      .def("__len__", [](VecCompInt32 &v) { return v.size(); })
-      .def("__repr__",
-           [](const VecCompInt32 &v) {
-             std::ostringstream stream;
-             stream << v;
-             return stream.str();
-           })
-      .def(py::init([](const py::buffer &b) {
-        /* Request a buffer descriptor from Python */
-        py::buffer_info info = b.request();
-
-        /* Some basic validation checks ... */
-        if ((info.item_type_is_equivalent_to<int16_t>() ||
-             info.item_type_is_equivalent_to<int32_t>()) &&
-            (info.ndim != 2 || info.shape[1] != 2))
-          throw std::runtime_error("Incompatible buffer dimension!");
-
-        if ((info.item_type_is_equivalent_to<std::complex<float>>() ||
-             info.item_type_is_equivalent_to<std::complex<double>>()) &&
-            (info.ndim != 1))
-          throw std::runtime_error("Incompatible buffer dimension!");
-
-        if (info.item_type_is_equivalent_to<int32_t>()) {
-          auto *ptr = static_cast<std::complex<int32_t> *>(info.ptr);
-          VecCompInt32 vec;
-          vec.reserve(info.shape[0]);
-          vec.insert(vec.begin(), ptr, ptr + info.shape[0]);
-          return vec;
-        }
-        if (info.item_type_is_equivalent_to<int16_t>()) {
-          auto *ptr = static_cast<std::complex<int16_t> *>(info.ptr);
-          VecCompInt32 vec;
-          vec.reserve(info.shape[0]);
-          for (auto i = 0; i < info.shape[0]; ++i) {
-            vec.push_back(static_cast<std::complex<int32_t>>(ptr[i]));
-          }
-          return vec;
-        }
-        if (info.item_type_is_equivalent_to<std::complex<float>>()) {
-          auto *ptr = static_cast<std::complex<float> *>(info.ptr);
-          VecCompInt32 vec;
-          vec.reserve(info.shape[0]);
-          for (auto i = 0; i < info.shape[0]; ++i) {
-            vec.push_back(static_cast<std::complex<int32_t>>(ptr[i]));
-          }
-          return vec;
-        }
-        if (info.item_type_is_equivalent_to<std::complex<double>>()) {
-          auto *ptr = static_cast<std::complex<double> *>(info.ptr);
-          VecCompInt32 vec;
-          vec.reserve(info.shape[0]);
-          for (auto i = 0; i < info.shape[0]; ++i) {
-            vec.push_back(static_cast<std::complex<int32_t>>(ptr[i]));
-          }
-          return vec;
-        }
-        throw std::runtime_error(
-            "Incompatible format: expected a int16 array of pair, int32 array of pair, complex64 "
-            "array or complex128 array!");
-      }));
-
-  py::bind_vector<VecInt16>(m, "VecInt16", py::buffer_protocol());
-  py::bind_vector<VecInt32>(m, "VecInt32", py::buffer_protocol());
   py::bind_vector<VecFloat32>(m, "VecFloat32", py::buffer_protocol());
   py::bind_vector<VecFloat64>(m, "VecFloat64", py::buffer_protocol());
-  py::bind_vector<VecCompFloat32>(m, "VecCompFloat32", py::buffer_protocol());
-  py::bind_vector<VecCompFloat64>(m, "VecCompFloat64", py::buffer_protocol());
 
   py::bind_vector<VecGroup>(m, "VecGroup");
 
@@ -389,16 +155,14 @@ PYBIND11_MODULE(bindings, m) {
       .def_property(
           "raw_data",
           [](uff::GroupData &self) {
+            const std::shared_ptr<uff::Group> shared_group = self.group.lock();
             const bool are_data_complex =
-                std::visit([](auto &&vec) { return is_complex(vec); }, self.raw_data);
-            const py::ssize_t data_size =
-                std::visit([](auto &&vec) { return vec.size(); }, self.raw_data);
-            void *data_ptr = std::visit([](auto &&vec) { return static_cast<void *>(vec.data()); },
-                                        self.raw_data);
-            const py::ssize_t sizeof_data_type_var =
-                std::visit([](auto &&vec) { return sizeof_data_type(vec); }, self.raw_data);
-            const std::string data_format =
-                std::visit([](auto &&vec) { return get_format(vec); }, self.raw_data);
+                shared_group->sampling_type == uff::Group::SamplingType::IQ;
+            const py::ssize_t data_size = self.raw_data.size;
+            uff::GroupHelper group_helper{*shared_group};
+            void *data_ptr = self.raw_data.buffer.get();
+            const py::ssize_t sizeof_data_type_var = group_helper.sizeof_data_type();
+            const std::string data_format = group_helper.py_get_format();
 
             auto buffer = py::buffer_info(
                 data_ptr, sizeof_data_type_var, data_format, are_data_complex ? 2 : 1,
@@ -418,47 +182,10 @@ PYBIND11_MODULE(bindings, m) {
             if (info.ndim == 2 && info.shape[1] != 2)
               throw std::runtime_error("Dimension error: Too many data in second dimension");
 
-            if (info.item_type_is_equivalent_to<double>()) {
-              if (info.ndim == 1)  // RF
-                self.raw_data = VecFloat64(static_cast<double *>(info.ptr),
-                                           static_cast<double *>(info.ptr) + info.shape[0]);
-              else  // IQ
-                self.raw_data =
-                    VecCompFloat64(static_cast<std::complex<double> *>(info.ptr),
-                                   static_cast<std::complex<double> *>(info.ptr) + info.shape[0]);
-            } else if (info.item_type_is_equivalent_to<float>()) {
-              if (info.ndim == 1)  // RF
-                self.raw_data = VecFloat32(static_cast<float *>(info.ptr),
-                                           static_cast<float *>(info.ptr) + info.shape[0]);
-              else  // IQ
-                self.raw_data =
-                    VecCompFloat32(static_cast<std::complex<float> *>(info.ptr),
-                                   static_cast<std::complex<float> *>(info.ptr) + info.shape[0]);
-            } else if (info.item_type_is_equivalent_to<int32_t>()) {
-              if (info.ndim == 1)  // RF
-                self.raw_data = VecInt32(static_cast<int32_t *>(info.ptr),
-                                         static_cast<int32_t *>(info.ptr) + info.shape[0]);
-              else  // IQ
-                self.raw_data =
-                    VecCompInt32(static_cast<std::complex<int32_t> *>(info.ptr),
-                                 static_cast<std::complex<int32_t> *>(info.ptr) + info.shape[0]);
-            } else if (info.item_type_is_equivalent_to<int16_t>()) {
-              if (info.ndim == 1)  // RF
-                self.raw_data = VecInt16(static_cast<int16_t *>(info.ptr),
-                                         static_cast<int16_t *>(info.ptr) + info.shape[0]);
-              else  // IQ
-                self.raw_data =
-                    VecCompInt16(static_cast<std::complex<int16_t> *>(info.ptr),
-                                 static_cast<std::complex<int16_t> *>(info.ptr) + info.shape[0]);
-            } else if (info.item_type_is_equivalent_to<std::complex<double>>()) {
-              self.raw_data =
-                  VecCompFloat64(static_cast<std::complex<double> *>(info.ptr),
-                                 static_cast<std::complex<double> *>(info.ptr) + info.shape[0]);
-            } else if (info.item_type_is_equivalent_to<std::complex<float>>()) {
-              self.raw_data =
-                  VecCompFloat32(static_cast<std::complex<float> *>(info.ptr),
-                                 static_cast<std::complex<float> *>(info.ptr) + info.shape[0]);
-            }
+            auto fake_deleter = [](void *) {};
+
+            self.raw_data.buffer = std::shared_ptr<void>(info.ptr, fake_deleter);
+            self.raw_data.size = info.shape[0];
           });
 
   py::class_<uff::Version>(m, "Version")
@@ -485,15 +212,5 @@ PYBIND11_MODULE(bindings, m) {
       .def_readwrite("timestamp", &uff::Acquisition::timestamp)
       .def_readwrite("groups", &uff::Acquisition::groups)
       .def_readwrite("group_data", &uff::Acquisition::groups_data);
-
-  m.def("checkInt16Type", &checkType<std::vector<int16_t>>);
-  m.def("checkInt32Type", &checkType<std::vector<int32_t>>);
-  m.def("checkFloat32Type", &checkType<std::vector<float>>);
-  m.def("checkFloat64Type", &checkType<std::vector<double>>);
-
-  m.def("checkComplexInt16Type", &checkType<std::vector<std::complex<int16_t>>>);
-  m.def("checkComplexInt32Type", &checkType<std::vector<std::complex<int32_t>>>);
-  m.def("checkComplexFloat32Type", &checkType<std::vector<std::complex<float>>>);
-  m.def("checkComplexFloat64Type", &checkType<std::vector<std::complex<double>>>);
 }
 // NOLINTEND(misc-redundant-expression)
