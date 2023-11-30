@@ -4,9 +4,9 @@
  * \brief
  */
 
-#include <urx/v0_5/excitation.h>
-
 #include <ostream>
+
+#include <urx/v0_5/excitation.h>
 
 namespace urx::v0_5 {
 

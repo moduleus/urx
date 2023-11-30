@@ -4,9 +4,9 @@
  * \brief
  */
 
-#include <urx/v0_5/element.h>
-
 #include <ostream>
+
+#include <urx/v0_5/element.h>
 
 namespace urx::v0_5 {
 

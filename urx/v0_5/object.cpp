@@ -4,11 +4,11 @@
  * \brief
  */
 
-#include <urx/v0_5/object.h>
-
 #include <memory>
 #include <ostream>
 #include <utility>
+
+#include <urx/v0_5/object.h>
 
 namespace urx::v0_5 {
 

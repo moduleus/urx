@@ -4,9 +4,9 @@
  * \brief
  */
 
-#include <urx/v0_5/rotation.h>
-
 #include <ostream>
+
+#include <urx/v0_5/rotation.h>
 
 namespace urx::v0_5 {
 

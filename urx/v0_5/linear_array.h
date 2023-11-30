@@ -27,9 +27,8 @@ namespace urx::v0_5 {
 class LinearArray : public urx::Probe {
   URX_TYPE_MACRO(LinearArray, urx::Object);
 
-public:
-  explicit LinearArray(uint32_t numberElements)
-      : m_numberElements(numberElements) {
+ public:
+  explicit LinearArray(uint32_t numberElements) : m_numberElements(numberElements) {
     updateElements();
   }
 
@@ -48,28 +47,23 @@ public:
   }
 
   std::optional<MetadataType> elementWidth() { return m_elementWidth; }
-  void setElementWidth(std::optional<MetadataType> elementWidth) {
-    m_elementWidth = elementWidth;
-  }
+  void setElementWidth(std::optional<MetadataType> elementWidth) { m_elementWidth = elementWidth; }
 
   std::optional<MetadataType> elementHeight() { return m_elementHeight; }
   void setElementHeight(std::optional<MetadataType> elementHeight) {
     m_elementHeight = elementHeight;
   }
 
-  std::shared_ptr<urx::Probe> clone() override {
-    return std::make_shared<urx::LinearArray>(*this);
-  }
+  std::shared_ptr<urx::Probe> clone() override { return std::make_shared<urx::LinearArray>(*this); }
 
-private:
+ private:
   // Update elements position
   void updateElements() {
     m_elements.resize(m_numberElements);
     for (uint32_t i = 0; i < m_numberElements; ++i) {
       // element position
       urx::Element element;
-      MetadataType xmin =
-          -m_pitch * static_cast<float>(m_numberElements - 1) / 2.f;
+      MetadataType xmin = -m_pitch * static_cast<float>(m_numberElements - 1) / 2.f;
       element.setX(xmin + i * m_pitch);
       element.setY(0.f);
       element.setZ(0.f);
@@ -77,7 +71,7 @@ private:
     }
   }
 
-protected:
+ protected:
   // Number of elements in the array
   uint32_t m_numberElements = 0;
 
@@ -91,6 +85,6 @@ protected:
   std::optional<MetadataType> m_elementHeight = std::nullopt;
 };
 
-} // namespace urx::v0_5
+}  // namespace urx::v0_5
 
-#endif // URX_LINEAR_ARRAY_H
+#endif  // URX_LINEAR_ARRAY_H

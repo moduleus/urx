@@ -4,10 +4,10 @@
  * \brief
  */
 
-#include <urx/v0_5/wave.h>
-
 #include <ostream>
 #include <utility>
+
+#include <urx/v0_5/wave.h>
 
 namespace urx::v0_5 {
 

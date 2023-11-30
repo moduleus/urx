@@ -4,9 +4,9 @@
  * \brief
  */
 
-#include <urx/v0_5/aperture.h>
-
 #include <ostream>
+
+#include <urx/v0_5/aperture.h>
 
 namespace urx::v0_5 {
 

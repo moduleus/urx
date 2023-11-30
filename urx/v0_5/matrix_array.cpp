@@ -4,11 +4,10 @@
  * \brief
  */
 
-#include <urx/v0_5/matrix_array.h>
-
 #include <ostream>
 #include <utility>
 
+#include <urx/v0_5/matrix_array.h>
 #include <urx/v0_5/probe.h>
 
 namespace urx::v0_5 {

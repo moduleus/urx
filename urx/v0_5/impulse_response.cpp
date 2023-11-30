@@ -4,9 +4,9 @@
  * \brief
  */
 
-#include <urx/v0_5/impulse_response.h>
-
 #include <ostream>
+
+#include <urx/v0_5/impulse_response.h>
 
 namespace urx::v0_5 {
 

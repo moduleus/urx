@@ -4,12 +4,11 @@
  * \brief
  */
 
-#include <urx/v0_5/rca_array.h>
-
 #include <ostream>
 #include <utility>
 
 #include <urx/v0_5/probe.h>
+#include <urx/v0_5/rca_array.h>
 
 namespace urx::v0_5 {
 

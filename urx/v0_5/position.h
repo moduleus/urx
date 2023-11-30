@@ -7,9 +7,9 @@
 #ifndef URX_POSTITION_H
 #define URX_POSTITION_H
 
-#include <urx.h>
-
 #include <iostream>
+
+#include <urx.h>
 
 namespace urx::v0_5 {
 

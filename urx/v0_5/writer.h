@@ -34,8 +34,10 @@
 
 #define URX_WRITER_H
 
-#include <H5Cpp.h>
 #include <optional>
+
+#include <H5Cpp.h>
+
 #include <urx/v0_5/dataset.h>
 #include <urx/v0_5/object.h>
 

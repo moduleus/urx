@@ -4,10 +4,10 @@
  * \brief
  */
 
-#include <urx/v0_5/probe.h>
-
 #include <cstddef>
 #include <ostream>
+
+#include <urx/v0_5/probe.h>
 
 namespace urx::v0_5 {
 

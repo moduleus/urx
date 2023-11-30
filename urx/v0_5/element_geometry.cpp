@@ -4,10 +4,10 @@
  * \brief
  */
 
-#include <urx/v0_5/element_geometry.h>
-
 #include <ostream>
 #include <utility>
+
+#include <urx/v0_5/element_geometry.h>
 
 namespace urx::v0_5 {
 

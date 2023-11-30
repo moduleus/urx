@@ -6,8 +6,6 @@
 
 #ifdef WITH_HDF5
 
-#include <urx/v0_5/reader.h>
-
 #include <cmath>
 #include <cstdio>
 #include <ostream>
@@ -15,6 +13,7 @@
 
 #include <urx/v0_5/channel_data.h>
 #include <urx/v0_5/log.h>
+#include <urx/v0_5/reader.h>
 #include <urx/v0_5/types.h>
 #include <urx/v0_5/version.h>
 

@@ -4,9 +4,9 @@
  * \brief
  */
 
-#include <urx/v0_5/transmit_wave.h>
-
 #include <ostream>
+
+#include <urx/v0_5/transmit_wave.h>
 
 namespace urx::v0_5 {
 

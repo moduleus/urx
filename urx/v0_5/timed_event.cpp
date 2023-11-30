@@ -4,9 +4,9 @@
  * \brief
  */
 
-#include <urx/v0_5/timed_event.h>
-
 #include <ostream>
+
+#include <urx/v0_5/timed_event.h>
 
 namespace urx::v0_5 {
 

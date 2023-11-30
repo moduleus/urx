@@ -4,10 +4,10 @@
  * \brief
  */
 
-#include <urx/v0_5/event.h>
-
 #include <ostream>
 #include <utility>
+
+#include <urx/v0_5/event.h>
 
 namespace urx::v0_5 {
 

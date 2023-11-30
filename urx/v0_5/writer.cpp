@@ -5,12 +5,12 @@
  */
 
 #ifdef WITH_HDF5
-#include <urx/v0_5/writer.h>
-
 #include <cassert>
 #include <cstdio>
 #include <limits>
 #include <ostream>
+
+#include <urx/v0_5/writer.h>
 
 #define H5DataType \
   (std::is_same<DataType, float>::value ? H5::PredType::NATIVE_FLOAT : H5::PredType::NATIVE_SHORT)

@@ -4,12 +4,11 @@
  * \brief
  */
 
-#include <urx/v0_5/channel_data.h>
-
 #include <iomanip>
 #include <ostream>
 #include <utility>
 
+#include <urx/v0_5/channel_data.h>
 #include <urx/v0_5/log.h>
 #include <urx/v0_5/receive_setup.h>
 #include <urx/v0_5/transmit_setup.h>

@@ -4,9 +4,9 @@
  * \brief
  */
 
-#include <urx/v0_5/receive_setup.h>
-
 #include <ostream>
+
+#include <urx/v0_5/receive_setup.h>
 
 namespace urx::v0_5 {
 
