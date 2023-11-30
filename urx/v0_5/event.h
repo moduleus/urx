@@ -1,0 +1,53 @@
+/*!
+ * Copyright Moduleus
+ * \file urx/event.h
+ * \brief
+ */
+
+#ifndef URX_EVENT_H
+#define URX_EVENT_H
+
+#include <iosfwd>
+#include <string>
+#include <urx/v0_5/object.h>
+#include <urx/v0_5/receive_setup.h>
+#include <urx/v0_5/transmit_setup.h>
+#include <urx/v0_5/urx.h>
+
+namespace urx::v0_5 {
+
+/**
+ * @brief URX class to describe an unique ultrasound event, composed by a single transmit and receive setup
+ */
+class Event : public urx::Object {
+  URX_TYPE_MACRO(Event, urx::Object);
+
+ public:
+  Event() = default;
+
+  void printSelf(std::ostream& os, const std::string& indent) const override;
+
+  urx::TransmitSetup& transmitSetup() { return m_transmitSetup; }
+  void setTransmitSetup(const urx::TransmitSetup& transmitSetup) {
+    m_transmitSetup = transmitSetup;
+  }
+
+  urx::ReceiveSetup& receiveSetup() { return m_receiveSetup; }
+  void setReceiveSetup(const urx::ReceiveSetup& receiveSetup) { m_receiveSetup = receiveSetup; }
+
+  bool operator==(const Event& other) const {
+    return ((m_transmitSetup == other.m_transmitSetup) && (m_receiveSetup == other.m_receiveSetup));
+  }
+  inline bool operator!=(const Event& other) const { return !(*this == other); }
+
+ private:
+  // Description of the transmit event (probe/channels, waves, excitations, etc.). If more than one probe is used in reception, this is a list of setups.
+  urx::TransmitSetup m_transmitSetup;
+
+  // Description of sampled channel data (probe/channels, sampling, TGC, etc.). If more than one probe is used in reception, this is a list of setups.
+  urx::ReceiveSetup m_receiveSetup;
+};
+
+}  // namespace urx::v0_5
+
+#endif  // URX_EVENT_H
