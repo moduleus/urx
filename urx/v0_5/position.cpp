@@ -4,6 +4,10 @@
  * \brief
  */
 
+#include <ios>
+#include <ostream>
+#include <string>
+
 #include <urx/v0_5/position.h>
 
 namespace urx::v0_5 {

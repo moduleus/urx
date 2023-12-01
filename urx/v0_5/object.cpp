@@ -15,7 +15,7 @@ namespace urx::v0_5 {
 const char* Object::getClassName() const { return this->getClassNameInternal(); }
 
 void Object::print(std::ostream& os) const {
-  std::string indent;
+  const std::string indent;
 
   this->printHeader(os, "");
   this->printSelf(os, indent + "  ");

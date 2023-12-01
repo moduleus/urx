@@ -4,9 +4,13 @@
  * \brief
  */
 
+#include <ios>
 #include <ostream>
 
+#include <urx/v0_5/channel_data.h>
 #include <urx/v0_5/dataset.h>
+#include <urx/v0_5/object.h>
+#include <urx/v0_5/version.h>
 
 namespace urx::v0_5 {
 

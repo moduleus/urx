@@ -7,14 +7,12 @@
 #ifndef URX_RCA_ARRAY_H
 #define URX_RCA_ARRAY_H
 
-#include <cstddef>
+#include <cstdint>
 #include <iosfwd>
 #include <memory>
 #include <optional>
 #include <string>
-#include <vector>
 
-#include <urx/v0_5/element.h>
 #include <urx/v0_5/object.h>
 #include <urx/v0_5/probe.h>
 #include <urx/v0_5/urx.h>
@@ -83,28 +81,7 @@ class RcaArray : public Probe {
 
  private:
   // Update elements position
-  void updateElements() {
-    m_elements.resize(static_cast<size_t>(m_numberElementsX) + m_numberElementsY);
-
-    MetadataType xmin = -m_pitchX * (m_numberElementsX - 1.f) / 2.f;
-
-    for (uint32_t i = 0; i < m_numberElementsX; i++) {
-      Element element;
-      element.setX(xmin + i * m_pitchX);
-      element.setY(0.f);
-      element.setZ(0.f);
-      m_elements[i] = element;
-    }
-
-    MetadataType ymin = -m_pitchY * (m_numberElementsY - 1.f) / 2.f;
-    for (uint32_t i = m_numberElementsX; i < m_elements.size(); i++) {
-      Element element;
-      element.setY(ymin + (i - m_numberElementsX) * m_pitchY);
-      element.setX(0.f);
-      element.setZ(0.f);
-      m_elements[i] = element;
-    }
-  }
+  void updateElements();
 
  protected:
   // Number of elements in the x-axis

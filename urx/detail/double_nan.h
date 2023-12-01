@@ -6,7 +6,9 @@
 namespace urx {
 
 struct DoubleNan {
-  double value = std::numeric_limits<double>::quiet_NaN();
+  static constexpr double NaN = std::numeric_limits<double>::quiet_NaN();
+
+  double value = NaN;
 
   DoubleNan() = default;
   explicit DoubleNan(double v) : value(v) {}

@@ -7,9 +7,9 @@
 #ifndef URX_POSTITION_H
 #define URX_POSTITION_H
 
-#include <iostream>
+#include <iosfwd>
 
-#include <urx.h>
+#include <urx/v0_5/urx.h>
 
 namespace urx::v0_5 {
 
@@ -24,7 +24,7 @@ class Position {
     this->setZ(z);
   }
 
-  friend std::ostream& operator<<(std::ostream& os, const Position& r);
+  friend std::ostream& operator<<(std::ostream& os, const Position& p);
 
   MetadataType x() const { return m_x; }
   void setX(MetadataType x) { m_x = x; }

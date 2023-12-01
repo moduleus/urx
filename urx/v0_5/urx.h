@@ -12,9 +12,9 @@
 
 namespace urx::v0_5 {
 
-#define URX_VERSION_MAJOR 0
-#define URX_VERSION_MINOR 2
-#define URX_VERSION_PATCH 0
+constexpr int URX_VERSION_MAJOR = 0;
+constexpr int URX_VERSION_MINOR = 2;
+constexpr int URX_VERSION_PATCH = 0;
 
 using MetadataType = double;
 

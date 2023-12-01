@@ -8,6 +8,7 @@
 #define URX_PERIMETER_H
 
 #include <iosfwd>
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>

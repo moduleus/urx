@@ -6,7 +6,7 @@
  * \brief
  */
 
-#include <ostream>
+#include <iosfwd>
 
 namespace urx::v0_5 {
 

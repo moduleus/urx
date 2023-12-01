@@ -6,26 +6,46 @@
 
 #ifdef WITH_HDF5
 
+#include <algorithm>
 #include <cmath>
 #include <cstdio>
+#include <ios>
 #include <ostream>
+#include <type_traits>
 #include <utility>
 
+#include <urx/v0_5/aperture.h>
 #include <urx/v0_5/channel_data.h>
+#include <urx/v0_5/dataset.h>
+#include <urx/v0_5/element.h>
+#include <urx/v0_5/event.h>
+#include <urx/v0_5/excitation.h>
+#include <urx/v0_5/linear_array.h>
 #include <urx/v0_5/log.h>
+#include <urx/v0_5/matrix_array.h>
+#include <urx/v0_5/probe.h>
+#include <urx/v0_5/rca_array.h>
 #include <urx/v0_5/reader.h>
+#include <urx/v0_5/receive_setup.h>
+#include <urx/v0_5/rotation.h>
+#include <urx/v0_5/timed_event.h>
+#include <urx/v0_5/transform.h>
+#include <urx/v0_5/translation.h>
+#include <urx/v0_5/transmit_setup.h>
+#include <urx/v0_5/transmit_wave.h>
 #include <urx/v0_5/types.h>
+#include <urx/v0_5/urx.h>
 #include <urx/v0_5/version.h>
+#include <urx/v0_5/wave.h>
 
 #if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic ignored "-Wformat-truncation"
 #endif
 
 #define H5DataType \
-  (std::is_same<DataType, float>::value ? H5::PredType::NATIVE_FLOAT : H5::PredType::NATIVE_SHORT)
-#define H5MetadataType                                                   \
-  (std::is_same<MetadataType, float>::value ? H5::PredType::NATIVE_FLOAT \
-                                            : H5::PredType::NATIVE_DOUBLE)
+  (std::is_same_v<DataType, float> ? H5::PredType::NATIVE_FLOAT : H5::PredType::NATIVE_SHORT)
+#define H5MetadataType \
+  (std::is_same_v<MetadataType, float> ? H5::PredType::NATIVE_FLOAT : H5::PredType::NATIVE_DOUBLE)
 
 //static_assert(sizeof (long) == sizeof (long long),
 //              "Architecture not supported, cf. Reader<DataType>::readIntegerArrayDataset");
@@ -44,17 +64,15 @@ void Reader<DataType>::updateMetadata() {
 
   H5::Exception::dontPrint();
 
-  H5::H5File file(m_fileName, H5F_ACC_RDONLY);
+  const H5::H5File file(m_fileName, H5F_ACC_RDONLY);
 
   // Version
-  H5::Group version(file.openGroup("version"));
+  const H5::Group version(file.openGroup("version"));
   readVersion(version);
 
   // Channel Data
-  H5::Group channelData(file.openGroup("channel_data"));
+  const H5::Group channelData(file.openGroup("channel_data"));
   readChannelData(channelData);
-
-  file.close();
 }
 
 template <typename DataType>
@@ -109,41 +127,39 @@ void Reader<DataType>::readChannelData(const H5::Group& group) {
   channelData.setNumberOfSamples(static_cast<int>(dataDims[3]));
 
   // Probes
-  H5::Group probes(group.openGroup("probes"));
+  const H5::Group probes(group.openGroup("probes"));
   channelData.setProbes(readProbeArray(probes));
 
   // Unique waves
-  H5::Group waves(group.openGroup("unique_waves"));
+  const H5::Group waves(group.openGroup("unique_waves"));
   channelData.setUniqueWaves(readWaveArray(waves));
 
   // Unique events
-  H5::Group uniqueEvents(group.openGroup("unique_events"));
+  const H5::Group uniqueEvents(group.openGroup("unique_events"));
   channelData.setUniqueEvents(readEventArray(uniqueEvents));
 
   // Sequence
-  H5::Group sequence(group.openGroup("sequence"));
+  const H5::Group sequence(group.openGroup("sequence"));
   channelData.setSequence(readTimedEventArray(sequence));
 }
 
 template <typename DataType>
 MetadataType Reader<DataType>::readMetadataTypeDataset(const H5::Group& group,
                                                        const std::string& name) {
-  H5::StrType datatype(H5MetadataType);
-  H5::DataSet dataset = group.openDataSet(name);
+  const H5::StrType datatype(H5MetadataType);
+  const H5::DataSet dataset = group.openDataSet(name);
   MetadataType value;
   dataset.read(&value, datatype);
-  dataset.close();
   return value;
 }
 
 template <typename DataType>
 std::optional<MetadataType> Reader<DataType>::readOptionalMetadataTypeDataset(
     const H5::Group& group, const std::string& name) {
-  H5::StrType datatype(H5MetadataType);
-  H5::DataSet dataset = group.openDataSet(name);
+  const H5::StrType datatype(H5MetadataType);
+  const H5::DataSet dataset = group.openDataSet(name);
   MetadataType value;
   dataset.read(&value, datatype);
-  dataset.close();
   std::optional<MetadataType> result = std::nullopt;
   if (!std::isnan(value)) {
     result = value;
@@ -171,7 +187,7 @@ std::vector<Element> Reader<DataType>::readElementArray(const H5::Group& group) 
   while (true) {
     snprintf(buf, sizeof buf, "%08d", id);
     if (H5Lexists(group.getLocId(), buf, H5P_DEFAULT)) {
-      H5::Group element = group.openGroup(buf);
+      const H5::Group element = group.openGroup(buf);
       elements.push_back(readElement(element));
       id++;
     } else {
@@ -205,7 +221,7 @@ std::vector<std::shared_ptr<Event>> Reader<DataType>::readEventArray(const H5::G
     snprintf(buf, sizeof buf, "%08d", id);
 
     if (H5Lexists(group.getLocId(), buf, H5P_DEFAULT)) {
-      H5::Group event = group.openGroup(buf);
+      const H5::Group event = group.openGroup(buf);
       events.push_back(readEvent(event));
       id++;
     } else {
@@ -239,20 +255,19 @@ template <typename DataType>
 void Reader<DataType>::readDataTypeArrayDataset(const H5::Group& group, const std::string& name,
                                                 std::vector<DataType>& values,
                                                 std::vector<size_t>& dimensions) {
-  H5::DataSet dataset = group.openDataSet(name);
-  H5::StrType datatype(H5DataType);
+  const H5::DataSet dataset = group.openDataSet(name);
+  const H5::StrType datatype(H5DataType);
 
   // find dataset dimensions
-  H5::DataSpace dataspace = dataset.getSpace();
-  int ndims = dataspace.getSimpleExtentNdims();
-  //std::cout << "ndims:" << ndims << std::endl;
+  const H5::DataSpace dataspace = dataset.getSpace();
+  const int ndims = dataspace.getSimpleExtentNdims();
+  //std::cout << "ndims:" << ndims << '\n';
   dimensions.resize(ndims);
-  dataspace.getSimpleExtentDims(
-      reinterpret_cast<unsigned long long*>(dimensions.data()));  // Poor casting
+  dataspace.getSimpleExtentDims(reinterpret_cast<hsize_t*>(dimensions.data()));  // Poor casting
   size_t numel = 1;
   for (auto sz : dimensions) {
     numel *= sz;
-    //std::cout << "sz:" << sz << std::endl;
+    //std::cout << "sz:" << sz << '\n';
   }
 
   if (!m_skipChannelDataData) {
@@ -268,21 +283,20 @@ template <typename DataType>
 void Reader<DataType>::readMetadataTypeArrayDataset(const H5::Group& group, const std::string& name,
                                                     std::vector<MetadataType>& values,
                                                     std::vector<size_t>& dimensions) {
-  H5::DataSet dataset = group.openDataSet(name);
+  const H5::DataSet dataset = group.openDataSet(name);
   // TODO: check if type is correct : dataset.getTypeClass()
-  H5::StrType datatype(H5MetadataType);
+  const H5::StrType datatype(H5MetadataType);
 
   // find dataset dimensions
-  H5::DataSpace dataspace = dataset.getSpace();
-  int ndims = dataspace.getSimpleExtentNdims();
-  //std::cout << "ndims:" << ndims << std::endl;
+  const H5::DataSpace dataspace = dataset.getSpace();
+  const int ndims = dataspace.getSimpleExtentNdims();
+  //std::cout << "ndims:" << ndims << '\n';
   dimensions.resize(ndims);
-  dataspace.getSimpleExtentDims(
-      reinterpret_cast<unsigned long long*>(dimensions.data()));  // Poor casting
+  dataspace.getSimpleExtentDims(reinterpret_cast<hsize_t*>(dimensions.data()));  // Poor casting
   size_t numel = 1;
   for (auto sz : dimensions) {
     numel *= sz;
-    //std::cout << "sz:" << sz << std::endl;
+    //std::cout << "sz:" << sz << '\n';
   }
 
   // reserve space in the output buffer
@@ -296,14 +310,14 @@ template <typename DataType>
 void Reader<DataType>::readIntegerArrayDataset(const H5::Group& group, const std::string& name,
                                                std::vector<int>& values,
                                                std::vector<size_t>& dimensions) {
-  H5::DataSet dataset = group.openDataSet(name);
+  const H5::DataSet dataset = group.openDataSet(name);
   // TODO: check if type is correct : dataset.getTypeClass()
-  H5::StrType datatype(H5::PredType::NATIVE_INT);
+  const H5::StrType datatype(H5::PredType::NATIVE_INT);
 
   // find dataset dimensions
-  H5::DataSpace dataspace = dataset.getSpace();
-  int ndims = dataspace.getSimpleExtentNdims();
-  //std::cout << "ndims:" << ndims << std::endl;
+  const H5::DataSpace dataspace = dataset.getSpace();
+  const int ndims = dataspace.getSimpleExtentNdims();
+  //std::cout << "ndims:" << ndims << '\n';
   dimensions.resize(ndims);
   dataspace.getSimpleExtentDims(reinterpret_cast<hsize_t*>(
       dimensions
@@ -313,7 +327,7 @@ void Reader<DataType>::readIntegerArrayDataset(const H5::Group& group, const std
   size_t numel = 1;
   for (auto sz : dimensions) {
     numel *= sz;
-    //std::cout << "sz:" << sz << std::endl;
+    //std::cout << "sz:" << sz << '\n';
   }
 
   // reserve space in the output buffer
@@ -325,11 +339,10 @@ void Reader<DataType>::readIntegerArrayDataset(const H5::Group& group, const std
 
 template <typename DataType>
 int Reader<DataType>::readIntegerDataset(const H5::Group& group, const std::string& name) {
-  H5::StrType datatype(H5::PredType::NATIVE_INT);
-  H5::DataSet dataset = group.openDataSet(name);
+  const H5::StrType datatype(H5::PredType::NATIVE_INT);
+  const H5::DataSet dataset = group.openDataSet(name);
   int value;
   dataset.read(&value, datatype);
-  dataset.close();
   return value;
 }
 
@@ -395,14 +408,14 @@ std::shared_ptr<Probe> Reader<DataType>::readProbe(const H5::Group& group) {
   auto probe = std::make_shared<Probe>();
 
   // transform
-  H5::Group transform = group.openGroup("transform");
+  const H5::Group transform = group.openGroup("transform");
   probe->setTransform(readTransform(transform));
 
   // focal length
   probe->setFocalLength(readOptionalMetadataTypeDataset(group, "focal_length"));
 
   // elements
-  H5::Group elements = group.openGroup("elements");
+  const H5::Group elements = group.openGroup("elements");
   probe->setElements(readElementArray(elements));
 
   // element geometries (TODO)
@@ -411,7 +424,7 @@ std::shared_ptr<Probe> Reader<DataType>::readProbe(const H5::Group& group) {
 
   // probe_type (optional)
   if (H5Lexists(group.getLocId(), "probe_type", H5P_DEFAULT)) {
-    std::string probeType = readStringDataset(group, "probe_type");
+    const std::string probeType = readStringDataset(group, "probe_type");
     if (probeType == "LinearArray") {
       auto linearArray = readLinearArray(group);
       linearArray->setTransform(probe->transform());
@@ -456,7 +469,7 @@ std::vector<std::shared_ptr<Probe>> Reader<DataType>::readProbeArray(const H5::G
   while (true) {
     snprintf(buf, sizeof buf, "%08d", id);
     if (H5Lexists(group.getLocId(), buf, H5P_DEFAULT)) {
-      H5::Group probe = group.openGroup(buf);
+      const H5::Group probe = group.openGroup(buf);
       probes.push_back(readProbe(probe));
       id++;
     } else {
@@ -472,7 +485,7 @@ ReceiveSetup Reader<DataType>::readReceiveSetup(const H5::Group& group) {
   ReceiveSetup receiveSetup;
 
   // "probe"
-  int probeId = std::stoi(readStringDataset(group, "probe_id"));
+  const int probeId = std::stoi(readStringDataset(group, "probe_id"));
   receiveSetup.setProbe(m_dataset->channelData().probes()[static_cast<size_t>(probeId) - 1]);
 
   // "time_offset"
@@ -545,9 +558,9 @@ Rotation Reader<DataType>::readRotation(const H5::Group& group) {
 
 template <typename DataType>
 std::string Reader<DataType>::readStringDataset(const H5::Group& group, const std::string& name) {
-  H5::StrType datatype(0, H5T_VARIABLE);
-  H5::DataSpace dataspace(H5S_SCALAR);
-  H5::DataSet dataset = group.openDataSet(name);
+  const H5::StrType datatype(0, H5T_VARIABLE);
+  const H5::DataSpace dataspace(H5S_SCALAR);
+  const H5::DataSet dataset = group.openDataSet(name);
   std::string buffer;
   dataset.read(buffer, datatype, dataspace);
   return buffer;
@@ -556,9 +569,9 @@ std::string Reader<DataType>::readStringDataset(const H5::Group& group, const st
 template <typename DataType>
 std::optional<std::string> Reader<DataType>::readOptionalStringDataset(const H5::Group& group,
                                                                        const std::string& name) {
-  H5::StrType datatype(0, H5T_VARIABLE);
-  H5::DataSpace dataspace(H5S_SCALAR);
-  H5::DataSet dataset = group.openDataSet(name);
+  const H5::StrType datatype(0, H5T_VARIABLE);
+  const H5::DataSpace dataspace(H5S_SCALAR);
+  const H5::DataSet dataset = group.openDataSet(name);
   std::string buffer;
   dataset.read(buffer, datatype, dataspace);
   std::optional<std::string> result = std::nullopt;
@@ -571,7 +584,7 @@ TimedEvent Reader<DataType>::readTimedEvent(const H5::Group& group) {
   TimedEvent timedEvent;
 
   // "event"
-  int eventId = std::stoi(readStringDataset(group, "event_id"));
+  const int eventId = std::stoi(readStringDataset(group, "event_id"));
   //std::cout << "probeId" << probeId << " " << m_dataset.channelData().probes().size();
   timedEvent.setEvent(m_dataset->channelData().uniqueEvents()[static_cast<size_t>(eventId) - 1]);
 
@@ -591,7 +604,7 @@ std::vector<TimedEvent> Reader<DataType>::readTimedEventArray(const H5::Group& g
     snprintf(buf, sizeof buf, "%08d", id);
 
     if (H5Lexists(group.getLocId(), buf, H5P_DEFAULT)) {
-      H5::Group timedEvent = group.openGroup(buf);
+      const H5::Group timedEvent = group.openGroup(buf);
       timedEvents.push_back(readTimedEvent(timedEvent));
       id++;
     } else {
@@ -605,10 +618,10 @@ std::vector<TimedEvent> Reader<DataType>::readTimedEventArray(const H5::Group& g
 template <typename DataType>
 Transform Reader<DataType>::readTransform(const H5::Group& group) {
   // rotation
-  Rotation rotation = readRotation(group.openGroup("rotation"));
+  const Rotation rotation = readRotation(group.openGroup("rotation"));
 
   // translation
-  Translation translation = readTranslation(group.openGroup("translation"));
+  const Translation translation = readTranslation(group.openGroup("translation"));
 
   return {rotation, translation};
 }
@@ -629,7 +642,7 @@ TransmitSetup Reader<DataType>::readTransmitSetup(const H5::Group& group) {
   TransmitSetup transmitSetup;
 
   // "probe"
-  int probeId = std::stoi(readStringDataset(group, "probe_id"));
+  const int probeId = std::stoi(readStringDataset(group, "probe_id"));
   transmitSetup.setProbe(m_dataset->channelData().probes()[static_cast<size_t>(probeId) - 1]);
 
   // "transmit_wave"
@@ -651,7 +664,7 @@ TransmitWave Reader<DataType>::readTransmitWave(const H5::Group& group) {
   TransmitWave transmitWave;
 
   // "wave"
-  int waveId = std::stoi(readStringDataset(group, "wave_id"));
+  const int waveId = std::stoi(readStringDataset(group, "wave_id"));
   transmitWave.setWave(m_dataset->channelData().uniqueWaves()[static_cast<size_t>(waveId) - 1]);
 
   // "time_offset"
@@ -665,10 +678,10 @@ TransmitWave Reader<DataType>::readTransmitWave(const H5::Group& group) {
 
 template <typename DataType>
 void Reader<DataType>::readVersion(const H5::Group& group) {
-  int major = readIntegerDataset(group, "major");
-  int minor = readIntegerDataset(group, "minor");
-  int patch = readIntegerDataset(group, "patch");
-  Version version(major, minor, patch);
+  const int major = readIntegerDataset(group, "major");
+  const int minor = readIntegerDataset(group, "minor");
+  const int patch = readIntegerDataset(group, "patch");
+  const Version version(major, minor, patch);
   m_dataset->setVersion(version);
 }
 
@@ -717,7 +730,7 @@ std::vector<std::shared_ptr<Wave>> Reader<DataType>::readWaveArray(const H5::Gro
   while (true) {
     snprintf(buf, sizeof buf, "%08d", id);
     if (H5Lexists(group.getLocId(), buf, H5P_DEFAULT)) {
-      H5::Group wave = group.openGroup(buf);
+      const H5::Group wave = group.openGroup(buf);
       waves.push_back(readWave(wave));
       id++;
     } else {

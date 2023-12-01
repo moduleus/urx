@@ -4,10 +4,14 @@
  * \brief
  */
 
+#include <ios>
 #include <ostream>
 #include <utility>
 
+#include <urx/v0_5/object.h>
+#include <urx/v0_5/rotation.h>
 #include <urx/v0_5/transform.h>
+#include <urx/v0_5/translation.h>
 
 namespace urx::v0_5 {
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cstddef>
+#include <cstdint>
 
 #include <urx/probe.h>
 #include <urx/vector.h>

@@ -109,7 +109,7 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
 
     probe = std::make_shared<Probe>();
     probe->description = "Probe 2";
-    probe->type = urx::Probe::ProbeType::SPARSE;
+    probe->type = static_cast<urx::Probe::ProbeType>(123);
     probe->transform.rotation.x = 3;
     probe->transform.rotation.y = 4;
     probe->transform.rotation.z = 5;

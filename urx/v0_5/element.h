@@ -32,16 +32,10 @@ class Element : public Object {
   std::optional<MetadataType> y() const { return m_y; }
   std::optional<MetadataType> z() const { return m_z; }
 
-#if defined(__GNUC__) && !defined(__clang__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic warning "-Wmaybe-uninitialized"
-#endif
   void setX(std::optional<MetadataType> x) { m_x = x; }
   void setY(std::optional<MetadataType> y) { m_y = y; }
   void setZ(std::optional<MetadataType> z) { m_z = z; }
-#if defined(__GNUC__) && !defined(__clang__)
-#pragma GCC diagnostic pop
-#endif
+
   void setXYZ(std::optional<MetadataType> x, std::optional<MetadataType> y,
               std::optional<MetadataType> z) {
     setX(x);

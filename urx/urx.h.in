@@ -1,21 +1,11 @@
 #pragma once
 
-#include <cmath>
 #include <cstdint>
-#include <functional>
-#include <limits>
 
 namespace urx {
 
 constexpr const uint16_t URX_VERSION_MAJOR(@Urx_VERSION_MAJOR@);
 constexpr const uint16_t URX_VERSION_MINOR(@Urx_VERSION_MINOR@);
 constexpr const uint16_t URX_VERSION_PATCH(@Urx_VERSION_PATCH@);
-
-using DataType = float;  // REMOVE THIS (Obsolete)
-constexpr const double URX_NAN(std::numeric_limits<double>::quiet_NaN());
-
-inline bool is_nan_or_equal(double val_1, double val_2) {
-  return (std::isnan(val_1) && std::isnan(val_2)) || (std::equal_to<>()(val_1, val_2));
-}
 
 }  // namespace urx

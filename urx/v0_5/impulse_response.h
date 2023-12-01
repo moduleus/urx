@@ -8,8 +8,10 @@
 #define URX_IMPULSE_RESPONSE_H
 
 #include <iosfwd>
+#include <memory>
 #include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <urx/v0_5/object.h>

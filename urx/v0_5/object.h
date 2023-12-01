@@ -8,15 +8,18 @@
 #define URX_OBJECT_H
 
 #include <iosfwd>
-#include <limits>  // IWYU pragma: keep
+#include <limits>
 #include <string>
 
+#include <urx/v0_5/urx.h>
+
 // Standard indentation
-#define URX_STD_INDENT "  "
-#define UNDEFINED "UNDEFINED"
-#define URX_NAN std::numeric_limits<MetadataType>::quiet_NaN()
 
 namespace urx::v0_5 {
+
+constexpr const char* URX_STD_INDENT = "  ";
+constexpr const char* UNDEFINED = "UNDEFINED";
+constexpr MetadataType URX_NAN = std::numeric_limits<MetadataType>::quiet_NaN();
 
 /**
  * The Object class is the base class for all URX components.

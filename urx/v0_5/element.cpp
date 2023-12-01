@@ -4,9 +4,11 @@
  * \brief
  */
 
+#include <ios>
 #include <ostream>
 
 #include <urx/v0_5/element.h>
+#include <urx/v0_5/object.h>
 
 namespace urx::v0_5 {
 
@@ -29,7 +31,7 @@ void Element::printSelf(std::ostream& os, const std::string& indent) const {
     os << m_z.value();
   else
     os << UNDEFINED;
-  os << std::endl;
+  os << '\n';
 }
 
 }  // namespace urx::v0_5

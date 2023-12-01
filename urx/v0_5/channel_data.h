@@ -8,19 +8,20 @@
 #define URX_CHANNEL_DATA_H
 
 #include <algorithm>
+#include <compare>
 #include <cstddef>
+#include <cstdint>
 #include <ios>
 #include <iosfwd>
 #include <istream>
 #include <locale>
-#include <map>
 #include <memory>
 #include <optional>
 #include <regex>
 #include <sstream>
 #include <stdexcept>
-#include <streambuf>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <urx/v0_5/event.h>
@@ -149,8 +150,8 @@ class ChannelData : public Object {
   void setSkipChannelDataData(bool skip) { m_skipChannelDataData = skip; }
 
   void allocate() {
-    size_t sz = static_cast<size_t>(numberOfFrames()) * numberOfEvents() * numberOfChannels() *
-                numberOfSamples();
+    const size_t sz = static_cast<size_t>(numberOfFrames()) * numberOfEvents() *
+                      numberOfChannels() * numberOfSamples();
     m_data.resize(sz, 0);
   }
 

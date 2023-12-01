@@ -7,7 +7,7 @@
 #ifndef URX_LINEAR_ARRAY_H
 #define URX_LINEAR_ARRAY_H
 
-#include <cstddef>
+#include <cstdint>
 #include <iosfwd>
 #include <memory>
 #include <optional>
@@ -63,7 +63,7 @@ class LinearArray : public Probe {
     for (uint32_t i = 0; i < m_numberElements; ++i) {
       // element position
       Element element;
-      MetadataType xmin = -m_pitch * static_cast<float>(m_numberElements - 1) / 2.f;
+      const MetadataType xmin = -m_pitch * static_cast<float>(m_numberElements - 1) / 2.f;
       element.setX(xmin + i * m_pitch);
       element.setY(0.f);
       element.setZ(0.f);

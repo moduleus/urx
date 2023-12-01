@@ -4,10 +4,14 @@
  * \brief
  */
 
+#include <ios>
 #include <ostream>
 #include <utility>
 
 #include <urx/v0_5/event.h>
+#include <urx/v0_5/object.h>
+#include <urx/v0_5/receive_setup.h>
+#include <urx/v0_5/transmit_setup.h>
 
 namespace urx::v0_5 {
 

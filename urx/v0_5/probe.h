@@ -12,7 +12,6 @@
 #include <memory>
 #include <optional>
 #include <string>
-#include <utility>
 #include <vector>
 
 #include <urx/v0_5/element.h>
@@ -69,9 +68,12 @@ class Probe : public Object {
       _channelGeometry.resize(4 * m_elements.size());
       auto dst = _channelGeometry.begin();
       for (auto& el : m_elements) {
-        *dst++ = el.x().has_value() ? el.x().value() : static_cast<MetadataType>(URX_NAN);
-        *dst++ = el.y().has_value() ? el.y().value() : static_cast<MetadataType>(URX_NAN);
-        *dst++ = el.z().has_value() ? el.z().value() : static_cast<MetadataType>(URX_NAN);
+        std::optional<MetadataType> x = el.x();
+        std::optional<MetadataType> y = el.y();
+        std::optional<MetadataType> z = el.z();
+        *dst++ = x.has_value() ? x.value() : static_cast<MetadataType>(URX_NAN);
+        *dst++ = y.has_value() ? y.value() : static_cast<MetadataType>(URX_NAN);
+        *dst++ = z.has_value() ? z.value() : static_cast<MetadataType>(URX_NAN);
         *dst++ = 0;
       }
       _channelGeometryValid = true;

@@ -10,6 +10,7 @@
 #include <iosfwd>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <urx/v0_5/aperture.h>

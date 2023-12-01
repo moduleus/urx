@@ -7,7 +7,7 @@
 #ifndef URX_VERSION_H
 #define URX_VERSION_H
 
-#include <cstddef>
+#include <cstdint>
 #include <iosfwd>
 #include <string>
 

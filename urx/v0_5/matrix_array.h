@@ -8,6 +8,7 @@
 #define URX_MATRIX_ARRAY_H
 
 #include <cstddef>
+#include <cstdint>
 #include <iosfwd>
 #include <memory>
 #include <optional>
@@ -81,8 +82,8 @@ class MatrixArray : public Probe {
   void updateElements() {
     m_elements.resize(static_cast<size_t>(m_numberElementsX) * m_numberElementsY);
 
-    MetadataType xmin = -m_pitchX * (m_numberElementsX - 1.f) / 2.f;
-    MetadataType ymin = -m_pitchY * (m_numberElementsY - 1.f) / 2.f;
+    const MetadataType xmin = -m_pitchX * (m_numberElementsX - 1.f) / 2.f;
+    const MetadataType ymin = -m_pitchY * (m_numberElementsY - 1.f) / 2.f;
     for (uint32_t i = 0; i < m_numberElementsY; i++) {
       for (uint32_t j = 0; j < m_numberElementsX; j++) {
         Element element;

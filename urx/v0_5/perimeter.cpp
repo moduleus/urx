@@ -4,6 +4,7 @@
  * \brief
  */
 
+#include <ios>
 #include <ostream>
 
 #include <urx/v0_5/perimeter.h>
@@ -16,7 +17,7 @@ void Perimeter::printSelf(std::ostream& os, const std::string& indent) const {
   for (const auto& pt : this->m_points) {
     os << "(" << pt.first << ", " << pt.second << "), ";
   }
-  os << ")" << std::endl;
+  os << ")" << '\n';
 }
 
 }  // namespace urx::v0_5

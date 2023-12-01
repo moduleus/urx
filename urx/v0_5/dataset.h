@@ -7,6 +7,7 @@
 #ifndef URX_DATASET_H
 #define URX_DATASET_H
 
+#include <algorithm>
 #include <iosfwd>
 #include <memory>
 #include <optional>
@@ -93,11 +94,18 @@ class Dataset : public Object {
 
   // Return the transmit frequency associated with the 1st Wave of the dataset
   MetadataType getTransmitFrequency() const {
-    if (m_channelData.uniqueWaves().empty() ||
-        !m_channelData.uniqueWaves()[0]->excitation().transmitFrequency().has_value()) {
+    if (m_channelData.uniqueWaves().empty()) {
       return URX_NAN;
     }
-    return m_channelData.uniqueWaves()[0]->excitation().transmitFrequency().value();
+
+    std::optional<MetadataType> transmit =
+        m_channelData.uniqueWaves()[0]->excitation().transmitFrequency();
+
+    if (!transmit.has_value()) {
+      return URX_NAN;
+    }
+
+    return transmit.value();
   }
 
   // Returns true is the 1st probe is of sub-type 'ProbeType'
