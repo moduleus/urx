@@ -5,13 +5,16 @@ include(CTest)
 
 set(URX_TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
-set(SRCS_FILES reader_test.cpp writer_test.cpp)
+set(SRCS_FILES reader_test.cpp writer_test.cpp upgrade_test.cpp)
 
 add_executable(UrxIo ${SRCS_FILES})
 
 target_link_libraries(
-  UrxIo PRIVATE Urx::Urx Urx::UrxUtils ${HDF5_CXX_LIBRARIES}
+  UrxIo PRIVATE Urx::Urx Urx::UrxUtils Urx::Urxv0_5 ${HDF5_CXX_LIBRARIES}
                 Catch2::Catch2WithMain compiler_flags)
+
+target_compile_definitions(
+  UrxIo PRIVATE TEST_RESOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/resources/")
 
 foreach(TESTI UrxIo)
   if(WIN32 AND BUILD_SHARED_LIBS)

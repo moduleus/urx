@@ -25,7 +25,6 @@ target_compile_options(
 
 # Set URX sources
 set(URX_UTILS_SRCS
-    ${CMAKE_CURRENT_SOURCE_DIR}/io.h
     ${CMAKE_CURRENT_SOURCE_DIR}/group_helper.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/group_helper.h
     ${CMAKE_CURRENT_SOURCE_DIR}/probe_helper.cpp
@@ -39,6 +38,8 @@ if(WITH_HDF5)
     URX_UTILS_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/io/reader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/io/reader.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/io/upgrade.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/io/upgrade.h
     ${CMAKE_CURRENT_SOURCE_DIR}/io/writer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/io/writer.h)
 endif()
@@ -66,7 +67,7 @@ set_target_properties(
 
 target_link_libraries(
   ${URX_UTILS_LIBRARY}
-  PUBLIC Urx::Urx
+  PUBLIC Urx::Urx Urx::Urxv0_5
   PRIVATE compiler_flags)
 if(WITH_HDF5)
   target_link_libraries(
