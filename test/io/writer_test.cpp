@@ -1,4 +1,4 @@
-#include <complex>
+﻿#include <complex>
 #include <cstdlib>
 #include <limits>
 #include <memory>
@@ -39,7 +39,7 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
   dataset->version.patch = 789;
 
   dataset->acquisition.authors = "AuthOr";
-  dataset->acquisition.description = "Description";
+  dataset->acquisition.description = "康Description🐜";
   dataset->acquisition.local_time = "2019-06-15T15:53:00";
   dataset->acquisition.country_code = "FR";
   dataset->acquisition.system = "???";
@@ -365,7 +365,7 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
     auto group_data = std::make_shared<GroupData>();
     group_data->group = dataset->acquisition.groups[1];
     group_data->raw_data.size = 6;
-    const std::shared_ptr<double[]> buffer = std::shared_ptr<double[]>(
+    const auto buffer = std::shared_ptr<double[]>(
         static_cast<double*>(malloc(sizeof(double) * group_data->raw_data.size)), free);
     buffer[0] = 1.2;
     buffer[1] = 2.3;
@@ -384,7 +384,7 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
     group_data = std::make_shared<GroupData>();
     group_data->group = dataset->acquisition.groups[0];
     group_data->raw_data.size = 4;
-    const std::shared_ptr<std::complex<short>[]> buffer2 = std::shared_ptr<std::complex<short>[]>(
+    const auto buffer2 = std::shared_ptr<std::complex<short>[]>(
         static_cast<std::complex<short>*>(
             malloc(sizeof(std::complex<short>) * group_data->raw_data.size)),
         free);
@@ -399,9 +399,9 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
     dataset->acquisition.groups_data.push_back(group_data);
   }
 
-  urx::Writer::saveToFile("writer.urx", *dataset);
+  urx::Writer::saveToFile("writer康🐜.urx", *dataset);
 
-  auto dataset_loaded = urx::Reader::loadFromFile("writer.urx");
+  auto dataset_loaded = urx::Reader::loadFromFile("writer康🐜.urx");
 
   REQUIRE(dataset_loaded->acquisition.probes == dataset->acquisition.probes);
   REQUIRE(dataset_loaded->acquisition.excitations == dataset->acquisition.excitations);

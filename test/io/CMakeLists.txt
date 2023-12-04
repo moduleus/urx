@@ -17,6 +17,10 @@ target_link_libraries(
 target_compile_definitions(
   UrxIo PRIVATE TEST_RESOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/resources/")
 
+if(MSVC)
+  target_compile_options(UrxIo PRIVATE /utf-8)
+endif()
+
 foreach(TESTI UrxIo)
   if(WIN32 AND BUILD_SHARED_LIBS)
     add_custom_command(
