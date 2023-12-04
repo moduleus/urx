@@ -81,11 +81,7 @@ option(WITH_TEST "Build unit tests" OFF)
 set(URX_PCH
     "<algorithm>"
     "<array>"
-    "<boost/pfr.hpp>"
     "<cassert>"
-    "<catch2/catch_test_macros.hpp>"
-    "<catch2/matchers/catch_matchers_floating_point.hpp>"
-    "<catch2/matchers/catch_matchers.hpp>"
     "<cmath>"
     "<compare>"
     "<complex>"
@@ -105,7 +101,6 @@ set(URX_PCH
     "<iterator>"
     "<limits>"
     "<locale>"
-    "<magic_enum.hpp>"
     "<memory>"
     "<optional>"
     "<ostream>"
@@ -122,7 +117,13 @@ set(URX_PCH
     "<vector>"
     "<version>")
 if(WITH_HDF5)
-  list(APPEND URX_PCH "<H5Cpp.h>")
+  list(APPEND URX_PCH "<H5Cpp.h>" "<boost/pfr.hpp>" "<magic_enum.hpp>")
+endif()
+if(WITH_TEST)
+  set(URX_PCH_TEST
+      "<catch2/catch_test_macros.hpp>"
+      "<catch2/matchers/catch_matchers_floating_point.hpp>"
+      "<catch2/matchers/catch_matchers.hpp>")
 endif()
 set(URX_PCH_PYTHON
     "<pybind11/attr.h>"

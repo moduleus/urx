@@ -38,7 +38,7 @@ class TransmitSetup : public Object {
   TransmitWave& transmitWave() { return m_transmitWave; }
   void setTransmitWave(const TransmitWave& transmitWave) { m_transmitWave = transmitWave; }
 
-  std::vector<int> channelMapping() const { return m_channelMapping; }
+  const std::vector<int>& channelMapping() const { return m_channelMapping; }
   void setChannelMapping(std::vector<int> channelMapping) {
     m_channelMapping = std::move(channelMapping);
   }

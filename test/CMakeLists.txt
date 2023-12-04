@@ -23,9 +23,7 @@ set(URX_TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 #   endforeach()
 # endif()
 
-if(TARGET Urx::UrxUtils)
-  add_subdirectory(utils)
-endif()
+add_subdirectory(utils)
 
 add_subdirectory(urx)
 

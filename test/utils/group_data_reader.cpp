@@ -47,20 +47,19 @@ TEST_CASE("Read back group data complex float data", "[group_data]") {
 
   urx::GroupData group_data;
   group_data.group = group;
-  const int n_frames = 3;
-  const int size = n_frames * 42;  // (42 = 3*2*3+4*3*2)
-  const std::shared_ptr<CompInt32[]> raw_data_ptr =
-      std::shared_ptr<CompInt32[]>(static_cast<CompInt32*>(malloc(size * sizeof(CompInt32))), free);
+  const int n_sequences = 3;
+  const int size = n_sequences * 42;  // (42 = 3*2*3+4*3*2)
+
+  group_data.raw_data = std::make_shared<RawDataNoInit<CompInt32>>(size);
+
+  CompInt32* raw_data_ptr = static_cast<CompInt32*>(group_data.raw_data->getBuffer());
   for (int i = 0; i < size; ++i) {
     raw_data_ptr[i] = {i * 2, i * 2 + 1};
   }
 
-  group_data.raw_data.buffer = raw_data_ptr;
-  group_data.raw_data.size = size;
-
   urx::GroupDataReader group_data_reader{group_data};
 
-  REQUIRE(group_data_reader.framesCount() == n_frames);
+  REQUIRE(group_data_reader.sequencesCount() == n_sequences);
   REQUIRE(group_data_reader.eventsCount() == n_events);
   REQUIRE(group_data_reader.channelsCount(0) == 3);
   REQUIRE(group_data_reader.channelsCount(1) == 4);
@@ -74,7 +73,7 @@ TEST_CASE("Read back group data complex float data", "[group_data]") {
   REQUIRE(group_data_reader.samplesCount(4) == 2);
 
   size_t i = 0;
-  for (size_t fi = 0; fi < group_data_reader.framesCount(); fi++) {
+  for (size_t fi = 0; fi < group_data_reader.sequencesCount(); fi++) {
     std::cout << "f" << fi << " {\n";
     for (size_t ei = 0; ei < group_data_reader.eventsCount(); ei++) {
       std::cout << "  e" << ei << " {\n";

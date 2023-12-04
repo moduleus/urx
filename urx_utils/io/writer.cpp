@@ -93,6 +93,11 @@ void serialize_hdf5(const std::string& name, const std::shared_ptr<T>& field,
 template <typename T>
 void serialize_hdf5(const std::string& name, const std::weak_ptr<T>& field, const H5::Group& group,
                     MapToSharedPtr& map) {
+  // Never assigned
+  if (!field.owner_before(std::weak_ptr<T>{}) && !std::weak_ptr<T>{}.owner_before(field)) {
+    return;
+  }
+
   if (auto shared = field.lock()) {
     const std::vector<std::shared_ptr<T>>& all_shared =
         *reinterpret_cast<const std::vector<std::shared_ptr<T>>*>(
@@ -145,8 +150,8 @@ void serialize_hdf5(const std::string& name, const T& field, const H5::Group& gr
   dataset.write(value, datatype, dataspace);
 }
 
-void serialize_all(const std::shared_ptr<Group>& gr, const RawData& field, const H5::Group& group,
-                   MapToSharedPtr&);
+void serialize_all(const std::shared_ptr<Group>& gr, const std::shared_ptr<RawData>& field,
+                   const H5::Group& group, MapToSharedPtr&);
 
 template <typename T>
 void serialize_all(const T& field, const H5::Group& group, MapToSharedPtr& map) {
@@ -178,7 +183,7 @@ void serialize_all(const T& field, const H5::Group& group, MapToSharedPtr& map) 
 
   auto a = boost::pfr::names_as_array<T>();
   boost::pfr::for_each_field(field, [&a, &group, &map, &field](const auto& child, std::size_t idx) {
-    if constexpr (std::is_same_v<std::remove_cvref_t<decltype(child)>, RawData> &&
+    if constexpr (std::is_same_v<std::remove_cvref_t<decltype(child)>, std::shared_ptr<RawData>> &&
                   std::is_same_v<std::remove_cvref_t<T>, GroupData>) {
       serialize_all(reinterpret_cast<const GroupData&>(field).group.lock(), child, group, map);
     } else {
@@ -201,8 +206,8 @@ void serialize_all(const Probe& field, const H5::Group& group, MapToSharedPtr& m
 }
 
 // for_each_field doesn't support std::variant.
-void serialize_all(const std::shared_ptr<Group>& gr, const RawData& field, const H5::Group& group,
-                   MapToSharedPtr&) {
+void serialize_all(const std::shared_ptr<Group>& gr, const std::shared_ptr<RawData>& field,
+                   const H5::Group& group, MapToSharedPtr&) {
   enum class Format { ARRAY_2D, COMPOUND };
   constexpr Format format = Format::ARRAY_2D;
 
@@ -221,12 +226,12 @@ void serialize_all(const std::shared_ptr<Group>& gr, const RawData& field, const
 
   const bool isComplex = gr->sampling_type == Group::SamplingType::IQ;
   if constexpr (format == Format::ARRAY_2D) {
-    const hsize_t dims[2] = {field.size, isComplex ? 2ULL : 1ULL};
+    const hsize_t dims[2] = {field->getSize(), isComplex ? 2ULL : 1ULL};
     const H5::DataSpace dataspace = H5::DataSpace(2, dims);
     const H5::DataSet dataset = group.createDataSet("raw_data", *datatype, dataspace);
-    dataset.write(field.buffer.get(), *datatype);
+    dataset.write(field->getBuffer(), *datatype);
   } else {
-    const hsize_t dims[1] = {field.size};
+    const hsize_t dims[1] = {field->getSize()};
     const H5::DataSpace dataspace = H5::DataSpace(1, dims);
 
     const size_t sizeOf = group_dt_to_sizeof.at(gr->data_type);
@@ -240,7 +245,7 @@ void serialize_all(const std::shared_ptr<Group>& gr, const RawData& field, const
       complexType.insertMember("real", 0ULL, *datatype);
     }
     const H5::DataSet dataset = group.createDataSet("raw_data", complexType, dataspace);
-    dataset.write(field.buffer.get(), complexType);
+    dataset.write(field->getBuffer(), complexType);
   }
 }
 }  // namespace

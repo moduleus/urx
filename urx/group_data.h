@@ -29,13 +29,13 @@ struct GroupData {
 
     const std::shared_ptr<Group> ptr_locked = group.lock();
 
-    return group == other.group && raw_data.size == other.raw_data.size &&
+    return group == other.group && raw_data->getSize() == other.raw_data->getSize() &&
            group_timestamp == other.group_timestamp &&
            sequence_timestamps == other.sequence_timestamps &&
            event_timestamps == other.event_timestamps &&
            (ptr_locked &&
-            std::memcmp(raw_data.buffer.get(), other.raw_data.buffer.get(),
-                        raw_data.size * group_dt_to_sizeof.at(ptr_locked->data_type) *
+            std::memcmp(raw_data->getBuffer(), other.raw_data->getBuffer(),
+                        raw_data->getSize() * group_dt_to_sizeof.at(ptr_locked->data_type) *
                             (ptr_locked->sampling_type == Group::SamplingType::RF ? 1 : 2)) == 0);
   }
 
@@ -45,7 +45,7 @@ struct GroupData {
   /// Data are organized as raw_data[Group repetition count][Number of event][Number of channel activated during the event][Number of samples]
   /// Data are in 1D array since the dimensions of the data array is dynamic for the number of activated channels and for the number of samples
   /// Create your helper to deduce the dimensions or use UrxUtils to access correctly to the data
-  RawData raw_data;
+  std::shared_ptr<RawData> raw_data;
 
   /// Timestamp of the group launch [s]
   DoubleNan group_timestamp;

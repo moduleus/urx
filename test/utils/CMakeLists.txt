@@ -1,6 +1,7 @@
-set(URX_TEST_FILES reader.cpp time_helper.cpp group_data_reader.cpp)
+set(URX_TEST_FILES time_helper.cpp group_data_reader.cpp)
 
 add_executable(UrxUtilsTest ${URX_TEST_FILES})
+target_precompile_headers(UrxUtilsTest PRIVATE ${URX_PCH} ${URX_PCH_TEST})
 
 target_include_directories(UrxUtilsTest PUBLIC ${PROJECT_SOURCE_DIR}/urx
                                                ${PROJECT_SOURCE_DIR}/urx_utils)

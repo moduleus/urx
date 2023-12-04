@@ -1,7 +1,6 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
-#include <cstdlib>
 #include <format>
 #include <memory>
 #include <optional>
@@ -44,7 +43,7 @@ constexpr int iter_length = 8;
 template <typename T>
 void deserialize_all(T& field, const H5::Group& group, MapToSharedPtr& map);
 template <>
-void deserialize_all(RawData& field, const H5::Group& group, MapToSharedPtr& map);
+void deserialize_all(std::shared_ptr<RawData>& field, const H5::Group& group, MapToSharedPtr& map);
 
 // Default
 template <typename T>
@@ -82,13 +81,6 @@ void deserialize_hdf5(const std::string& name, DoubleNan& field, const H5::Group
   deserialize_hdf5(name, field.value, group, map);
 }
 
-// GroupData::VecDataTypeVariant
-template <>
-void deserialize_hdf5(const std::string&, RawData& field, const H5::Group& group,
-                      MapToSharedPtr& map) {
-  deserialize_all(field, group, map);
-}
-
 // shared_ptr
 template <typename T>
 void deserialize_hdf5(const std::string& name, std::shared_ptr<T>& field, const H5::Group& group,
@@ -97,18 +89,28 @@ void deserialize_hdf5(const std::string& name, std::shared_ptr<T>& field, const 
   deserialize_hdf5(name, *field, group, map);
 }
 
+// RawData
+template <>
+void deserialize_hdf5(const std::string&, std::shared_ptr<RawData>& field, const H5::Group& group,
+                      MapToSharedPtr& map) {
+  deserialize_all(field, group, map);
+}
+
 // weak_ptr
 template <typename T>
 void deserialize_hdf5(const std::string& name, std::weak_ptr<T>& field, const H5::Group& group,
                       MapToSharedPtr& map) {
-  std::size_t idx;
+  if (group.exists(name)) {
+    std::size_t idx;
 
-  deserialize_hdf5(name, idx, group, map);
+    deserialize_hdf5(name, idx, group, map);
 
-  const std::vector<std::shared_ptr<T>>& all_shared =
-      *reinterpret_cast<const std::vector<std::shared_ptr<T>>*>(map.at(std::type_index{typeid(T)}));
+    const std::vector<std::shared_ptr<T>>& all_shared =
+        *reinterpret_cast<const std::vector<std::shared_ptr<T>>*>(
+            map.at(std::type_index{typeid(T)}));
 
-  field = all_shared[idx];
+    field = all_shared[idx];
+  }
 }
 
 // Vector
@@ -201,9 +203,9 @@ void deserialize_all(Probe& field, const H5::Group& group, MapToSharedPtr& map) 
   map.erase(typeid(ImpulseResponse));
 }
 
-// for_each_field doesn't support std::variant.
+// for_each_field doesn't support RawData.
 template <>
-void deserialize_all(RawData& field, const H5::Group& group, MapToSharedPtr&) {
+void deserialize_all(std::shared_ptr<RawData>& field, const H5::Group& group, MapToSharedPtr&) {
   const H5::DataSet dataset = group.openDataSet("raw_data");
   const H5::DataSpace dataspace = dataset.getSpace();
   const H5::DataType datatype_raw = dataset.getDataType();
@@ -226,23 +228,34 @@ void deserialize_all(RawData& field, const H5::Group& group, MapToSharedPtr&) {
     dimension[1] = dataset.getCompType().getNmembers();
   }
 
-  field.size = dimension[0];
-
   if (datatype == H5::PredType::NATIVE_INT16) {
-    field.buffer =
-        std::shared_ptr<void>(malloc(sizeof(int16_t) * dimension[0] * dimension[1]), free);
+    if (dimension[1] == 1) {
+      field = std::make_shared<RawDataNoInit<int16_t>>(dimension[0]);
+    } else {
+      field = std::make_shared<RawDataNoInit<std::complex<int16_t>>>(dimension[0]);
+    }
   } else if (datatype == H5::PredType::NATIVE_INT32) {
-    field.buffer =
-        std::shared_ptr<void>(malloc(sizeof(int32_t) * dimension[0] * dimension[1]), free);
+    if (dimension[1] == 1) {
+      field = std::make_shared<RawDataNoInit<int32_t>>(dimension[0]);
+    } else {
+      field = std::make_shared<RawDataNoInit<std::complex<int32_t>>>(dimension[0]);
+    }
   } else if (datatype == H5::PredType::NATIVE_FLOAT) {
-    field.buffer = std::shared_ptr<void>(malloc(sizeof(float) * dimension[0] * dimension[1]), free);
+    if (dimension[1] == 1) {
+      field = std::make_shared<RawDataNoInit<float>>(dimension[0]);
+    } else {
+      field = std::make_shared<RawDataNoInit<std::complex<float>>>(dimension[0]);
+    }
   } else if (datatype == H5::PredType::NATIVE_DOUBLE) {
-    field.buffer =
-        std::shared_ptr<void>(malloc(sizeof(double) * dimension[0] * dimension[1]), free);
+    if (dimension[1] == 1) {
+      field = std::make_shared<RawDataNoInit<double>>(dimension[0]);
+    } else {
+      field = std::make_shared<RawDataNoInit<std::complex<double>>>(dimension[0]);
+    }
   } else
     throw std::runtime_error("Invalid format of raw_data");
 
-  dataset.read(field.buffer.get(), datatype_raw);
+  dataset.read(field->getBuffer(), datatype_raw);
 }
 }  // namespace
 

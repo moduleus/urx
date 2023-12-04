@@ -47,8 +47,8 @@ struct Wave {
   std::vector<std::weak_ptr<Excitation>> channel_excitations;
 
   /// List of delay applied before the transmission for each channel
-  std::vector<double> channel_delays;
 
+  std::vector<double> channel_delays;
   /// Transform but must be more flexible than the Transform struct.
   std::vector<double> parameters;
 };

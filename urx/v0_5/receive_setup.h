@@ -47,12 +47,12 @@ class ReceiveSetup : public Object {
   SAMPLING_TYPE samplingType() const { return m_samplingType; }
   void setSamplingType(const SAMPLING_TYPE& samplingType) { m_samplingType = samplingType; }
 
-  std::vector<int> channelMapping() const { return m_channelMapping; }
+  const std::vector<int>& channelMapping() const { return m_channelMapping; }
   void setChannelMapping(const std::vector<int>& channelMapping) {
     m_channelMapping = channelMapping;
   }
 
-  std::vector<MetadataType> tgcProfile() const { return m_tgcProfile; }
+  const std::vector<MetadataType>& tgcProfile() const { return m_tgcProfile; }
   void setTgcProfile(const std::vector<MetadataType>& tgcProfile) { m_tgcProfile = tgcProfile; }
 
   std::optional<MetadataType> tgcSamplingFrequency() const { return m_tgcSamplingFrequency; }

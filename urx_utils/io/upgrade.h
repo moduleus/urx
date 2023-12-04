@@ -1,9 +1,9 @@
 #pragma once
 
 #include <memory>
+#include <string>
 
 #include <urx/dataset.h>
-#include <urx/v0_5/dataset.h>
 
 namespace urx {
 

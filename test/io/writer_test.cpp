@@ -1,5 +1,4 @@
 ﻿#include <complex>
-#include <cstdlib>
 #include <limits>
 #include <memory>
 #include <utility>
@@ -362,41 +361,41 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
   dataset->acquisition.timestamp = 1242;
 
   {
-    auto group_data = std::make_shared<GroupData>();
-    group_data->group = dataset->acquisition.groups[1];
-    group_data->raw_data.size = 6;
-    const auto buffer = std::shared_ptr<double[]>(
-        static_cast<double*>(malloc(sizeof(double) * group_data->raw_data.size)), free);
-    buffer[0] = 1.2;
-    buffer[1] = 2.3;
-    buffer[2] = 3.4;
-    buffer[3] = 4.5;
-    buffer[4] = 5.6;
-    buffer[5] = 6.7;
-    group_data->raw_data.buffer = buffer;
+    {
+      auto group_data = std::make_shared<GroupData>();
+      group_data->group = dataset->acquisition.groups[1];
 
-    group_data->group_timestamp = 283954.334;
-    group_data->sequence_timestamps = {1, 2, 4.2, 1, .5, 5.6};
-    group_data->event_timestamps = {{1, .24, 1., 5.2, 4.5, 7, .964, .5},
-                                    {1, 2, 4, 85, .15, -4.5, -7, .45, .6, 4}};
-    dataset->acquisition.groups_data.push_back(group_data);
+      group_data->raw_data = std::make_shared<RawDataNoInit<double>>(6);
+      double* buf = static_cast<double*>(group_data->raw_data->getBuffer());
+      buf[0] = 1.2;
+      buf[1] = 2.3;
+      buf[2] = 3.4;
+      buf[3] = 4.5;
+      buf[4] = 5.6;
+      buf[5] = 6.7;
 
-    group_data = std::make_shared<GroupData>();
-    group_data->group = dataset->acquisition.groups[0];
-    group_data->raw_data.size = 4;
-    const auto buffer2 = std::shared_ptr<std::complex<short>[]>(
-        static_cast<std::complex<short>*>(
-            malloc(sizeof(std::complex<short>) * group_data->raw_data.size)),
-        free);
-    buffer2[0] = {123, 456};
-    buffer2[1] = {159, 753};
-    buffer2[2] = {789, 456};
-    buffer2[3] = {123, 753};
-    group_data->raw_data.buffer = buffer2;
-    group_data->group_timestamp = 123;
-    group_data->sequence_timestamps = {1, 2, 34};
-    group_data->event_timestamps = {{4, 5, 7}, {8, 7, 6}};
-    dataset->acquisition.groups_data.push_back(group_data);
+      group_data->group_timestamp = 283954.334;
+      group_data->sequence_timestamps = {1, 2, 4.2, 1, .5, 5.6};
+      group_data->event_timestamps = {{1, .24, 1., 5.2, 4.5, 7, .964, .5},
+                                      {1, 2, 4, 85, .15, -4.5, -7, .45, .6, 4}};
+      dataset->acquisition.groups_data.push_back(group_data);
+    }
+    {
+      auto group_data = std::make_shared<GroupData>();
+      group_data->group = dataset->acquisition.groups[0];
+
+      group_data->raw_data = std::make_shared<RawDataNoInit<std::complex<short>>>(4);
+      std::complex<short>* buf =
+          static_cast<std::complex<short>*>(group_data->raw_data->getBuffer());
+      buf[0] = {123, 456};
+      buf[1] = {159, 753};
+      buf[2] = {789, 456};
+      buf[3] = {123, 753};
+      group_data->group_timestamp = 123;
+      group_data->sequence_timestamps = {1, 2, 34};
+      group_data->event_timestamps = {{4, 5, 7}, {8, 7, 6}};
+      dataset->acquisition.groups_data.push_back(group_data);
+    }
   }
 
   urx::Writer::saveToFile("writer康🐜.urx", *dataset);
@@ -409,137 +408,6 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
   REQUIRE(dataset_loaded->acquisition.groups == dataset->acquisition.groups);
   REQUIRE(dataset_loaded->acquisition.groups_data == dataset->acquisition.groups_data);
   REQUIRE(*dataset_loaded == *dataset);
-
-  // urx::ChannelData<float>& channelData = dataset->channelData();
-  // channelData.setAuthors("Unknown");
-  // channelData.setDescription("Missing description");
-  // channelData.setLocalTime("1970-01-01T00:00:00");
-  // channelData.setCountryCode("FR");
-  // channelData.setSystem("Unknown");
-  // channelData.setRepetitionRate(1.0);
-  // channelData.setSoundSpeed(1540.);
-
-  // channelData.setNumberOfFrames(NB_FRAMES);
-  // channelData.setNumberOfEvents(NB_PW);
-  // channelData.setNumberOfChannels(NB_CHANNELS);
-  // channelData.setNumberOfSamples(NB_SAMPLES);
-  // channelData.allocate();
-  // std::vector<float> dataVec(320);
-  // short maxLimit = std::numeric_limits<short>::max();
-  // for (auto& data : dataVec) {
-  //   data = static_cast<short>(std::rand() / (RAND_MAX / maxLimit));
-  // }
-  // channelData.setData(dataVec);
-
-  // // Probe RCA
-  // // RCA made of 2 linear array
-  // auto probe = std::make_shared<urx::RcaArray>(channelData.numberOfChannels(),
-  //                                              channelData.numberOfChannels());
-  // double pitch_x = 0.42;
-  // probe->setPitchX(pitch_x);
-  // double pitch_y = 0.42;
-  // probe->setPitchY(pitch_y);
-  // channelData.addProbe(probe);
-
-  // // Channel mapping
-  // std::vector<int> mapping_x(NB_CHANNELS);
-  // std::vector<int> mapping_y(NB_CHANNELS);
-  // for (int i = 0; i < NB_CHANNELS; ++i) {
-  //   mapping_x[i] = i;
-  //   mapping_y[i] = i + NB_CHANNELS;
-  // }
-
-  // // Receive setup
-  // urx::ReceiveSetup receiveSetup_y;
-  // receiveSetup_y.setProbe(probe);
-  // receiveSetup_y.setTimeOffset(0);
-  // receiveSetup_y.setSamplingFrequency(dataset->samplingFrequency());
-  // receiveSetup_y.setChannelMapping(mapping_y);
-
-  // std::vector<urx::Event> sequence;
-
-  // // Plane waves
-  // for (int pw = 0; pw < NB_PW; ++pw) {
-  //   // plane wave. origin.translation is the direction vector
-  //   auto wave = std::make_shared<urx::Wave>();
-  //   wave->setWaveType(urx::WaveType::PLANE_WAVE);
-  //   wave->setOrigin(urx::Transform(urx::Rotation(), urx::Vector3D<double>()));
-
-  //   urx::Excitation excitation;
-  //   excitation.setTransmitFrequency(dataset->transmitFrequency());
-  //   wave->setExcitation(excitation);
-  //   channelData.addUniqueWave(wave);
-
-  //   urx::TransmitWave transmitWave;
-  //   transmitWave.setWave(wave);
-  //   transmitWave.setTimeOffset(0.);
-
-  //   urx::TransmitSetup transmitSetup;
-  //   transmitSetup.setProbe(probe);
-  //   transmitSetup.setTransmitWave(transmitWave);
-
-  //   auto event = std::make_shared<urx::Event>();
-  //   event->setTransmitSetup(transmitSetup);
-  //   event->setReceiveSetup(receiveSetup_y);
-  //   channelData.addUniqueEvent(event);
-
-  //   // plane-waves have 125us delay
-  //   urx::Event Event;
-  //   Event.setEvent(event);
-  //   Event.setTimeOffset(pw * 125e-6);
-
-  //   // Enqueue the plane-wave
-  //   sequence.push_back(Event);
-  // }
-
-  // channelData.setSequence(sequence);
-
-  // dataset->setChannelData(channelData);
-
-  // std::string filename = "tmp.urx";
-  // urx::Writer<float> floatWriter;
-  // urx::Reader<float> floatReader;
-
-  // floatWriter.setFileName(filename);
-  // floatWriter.setDataset(dataset);
-  // floatWriter.writeToFile();
-
-  // std::shared_ptr<urx::Dataset<short>> readShortDataset =
-  //     urx::Reader<short>::loadFile(filename, true, false);
-  // floatReader.setFileName(filename);
-  // floatReader.updateMetadata();
-  // std::shared_ptr<urx::Dataset<float>> readFloatDataset = floatReader.dataset();
-
-  // const std::vector<short>& shortVec = readShortDataset->channelData().data();
-  // const std::vector<float>& floatVec = readFloatDataset->channelData().data();
-  // REQUIRE(std::equal(shortVec.begin(), shortVec.end(), floatVec.begin()));
-
-  // REQUIRE(readShortDataset->channelData().authors() == channelData.authors());
-  // REQUIRE(readShortDataset->channelData().description() == channelData.description());
-  // REQUIRE(readShortDataset->channelData().localTime() == channelData.localTime());
-  // REQUIRE(readShortDataset->channelData().countryCode() == channelData.countryCode());
-  // REQUIRE(readShortDataset->channelData().system() == channelData.system());
-  // REQUIRE(readShortDataset->channelData().repetitionRate() == channelData.repetitionRate());
-  // REQUIRE(readShortDataset->soundSpeed() == channelData.soundSpeed());
-  // {
-  //   std::vector<double> geometry1 = readShortDataset->channelGeometry<double>();
-  //   std::vector<double> geometry2 = channelData.channelGeometry<double>();
-  //   REQUIRE(geometry1.size() == 4UL * 2 * NB_CHANNELS);
-  //   REQUIRE(geometry2.size() == 4UL * 2 * NB_CHANNELS);
-  //   REQUIRE(std::equal(geometry1.begin(), geometry1.end(), geometry2.begin()));
-  // }
-  // REQUIRE(readShortDataset->receiveDelay() == channelData.receiveDelay());
-  // REQUIRE(readShortDataset->samplingType() == channelData.samplingType());
-  // REQUIRE(std::isnan(readShortDataset->samplingFrequency()));
-  // REQUIRE(std::isnan(channelData.samplingFrequency()));
-  // REQUIRE(std::isnan(readShortDataset->transmitFrequency()));
-  // REQUIRE(std::isnan(channelData.transmitFrequency()));
-  // REQUIRE(readShortDataset->isProbeType<urx::RcaArray>());
-  // REQUIRE(channelData.isProbeType<urx::RcaArray>());
-  // REQUIRE(!readShortDataset->isProbeType<urx::MatrixArray>());
-  // REQUIRE(!channelData.isProbeType<urx::MatrixArray>());
-  // REQUIRE(!readShortDataset->isProbeType<urx::LinearArray>());
-  // REQUIRE(!channelData.isProbeType<urx::LinearArray>());
 }
 
 }  // namespace urx::test

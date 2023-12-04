@@ -58,9 +58,9 @@ class GroupDataReader {
   GroupDataReader& operator=(GroupDataReader const& other) = delete;
 
   template <typename T>
-  T& at(const size_t frame_idx, const size_t event_idx, const size_t channel_idx,
+  T& at(const size_t sequence_idx, const size_t event_idx, const size_t channel_idx,
         const size_t sample_idx) {
-    void* data = _group_data.raw_data.buffer.get();
+    void* data = _group_data.raw_data->getBuffer();
     const std::shared_ptr<Group> group = _group_data.group.lock();
 
     if constexpr (std::is_same_v<T, int16_t>) {
@@ -112,10 +112,10 @@ class GroupDataReader {
       }
     }
 
-    return static_cast<T*>(data)[offset(frame_idx, event_idx, channel_idx, sample_idx)];
+    return static_cast<T*>(data)[offset(sequence_idx, event_idx, channel_idx, sample_idx)];
   }
 
-  size_t framesCount() const { return _group_data.raw_data.size / _samples_offset.back(); }
+  size_t sequencesCount() const { return _group_data.raw_data->getSize() / _samples_offset.back(); }
 
   size_t eventsCount() const { return _group_data.group.lock()->sequence.size(); }
 
@@ -125,9 +125,9 @@ class GroupDataReader {
 
   size_t samplesCount(const size_t event_idx) const { return _samples_count[event_idx]; }
 
-  size_t offset(const size_t frame_idx, const size_t event_idx, const size_t channel_idx,
+  size_t offset(const size_t sequence_idx, const size_t event_idx, const size_t channel_idx,
                 const size_t sample_idx) const {
-    return frame_idx * _samples_offset.back() + _samples_offset[event_idx] +
+    return sequence_idx * _samples_offset.back() + _samples_offset[event_idx] +
            channel_idx * _samples_count[event_idx] + sample_idx;
   }
 

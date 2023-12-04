@@ -32,6 +32,8 @@ class Probe : public Object {
  public:
   Probe() = default;
 
+  Probe(Probe const& other) = default;
+
   void printSelf(std::ostream& os, const std::string& indent) const override;
 
   /* Attitude of the probe in 3D */
@@ -93,18 +95,7 @@ class Probe : public Object {
 
   inline bool operator!=(const Probe& other) const { return !(*this == other); }
 
-  Probe& operator=(const Probe& other) {
-    if (&other == this) return *this;
-    m_transform = other.m_transform;
-    m_focalLength = other.m_focalLength;
-    m_elements = other.m_elements;
-    m_elementGeometries = other.m_elementGeometries;
-    m_impulseResponses = other.m_impulseResponses;
-    _channelGeometryValid = other._channelGeometryValid;
-    _channelGeometry = other._channelGeometry;
-    assert(*this == other);
-    return *this;
-  }
+  Probe& operator=(const Probe& other) = default;
 
   virtual std::shared_ptr<Probe> clone() { return std::make_shared<Probe>(*this); }
 

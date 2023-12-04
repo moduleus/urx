@@ -34,6 +34,8 @@ class Transform : public Object {
     this->setTranslation(translation);
   }
 
+  Transform(Transform const& other) = default;
+
   void printSelf(std::ostream& os, const std::string& indent) const override;
 
   const Rotation& rotation() const { return m_rotation; }
@@ -48,12 +50,7 @@ class Transform : public Object {
 
   inline bool operator!=(const Transform& other) const { return !(*this == other); }
 
-  Transform& operator=(const Transform& other) {
-    if (&other == this) return *this;
-    m_rotation = other.m_rotation;
-    m_translation = other.m_translation;
-    return *this;
-  }
+  Transform& operator=(const Transform& other) = default;
 
  private:
   // rotation in radians

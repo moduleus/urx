@@ -158,9 +158,9 @@ PYBIND11_MODULE(bindings, m) {
             const std::shared_ptr<urx::Group> shared_group = self.group.lock();
             const bool are_data_complex =
                 shared_group->sampling_type == urx::Group::SamplingType::IQ;
-            const py::ssize_t data_size = self.raw_data.size;
+            const py::ssize_t data_size = self.raw_data->getSize();
             urx::GroupHelper group_helper{*shared_group};
-            void *data_ptr = self.raw_data.buffer.get();
+            void *data_ptr = self.raw_data->getBuffer();
             const py::ssize_t sizeof_data_type_var = group_helper.sizeof_data_type();
             const std::string data_format = group_helper.py_get_format();
 
@@ -172,7 +172,7 @@ PYBIND11_MODULE(bindings, m) {
                     ? std::vector<py::ssize_t>{sizeof_data_type_var * 2, sizeof_data_type_var}
                     : std::vector<py::ssize_t>{sizeof_data_type_var});
 
-            return py::array(buffer, py::cast(&self.raw_data));
+            return py::array(buffer, py::cast(self.raw_data.get()));
           },
           [](urx::GroupData &self, const py::buffer &vec) {
             py::buffer_info info = vec.request();
@@ -182,10 +182,7 @@ PYBIND11_MODULE(bindings, m) {
             if (info.ndim == 2 && info.shape[1] != 2)
               throw std::runtime_error("Dimension error: Too many data in second dimension");
 
-            auto fake_deleter = [](void *) {};
-
-            self.raw_data.buffer = std::shared_ptr<void>(info.ptr, fake_deleter);
-            self.raw_data.size = info.shape[0];
+            self.raw_data = std::make_shared<urx::RawDataWeak>(info.ptr, info.shape[0]);
           });
 
   py::class_<urx::Version>(m, "Version")
