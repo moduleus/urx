@@ -78,6 +78,62 @@ option(WITH_MATLAB "Build Matlab wrappers" OFF)
 option(WITH_PYTHON "Build Python module" OFF)
 option(WITH_TEST "Build unit tests" OFF)
 
+set(URX_PCH
+    "<algorithm>"
+    "<array>"
+    "<boost/pfr.hpp>"
+    "<cassert>"
+    "<catch2/catch_test_macros.hpp>"
+    "<catch2/matchers/catch_matchers_floating_point.hpp>"
+    "<catch2/matchers/catch_matchers.hpp>"
+    "<cmath>"
+    "<compare>"
+    "<complex>"
+    "<concepts>"
+    "<cstddef>"
+    "<cstdint>"
+    "<cstdio>"
+    "<cstdlib>"
+    "<cstring>"
+    "<exception>"
+    "<format>"
+    "<iomanip>"
+    "<ios>"
+    "<iosfwd>"
+    "<iostream>"
+    "<istream>"
+    "<iterator>"
+    "<limits>"
+    "<locale>"
+    "<magic_enum.hpp>"
+    "<memory>"
+    "<optional>"
+    "<ostream>"
+    "<regex>"
+    "<sstream>"
+    "<stdexcept>"
+    "<string_view>"
+    "<string>"
+    "<type_traits>"
+    "<typeindex>"
+    "<unordered_map>"
+    "<utility>"
+    "<variant>"
+    "<vector>"
+    "<version>")
+if(WITH_HDF5)
+  list(APPEND URX_PCH "<H5Cpp.h>")
+endif()
+set(URX_PCH_PYTHON
+    "<pybind11/attr.h>"
+    "<pybind11/buffer_info.h>"
+    "<pybind11/cast.h>"
+    "<pybind11/numpy.h>"
+    "<pybind11/operators.h>"
+    "<pybind11/pybind11.h>"
+    "<pybind11/pytypes.h>"
+    "<pybind11/stl_bind.h>")
+
 add_subdirectory("urx")
 
 if(WITH_PYTHON)

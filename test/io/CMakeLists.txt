@@ -8,6 +8,7 @@ set(URX_TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(SRCS_FILES reader_test.cpp writer_test.cpp upgrade_test.cpp)
 
 add_executable(UrxIo ${SRCS_FILES})
+target_precompile_headers(UrxIo PRIVATE ${URX_PCH})
 
 target_link_libraries(
   UrxIo PRIVATE Urx::Urx Urx::UrxUtils Urx::Urxv0_5 ${HDF5_CXX_LIBRARIES}

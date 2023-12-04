@@ -1,9 +1,9 @@
-#include "types.h"
-
 #include <ios>
 #include <ostream>
 #include <string>
 #include <utility>
+
+#include <urx/v0_5/types.h>
 
 namespace urx::v0_5 {
 

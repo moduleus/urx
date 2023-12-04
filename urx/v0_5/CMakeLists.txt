@@ -59,6 +59,7 @@ set(URX_V0_5_SRCS
 
 add_library(Urxv0_5)
 add_library(Urx::Urxv0_5 ALIAS Urxv0_5)
+target_precompile_headers(Urxv0_5 PRIVATE ${URX_PCH})
 
 target_sources(Urxv0_5 PRIVATE ${URX_V0_5_SRCS})
 

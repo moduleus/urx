@@ -1,11 +1,10 @@
-#include "group_helper.h"
-
 #include <cstdint>
 #include <string>
 #include <unordered_map>
 #include <utility>
 
 #include <urx/group.h>
+#include <urx_utils/group_helper.h>
 
 #ifdef WITH_PYTHON
 #include <pybind11/pybind11.h>

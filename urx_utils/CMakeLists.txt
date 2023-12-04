@@ -52,6 +52,10 @@ if(WITH_PYTHON)
   target_compile_definitions(${URX_UTILS_LIBRARY} PRIVATE WITH_PYTHON)
   target_link_libraries(${URX_UTILS_LIBRARY} PRIVATE Python3::Python
                                                      pybind11::headers)
+  target_precompile_headers(${URX_UTILS_LIBRARY} PRIVATE ${URX_PCH}
+                            ${URX_PCH_PYTHON})
+else()
+  target_precompile_headers(${URX_UTILS_LIBRARY} PRIVATE ${URX_PCH})
 endif()
 
 # Define include directories

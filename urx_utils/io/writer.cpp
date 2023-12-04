@@ -1,5 +1,3 @@
-#include "writer.h"
-
 #include <algorithm>
 #include <array>
 #include <cstddef>
@@ -31,6 +29,7 @@
 #include <urx/impulse_response.h>
 #include <urx/probe.h>
 #include <urx/wave.h>
+#include <urx_utils/io/writer.h>
 
 namespace urx {
 
