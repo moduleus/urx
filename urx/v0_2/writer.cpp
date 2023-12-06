@@ -45,6 +45,98 @@
 
 namespace urx::v0_2 {
 
+template <typename DataType>
+void Writer<DataType>::printSelf(std::ostream& os, const std::string& indent) const {
+  superclass::printSelf(os, indent);
+  os << indent << "HDF5 Version: "
+     << "TODO" << '\n'
+     << indent << "URX Version: "
+     << "TODO" << '\n'
+     << indent << "FileName: " << m_fileName << '\n'
+     << indent << "Dataset: " << *_impl->m_dataset << '\n';
+}
+
+template <typename DataType>
+void Writer<DataType>::setDataset(std::shared_ptr<const Dataset<DataType>> dataset) {
+  _impl->m_dataset = dataset;
+}
+
+template <typename DataType>
+void Writer<DataType>::writeToFile() {
+  H5::Exception::dontPrint();
+
+  const H5::H5File file(m_fileName, H5F_ACC_TRUNC);
+
+  // Version
+  H5::Group version(file.createGroup("version"));
+  _impl->writeVersion(version, _impl->m_dataset->version());
+
+  // Channel Data
+  H5::Group channelData(file.createGroup("channel_data"));
+  _impl->writeChannelData(channelData, _impl->m_dataset->channelData());
+}
+
+template <typename DataType>
+class Writer<DataType>::WriterImpl {
+ public:
+  template <typename T>
+  std::string getIdFromPointer(const std::vector<std::shared_ptr<T>>& vec, std::weak_ptr<T> wptr);
+
+  void writeAperture(H5::Group& group, const Aperture& aperture);
+  void writeChannelData(H5::Group& group, const ChannelData<DataType>& channelData);
+  void writeMetadataTypeDataset(H5::Group& group, const std::string& name, MetadataType value);
+  void writeOptionalMetadataTypeDataset(H5::Group& group, const std::string& name,
+                                        const std::optional<MetadataType>& value);
+
+  void writeElementArray(H5::Group& group, const std::vector<Element>& elements);
+  void writeElement(H5::Group& group, const Element& element);
+
+  void writeEvent(H5::Group& group, const std::shared_ptr<Event>& event);
+  void writeEventArray(H5::Group& group, const std::vector<std::shared_ptr<Event>>& events);
+
+  void writeExcitation(H5::Group& group, const Excitation& excitation);
+
+  void writeDataTypeArrayDataset(H5::Group& group, const std::string& name,
+                                 const std::vector<DataType>& values,
+                                 const std::vector<size_t>& dimensions);
+
+  void writeMetadataTypeArrayDataset(H5::Group& group, const std::string& name,
+                                     const std::vector<MetadataType>& values,
+                                     const std::vector<size_t>& dimensions);
+
+  void writeIntegerArrayDataset(H5::Group& group, const std::string& name,
+                                const std::vector<int>& values,
+                                const std::vector<size_t>& dimensions);
+  void writeIntegerDataset(H5::Group& group, const std::string& name, int value);
+
+  void writeLinearArray(H5::Group& group, const std::shared_ptr<LinearArray>& linearArray);
+  void writeMatrixArray(H5::Group& group, const std::shared_ptr<MatrixArray>& matrixArray);
+  void writeRcaArray(H5::Group& group, const std::shared_ptr<RcaArray>& rcaArray);
+
+  void writeProbe(H5::Group& group, const std::shared_ptr<Probe>& probe);
+  void writeProbeArray(H5::Group& group, const std::vector<std::shared_ptr<Probe>>& probes);
+
+  void writeReceiveSetup(H5::Group& group, const ReceiveSetup& receiveSetup);
+  void writeRotation(H5::Group& group, const Rotation& rotation);
+  void writeStringDataset(H5::Group& group, const std::string& name, const std::string& value);
+  void writeOptionalStringDataset(H5::Group& group, const std::string& name,
+                                  const std::optional<std::string>& value);
+
+  void writeTimedEvent(H5::Group& group, const TimedEvent& timedEvent);
+  void writeTimedEventArray(H5::Group& group, const std::vector<TimedEvent>& timedEvents);
+
+  void writeTransform(H5::Group& group, const Transform& transform);
+  void writeTranslation(H5::Group& group, const Translation& translation);
+  void writeTransmitSetup(H5::Group& group, const TransmitSetup& transmitSetup);
+  void writeTransmitWave(H5::Group& group, const TransmitWave& transmitWave);
+  void writeVersion(H5::Group& group, const Version& version);
+
+  void writeWave(H5::Group& group, const std::shared_ptr<Wave>& wave);
+  void writeWaveArray(H5::Group& group, const std::vector<std::shared_ptr<Wave>>& waves);
+
+  std::shared_ptr<const Dataset<DataType>> m_dataset;
+};
+
 /**
  * Return the string-ID (format: "00000123") of the pointer wptr.
  * The string-ID is the position of the pointer in the vector 'vec'. First pointer's string-ID is "00000001".
@@ -52,8 +144,8 @@ namespace urx::v0_2 {
  */
 template <typename DataType>
 template <typename T>
-std::string Writer<DataType>::getIdFromPointer(const std::vector<std::shared_ptr<T>>& vec,
-                                               std::weak_ptr<T> wptr) {
+std::string Writer<DataType>::WriterImpl::getIdFromPointer(
+    const std::vector<std::shared_ptr<T>>& vec, std::weak_ptr<T> wptr) {
   if (auto p1 = wptr.lock()) {
     int cnt = 1;
     for (const auto& p2 : vec) {
@@ -71,33 +163,7 @@ std::string Writer<DataType>::getIdFromPointer(const std::vector<std::shared_ptr
 }
 
 template <typename DataType>
-void Writer<DataType>::printSelf(std::ostream& os, const std::string& indent) const {
-  superclass::printSelf(os, indent);
-  os << indent << "HDF5 Version: "
-     << "TODO" << '\n'
-     << indent << "URX Version: "
-     << "TODO" << '\n'
-     << indent << "FileName: " << this->m_fileName << '\n'
-     << indent << "Dataset: " << *this->m_dataset << '\n';
-}
-
-template <typename DataType>
-void Writer<DataType>::writeToFile() {
-  H5::Exception::dontPrint();
-
-  const H5::H5File file(m_fileName, H5F_ACC_TRUNC);
-
-  // Version
-  H5::Group version(file.createGroup("version"));
-  writeVersion(version, m_dataset->version());
-
-  // Channel Data
-  H5::Group channelData(file.createGroup("channel_data"));
-  writeChannelData(channelData, m_dataset->channelData());
-}
-
-template <typename DataType>
-void Writer<DataType>::writeAperture(H5::Group& group, const Aperture& aperture) {
+void Writer<DataType>::WriterImpl::writeAperture(H5::Group& group, const Aperture& aperture) {
   // "origin"
   H5::Group origin = group.createGroup("origin");
   writeTransform(origin, aperture.origin());
@@ -116,8 +182,8 @@ void Writer<DataType>::writeAperture(H5::Group& group, const Aperture& aperture)
 }
 
 template <typename DataType>
-void Writer<DataType>::writeChannelData(H5::Group& group,
-                                        const ChannelData<DataType>& channelData) {
+void Writer<DataType>::WriterImpl::writeChannelData(H5::Group& group,
+                                                    const ChannelData<DataType>& channelData) {
   // channel_data.authors
   writeStringDataset(group, "authors", channelData.authors());
 
@@ -165,8 +231,9 @@ void Writer<DataType>::writeChannelData(H5::Group& group,
 }
 
 template <typename DataType>
-void Writer<DataType>::writeMetadataTypeDataset(H5::Group& group, const std::string& name,
-                                                MetadataType value) {
+void Writer<DataType>::WriterImpl::writeMetadataTypeDataset(H5::Group& group,
+                                                            const std::string& name,
+                                                            MetadataType value) {
   const H5::StrType datatype(H5MetadataType);
   const H5::DataSpace dataspace = H5::DataSpace(H5S_SCALAR);
   const H5::DataSet dataset = group.createDataSet(name, datatype, dataspace);
@@ -174,8 +241,8 @@ void Writer<DataType>::writeMetadataTypeDataset(H5::Group& group, const std::str
 }
 
 template <typename DataType>
-void Writer<DataType>::writeOptionalMetadataTypeDataset(H5::Group& group, const std::string& name,
-                                                        const std::optional<MetadataType>& value) {
+void Writer<DataType>::WriterImpl::writeOptionalMetadataTypeDataset(
+    H5::Group& group, const std::string& name, const std::optional<MetadataType>& value) {
   const H5::StrType datatype(H5MetadataType);
   const H5::DataSpace dataspace = H5::DataSpace(H5S_SCALAR);
   const H5::DataSet dataset = group.createDataSet(name, datatype, dataspace);
@@ -188,14 +255,15 @@ void Writer<DataType>::writeOptionalMetadataTypeDataset(H5::Group& group, const 
 }
 
 template <typename DataType>
-void Writer<DataType>::writeElement(H5::Group& group, const Element& element) {
+void Writer<DataType>::WriterImpl::writeElement(H5::Group& group, const Element& element) {
   writeOptionalMetadataTypeDataset(group, "x", element.x());
   writeOptionalMetadataTypeDataset(group, "y", element.y());
   writeOptionalMetadataTypeDataset(group, "z", element.z());
 }
 
 template <typename DataType>
-void Writer<DataType>::writeElementArray(H5::Group& group, const std::vector<Element>& elements) {
+void Writer<DataType>::WriterImpl::writeElementArray(H5::Group& group,
+                                                     const std::vector<Element>& elements) {
   char buf[9];
   snprintf(buf, sizeof buf, "%08d", 0);
   for (uint32_t i = 0; i < elements.size(); i++) {
@@ -207,7 +275,7 @@ void Writer<DataType>::writeElementArray(H5::Group& group, const std::vector<Ele
 }
 
 template <typename DataType>
-void Writer<DataType>::writeEvent(H5::Group& group, const std::shared_ptr<Event>& ev) {
+void Writer<DataType>::WriterImpl::writeEvent(H5::Group& group, const std::shared_ptr<Event>& ev) {
   // "transmit_setup"
   H5::Group transmitSetup = group.createGroup("transmit_setup");
   writeTransmitSetup(transmitSetup, ev->transmitSetup());
@@ -218,8 +286,8 @@ void Writer<DataType>::writeEvent(H5::Group& group, const std::shared_ptr<Event>
 }
 
 template <typename DataType>
-void Writer<DataType>::writeEventArray(H5::Group& group,
-                                       const std::vector<std::shared_ptr<Event>>& events) {
+void Writer<DataType>::WriterImpl::writeEventArray(
+    H5::Group& group, const std::vector<std::shared_ptr<Event>>& events) {
   char buf[9];
   snprintf(buf, sizeof buf, "%08d", 0);
   for (uint32_t i = 0; i < events.size(); i++) {
@@ -231,7 +299,7 @@ void Writer<DataType>::writeEventArray(H5::Group& group,
 }
 
 template <typename DataType>
-void Writer<DataType>::writeExcitation(H5::Group& group, const Excitation& excitation) {
+void Writer<DataType>::WriterImpl::writeExcitation(H5::Group& group, const Excitation& excitation) {
   // "pulse_shape"
   writeOptionalStringDataset(group, "pulse_shape", excitation.pulseShape());
 
@@ -246,9 +314,9 @@ void Writer<DataType>::writeExcitation(H5::Group& group, const Excitation& excit
 }
 
 template <typename DataType>
-void Writer<DataType>::writeDataTypeArrayDataset(H5::Group& group, const std::string& name,
-                                                 const std::vector<DataType>& values,
-                                                 const std::vector<size_t>& dimensions) {
+void Writer<DataType>::WriterImpl::writeDataTypeArrayDataset(
+    H5::Group& group, const std::string& name, const std::vector<DataType>& values,
+    const std::vector<size_t>& dimensions) {
   assert(dimensions.size() <= 4);
 
   hsize_t dims[4];
@@ -279,9 +347,9 @@ void Writer<DataType>::writeDataTypeArrayDataset(H5::Group& group, const std::st
 }
 
 template <typename DataType>
-void Writer<DataType>::writeMetadataTypeArrayDataset(H5::Group& group, const std::string& name,
-                                                     const std::vector<MetadataType>& values,
-                                                     const std::vector<size_t>& dimensions) {
+void Writer<DataType>::WriterImpl::writeMetadataTypeArrayDataset(
+    H5::Group& group, const std::string& name, const std::vector<MetadataType>& values,
+    const std::vector<size_t>& dimensions) {
   assert(dimensions.size() <= 4);
 
   hsize_t dims[4];
@@ -312,9 +380,10 @@ void Writer<DataType>::writeMetadataTypeArrayDataset(H5::Group& group, const std
 }
 
 template <typename DataType>
-void Writer<DataType>::writeIntegerArrayDataset(H5::Group& group, const std::string& name,
-                                                const std::vector<int>& values,
-                                                const std::vector<size_t>& dimensions) {
+void Writer<DataType>::WriterImpl::writeIntegerArrayDataset(H5::Group& group,
+                                                            const std::string& name,
+                                                            const std::vector<int>& values,
+                                                            const std::vector<size_t>& dimensions) {
   assert(dimensions.size() <= 4);
 
   hsize_t dims[4];
@@ -345,7 +414,8 @@ void Writer<DataType>::writeIntegerArrayDataset(H5::Group& group, const std::str
 }
 
 template <typename DataType>
-void Writer<DataType>::writeIntegerDataset(H5::Group& group, const std::string& name, int value) {
+void Writer<DataType>::WriterImpl::writeIntegerDataset(H5::Group& group, const std::string& name,
+                                                       int value) {
   const H5::StrType datatype(H5::PredType::NATIVE_INT);
   const H5::DataSpace dataspace = H5::DataSpace(H5S_SCALAR);
   const H5::DataSet dataset = group.createDataSet(name, datatype, dataspace);
@@ -353,8 +423,8 @@ void Writer<DataType>::writeIntegerDataset(H5::Group& group, const std::string& 
 }
 
 template <typename DataType>
-void Writer<DataType>::writeLinearArray(H5::Group& group,
-                                        const std::shared_ptr<LinearArray>& linearArray) {
+void Writer<DataType>::WriterImpl::writeLinearArray(
+    H5::Group& group, const std::shared_ptr<LinearArray>& linearArray) {
   // Write "number_elements"
   writeIntegerDataset(group, "number_elements", linearArray->numberElements());
 
@@ -369,8 +439,8 @@ void Writer<DataType>::writeLinearArray(H5::Group& group,
 }
 
 template <typename DataType>
-void Writer<DataType>::writeMatrixArray(H5::Group& group,
-                                        const std::shared_ptr<MatrixArray>& matrixArray) {
+void Writer<DataType>::WriterImpl::writeMatrixArray(
+    H5::Group& group, const std::shared_ptr<MatrixArray>& matrixArray) {
   // Write "number_elements_x"
   writeIntegerDataset(group, "number_elements_x", matrixArray->numberElementsX());
 
@@ -391,7 +461,8 @@ void Writer<DataType>::writeMatrixArray(H5::Group& group,
 }
 
 template <typename DataType>
-void Writer<DataType>::writeRcaArray(H5::Group& group, const std::shared_ptr<RcaArray>& rcaArray) {
+void Writer<DataType>::WriterImpl::writeRcaArray(H5::Group& group,
+                                                 const std::shared_ptr<RcaArray>& rcaArray) {
   // Write "number_elements_x"
   writeIntegerDataset(group, "number_elements_x", rcaArray->numberElementsX());
 
@@ -418,7 +489,8 @@ void Writer<DataType>::writeRcaArray(H5::Group& group, const std::shared_ptr<Rca
 }
 
 template <typename DataType>
-void Writer<DataType>::writeProbe(H5::Group& group, const std::shared_ptr<Probe>& probe) {
+void Writer<DataType>::WriterImpl::writeProbe(H5::Group& group,
+                                              const std::shared_ptr<Probe>& probe) {
   // write "transform"
   H5::Group transform = group.createGroup("transform");
   writeTransform(transform, probe->transform());
@@ -456,8 +528,8 @@ void Writer<DataType>::writeProbe(H5::Group& group, const std::shared_ptr<Probe>
 }
 
 template <typename DataType>
-void Writer<DataType>::writeProbeArray(H5::Group& group,
-                                       const std::vector<std::shared_ptr<Probe>>& probes) {
+void Writer<DataType>::WriterImpl::writeProbeArray(
+    H5::Group& group, const std::vector<std::shared_ptr<Probe>>& probes) {
   char buf[9];
   snprintf(buf, sizeof buf, "%08d", 0);
   for (uint32_t i = 0; i < probes.size(); i++) {
@@ -469,7 +541,8 @@ void Writer<DataType>::writeProbeArray(H5::Group& group,
 }
 
 template <typename DataType>
-void Writer<DataType>::writeReceiveSetup(H5::Group& group, const ReceiveSetup& receiveSetup) {
+void Writer<DataType>::WriterImpl::writeReceiveSetup(H5::Group& group,
+                                                     const ReceiveSetup& receiveSetup) {
   // "probe"
   const std::string probeId =
       getIdFromPointer<Probe>(m_dataset->channelData().probes(), receiveSetup.probe());
@@ -500,15 +573,15 @@ void Writer<DataType>::writeReceiveSetup(H5::Group& group, const ReceiveSetup& r
 }
 
 template <typename DataType>
-void Writer<DataType>::writeRotation(H5::Group& group, const Rotation& rotation) {
+void Writer<DataType>::WriterImpl::writeRotation(H5::Group& group, const Rotation& rotation) {
   writeMetadataTypeDataset(group, "x", rotation.x());
   writeMetadataTypeDataset(group, "y", rotation.y());
   writeMetadataTypeDataset(group, "z", rotation.z());
 }
 
 template <typename DataType>
-void Writer<DataType>::writeStringDataset(H5::Group& group, const std::string& name,
-                                          const std::string& value) {
+void Writer<DataType>::WriterImpl::writeStringDataset(H5::Group& group, const std::string& name,
+                                                      const std::string& value) {
   const H5::StrType vlst(0, H5T_VARIABLE);
   const H5::DataSpace ds_space(H5S_SCALAR);
   const H5::DataSet dataset = group.createDataSet(name.c_str(), vlst, ds_space);
@@ -516,8 +589,8 @@ void Writer<DataType>::writeStringDataset(H5::Group& group, const std::string& n
 }
 
 template <typename DataType>
-void Writer<DataType>::writeOptionalStringDataset(H5::Group& group, const std::string& name,
-                                                  const std::optional<std::string>& value) {
+void Writer<DataType>::WriterImpl::writeOptionalStringDataset(
+    H5::Group& group, const std::string& name, const std::optional<std::string>& value) {
   const H5::StrType vlst(0, H5T_VARIABLE);
   const H5::DataSpace ds_space(H5S_SCALAR);
   const H5::DataSet dataset = group.createDataSet(name.c_str(), vlst, ds_space);
@@ -528,7 +601,7 @@ void Writer<DataType>::writeOptionalStringDataset(H5::Group& group, const std::s
 }
 
 template <typename DataType>
-void Writer<DataType>::writeTimedEvent(H5::Group& group, const TimedEvent& timedEvent) {
+void Writer<DataType>::WriterImpl::writeTimedEvent(H5::Group& group, const TimedEvent& timedEvent) {
   // "event"
   const std::string eventId =
       getIdFromPointer<Event>(m_dataset->channelData().uniqueEvents(), timedEvent.evenement());
@@ -539,8 +612,8 @@ void Writer<DataType>::writeTimedEvent(H5::Group& group, const TimedEvent& timed
 }
 
 template <typename DataType>
-void Writer<DataType>::writeTimedEventArray(H5::Group& group,
-                                            const std::vector<TimedEvent>& timedEvents) {
+void Writer<DataType>::WriterImpl::writeTimedEventArray(
+    H5::Group& group, const std::vector<TimedEvent>& timedEvents) {
   char buf[9];
   snprintf(buf, sizeof buf, "%08d", 0);
   for (uint32_t i = 0; i < timedEvents.size(); i++) {
@@ -552,7 +625,7 @@ void Writer<DataType>::writeTimedEventArray(H5::Group& group,
 }
 
 template <typename DataType>
-void Writer<DataType>::writeTransform(H5::Group& group, const Transform& transform) {
+void Writer<DataType>::WriterImpl::writeTransform(H5::Group& group, const Transform& transform) {
   // "rotation"
   H5::Group rotation = group.createGroup("rotation");
   writeRotation(rotation, transform.rotation());
@@ -563,14 +636,16 @@ void Writer<DataType>::writeTransform(H5::Group& group, const Transform& transfo
 }
 
 template <typename DataType>
-void Writer<DataType>::writeTranslation(H5::Group& group, const Translation& translation) {
+void Writer<DataType>::WriterImpl::writeTranslation(H5::Group& group,
+                                                    const Translation& translation) {
   writeMetadataTypeDataset(group, "x", translation.x());
   writeMetadataTypeDataset(group, "y", translation.y());
   writeMetadataTypeDataset(group, "z", translation.z());
 }
 
 template <typename DataType>
-void Writer<DataType>::writeTransmitSetup(H5::Group& group, const TransmitSetup& transmitSetup) {
+void Writer<DataType>::WriterImpl::writeTransmitSetup(H5::Group& group,
+                                                      const TransmitSetup& transmitSetup) {
   // "probe"
   const std::string probeId =
       getIdFromPointer<Probe>(m_dataset->channelData().probes(), transmitSetup.probe());
@@ -585,7 +660,8 @@ void Writer<DataType>::writeTransmitSetup(H5::Group& group, const TransmitSetup&
 }
 
 template <typename DataType>
-void Writer<DataType>::writeTransmitWave(H5::Group& group, const TransmitWave& transmitWave) {
+void Writer<DataType>::WriterImpl::writeTransmitWave(H5::Group& group,
+                                                     const TransmitWave& transmitWave) {
   // "wave"
   const std::string waveId =
       getIdFromPointer<Wave>(m_dataset->channelData().uniqueWaves(), transmitWave.wave());
@@ -599,14 +675,14 @@ void Writer<DataType>::writeTransmitWave(H5::Group& group, const TransmitWave& t
 }
 
 template <typename DataType>
-void Writer<DataType>::writeVersion(H5::Group& group, const Version& version) {
+void Writer<DataType>::WriterImpl::writeVersion(H5::Group& group, const Version& version) {
   writeIntegerDataset(group, "major", version.major());
   writeIntegerDataset(group, "minor", version.minor());
   writeIntegerDataset(group, "patch", version.patch());
 }
 
 template <typename DataType>
-void Writer<DataType>::writeWave(H5::Group& group, const std::shared_ptr<Wave>& wave) {
+void Writer<DataType>::WriterImpl::writeWave(H5::Group& group, const std::shared_ptr<Wave>& wave) {
   // write "origin"
   H5::Group origin = group.createGroup("origin");
   writeTransform(origin, wave->origin());
@@ -624,8 +700,8 @@ void Writer<DataType>::writeWave(H5::Group& group, const std::shared_ptr<Wave>& 
 }
 
 template <typename DataType>
-void Writer<DataType>::writeWaveArray(H5::Group& group,
-                                      const std::vector<std::shared_ptr<Wave>>& waves) {
+void Writer<DataType>::WriterImpl::writeWaveArray(H5::Group& group,
+                                                  const std::vector<std::shared_ptr<Wave>>& waves) {
   char buf[9];
   snprintf(buf, sizeof buf, "%08d", 0);
   for (uint32_t i = 0; i < waves.size(); i++) {
@@ -635,6 +711,12 @@ void Writer<DataType>::writeWaveArray(H5::Group& group,
     writeWave(wave, waves[i]);
   }
 }
+
+template <typename DataType>
+Writer<DataType>::Writer() : _impl(new WriterImpl()) {}
+
+template <typename DataType>
+Writer<DataType>::~Writer() = default;
 
 template class Writer<float>;
 template class Writer<short>;

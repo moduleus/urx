@@ -79,8 +79,8 @@ if(WITH_HDF5)
   find_package(HDF5 NAMES hdf5 COMPONENTS CXX ${SEARCH_TYPE})
 
   target_compile_definitions(Urxv0_2 PUBLIC WITH_HDF5)
-  target_link_libraries(Urxv0_2 PUBLIC hdf5::hdf5-${SEARCH_TYPE}
-                                       hdf5::hdf5_cpp-${SEARCH_TYPE})
+  target_link_libraries(Urxv0_2 PRIVATE hdf5::hdf5-${SEARCH_TYPE}
+                                        hdf5::hdf5_cpp-${SEARCH_TYPE})
 endif()
 
 set_target_properties(Urxv0_2 PROPERTIES OUTPUT_NAME "Urxv0_2-${git_branch}")
