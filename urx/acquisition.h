@@ -4,7 +4,6 @@
 #include <memory>
 #include <optional>
 #include <string>
-#include <variant>
 #include <vector>
 
 #include <urx/detail/compare.h>

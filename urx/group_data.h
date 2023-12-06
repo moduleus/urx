@@ -6,7 +6,6 @@
 #include <memory>
 #include <unordered_map>
 #include <utility>
-#include <variant>
 #include <vector>
 
 #include <urx/detail/compare.h>

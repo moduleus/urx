@@ -1,6 +1,5 @@
 #pragma once
 
-#include <variant>
 #include <vector>
 
 #include <urx/group_data.h>

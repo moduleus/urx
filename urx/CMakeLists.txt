@@ -42,6 +42,7 @@ target_include_directories(
 set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "${INSTALL_NAME}")
 
 add_subdirectory("v0_2")
+add_subdirectory("v0_3")
 
 # Install library ###
 
