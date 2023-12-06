@@ -41,7 +41,7 @@ target_include_directories(
             $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${INSTALL_NAME}>)
 set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "${INSTALL_NAME}")
 
-add_subdirectory("v0_5")
+add_subdirectory("v0_2")
 
 # Install library ###
 

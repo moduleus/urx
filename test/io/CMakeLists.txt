@@ -11,7 +11,7 @@ add_executable(UrxIo ${SRCS_FILES})
 target_precompile_headers(UrxIo PRIVATE ${URX_PCH} ${URX_PCH_TEST})
 
 target_link_libraries(
-  UrxIo PRIVATE Urx::Urx Urx::UrxUtils Urx::Urxv0_5 ${HDF5_CXX_LIBRARIES}
+  UrxIo PRIVATE Urx::Urx Urx::UrxUtils Urx::Urxv0_2 ${HDF5_CXX_LIBRARIES}
                 Catch2::Catch2WithMain compiler_flags)
 
 target_compile_definitions(

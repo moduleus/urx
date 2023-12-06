@@ -71,7 +71,7 @@ set_target_properties(
 
 target_link_libraries(
   ${URX_UTILS_LIBRARY}
-  PUBLIC Urx::Urx Urx::Urxv0_5
+  PUBLIC Urx::Urx Urx::Urxv0_2
   PRIVATE compiler_flags)
 if(WITH_HDF5)
   target_link_libraries(
