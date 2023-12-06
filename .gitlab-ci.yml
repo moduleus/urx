@@ -7,11 +7,11 @@ workflow:
 
 stages:
   - build
-  - doc
   - format
   - test
   - tag
   - install
+  - doc
 
 doc:Doxygen:
   stage: doc
