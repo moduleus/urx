@@ -1,8 +1,4 @@
-/*!
- * Copyright Moduleus
- * \file urx/probe.cpp
- * \brief
- */
+// Copyright Moduleus
 
 #include <cstdint>
 #include <ios>

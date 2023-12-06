@@ -1,8 +1,4 @@
-/*!
- * Copyright Moduleus
- * \file urx/excitation.h
- * \brief
- */
+// Copyright Moduleus
 
 #ifndef URX_EXCITATION_H
 #define URX_EXCITATION_H

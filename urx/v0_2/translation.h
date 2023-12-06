@@ -1,8 +1,4 @@
-/*!
- * Copyright Moduleus 2019
- * \file urx/translation.h
- * \brief
- */
+// Copyright Moduleus
 
 #ifndef URX_TRANSLATION_H
 #define URX_TRANSLATION_H

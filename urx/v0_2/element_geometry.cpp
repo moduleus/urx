@@ -1,8 +1,4 @@
-/*!
- * Copyright Moduleus
- * \file urx/element_geometry.cpp
- * \brief
- */
+// Copyright Moduleus
 
 #include <ios>
 #include <ostream>

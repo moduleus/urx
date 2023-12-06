@@ -1,8 +1,4 @@
-/*!
- * Copyright Moduleus
- * \file urx/matrix_array.h
- * \brief
- */
+// Copyright Moduleus
 
 #ifndef URX_MATRIX_ARRAY_H
 #define URX_MATRIX_ARRAY_H

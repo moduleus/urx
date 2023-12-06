@@ -1,8 +1,4 @@
-/*!
- * Copyright Moduleus
- * \file urx/element_geometry.h
- * \brief
- */
+// Copyright Moduleus
 
 #ifndef URX_ELEMENT_GEOMETRY_H
 #define URX_ELEMENT_GEOMETRY_H

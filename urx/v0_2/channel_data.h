@@ -1,8 +1,4 @@
-/*!
- * Copyright Moduleus
- * \file urx/channel_data.h
- * \brief
- */
+// Copyright Moduleus
 
 #ifndef URX_CHANNEL_DATA_H
 #define URX_CHANNEL_DATA_H

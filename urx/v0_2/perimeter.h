@@ -1,8 +1,4 @@
-/*!
- * Copyright Moduleus
- * \file urx/perimeter.h
- * \brief
- */
+// Copyright Moduleus
 
 #ifndef URX_PERIMETER_H
 #define URX_PERIMETER_H

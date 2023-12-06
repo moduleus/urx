@@ -1,8 +1,4 @@
-/*!
- * Copyright Moduleus
- * \file urx/translation.cpp
- * \brief
- */
+// Copyright Moduleus
 
 #include <ios>
 #include <ostream>

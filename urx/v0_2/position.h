@@ -1,8 +1,4 @@
-/*!
- * Copyright Moduleus
- * \file urx/position.h
- * \brief
- */
+// Copyright Moduleus
 
 #ifndef URX_POSTITION_H
 #define URX_POSTITION_H

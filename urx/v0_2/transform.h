@@ -1,8 +1,4 @@
-/*!
- * Copyright Moduleus
- * \file urx/transform.h
- * \brief
- */
+// Copyright Moduleus
 
 #ifndef URX_TRANSFORM_H
 #define URX_TRANSFORM_H

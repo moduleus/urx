@@ -1,8 +1,4 @@
-/*!
- * Copyright Moduleus
- * \file urx/impulse_response.h
- * \brief
- */
+// Copyright Moduleus
 
 #ifndef URX_IMPULSE_RESPONSE_H
 #define URX_IMPULSE_RESPONSE_H

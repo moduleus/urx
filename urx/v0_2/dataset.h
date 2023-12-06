@@ -1,8 +1,4 @@
-/*!
- * Copyright Moduleus
- * \file urx/dataset.h
- * \brief
- */
+// Copyright Moduleus
 
 #ifndef URX_DATASET_H
 #define URX_DATASET_H

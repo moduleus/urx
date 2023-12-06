@@ -1,8 +1,4 @@
-/*!
- * Copyright Moduleus
- * \file urx/transmit_setup.cpp
- * \brief
- */
+// Copyright Moduleus
 
 #include <ios>
 #include <ostream>

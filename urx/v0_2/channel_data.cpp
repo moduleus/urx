@@ -1,8 +1,4 @@
-/*!
- * Copyright Moduleus
- * \file urx/channel_data.cpp
- * \brief
- */
+// Copyright Moduleus
 
 #include <iomanip>
 #include <ostream>

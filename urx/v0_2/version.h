@@ -1,8 +1,4 @@
-/*!
- * Copyright Moduleus
- * \file urx/version.h
- * \brief
- */
+// Copyright Moduleus
 
 #ifndef URX_VERSION_H
 #define URX_VERSION_H

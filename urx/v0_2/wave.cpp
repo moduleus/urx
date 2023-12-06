@@ -1,8 +1,4 @@
-/*!
- * Copyright Moduleus
- * \file urx/wave.cpp
- * \brief
- */
+// Copyright Moduleus
 
 #include <ios>
 #include <ostream>

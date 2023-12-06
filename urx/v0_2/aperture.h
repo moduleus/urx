@@ -1,8 +1,4 @@
-/*!
- * Copyright Moduleus
- * \file urx/aperture.h
- * \brief
- */
+// Copyright Moduleus
 
 #ifndef URX_APERTURE_H
 #define URX_APERTURE_H

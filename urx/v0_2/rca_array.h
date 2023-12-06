@@ -1,8 +1,4 @@
-/*!
- * Copyright Moduleus
- * \file urx/rca_array.h
- * \brief
- */
+// Copyright Moduleus
 
 #ifndef URX_RCA_ARRAY_H
 #define URX_RCA_ARRAY_H

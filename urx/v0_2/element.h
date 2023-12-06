@@ -1,8 +1,4 @@
-/*!
- * Copyright Moduleus
- * \file urx/element.h
- * \brief
- */
+// Copyright Moduleus
 
 #ifndef URX_ELEMENT_H
 #define URX_ELEMENT_H

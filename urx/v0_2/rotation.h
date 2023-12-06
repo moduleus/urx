@@ -1,8 +1,4 @@
-/*!
- * Copyright Moduleus
- * \file urx/rotation.h
- * \brief
- */
+// Copyright Moduleus
 
 #ifndef URX_ROTATION_H
 #define URX_ROTATION_H

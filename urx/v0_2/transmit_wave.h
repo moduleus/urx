@@ -1,8 +1,4 @@
-/*!
- * Copyright Moduleus
- * \file urx/transmit_wave.h
- * \brief
- */
+// Copyright Moduleus
 
 #ifndef URX_TRANSMIT_WAVE_H
 #define URX_TRANSMIT_WAVE_H

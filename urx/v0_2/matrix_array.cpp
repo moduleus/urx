@@ -1,8 +1,4 @@
-/*!
- * Copyright Moduleus
- * \file urx/matrix_array.cpp
- * \brief
- */
+// Copyright Moduleus
 
 #include <ios>
 #include <ostream>

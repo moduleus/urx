@@ -1,8 +1,4 @@
-/*!
- * Copyright Moduleus
- * \file urx/rca_array.cpp
- * \brief
- */
+// Copyright Moduleus
 
 #include <cstddef>
 #include <ios>

@@ -1,8 +1,4 @@
-/*!
- * Copyright Moduleus
- * \file urx/probe.h
- * \brief
- */
+// Copyright Moduleus
 
 #ifndef URX_PROBE_H
 #define URX_PROBE_H

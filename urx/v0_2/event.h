@@ -1,8 +1,4 @@
-/*!
- * Copyright Moduleus
- * \file urx/event.h
- * \brief
- */
+// Copyright Moduleus
 
 #ifndef URX_EVENT_H
 #define URX_EVENT_H

@@ -1,8 +1,4 @@
-/*!
- * Copyright Moduleus
- * \file urx/impulse_response.cpp
- * \brief
- */
+// Copyright Moduleus
 
 #include <ios>
 #include <ostream>

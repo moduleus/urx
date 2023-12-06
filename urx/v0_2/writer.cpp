@@ -1,8 +1,4 @@
-/*!
- * Copyright Moduleus
- * \file urx/writer.cpp
- * \brief
- */
+// Copyright Moduleus
 
 #ifdef WITH_HDF5
 

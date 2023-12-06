@@ -1,8 +1,4 @@
-/*!
- * Copyright Moduleus
- * \file urx/linear_array.h
- * \brief
- */
+// Copyright Moduleus
 
 #ifndef URX_LINEAR_ARRAY_H
 #define URX_LINEAR_ARRAY_H

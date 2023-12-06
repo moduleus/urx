@@ -1,8 +1,4 @@
-/*!
- * Copyright Moduleus
- * \file urx/timed_event.h
- * \brief
- */
+// Copyright Moduleus
 
 #ifndef URX_TIMED_EVENT_H
 #define URX_TIMED_EVENT_H

@@ -1,8 +1,4 @@
-/*!
- * Copyright Moduleus
- * \file urx/receive_setup.h
- * \brief
- */
+// Copyright Moduleus
 
 #ifndef URX_RECEIVE_SETUP_H
 #define URX_RECEIVE_SETUP_H

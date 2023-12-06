@@ -1,8 +1,4 @@
-/*!
- * Copyright Moduleus
- * \file urx/object.h
- * \brief
- */
+// Copyright Moduleus
 
 #ifndef URX_OBJECT_H
 #define URX_OBJECT_H

@@ -1,8 +1,4 @@
-/*!
- * Copyright Moduleus
- * \file urx/transmit_setup.h
- * \brief
- */
+// Copyright Moduleus
 
 #ifndef URX_TRANSMIT_SETUP_H
 #define URX_TRANSMIT_SETUP_H

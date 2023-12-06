@@ -1,8 +1,4 @@
-/*!
- * Copyright Moduleus
- * \file urx/reader.h
- * \brief
- */
+// Copyright Moduleus
 
 #ifdef WITH_HDF5
 #ifndef URX_READER_H

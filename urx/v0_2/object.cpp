@@ -1,8 +1,4 @@
-/*!
- * Copyright Moduleus
- * \file urx/object.cpp
- * \brief
- */
+// Copyright Moduleus
 
 #include <memory>
 #include <ostream>

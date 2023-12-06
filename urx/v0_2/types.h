@@ -1,10 +1,6 @@
 #pragma once
 
-/*!
- * Copyright Moduleus
- * \file urx/types.h
- * \brief
- */
+// Copyright Moduleus
 
 #include <iosfwd>
 
