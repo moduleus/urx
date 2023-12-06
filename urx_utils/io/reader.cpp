@@ -37,6 +37,12 @@ namespace {
 
 using MapToSharedPtr = std::unordered_map<std::type_index, const void*>;
 
+template <typename T>
+const std::vector<std::shared_ptr<T>>& get_shared_ptr(MapToSharedPtr& map) {
+  return *reinterpret_cast<const std::vector<std::shared_ptr<T>>*>(
+      map.at(std::type_index{typeid(T)}));
+}
+
 std::unordered_map<std::type_index, const H5::PredType*> std_to_h5;
 
 constexpr int iter_length = 8;
@@ -106,11 +112,7 @@ void deserialize_hdf5(const std::string& name, std::weak_ptr<T>& field, const H5
 
     deserialize_hdf5(name, idx, group, map);
 
-    const std::vector<std::shared_ptr<T>>& all_shared =
-        *reinterpret_cast<const std::vector<std::shared_ptr<T>>*>(
-            map.at(std::type_index{typeid(T)}));
-
-    field = all_shared[idx];
+    field = get_shared_ptr<T>(map)[idx];
   }
 }
 

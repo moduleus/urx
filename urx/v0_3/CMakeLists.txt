@@ -12,13 +12,17 @@ set(URX_V0_3_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/group.h
     ${CMAKE_CURRENT_SOURCE_DIR}/igroup.h
     ${CMAKE_CURRENT_SOURCE_DIR}/impulse_response.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/linear_array.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/matrix_array.h
     ${CMAKE_CURRENT_SOURCE_DIR}/polarity.h
     ${CMAKE_CURRENT_SOURCE_DIR}/position.h
     ${CMAKE_CURRENT_SOURCE_DIR}/probe.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/rca_array.h
     ${CMAKE_CURRENT_SOURCE_DIR}/receive_setup.h
     ${CMAKE_CURRENT_SOURCE_DIR}/rotation.h
     ${CMAKE_CURRENT_SOURCE_DIR}/sampling_type.h
     ${CMAKE_CURRENT_SOURCE_DIR}/sequence.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/super_group.h
     ${CMAKE_CURRENT_SOURCE_DIR}/timed_event.h
     ${CMAKE_CURRENT_SOURCE_DIR}/transform.h
     ${CMAKE_CURRENT_SOURCE_DIR}/translation.h

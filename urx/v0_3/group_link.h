@@ -10,9 +10,9 @@
 namespace urx::v0_3 {
 
 struct GroupLink {
-  std::shared_ptr<IGroup> source;
-  std::shared_ptr<IGroup> destination;
-  std::shared_ptr<TriggerIn> trigger_in;
+  std::weak_ptr<IGroup> source;
+  std::weak_ptr<IGroup> destination;
+  std::optional<TriggerIn> trigger_in;
 };
 
 }  // namespace urx::v0_3

@@ -10,11 +10,13 @@
 namespace urx::v0_3 {
 
 struct ReceiveSetup {
-  std::shared_ptr<Probe> probe;
+  double time_offset;
+
+  std::weak_ptr<Probe> probe;
   double sampling_frequency;
-  size_t nb_samples;
+  uint32_t nb_samples;
   SamplingType sampling_type;
-  std::vector<std::vector<size_t>> channel_mapping;
+  std::vector<std::vector<uint32_t>> channel_mapping;
   std::vector<double> tgc_profile;
   double tgc_sampling_frequency;
   double modulation_frequency;

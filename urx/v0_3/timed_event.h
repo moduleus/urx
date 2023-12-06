@@ -10,7 +10,7 @@ namespace urx::v0_3 {
 
 struct TimedEvent {
   double time_offset;
-  std::shared_ptr<Event> event;
+  std::weak_ptr<Event> event;
 };
 
 }  // namespace urx::v0_3

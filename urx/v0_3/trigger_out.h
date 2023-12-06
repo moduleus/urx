@@ -11,6 +11,8 @@
 namespace urx::v0_3 {
 
 struct TriggerOut {
+  double time_offset;
+
   double pulse_duration;
   TriggerDestination destination;
   Polarity polarity;

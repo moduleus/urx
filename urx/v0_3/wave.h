@@ -15,11 +15,11 @@ namespace urx::v0_3 {
 struct Wave {
   Transform origin;
   WaveType wave_type;
-  std::shared_ptr<Aperture> aperture;
+  std::optional<Aperture> aperture;
   Position time_zero_reference_point;
   double time_zero;
-  std::vector<std::vector<size_t>> channel_mapping;
-  std::vector<Excitation> channel_excitations;
+  std::vector<std::vector<uint32_t>> channel_mapping;
+  std::vector<std::weak_ptr<Excitation>> channel_excitations;
   std::vector<double> channel_delays;
 };
 

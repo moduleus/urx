@@ -14,8 +14,8 @@ namespace urx::v0_3 {
 struct Event {
   TransmitSetup transmit_setup;
   ReceiveSetup receive_setup;
-  std::shared_ptr<TriggerIn> trigger_in;
-  std::shared_ptr<TriggerOut> trigger_out;
+  std::optional<TriggerIn> trigger_in;
+  std::optional<TriggerOut> trigger_out;
 };
 
 }  // namespace urx::v0_3

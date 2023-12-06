@@ -10,11 +10,13 @@
 namespace urx::v0_3 {
 
 struct IGroup {
-  std::string name;
-  std::shared_ptr<TriggerIn> trigger_in;
-  std::shared_ptr<TriggerOut> trigger_out;
+  double time_offset;
 
-  size_t repetition_count;
+  std::string name;
+  std::optional<TriggerIn> trigger_in;
+  std::optional<TriggerOut> trigger_out;
+
+  uint32_t repetition_count;
 };
 
 }  // namespace urx::v0_3

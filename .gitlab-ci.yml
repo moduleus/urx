@@ -148,7 +148,6 @@ build:windows-with-HDF5-static:
   artifacts:
     paths:
       - CI
-      - vcpkg_installed
     expire_in: 1 day
 
 test:windows-with-HDF5-static:
@@ -191,7 +190,6 @@ build:windows-with-HDF5-shared:
   artifacts:
     paths:
       - CI
-      - vcpkg_installed
     expire_in: 1 day
 
 test:windows-with-HDF5-shared:
@@ -232,7 +230,6 @@ build:ubuntu-with-HDF5-static:
   artifacts:
     paths:
       - CI
-      - vcpkg_installed
     expire_in: 1 day
 
 test:ubuntu-with-HDF5-static:
@@ -273,7 +270,6 @@ build:ubuntu-with-HDF5-shared:
   artifacts:
     paths:
       - CI
-      - vcpkg_installed
     expire_in: 1 day
 
 test:ubuntu-with-HDF5-shared:
@@ -315,7 +311,6 @@ build:ubuntu-without-HDF5-static:
   artifacts:
     paths:
       - CI
-      - vcpkg_installed
     expire_in: 1 day
 
 test:ubuntu-without-HDF5-static:

@@ -36,6 +36,8 @@ if(WITH_HDF5)
   list(
     APPEND
     URX_UTILS_SRCS
+    ${CMAKE_CURRENT_SOURCE_DIR}/io/reader_v0_3.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/io/reader_v0_3.h
     ${CMAKE_CURRENT_SOURCE_DIR}/io/reader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/io/reader.h
     ${CMAKE_CURRENT_SOURCE_DIR}/io/upgrade.cpp
@@ -76,7 +78,7 @@ target_link_libraries(
 if(WITH_HDF5)
   target_link_libraries(
     ${URX_UTILS_LIBRARY}
-    PUBLIC hdf5::hdf5-${SEARCH_TYPE} hdf5::hdf5_cpp-${SEARCH_TYPE}
+    PRIVATE hdf5::hdf5-${SEARCH_TYPE} hdf5::hdf5_cpp-${SEARCH_TYPE}
     PRIVATE magic_enum::magic_enum)
 endif()
 

@@ -17,6 +17,8 @@
 namespace urx::v0_3 {
 
 struct Acquisition {
+  double time_offset;
+
   std::string authors;
   std::string description;
   std::string local_time;
@@ -25,9 +27,9 @@ struct Acquisition {
 
   double sound_speed;
 
-  std::vector<std::shared_ptr<TriggerIn>> trigger_in;
-  std::vector<std::shared_ptr<TriggerOut>> trigger_out;
-  std::shared_ptr<IGroup> initial_group;
+  std::optional<TriggerIn> trigger_in;
+  std::optional<TriggerOut> trigger_out;
+  std::weak_ptr<IGroup> initial_group;
 
   std::vector<std::shared_ptr<GroupLink>> group_link;
   std::vector<std::shared_ptr<IGroup>> groups;

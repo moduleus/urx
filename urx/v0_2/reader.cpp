@@ -4,11 +4,16 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
 #include <cstdio>
 #include <ios>
+#include <optional>
 #include <ostream>
 #include <type_traits>
 #include <utility>
+#include <vector>
+
+#include <H5Cpp.h>
 
 #include <urx/v0_2/aperture.h>
 #include <urx/v0_2/channel_data.h>
