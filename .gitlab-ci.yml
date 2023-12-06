@@ -26,6 +26,7 @@ doc:Doxygen:
     paths:
       - public
     expire_in: 1 day
+  dependencies: []
 
 doc:PlantUml:
   stage: doc
@@ -61,6 +62,7 @@ doc:PlantUml:
     paths:
       - public
     expire_in: 1 day
+  dependencies: []
 
 format:clang-format:
   stage: format
