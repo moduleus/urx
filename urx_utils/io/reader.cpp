@@ -1,4 +1,5 @@
 #include <array>
+#include <complex>
 #include <cstddef>
 #include <cstdint>
 #include <format>

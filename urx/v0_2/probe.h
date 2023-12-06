@@ -7,7 +7,6 @@
 #ifndef URX_PROBE_H
 #define URX_PROBE_H
 
-#include <cassert>
 #include <iosfwd>
 #include <memory>
 #include <optional>
