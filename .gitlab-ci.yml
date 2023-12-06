@@ -21,13 +21,12 @@ doc:Doxygen:
   script:
     - doxygen doc/Doxyfile
     - mv doc/html public
-  dependencies:
-    - build:ubuntu-with-HDF5-static
   allow_failure: true
   artifacts:
     paths:
       - public
     expire_in: 1 day
+  dependencies: []
 
 doc:PlantUml:
   stage: doc
@@ -36,28 +35,34 @@ doc:PlantUml:
   image: $CI_REGISTRY/common/ci/dockerci/hpp2plantuml:latest
   script:
     - mkdir -p doc/plantuml
-    - hpp2plantuml -i "uff/*.h" -o doc/plantuml/architecture.puml
+    - hpp2plantuml -i "urx/*.h" -o doc/plantuml/architecture.puml
     - sed -r -i "/.+\(.*\).*/d" doc/plantuml/architecture.puml
-    - perl -0777 -i -pe "s/^.*uff\.Acquisition.*\*-- uff.Excitation\n\n\n//gm" doc/plantuml/architecture.puml
-    - perl -0777 -i -pe "s/^.*uff\.Acquisition.*\*-- uff.Group\n\n\n//gm" doc/plantuml/architecture.puml
-    - perl -0777 -i -pe "s/^.*uff\.Acquisition.*\*-- uff.Probe\n\n\n//gm" doc/plantuml/architecture.puml
-    - perl -0777 -i -pe "s/^.*uff\.Acquisition.*\*-- uff.ReceiveSetup\n\n\n//gm" doc/plantuml/architecture.puml
-    - perl -0777 -i -pe "s/^.*uff\.Acquisition.*\*-- uff.Wave\n\n\n//gm" doc/plantuml/architecture.puml
-    - perl -0777 -i -pe "s/^.*\*-- uff.Transform\n\n\n//gm" doc/plantuml/architecture.puml
-    - perl -0777 -i -pe "s/^.*\*-- uff.Vector.*D\n\n\n//gm" doc/plantuml/architecture.puml
-    - perl -0777 -i -pe "s/^.*uff\.Element.*\*-- .*\n\n\n//gm" doc/plantuml/architecture.puml
-    # - sed -r -i "/\+--\ uff\.GroupData::VecDataType.*/d" doc/plantuml/architecture.puml
+    - perl -0777 -i -pe "s/^.*urx\.Acquisition.*\*-- urx.Excitation\n\n\n//gm" doc/plantuml/architecture.puml
+    - perl -0777 -i -pe "s/^.*urx\.Acquisition.*\*-- urx.Group\n\n\n//gm" doc/plantuml/architecture.puml
+    - perl -0777 -i -pe "s/^.*urx\.Acquisition.*\*-- urx.Probe\n\n\n//gm" doc/plantuml/architecture.puml
+    - perl -0777 -i -pe "s/^.*urx\.Acquisition.*\*-- urx.ReceiveSetup\n\n\n//gm" doc/plantuml/architecture.puml
+    - perl -0777 -i -pe "s/^.*urx\.Acquisition.*\*-- urx.Wave\n\n\n//gm" doc/plantuml/architecture.puml
+    - perl -0777 -i -pe "s/^.*\*-- urx.Transform\n\n\n//gm" doc/plantuml/architecture.puml
+    - perl -0777 -i -pe "s/^.*\*-- urx.Vector.*D\n\n\n//gm" doc/plantuml/architecture.puml
+    - perl -0777 -i -pe "s/^.*urx\.Element.*\*-- .*\n\n\n//gm" doc/plantuml/architecture.puml
+    - perl -0777 -i -pe "s/^.*urx\.Element.*\*-- .*\n\n\n//gm" doc/plantuml/architecture.puml
+    - sed -i 's/std:://g' doc/plantuml/architecture.puml
+    - sed -i 's/weak_ptr<\([^>]*\)>/\1*/g' doc/plantuml/architecture.puml
+    - sed -i 's/shared_ptr<\([^>]*\)>/\1/g' doc/plantuml/architecture.puml
+    - sed -i 's/vector<\(.*\)>/\1[ ]/g' doc/plantuml/architecture.puml
+    - sed -i 's/vector<\(.*\)>/\1[ ]/g' doc/plantuml/architecture.puml
+    - sed -i 's/DoubleNan/double/g' doc/plantuml/architecture.puml
+    # - sed -r -i "/\+--\ urx\.GroupData::VecDataType.*/d" doc/plantuml/architecture.puml
     # - perl -0777 -i -pe "s/^.*class\ GroupData::VecDataType.*\n.*}\n\n//gm" doc/plantuml/architecture.puml
     - mkdir -p public/plantuml
     - plantuml doc/plantuml/architecture.puml
     - mv doc/plantuml/architecture.* public/plantuml/
-  dependencies:
-    - build:ubuntu-with-HDF5-static
   allow_failure: true
   artifacts:
     paths:
       - public
     expire_in: 1 day
+  dependencies: []
 
 format:clang-format:
   stage: format
@@ -65,7 +70,7 @@ format:clang-format:
     - ubuntu
     - clang-format
   script:
-    - find . -type f -name "*.cpp" -or -name "*.cc" -or -name "*.hpp" -or -name "*.h" |xargs clang-format-14 --style=file --dry-run --Werror
+    - find . -type f -name "*.cpp" -or -name "*.cc" -or -name "*.hpp" -or -name "*.h" |xargs clang-format-17 --style=file --dry-run --Werror
   dependencies: []
 
 format:cmake-format:
@@ -84,10 +89,8 @@ format:clang-tidy:
     - ubuntu
     - clang-tidy
   script:
-    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DHDF5_DIR="$HDF5_DIR_GCC_64_STATIC_RELEASE" -DCatch2_DIR="$Catch2_DIR_GCC_64_STATIC_RELEASE" -DBUILD_SHARED_LIBS=OFF
-    - cmake --build CI --config Release --parallel $NUM_PARALLEL
     - cd CI
-    - run-clang-tidy || exit 1
+    - run-clang-tidy-17 || exit 1
   dependencies:
     - build:ubuntu-with-HDF5-static
 
@@ -97,6 +100,7 @@ format:iwyu:
     - ubuntu
     - iwyu
   script:
+    - sed -i "s/-Winvalid-pch.*cmake_pch.hxx //g" CI/compile_commands.json
     - iwyu_tool.py -p CI -j $NUM_PARALLEL -- -Xiwyu --no_default_mappings -Xiwyu --mapping_file="$(pwd)/.iwyu-imp" -Xiwyu --no_fwd_decls > CI/iwyu_tool.log
     - fix_includes.py --nosafe_headers < CI/iwyu_tool.log
     - git diff > CI/iwyu.patch
@@ -133,11 +137,18 @@ build:windows-with-HDF5-static:
     - win10
     - build
   script:
-    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DHDF5_DIR="$HDF5_DIR_2022_64_STATIC_RELEASE" -DCatch2_DIR="$Catch2_DIR_2022_64_STATIC_RELEASE" -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON  -DWITH_TEST=ON
+    - git clone --depth 1 --branch boost-pfr-with-get_name https://git.moduleus.com/common/sw/3rdparty/vcpkg.git
+    - $vcpkg_tag = (Get-Content vcpkg\scripts\vcpkg-tool-metadata.txt) | Select-String -Pattern '^VCPKG_TOOL_RELEASE_TAG=(.*)'  | %{$_.Matches.Groups[1].value}
+    - $url="https://github.com/microsoft/vcpkg-tool/releases/download/$vcpkg_tag/vcpkg.exe"
+    - $destination="$Env:VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag.exe"
+    - if(-not(Test-Path $destination)){Invoke-WebRequest -Uri $url -OutFile $destination}
+    - Copy-Item $destination vcpkg/vcpkg.exe
+    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows-static-md -DVCPKG_HOST_TRIPLET=x64-windows-static-md -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DWITH_TEST=ON -DWITH_PYTHON:BOOL=ON
     - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
   artifacts:
     paths:
       - CI
+      - vcpkg_installed
     expire_in: 1 day
 
 test:windows-with-HDF5-static:
@@ -169,11 +180,18 @@ build:windows-with-HDF5-shared:
     - win10
     - build
   script:
-    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DHDF5_DIR="$HDF5_DIR_2022_64_SHARED_RELEASE" -DCatch2_DIR="$Catch2_DIR_2022_64_SHARED_RELEASE" -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=ON  -DWITH_TEST=ON
+    - git clone --depth 1 --branch boost-pfr-with-get_name https://git.moduleus.com/common/sw/3rdparty/vcpkg.git
+    - $vcpkg_tag = (Get-Content vcpkg\scripts\vcpkg-tool-metadata.txt) | Select-String -Pattern '^VCPKG_TOOL_RELEASE_TAG=(.*)'  | %{$_.Matches.Groups[1].value}
+    - $url="https://github.com/microsoft/vcpkg-tool/releases/download/$vcpkg_tag/vcpkg.exe"
+    - $destination="$Env:VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag.exe"
+    - if(-not(Test-Path $destination)){Invoke-WebRequest -Uri $url -OutFile $destination}
+    - Copy-Item $destination vcpkg/vcpkg.exe
+    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows -DVCPKG_HOST_TRIPLET=x64-windows -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=ON -DWITH_TEST=ON -DWITH_PYTHON:BOOL=ON
     - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
   artifacts:
     paths:
       - CI
+      - vcpkg_installed
     expire_in: 1 day
 
 test:windows-with-HDF5-shared:
@@ -199,65 +217,22 @@ install:windows-with-HDF5-shared:
   script:
     - cmake.exe --install CI --config Release
 
-build:windows-without-HDF5-static:
-  stage: build
-  tags:
-    - win10
-    - build
-  script:
-    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCatch2_DIR="$Catch2_DIR_2022_64_STATIC_RELEASE" -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=OFF -DWITH_TEST=ON
-    - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
-  artifacts:
-    paths:
-      - CI
-    expire_in: 1 day
-
-test:windows-without-HDF5-static:
-  stage: test
-  dependencies:
-    - build:windows-without-HDF5-static
-  tags:
-    - win10
-    - test
-  script:
-    - cd CI
-    - ctest --output-on-failure -C Release
-
-build:windows-without-HDF5-shared:
-  stage: build
-  tags:
-    - win10
-    - build
-  script:
-    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCatch2_DIR="$Catch2_DIR_2022_64_SHARED_RELEASE" -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=OFF -DWITH_TEST=ON
-    - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
-  artifacts:
-    paths:
-      - CI
-    expire_in: 1 day
-
-test:windows-without-HDF5-shared:
-  stage: test
-  dependencies:
-    - build:windows-without-HDF5-shared
-  tags:
-    - win10
-    - test
-  script:
-    - cd CI
-    - ctest --output-on-failure -C Release
-
 build:ubuntu-with-HDF5-static:
   stage: build
   tags:
     - ubuntu
     - build
   script:
-    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DHDF5_DIR="$HDF5_DIR_GCC_64_STATIC_RELEASE" -DCatch2_DIR="$Catch2_DIR_GCC_64_STATIC_RELEASE" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DWITH_TEST=ON
+    - git clone --depth 1 --branch boost-pfr-with-get_name https://git.moduleus.com/common/sw/3rdparty/vcpkg.git
+    - vcpkg_tag=$(sed -n 's/^VCPKG_TOOL_RELEASE_TAG=\(.*\)/\1/p' < vcpkg/scripts/vcpkg-tool-metadata.txt)
+    - if [ ! -f "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag" ]; then wget -O "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag" "https://github.com/microsoft/vcpkg-tool/releases/download/$vcpkg_tag/vcpkg-glibc" || exit 1; chmod +x "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag"; fi
+    - cp $VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag vcpkg/vcpkg || exit 1
+    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/usr/bin/clang-17 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-17 -DCMAKE_AR=/usr/bin/llvm-ar-17 -DCMAKE_AS=/usr/bin/llvm-as-17 -DCMAKE_RANLIB=/usr/bin/llvm-ranlib-17 -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-linux -DVCPKG_HOST_TRIPLET=x64-linux -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DWITH_TEST=ON -DWITH_PYTHON:BOOL=ON
     - cmake --build CI --config Release --parallel $NUM_PARALLEL
   artifacts:
     paths:
       - CI
+      - vcpkg_installed
     expire_in: 1 day
 
 test:ubuntu-with-HDF5-static:
@@ -289,11 +264,16 @@ build:ubuntu-with-HDF5-shared:
     - ubuntu
     - build
   script:
-    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DHDF5_DIR="$HDF5_DIR_GCC_64_SHARED_RELEASE" -DCatch2_DIR="$Catch2_DIR_GCC_64_SHARED_RELEASE" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=ON -DWITH_TEST=ON
+    - git clone --depth 1 --branch boost-pfr-with-get_name https://git.moduleus.com/common/sw/3rdparty/vcpkg.git
+    - vcpkg_tag=$(sed -n 's/^VCPKG_TOOL_RELEASE_TAG=\(.*\)/\1/p' < vcpkg/scripts/vcpkg-tool-metadata.txt)
+    - if [ ! -f "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag" ]; then wget -O "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag" "https://github.com/microsoft/vcpkg-tool/releases/download/$vcpkg_tag/vcpkg-glibc" || exit 1; chmod +x "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag"; fi
+    - cp $VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag vcpkg/vcpkg || exit 1
+    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-linux-dynamic -DVCPKG_HOST_TRIPLET=x64-linux-dynamic -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=ON -DWITH_TEST=ON -DWITH_PYTHON:BOOL=ON
     - cmake --build CI --config Release --parallel $NUM_PARALLEL
   artifacts:
     paths:
       - CI
+      - vcpkg_installed
     expire_in: 1 day
 
 test:ubuntu-with-HDF5-shared:
@@ -319,47 +299,29 @@ install:ubuntu-with-HDF5-shared:
   script:
     - cmake --install CI --config Release
 
+# Check only once WITH_HDF5=OFF
 build:ubuntu-without-HDF5-static:
   stage: build
   tags:
     - ubuntu
     - build
   script:
-    - cmake -S . -B CI -DCatch2_DIR="$Catch2_DIR_GCC_64_STATIC_RELEASE" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=OFF -DWITH_TEST=ON
+    - git clone --depth 1 --branch boost-pfr-with-get_name https://git.moduleus.com/common/sw/3rdparty/vcpkg.git
+    - vcpkg_tag=$(sed -n 's/^VCPKG_TOOL_RELEASE_TAG=\(.*\)/\1/p' < vcpkg/scripts/vcpkg-tool-metadata.txt)
+    - if [ ! -f "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag" ]; then wget -O "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag" "https://github.com/microsoft/vcpkg-tool/releases/download/$vcpkg_tag/vcpkg-glibc" || exit 1; chmod +x "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag"; fi
+    - cp $VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag vcpkg/vcpkg || exit 1
+    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-linux -DVCPKG_HOST_TRIPLET=x64-linux -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=OFF -DWITH_TEST=ON -DWITH_PYTHON:BOOL=ON
     - cmake --build CI --config Release --parallel $NUM_PARALLEL
   artifacts:
     paths:
       - CI
+      - vcpkg_installed
     expire_in: 1 day
 
 test:ubuntu-without-HDF5-static:
   stage: test
   dependencies:
     - build:ubuntu-without-HDF5-static
-  tags:
-    - ubuntu
-    - build
-  script:
-    - cd CI
-    - ctest --output-on-failure -C Release
-
-build:ubuntu-without-HDF5-shared:
-  stage: build
-  tags:
-    - ubuntu
-    - build
-  script:
-    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=OFF -DCatch2_DIR="$Catch2_DIR_GCC_64_SHARED_RELEASE" -DWITH_TEST=ON
-    - cmake --build CI --config Release --parallel $NUM_PARALLEL
-  artifacts:
-    paths:
-      - CI
-    expire_in: 1 day
-
-test:ubuntu-without-HDF5-shared:
-  stage: test
-  dependencies:
-    - build:ubuntu-without-HDF5-shared
   tags:
     - ubuntu
     - build

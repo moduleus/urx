@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.9)
 
 project(
-  Uff
+  Urx
   VERSION 0.6.8
   LANGUAGES C CXX
   DESCRIPTION "Ultrasound File Format C++ implementation")
@@ -28,6 +28,7 @@ set(CMAKE_LINK_WHAT_YOU_USE ON)
 option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
 
 add_compile_options($<$<CXX_COMPILER_ID:MSVC>:/MP>)
+add_compile_definitions(_SILENCE_NONFLOATING_COMPLEX_DEPRECATION_WARNING)
 
 include(CTest)
 
@@ -77,11 +78,74 @@ option(WITH_MATLAB "Build Matlab wrappers" OFF)
 option(WITH_PYTHON "Build Python module" OFF)
 option(WITH_TEST "Build unit tests" OFF)
 
-add_subdirectory("uff")
-
+set(URX_PCH
+    "<algorithm>"
+    "<array>"
+    "<cassert>"
+    "<cmath>"
+    "<compare>"
+    "<complex>"
+    "<concepts>"
+    "<cstddef>"
+    "<cstdint>"
+    "<cstdio>"
+    "<cstdlib>"
+    "<cstring>"
+    "<exception>"
+    "<format>"
+    "<iomanip>"
+    "<ios>"
+    "<iosfwd>"
+    "<iostream>"
+    "<istream>"
+    "<iterator>"
+    "<limits>"
+    "<locale>"
+    "<memory>"
+    "<optional>"
+    "<ostream>"
+    "<regex>"
+    "<sstream>"
+    "<stdexcept>"
+    "<string_view>"
+    "<string>"
+    "<type_traits>"
+    "<typeindex>"
+    "<unordered_map>"
+    "<utility>"
+    "<variant>"
+    "<vector>"
+    "<version>")
 if(WITH_HDF5)
-  add_subdirectory("uff_utils")
+  list(APPEND URX_PCH "<H5Cpp.h>" "<boost/pfr.hpp>" "<magic_enum.hpp>")
 endif()
+if(WITH_TEST)
+  set(URX_PCH_TEST
+      "<catch2/catch_test_macros.hpp>"
+      "<catch2/matchers/catch_matchers_floating_point.hpp>"
+      "<catch2/matchers/catch_matchers.hpp>")
+endif()
+set(URX_PCH_PYTHON
+    "<pybind11/attr.h>"
+    "<pybind11/buffer_info.h>"
+    "<pybind11/cast.h>"
+    "<pybind11/numpy.h>"
+    "<pybind11/operators.h>"
+    "<pybind11/pybind11.h>"
+    "<pybind11/pytypes.h>"
+    "<pybind11/stl_bind.h>")
+
+add_subdirectory("urx")
+
+if(WITH_PYTHON)
+  find_package(
+    Python3
+    COMPONENTS Interpreter Development
+    REQUIRED)
+  find_package(pybind11 CONFIG REQUIRED)
+endif()
+
+add_subdirectory("urx_utils")
 
 if(WITH_MATLAB)
   find_package(Matlab REQUIRED)
@@ -89,17 +153,17 @@ if(WITH_MATLAB)
 endif()
 
 if(WITH_PYTHON)
-  find_package(pybind11 CONFIG REQUIRED)
   add_subdirectory(python)
 endif()
 
 if(WITH_TEST)
   enable_testing()
   find_package(Catch2 REQUIRED)
+  add_subdirectory(test)
 endif()
 
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${UFF_SRCS}
-                                                    ${UFF_UTILS_SRCS})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${URX_SRCS}
+                                                    ${URX_UTILS_SRCS})
 
 # Create cmake config files ###
 write_basic_package_version_file(
@@ -107,7 +171,3 @@ write_basic_package_version_file(
   COMPATIBILITY SameMajorVersion)
 
 file(WRITE "${CMAKE_BINARY_DIR}/version.txt" "${CMAKE_PROJECT_VERSION}")
-
-if(WITH_TEST)
-  add_subdirectory(test)
-endif()

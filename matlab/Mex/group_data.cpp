@@ -1,13 +1,13 @@
-#include <mexplus.h>
-#include <typeinfo>
-
 #include <complex>
 #include <iostream>
 #include <memory>
+#include <typeinfo>
 #include <vector>
 
-#include <uff/acquisition.h>
-#include <uff/group_data.h>
+#include <mexplus.h>
+
+#include <urx/acquisition.h>
+#include <urx/group_data.h>
 
 using namespace mexplus;
 
@@ -16,20 +16,20 @@ namespace {
 MEX_DEFINE(GroupData_new)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
   InputArguments input(nrhs, prhs, 0);
   OutputArguments output(nlhs, plhs, 1);
-  output.set(0, Session<uff::GroupData>::create(new uff::GroupData()));
+  output.set(0, Session<urx::GroupData>::create(new urx::GroupData()));
 }
 
 MEX_DEFINE(GroupData_delete)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
   InputArguments input(nrhs, prhs, 1);
   OutputArguments output(nlhs, plhs, 0);
-  Session<uff::GroupData>::destroy(input.get(0));
+  Session<urx::GroupData>::destroy(input.get(0));
 }
 
 MEX_DEFINE(GroupData_get_group_timestamp)
 (int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
   InputArguments input(nrhs, prhs, 1);
   OutputArguments output(nlhs, plhs, 1);
-  std::shared_ptr<uff::GroupData> grp_data = Session<uff::GroupData>::get_shared(input.get(0));
+  std::shared_ptr<urx::GroupData> grp_data = Session<urx::GroupData>::get_shared(input.get(0));
   output.set(0, grp_data->group_timestamp);
 }
 
@@ -37,7 +37,7 @@ MEX_DEFINE(GroupData_set_group_timestamp)
 (int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
   InputArguments input(nrhs, prhs, 2);
   OutputArguments output(nlhs, plhs, 0);
-  std::shared_ptr<uff::GroupData> grp_data = Session<uff::GroupData>::get_shared(input.get(0));
+  std::shared_ptr<urx::GroupData> grp_data = Session<urx::GroupData>::get_shared(input.get(0));
   grp_data->group_timestamp = input.get<double>(1);
 }
 
@@ -45,7 +45,7 @@ MEX_DEFINE(GroupData_get_sequence_timestamps)
 (int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
   InputArguments input(nrhs, prhs, 1);
   OutputArguments output(nlhs, plhs, 1);
-  std::shared_ptr<uff::GroupData> grp_data = Session<uff::GroupData>::get_shared(input.get(0));
+  std::shared_ptr<urx::GroupData> grp_data = Session<urx::GroupData>::get_shared(input.get(0));
   output.set(0, grp_data->sequence_timestamps);
 }
 
@@ -54,7 +54,7 @@ MEX_DEFINE(GroupData_set_sequence_timestamps)
   InputArguments input(nrhs, prhs, 2);
   OutputArguments output(nlhs, plhs, 0);
 
-  std::shared_ptr<uff::GroupData> grp_data = Session<uff::GroupData>::get_shared(input.get(0));
+  std::shared_ptr<urx::GroupData> grp_data = Session<urx::GroupData>::get_shared(input.get(0));
   grp_data->sequence_timestamps = input.get<std::vector<double>>(1);
 }
 
@@ -62,7 +62,7 @@ MEX_DEFINE(GroupData_get_event_timestamps)
 (int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
   InputArguments input(nrhs, prhs, 1);
   OutputArguments output(nlhs, plhs, 1);
-  std::shared_ptr<uff::GroupData> grp_data = Session<uff::GroupData>::get_shared(input.get(0));
+  std::shared_ptr<urx::GroupData> grp_data = Session<urx::GroupData>::get_shared(input.get(0));
   output.set(0, grp_data->event_timestamps);
 }
 
@@ -71,14 +71,14 @@ MEX_DEFINE(GroupData_set_event_timestamps)
   InputArguments input(nrhs, prhs, 2);
   OutputArguments output(nlhs, plhs, 0);
 
-  std::shared_ptr<uff::GroupData> grp_data = Session<uff::GroupData>::get_shared(input.get(0));
+  std::shared_ptr<urx::GroupData> grp_data = Session<urx::GroupData>::get_shared(input.get(0));
   grp_data->event_timestamps = input.get<std::vector<std::vector<double>>>(1);
 }
 
 MEX_DEFINE(GroupData_get_raw_data)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
   InputArguments input(nrhs, prhs, 1);
   OutputArguments output(nlhs, plhs, 1);
-  std::shared_ptr<uff::GroupData> grp_data = Session<uff::GroupData>::get_shared(input.get(0));
+  std::shared_ptr<urx::GroupData> grp_data = Session<urx::GroupData>::get_shared(input.get(0));
 
   std::visit([&](auto&& vec) { output.set(0, vec); }, grp_data->raw_data);
 }
@@ -87,7 +87,7 @@ MEX_DEFINE(GroupData_set_raw_data)(int nlhs, mxArray* plhs[], int nrhs, const mx
   InputArguments input(nrhs, prhs, 2);
   OutputArguments output(nlhs, plhs, 0);
 
-  std::shared_ptr<uff::GroupData> grp_data = Session<uff::GroupData>::get_shared(input.get(0));
+  std::shared_ptr<urx::GroupData> grp_data = Session<urx::GroupData>::get_shared(input.get(0));
 
   const mxClassID category = mxGetClassID(prhs[1]);
   const mwSize n = mxGetNumberOfElements(prhs[1]);  // Number of elements of input variable
@@ -146,10 +146,10 @@ MEX_DEFINE(GroupData_set_raw_data)(int nlhs, mxArray* plhs[], int nrhs, const mx
 MEX_DEFINE(GroupData_get_group)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
   InputArguments input(nrhs, prhs, 1);
   OutputArguments output(nlhs, plhs, 1);
-  std::shared_ptr<uff::GroupData> grp_data = Session<uff::GroupData>::get_shared(input.get(0));
+  std::shared_ptr<urx::GroupData> grp_data = Session<urx::GroupData>::get_shared(input.get(0));
   if (!grp_data->group.expired()) {
     intptr_t id = reinterpret_cast<intptr_t>(grp_data->group.lock().get());
-    if (Session<uff::Group>::exist(id)) {
+    if (Session<urx::Group>::exist(id)) {
       output.set(0, id);
     } else {
       throw std::runtime_error("group reference is not valid any more in the Matlab context");
@@ -163,8 +163,8 @@ MEX_DEFINE(GroupData_set_group)(int nlhs, mxArray* plhs[], int nrhs, const mxArr
   InputArguments input(nrhs, prhs, 2);
   OutputArguments output(nlhs, plhs, 0);
 
-  std::shared_ptr<uff::GroupData> grp_data = Session<uff::GroupData>::get_shared(input.get(0));
-  std::shared_ptr<uff::Group> grp = Session<uff::Group>::get_shared(input.get(1));
+  std::shared_ptr<urx::GroupData> grp_data = Session<urx::GroupData>::get_shared(input.get(0));
+  std::shared_ptr<urx::Group> grp = Session<urx::Group>::get_shared(input.get(1));
   grp_data->group = grp;
 }
 

@@ -1,7 +1,7 @@
-#include <mexplus.h>
+#include <cstdio>
+#include <cstdlib>
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <mexplus.h>
 
 namespace {
 MEX_DEFINE(unlock)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) { mexUnlock(); }
