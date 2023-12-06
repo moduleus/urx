@@ -17,9 +17,6 @@
 
 namespace urx {
 
-/**
- * @brief The URX class describing a generic ultrasound probe formed by a collection of elements
- */
 struct Probe {
   enum class ProbeType {
     LINEAR = 0,
@@ -32,23 +29,15 @@ struct Probe {
 
   bool operator==(const Probe& other) const = default;
 
-  /// Description of the probe with serial ID
-  /// This description aims to identify correctly the probe used during the acquisition
   std::string description;
 
-  /// Type of the probe, used to determine element geometries
   ProbeType type = ProbeType::UNDEFINED;
 
-  /// Location of the probe center in space reference
   Transform transform;
 
-  /// List of all unique element geometries in the probe
   std::vector<std::shared_ptr<ElementGeometry>> element_geometries;
-
-  /// List of all unique electromechanical impulse responses of the elements in the probe
   std::vector<std::shared_ptr<ImpulseResponse>> impulse_responses;
 
-  /// List of all the elements in the probe
   std::vector<Element> elements;
 };
 

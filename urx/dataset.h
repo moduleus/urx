@@ -7,18 +7,13 @@
 
 namespace urx {
 
-/**
- * @brief The URX class heading the entire URX file/architecture
- * 
- * This class is the header class that references the acquisition and its version
- */
+// Root class. See wiki for documentation.
+
 struct Dataset {
   bool operator==(const Dataset& other) const = default;
 
-  /// Urx version of this dataset
   Version version;
 
-  /// Whole acquisition information
   Acquisition acquisition;
 };
 

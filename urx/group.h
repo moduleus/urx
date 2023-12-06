@@ -19,17 +19,11 @@ struct Group {
 
   bool operator==(const Group& other) const = default;
 
-  /// Type of sampling
   SamplingType sampling_type = SamplingType::UNDEFINED;
-
-  /// Data type contained in the raw_data array
   DataType data_type = DataType::UNDEFINED;
 
-  /// Description of what should do the group acquisition
   std::string description;
 
-  /// List of all event composing an sequence
-  /// The number of sequence can be determined from GroupData or you can use UrxUtils to get it
   std::vector<Event> sequence;
 };
 

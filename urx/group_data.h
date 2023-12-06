@@ -16,9 +16,6 @@
 
 namespace urx {
 
-/**
- * @brief The URX class containing all the retrieved data from the acquisition
- */
 struct GroupData {
   bool operator==(const GroupData& other) const {
     static std::unordered_map<Group::DataType, size_t> group_dt_to_sizeof{
@@ -39,21 +36,12 @@ struct GroupData {
                             (ptr_locked->sampling_type == Group::SamplingType::RF ? 1 : 2)) == 0);
   }
 
-  /// Reference of the group whose data have been retrieved
   std::weak_ptr<Group> group = std::weak_ptr<Group>();
-
-  /// Data are organized as raw_data[Group repetition count][Number of event][Number of channel activated during the event][Number of samples]
-  /// Data are in 1D array since the dimensions of the data array is dynamic for the number of activated channels and for the number of samples
-  /// Create your helper to deduce the dimensions or use UrxUtils to access correctly to the data
   std::shared_ptr<RawData> raw_data;
 
-  /// Timestamp of the group launch [s]
   DoubleNan group_timestamp;
 
-  /// Timestamp list for each sequence launch [s]
   std::vector<double> sequence_timestamps;
-
-  /// Timestamp 2D list for each event of each sequence launch [s]
   std::vector<std::vector<double>> event_timestamps;
 };
 
