@@ -1,4 +1,4 @@
-import pyusff as urx
+import pyurx as urx
 import numpy as np
 from time import perf_counter
 

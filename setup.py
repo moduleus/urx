@@ -35,8 +35,8 @@ init_py = inspect.cleandoc(
 setuptools.setup(
     ext_modules=[
         cmake_build_extension.CMakeExtension(
-            name="pyusff",
-            install_prefix="pyusff",
+            name="pyurx",
+            install_prefix="pyurx",
             write_top_level_init=init_py,
             source_dir=str(Path(__file__).parent.absolute()),
             cmake_configure_options=[

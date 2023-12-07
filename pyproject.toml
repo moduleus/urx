@@ -13,7 +13,7 @@ requires = [
 ]
 
 [project]
-name = "pyusff"
+name = "pyurx"
 version = "0.0.1"
 dependencies = [
     "cmake_build_extension",
