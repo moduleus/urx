@@ -326,7 +326,7 @@ void read(std::vector<std::vector<uint32_t>>& vector, const H5::Group& group,
 
   vector.reserve(raw_data.size());
   std::transform(raw_data.begin(), raw_data.end(), std::back_inserter(vector),
-                 [](uint32_t value) { return std::vector<uint32_t>{value - 1}; });
+                 [](uint32_t value) { return std::vector<uint32_t>{value}; });
 }
 
 void read(std::optional<TriggerIn>& trigger_in, const H5::Group& group, const std::string& name,

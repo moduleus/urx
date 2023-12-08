@@ -16,6 +16,8 @@ struct Probe {
   std::vector<Element> elements;
   std::vector<std::shared_ptr<ElementGeometry>> element_geometries;
   std::vector<std::shared_ptr<ImpulseResponse>> impulse_responses;
+
+  virtual ~Probe() = default;
 };
 
 }  // namespace urx::v0_3

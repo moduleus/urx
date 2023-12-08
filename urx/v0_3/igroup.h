@@ -17,6 +17,8 @@ struct IGroup {
   std::optional<TriggerOut> trigger_out;
 
   uint32_t repetition_count;
+
+  virtual ~IGroup() = default;
 };
 
 }  // namespace urx::v0_3

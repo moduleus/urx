@@ -1,7 +1,4 @@
-// Copyright Moduleus
-
-#ifndef URX_H
-#define URX_H
+#pragma once
 
 #include <string>
 #include <type_traits>
@@ -13,5 +10,3 @@ constexpr int URX_VERSION_MINOR = 3;
 constexpr int URX_VERSION_PATCH = 0;
 
 }  // namespace urx::v0_3
-
-#endif  // URX_H
