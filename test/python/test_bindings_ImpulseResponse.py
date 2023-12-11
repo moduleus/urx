@@ -14,7 +14,7 @@ class TestBindingsImpulseResponse(unittest.TestCase):
         self.assertTrue(np.isnan(ir.sampling_frequency.value))
         self.assertEqual(ir.time_offset.value, 0)
         self.assertEqual(ir.units, "")
-        self.assertTrue(np.empty(ir.data))
+        self.assertEqual(len(ir.data), 0)
         self.assertEqual(ir, ir2)
 
         ir = urx.ImpulseResponse(42, np.nan, "sec", np.array([3.14, -42]))

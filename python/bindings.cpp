@@ -16,6 +16,7 @@
 #include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
+#include <pybind11/stl.h>
 #include <pybind11/stl_bind.h>
 
 #include <urx/acquisition.h>
@@ -23,9 +24,11 @@
 #include <urx/detail/compare.h>
 #include <urx/detail/double_nan.h>
 #include <urx/detail/raw_data.h>
+#include <urx/element_geometry.h>
 #include <urx/group.h>
 #include <urx/group_data.h>
 #include <urx/impulse_response.h>
+#include <urx/urx.h>
 #include <urx/version.h>
 #include <urx_utils/group_helper.h>
 
@@ -34,12 +37,14 @@ namespace py = pybind11;
 using VecFloat32 = std::vector<float>;
 using VecFloat64 = std::vector<double>;
 
-using VecGroup = std::vector<std::shared_ptr<urx::Group>>;
+using VecVector3D = std::vector<urx::Vector3D<double>>;
+using VecGroupPtr = std::vector<std::shared_ptr<urx::Group>>;
 
-PYBIND11_MAKE_OPAQUE(VecFloat32);
-PYBIND11_MAKE_OPAQUE(VecFloat64);
+// PYBIND11_MAKE_OPAQUE(VecFloat32);
+// PYBIND11_MAKE_OPAQUE(VecFloat64);
 
-PYBIND11_MAKE_OPAQUE(VecGroup);
+PYBIND11_MAKE_OPAQUE(VecVector3D);
+PYBIND11_MAKE_OPAQUE(VecGroupPtr);
 
 PYBIND11_MAKE_OPAQUE(urx::DoubleNan);
 
@@ -94,10 +99,11 @@ constexpr std::string get_format(const std::vector<T> &v) {
 PYBIND11_MODULE(bindings, m) {
   m.doc() = "Variant C++ binding POC";
 
-  py::bind_vector<VecFloat32>(m, "VecFloat32", py::buffer_protocol());
+  // py::bind_vector<VecFloat32>(m, "VecFloat32", py::buffer_protocol());
   py::bind_vector<VecFloat64>(m, "VecFloat64", py::buffer_protocol());
 
-  py::bind_vector<VecGroup>(m, "VecGroup");
+  py::bind_vector<VecGroupPtr>(m, "VecGroupPtr");
+  py::bind_vector<VecVector3D>(m, "VecVector3D");
 
   py::enum_<urx::Group::SamplingType>(m, "SamplingType")
       .value("RF", urx::Group::SamplingType::RF)
@@ -125,21 +131,28 @@ PYBIND11_MODULE(bindings, m) {
                        const py::buffer &vec) {
         py::buffer_info info = vec.request();
         if (info.item_type_is_equivalent_to<double>()) {
-          auto data = VecFloat64(static_cast<double *>(info.ptr),
-                                 static_cast<double *>(info.ptr) + info.shape[0]);
+          auto data = std::vector<double>(static_cast<double *>(info.ptr),
+                                          static_cast<double *>(info.ptr) + info.shape[0]);
           return urx::ImpulseResponse(urx::DoubleNan(sampling_frequency),
-                                      urx::DoubleNan(time_offset), units, data);
+                                      urx::DoubleNan(time_offset), units, data, {});
         } else
           throw std::runtime_error(
               "Incorrect data type for ImpulseResponse::data. Expecte type is vector of double. "
               "Current type is .\n");
       }))
+      .def(py::init(
+          [](double sampling_frequency, double time_offset, const std::string &units, py::list l) {
+            std::vector<double> vec = l.cast<std::vector<double>>();
+            return urx::ImpulseResponse(urx::DoubleNan(sampling_frequency),
+                                        urx::DoubleNan(time_offset), units, vec, {});
+          }))
       .def(py::init())
       .def(pybind11::self == pybind11::self)
       .def(pybind11::self != pybind11::self)
       .def_readwrite("sampling_frequency", &urx::ImpulseResponse::sampling_frequency)
       .def_readwrite("time_offset", &urx::ImpulseResponse::time_offset)
       .def_readwrite("units", &urx::ImpulseResponse::units)
+      .def_readwrite("data_rw", &urx::ImpulseResponse::data_rw)
       .def_property(
           "data",
           [](urx::ImpulseResponse &self) {
@@ -148,12 +161,15 @@ PYBIND11_MODULE(bindings, m) {
                                                        {self.data.size()}, {sizeof(double)}),
                                        py::cast(&self.data));
           },
-          [](urx::ImpulseResponse &self, const py::buffer &vec) {
-            py::buffer_info info = vec.request();
-            if (info.item_type_is_equivalent_to<double>()) {
-              self.data = VecFloat64(static_cast<double *>(info.ptr),
-                                     static_cast<double *>(info.ptr) + info.shape[0]);
-            }
+          [](urx::ImpulseResponse &self, const py::list &vec) {
+            self.data = vec.cast<std::vector<double>>();
+            // py::buffer_info info = vec.request();
+            // if (info.item_type_is_equivalent_to<double>()) {
+            //   self.data = std::vector<double>(static_cast<double *>(info.ptr),
+            //                                   static_cast<double *>(info.ptr) + info.shape[0]);
+            // } else {
+            //   throw std::runtime_error("Incorrect data type. Expected type is double list.");
+            // }
           });
 
   // Vector3D
@@ -192,6 +208,35 @@ PYBIND11_MODULE(bindings, m) {
       .def_readwrite("minor", &urx::Version::minor)
       .def_readwrite("patch", &urx::Version::patch);
 
+  // ElementGeometry
+  py::class_<urx::ElementGeometry>(m, "ElementGeometry")
+      .def(py::init([](const py::array_t<urx::Vector3D<double>> &vec) {
+        py::buffer_info info = vec.request();
+        auto std_vec = VecVector3D(static_cast<double *>(info.ptr),
+                                   static_cast<double *>(info.ptr) + info.shape[0]);
+        return urx::ElementGeometry(std_vec);
+      }))
+      .def(py::init())
+      .def(pybind11::self == pybind11::self)
+      .def(pybind11::self != pybind11::self)
+      .def_readwrite("perimeter", &urx::ElementGeometry::perimeter);
+  // .def_property(
+  //     "data",
+  //     [](urx::ImpulseResponse &self) {
+  //       return py::array_t<double>(py::buffer_info(self.data.data(), sizeof(double),
+  //                                                  py::format_descriptor<double>::format(), 1,
+  //                                                  {self.data.size()}, {sizeof(double)}),
+  //                                  py::cast(&self.data));
+  //     },
+  //     [](urx::ImpulseResponse &self, const py::buffer &vec) {
+  //       py::buffer_info info = vec.request();
+  //       if (info.item_type_is_equivalent_to<double>()) {
+  //         self.data = VecFloat64(static_cast<double *>(info.ptr),
+  //                                static_cast<double *>(info.ptr) + info.shape[0]);
+  //       }
+  //     });
+
+  // Group
   py::class_<urx::Group, std::shared_ptr<urx::Group>>(m, "Group")
       .def(py::init())
       .def(pybind11::self == pybind11::self)
@@ -230,8 +275,8 @@ PYBIND11_MODULE(bindings, m) {
           [](urx::GroupData &self, const py::buffer &vec) {
             py::buffer_info info = vec.request();
             if (info.item_type_is_equivalent_to<double>()) {
-              self.sequence_timestamps = VecFloat64(
-                  static_cast<double *>(info.ptr), static_cast<double *>(info.ptr) + info.shape[0]);
+              // self.sequence_timestamps = VecFloat64(
+              //     static_cast<double *>(info.ptr), static_cast<double *>(info.ptr) + info.shape[0]);
             }
           })
       .def_readwrite("event_timestamps", &urx::GroupData::event_timestamps)

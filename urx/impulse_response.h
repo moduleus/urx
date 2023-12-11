@@ -21,6 +21,7 @@ struct ImpulseResponse {
   std::string units;
 
   std::vector<double> data;
+  std::vector<double> data_rw;
 };
 
 }  // namespace urx
