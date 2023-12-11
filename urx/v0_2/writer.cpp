@@ -4,7 +4,6 @@
 
 #include <algorithm>
 #include <cassert>
-#include <cstddef>
 #include <cstdint>
 #include <cstdio>
 #include <ios>

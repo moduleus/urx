@@ -35,11 +35,31 @@
 #include <urx/v0_2/types.h>
 #include <urx/v0_2/urx.h>
 #include <urx/v0_2/wave.h>
+#include <urx/v0_3/acquisition.h>
 #include <urx/v0_3/dataset.h>
+#include <urx/v0_3/element.h>
+#include <urx/v0_3/element_geometry.h>
+#include <urx/v0_3/event.h>
+#include <urx/v0_3/excitation.h>
+#include <urx/v0_3/group.h>
+#include <urx/v0_3/group_data.h>
+#include <urx/v0_3/igroup.h>
+#include <urx/v0_3/impulse_response.h>
 #include <urx/v0_3/linear_array.h>
 #include <urx/v0_3/matrix_array.h>
+#include <urx/v0_3/position.h>
+#include <urx/v0_3/probe.h>
 #include <urx/v0_3/rca_array.h>
+#include <urx/v0_3/receive_setup.h>
+#include <urx/v0_3/rotation.h>
+#include <urx/v0_3/sequence.h>
+#include <urx/v0_3/timed_event.h>
+#include <urx/v0_3/transform.h>
+#include <urx/v0_3/translation.h>
+#include <urx/v0_3/transmit_setup.h>
 #include <urx/v0_3/urx.h>
+#include <urx/v0_3/wave.h>
+#include <urx/v0_3/wave_type.h>
 #include <urx/vector.h>
 #include <urx/wave.h>
 #include <urx_utils/io/reader_v0_3.h>
@@ -73,116 +93,118 @@ std::shared_ptr<urx::Dataset> ConvertV0_2(const std::string& filename) {
   retval->acquisition.sound_speed = dataset_v0_2->channelData().soundSpeed();
   retval->acquisition.timestamp = 0.;
 
-  for (const auto& probe : dataset_v0_2->channelData().probes()) {
+  for (const auto& old_probe : dataset_v0_2->channelData().probes()) {
     const std::shared_ptr<urx::Probe> new_probe = std::make_shared<urx::Probe>();
     new_probe->description = "";
 
-    if (std::dynamic_pointer_cast<urx::v0_2::LinearArray>(probe)) {
+    if (std::dynamic_pointer_cast<urx::v0_2::LinearArray>(old_probe)) {
       new_probe->type = urx::Probe::ProbeType::LINEAR;
-    } else if (std::dynamic_pointer_cast<urx::v0_2::MatrixArray>(probe)) {
+    } else if (std::dynamic_pointer_cast<urx::v0_2::MatrixArray>(old_probe)) {
       new_probe->type = urx::Probe::ProbeType::MATRIX;
-    } else if (std::dynamic_pointer_cast<urx::v0_2::RcaArray>(probe)) {
+    } else if (std::dynamic_pointer_cast<urx::v0_2::RcaArray>(old_probe)) {
       new_probe->type = urx::Probe::ProbeType::RCA;
     } else {
       new_probe->type = urx::Probe::ProbeType::UNDEFINED;
     }
 
-    new_probe->transform.rotation.x = probe->transform().rotation().x();
-    new_probe->transform.rotation.y = probe->transform().rotation().y();
-    new_probe->transform.rotation.z = probe->transform().rotation().z();
-    new_probe->transform.translation.x = probe->transform().translation().x();
-    new_probe->transform.translation.y = probe->transform().translation().y();
-    new_probe->transform.translation.z = probe->transform().translation().z();
+    new_probe->transform.rotation.x = old_probe->transform().rotation().x();
+    new_probe->transform.rotation.y = old_probe->transform().rotation().y();
+    new_probe->transform.rotation.z = old_probe->transform().rotation().z();
+    new_probe->transform.translation.x = old_probe->transform().translation().x();
+    new_probe->transform.translation.y = old_probe->transform().translation().y();
+    new_probe->transform.translation.z = old_probe->transform().translation().z();
 
-    for (const auto& impulse_response : probe->impulseResponses()) {
+    for (const auto& old_impulse_response : old_probe->impulseResponses()) {
       const std::shared_ptr<urx::ImpulseResponse> new_impulse_response =
           std::make_shared<urx::ImpulseResponse>();
 
-      auto opt_sampling = impulse_response.samplingFrequency();
+      auto opt_sampling = old_impulse_response.samplingFrequency();
       new_impulse_response->sampling_frequency =
           opt_sampling.has_value() ? *opt_sampling : urx::DoubleNan::NaN;
-      std::transform(impulse_response.data().begin(), impulse_response.data().end(),
+      std::transform(old_impulse_response.data().begin(), old_impulse_response.data().end(),
                      std::back_inserter(new_impulse_response->data),
                      [](urx::v0_2::MetadataType value) -> double { return value; });
-      new_impulse_response->units = impulse_response.units();
-      new_impulse_response->time_offset = impulse_response.initialTime();
+      new_impulse_response->units = old_impulse_response.units();
+      new_impulse_response->time_offset = old_impulse_response.initialTime();
 
       new_probe->impulse_responses.push_back(new_impulse_response);
     }
 
-    new_probe->elements.reserve(probe->elements().size());
+    new_probe->elements.reserve(old_probe->elements().size());
     size_t element_i = 0;
-    for (const auto& element : probe->elements()) {
-      const auto opt_x = element.x();
-      const auto opt_y = element.y();
-      const auto opt_z = element.z();
+    for (const auto& old_element : old_probe->elements()) {
+      const auto opt_x = old_element.x();
+      const auto opt_y = old_element.y();
+      const auto opt_z = old_element.z();
       const double x = opt_x.has_value() ? *opt_x : urx::DoubleNan::NaN;
       const double y = opt_y.has_value() ? *opt_y : urx::DoubleNan::NaN;
       const double z = opt_z.has_value() ? *opt_z : urx::DoubleNan::NaN;
 
       const std::shared_ptr<urx::ElementGeometry> new_element_geometry =
           std::make_shared<urx::ElementGeometry>();
-      if (auto probe_linear = std::static_pointer_cast<urx::v0_2::LinearArray>(probe);
-          probe_linear) {
-        const auto opt_height = element.x();
+      if (auto old_probe_linear = std::static_pointer_cast<urx::v0_2::LinearArray>(old_probe);
+          old_probe_linear) {
+        const auto opt_height = old_element.x();
         const double height = opt_height.has_value() ? *opt_height : urx::DoubleNan::NaN;
-        new_element_geometry->perimeter.emplace_back(x - probe_linear->pitch() / 2, y - height / 2,
-                                                     z);
-        new_element_geometry->perimeter.emplace_back(x - probe_linear->pitch() / 2, y + height / 2,
-                                                     z);
-        new_element_geometry->perimeter.emplace_back(x + probe_linear->pitch() / 2, y + height / 2,
-                                                     z);
-        new_element_geometry->perimeter.emplace_back(x + probe_linear->pitch() / 2, y - height / 2,
-                                                     z);
-      } else if (auto probe_rca = std::static_pointer_cast<urx::v0_2::RcaArray>(probe); probe_rca) {
-        if (element_i < probe_rca->numberElementsX()) {
+        new_element_geometry->perimeter.emplace_back(x - old_probe_linear->pitch() / 2,
+                                                     y - height / 2, z);
+        new_element_geometry->perimeter.emplace_back(x - old_probe_linear->pitch() / 2,
+                                                     y + height / 2, z);
+        new_element_geometry->perimeter.emplace_back(x + old_probe_linear->pitch() / 2,
+                                                     y + height / 2, z);
+        new_element_geometry->perimeter.emplace_back(x + old_probe_linear->pitch() / 2,
+                                                     y - height / 2, z);
+      } else if (auto old_probe_rca = std::static_pointer_cast<urx::v0_2::RcaArray>(old_probe);
+                 old_probe_rca) {
+        if (element_i < old_probe_rca->numberElementsX()) {
           new_element_geometry->perimeter.emplace_back(
-              x - probe_rca->pitchX() / 2,
-              y - probe_rca->pitchY() / 2 * probe_rca->numberElementsY(), z);
+              x - old_probe_rca->pitchX() / 2,
+              y - old_probe_rca->pitchY() / 2 * old_probe_rca->numberElementsY(), z);
           new_element_geometry->perimeter.emplace_back(
-              x - probe_rca->pitchX() / 2,
-              y + probe_rca->pitchY() / 2 * probe_rca->numberElementsY(), z);
+              x - old_probe_rca->pitchX() / 2,
+              y + old_probe_rca->pitchY() / 2 * old_probe_rca->numberElementsY(), z);
           new_element_geometry->perimeter.emplace_back(
-              x + probe_rca->pitchX() / 2,
-              y + probe_rca->pitchY() / 2 * probe_rca->numberElementsY(), z);
+              x + old_probe_rca->pitchX() / 2,
+              y + old_probe_rca->pitchY() / 2 * old_probe_rca->numberElementsY(), z);
           new_element_geometry->perimeter.emplace_back(
-              x + probe_rca->pitchX() / 2,
-              y - probe_rca->pitchY() / 2 * probe_rca->numberElementsY(), z);
+              x + old_probe_rca->pitchX() / 2,
+              y - old_probe_rca->pitchY() / 2 * old_probe_rca->numberElementsY(), z);
         } else {
           new_element_geometry->perimeter.emplace_back(
-              x - probe_rca->pitchX() / 2 * probe_rca->numberElementsX(),
-              y - probe_rca->pitchY() / 2, z);
+              x - old_probe_rca->pitchX() / 2 * old_probe_rca->numberElementsX(),
+              y - old_probe_rca->pitchY() / 2, z);
           new_element_geometry->perimeter.emplace_back(
-              x - probe_rca->pitchX() / 2 * probe_rca->numberElementsX(),
-              y + probe_rca->pitchY() / 2, z);
+              x - old_probe_rca->pitchX() / 2 * old_probe_rca->numberElementsX(),
+              y + old_probe_rca->pitchY() / 2, z);
           new_element_geometry->perimeter.emplace_back(
-              x + probe_rca->pitchX() / 2 * probe_rca->numberElementsX(),
-              y + probe_rca->pitchY() / 2, z);
+              x + old_probe_rca->pitchX() / 2 * old_probe_rca->numberElementsX(),
+              y + old_probe_rca->pitchY() / 2, z);
           new_element_geometry->perimeter.emplace_back(
-              x + probe_rca->pitchX() / 2 * probe_rca->numberElementsX(),
-              y - probe_rca->pitchY() / 2, z);
+              x + old_probe_rca->pitchX() / 2 * old_probe_rca->numberElementsX(),
+              y - old_probe_rca->pitchY() / 2, z);
         }
-      } else if (auto probe_matrix = std::static_pointer_cast<urx::v0_2::MatrixArray>(probe);
-                 probe_matrix) {
-        new_element_geometry->perimeter.emplace_back(x - probe_matrix->pitchX() / 2,
-                                                     y - probe_matrix->pitchY() / 2, z);
-        new_element_geometry->perimeter.emplace_back(x - probe_matrix->pitchX() / 2,
-                                                     y + probe_matrix->pitchY() / 2, z);
-        new_element_geometry->perimeter.emplace_back(x + probe_matrix->pitchX() / 2,
-                                                     y + probe_matrix->pitchY() / 2, z);
-        new_element_geometry->perimeter.emplace_back(x + probe_matrix->pitchX() / 2,
-                                                     y - probe_matrix->pitchY() / 2, z);
+      } else if (auto old_probe_matrix =
+                     std::static_pointer_cast<urx::v0_2::MatrixArray>(old_probe);
+                 old_probe_matrix) {
+        new_element_geometry->perimeter.emplace_back(x - old_probe_matrix->pitchX() / 2,
+                                                     y - old_probe_matrix->pitchY() / 2, z);
+        new_element_geometry->perimeter.emplace_back(x - old_probe_matrix->pitchX() / 2,
+                                                     y + old_probe_matrix->pitchY() / 2, z);
+        new_element_geometry->perimeter.emplace_back(x + old_probe_matrix->pitchX() / 2,
+                                                     y + old_probe_matrix->pitchY() / 2, z);
+        new_element_geometry->perimeter.emplace_back(x + old_probe_matrix->pitchX() / 2,
+                                                     y - old_probe_matrix->pitchY() / 2, z);
       }
 
       new_probe->element_geometries.push_back(new_element_geometry);
 
-      urx::Element element_new;
-      element_new.transform.translation = {x, y, z};
-      element_new.element_geometry = new_probe->element_geometries.back();
-      element_new.impulse_response = element_i < new_probe->impulse_responses.size()
+      urx::Element new_element;
+      new_element.transform.translation = {x, y, z};
+      new_element.element_geometry = new_probe->element_geometries.back();
+      new_element.impulse_response = element_i < new_probe->impulse_responses.size()
                                          ? new_probe->impulse_responses[element_i]
                                          : nullptr;
-      new_probe->elements.push_back(std::move(element_new));
+      new_probe->elements.push_back(std::move(new_element));
 
       element_i++;
     }
@@ -192,19 +214,19 @@ std::shared_ptr<urx::Dataset> ConvertV0_2(const std::string& filename) {
 
   std::vector<size_t> map_wave_to_excitation;
   size_t excitation_i = 0;
-  for (const auto& wave : dataset_v0_2->channelData().uniqueWaves()) {
-    const auto& excitation = wave->excitation();
+  for (const auto& old_wave : dataset_v0_2->channelData().uniqueWaves()) {
+    const auto& old_excitation = old_wave->excitation();
 
     const std::shared_ptr<urx::Excitation> new_excitation = std::make_shared<urx::Excitation>();
-    const auto& pulse_shape = excitation.pulseShape();
-    new_excitation->pulse_shape = pulse_shape.has_value() ? *pulse_shape : "";
-    const auto& sampling_frequency = excitation.samplingFrequency();
+    const auto& opt_pulse_shape = old_excitation.pulseShape();
+    new_excitation->pulse_shape = opt_pulse_shape.has_value() ? *opt_pulse_shape : "";
+    const auto& opt_sampling_frequency = old_excitation.samplingFrequency();
     new_excitation->sampling_frequency =
-        sampling_frequency.has_value() ? *sampling_frequency : urx::DoubleNan::NaN;
-    const auto& transmit_frequency = excitation.transmitFrequency();
+        opt_sampling_frequency.has_value() ? *opt_sampling_frequency : urx::DoubleNan::NaN;
+    const auto& opt_transmit_frequency = old_excitation.transmitFrequency();
     new_excitation->transmit_frequency =
-        transmit_frequency.has_value() ? *transmit_frequency : urx::DoubleNan::NaN;
-    std::transform(excitation.waveform().begin(), excitation.waveform().end(),
+        opt_transmit_frequency.has_value() ? *opt_transmit_frequency : urx::DoubleNan::NaN;
+    std::transform(old_excitation.waveform().begin(), old_excitation.waveform().end(),
                    std::back_inserter(new_excitation->waveform),
                    [](urx::v0_2::MetadataType value) -> double { return value; });
     auto it = std::find(retval->acquisition.excitations.begin(),
@@ -219,29 +241,35 @@ std::shared_ptr<urx::Dataset> ConvertV0_2(const std::string& filename) {
   }
 
   size_t wave_i = 0;
-  for (const auto& wave : dataset_v0_2->channelData().uniqueWaves()) {
+  for (const auto& old_wave : dataset_v0_2->channelData().uniqueWaves()) {
     const std::shared_ptr<urx::Wave> new_wave = std::make_shared<urx::Wave>();
 
-    new_wave->type = old_to_new_wave_type.contains(wave->waveType())
-                         ? old_to_new_wave_type.at(wave->waveType())
+    new_wave->type = old_to_new_wave_type.contains(old_wave->waveType())
+                         ? old_to_new_wave_type.at(old_wave->waveType())
                          : urx::Wave::WaveType::UNDEFINED;
 
     switch (new_wave->type) {
       case urx::Wave::WaveType::CONVERGING_WAVE:
       case urx::Wave::WaveType::DIVERGING_WAVE: {
-        new_wave->parameters = {wave->origin().translation().x(), wave->origin().translation().y(),
-                                wave->origin().translation().z()};
+        new_wave->parameters = {old_wave->origin().translation().x(),
+                                old_wave->origin().translation().y(),
+                                old_wave->origin().translation().z()};
         break;
       }
       case urx::Wave::WaveType::PLANE_WAVE: {
-        new_wave->parameters = {wave->origin().rotation().x(), wave->origin().rotation().y(),
-                                wave->origin().rotation().z()};
+        new_wave->parameters = {old_wave->origin().rotation().x(),
+                                old_wave->origin().rotation().y(),
+                                old_wave->origin().rotation().z()};
         break;
       }
       case urx::Wave::WaveType::CYLINDRICAL_WAVE: {
-        new_wave->parameters = {wave->origin().translation().x(), wave->origin().translation().y(),
-                                wave->origin().translation().z(), wave->origin().rotation().x(),
-                                wave->origin().rotation().y(),    wave->origin().rotation().z()};
+        new_wave->parameters = {
+            old_wave->origin().translation().x(), old_wave->origin().translation().y(),
+            old_wave->origin().translation().z(), old_wave->origin().rotation().x(),
+            old_wave->origin().rotation().y(),    old_wave->origin().rotation().z()};
+        break;
+      }
+      default: {
         break;
       }
     }
@@ -250,16 +278,16 @@ std::shared_ptr<urx::Dataset> ConvertV0_2(const std::string& filename) {
     new_wave->channel_excitations = std::vector<std::weak_ptr<Excitation>>(
         dataset_v0_2->channelData().uniqueEvents().size(),
         retval->acquisition.excitations[map_wave_to_excitation[wave_i]]);
-    for (const auto& event : dataset_v0_2->channelData().uniqueEvents()) {
+    for (const auto& old_event : dataset_v0_2->channelData().uniqueEvents()) {
       std::vector<uint32_t> new_channel_mapping;
-      std::transform(event->transmitSetup().channelMapping().begin(),
-                     event->transmitSetup().channelMapping().end(),
+      std::transform(old_event->transmitSetup().channelMapping().begin(),
+                     old_event->transmitSetup().channelMapping().end(),
                      std::back_inserter(new_channel_mapping),
                      [](int value) -> uint32_t { return value; });
       new_wave->channel_mapping.push_back(new_channel_mapping);
 
-      if (event->transmitSetup().getTransmitWave().wave().lock().get() == wave.get()) {
-        new_wave->time_zero = event->transmitSetup().getTransmitWave().timeOffset();
+      if (old_event->transmitSetup().getTransmitWave().wave().lock().get() == old_wave.get()) {
+        new_wave->time_zero = old_event->transmitSetup().getTransmitWave().timeOffset();
         new_wave->time_zero_reference_point = {0, 0, 0};
       }
     }
@@ -272,104 +300,108 @@ std::shared_ptr<urx::Dataset> ConvertV0_2(const std::string& filename) {
   }
 
   {
-    const std::shared_ptr<Group> group = std::make_shared<Group>();
-    group->sampling_type = urx::Group::SamplingType::RF;
+    const std::shared_ptr<Group> new_group = std::make_shared<Group>();
+    new_group->sampling_type = urx::Group::SamplingType::RF;
     if constexpr (std::is_same_v<T, short>) {
-      group->data_type = urx::Group::DataType::INT16;
+      new_group->data_type = urx::Group::DataType::INT16;
     } else {
-      group->data_type = urx::Group::DataType::FLOAT;
+      new_group->data_type = urx::Group::DataType::FLOAT;
     }
-    group->description = "";
-    for (const auto& sequence : dataset_v0_2->channelData().sequence()) {
-      const auto& event = sequence.evenement().lock();
+    new_group->description = "";
+    for (const auto& old_sequence : dataset_v0_2->channelData().sequence()) {
+      const auto& old_event = old_sequence.evenement().lock();
 
       Event new_event;
       new_event.transmit_setup.time_offset = 0;
       new_event.transmit_setup.probe_transform = {};
       auto it_probe = std::find_if(dataset_v0_2->channelData().probes().begin(),
                                    dataset_v0_2->channelData().probes().end(),
-                                   [probe = event->transmitSetup().probe().lock()](
+                                   [old_probe = old_event->transmitSetup().probe().lock()](
                                        const std::shared_ptr<urx::v0_2::Probe>& probe_i) {
-                                     return probe.get() == probe_i.get();
+                                     return old_probe.get() == probe_i.get();
                                    });
       new_event.transmit_setup.probe =
           retval->acquisition
               .probes[std::distance(dataset_v0_2->channelData().probes().begin(), it_probe)];
 
-      auto it_wave = std::find_if(dataset_v0_2->channelData().uniqueWaves().begin(),
-                                  dataset_v0_2->channelData().uniqueWaves().end(),
-                                  [wave = event->transmitSetup().getTransmitWave().wave().lock()](
-                                      const std::shared_ptr<urx::v0_2::Wave>& wave_i2) {
-                                    return wave.get() == wave_i2.get();
-                                  });
+      auto it_wave =
+          std::find_if(dataset_v0_2->channelData().uniqueWaves().begin(),
+                       dataset_v0_2->channelData().uniqueWaves().end(),
+                       [old_wave = old_event->transmitSetup().getTransmitWave().wave().lock()](
+                           const std::shared_ptr<urx::v0_2::Wave>& wave_i2) {
+                         return old_wave.get() == wave_i2.get();
+                       });
       new_event.transmit_setup.wave =
           retval->acquisition
               .waves[std::distance(dataset_v0_2->channelData().uniqueWaves().begin(), it_wave)];
 
       it_probe = std::find_if(dataset_v0_2->channelData().probes().begin(),
                               dataset_v0_2->channelData().probes().end(),
-                              [probe = event->receiveSetup().probe().lock()](
+                              [old_probe = old_event->receiveSetup().probe().lock()](
                                   const std::shared_ptr<urx::v0_2::Probe>& probe_i) {
-                                return probe.get() == probe_i.get();
+                                return old_probe.get() == probe_i.get();
                               });
       new_event.receive_setup.probe =
           retval->acquisition
               .probes[std::distance(dataset_v0_2->channelData().probes().begin(), it_probe)];
-      new_event.receive_setup.time_offset = event->receiveSetup().timeOffset();
-      new_event.receive_setup.sampling_frequency = event->receiveSetup().samplingFrequency();
-      std::transform(event->receiveSetup().tgcProfile().begin(),
-                     event->receiveSetup().tgcProfile().end(),
+      new_event.receive_setup.time_offset = old_event->receiveSetup().timeOffset();
+      new_event.receive_setup.sampling_frequency = old_event->receiveSetup().samplingFrequency();
+      std::transform(old_event->receiveSetup().tgcProfile().begin(),
+                     old_event->receiveSetup().tgcProfile().end(),
                      std::back_inserter(new_event.receive_setup.tgc_profile),
                      [](urx::v0_2::MetadataType value) -> double { return value; });
-      const auto& tgc_sampling_frequency = event->receiveSetup().tgcSamplingFrequency();
-      new_event.receive_setup.tgc_sampling_frequency =
-          tgc_sampling_frequency.has_value() ? *tgc_sampling_frequency : urx::DoubleNan::NaN;
-      const auto& modulation_frequency = event->receiveSetup().modulationFrequency();
+      const auto opt_tgc_sampling_frequency = old_event->receiveSetup().tgcSamplingFrequency();
+      new_event.receive_setup.tgc_sampling_frequency = opt_tgc_sampling_frequency.has_value()
+                                                           ? *opt_tgc_sampling_frequency
+                                                           : urx::DoubleNan::NaN;
+      const auto opt_modulation_frequency = old_event->receiveSetup().modulationFrequency();
       new_event.receive_setup.modulation_frequency =
-          modulation_frequency.has_value() ? *modulation_frequency : urx::DoubleNan::NaN;
+          opt_modulation_frequency.has_value() ? *opt_modulation_frequency : urx::DoubleNan::NaN;
       new_event.receive_setup.probe_transform = {};
 
       std::vector<uint32_t> new_channel_mapping;
-      std::transform(event->receiveSetup().channelMapping().begin(),
-                     event->receiveSetup().channelMapping().end(),
+      std::transform(old_event->receiveSetup().channelMapping().begin(),
+                     old_event->receiveSetup().channelMapping().end(),
                      std::back_inserter(new_channel_mapping),
                      [](int value) -> uint32_t { return value; });
       new_event.receive_setup.channel_mapping.push_back(new_channel_mapping);
 
       new_event.receive_setup.number_samples = dataset_v0_2->channelData().numberOfSamples();
 
-      group->sequence.push_back(std::move(new_event));
+      new_group->sequence.push_back(std::move(new_event));
     }
 
-    retval->acquisition.groups.push_back(group);
+    retval->acquisition.groups.push_back(new_group);
   }
 
   {
-    const std::shared_ptr<GroupData> group_data = std::make_shared<GroupData>();
+    const std::shared_ptr<GroupData> new_group_data = std::make_shared<GroupData>();
 
-    group_data->group = retval->acquisition.groups[0];
+    new_group_data->group = retval->acquisition.groups[0];
 
     const size_t sequences = dataset_v0_2->channelData().numberOfFrames();
 
-    group_data->raw_data =
+    new_group_data->raw_data =
         std::make_shared<urx::RawDataVector<T>>(std::move(dataset_v0_2->channelData().data()));
 
-    group_data->sequence_timestamps.reserve(sequences);
+    new_group_data->sequence_timestamps.reserve(sequences);
+    new_group_data->event_timestamps.reserve(sequences);
     const auto opt_rate = dataset_v0_2->channelData().repetitionRate();
     const double sequence_rate = opt_rate.has_value() ? *opt_rate : urx::DoubleNan::NaN;
     for (const size_t i : std::views::iota(0ULL, sequences)) {
-      group_data->sequence_timestamps.push_back(i / sequence_rate);
+      new_group_data->sequence_timestamps.push_back(i / sequence_rate);
 
       std::vector<double> event_offset;
+      event_offset.reserve(retval->acquisition.groups[0]->sequence.size());
       for (const auto& event : retval->acquisition.groups[0]->sequence) {
         event_offset.push_back(i / sequence_rate + event.transmit_setup.time_offset);
       }
-      group_data->event_timestamps.push_back(std::move(event_offset));
+      new_group_data->event_timestamps.push_back(std::move(event_offset));
     }
 
-    group_data->group_timestamp = 0;
+    new_group_data->group_timestamp = 0;
 
-    retval->acquisition.groups_data.push_back(group_data);
+    retval->acquisition.groups_data.push_back(new_group_data);
   }
 
   return retval;
@@ -382,8 +414,8 @@ std::shared_ptr<urx::Dataset> ConvertV0_3(const std::string& filename) {
       {urx::v0_3::WaveType::PLANE_WAVE, urx::Wave::WaveType::PLANE_WAVE},
       {urx::v0_3::WaveType::CYLINDRICAL_WAVE, urx::Wave::WaveType::CYLINDRICAL_WAVE}};
 
-  urx::v0_3::Reader reader;
-  const std::shared_ptr<urx::v0_3::Dataset> dataset_v0_3 = reader.loadFromFile(filename);
+  const std::shared_ptr<urx::v0_3::Dataset> dataset_v0_3 =
+      urx::v0_3::Reader::loadFromFile(filename);
 
   std::shared_ptr<urx::Dataset> retval = std::make_shared<urx::Dataset>();
 
@@ -406,58 +438,58 @@ std::shared_ptr<urx::Dataset> ConvertV0_3(const std::string& filename) {
   retval->acquisition.timestamp = static_cast<double>(dataset_v0_3->acquisition.timestamp);
 
   retval->acquisition.excitations.reserve(dataset_v0_3->acquisition.excitation.size());
-  for (const auto& excitation : dataset_v0_3->acquisition.excitation) {
+  for (const auto& old_excitation : dataset_v0_3->acquisition.excitation) {
     const std::shared_ptr<urx::Excitation> new_excitation = std::make_shared<urx::Excitation>();
 
-    new_excitation->pulse_shape = excitation->pulse_shape;
-    new_excitation->transmit_frequency = excitation->transmit_frequency;
-    new_excitation->sampling_frequency = excitation->sampling_frequency;
-    new_excitation->waveform = excitation->waveform;
+    new_excitation->pulse_shape = old_excitation->pulse_shape;
+    new_excitation->transmit_frequency = old_excitation->transmit_frequency;
+    new_excitation->sampling_frequency = old_excitation->sampling_frequency;
+    new_excitation->waveform = old_excitation->waveform;
 
     retval->acquisition.excitations.push_back(new_excitation);
   }
 
   retval->acquisition.probes.reserve(dataset_v0_3->acquisition.probes.size());
-  for (auto& probe : dataset_v0_3->acquisition.probes) {
-    std::shared_ptr<urx::Probe> new_probe = std::make_shared<urx::Probe>();
+  for (auto& old_probe : dataset_v0_3->acquisition.probes) {
+    const std::shared_ptr<urx::Probe> new_probe = std::make_shared<urx::Probe>();
     new_probe->description = "";
 
-    if (std::dynamic_pointer_cast<urx::v0_3::LinearArray>(probe)) {
+    if (std::dynamic_pointer_cast<urx::v0_3::LinearArray>(old_probe)) {
       new_probe->type = urx::Probe::ProbeType::LINEAR;
-    } else if (std::dynamic_pointer_cast<urx::v0_3::MatrixArray>(probe)) {
+    } else if (std::dynamic_pointer_cast<urx::v0_3::MatrixArray>(old_probe)) {
       new_probe->type = urx::Probe::ProbeType::MATRIX;
-    } else if (std::dynamic_pointer_cast<urx::v0_3::RcaArray>(probe)) {
+    } else if (std::dynamic_pointer_cast<urx::v0_3::RcaArray>(old_probe)) {
       new_probe->type = urx::Probe::ProbeType::RCA;
     } else {
       new_probe->type = urx::Probe::ProbeType::UNDEFINED;
     }
 
-    new_probe->transform.rotation.x = probe->transform.rotation.x;
-    new_probe->transform.rotation.y = probe->transform.rotation.y;
-    new_probe->transform.rotation.z = probe->transform.rotation.z;
-    new_probe->transform.translation.x = probe->transform.translation.x;
-    new_probe->transform.translation.y = probe->transform.translation.y;
-    new_probe->transform.translation.z = probe->transform.translation.z;
+    new_probe->transform.rotation.x = old_probe->transform.rotation.x;
+    new_probe->transform.rotation.y = old_probe->transform.rotation.y;
+    new_probe->transform.rotation.z = old_probe->transform.rotation.z;
+    new_probe->transform.translation.x = old_probe->transform.translation.x;
+    new_probe->transform.translation.y = old_probe->transform.translation.y;
+    new_probe->transform.translation.z = old_probe->transform.translation.z;
 
-    new_probe->impulse_responses.reserve(probe->impulse_responses.size());
-    for (const auto& impulse_response : probe->impulse_responses) {
+    new_probe->impulse_responses.reserve(old_probe->impulse_responses.size());
+    for (const auto& old_impulse_response : old_probe->impulse_responses) {
       const std::shared_ptr<urx::ImpulseResponse> new_impulse_response =
           std::make_shared<urx::ImpulseResponse>();
 
-      new_impulse_response->time_offset = impulse_response->time_offset;
-      new_impulse_response->sampling_frequency = impulse_response->sampling_frequency;
-      new_impulse_response->data = impulse_response->data;
-      new_impulse_response->units = impulse_response->units;
+      new_impulse_response->time_offset = old_impulse_response->time_offset;
+      new_impulse_response->sampling_frequency = old_impulse_response->sampling_frequency;
+      new_impulse_response->data = old_impulse_response->data;
+      new_impulse_response->units = old_impulse_response->units;
 
       new_probe->impulse_responses.push_back(new_impulse_response);
     }
 
-    new_probe->element_geometries.reserve(probe->element_geometries.size());
-    for (const auto& element_geometrie : probe->element_geometries) {
+    new_probe->element_geometries.reserve(old_probe->element_geometries.size());
+    for (const auto& old_element_geometry : old_probe->element_geometries) {
       const std::shared_ptr<urx::ElementGeometry> new_element_geometry =
           std::make_shared<urx::ElementGeometry>();
 
-      std::transform(element_geometrie->positions.begin(), element_geometrie->positions.end(),
+      std::transform(old_element_geometry->positions.begin(), old_element_geometry->positions.end(),
                      std::back_inserter(new_element_geometry->perimeter),
                      [](const urx::v0_3::Position& value) {
                        return urx::Vector3D<double>{value.x, value.y, value.z};
@@ -466,37 +498,35 @@ std::shared_ptr<urx::Dataset> ConvertV0_3(const std::string& filename) {
       new_probe->element_geometries.push_back(new_element_geometry);
     }
 
-    new_probe->elements.reserve(probe->elements.size());
-    for (const auto& element : probe->elements) {
+    new_probe->elements.reserve(old_probe->elements.size());
+    for (const auto& old_element : old_probe->elements) {
       urx::Element new_element;
 
-      new_element.transform.rotation.x = element.transform.rotation.x;
-      new_element.transform.rotation.y = element.transform.rotation.y;
-      new_element.transform.rotation.z = element.transform.rotation.z;
-      new_element.transform.translation.x = element.transform.translation.x;
-      new_element.transform.translation.y = element.transform.translation.y;
-      new_element.transform.translation.z = element.transform.translation.z;
+      new_element.transform.rotation.x = old_element.transform.rotation.x;
+      new_element.transform.rotation.y = old_element.transform.rotation.y;
+      new_element.transform.rotation.z = old_element.transform.rotation.z;
+      new_element.transform.translation.x = old_element.transform.translation.x;
+      new_element.transform.translation.y = old_element.transform.translation.y;
+      new_element.transform.translation.z = old_element.transform.translation.z;
 
-      if (auto element_ptr = element.element_geometry.lock(); element_ptr) {
+      if (auto element_ptr = old_element.element_geometry.lock(); element_ptr) {
         auto it_element = std::find_if(
-            probe->element_geometries.begin(), probe->element_geometries.end(),
+            old_probe->element_geometries.begin(), old_probe->element_geometries.end(),
             [&element_ptr](const std::shared_ptr<urx::v0_3::ElementGeometry>& elem_geom_i) {
               return element_ptr.get() == elem_geom_i.get();
             });
-        new_element.element_geometry =
-            new_probe
-                ->element_geometries[std::distance(probe->element_geometries.begin(), it_element)];
+        new_element.element_geometry = new_probe->element_geometries[std::distance(
+            old_probe->element_geometries.begin(), it_element)];
       }
 
-      if (auto imp_ptr = element.impulse_response.lock(); imp_ptr) {
+      if (auto imp_ptr = old_element.impulse_response.lock(); imp_ptr) {
         auto it_impulse =
-            std::find_if(probe->impulse_responses.begin(), probe->impulse_responses.end(),
+            std::find_if(old_probe->impulse_responses.begin(), old_probe->impulse_responses.end(),
                          [&imp_ptr](const std::shared_ptr<urx::v0_3::ImpulseResponse>& imp_res_i) {
                            return imp_ptr.get() == imp_res_i.get();
                          });
-        new_element.impulse_response =
-            new_probe
-                ->impulse_responses[std::distance(probe->impulse_responses.begin(), it_impulse)];
+        new_element.impulse_response = new_probe->impulse_responses[std::distance(
+            old_probe->impulse_responses.begin(), it_impulse)];
       }
 
       new_probe->elements.push_back(std::move(new_element));
@@ -506,53 +536,56 @@ std::shared_ptr<urx::Dataset> ConvertV0_3(const std::string& filename) {
   }
 
   retval->acquisition.waves.reserve(dataset_v0_3->acquisition.waves.size());
-  for (const auto& wave : dataset_v0_3->acquisition.waves) {
-    std::shared_ptr<urx::Wave> new_wave = std::make_shared<urx::Wave>();
+  for (const auto& old_wave : dataset_v0_3->acquisition.waves) {
+    const std::shared_ptr<urx::Wave> new_wave = std::make_shared<urx::Wave>();
 
-    new_wave->type = old_to_new_wave_type.contains(wave->wave_type)
-                         ? old_to_new_wave_type.at(wave->wave_type)
+    new_wave->type = old_to_new_wave_type.contains(old_wave->wave_type)
+                         ? old_to_new_wave_type.at(old_wave->wave_type)
                          : urx::Wave::WaveType::UNDEFINED;
-    new_wave->time_zero = wave->time_zero;
-    new_wave->time_zero_reference_point.x = wave->time_zero_reference_point.x;
-    new_wave->time_zero_reference_point.y = wave->time_zero_reference_point.y;
-    new_wave->time_zero_reference_point.z = wave->time_zero_reference_point.z;
+    new_wave->time_zero = old_wave->time_zero;
+    new_wave->time_zero_reference_point.x = old_wave->time_zero_reference_point.x;
+    new_wave->time_zero_reference_point.y = old_wave->time_zero_reference_point.y;
+    new_wave->time_zero_reference_point.z = old_wave->time_zero_reference_point.z;
 
     switch (new_wave->type) {
       case urx::Wave::WaveType::CONVERGING_WAVE:
       case urx::Wave::WaveType::DIVERGING_WAVE: {
-        new_wave->parameters = {wave->origin.translation.x, wave->origin.translation.y,
-                                wave->origin.translation.z};
+        new_wave->parameters = {old_wave->origin.translation.x, old_wave->origin.translation.y,
+                                old_wave->origin.translation.z};
         break;
       }
       case urx::Wave::WaveType::PLANE_WAVE: {
-        new_wave->parameters = {wave->origin.rotation.x, wave->origin.rotation.y,
-                                wave->origin.rotation.z};
+        new_wave->parameters = {old_wave->origin.rotation.x, old_wave->origin.rotation.y,
+                                old_wave->origin.rotation.z};
         break;
       }
       case urx::Wave::WaveType::CYLINDRICAL_WAVE: {
-        new_wave->parameters = {wave->origin.translation.x, wave->origin.translation.y,
-                                wave->origin.translation.z, wave->origin.rotation.x,
-                                wave->origin.rotation.y,    wave->origin.rotation.z};
+        new_wave->parameters = {old_wave->origin.translation.x, old_wave->origin.translation.y,
+                                old_wave->origin.translation.z, old_wave->origin.rotation.x,
+                                old_wave->origin.rotation.y,    old_wave->origin.rotation.z};
+        break;
+      }
+      default: {
         break;
       }
     }
 
-    new_wave->channel_mapping.reserve(wave->channel_mapping.size());
-    std::transform(wave->channel_mapping.begin(), wave->channel_mapping.end(),
+    new_wave->channel_mapping.reserve(old_wave->channel_mapping.size());
+    std::transform(old_wave->channel_mapping.begin(), old_wave->channel_mapping.end(),
                    std::back_inserter(new_wave->channel_mapping),
                    [](const std::vector<uint32_t>& value) {
-                     std::vector<uint32_t> retval;
-                     retval.reserve(value.size());
-                     std::transform(value.begin(), value.end(), std::back_inserter(retval),
+                     std::vector<uint32_t> retval_i;
+                     retval_i.reserve(value.size());
+                     std::transform(value.begin(), value.end(), std::back_inserter(retval_i),
                                     [](uint32_t value2) { return value2 + 1; });
-                     return retval;
+                     return retval_i;
                    });
 
-    new_wave->channel_delays = wave->channel_delays;
+    new_wave->channel_delays = old_wave->channel_delays;
 
-    new_wave->channel_excitations.reserve(wave->channel_excitations.size());
+    new_wave->channel_excitations.reserve(old_wave->channel_excitations.size());
     std::transform(
-        wave->channel_excitations.begin(), wave->channel_excitations.end(),
+        old_wave->channel_excitations.begin(), old_wave->channel_excitations.end(),
         std::back_inserter(new_wave->channel_excitations),
         [new_excitations = retval->acquisition.excitations,
          old_excitations = dataset_v0_3->acquisition.excitation](
@@ -569,25 +602,26 @@ std::shared_ptr<urx::Dataset> ConvertV0_3(const std::string& filename) {
   }
 
   retval->acquisition.groups.reserve(dataset_v0_3->acquisition.groups.size());
-  for (const auto& group : dataset_v0_3->acquisition.groups) {
+  for (const auto& old_group : dataset_v0_3->acquisition.groups) {
     const std::shared_ptr<Group> new_group = std::make_shared<Group>();
 
     new_group->sampling_type = urx::Group::SamplingType::RF;
     new_group->data_type = urx::Group::DataType::INT16;
-    new_group->description = group->name;
+    new_group->description = old_group->name;
 
-    if (auto real_group = std::dynamic_pointer_cast<urx::v0_3::Group>(group); real_group) {
-      for (const auto& timed_event : real_group->sequence.timed_events) {
-        std::shared_ptr<urx::v0_3::Event> event = timed_event.event.lock();
+    if (auto old_real_group = std::dynamic_pointer_cast<urx::v0_3::Group>(old_group);
+        old_real_group) {
+      for (const auto& old_timed_event : old_real_group->sequence.timed_events) {
+        const std::shared_ptr<urx::v0_3::Event> old_event = old_timed_event.event.lock();
         Event new_event;
 
-        new_event.transmit_setup.time_offset = event->transmit_setup.time_offset;
+        new_event.transmit_setup.time_offset = old_event->transmit_setup.time_offset;
 
         auto it_probe = std::find_if(dataset_v0_3->acquisition.probes.begin(),
                                      dataset_v0_3->acquisition.probes.end(),
-                                     [probe = event->transmit_setup.probe.lock()](
+                                     [old_probe = old_event->transmit_setup.probe.lock()](
                                          const std::shared_ptr<urx::v0_3::Probe>& probe_i) {
-                                       return probe.get() == probe_i.get();
+                                       return old_probe.get() == probe_i.get();
                                      });
         new_event.transmit_setup.probe =
             retval->acquisition
@@ -595,47 +629,46 @@ std::shared_ptr<urx::Dataset> ConvertV0_3(const std::string& filename) {
 
         auto it_wave = std::find_if(dataset_v0_3->acquisition.waves.begin(),
                                     dataset_v0_3->acquisition.waves.end(),
-                                    [wave = event->transmit_setup.wave.lock()](
+                                    [old_wave = old_event->transmit_setup.wave.lock()](
                                         const std::shared_ptr<urx::v0_3::Wave>& wave_i) {
-                                      return wave.get() == wave_i.get();
+                                      return old_wave.get() == wave_i.get();
                                     });
         new_event.transmit_setup.wave =
             retval->acquisition
                 .waves[std::distance(dataset_v0_3->acquisition.waves.begin(), it_wave)];
 
-        new_event.receive_setup;
-
         auto it_probe2 = std::find_if(dataset_v0_3->acquisition.probes.begin(),
                                       dataset_v0_3->acquisition.probes.end(),
-                                      [probe = event->receive_setup.probe.lock()](
+                                      [old_probe = old_event->receive_setup.probe.lock()](
                                           const std::shared_ptr<urx::v0_3::Probe>& probe_i) {
-                                        return probe.get() == probe_i.get();
+                                        return old_probe.get() == probe_i.get();
                                       });
         new_event.receive_setup.probe =
             retval->acquisition
                 .probes[std::distance(dataset_v0_3->acquisition.probes.begin(), it_probe2)];
 
-        new_event.receive_setup.time_offset = event->receive_setup.time_offset;
-        new_event.receive_setup.sampling_frequency = event->receive_setup.sampling_frequency;
-        new_event.receive_setup.number_samples = event->receive_setup.nb_samples;
+        new_event.receive_setup.time_offset = old_event->receive_setup.time_offset;
+        new_event.receive_setup.sampling_frequency = old_event->receive_setup.sampling_frequency;
+        new_event.receive_setup.number_samples = old_event->receive_setup.nb_samples;
 
         new_event.receive_setup.channel_mapping.reserve(
-            event->receive_setup.channel_mapping.size());
-        std::transform(event->receive_setup.channel_mapping.begin(),
-                       event->receive_setup.channel_mapping.end(),
+            old_event->receive_setup.channel_mapping.size());
+        std::transform(old_event->receive_setup.channel_mapping.begin(),
+                       old_event->receive_setup.channel_mapping.end(),
                        std::back_inserter(new_event.receive_setup.channel_mapping),
                        [](const std::vector<uint32_t>& value) {
-                         std::vector<uint32_t> retval;
-                         retval.reserve(value.size());
-                         std::transform(value.begin(), value.end(), std::back_inserter(retval),
-                                        [](uint32_t value) { return value + 1; });
-                         return retval;
+                         std::vector<uint32_t> retval_i;
+                         retval_i.reserve(value.size());
+                         std::transform(value.begin(), value.end(), std::back_inserter(retval_i),
+                                        [](uint32_t value2) { return value2 + 1; });
+                         return retval_i;
                        });
 
         new_event.receive_setup.tgc_sampling_frequency =
-            event->receive_setup.tgc_sampling_frequency;
-        new_event.receive_setup.tgc_profile = event->receive_setup.tgc_profile;
-        new_event.receive_setup.modulation_frequency = event->receive_setup.modulation_frequency;
+            old_event->receive_setup.tgc_sampling_frequency;
+        new_event.receive_setup.tgc_profile = old_event->receive_setup.tgc_profile;
+        new_event.receive_setup.modulation_frequency =
+            old_event->receive_setup.modulation_frequency;
 
         new_group->sequence.push_back(std::move(new_event));
       }
@@ -645,35 +678,37 @@ std::shared_ptr<urx::Dataset> ConvertV0_3(const std::string& filename) {
   }
 
   retval->acquisition.groups_data.reserve(dataset_v0_3->acquisition.group_data.size());
-  for (const auto& group_data : dataset_v0_3->acquisition.group_data) {
+  for (const auto& old_group_data : dataset_v0_3->acquisition.group_data) {
     const std::shared_ptr<GroupData> new_group_data = std::make_shared<GroupData>();
 
     auto group_probe = std::find_if(
         dataset_v0_3->acquisition.groups.begin(), dataset_v0_3->acquisition.groups.end(),
-        [group = group_data->group.lock()](const std::shared_ptr<urx::v0_3::IGroup>& group_i) {
-          return group.get() == group_i.get();
+        [old_group =
+             old_group_data->group.lock()](const std::shared_ptr<urx::v0_3::IGroup>& group_i) {
+          return old_group.get() == group_i.get();
         });
     new_group_data->group =
         retval->acquisition
             .groups[std::distance(dataset_v0_3->acquisition.groups.begin(), group_probe)];
 
-    new_group_data->raw_data = group_data->data;
-    new_group_data->group_timestamp = static_cast<double>(group_data->timestamp);
+    new_group_data->raw_data = old_group_data->data;
+    new_group_data->group_timestamp = static_cast<double>(old_group_data->timestamp);
 
-    new_group_data->sequence_timestamps.reserve(group_data->sequence_timestamps.size());
-    std::transform(group_data->sequence_timestamps.begin(), group_data->sequence_timestamps.end(),
+    new_group_data->sequence_timestamps.reserve(old_group_data->sequence_timestamps.size());
+    std::transform(old_group_data->sequence_timestamps.begin(),
+                   old_group_data->sequence_timestamps.end(),
                    std::back_inserter(new_group_data->sequence_timestamps),
                    [](uint64_t value) { return static_cast<double>(value); });
 
-    new_group_data->event_timestamps.reserve(group_data->event_timestamps.size());
-    std::transform(group_data->event_timestamps.begin(), group_data->event_timestamps.end(),
+    new_group_data->event_timestamps.reserve(old_group_data->event_timestamps.size());
+    std::transform(old_group_data->event_timestamps.begin(), old_group_data->event_timestamps.end(),
                    std::back_inserter(new_group_data->event_timestamps),
                    [](const std::vector<uint64_t>& value) {
-                     std::vector<double> retval;
-                     retval.reserve(value.size());
-                     std::transform(value.begin(), value.end(), std::back_inserter(retval),
-                                    [](uint64_t value) { return static_cast<double>(value); });
-                     return retval;
+                     std::vector<double> retval_i;
+                     retval_i.reserve(value.size());
+                     std::transform(value.begin(), value.end(), std::back_inserter(retval_i),
+                                    [](uint64_t value2) { return static_cast<double>(value2); });
+                     return retval_i;
                    });
 
     retval->acquisition.groups_data.push_back(new_group_data);

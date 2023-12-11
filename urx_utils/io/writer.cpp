@@ -61,7 +61,9 @@ void serialize_hdf5(const std::string& name, const T& field, const H5::Group& gr
                     MapToSharedPtr&) {
   const H5::StrType datatype(*std_to_h5.at(typeid(T)));
   const H5::DataSpace dataspace = H5::DataSpace(H5S_SCALAR);
-  const H5::DataSet dataset = group.createDataSet(name, datatype, dataspace);
+  const H5::DSetCreatPropList plist;
+  plist.setLayout(H5D_COMPACT);
+  const H5::DataSet dataset = group.createDataSet(name, datatype, dataspace, plist);
   dataset.write(&field, datatype, dataspace);
 }
 
@@ -71,7 +73,9 @@ void serialize_hdf5(const std::string& name, const std::string& field, const H5:
                     MapToSharedPtr&) {
   const H5::StrType datatype(0, H5T_VARIABLE);
   const H5::DataSpace dataspace(H5S_SCALAR);
-  const H5::DataSet dataset = group.createDataSet(name, datatype, dataspace);
+  const H5::DSetCreatPropList plist;
+  plist.setLayout(field.size() < 65536 ? H5D_COMPACT : H5D_CONTIGUOUS);
+  const H5::DataSet dataset = group.createDataSet(name, datatype, dataspace, plist);
   dataset.write(field, datatype, dataspace);
 }
 
@@ -123,7 +127,9 @@ void serialize_hdf5(const std::string& name, const std::vector<T>& field, const 
     const hsize_t dims[1] = {size};
     const H5::DataSpace dataspace = H5::DataSpace(1, dims);
     const H5::PredType* datatype = std_to_h5.at(typeid(T));
-    const H5::DataSet dataset = group.createDataSet(name, *datatype, dataspace);
+    const H5::DSetCreatPropList plist;
+    plist.setLayout(size < 8192 ? H5D_COMPACT : H5D_CONTIGUOUS);
+    const H5::DataSet dataset = group.createDataSet(name, *datatype, dataspace, plist);
     dataset.write(field.data(), *datatype);
   } else {
     const H5::Group group_child(group.createGroup(name));
@@ -144,7 +150,9 @@ void serialize_hdf5(const std::string& name, const T& field, const H5::Group& gr
                     MapToSharedPtr&) {
   const H5::StrType datatype(0, H5T_VARIABLE);
   const H5::DataSpace dataspace(H5S_SCALAR);
-  const H5::DataSet dataset = group.createDataSet(name, datatype, dataspace);
+  const H5::DSetCreatPropList plist;
+  plist.setLayout(H5D_COMPACT);
+  const H5::DataSet dataset = group.createDataSet(name, datatype, dataspace, plist);
   const std::string_view sv = magic_enum::enum_name(field);
   const std::string value = sv.empty() ? std::to_string(static_cast<int>(field)) : std::string{sv};
   dataset.write(value, datatype, dataspace);
@@ -236,7 +244,7 @@ void serialize_all(const std::shared_ptr<Group>& gr, const std::shared_ptr<RawDa
 
     const size_t sizeOf = group_dt_to_sizeof.at(gr->data_type);
 
-    const H5::CompType complexType(sizeOf);
+    const H5::CompType complexType(sizeOf * (isComplex ? 2 : 1));
 
     if (isComplex) {
       complexType.insertMember("real", 0ULL, *datatype);
