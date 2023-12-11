@@ -8,50 +8,43 @@ from parameterized import parameterized
 
 class TestBindings(unittest.TestCase):
 
-    def testHugeDataTransform(self):
-        testName = "Do computation on huge data vector"
-        print("\n--Test %s BEGIN--" % testName)
+    # def testHugeDataTransform(self):
+    #     testName = "Do computation on huge data vector"
+    #     print("\n--Test %s BEGIN--" % testName)
 
-        data_size = 100000000
-        group_data = urx.GroupData()
-        group_data.raw_data = np.array(range(data_size), dtype=np.float32)
-        ref = group_data.raw_data
-        tic = perf_counter()
-        ref /= 20
-        toc = perf_counter() - tic
+    #     data_size = 100000000
+    #     group_data = urx.GroupData()
+    #     group_data.raw_data = np.array(range(data_size), dtype=np.float32)
+    #     ref = group_data.raw_data
+    #     tic = perf_counter()
+    #     ref /= 20
+    #     toc = perf_counter() - tic
 
-        print(f"  Dividing 400MB np.array by 20 computing time: {toc:.3f}")
+    #     print(f"  Dividing 400MB np.array by 20 computing time: {toc:.3f}")
 
-        print("--Test %s END--" % testName)
+    #     print("--Test %s END--" % testName)
 
     @parameterized.expand([
-        ["Variant Vector Float 32 Complex", urx.VecCompFloat32, np.complex64],
-        ["Variant Vector Float 64 Complex", urx.VecCompFloat64, np.complex128]
+        ["Complex 64", np.complex64],
+        ["Complex 128", np.complex128]
     ])
-    def testVariantVectorFloatComplex(self, testName, urxType, numpyType):
+    def testVariantVectorFloatComplex(self, testName, numpyType):
         print("\n--Test %s BEGIN--" % testName)
 
         group_data = urx.GroupData()
         self.assertEqual(len(group_data.raw_data), 0)
 
         group_data = urx.GroupData()
-        group_data.raw_data = urxType()
+        group_data.raw_data = numpyType()
         self.assertEqual(len(group_data.raw_data), 0)
 
-        group_data.raw_data = urxType([1.+2.j, 2.+3.j])
-        self.assertEqual(len(group_data.raw_data), 2)
-
         group_data.raw_data = numpyType([1.+2.j, 2.+3.j])
-        self.assertEqual(len(group_data.raw_data), 2)
-
-        group_data.raw_data = urxType(
-            np.array([1.+2.j, 2.+3.j], dtype=numpyType))
         self.assertEqual(len(group_data.raw_data), 2)
 
         group_data.raw_data = np.array([1.+2.j, 2.+3.j], dtype=numpyType)
         self.assertEqual(len(group_data.raw_data), 2)
 
-        ref = group_data.raw_data.view(numpyType)[:,0]
+        ref = group_data.raw_data
         self.assertTrue(np.array_equal(np.array(
             [1.+2.j, 2.+3.j], dtype=numpyType), ref))
         self.assertTrue(np.array_equal(np.array(

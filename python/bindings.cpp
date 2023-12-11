@@ -25,6 +25,7 @@
 #include <urx/detail/raw_data.h>
 #include <urx/group.h>
 #include <urx/group_data.h>
+#include <urx/impulse_response.h>
 #include <urx/version.h>
 #include <urx_utils/group_helper.h>
 
@@ -39,6 +40,8 @@ PYBIND11_MAKE_OPAQUE(VecFloat32);
 PYBIND11_MAKE_OPAQUE(VecFloat64);
 
 PYBIND11_MAKE_OPAQUE(VecGroup);
+
+PYBIND11_MAKE_OPAQUE(urx::DoubleNan);
 
 template <typename T>
 std::ostream &operator<<(std::ostream &out, const std::vector<T> &v) {
@@ -107,6 +110,87 @@ PYBIND11_MODULE(bindings, m) {
       .value("FLOAT", urx::Group::DataType::FLOAT)
       .value("DOUBLE", urx::Group::DataType::DOUBLE)
       .value("UNDEFINED", urx::Group::DataType::UNDEFINED);
+
+  // DoubleNan
+  py::class_<urx::DoubleNan>(m, "DoubleNan")
+      .def(py::init([](double d) { return static_cast<urx::DoubleNan>(d); }))
+      .def(py::init())
+      .def_readwrite("value", &urx::DoubleNan::value)
+      .def(pybind11::self == pybind11::self)
+      .def(pybind11::self != pybind11::self);
+
+  // ImpulseResponse
+  py::class_<urx::ImpulseResponse, std::shared_ptr<urx::ImpulseResponse>>(m, "ImpulseResponse")
+      .def(py::init([](double sampling_frequency, double time_offset, const std::string &units,
+                       const py::buffer &vec) {
+        py::buffer_info info = vec.request();
+        if (info.item_type_is_equivalent_to<double>()) {
+          auto data = VecFloat64(static_cast<double *>(info.ptr),
+                                 static_cast<double *>(info.ptr) + info.shape[0]);
+          return urx::ImpulseResponse(urx::DoubleNan(sampling_frequency),
+                                      urx::DoubleNan(time_offset), units, data);
+        } else
+          throw std::runtime_error(
+              "Incorrect data type for ImpulseResponse::data. Expecte type is vector of double. "
+              "Current type is .\n");
+      }))
+      .def(py::init())
+      .def(pybind11::self == pybind11::self)
+      .def(pybind11::self != pybind11::self)
+      .def_readwrite("sampling_frequency", &urx::ImpulseResponse::sampling_frequency)
+      .def_readwrite("time_offset", &urx::ImpulseResponse::time_offset)
+      .def_readwrite("units", &urx::ImpulseResponse::units)
+      .def_property(
+          "data",
+          [](urx::ImpulseResponse &self) {
+            return py::array_t<double>(py::buffer_info(self.data.data(), sizeof(double),
+                                                       py::format_descriptor<double>::format(), 1,
+                                                       {self.data.size()}, {sizeof(double)}),
+                                       py::cast(&self.data));
+          },
+          [](urx::ImpulseResponse &self, const py::buffer &vec) {
+            py::buffer_info info = vec.request();
+            if (info.item_type_is_equivalent_to<double>()) {
+              self.data = VecFloat64(static_cast<double *>(info.ptr),
+                                     static_cast<double *>(info.ptr) + info.shape[0]);
+            }
+          });
+
+  // Vector3D
+  py::class_<urx::Vector3D<double>>(m, "Vector3D")
+      .def(py::init([](double x, double y, double z) { return urx::Vector3D<double>(x, y, z); }))
+      .def(py::init())
+      .def(pybind11::self == pybind11::self)
+      .def(pybind11::self != pybind11::self)
+      .def_readwrite("x", &urx::Vector3D<double>::x)
+      .def_readwrite("y", &urx::Vector3D<double>::y)
+      .def_readwrite("z", &urx::Vector3D<double>::z);
+
+  // Vector2D
+  py::class_<urx::Vector2D<double>>(m, "Vector2D")
+      .def(py::init([](double x, double y) { return urx::Vector2D<double>(x, y); }))
+      .def(py::init())
+      .def(pybind11::self == pybind11::self)
+      .def(pybind11::self != pybind11::self)
+      .def_readwrite("x", &urx::Vector2D<double>::x)
+      .def_readwrite("y", &urx::Vector2D<double>::y);
+
+  // Version constants
+  m.attr("URX_VERSION_MAJOR") = urx::URX_VERSION_MAJOR;
+  m.attr("URX_VERSION_MINOR") = urx::URX_VERSION_MINOR;
+  m.attr("URX_VERSION_PATCH") = urx::URX_VERSION_PATCH;
+
+  // Version
+  py::class_<urx::Version>(m, "Version")
+      .def(py::init([](double major, double minor, double patch) {
+        return urx::Version(major, minor, patch);
+      }))
+      .def(py::init())
+      .def(pybind11::self == pybind11::self)
+      .def(pybind11::self != pybind11::self)
+      .def_readwrite("major", &urx::Version::major)
+      .def_readwrite("minor", &urx::Version::minor)
+      .def_readwrite("patch", &urx::Version::patch);
 
   py::class_<urx::Group, std::shared_ptr<urx::Group>>(m, "Group")
       .def(py::init())
@@ -184,14 +268,6 @@ PYBIND11_MODULE(bindings, m) {
 
             self.raw_data = std::make_shared<urx::RawDataWeak>(info.ptr, info.shape[0]);
           });
-
-  py::class_<urx::Version>(m, "Version")
-      .def(py::init())
-      .def(pybind11::self == pybind11::self)
-      .def(pybind11::self != pybind11::self)
-      .def_readwrite("major", &urx::Version::major)
-      .def_readwrite("minor", &urx::Version::minor)
-      .def_readwrite("patch", &urx::Version::patch);
 
   py::class_<urx::Dataset>(m, "Dataset")
       .def(py::init())
