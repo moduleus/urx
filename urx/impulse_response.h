@@ -22,6 +22,8 @@ struct ImpulseResponse {
 
   std::vector<double> data;
   std::vector<double> data_rw;
+  std::vector<double> data_list;
+  std::vector<double> data_buffer;
 };
 
 }  // namespace urx
