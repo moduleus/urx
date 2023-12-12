@@ -128,9 +128,9 @@ PYBIND11_MODULE(bindings, m) {
       .def(py::self + py::self)
       .def(py::self += py::self)
       .def(py::self *= double())
-      .def(double() * py::self);
-  // .def(py::self * double());
-  // .def(-py::self);
+      .def(double() * py::self)
+      .def(py::self * double())
+      .def(-py::self);
 
   // ImpulseResponse
   py::class_<urx::ImpulseResponse, std::shared_ptr<urx::ImpulseResponse>>(m, "ImpulseResponse")
