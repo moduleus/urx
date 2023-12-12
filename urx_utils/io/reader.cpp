@@ -67,8 +67,8 @@ concept Number = std::is_integral_v<T> || std::is_floating_point_v<T>;
 template <Number T>
 void deserialize_hdf5(const std::string& name, T& field, const H5::Group& group, MapToSharedPtr&) {
   const H5::StrType datatype(*std_to_h5.at(typeid(T)));
-  const H5::DataSet dataset = group.openDataSet(name);
-  dataset.read(&field, datatype);
+  const H5::Attribute attribute = group.openAttribute(name);
+  attribute.read(datatype, &field);
 }
 
 // String
@@ -77,8 +77,8 @@ void deserialize_hdf5(const std::string& name, std::string& field, const H5::Gro
                       MapToSharedPtr&) {
   const H5::StrType datatype(0, H5T_VARIABLE);
   const H5::DataSpace dataspace(H5S_SCALAR);
-  const H5::DataSet dataset = group.openDataSet(name);
-  dataset.read(field, datatype, dataspace);
+  const H5::Attribute attribute = group.openAttribute(name);
+  attribute.read(datatype, field);
 }
 
 // DoubleNan
@@ -107,7 +107,7 @@ void deserialize_hdf5(const std::string&, std::shared_ptr<RawData>& field, const
 template <typename T>
 void deserialize_hdf5(const std::string& name, std::weak_ptr<T>& field, const H5::Group& group,
                       MapToSharedPtr& map) {
-  if (group.exists(name)) {
+  if (group.attrExists(name)) {
     std::size_t idx;
 
     deserialize_hdf5(name, idx, group, map);
@@ -121,21 +121,26 @@ template <typename T>
 void deserialize_hdf5(const std::string& name, std::vector<T>& field, const H5::Group& group,
                       MapToSharedPtr& map) {
   if constexpr (Number<T>) {
-    const H5::DataSet dataset = group.openDataSet(name);
+    const H5::Attribute attribute = group.openAttribute(name);
     const H5::StrType datatype(*std_to_h5.at(typeid(T)));
-    const H5::DataSpace dataspace = dataset.getSpace();
+    const H5::DataSpace dataspace = attribute.getSpace();
     const int ndims = dataspace.getSimpleExtentNdims();
     std::vector<hsize_t> dimension;
     dimension.resize(ndims);
     dataspace.getSimpleExtentDims(dimension.data());
     field.resize(dimension[0]);
-    dataset.read(field.data(), datatype);
+    if (dimension[0] != 0) {
+      attribute.read(datatype, field.data());
+    }
   } else {
     const H5::Group group_child(group.openGroup(name));
 
-    for (size_t i = 0; i < group_child.getNumObjs(); i++) {
+    size_t i = 0;
+    while (group_child.exists(std::format("{:0{}}", i, iter_length)) ||
+           group_child.attrExists(std::format("{:0{}}", i, iter_length))) {
       field.push_back(T{});
       deserialize_hdf5(std::format("{:0{}}", i, iter_length), field.back(), group_child, map);
+      i++;
     }
   }
 }
@@ -147,9 +152,9 @@ template <Enum T>
 void deserialize_hdf5(const std::string& name, T& field, const H5::Group& group, MapToSharedPtr&) {
   const H5::StrType datatype(0, H5T_VARIABLE);
   const H5::DataSpace dataspace(H5S_SCALAR);
-  const H5::DataSet dataset = group.openDataSet(name);
+  const H5::Attribute attribute = group.openAttribute(name);
   std::string value;
-  dataset.read(value, datatype, dataspace);
+  attribute.read(datatype, value);
 
   std::optional<T> convert = magic_enum::enum_cast<T>(value);
   if (convert) {

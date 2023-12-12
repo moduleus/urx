@@ -404,6 +404,10 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
 
   REQUIRE(dataset_loaded->acquisition.probes == dataset->acquisition.probes);
   REQUIRE(dataset_loaded->acquisition.excitations == dataset->acquisition.excitations);
+  REQUIRE(dataset_loaded->acquisition.waves[0]->channel_mapping ==
+          dataset->acquisition.waves[0]->channel_mapping);
+  REQUIRE(dataset_loaded->acquisition.waves[0] == dataset->acquisition.waves[0]);
+  REQUIRE(dataset_loaded->acquisition.waves[0] == dataset->acquisition.waves[0]);
   REQUIRE(dataset_loaded->acquisition.waves == dataset->acquisition.waves);
   REQUIRE(dataset_loaded->acquisition.groups == dataset->acquisition.groups);
   REQUIRE(dataset_loaded->acquisition.groups_data == dataset->acquisition.groups_data);
