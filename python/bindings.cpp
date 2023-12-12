@@ -43,7 +43,7 @@ using VecGroupPtr = std::vector<std::shared_ptr<urx::Group>>;
 // PYBIND11_MAKE_OPAQUE(VecFloat32);
 // PYBIND11_MAKE_OPAQUE(VecFloat64);
 
-PYBIND11_MAKE_OPAQUE(VecVector3D);
+// PYBIND11_MAKE_OPAQUE(VecVector3D);
 PYBIND11_MAKE_OPAQUE(VecGroupPtr);
 
 PYBIND11_MAKE_OPAQUE(urx::DoubleNan);
@@ -269,7 +269,12 @@ PYBIND11_MODULE(bindings, m) {
       //   return urx::ElementGeometry(std_vec);
       // }))
       .def(py::init(
-          [](const py::list &vec) { return urx::ElementGeometry(vec.cast<VecVector3D>();); }))
+          [](const py::list &vec) { return urx::ElementGeometry(vec.cast<VecVector3D>()); }))
+      // .def(py::init([](const py::list &l) {
+      //   urx::Vector3D<double> *l_ptr = l.cast<urx::Vector3D<double> *>();
+      //   VecVector3D vec(l_ptr, l_ptr + py::len(l));
+      //   return urx::ElementGeometry(vec);
+      // }))
       .def(py::init())
       // .def(py::init<py::list>())
       .def(pybind11::self == pybind11::self)

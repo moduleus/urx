@@ -17,7 +17,7 @@ class TestBindingsElementGeometry(unittest.TestCase):
         self.assertEqual(len(eg.perimeter), 0)
         self.assertEqual(eg, eg2)
 
-        eg = urx.ElementGeometry([v,v2])
+        eg.perimeter = [v,v2]
         self.assertNotEqual(eg, eg2)
         eg2 = urx.ElementGeometry([v,v2])
         self.assertEqual(eg, v2)
