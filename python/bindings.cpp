@@ -119,7 +119,6 @@ PYBIND11_MODULE(bindings, m) {
 
   // DoubleNan
   py::class_<urx::DoubleNan>(m, "DoubleNan")
-      // .def(py::init([](double d) { return static_cast<urx::DoubleNan>(d); }))
       .def(py::init<double>())
       .def(py::init())
       .def_readwrite("value", &urx::DoubleNan::value)
@@ -127,9 +126,19 @@ PYBIND11_MODULE(bindings, m) {
       .def(pybind11::self != pybind11::self)
       .def(py::self + py::self)
       .def(py::self += py::self)
+      .def(py::self += double())
+      .def(double() + py::self)
+      .def(py::self + double())
+      .def(py::self -= double())
+      .def(double() - py::self)
+      .def(py::self - double())
       .def(py::self *= double())
       .def(double() * py::self)
       .def(py::self * double())
+      .def(py::self /= double())
+      .def(double() / py::self)
+      .def(py::self / double())
+      .def(+py::self)
       .def(-py::self);
 
   // ImpulseResponse

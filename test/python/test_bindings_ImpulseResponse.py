@@ -17,8 +17,8 @@ class TestBindingsImpulseResponse(unittest.TestCase):
         self.assertEqual(len(ir.data), 0)
         self.assertEqual(ir, ir2)
 
-        ir = urx.ImpulseResponse(42, np.nan, "sec", np.array([3.14, -42]))
-        ir2 = urx.ImpulseResponse(42, np.nan, "sec", urx.VecFloat64(np.array([3.14, -42])))
+        ir = urx.ImpulseResponse(42, np.nan, "sec", [3.14, -42])
+        ir2 = urx.ImpulseResponse(42, np.nan, "sec", [3.14, -42])
         self.assertEqual(ir, ir2)
 
         print("--Test %s END--" % testName)

@@ -30,6 +30,37 @@ class TestBindingsDoubleNan(unittest.TestCase):
         dw.d = urx.DoubleNan(42)
         self.assertEqual(d, dw.d)
         self.assertEqual(d.value, dw.d.value)
+        self.assertEqual(+d, 42)
+        self.assertEqual(-d, -42)
+        d+=1
+        self.assertEqual(d.value, 43)
+        d-=1
+        self.assertEqual(d.value, 42)
+        d*=2
+        self.assertEqual(d.value, 84)
+        d/=2
+        self.assertEqual(d.value, 42)
+
+        self.assertEqual(2.13+d, urx.DoubleNan(44.13))
+        self.assertEqual(d+2.13, urx.DoubleNan(44.13))
+        self.assertEqual(2+d, urx.DoubleNan(44))
+        self.assertEqual(d+2, urx.DoubleNan(44))
+
+        self.assertEqual(2.13-d, urx.DoubleNan(2.13-42))
+        self.assertEqual(d-2.13, urx.DoubleNan(42-2.13))
+        self.assertEqual(2-d, urx.DoubleNan(2-42))
+        self.assertEqual(d-2, urx.DoubleNan(42-2))
+
+        self.assertEqual(2.13*d, urx.DoubleNan(2.13*42))
+        self.assertEqual(d*2.13, urx.DoubleNan(42*2.13))
+        self.assertEqual(2*d, urx.DoubleNan(2*42))
+        self.assertEqual(d*2, urx.DoubleNan(42*2))
+
+        self.assertEqual(2.13/d, urx.DoubleNan(2.13/42))
+        self.assertEqual(d/2.13, urx.DoubleNan(42/2.13))
+        self.assertEqual(2/d, urx.DoubleNan(2/42))
+        self.assertEqual(d/2, urx.DoubleNan(42/2))
+
 
         print("--Test %s END--" % testName)
 
