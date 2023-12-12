@@ -262,13 +262,16 @@ PYBIND11_MODULE(bindings, m) {
 
   // ElementGeometry
   py::class_<urx::ElementGeometry>(m, "ElementGeometry")
-      .def(py::init([](const py::array_t<urx::Vector3D<double>> &vec) {
-        py::buffer_info info = vec.request();
-        auto std_vec = VecVector3D(static_cast<double *>(info.ptr),
-                                   static_cast<double *>(info.ptr) + info.shape[0]);
-        return urx::ElementGeometry(std_vec);
-      }))
+      // .def(py::init([](const py::array_t<urx::Vector3D<double>> &vec) {
+      //   py::buffer_info info = vec.request();
+      //   auto std_vec = VecVector3D(static_cast<double *>(info.ptr),
+      //                              static_cast<double *>(info.ptr) + info.shape[0]);
+      //   return urx::ElementGeometry(std_vec);
+      // }))
+      .def(py::init(
+          [](const py::list &vec) { return urx::ElementGeometry(vec.cast<VecVector3D>();); }))
       .def(py::init())
+      // .def(py::init<py::list>())
       .def(pybind11::self == pybind11::self)
       .def(pybind11::self != pybind11::self)
       .def_readwrite("perimeter", &urx::ElementGeometry::perimeter);
