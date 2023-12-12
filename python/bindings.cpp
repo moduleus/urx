@@ -143,19 +143,6 @@ PYBIND11_MODULE(bindings, m) {
 
   // ImpulseResponse
   py::class_<urx::ImpulseResponse, std::shared_ptr<urx::ImpulseResponse>>(m, "ImpulseResponse")
-      // .def(py::init([](double sampling_frequency, double time_offset, const std::string &units,
-      //                  const py::buffer &vec) {
-      //   py::buffer_info info = vec.request();
-      //   if (info.item_type_is_equivalent_to<double>()) {
-      //     auto data = std::vector<double>(static_cast<double *>(info.ptr),
-      //                                     static_cast<double *>(info.ptr) + info.shape[0]);
-      //     return urx::ImpulseResponse(urx::DoubleNan(sampling_frequency),
-      //                                 urx::DoubleNan(time_offset), units, data);
-      //   } else
-      //     throw std::runtime_error(
-      //         "Incorrect data type for ImpulseResponse::data. Expecte type is vector of double. "
-      //         "Current type is .\n");
-      // }))
       .def(py::init(
           [](double sampling_frequency, double time_offset, const std::string &units, py::list l) {
             std::vector<double> vec = l.cast<std::vector<double>>();
@@ -169,60 +156,6 @@ PYBIND11_MODULE(bindings, m) {
       .def_readwrite("time_offset", &urx::ImpulseResponse::time_offset)
       .def_readwrite("units", &urx::ImpulseResponse::units)
       .def_readwrite("data", &urx::ImpulseResponse::data);
-  // .def_property(
-  //     "data_list",
-  //     [](urx::ImpulseResponse &self) {
-  //       return py::array_t<double>(py::buffer_info(self.data_list.data(), sizeof(double),
-  //                                                  py::format_descriptor<double>::format(), 1,
-  //                                                  {self.data_list.size()}, {sizeof(double)}),
-  //                                  py::cast(&self.data_list));
-  //     },
-  //     [](urx::ImpulseResponse &self, const py::list &vec) {
-  //       self.data_list = vec.cast<std::vector<double>>();
-  //       // py::buffer_info info = vec.request();
-  //       // if (info.item_type_is_equivalent_to<double>()) {
-  //       //   self.data = std::vector<double>(static_cast<double *>(info.ptr),
-  //       //                                   static_cast<double *>(info.ptr) + info.shape[0]);
-  //       // } else {
-  //       //   throw std::runtime_error("Incorrect data type. Expected type is double list.");
-  //       // }
-  //     })
-  // .def_property(
-  //     "data_buffer",
-  //     [](urx::ImpulseResponse &self) {
-  //       return py::array_t<double>(py::buffer_info(self.data_buffer.data(), sizeof(double),
-  //                                                  py::format_descriptor<double>::format(), 1,
-  //                                                  {self.data_buffer.size()}, {sizeof(double)}),
-  //                                  py::cast(&self.data_buffer));
-  //     },
-  //     [](urx::ImpulseResponse &self, const py::buffer &vec) {
-  //       // self.data = vec.cast<std::vector<double>>();
-  //       py::buffer_info info = vec.request();
-  //       if (info.item_type_is_equivalent_to<double>()) {
-  //         self.data_buffer = std::vector<double>(
-  //             static_cast<double *>(info.ptr), static_cast<double *>(info.ptr) + info.shape[0]);
-  //       } else {
-  //         throw std::runtime_error("Incorrect data type. Expected type is double list.");
-  //       }
-  //     })
-  // .def_property(
-  //     "data",
-  //     [](urx::ImpulseResponse &self) {
-  //       return py::array_t<double>(py::buffer_info(self.data_buffer.data(), sizeof(double),
-  //                                                  py::format_descriptor<double>::format(), 1,
-  //                                                  {self.data_buffer.size()}, {sizeof(double)}),
-  //                                  py::cast(&self.data_buffer));
-  //     },
-  //     [](urx::ImpulseResponse &self, const py::array &vec) {
-  //       // self.data = vec.cast<std::vector<double>>();
-  //       py::buffer_info info = vec.request();
-  //       if (info.item_type_is_equivalent_to<double>()) {
-  //         self.data_buffer = std::vector<double>(
-  //             static_cast<double *>(info.ptr), static_cast<double *>(info.ptr) + info.shape[0]);
-  //       } else {
-  //         throw std::runtime_error("Incorrect data type. Expected type is double list.");
-  //       }
-  //     });
 
   // Vector3D
   py::class_<urx::Vector3D<double>>(m, "Vector3D")
@@ -261,40 +194,13 @@ PYBIND11_MODULE(bindings, m) {
       .def_readwrite("patch", &urx::Version::patch);
 
   // ElementGeometry
-  py::class_<urx::ElementGeometry>(m, "ElementGeometry")
-      // .def(py::init([](const py::array_t<urx::Vector3D<double>> &vec) {
-      //   py::buffer_info info = vec.request();
-      //   auto std_vec = VecVector3D(static_cast<double *>(info.ptr),
-      //                              static_cast<double *>(info.ptr) + info.shape[0]);
-      //   return urx::ElementGeometry(std_vec);
-      // }))
+  py::class_<urx::ElementGeometry, std::shared_ptr<urx::ElementGeometry>>(m, "ElementGeometry")
       .def(py::init(
           [](const py::list &vec) { return urx::ElementGeometry(vec.cast<VecVector3D>()); }))
-      // .def(py::init([](const py::list &l) {
-      //   urx::Vector3D<double> *l_ptr = l.cast<urx::Vector3D<double> *>();
-      //   VecVector3D vec(l_ptr, l_ptr + py::len(l));
-      //   return urx::ElementGeometry(vec);
-      // }))
       .def(py::init())
-      // .def(py::init<py::list>())
       .def(pybind11::self == pybind11::self)
       .def(pybind11::self != pybind11::self)
       .def_readwrite("perimeter", &urx::ElementGeometry::perimeter);
-  // .def_property(
-  //     "data",
-  //     [](urx::ImpulseResponse &self) {
-  //       return py::array_t<double>(py::buffer_info(self.data.data(), sizeof(double),
-  //                                                  py::format_descriptor<double>::format(), 1,
-  //                                                  {self.data.size()}, {sizeof(double)}),
-  //                                  py::cast(&self.data));
-  //     },
-  //     [](urx::ImpulseResponse &self, const py::buffer &vec) {
-  //       py::buffer_info info = vec.request();
-  //       if (info.item_type_is_equivalent_to<double>()) {
-  //         self.data = VecFloat64(static_cast<double *>(info.ptr),
-  //                                static_cast<double *>(info.ptr) + info.shape[0]);
-  //       }
-  //     });
 
   // Group
   py::class_<urx::Group, std::shared_ptr<urx::Group>>(m, "Group")
