@@ -57,6 +57,22 @@ struct DoubleNan {
     value *= n.value;
     return *this;
   }
+  DoubleNan& operator+=(double n) {
+    value += n;
+    return *this;
+  }
+  DoubleNan& operator-=(double n) {
+    value -= n;
+    return *this;
+  }
+  DoubleNan& operator/=(double n) {
+    value /= n;
+    return *this;
+  }
+  DoubleNan& operator*=(double n) {
+    value *= n;
+    return *this;
+  }
   DoubleNan operator+(const DoubleNan& n) const { return DoubleNan(value + n.value); }
   DoubleNan operator-(const DoubleNan& n) const { return DoubleNan(value - n.value); }
   DoubleNan operator/(const DoubleNan& n) const { return DoubleNan(value / n.value); }
