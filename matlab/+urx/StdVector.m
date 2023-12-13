@@ -1,10 +1,10 @@
 classdef StdVector < handle
   properties (Access = public)
-    libBindingRef = uff.LibBinding.empty(1,0)
+    libBindingRef = urx.LibBinding.empty(1,0)
     id(1,1) = libpointer                              % std_vector base pter
     parent {mustBeScalarOrEmpty} % parent (enable to hold the pointed memory)
     parentPptName
-    objects       % matlab uff.Object list (not used for primitive type)
+    objects       % matlab urx.Object list (not used for primitive type)
     objectClassName(1,:) char
     nbDims
   end
@@ -15,14 +15,14 @@ classdef StdVector < handle
 
   methods
     function this = StdVector(objectClassName, parent, parentPptNameOrDataIdx, nbDims)
-      this.libBindingRef = uff.LibBinding.getInstance();
+      this.libBindingRef = urx.LibBinding.getInstance();
       this.objectClassName = objectClassName;
       if nargin < 4
         nbDims = 1;
       end
       this.nbDims = nbDims;
       if nargin < 2 || isempty(parent)
-        this.id = uff.LibBinding.call([this.className() '_new']);
+        this.id = urx.LibBinding.call([this.className() '_new']);
         return;
       end
       if ~isempty(parent)
@@ -32,7 +32,7 @@ classdef StdVector < handle
 
     function delete(this)
       if this.isAnAllocatedObject()
-        uff.LibBinding.call([this.className() '_delete'], this.id);
+        urx.LibBinding.call([this.className() '_delete'], this.id);
       end
     end
 
@@ -40,11 +40,11 @@ classdef StdVector < handle
       if ischar(parentPptNameOrDataIdx)
         this.parentPptName = parentPptNameOrDataIdx;
         ptrGetFunction = [parent.className() '_' this.parentPptName];
-        this.id = uff.LibBinding.call(ptrGetFunction, parent.id);
+        this.id = urx.LibBinding.call(ptrGetFunction, parent.id);
       else % std_vector
         dataPtr = parent.data();
         len = parent.len();
-        stdVecSizeof = uff.LibBinding.call(['std_vector_' this.objectClassName '_sizeof']);
+        stdVecSizeof = urx.LibBinding.call(['std_vector_' this.objectClassName '_sizeof']);
         if len > 0
           dataPtr.setdatatype('uint8Ptr', stdVecSizeof * len);
           this.id = dataPtr + (parentPptNameOrDataIdx-1) * stdVecSizeof;
@@ -61,16 +61,16 @@ classdef StdVector < handle
         res = [res '_2d'];
       end
       if ~any(strcmp(this.objectClassName, this.MANAGED_PRIMITIVES_TYPES))
-        res = [res '_uff'];
+        res = [res '_urx'];
       end
       res = [res '_' this.objectClassName];
     end
 
     function res = objectSizeof(this)
       if this.nbDims > 1
-        res = uff.LibBinding.call(['std_vector_' this.objectClassName '_sizeof']);
+        res = urx.LibBinding.call(['std_vector_' this.objectClassName '_sizeof']);
       elseif ~any(strcmp(this.objectClassName, this.MANAGED_PRIMITIVES_TYPES))
-        res = uff.LibBinding.call([this.objectClassName '_sizeof']);
+        res = urx.LibBinding.call([this.objectClassName '_sizeof']);
       end
     end
 
@@ -79,30 +79,30 @@ classdef StdVector < handle
     end
 
     function clear(this)
-      uff.LibBinding.call([this.className() '_clear'], this.id);
+      urx.LibBinding.call([this.className() '_clear'], this.id);
     end
 
     function pushBack(this, val)
       if ~any(strcmp(this.objectClassName, this.MANAGED_PRIMITIVES_TYPES)) || this.nbDims > 1
-        uff.LibBinding.call([this.className() '_push_back'], this.id, val.id);
+        urx.LibBinding.call([this.className() '_push_back'], this.id, val.id);
       else
-        uff.LibBinding.call([this.className() '_push_back'], this.id, val);
+        urx.LibBinding.call([this.className() '_push_back'], this.id, val);
       end
     end
 
     function res = len(this) % 'len' instead of 'size' for not interfering with matlab size() function
-      res = uff.LibBinding.call([this.className() '_size' ], this.id);
+      res = urx.LibBinding.call([this.className() '_size' ], this.id);
     end
 
     function res = data(this)
-      res = uff.LibBinding.call([this.className() '_data'], this.id);
+      res = urx.LibBinding.call([this.className() '_data'], this.id);
     end
 
     function copy(this, other)
-      uff.LibBinding.call([this.className() '_copy'], this.id, other.id);
+      urx.LibBinding.call([this.className() '_copy'], this.id, other.id);
     end
 
-    %% uff specific
+    %% urx specific
     function updateFromCpp(this)
       objectsBasePtr = this.data();
       sizeofObject = this.objectSizeof();
@@ -111,13 +111,13 @@ classdef StdVector < handle
       for i=1:nbObject
         if numel(this.objects) < i
           if this.nbDims == 1
-            this.objects(i) = uff.(this.objectClassName)(this, int32(i - 1), ...
+            this.objects(i) = urx.(this.objectClassName)(this, int32(i - 1), ...
                                                          objectsBasePtr + (i-1) * sizeofObject)
           else
             if isempty(this.objects)
-              this.objects = uff.StdVector(this.objectClassName, this, i, 1);
+              this.objects = urx.StdVector(this.objectClassName, this, i, 1);
             else
-              this.objects(i) = uff.StdVector(this.objectClassName, this, i, 1);
+              this.objects(i) = urx.StdVector(this.objectClassName, this, i, 1);
             end
           end
         else
@@ -130,7 +130,7 @@ classdef StdVector < handle
             for j=1:numel(this.objects)
               parent = this.objects(i);
               stdVectorParentPptName = objectsPpt{objectsPptStdVecInd(i)};
-              parentPptName = uff.Object.camelToSnakeCase(stdVectorParentPptName(10:end));
+              parentPptName = urx.Object.camelToSnakeCase(stdVectorParentPptName(10:end));
               this.objects(j).(stdVectorParentPptName).updateParent(this.objects(i), parentPptName);
             end
           end
@@ -158,7 +158,7 @@ classdef StdVector < handle
           return
         end
         for i=1:this.len()
-          stdVec = uff.StdVector(this.objectClassName, this, i);
+          stdVec = urx.StdVector(this.objectClassName, this, i);
           res{i} = stdVec.getFromCpp();
         end
       end
@@ -173,14 +173,14 @@ classdef StdVector < handle
       else
         if isa(v, 'cell')
           for i=1:numel(v)
-            stdVec = uff.StdVector(this.objectClassName);
+            stdVec = urx.StdVector(this.objectClassName);
             stdVec.setToCpp(v{i});
             this.pushBack(stdVec);
           end
         else
           this.objectClassName
           for i=1:size(v, 2)
-            stdVec = uff.StdVector(this.objectClassName);
+            stdVec = urx.StdVector(this.objectClassName);
             stdVec.setToCpp(v(i,:));
             this.pushBack(stdVec);
           end

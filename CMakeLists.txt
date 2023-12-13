@@ -76,7 +76,7 @@ include(CPack)
 option(WITH_HDF5 "Build with HDF5" OFF)
 option(WITH_MATLAB "Build Matlab wrappers" OFF)
 option(WITH_PYTHON "Build Python module" OFF)
-option(WITH_TEST "Build unit tests" OFF)
+enable_testing()
 
 set(URX_PCH
     "<algorithm>"
@@ -119,7 +119,7 @@ set(URX_PCH
 if(WITH_HDF5)
   list(APPEND URX_PCH "<H5Cpp.h>" "<boost/pfr.hpp>" "<magic_enum.hpp>")
 endif()
-if(WITH_TEST)
+if(BUILD_TESTING)
   set(URX_PCH_TEST
       "<catch2/catch_test_macros.hpp>"
       "<catch2/matchers/catch_matchers_floating_point.hpp>"
@@ -156,14 +156,10 @@ if(WITH_PYTHON)
   add_subdirectory(python)
 endif()
 
-if(WITH_TEST)
-  enable_testing()
+if(BUILD_TESTING)
   find_package(Catch2 REQUIRED)
   add_subdirectory(test)
 endif()
-
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${URX_SRCS}
-                                                    ${URX_UTILS_SRCS})
 
 # Create cmake config files ###
 write_basic_package_version_file(

@@ -1,7 +1,7 @@
-classdef GroupData < uff.Object
+classdef GroupData < urx.Object
   properties (Access = public)
-    stdVectorSequenceTimestamps uff.StdVector {mustBeScalarOrEmpty} = uff.StdVector.empty(0,1)
-    stdVectorEventTimestamps uff.StdVector {mustBeScalarOrEmpty} = uff.StdVector.empty(0,1)
+    stdVectorSequenceTimestamps urx.StdVector {mustBeScalarOrEmpty} = urx.StdVector.empty(0,1)
+    stdVectorEventTimestamps urx.StdVector {mustBeScalarOrEmpty} = urx.StdVector.empty(0,1)
   end
   
   properties (Access = public, SetObservable, GetObservable)
@@ -11,6 +11,6 @@ classdef GroupData < uff.Object
     % raw_data
     % size_of_data_type
     % data_type
-    group uff.Group {mustBeScalarOrEmpty} = uff.Group.empty(0,1)
+    group urx.Group {mustBeScalarOrEmpty} = urx.Group.empty(0,1)
   end
 end

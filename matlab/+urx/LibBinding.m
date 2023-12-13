@@ -8,12 +8,12 @@ classdef LibBinding < handle
     function this = LibBinding()
       currentPath = [fileparts(mfilename('fullpath')) '/'];
       [this.notfound, this.warnings] = loadlibrary(...
-          [currentPath '../../build/matlab/LibBinding/libUffLibBinding.so'], ...
-          [currentPath '../LibBinding/UffLibBinding.h']);
+          [currentPath '../../build/matlab/LibBinding/libUrxLibBinding.so'], ...
+          [currentPath '../LibBinding/UrxLibBinding.h']);
     end
 
     function delete(this)
-      unloadlibrary libUffLibBinding
+      unloadlibrary libUrxLibBinding
     end
   end
 
@@ -21,13 +21,13 @@ classdef LibBinding < handle
     function this = getInstance()
       persistent instance
       if isempty(instance)
-        instance = uff.LibBinding();
+        instance = urx.LibBinding();
       end
         this = instance;
     end
 
     function varargout = call(varargin)
-      varargout{:} = calllib('libUffLibBinding', varargin{:});
+      varargout{:} = calllib('libUrxLibBinding', varargin{:});
     end
   end
 end

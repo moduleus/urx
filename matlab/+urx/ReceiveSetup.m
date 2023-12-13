@@ -1,4 +1,4 @@
-classdef ReceiveSetup < uff.Object
+classdef ReceiveSetup < urx.Object
   properties (Access = public)
     % stdVector... {mustBeScalarOrEmpty}
   end

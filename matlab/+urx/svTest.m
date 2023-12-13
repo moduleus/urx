@@ -1,5 +1,5 @@
-sv2d = uff.StdVector('double', [], [], 2)
-sv = uff.StdVector('double')
+sv2d = urx.StdVector('double', [], [], 2)
+sv = urx.StdVector('double')
 sv.pushBack(1)
 sv2d.pushBack(sv)
 sv.pushBack(2)

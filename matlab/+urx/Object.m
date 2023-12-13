@@ -1,6 +1,6 @@
 classdef Object < handle
   properties (Access = public)
-    libBindingRef = uff.LibBinding.empty(1,0)
+    libBindingRef = urx.LibBinding.empty(1,0)
     id(1,1) = libpointer
     container {mustBeScalarOrEmpty}
     containerId int32 {mustBeScalarOrEmpty}
@@ -8,9 +8,9 @@ classdef Object < handle
 
   methods
     function this = Object(container, containerId, id)
-      this.libBindingRef = uff.LibBinding.getInstance();
+      this.libBindingRef = urx.LibBinding.getInstance();
       if nargin < 1
-        this.id = uff.LibBinding.call([this.className() '_new']);
+        this.id = urx.LibBinding.call([this.className() '_new']);
       else
         this.id = id;
         this.containerId = containerId;
@@ -23,19 +23,19 @@ classdef Object < handle
           tiedObjName = (this.camelToSnakeCase(props(i).Name(10:end)));
           defaultVal = props(find(strcmpi(tiedObjName, {props.Name}))).DefaultValue;
           tiedObjClass = class(defaultVal);
-          tiedObjClass = tiedObjClass((strncmp(tiedObjClass, 'uff.', 4) * 4 + 1) : end);
+          tiedObjClass = tiedObjClass((strncmp(tiedObjClass, 'urx.', 4) * 4 + 1) : end);
           if strcmp(tiedObjClass, 'cell')
             tiedObjClass = class(defaultVal{1})
           end
           propNameSnake = this.camelToSnakeCase(props(i).Name);
-          this.(props(i).Name) = uff.StdVector(tiedObjClass, this, propNameSnake(12:end), ...
+          this.(props(i).Name) = urx.StdVector(tiedObjClass, this, propNameSnake(12:end), ...
                                                isa(this.(tiedObjName), 'cell') + 1);
         end
         if props(i).SetObservable
-          addlistener(this, props(i).Name, 'PostSet', @uff.Object.handlePropEvents);
+          addlistener(this, props(i).Name, 'PostSet', @urx.Object.handlePropEvents);
         end
         if props(i).GetObservable
-          addlistener(this, props(i).Name, 'PreGet', @uff.Object.handlePropEvents);
+          addlistener(this, props(i).Name, 'PreGet', @urx.Object.handlePropEvents);
         end
       end
     end
@@ -43,7 +43,7 @@ classdef Object < handle
     function deleteCpp(this)
       thisClass = class(this);
       deleteFunction = [this.className() '_delete'];
-      uff.LibBinding.call(deleteFunction, this.id);
+      urx.LibBinding.call(deleteFunction, this.id);
       this.id = libpointer;
     end
 
@@ -55,7 +55,7 @@ classdef Object < handle
 
     function res = className(this)
       thisClass = class(this);
-      res = thisClass(5:end); % no uff.
+      res = thisClass(5:end); % no urx.
     end
 
     function res = isAnAllocatedObject(this)
@@ -75,21 +75,21 @@ classdef Object < handle
       affectedObj = evnt.AffectedObject;
       affectedObjClass = class(affectedObj);
       affectedPptName = src.Name;
-      tiedStdVecName = ['stdVector' uff.Object.snakeToCamelCase(affectedPptName)]; % potentially
+      tiedStdVecName = ['stdVector' urx.Object.snakeToCamelCase(affectedPptName)]; % potentially
       functionAccessor = [affectedObj.className() '_' affectedPptName];
-      ptr = uff.LibBinding.call(functionAccessor, affectedObj.id);
+      ptr = urx.LibBinding.call(functionAccessor, affectedObj.id);
       affectedPpt = affectedObj.(affectedPptName);
       affectedPptClass = class(affectedPpt);
       if strcmp(affectedPptClass, 'cell')
         affectedPptClass = class(affectedPpt{1});
       end
 
-      % decision tree: event then, property class (char, double, int32/enum or uff.* from std_vector)
+      % decision tree: event then, property class (char, double, int32/enum or urx.* from std_vector)
       switch evnt.EventName
         case 'PostSet'
           switch affectedPptClass
             case 'char'
-              uff.LibBinding.call('std_string_set', ptr, affectedPpt);
+              urx.LibBinding.call('std_string_set', ptr, affectedPpt);
             case 'double'
               affectedObjPpts = properties(affectedObj);
               if any(strcmp(affectedObjPpts, tiedStdVecName))
@@ -102,14 +102,14 @@ classdef Object < handle
           if isa(affectedPpt, 'int32') % int32 + enum
             ptr.setdatatype('int32Ptr', numel(affectedPpt));
             ptr.Value = int32(affectedPpt);
-          elseif strncmp(affectedPptClass, 'uff.', 4) && ~strncmp(affectedPptClass, 'uff.stdV', 8)
+          elseif strncmp(affectedPptClass, 'urx.', 4) && ~strncmp(affectedPptClass, 'urx.stdV', 8)
             if any(strcmp(properties(affectedObj), tiedStdVecName)) % pool of instances case
               tiedStdVecObjectClass = affectedObj.(tiedStdVecName).objectClassName;
-              tmpStdVec = uff.StdVector(tiedStdVecObjectClass); % temporary std vector object
+              tmpStdVec = urx.StdVector(tiedStdVecObjectClass); % temporary std vector object
               for i=1:numel(affectedPpt)
                 tmpStdVec.pushBack(affectedPpt(i));     % push all right value to the tmp object
                 if affectedPpt(i).isAnAllocatedObject()
-                  affectedPpt(i).deleteCpp();           % free memory of dynamic/stand-alone uff.object
+                  affectedPpt(i).deleteCpp();           % free memory of dynamic/stand-alone urx.object
                 end
               end
               tmpStdVec.objects = affectedPpt;        % assign same right value to the std vector
@@ -125,7 +125,7 @@ classdef Object < handle
         case 'PreGet'
           switch affectedPptClass
             case 'char'
-              affectedObj.(affectedPptName) = uff.LibBinding.call('std_string_get', ptr);
+              affectedObj.(affectedPptName) = urx.LibBinding.call('std_string_get', ptr);
             case 'double'
               affectedObjPpts = properties(affectedObj);
               if any(strcmp(affectedObjPpts, tiedStdVecName))
@@ -137,12 +137,12 @@ classdef Object < handle
           end
           if isa(affectedPpt, 'int32') % int32 + enum
             ptr.setdatatype('int32Ptr', numel(affectedPpt));
-            if strncmp(affectedPptClass, 'uff.', 4)
-              affectedObj.(affectedPptName) = uff.(affectedPptClass(5:end))(ptr.Value);
+            if strncmp(affectedPptClass, 'urx.', 4)
+              affectedObj.(affectedPptName) = urx.(affectedPptClass(5:end))(ptr.Value);
             else
               affectedObj.(affectedPptName) = ptr.Value;
             end
-          elseif strncmp(affectedPptClass, 'uff.', 4) && ~strncmp(affectedPptClass, 'uff.stdV', 8) ...
+          elseif strncmp(affectedPptClass, 'urx.', 4) && ~strncmp(affectedPptClass, 'urx.stdV', 8) ...
                 && ~isempty(affectedPpt)
             tiedStdVector = unique([affectedPpt.container]);
             assert(numel(tiedStdVector) == 1, 'numel(tiedStdVector) should be == 1')
