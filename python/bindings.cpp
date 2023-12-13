@@ -46,7 +46,8 @@ using VecGroupPtr = std::vector<std::shared_ptr<urx::Group>>;
 
 PYBIND11_MAKE_OPAQUE(VecGroupPtr);
 
-PYBIND11_MAKE_OPAQUE(urx::Vector3D<double>);
+// PYBIND11_MAKE_OPAQUE(urx::Vector3D<double>);
+PYBIND11_MAKE_OPAQUE(VecVector3D);
 // PYBIND11_MAKE_OPAQUE(urx::DoubleNan);
 
 struct A {
@@ -126,7 +127,7 @@ PYBIND11_MODULE(bindings, m) {
   // py::bind_vector<VecFloat64>(m, "VecFloat64", py::buffer_protocol());
 
   py::bind_vector<VecGroupPtr>(m, "VecGroupPtr");
-  // py::bind_vector<VecVector3D>(m, "VecVector3D");
+  py::bind_vector<VecVector3D>(m, "VecVector3D");
 
   py::bind_vector<std::vector<B>>(m, "VecB");
   // PYBIND11_NUMPY_DTYPE(A, x, y);
@@ -257,12 +258,12 @@ PYBIND11_MODULE(bindings, m) {
       .def(py::init())
       .def(pybind11::self == pybind11::self)
       .def(pybind11::self != pybind11::self)
-      // .def_readwrite("perimeter", &urx::ElementGeometry::perimeter);
-      .def_property(
-          "perimeter", [](urx::ElementGeometry &self) { return &self.perimeter; },
-          [](urx::ElementGeometry &self, const py::list &perimeter) {
-            self.perimeter = perimeter.cast<VecVector3D>();
-          });
+      .def_readwrite("perimeter", &urx::ElementGeometry::perimeter);
+  // .def_property(
+  //     "perimeter", [](urx::ElementGeometry &self) { return &self.perimeter; },
+  //     [](urx::ElementGeometry &self, const py::list &perimeter) {
+  //       self.perimeter = perimeter.cast<VecVector3D>();
+  //     });
   // .def_property(
   //     "perimeter", [](urx::ElementGeometry &self) { return &self.perimeter; },
   //     [](urx::ElementGeometry &self, const py::buffer &perimeter) {
