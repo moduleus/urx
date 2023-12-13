@@ -48,15 +48,17 @@ class TestBindings(unittest.TestCase):
         self.assertTrue(np.array_equal(np.array(
             [1.+2.j, 2.+3.j], dtype=numpyType), ref))
         self.assertTrue(np.array_equal(np.array(
-            [[1,2], [2,3]], dtype=numpyType), group_data.raw_data))
+            [[1, 2], [2, 3]], dtype=numpyType), group_data.raw_data))
 
         ref[0] = 45.+67j
-        self.assertTrue(np.array_equal(group_data.raw_data.view(numpyType)[:,0], ref))
+        self.assertTrue(np.array_equal(
+            group_data.raw_data.view(numpyType)[:, 0], ref))
 
         ref += 1
         self.assertTrue(np.array_equal(ref, np.array(
             [46.+67.j, 3.+3.j], dtype=numpyType)))
-        self.assertTrue(np.array_equal(group_data.raw_data.view(numpyType)[:,0], ref))
+        self.assertTrue(np.array_equal(
+            group_data.raw_data.view(numpyType)[:, 0], ref))
 
         print("--Test %s END--" % testName)
 
@@ -82,7 +84,8 @@ class TestBindings(unittest.TestCase):
         self.assertEqual(group.sampling_type, urx.SamplingType.UNDEFINED)
         self.assertEqual(group.data_type, urx.DataType.UNDEFINED)
 
-        self.assertRaises(RuntimeError, lambda group_data: group_data.group, group_data)
+        self.assertRaises(
+            RuntimeError, lambda group_data: group_data.group, group_data)
         group_data.group = group
         self.assertEqual(group_data.group, group)
         group_data.group.description = "Hello world"
@@ -92,7 +95,8 @@ class TestBindings(unittest.TestCase):
         import gc
         del group
         gc.collect()
-        self.assertRaises(RuntimeError, lambda group_data: group_data.group, group_data)
+        self.assertRaises(
+            RuntimeError, lambda group_data: group_data.group, group_data)
 
         print("--Test %s END--" % testName)
 
@@ -108,7 +112,8 @@ class TestBindings(unittest.TestCase):
 
         self.assertEqual(len(acq.groups), 1)
         self.assertEqual(acq.groups[0].description, "")
-        self.assertEqual(acq.groups[0].sampling_type, urx.SamplingType.UNDEFINED)
+        self.assertEqual(acq.groups[0].sampling_type,
+                         urx.SamplingType.UNDEFINED)
         self.assertEqual(acq.groups[0].data_type, urx.DataType.UNDEFINED)
 
         acq.groups[0].description = "Hello World"
@@ -126,14 +131,15 @@ class TestBindings(unittest.TestCase):
 
         import gc
         del group
-        gc.collect()        
+        gc.collect()
         self.assertEqual(group_data.group.description, "Hello World")
 
         acq.groups.remove(acq.groups[0])
         self.assertEqual(group_data.group.description, "Hello World")
 
         acq.groups.remove(acq.groups[0])
-        self.assertRaises(RuntimeError, lambda group_data: group_data.group, group_data)
+        self.assertRaises(
+            RuntimeError, lambda group_data: group_data.group, group_data)
         self.assertEqual(acq.groups[0].sampling_type, urx.SamplingType.IQ)
 
         print("--Test %s END--" % testName)

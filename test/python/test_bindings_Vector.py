@@ -2,6 +2,7 @@ import pyurx as urx
 import numpy as np
 import unittest
 
+
 class TestBindingsVector2D(unittest.TestCase):
 
     def testVector2D(self):
@@ -40,6 +41,7 @@ class TestBindingsVector2D(unittest.TestCase):
         self.assertEqual(v, v2)
 
         print("--Test %s END--" % testName)
+
 
 if __name__ == '__main__':
     unittest.main()

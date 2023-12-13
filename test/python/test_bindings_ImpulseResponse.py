@@ -2,6 +2,7 @@ import pyurx as urx
 import numpy as np
 import unittest
 
+
 class TestBindingsImpulseResponse(unittest.TestCase):
 
     def testImpulseResponse(self):
@@ -22,6 +23,7 @@ class TestBindingsImpulseResponse(unittest.TestCase):
         self.assertEqual(ir, ir2)
 
         print("--Test %s END--" % testName)
+
 
 if __name__ == '__main__':
     unittest.main()
