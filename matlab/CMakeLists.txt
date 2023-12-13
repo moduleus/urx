@@ -1,7 +1,9 @@
 # Create matlab mex libraries ###
 
 # Define mexplus library as local third party
-find_package(mexplus 0.0.2 REQUIRED)
+# find_package(mexplus 0.0.2 REQUIRED)
+add_library(mexplus INTERFACE)
+target_include_directories(mexplus INTERFACE ${PROJECT_SOURCE_DIR}/matlab)
 
 # Define mex wrapper targets
 
@@ -18,3 +20,6 @@ install(TARGETS MexURX
 
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/+urx"
         DESTINATION ${MATLAB_INSTALL_LIBDIR})
+
+
+add_subdirectory("LibBinding")

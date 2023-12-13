@@ -1,42 +1,17 @@
-classdef Acquisition < handle
+classdef Acquisition < uff.Object % handle
   properties (Access = public)
-    id
+    stdVectorGroups uff.StdVector {mustBeScalarOrEmpty} = uff.StdVector.empty(0,1)
+    stdVectorUniqueReceiveSetups uff.StdVector {mustBeScalarOrEmpty} = uff.StdVector.empty(0,1)
   end
   
-  properties (Access = public)
-      groups = []
+  properties (Access = public, SetObservable, GetObservable)
+    authors char
+    description char
+    local_time char
+    country_code char
+    system char
+    sound_speed(1,1) double
+    groups(:,1) = uff.Group.empty(0,1)
+    unique_receive_setups(:,1) = uff.ReceiveSetup.empty(0,1)
   end
-
-
-  methods 
-    function this = Acquisition()
-      this.id = MexURX('Acquisition_new');
-    end
-
-    function delete(this)
-      MexURX('Acquisition_delete', this.id);
-    end
-
-    function delGroup(this, group_idx)
-      MexURX('Acquisition_del_i_group', this.id, group_idx-1);
-      this.groups(group_idx) = [];
-    end
-
-    function grp = getGroup(this, group_idx)
-      grp = MexURX('Acquisition_get_i_group', this.id, group_idx-1);
-    end
-
-    function addGroup(this, group)
-      if nargin > 1
-        MexURX('Acquisition_add_group', this.id, group.id);
-      else
-        MexURX('Acquisition_add_new_group', this.id);
-      end
-      this.groups(end+1) = this.getGroup(length(this.groups)+1);
-    end
-    
-    function a = subsasgn(a,s,b)
-    end
-    
-  end
-end 
+end
