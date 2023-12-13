@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.9)
 
 project(
-  Uff
-  VERSION 0.4.6
+  Urx
+  VERSION 0.6.8
   LANGUAGES C CXX
   DESCRIPTION "Ultrasound File Format C++ implementation")
 
@@ -11,8 +11,16 @@ include(CMakePackageConfigHelpers)
 
 # Configure compiler ###
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE
+      "Release"
+      CACHE STRING "Choose the type of build" FORCE)
+endif()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_LINK_WHAT_YOU_USE ON)
@@ -20,16 +28,13 @@ set(CMAKE_LINK_WHAT_YOU_USE ON)
 option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
 
 add_compile_options($<$<CXX_COMPILER_ID:MSVC>:/MP>)
+add_compile_definitions(_SILENCE_NONFLOATING_COMPLEX_DEPRECATION_WARNING)
 
 include(CTest)
 
 if(BUILD_SHARED_LIBS)
   set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 endif()
-
-add_subdirectory("uff")
-
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${UFF_SRCS})
 
 find_package(Git REQUIRED)
 execute_process(
@@ -48,104 +53,121 @@ if(NOT BUILD_SHARED_LIBS)
   set(git_branch "${git_branch}_static")
 endif()
 
-# Target library ###
-set(UFF_LIBRARY ${PROJECT_NAME})
-add_library(${PROJECT_NAME} ${UFF_SRCS})
-add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
-if(ANDROID)
-  target_link_libraries(${PROJECT_NAME} PUBLIC log)
-endif()
-target_include_directories(
-  ${PROJECT_NAME}
-  PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}-${git_branch}>
-)
-set_target_properties(${PROJECT_NAME}
-                      PROPERTIES OUTPUT_NAME "${PROJECT_NAME}-${git_branch}")
+set(INSTALL_NAME "${PROJECT_NAME}-${git_branch}")
 
-# Link ###
-if(BUILD_SHARED_LIBS)
-  set(LIB_TYPE SHARED)
+set(MATLAB_INSTALL_LIBDIR ${CMAKE_INSTALL_LIBDIR}/${INSTALL_NAME}/matlab/)
+
+if(CALL_FROM_SETUP_PY)
+  set(PYTHON_INSTALL_LIBDIR ${CMAKE_INSTALL_PREFIX})
 else()
-  set(LIB_TYPE STATIC)
+  set(PYTHON_INSTALL_LIBDIR ${CMAKE_INSTALL_LIBDIR}/${INSTALL_NAME}/python)
 endif()
-string(TOLOWER ${LIB_TYPE} SEARCH_TYPE)
-if(TARGET hdf5-${SEARCH_TYPE})
-  target_compile_definitions(${PROJECT_NAME} PUBLIC WITH_HDF5)
-  target_link_libraries(${PROJECT_NAME} PUBLIC hdf5-${SEARCH_TYPE}
-                                               hdf5_cpp-${SEARCH_TYPE})
-  target_include_directories(
-    ${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${HDF5_CPP_SRC_SOURCE_DIR}>
-                           $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
-  target_include_directories(${PROJECT_NAME}
-                             PUBLIC $<BUILD_INTERFACE:${HDF5_SRC_SOURCE_DIR}>)
-  target_include_directories(${PROJECT_NAME}
-                             PUBLIC $<BUILD_INTERFACE:${HDF5_BINARY_DIR}>)
-else()
-  find_package(HDF5 NAMES hdf5 COMPONENTS CXX ${SEARCH_TYPE})
-  if(${HDF5_FOUND})
-    target_compile_definitions(${PROJECT_NAME} PUBLIC WITH_HDF5)
-    target_link_libraries(${PROJECT_NAME} PUBLIC hdf5::hdf5-${SEARCH_TYPE}
-                                                 hdf5::hdf5_cpp-${SEARCH_TYPE})
-  endif()
+
+# setup installer
+include(InstallRequiredSystemLibraries)
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/License.txt")
+set(CPACK_PACKAGE_VERSION_MAJOR "${${PROJECT_NAME}_VERSION_MAJOR}")
+set(CPACK_PACKAGE_VERSION_MINOR "${${PROJECT_NAME}_VERSION_MINOR}")
+set(CPACK_PACKAGE_VERSION_PATCH "${${PROJECT_NAME}_VERSION_PATCH}")
+set(CPACK_SOURCE_GENERATOR "ZIP")
+include(CPack)
+
+# With options
+option(WITH_HDF5 "Build with HDF5" OFF)
+option(WITH_MATLAB "Build Matlab wrappers" OFF)
+option(WITH_PYTHON "Build Python module" OFF)
+option(WITH_TEST "Build unit tests" OFF)
+
+set(URX_PCH
+    "<algorithm>"
+    "<array>"
+    "<cassert>"
+    "<cmath>"
+    "<compare>"
+    "<complex>"
+    "<concepts>"
+    "<cstddef>"
+    "<cstdint>"
+    "<cstdio>"
+    "<cstdlib>"
+    "<cstring>"
+    "<exception>"
+    "<format>"
+    "<iomanip>"
+    "<ios>"
+    "<iosfwd>"
+    "<iostream>"
+    "<istream>"
+    "<iterator>"
+    "<limits>"
+    "<locale>"
+    "<memory>"
+    "<optional>"
+    "<ostream>"
+    "<regex>"
+    "<sstream>"
+    "<stdexcept>"
+    "<string_view>"
+    "<string>"
+    "<type_traits>"
+    "<typeindex>"
+    "<unordered_map>"
+    "<utility>"
+    "<variant>"
+    "<vector>"
+    "<version>")
+if(WITH_HDF5)
+  list(APPEND URX_PCH "<H5Cpp.h>" "<boost/pfr.hpp>" "<magic_enum.hpp>")
 endif()
-# Treat warnings as errors
-target_compile_options(
-  ${PROJECT_NAME}
-  PRIVATE
-    $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
-    -Werror
-    -Wall>
-    $<$<CXX_COMPILER_ID:MSVC>:
-    /W3
-    /WX
-    /EHsc
-    /wd4251>)
+if(WITH_TEST)
+  set(URX_PCH_TEST
+      "<catch2/catch_test_macros.hpp>"
+      "<catch2/matchers/catch_matchers_floating_point.hpp>"
+      "<catch2/matchers/catch_matchers.hpp>")
+endif()
+set(URX_PCH_PYTHON
+    "<pybind11/attr.h>"
+    "<pybind11/buffer_info.h>"
+    "<pybind11/cast.h>"
+    "<pybind11/numpy.h>"
+    "<pybind11/operators.h>"
+    "<pybind11/pybind11.h>"
+    "<pybind11/pytypes.h>"
+    "<pybind11/stl_bind.h>")
+
+add_subdirectory("urx")
+
+if(WITH_PYTHON)
+  find_package(
+    Python3
+    COMPONENTS Interpreter Development
+    REQUIRED)
+  find_package(pybind11 CONFIG REQUIRED)
+endif()
+
+add_subdirectory("urx_utils")
+
+if(WITH_MATLAB)
+  find_package(Matlab REQUIRED)
+  add_subdirectory(matlab)
+endif()
+
+if(WITH_PYTHON)
+  add_subdirectory(python)
+endif()
+
+if(WITH_TEST)
+  enable_testing()
+  find_package(Catch2 REQUIRED)
+  add_subdirectory(test)
+endif()
+
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${URX_SRCS}
+                                                    ${URX_UTILS_SRCS})
 
 # Create cmake config files ###
-
-configure_package_config_file(
-  ${PROJECT_NAME}Config.cmake.in
-  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
-  INSTALL_DESTINATION ${CMAKE_INSTALL_DIR}/${PROJECT_NAME}-${git_branch})
-
 write_basic_package_version_file(
   ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
   COMPATIBILITY SameMajorVersion)
 
-# Install library ###
-
-install(
-  TARGETS ${PROJECT_NAME}
-  EXPORT ${PROJECT_NAME}Targets
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  INCLUDES
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}-${git_branch})
-
-install(
-  EXPORT ${PROJECT_NAME}Targets
-  FILE ${PROJECT_NAME}Targets.cmake
-  NAMESPACE ${PROJECT_NAME}::
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}-${git_branch})
-
-install(
-  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}-${git_branch}
-  FILES_MATCHING
-  PATTERN "*.hpp"
-  PATTERN "*.h"
-  PATTERN ".git" EXCLUDE
-  PATTERN "CI" EXCLUDE
-  PATTERN "log.h" EXCLUDE)
-
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
-              ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}-${git_branch})
-
 file(WRITE "${CMAKE_BINARY_DIR}/version.txt" "${CMAKE_PROJECT_VERSION}")
-
-if(BUILD_TESTING)
-  enable_testing()
-  add_subdirectory(Testing)
-endif()

@@ -1,0 +1,35 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = [
+    "wheel",
+    "setuptools",
+    "cmake",
+    # Version 0.5.1 is only using Ninja generator which doesn't work well to compile libs for x64 archs 
+    "cmake_build_extension @ git+https://git.moduleus.com/common/sw/3rdparty/cmake-build-extension.git",
+    "importlib_metadata",
+    "numpy",
+    "parameterized",
+    "pybind11"
+]
+
+[project]
+name = "pyurx"
+version = "0.0.1"
+dependencies = [
+    "cmake_build_extension",
+    "numpy",
+    "parameterized",
+    "pybind11"
+]
+description = "URX python binding"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Operating System :: Unix",
+    "Operating System :: Microsoft",
+    "Programming Language :: C++",
+    "Programming Language :: Python",
+    ]
+requires-python = ">=3.9"
+
+[tool.setuptools]
+py-modules = []

@@ -3,9 +3,19 @@ build/
 out/
 CI/
 CI_Android/
+install/
+Temporary/
+doc/
+pyurx/
+pyurx.egg-info/
 
 # IDE dir
 .vs/
 .vscode/
 
 *.swp
+
+*.asv
+
+/.venv/
+/vcpkg*/
