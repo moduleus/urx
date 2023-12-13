@@ -27,4 +27,4 @@ install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/+uff"
         DESTINATION ${MATLAB_INSTALL_LIBDIR})
 
 
-add_subdirectory("CppGlue")
+add_subdirectory("LibBinding")
