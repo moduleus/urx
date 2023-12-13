@@ -24,6 +24,7 @@
 #include <urx/detail/compare.h>
 #include <urx/detail/double_nan.h>
 #include <urx/detail/raw_data.h>
+#include <urx/element.h>
 #include <urx/element_geometry.h>
 #include <urx/group.h>
 #include <urx/group_data.h>
@@ -43,10 +44,32 @@ using VecGroupPtr = std::vector<std::shared_ptr<urx::Group>>;
 // PYBIND11_MAKE_OPAQUE(VecFloat32);
 // PYBIND11_MAKE_OPAQUE(VecFloat64);
 
-// PYBIND11_MAKE_OPAQUE(VecVector3D);
 PYBIND11_MAKE_OPAQUE(VecGroupPtr);
 
-PYBIND11_MAKE_OPAQUE(urx::DoubleNan);
+PYBIND11_MAKE_OPAQUE(urx::Vector3D<double>);
+// PYBIND11_MAKE_OPAQUE(urx::DoubleNan);
+
+struct A {
+  bool operator==(const A &other) const = default;
+  int x;
+  double y;
+};
+
+struct B {
+  bool operator==(const B &other) const = default;
+  double z;
+  A a;
+};
+
+struct C {
+  bool operator==(const C &other) const = default;
+  std::vector<B> b;
+};
+
+// PYBIND11_MAKE_OPAQUE(A);
+// PYBIND11_MAKE_OPAQUE(B);
+PYBIND11_MAKE_OPAQUE(std::vector<B>);
+// PYBIND11_MAKE_OPAQUE(C);
 
 template <typename T>
 std::ostream &operator<<(std::ostream &out, const std::vector<T> &v) {
@@ -103,7 +126,39 @@ PYBIND11_MODULE(bindings, m) {
   // py::bind_vector<VecFloat64>(m, "VecFloat64", py::buffer_protocol());
 
   py::bind_vector<VecGroupPtr>(m, "VecGroupPtr");
-  py::bind_vector<VecVector3D>(m, "VecVector3D");
+  // py::bind_vector<VecVector3D>(m, "VecVector3D");
+
+  py::bind_vector<std::vector<B>>(m, "VecB");
+  // PYBIND11_NUMPY_DTYPE(A, x, y);
+  // PYBIND11_NUMPY_DTYPE(B, z, a);
+  // PYBIND11_NUMPY_DTYPE(C, b);
+
+  py::class_<A>(m, "A")
+      .def(py::init())
+      .def(pybind11::self == pybind11::self)
+      .def(pybind11::self != pybind11::self)
+      .def_readwrite("x", &A::x)
+      .def_readwrite("y", &A::y);
+  py::class_<B>(m, "B")
+      .def(py::init())
+      .def(pybind11::self == pybind11::self)
+      .def(pybind11::self != pybind11::self)
+      .def_readwrite("z", &B::z)
+      .def_readwrite("a", &B::a);
+  py::class_<C>(m, "C")
+      .def(py::init())
+      .def(pybind11::self == pybind11::self)
+      .def(pybind11::self != pybind11::self)
+      .def_readwrite("b", &C::b);
+  // .def_property(
+  //     "b", [](C &self) { return &self.b; },
+  //     // [](C &self, const py::list &b) {
+  //     //   B *b_ptr = b.cast<B *>;
+  //     //   self.b = std::vector<B>(b_ptr, b_ptr + 2);
+  //     // }),
+  //     [](C &self, const py::array_t<B> &b) {
+  //       self.b = std::vector<B>(b.data(), b.data() + b.size());
+  //     });
 
   py::enum_<urx::Group::SamplingType>(m, "SamplingType")
       .value("RF", urx::Group::SamplingType::RF)
@@ -160,6 +215,8 @@ PYBIND11_MODULE(bindings, m) {
   // Vector3D
   py::class_<urx::Vector3D<double>>(m, "Vector3D")
       .def(py::init([](double x, double y, double z) { return urx::Vector3D<double>(x, y, z); }))
+      .def(
+          py::init([](const urx::Vector3D<double> &other) { return urx::Vector3D<double>(other); }))
       .def(py::init())
       .def(pybind11::self == pybind11::self)
       .def(pybind11::self != pybind11::self)
@@ -200,7 +257,59 @@ PYBIND11_MODULE(bindings, m) {
       .def(py::init())
       .def(pybind11::self == pybind11::self)
       .def(pybind11::self != pybind11::self)
-      .def_readwrite("perimeter", &urx::ElementGeometry::perimeter);
+      // .def_readwrite("perimeter", &urx::ElementGeometry::perimeter);
+      .def_property(
+          "perimeter", [](urx::ElementGeometry &self) { return &self.perimeter; },
+          [](urx::ElementGeometry &self, const py::list &perimeter) {
+            self.perimeter = perimeter.cast<VecVector3D>();
+          });
+  // .def_property(
+  //     "perimeter", [](urx::ElementGeometry &self) { return &self.perimeter; },
+  //     [](urx::ElementGeometry &self, const py::buffer &perimeter) {
+  //       py::buffer_info info = perimeter.request();
+  //       std::cout << "coucou";
+  //       if (info.item_type_is_equivalent_to<urx::Vector3D<double>>()) {
+  //         self.perimeter =
+  //             VecVector3D(static_cast<urx::Vector3D<double> *>(info.ptr),
+  //                         static_cast<urx::Vector3D<double> *>(info.ptr) + info.shape[0]);
+  //       } else {
+  //         throw std::runtime_error("Incorrect data type. Expected type is double list.");
+  //       }
+  //     });
+
+  // Transform
+  py::class_<urx::Transform>(m, "Transform")
+      .def(py::init([](const urx::Vector3D<double> &r, const urx::Vector3D<double> &t) {
+        return urx::Transform(r, t);
+      }))
+      .def(py::init())
+      .def(pybind11::self == pybind11::self)
+      .def(pybind11::self != pybind11::self)
+      .def_readwrite("rotation", &urx::Transform::rotation)
+      .def_readwrite("translation", &urx::Transform::translation);
+
+  // Element
+  py::class_<urx::Element, std::shared_ptr<urx::Element>>(m, "Element")
+      .def(py::init(
+          [](const urx::Transform &t, const std::weak_ptr<urx::ElementGeometry> &eg,
+             const std::weak_ptr<urx::ImpulseResponse> &ir) { return urx::Element(t, eg, ir); }))
+      .def(py::init())
+      .def(pybind11::self == pybind11::self)
+      .def(pybind11::self != pybind11::self)
+      .def_readwrite("transform", &urx::Element::transform)
+      .def_property(
+          "element_geometry",
+          [](urx::Element &self) {
+            if (self.element_geometry.expired()) {
+              throw std::runtime_error(
+                  "Current element_geometry doesn't reference any ElementGeometry.\n");
+            }
+            return self.element_geometry.lock();
+          },
+          [](urx::Element &self, const std::shared_ptr<urx::ElementGeometry> &element_geometry) {
+            self.element_geometry = element_geometry;
+          })
+      .def_readwrite("impulse_response", &urx::Element::impulse_response);
 
   // Group
   py::class_<urx::Group, std::shared_ptr<urx::Group>>(m, "Group")
