@@ -42,7 +42,7 @@ using VecVector3D = std::vector<urx::Vector3D<double>>;
 using VecGroupPtr = std::vector<std::shared_ptr<urx::Group>>;
 
 // PYBIND11_MAKE_OPAQUE(VecFloat32);
-// PYBIND11_MAKE_OPAQUE(VecFloat64);
+PYBIND11_MAKE_OPAQUE(VecFloat64);
 
 PYBIND11_MAKE_OPAQUE(VecGroupPtr);
 
@@ -119,50 +119,31 @@ constexpr std::string get_format(const std::vector<T> &v) {
   return py::format_descriptor<T>::format();
 }
 
-class El {
- public:
-  El() = delete;
-  explicit El(int v) : a(v) {}
-
-  int a;
-};
-
-std::ostream &operator<<(std::ostream &s, El const &v) {
-  s << "El{" << v.a << '}';
-  return s;
-}
-
 // NOLINTBEGIN(misc-redundant-expression)
 PYBIND11_MODULE(bindings, m) {
   m.doc() = "Variant C++ binding POC";
 
   // py::bind_vector<VecFloat32>(m, "VecFloat32", py::buffer_protocol());
-  // py::bind_vector<VecFloat64>(m, "VecFloat64", py::buffer_protocol());
-
-  // test_vector_int
-  py::bind_vector<std::vector<unsigned int>>(m, "VectorInt", py::buffer_protocol());
-
-  // test_vector_custom
-  py::class_<El>(m, "El").def(py::init<int>());
-  py::bind_vector<std::vector<El>>(m, "VectorEl");
-  py::bind_vector<std::vector<std::vector<El>>>(m, "VectorVectorEl");
+  py::bind_vector<VecFloat64>(m, "VecFloat64", py::buffer_protocol());
 
   py::bind_vector<VecGroupPtr>(m, "VecGroupPtr");
-  // py::bind_vector<VecVector3D>(m, "VecVector3D");
+  py::bind_vector<VecVector3D>(m, "VecVector3D");
+  py::implicitly_convertible<py::list, VecVector3D>();
+  py::implicitly_convertible<VecVector3D, py::list>();
 
   py::bind_vector<std::vector<B>>(m, "VecB");
   // PYBIND11_NUMPY_DTYPE(A, x, y);
   // PYBIND11_NUMPY_DTYPE(B, z, a);
   // PYBIND11_NUMPY_DTYPE(C, b);
 
-  py::class_<VecVector3D>(m, "VecVector3D")
-      .def(py::init<>())
-      .def("clear", &VecVector3D::clear)
-      .def("pop_back", &VecVector3D::pop_back)
-      .def("__len__", [](const VecVector3D &v) { return v.size(); })
-      .def(
-          "__iter__", [](VecVector3D &v) { return py::make_iterator(v.begin(), v.end()); },
-          py::keep_alive<0, 1>()); /* Keep vector alive while iterator is used */
+  // py::class_<VecVector3D>(m, "VecVector3D")
+  //     .def(py::init<>())
+  //     .def("clear", &VecVector3D::clear)
+  //     .def("pop_back", &VecVector3D::pop_back)
+  //     .def("__len__", [](const VecVector3D &v) { return v.size(); })
+  //     .def(
+  //         "__iter__", [](VecVector3D &v) { return py::make_iterator(v.begin(), v.end()); },
+  //         py::keep_alive<0, 1>()); /* Keep vector alive while iterator is used */
 
   py::class_<A>(m, "A")
       .def(py::init())
