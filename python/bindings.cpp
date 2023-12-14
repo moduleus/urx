@@ -50,28 +50,6 @@ PYBIND11_MAKE_OPAQUE(VecGroupPtr);
 PYBIND11_MAKE_OPAQUE(VecVector3D);
 // PYBIND11_MAKE_OPAQUE(urx::DoubleNan);
 
-struct A {
-  bool operator==(const A &other) const = default;
-  int x;
-  double y;
-};
-
-struct B {
-  bool operator==(const B &other) const = default;
-  double z;
-  A a;
-};
-
-struct C {
-  bool operator==(const C &other) const = default;
-  std::vector<B> b;
-};
-
-// PYBIND11_MAKE_OPAQUE(A);
-// PYBIND11_MAKE_OPAQUE(B);
-PYBIND11_MAKE_OPAQUE(std::vector<B>);
-// PYBIND11_MAKE_OPAQUE(C);
-
 template <typename T>
 std::ostream &operator<<(std::ostream &out, const std::vector<T> &v) {
   if (!v.empty()) {
@@ -124,52 +102,11 @@ PYBIND11_MODULE(bindings, m) {
   m.doc() = "Variant C++ binding POC";
 
   // py::bind_vector<VecFloat32>(m, "VecFloat32", py::buffer_protocol());
-  // py::bind_vector<VecFloat64>(m, "VecFloat64", py::buffer_protocol());
+  py::bind_vector<VecFloat64>(m, "VecFloat64", py::buffer_protocol());
 
   py::bind_vector<VecGroupPtr>(m, "VecGroupPtr");
   py::bind_vector<VecVector3D>(m, "VecVector3D");
   py::implicitly_convertible<py::list, VecVector3D>();
-
-  py::bind_vector<std::vector<B>>(m, "VecB");
-  // PYBIND11_NUMPY_DTYPE(A, x, y);
-  // PYBIND11_NUMPY_DTYPE(B, z, a);
-  // PYBIND11_NUMPY_DTYPE(C, b);
-
-  // py::class_<VecVector3D>(m, "VecVector3D")
-  //     .def(py::init<>())
-  //     .def("clear", &VecVector3D::clear)
-  //     .def("pop_back", &VecVector3D::pop_back)
-  //     .def("__len__", [](const VecVector3D &v) { return v.size(); })
-  //     .def(
-  //         "__iter__", [](VecVector3D &v) { return py::make_iterator(v.begin(), v.end()); },
-  //         py::keep_alive<0, 1>()); /* Keep vector alive while iterator is used */
-
-  py::class_<A>(m, "A")
-      .def(py::init())
-      .def(pybind11::self == pybind11::self)
-      .def(pybind11::self != pybind11::self)
-      .def_readwrite("x", &A::x)
-      .def_readwrite("y", &A::y);
-  py::class_<B>(m, "B")
-      .def(py::init())
-      .def(pybind11::self == pybind11::self)
-      .def(pybind11::self != pybind11::self)
-      .def_readwrite("z", &B::z)
-      .def_readwrite("a", &B::a);
-  py::class_<C>(m, "C")
-      .def(py::init())
-      .def(pybind11::self == pybind11::self)
-      .def(pybind11::self != pybind11::self)
-      .def_readwrite("b", &C::b);
-  // .def_property(
-  //     "b", [](C &self) { return &self.b; },
-  //     // [](C &self, const py::list &b) {
-  //     //   B *b_ptr = b.cast<B *>;
-  //     //   self.b = std::vector<B>(b_ptr, b_ptr + 2);
-  //     // }),
-  //     [](C &self, const py::array_t<B> &b) {
-  //       self.b = std::vector<B>(b.data(), b.data() + b.size());
-  //     });
 
   py::enum_<urx::Group::SamplingType>(m, "SamplingType")
       .value("RF", urx::Group::SamplingType::RF)
@@ -186,6 +123,7 @@ PYBIND11_MODULE(bindings, m) {
   // DoubleNan
   py::class_<urx::DoubleNan>(m, "DoubleNan")
       .def(py::init<double>())
+      .def(py::init<urx::DoubleNan>())
       .def(py::init())
       .def_readwrite("value", &urx::DoubleNan::value)
       .def(pybind11::self == pybind11::self)
@@ -207,15 +145,22 @@ PYBIND11_MODULE(bindings, m) {
       .def(+py::self)
       .def(-py::self);
 
+  union DoubleNanUnion {
+    urx::DoubleNan dn;
+    double d;
+  };
+
   // ImpulseResponse
   py::class_<urx::ImpulseResponse, std::shared_ptr<urx::ImpulseResponse>>(m, "ImpulseResponse")
-      .def(py::init(
-          [](double sampling_frequency, double time_offset, const std::string &units, py::list l) {
-            std::vector<double> vec = l.cast<std::vector<double>>();
-            return urx::ImpulseResponse(urx::DoubleNan(sampling_frequency),
-                                        urx::DoubleNan(time_offset), units, vec);
-          }))
       .def(py::init())
+      .def(py::init<urx::ImpulseResponse>())
+      .def(py::init([](const std::variant<urx::DoubleNan, double> &sampling_frequency,
+                       const std::variant<urx::DoubleNan, double> &time_offset,
+                       const std::string &units, std::vector<double> vec) {
+        return urx::ImpulseResponse(
+            std::visit([](auto &&d) { return urx::DoubleNan(d); }, sampling_frequency),
+            std::visit([](auto &&d) { return urx::DoubleNan(d); }, time_offset), units, vec);
+      }))
       .def(pybind11::self == pybind11::self)
       .def(pybind11::self != pybind11::self)
       .def_readwrite("sampling_frequency", &urx::ImpulseResponse::sampling_frequency)
@@ -263,14 +208,15 @@ PYBIND11_MODULE(bindings, m) {
 
   // ElementGeometry
   py::class_<urx::ElementGeometry, std::shared_ptr<urx::ElementGeometry>>(m, "ElementGeometry")
-      .def(py::init(
-          [](const py::list &vec) { return urx::ElementGeometry(vec.cast<VecVector3D>()); }))
+      // .def(py::init(
+      //     [](const py::list &vec) { return urx::ElementGeometry(vec.cast<VecVector3D>()); }))
       // .def(py::init([](const py::array_t<urx::Vector3D<double>> &vec) {
       //   VecVector3D perimeter = VecVector3D(vec.data(), vec.data() + vec.size());
       //   return urx::ElementGeometry(perimeter);
       // }))
       // .def(py::init<py::list>())
       .def(py::init<VecVector3D>())
+      .def(py::init<urx::ElementGeometry>())
       .def(py::init())
       .def(pybind11::self == pybind11::self)
       .def(pybind11::self != pybind11::self)
@@ -296,10 +242,9 @@ PYBIND11_MODULE(bindings, m) {
 
   // Transform
   py::class_<urx::Transform>(m, "Transform")
-      .def(py::init([](const urx::Vector3D<double> &r, const urx::Vector3D<double> &t) {
-        return urx::Transform(r, t);
-      }))
       .def(py::init())
+      .def(py::init<urx::Vector3D<double>, urx::Vector3D<double>>())
+      .def(py::init<urx::Transform>())
       .def(pybind11::self == pybind11::self)
       .def(pybind11::self != pybind11::self)
       .def_readwrite("rotation", &urx::Transform::rotation)
@@ -326,7 +271,18 @@ PYBIND11_MODULE(bindings, m) {
           [](urx::Element &self, const std::shared_ptr<urx::ElementGeometry> &element_geometry) {
             self.element_geometry = element_geometry;
           })
-      .def_readwrite("impulse_response", &urx::Element::impulse_response);
+      .def_property(
+          "impulse_response",
+          [](urx::Element &self) {
+            if (self.impulse_response.expired()) {
+              throw std::runtime_error(
+                  "Current impulse_response doesn't reference any ImpulseResponse.\n");
+            }
+            return self.impulse_response.lock();
+          },
+          [](urx::Element &self, const std::shared_ptr<urx::ImpulseResponse> &impulse_response) {
+            self.impulse_response = impulse_response;
+          });
 
   // Group
   py::class_<urx::Group, std::shared_ptr<urx::Group>>(m, "Group")

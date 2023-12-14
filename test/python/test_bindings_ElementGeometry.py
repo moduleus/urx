@@ -35,6 +35,10 @@ class TestBindingsElementGeometry(unittest.TestCase):
         eg = urx.ElementGeometry([v, v_2])
         self.assertEqual(eg, eg_2)
 
+        # Possible to create ElementGeometry from urx.VecVector3D
+        eg = urx.ElementGeometry(eg_2)
+        self.assertEqual(eg, eg_2)
+
         eg.perimeter[0] = v_3
         self.assertEqual(eg.perimeter[0], v_3)
         self.assertEqual(eg, urx.ElementGeometry([v_3, v_2]))

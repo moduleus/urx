@@ -43,6 +43,9 @@ class TestBindingsDoubleNan(unittest.TestCase):
         d /= 2
         self.assertEqual(d.value, 42)
 
+        d_2 = urx.DoubleNan(d)
+        self.assertEqual(d, d_2)
+
         self.assertEqual(2.13+d, urx.DoubleNan(44.13))
         self.assertEqual(d+2.13, urx.DoubleNan(44.13))
         self.assertEqual(2+d, urx.DoubleNan(44))

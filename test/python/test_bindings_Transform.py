@@ -20,6 +20,9 @@ class TestBindingsTransform(unittest.TestCase):
         self.assertEqual(tf.rotation, r)
         self.assertEqual(tf.translation, t)
 
+        tf_2 = urx.Transform(tf)
+        self.assertEqual(tf, tf_2)
+
         r_2 = r
         r.x = 42
         self.assertNotEqual(tf.rotation, r)

@@ -21,13 +21,16 @@ class TestBindingsElement(unittest.TestCase):
         self.assertEqual(elt.transform, urx.Transform())
         self.assertRaises(
             RuntimeError, lambda elt: elt.element_geometry, elt)
-        # self.assertRaises(
-        #     RuntimeError, lambda elt: elt.impulse_response, elt)
+        self.assertRaises(
+            RuntimeError, lambda elt: elt.impulse_response, elt)
 
         elt.transform = t
         self.assertEqual(elt.transform, urx.Transform(v_2, v_2))
         t.rotation = v
         self.assertEqual(elt.transform, urx.Transform(v_2, v_2))
+        t_ref = elt.transform
+        t_ref.rotation = v
+        self.assertEqual(elt.transform, urx.Transform(v, v_2))
 
         elt.element_geometry = eg
         self.assertEqual(elt.element_geometry, urx.ElementGeometry([v, v_2]))
