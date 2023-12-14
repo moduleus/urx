@@ -8,6 +8,7 @@ Temporary/
 doc/
 pyurx/
 pyurx.egg-info/
+test/python/__pycache__/
 
 # IDE dir
 .vs/
@@ -19,3 +20,4 @@ pyurx.egg-info/
 
 /.venv/
 /vcpkg*/
+

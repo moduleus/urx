@@ -116,6 +116,25 @@ format:iwyu:
       - CI/iwyu.patch
     expire_in: 1 day
 
+format:autopep8-format:
+  stage: format
+  image: $CI_REGISTRY/common/ci/dockerci/autopep8:latest
+  tags:
+    - docker
+  before_script:
+    - mkdir CI
+  script:
+    - autopep8 -r . -i
+    - git diff > CI/format.patch
+    - cat CI/format.patch
+    - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Please, format your python code with autopep8."; exit 1; fi
+  allow_failure: true
+  artifacts:
+    when: on_failure
+    paths:
+      - CI/format.patch
+    expire_in: 1 day
+
 tag:version:
   stage: tag
   dependencies:
@@ -323,3 +342,49 @@ test:ubuntu-without-HDF5-static:
   script:
     - cd CI
     - ctest --output-on-failure -C Release
+
+build:windows-python:
+  stage: build
+  dependencies: []
+  tags:
+    - win10
+    - python
+  before_script:
+    - pew new CI-urx -i build -i twine -i wheel -i setuptools
+  script:
+    - pew in CI-urx pip install .
+
+test:windows-python:
+  stage: test
+  dependencies:
+    - build:windows-python
+  tags:
+    - win10
+    - python
+  script:
+    - pew in CI-urx python -m unittest discover test/python
+  after_script:
+    - pew rm CI-urx
+
+build:ubuntu-python:
+  stage: build
+  dependencies: []
+  tags:
+    - ubuntu
+    - python
+  before_script:
+    - pew new CI-urx -i build -i twine -i wheel -i setuptools
+  script:
+    - pew in CI-urx pip install .
+
+test:ubuntu-python:
+  stage: test
+  dependencies:
+    - build:ubuntu-python
+  tags:
+    - ubuntu
+    - build
+  script:
+    - pew in CI-urx python -m unittest discover test/python
+  after_script:
+    - pew rm CI-urx
