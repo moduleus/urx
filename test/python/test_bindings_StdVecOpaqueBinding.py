@@ -61,14 +61,32 @@ class TestBindingsStdVecOpaqueBinding(unittest.TestCase):
         self.assertEqual(vec, vec_2)
         vec[0] = v_3
         self.assertEqual(vec[0], v_3)
-        self.assertTrue(vec, urx.VecVector3D([v_3, v_2]))
+        self.assertEqual(vec, urx.VecVector3D([v_3, v_2]))
+
+        # Modify v_3 does not affect C++ vector since it has been copied into it
         v_3.z = 42
-        self.assertEqual(vec[0].z, v_3.z)
-        self.assertEqual(vec[0], v_3)
-        self.assertTrue(vec, urx.VecVector3D([v_3, v_2]))
+        self.assertNotEqual(vec[0].z, v_3.z)
+        self.assertNotEqual(vec[0], v_3)
+        self.assertNotEqual(vec, urx.VecVector3D([v_3, v_2]))
+
+        # v_4 is a reference to first element of C++ vector
+        v_4 = vec[0]
+        # Modify v_4 affects C++ vector
+        v_4.z = 42
+        self.assertEqual(vec[0].z, v_4.z)
+        self.assertEqual(vec[0], v_4)
+        self.assertEqual(vec, urx.VecVector3D([v_4, v_2]))
+        self.assertEqual(vec, [v_4, v_2])
+        v_5 = urx.Vector3D(v_4)
+
         vec.append(v_3)
         self.assertEqual(len(vec), 3)
-        self.assertTrue(vec, urx.VecVector3D([v_3, v_2, v_3]))
+        self.assertEqual(vec[0], v_5)
+        self.assertNotEqual(vec[0], v_4)
+        self.assertEqual(vec[1], v_2)
+        self.assertEqual(vec[2], v_3)
+        self.assertEqual(vec, [v_5, v_2, v_3])
+        self.assertEqual(vec, urx.VecVector3D([v_5, v_2, v_3]))
 
         print("--Test %s END--" % testName)
 

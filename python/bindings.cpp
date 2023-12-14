@@ -42,7 +42,7 @@ using VecVector3D = std::vector<urx::Vector3D<double>>;
 using VecGroupPtr = std::vector<std::shared_ptr<urx::Group>>;
 
 // PYBIND11_MAKE_OPAQUE(VecFloat32);
-PYBIND11_MAKE_OPAQUE(VecFloat64);
+// PYBIND11_MAKE_OPAQUE(VecFloat64);
 
 PYBIND11_MAKE_OPAQUE(VecGroupPtr);
 
@@ -124,12 +124,11 @@ PYBIND11_MODULE(bindings, m) {
   m.doc() = "Variant C++ binding POC";
 
   // py::bind_vector<VecFloat32>(m, "VecFloat32", py::buffer_protocol());
-  py::bind_vector<VecFloat64>(m, "VecFloat64", py::buffer_protocol());
+  // py::bind_vector<VecFloat64>(m, "VecFloat64", py::buffer_protocol());
 
   py::bind_vector<VecGroupPtr>(m, "VecGroupPtr");
   py::bind_vector<VecVector3D>(m, "VecVector3D");
   py::implicitly_convertible<py::list, VecVector3D>();
-  py::implicitly_convertible<VecVector3D, py::list>();
 
   py::bind_vector<std::vector<B>>(m, "VecB");
   // PYBIND11_NUMPY_DTYPE(A, x, y);
@@ -266,6 +265,12 @@ PYBIND11_MODULE(bindings, m) {
   py::class_<urx::ElementGeometry, std::shared_ptr<urx::ElementGeometry>>(m, "ElementGeometry")
       .def(py::init(
           [](const py::list &vec) { return urx::ElementGeometry(vec.cast<VecVector3D>()); }))
+      // .def(py::init([](const py::array_t<urx::Vector3D<double>> &vec) {
+      //   VecVector3D perimeter = VecVector3D(vec.data(), vec.data() + vec.size());
+      //   return urx::ElementGeometry(perimeter);
+      // }))
+      // .def(py::init<py::list>())
+      .def(py::init<VecVector3D>())
       .def(py::init())
       .def(pybind11::self == pybind11::self)
       .def(pybind11::self != pybind11::self)
