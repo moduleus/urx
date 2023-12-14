@@ -22,7 +22,7 @@ classdef StdVector < handle
       end
       this.nbDims = nbDims;
       if nargin < 2 || isempty(parent)
-        this.id = urx.LibBinding.call([this.className() '_new']);
+        this.id = this.libBindingRef.call([this.className() '_new']);
         return;
       end
       if ~isempty(parent)
@@ -32,7 +32,7 @@ classdef StdVector < handle
 
     function delete(this)
       if this.isAnAllocatedObject()
-        urx.LibBinding.call([this.className() '_delete'], this.id);
+        this.libBindingRef.call([this.className() '_delete'], this.id);
       end
     end
 
@@ -40,11 +40,11 @@ classdef StdVector < handle
       if ischar(parentPptNameOrDataIdx)
         this.parentPptName = parentPptNameOrDataIdx;
         ptrGetFunction = [parent.className() '_' this.parentPptName];
-        this.id = urx.LibBinding.call(ptrGetFunction, parent.id);
+        this.id = this.libBindingRef.call(ptrGetFunction, parent.id);
       else % std_vector
         dataPtr = parent.data();
         len = parent.len();
-        stdVecSizeof = urx.LibBinding.call(['std_vector_' this.objectClassName '_sizeof']);
+        stdVecSizeof = this.libBindingRef.call(['std_vector_' this.objectClassName '_sizeof']);
         if len > 0
           dataPtr.setdatatype('uint8Ptr', stdVecSizeof * len);
           this.id = dataPtr + (parentPptNameOrDataIdx-1) * stdVecSizeof;
@@ -68,9 +68,9 @@ classdef StdVector < handle
 
     function res = objectSizeof(this)
       if this.nbDims > 1
-        res = urx.LibBinding.call(['std_vector_' this.objectClassName '_sizeof']);
+        res = this.libBindingRef.call(['std_vector_' this.objectClassName '_sizeof']);
       elseif ~any(strcmp(this.objectClassName, this.MANAGED_PRIMITIVES_TYPES))
-        res = urx.LibBinding.call([this.objectClassName '_sizeof']);
+        res = this.libBindingRef.call([this.objectClassName '_sizeof']);
       end
     end
 
@@ -79,27 +79,27 @@ classdef StdVector < handle
     end
 
     function clear(this)
-      urx.LibBinding.call([this.className() '_clear'], this.id);
+      this.libBindingRef.call([this.className() '_clear'], this.id);
     end
 
     function pushBack(this, val)
       if ~any(strcmp(this.objectClassName, this.MANAGED_PRIMITIVES_TYPES)) || this.nbDims > 1
-        urx.LibBinding.call([this.className() '_push_back'], this.id, val.id);
+        this.libBindingRef.call([this.className() '_push_back'], this.id, val.id);
       else
-        urx.LibBinding.call([this.className() '_push_back'], this.id, val);
+        this.libBindingRef.call([this.className() '_push_back'], this.id, val);
       end
     end
 
     function res = len(this) % 'len' instead of 'size' for not interfering with matlab size() function
-      res = urx.LibBinding.call([this.className() '_size' ], this.id);
+      res = this.libBindingRef.call([this.className() '_size' ], this.id);
     end
 
     function res = data(this)
-      res = urx.LibBinding.call([this.className() '_data'], this.id);
+      res = this.libBindingRef.call([this.className() '_data'], this.id);
     end
 
     function copy(this, other)
-      urx.LibBinding.call([this.className() '_copy'], this.id, other.id);
+      this.libBindingRef.call([this.className() '_copy'], this.id, other.id);
     end
 
     %% urx specific

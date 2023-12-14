@@ -1,6 +1,6 @@
 acqObj = urx.Acquisition();
 acqObj.sound_speed = 1500;
-ptr = urx.LibBinding.call(['Acquisition_' 'sound_speed'], acqObj.id);
+ptr = urx.LibBinding.getInstance().call(['Acquisition_' 'sound_speed'], acqObj.id);
 ptr.setdatatype('doublePtr', 1)
 assert(ptr.Value == 1500)
 ptr.Value = 1540;
@@ -26,5 +26,5 @@ assert(g.sequence(2) == ev1)
 
 rxs = urx.ReceiveSetup();
 rxs1 = urx.ReceiveSetup();
-acqObj.unique_receive_setups = [rxs rxs1];
+%acqObj.unique_receive_setups = [rxs rxs1];
 ev.receive_setup = rxs;

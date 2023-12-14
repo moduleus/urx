@@ -32,9 +32,7 @@ add_compile_definitions(_SILENCE_NONFLOATING_COMPLEX_DEPRECATION_WARNING)
 
 include(CTest)
 
-if(BUILD_SHARED_LIBS)
-  set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
-endif()
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
 find_package(Git REQUIRED)
 execute_process(

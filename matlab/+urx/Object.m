@@ -10,7 +10,7 @@ classdef Object < handle
     function this = Object(container, containerId, id)
       this.libBindingRef = urx.LibBinding.getInstance();
       if nargin < 1
-        this.id = urx.LibBinding.call([this.className() '_new']);
+        this.id = this.libBindingRef.call([this.className() '_new']);
       else
         this.id = id;
         this.containerId = containerId;
@@ -43,7 +43,7 @@ classdef Object < handle
     function deleteCpp(this)
       thisClass = class(this);
       deleteFunction = [this.className() '_delete'];
-      urx.LibBinding.call(deleteFunction, this.id);
+      this.libBindingRef.call(deleteFunction, this.id);
       this.id = libpointer;
     end
 
@@ -77,7 +77,8 @@ classdef Object < handle
       affectedPptName = src.Name;
       tiedStdVecName = ['stdVector' urx.Object.snakeToCamelCase(affectedPptName)]; % potentially
       functionAccessor = [affectedObj.className() '_' affectedPptName];
-      ptr = urx.LibBinding.call(functionAccessor, affectedObj.id);
+      libBindingRef = urx.LibBinding.getInstance();
+      ptr = libBindingRef.call(functionAccessor, affectedObj.id);
       affectedPpt = affectedObj.(affectedPptName);
       affectedPptClass = class(affectedPpt);
       if strcmp(affectedPptClass, 'cell')
@@ -89,7 +90,7 @@ classdef Object < handle
         case 'PostSet'
           switch affectedPptClass
             case 'char'
-              urx.LibBinding.call('std_string_set', ptr, affectedPpt);
+              libBindingRef.call('std_string_set', ptr, affectedPpt);
             case 'double'
               affectedObjPpts = properties(affectedObj);
               if any(strcmp(affectedObjPpts, tiedStdVecName))
@@ -125,7 +126,7 @@ classdef Object < handle
         case 'PreGet'
           switch affectedPptClass
             case 'char'
-              affectedObj.(affectedPptName) = urx.LibBinding.call('std_string_get', ptr);
+              affectedObj.(affectedPptName) = libBindingRef.call('std_string_get', ptr);
             case 'double'
               affectedObjPpts = properties(affectedObj);
               if any(strcmp(affectedObjPpts, tiedStdVecName))
