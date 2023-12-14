@@ -146,7 +146,6 @@ endif()
 add_subdirectory("urx_utils")
 
 if(WITH_MATLAB)
-  find_package(Matlab REQUIRED)
   add_subdirectory(matlab)
 endif()
 

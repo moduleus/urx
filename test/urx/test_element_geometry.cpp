@@ -1,7 +1,10 @@
+#include <memory>
+#include <vector>
+
 #include <catch2/catch_test_macros.hpp>
 
 #include <urx/element_geometry.h>
-#include <urx/urx.h>
+#include <urx/vector.h>
 
 namespace urx::test {
 

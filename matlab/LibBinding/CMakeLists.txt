@@ -1,6 +1,4 @@
-
-set(MATLAB_CPP_GLUE_SRCS
-  UrxLibBinding.cpp)
+set(MATLAB_CPP_GLUE_SRCS UrxLibBinding.cpp)
 
 add_library(UrxLibBinding SHARED ${MATLAB_CPP_GLUE_SRCS})
 
