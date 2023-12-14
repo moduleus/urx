@@ -40,6 +40,10 @@ using MapToSharedPtr = std::unordered_map<std::type_index, const void*>;
 std::unordered_map<std::type_index, const H5::PredType*> std_to_h5;
 
 constexpr int iter_length = 8;
+//constexpr bool use_attribute = false;
+
+//template <typename T>
+//void save() {}
 
 template <typename T>
 void serialize_all(const T& field, const H5::Group& group, MapToSharedPtr& map);
