@@ -31,7 +31,9 @@ class TestBindingsElement(unittest.TestCase):
 
         t = urx.Transform(v_3, v_3)
 
-        elt.transform = t
+        eg = urx.ElementGeometry()
+        ir = urx.ImpulseResponse()
+        elt.transform = urx.Element(t, eg, ir)
         self.assertEqual(elt.transform, urx.Transform(v_3, v_3))
         t.rotation = v
         self.assertEqual(elt.transform, urx.Transform(v_3, v_3))
