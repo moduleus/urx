@@ -42,7 +42,7 @@ using VecVector3D = std::vector<urx::Vector3D<double>>;
 using VecGroupPtr = std::vector<std::shared_ptr<urx::Group>>;
 
 // PYBIND11_MAKE_OPAQUE(VecFloat32);
-// PYBIND11_MAKE_OPAQUE(VecFloat64);
+PYBIND11_MAKE_OPAQUE(VecFloat64);
 
 PYBIND11_MAKE_OPAQUE(VecGroupPtr);
 
@@ -103,6 +103,7 @@ PYBIND11_MODULE(bindings, m) {
 
   // py::bind_vector<VecFloat32>(m, "VecFloat32", py::buffer_protocol());
   py::bind_vector<VecFloat64>(m, "VecFloat64", py::buffer_protocol());
+  py::implicitly_convertible<py::list, VecFloat64>();
 
   py::bind_vector<VecGroupPtr>(m, "VecGroupPtr");
   py::bind_vector<VecVector3D>(m, "VecVector3D");
@@ -128,6 +129,10 @@ PYBIND11_MODULE(bindings, m) {
       .def_readwrite("value", &urx::DoubleNan::value)
       .def(pybind11::self == pybind11::self)
       .def(pybind11::self != pybind11::self)
+      .def(pybind11::self == double())
+      .def(pybind11::self != double())
+      .def(double() == pybind11::self)
+      .def(double() != pybind11::self)
       .def(py::self + py::self)
       .def(py::self += py::self)
       .def(py::self += double())
@@ -144,11 +149,6 @@ PYBIND11_MODULE(bindings, m) {
       .def(py::self / double())
       .def(+py::self)
       .def(-py::self);
-
-  union DoubleNanUnion {
-    urx::DoubleNan dn;
-    double d;
-  };
 
   // ImpulseResponse
   py::class_<urx::ImpulseResponse, std::shared_ptr<urx::ImpulseResponse>>(m, "ImpulseResponse")
