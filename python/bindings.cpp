@@ -26,6 +26,7 @@
 #include <urx/detail/raw_data.h>
 #include <urx/element.h>
 #include <urx/element_geometry.h>
+#include <urx/excitation.h>
 #include <urx/group.h>
 #include <urx/group_data.h>
 #include <urx/impulse_response.h>
@@ -252,9 +253,6 @@ PYBIND11_MODULE(bindings, m) {
 
   // Element
   py::class_<urx::Element, std::shared_ptr<urx::Element>>(m, "Element")
-      // .def(py::init(
-      //     [](const urx::Transform &t, const std::weak_ptr<urx::ElementGeometry> &eg,
-      //        const std::weak_ptr<urx::ImpulseResponse> &ir) { return urx::Element(t, eg, ir); }))
       .def(py::init())
       .def(py::init<urx::Element>())
       .def(py::init<urx::Transform, std::shared_ptr<urx::ElementGeometry>,
@@ -286,6 +284,25 @@ PYBIND11_MODULE(bindings, m) {
           [](urx::Element &self, const std::shared_ptr<urx::ImpulseResponse> &impulse_response) {
             self.impulse_response = impulse_response;
           });
+
+  // Excitation
+  py::class_<urx::Excitation, std::shared_ptr<urx::Excitation>>(m, "Excitation")
+      .def(py::init())
+      .def(py::init<urx::Excitation>())
+      .def(py::init([](const std::string &pulse_shape,
+                       const std::variant<urx::DoubleNan, double> &transmit_frequency,
+                       const std::variant<urx::DoubleNan, double> &sampling_frequency,
+                       std::vector<double> vec) {
+        return urx::Excitation(
+            pulse_shape, std::visit([](auto &&d) { return urx::DoubleNan(d); }, transmit_frequency),
+            std::visit([](auto &&d) { return urx::DoubleNan(d); }, sampling_frequency), vec);
+      }))
+      .def(pybind11::self == pybind11::self)
+      .def(pybind11::self != pybind11::self)
+      .def_readwrite("pulse_shape", &urx::Excitation::pulse_shape)
+      .def_readwrite("transmit_frequency", &urx::Excitation::transmit_frequency)
+      .def_readwrite("sampling_frequency", &urx::Excitation::sampling_frequency)
+      .def_readwrite("waveform", &urx::Excitation::waveform);
 
   // Group
   py::class_<urx::Group, std::shared_ptr<urx::Group>>(m, "Group")
