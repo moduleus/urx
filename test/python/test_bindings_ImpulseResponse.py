@@ -42,23 +42,6 @@ class TestBindingsImpulseResponse(unittest.TestCase):
         ir.data.append(852)
         self.assertEqual(data, ir.data)
 
-        time_offset = ir.time_offset
-        self.assertEqual(time_offset, ir.time_offset)
-        self.assertEqual(time_offset, urx.DoubleNan(np.nan))
-        self.assertNotEqual(time_offset.value, np.nan)
-        ir.time_offset = urx.DoubleNan(10)
-        self.assertEqual(time_offset, ir.time_offset)
-        time_offset += 12
-        self.assertEqual(time_offset, ir.time_offset)
-        time_offset -= 12
-        self.assertEqual(time_offset, ir.time_offset)
-        time_offset *= 12
-        self.assertEqual(time_offset, ir.time_offset)
-        time_offset /= 12
-        self.assertEqual(time_offset, ir.time_offset)
-        time_offset = 123
-        self.assertNotEqual(time_offset, ir.time_offset)
-
         ir.sampling_frequency = urx.DoubleNan(np.nan)
         sampling_frequency = ir.sampling_frequency
         self.assertEqual(sampling_frequency, ir.sampling_frequency)
@@ -76,6 +59,24 @@ class TestBindingsImpulseResponse(unittest.TestCase):
         self.assertEqual(sampling_frequency, ir.sampling_frequency)
         sampling_frequency = urx.DoubleNan(123)
         self.assertNotEqual(sampling_frequency, ir.sampling_frequency)
+
+        ir.time_offset = urx.DoubleNan(np.nan)
+        time_offset = ir.time_offset
+        self.assertEqual(time_offset, ir.time_offset)
+        self.assertEqual(time_offset, urx.DoubleNan(np.nan))
+        self.assertNotEqual(time_offset.value, np.nan)
+        ir.time_offset = urx.DoubleNan(10)
+        self.assertEqual(time_offset, ir.time_offset)
+        time_offset += 12
+        self.assertEqual(time_offset, ir.time_offset)
+        time_offset -= 12
+        self.assertEqual(time_offset, ir.time_offset)
+        time_offset *= 12
+        self.assertEqual(time_offset, ir.time_offset)
+        time_offset /= 12
+        self.assertEqual(time_offset, ir.time_offset)
+        time_offset = 123
+        self.assertNotEqual(time_offset, ir.time_offset)
 
         # No ref possible for string
         units = ir.units
