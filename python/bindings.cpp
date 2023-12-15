@@ -41,11 +41,17 @@ using VecFloat64 = std::vector<double>;
 
 using VecVector3D = std::vector<urx::Vector3D<double>>;
 using VecGroupPtr = std::vector<std::shared_ptr<urx::Group>>;
+using VecElementGeometryPtr = std::vector<std::shared_ptr<urx::ElementGeometry>>;
+using VecImpulseResponsePtr = std::vector<std::shared_ptr<urx::ImpulseResponse>>;
+using VecElement = std::vector<urx::Element>;
 
 // PYBIND11_MAKE_OPAQUE(VecFloat32);
 PYBIND11_MAKE_OPAQUE(VecFloat64);
 
 PYBIND11_MAKE_OPAQUE(VecGroupPtr);
+PYBIND11_MAKE_OPAQUE(VecElementGeometryPtr);
+PYBIND11_MAKE_OPAQUE(VecImpulseResponsePtr);
+PYBIND11_MAKE_OPAQUE(VecElement);
 
 // PYBIND11_MAKE_OPAQUE(urx::Vector3D<double>);
 PYBIND11_MAKE_OPAQUE(VecVector3D);
@@ -109,6 +115,13 @@ PYBIND11_MODULE(bindings, m) {
   py::bind_vector<VecGroupPtr>(m, "VecGroupPtr");
   py::bind_vector<VecVector3D>(m, "VecVector3D");
   py::implicitly_convertible<py::list, VecVector3D>();
+
+  py::bind_vector<VecElementGeometryPtr>(m, "VecElementGeometryPtr");
+  py::implicitly_convertible<py::list, VecElementGeometryPtr>();
+  py::bind_vector<VecImpulseResponsePtr>(m, "VecImpulseResponsePtr");
+  py::implicitly_convertible<py::list, VecImpulseResponsePtr>();
+  py::bind_vector<VecElement>(m, "VecElement");
+  py::implicitly_convertible<py::list, VecElement>();
 
   py::enum_<urx::Group::SamplingType>(m, "SamplingType")
       .value("RF", urx::Group::SamplingType::RF)
@@ -304,9 +317,33 @@ PYBIND11_MODULE(bindings, m) {
       .def_readwrite("sampling_frequency", &urx::Excitation::sampling_frequency)
       .def_readwrite("waveform", &urx::Excitation::waveform);
 
+  py::enum_<urx::Probe::ProbeType>(m, "ProbeType")
+      .value("LINEAR", urx::Probe::ProbeType::LINEAR)
+      .value("CURVILINEAR", urx::Probe::ProbeType::CURVILINEAR)
+      .value("RCA", urx::Probe::ProbeType::RCA)
+      .value("MATRIX", urx::Probe::ProbeType::MATRIX)
+      .value("SPARSE", urx::Probe::ProbeType::SPARSE)
+      .value("UNDEFINED", urx::Probe::ProbeType::UNDEFINED);
+
+  // Probe
+  py::class_<urx::Probe, std::shared_ptr<urx::Probe>>(m, "Probe")
+      .def(py::init())
+      .def(py::init<urx::Probe>())
+      .def(py::init<std::string, urx::Probe::ProbeType, urx::Transform, VecElementGeometryPtr,
+                    VecImpulseResponsePtr, VecElement>())
+      .def(pybind11::self == pybind11::self)
+      .def(pybind11::self != pybind11::self)
+      .def_readwrite("description", &urx::Probe::description)
+      .def_readwrite("type", &urx::Probe::type)
+      .def_readwrite("transform", &urx::Probe::transform)
+      .def_readwrite("element_geometries", &urx::Probe::element_geometries)
+      .def_readwrite("impulse_responses", &urx::Probe::impulse_responses)
+      .def_readwrite("elements", &urx::Probe::elements);
+
   // Group
   py::class_<urx::Group, std::shared_ptr<urx::Group>>(m, "Group")
       .def(py::init())
+      .def(py::init<urx::Group>())
       .def(pybind11::self == pybind11::self)
       .def(pybind11::self != pybind11::self)
       .def_readwrite("data_type", &urx::Group::data_type)

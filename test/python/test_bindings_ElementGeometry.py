@@ -45,9 +45,9 @@ class TestBindingsElementGeometry(unittest.TestCase):
         eg.perimeter.append(v_3)
         self.assertEqual(eg, urx.ElementGeometry([v_3, v_2, v_3]))
 
-        eg_2 = eg
+        eg_ref = eg
         eg_3 = urx.ElementGeometry(eg.perimeter)
-        self.assertEqual(eg, eg_2)
+        self.assertEqual(eg, eg_ref)
         self.assertEqual(eg, eg_3)
 
         # It is possible to get reference from an element of a C++ vector
@@ -63,8 +63,8 @@ class TestBindingsElementGeometry(unittest.TestCase):
         v_4.y = 753
         self.assertEqual(eg.perimeter[0], v_4)
 
-        # eg_2 is a reference of eg, while eg_3 is a completly different python object even if it has been created from eg.perimeter. Thus eg_3 has not been impacted by the modifications made to eg
-        self.assertEqual(eg, eg_2)
+        # eg_ref is a reference of eg, while eg_3 is a completly different python object even if it has been created from eg.perimeter. Thus eg_3 has not been impacted by the modifications made to eg
+        self.assertEqual(eg, eg_ref)
         self.assertNotEqual(eg, eg_3)
 
         print("--Test %s END--" % testName)

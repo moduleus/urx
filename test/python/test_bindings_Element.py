@@ -25,9 +25,9 @@ class TestBindingsElement(unittest.TestCase):
         self.assertEqual(elt, elt_2)
         elt_2.transform = urx.Transform(v_2, v_2)
         self.assertNotEqual(elt, elt_2)
-        elt_2 = elt
-        elt_2.transform = urx.Transform(v_2, v_2)
-        self.assertEqual(elt, elt_2)
+        elt_ref = elt
+        elt_ref.transform = urx.Transform(v_2, v_2)
+        self.assertEqual(elt, elt_ref)
 
         t = urx.Transform(v_3, v_3)
 
