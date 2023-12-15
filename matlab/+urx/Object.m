@@ -5,6 +5,8 @@ classdef Object < handle
     container {mustBeScalarOrEmpty}
     containerId int32 {mustBeScalarOrEmpty}
   end
+  
+  % this.className() return the lower className, not "Object".
 
   methods
     function this = Object(container, containerId, id)
@@ -21,11 +23,17 @@ classdef Object < handle
       for i = 1:numel(props)
         if strncmp(props(i).Name, 'stdVector', 9)
           tiedObjName = (this.camelToSnakeCase(props(i).Name(10:end)));
-          defaultVal = props(find(strcmpi(tiedObjName, {props.Name}))).DefaultValue;
-          tiedObjClass = class(defaultVal);
-          tiedObjClass = tiedObjClass((strncmp(tiedObjClass, 'urx.', 4) * 4 + 1) : end);
+          
+          prop_id = find(strcmpi(tiedObjName, {props.Name}));
+          if (isempty(prop_id))
+              throw(MException('urx:fatalError', ['Failed to found ' tiedObjName ' property for ' this.className() '.stdVector' tiedObjName]));
+          end
+          
+          defaultVal = props(prop_id).DefaultValue;
+          tiedObjClass = defaultVal.className();
+          
           if strcmp(tiedObjClass, 'cell')
-            tiedObjClass = class(defaultVal{1})
+            tiedObjClass = class(defaultVal{1});
           end
           propNameSnake = this.camelToSnakeCase(props(i).Name);
           this.(props(i).Name) = urx.StdVector(tiedObjClass, this, propNameSnake(12:end), ...
@@ -41,7 +49,6 @@ classdef Object < handle
     end
 
     function deleteCpp(this)
-      thisClass = class(this);
       deleteFunction = [this.className() '_delete'];
       this.libBindingRef.call(deleteFunction, this.id);
       this.id = libpointer;
@@ -70,18 +77,27 @@ classdef Object < handle
       if numel(s) > 1 && strcmp(s(2).name, 'Object.handlePropEvents')
         return;
       end
+      % While debugging.
+
+      if numel(s) > 1 && strcmp(s(2).name, 'datatipinfo')
+        return;
+      end
 
       % get affected object/property infos
       affectedObj = evnt.AffectedObject;
-      affectedObjClass = class(affectedObj);
       affectedPptName = src.Name;
-      tiedStdVecName = ['stdVector' urx.Object.snakeToCamelCase(affectedPptName)]; % potentially
+      
+      % potentially
+      tiedStdVecName = ['stdVector' urx.Object.snakeToCamelCase(affectedPptName)];
+      
+      % C pointer of the field.
       functionAccessor = [affectedObj.className() '_' affectedPptName];
       libBindingRef = urx.LibBinding.getInstance();
       ptr = libBindingRef.call(functionAccessor, affectedObj.id);
+      
       affectedPpt = affectedObj.(affectedPptName);
       affectedPptClass = class(affectedPpt);
-      if strcmp(affectedPptClass, 'cell')
+      if iscell(affectedPptClass)
         affectedPptClass = class(affectedPpt{1});
       end
 
@@ -93,12 +109,19 @@ classdef Object < handle
               libBindingRef.call('std_string_set', ptr, affectedPpt);
             case 'double'
               affectedObjPpts = properties(affectedObj);
+              
+              % Check if std::vector
               if any(strcmp(affectedObjPpts, tiedStdVecName))
                 affectedObj.(tiedStdVecName).setToCpp(affectedObj.(affectedPptName));
               else
+                if (numel(affectedPpt) ~= 1)
+                  throw(MException('urx:fatalError', 'Only single value is supported.'));
+                end
                 ptr.setdatatype('doublePtr', numel(affectedPpt));
                 ptr.Value = affectedPpt;
               end
+            otherwise
+              throw(MException('urx', 'Not implemented'))
           end
           if isa(affectedPpt, 'int32') % int32 + enum
             ptr.setdatatype('int32Ptr', numel(affectedPpt));
@@ -132,9 +155,15 @@ classdef Object < handle
               if any(strcmp(affectedObjPpts, tiedStdVecName))
                 affectedObj.(affectedPptName) = affectedObj.(tiedStdVecName).getFromCpp();
               else
+                if (numel(affectedPpt) ~= 1)
+                  throw(MException('urx:fatalError', 'Only single value is supported.'));
+                end
+                
                 ptr.setdatatype('doublePtr', numel(affectedPpt));
                 affectedObj.(affectedPptName) = ptr.Value;
               end
+            otherwise
+              warning('Unexpected plot type. No plot created.')
           end
           if isa(affectedPpt, 'int32') % int32 + enum
             ptr.setdatatype('int32Ptr', numel(affectedPpt));

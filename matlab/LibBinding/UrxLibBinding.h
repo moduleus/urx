@@ -1,45 +1,82 @@
-#pragma once
+#ifndef URX_LIB_BINDING
+#define URX_LIB_BINDING
 
+#ifdef __cplusplus
+#include <cstddef>
+#include <cstdint>
+#else
 #include <stddef.h>  // IWYU pragma: keep
 #include <stdint.h>  // IWYU pragma: keep
-// IWYU pragma: no_include <cstddef>
+#endif
 
-#define CONCAT(a, b) a##_##b
+#define CONCAT2(a, b) a##_##b
 #define CONCAT3(a, b, c) a##_##b##_##c
-#define STRINGIZE(x) #x
+#define CONCAT_NS(a, b) a::b
+#define CONCAT_NS3(a, b, c) a::b::c
 
-#define STD_VECTOR_DECL(type)                                          \
-  size_t CONCAT3(std_vector, type, sizeof)(void);                      \
-  void *CONCAT3(std_vector, type, new)(void);                          \
-  void CONCAT3(std_vector, type, delete)(void *this_ptr);              \
-  void CONCAT3(std_vector, type, clear)(void *this_ptr);               \
-  void CONCAT3(std_vector, type, push_back)(void *this_ptr, type val); \
-  size_t CONCAT3(std_vector, type, size)(void *this_ptr);              \
-  void *CONCAT3(std_vector, type, data)(void *this_ptr);
+#define _VECTOR_RAW_DECL(name)                                      \
+  uint64_t CONCAT3(vector, name, sizeof)(void);                     \
+  void *CONCAT3(vector, name, new)(void);                           \
+  void CONCAT3(vector, name, delete)(void *this_ptr);               \
+  void CONCAT3(vector, name, clear)(void *this_ptr);                \
+  void CONCAT3(vector, name, push_back)(void *this_ptr, void *val); \
+  uint64_t CONCAT3(vector, name, size)(void *this_ptr);             \
+  void *CONCAT3(vector, name, data)(void *this_ptr);                \
+  void CONCAT3(vector, name, copy)(void *this_ptr, void *other_ptr)
 
-#define STD_VECTOR_2D_DECL(type)                                           \
-  void *CONCAT3(std_vector_2d, type, new)(void);                           \
-  void CONCAT3(std_vector_2d, type, delete)(void *this_ptr);               \
-  void CONCAT3(std_vector_2d, type, clear)(void *this_ptr);                \
-  void CONCAT3(std_vector_2d, type, push_back)(void *this_ptr, void *val); \
-  size_t CONCAT3(std_vector_2d, type, size)(void *this_ptr);               \
-  void *CONCAT3(std_vector_2d, type, data)(void *this_ptr);
+#define VECTOR_RAW_NS_DECL(ns, type) _VECTOR_RAW_DECL(CONCAT2(ns, type))
+#define VECTOR_RAW_DECL(type) _VECTOR_RAW_DECL(type)
 
-#define URX_OBJECT_DECL(name)        \
-  size_t CONCAT(name, sizeof)(void); \
-  void *CONCAT(name, new)(void);     \
-  void CONCAT(name, delete)(void *this_ptr)
+#define _VECTOR_2D_RAW_DECL(name)                                      \
+  uint64_t CONCAT3(vector_2d, name, sizeof)(void);                     \
+  void *CONCAT3(vector_2d, name, new)(void);                           \
+  void CONCAT3(vector_2d, name, delete)(void *this_ptr);               \
+  void CONCAT3(vector_2d, name, clear)(void *this_ptr);                \
+  void CONCAT3(vector_2d, name, push_back)(void *this_ptr, void *val); \
+  uint64_t CONCAT3(vector_2d, name, size)(void *this_ptr);             \
+  void *CONCAT3(vector_2d, name, data)(void *this_ptr);                \
+  void CONCAT3(vector_2d, name, copy)(void *this_ptr, void *other_ptr)
 
-#define URX_OBJECT_ACCESSOR_DECL(name, member) void *CONCAT(name, member)(void *this_ptr)
+#define VECTOR_2D_RAW_DECL(type) _VECTOR_2D_RAW_DECL(type)
 
-#define URX_STD_VECTOR_DECL(name)                                           \
-  void *CONCAT3(std_vector_urx, name, new)(void);                           \
-  void CONCAT3(std_vector_urx, name, delete)(void *this_ptr);               \
-  void *CONCAT3(std_vector_urx, name, data)(void *this_ptr);                \
-  size_t CONCAT3(std_vector_urx, name, size)(void *this_ptr);               \
-  void CONCAT3(std_vector_urx, name, clear)(void *this_ptr);                \
-  void CONCAT3(std_vector_urx, name, push_back)(void *this_ptr, void *val); \
-  void CONCAT3(std_vector_urx, name, copy)(void *this_ptr, void *other_ptr);
+#define _VECTOR_SHARED_DECL(name)                                          \
+  uint64_t CONCAT3(vector_shared, name, sizeof)(void);                     \
+  void *CONCAT3(vector_shared, name, new)(void);                           \
+  void CONCAT3(vector_shared, name, delete)(void *this_ptr);               \
+  void CONCAT3(vector_shared, name, clear)(void *this_ptr);                \
+  void CONCAT3(vector_shared, name, push_back)(void *this_ptr, void *val); \
+  uint64_t CONCAT3(vector_shared, name, size)(void *this_ptr);             \
+  void *CONCAT3(vector_shared, name, data)(void *this_ptr);                \
+  void CONCAT3(vector_shared, name, copy)(void *this_ptr, void *other_ptr)
+
+#define VECTOR_SHARED_NS_DECL(ns, type) _VECTOR_SHARED_DECL(CONCAT2(ns, type))
+#define VECTOR_SHARED_DECL(type) _VECTOR_SHARED_DECL(type)
+
+#define _VECTOR_WEAK_DECL(name)                                          \
+  uint64_t CONCAT3(vector_weak, name, sizeof)(void);                     \
+  void *CONCAT3(vector_weak, name, new)(void);                           \
+  void CONCAT3(vector_weak, name, delete)(void *this_ptr);               \
+  void CONCAT3(vector_weak, name, clear)(void *this_ptr);                \
+  void CONCAT3(vector_weak, name, push_back)(void *this_ptr, void *val); \
+  uint64_t CONCAT3(vector_weak, name, size)(void *this_ptr);             \
+  void *CONCAT3(vector_weak, name, data)(void *this_ptr);                \
+  void CONCAT3(vector_weak, name, copy)(void *this_ptr, void *other_ptr)
+
+#define VECTOR_WEAK_NS_DECL(ns, type) _VECTOR_WEAK_DECL(CONCAT2(ns, type))
+#define VECTOR_WEAK_DECL(type) _VECTOR_WEAK_DECL(type)
+
+#define _OBJECT_DECL(name)              \
+  uint64_t CONCAT2(name, sizeof)(void); \
+  void *CONCAT2(name, new)(void);       \
+  void CONCAT2(name, delete)(void *this_ptr)
+
+#define OBJECT_NS_DECL(ns, type) _OBJECT_DECL(CONCAT2(ns, type))
+#define OBJECT_DECL(type) _OBJECT_DECL(type)
+
+#define _OBJECT_ACCESSOR_DECL(name, member) void *CONCAT2(name, member)(void *this_ptr)
+
+#define OBJECT_ACCESSOR_NS_DECL(ns, type, member) _OBJECT_ACCESSOR_DECL(CONCAT2(ns, type), member)
+#define OBJECT_ACCESSOR_DECL(type, member) _OBJECT_ACCESSOR_DECL(type, member)
 
 #ifdef __cplusplus
 extern "C" {
@@ -51,39 +88,131 @@ void *val2ptr(uint64_t v);
 void std_string_set(void *this_ptr, const char *v);
 const char *std_string_get(void *this_ptr);
 
-STD_VECTOR_DECL(double);
-STD_VECTOR_2D_DECL(double);
+OBJECT_NS_DECL(urx, Acquisition);
+OBJECT_ACCESSOR_NS_DECL(urx, Acquisition, authors);
+OBJECT_ACCESSOR_NS_DECL(urx, Acquisition, description);
+OBJECT_ACCESSOR_NS_DECL(urx, Acquisition, local_time);
+OBJECT_ACCESSOR_NS_DECL(urx, Acquisition, country_code);
+OBJECT_ACCESSOR_NS_DECL(urx, Acquisition, system);
+OBJECT_ACCESSOR_NS_DECL(urx, Acquisition, sound_speed);
+OBJECT_ACCESSOR_NS_DECL(urx, Acquisition, timestamp);
+OBJECT_ACCESSOR_NS_DECL(urx, Acquisition, probes);
+OBJECT_ACCESSOR_NS_DECL(urx, Acquisition, excitations);
+OBJECT_ACCESSOR_NS_DECL(urx, Acquisition, waves);
+OBJECT_ACCESSOR_NS_DECL(urx, Acquisition, groups);
+OBJECT_ACCESSOR_NS_DECL(urx, Acquisition, groups_data);
 
-URX_OBJECT_DECL(Acquisition);
-URX_OBJECT_ACCESSOR_DECL(Acquisition, authors);
-URX_OBJECT_ACCESSOR_DECL(Acquisition, description);
-URX_OBJECT_ACCESSOR_DECL(Acquisition, local_time);
-URX_OBJECT_ACCESSOR_DECL(Acquisition, country_code);
-URX_OBJECT_ACCESSOR_DECL(Acquisition, system);
-URX_OBJECT_ACCESSOR_DECL(Acquisition, sound_speed);
-URX_OBJECT_ACCESSOR_DECL(Acquisition, groups);
-//URX_OBJECT_ACCESSOR_DECL(Acquisition, unique_receive_setups);
+OBJECT_NS_DECL(urx, Dataset);
+OBJECT_ACCESSOR_NS_DECL(urx, Dataset, version);
+OBJECT_ACCESSOR_NS_DECL(urx, Dataset, acquisition);
 
-URX_OBJECT_DECL(Group);
-URX_OBJECT_ACCESSOR_DECL(Group, sampling_type);
-URX_OBJECT_ACCESSOR_DECL(Group, sequence);
-URX_OBJECT_ACCESSOR_DECL(Group, description);
-URX_STD_VECTOR_DECL(Group);
+OBJECT_NS_DECL(urx, ElementGeometry);
+OBJECT_ACCESSOR_NS_DECL(urx, ElementGeometry, perimeter);
 
-URX_OBJECT_DECL(Event);
-URX_OBJECT_ACCESSOR_DECL(Event, transmit_setup);
-URX_OBJECT_ACCESSOR_DECL(Event, receive_setup);
-URX_STD_VECTOR_DECL(Event);
+OBJECT_NS_DECL(urx, Element);
+OBJECT_ACCESSOR_NS_DECL(urx, Element, transform);
+OBJECT_ACCESSOR_NS_DECL(urx, Element, element_geometry);
+OBJECT_ACCESSOR_NS_DECL(urx, Element, impulse_response);
 
-URX_OBJECT_DECL(ReceiveSetup);
-URX_OBJECT_ACCESSOR_DECL(ReceiveSetup, sampling_frequency);
-URX_STD_VECTOR_DECL(ReceiveSetup);
+OBJECT_NS_DECL(urx, Event);
+OBJECT_ACCESSOR_NS_DECL(urx, Event, transmit_setup);
+OBJECT_ACCESSOR_NS_DECL(urx, Event, receive_setup);
 
-URX_OBJECT_DECL(GroupData);
-URX_OBJECT_ACCESSOR_DECL(GroupData, group_timestamp);
-URX_OBJECT_ACCESSOR_DECL(GroupData, sequence_timestamps);
-URX_OBJECT_ACCESSOR_DECL(GroupData, event_timestamps);
-URX_OBJECT_ACCESSOR_DECL(GroupData, group);
+OBJECT_NS_DECL(urx, Excitation);
+OBJECT_ACCESSOR_NS_DECL(urx, Excitation, pulse_shape);
+OBJECT_ACCESSOR_NS_DECL(urx, Excitation, transmit_frequency);
+OBJECT_ACCESSOR_NS_DECL(urx, Excitation, sampling_frequency);
+OBJECT_ACCESSOR_NS_DECL(urx, Excitation, waveform);
+
+OBJECT_NS_DECL(urx, GroupData);
+OBJECT_ACCESSOR_NS_DECL(urx, GroupData, group);
+OBJECT_ACCESSOR_NS_DECL(urx, GroupData, raw_data);
+OBJECT_ACCESSOR_NS_DECL(urx, GroupData, group_timestamp);
+OBJECT_ACCESSOR_NS_DECL(urx, GroupData, sequence_timestamps);
+OBJECT_ACCESSOR_NS_DECL(urx, GroupData, event_timestamps);
+
+OBJECT_NS_DECL(urx, Group);
+OBJECT_ACCESSOR_NS_DECL(urx, Group, sampling_type);
+OBJECT_ACCESSOR_NS_DECL(urx, Group, data_type);
+OBJECT_ACCESSOR_NS_DECL(urx, Group, description);
+OBJECT_ACCESSOR_NS_DECL(urx, Group, sequence);
+
+OBJECT_NS_DECL(urx, ImpulseResponse);
+OBJECT_ACCESSOR_NS_DECL(urx, ImpulseResponse, sampling_frequency);
+OBJECT_ACCESSOR_NS_DECL(urx, ImpulseResponse, time_offset);
+OBJECT_ACCESSOR_NS_DECL(urx, ImpulseResponse, units);
+OBJECT_ACCESSOR_NS_DECL(urx, ImpulseResponse, data);
+
+OBJECT_NS_DECL(urx, Probe);
+OBJECT_ACCESSOR_NS_DECL(urx, Probe, description);
+OBJECT_ACCESSOR_NS_DECL(urx, Probe, type);
+OBJECT_ACCESSOR_NS_DECL(urx, Probe, transform);
+OBJECT_ACCESSOR_NS_DECL(urx, Probe, element_geometries);
+OBJECT_ACCESSOR_NS_DECL(urx, Probe, impulse_responses);
+OBJECT_ACCESSOR_NS_DECL(urx, Probe, elements);
+
+OBJECT_NS_DECL(urx, ReceiveSetup);
+OBJECT_ACCESSOR_NS_DECL(urx, ReceiveSetup, probe);
+OBJECT_ACCESSOR_NS_DECL(urx, ReceiveSetup, probe_transform);
+OBJECT_ACCESSOR_NS_DECL(urx, ReceiveSetup, sampling_frequency);
+OBJECT_ACCESSOR_NS_DECL(urx, ReceiveSetup, number_samples);
+OBJECT_ACCESSOR_NS_DECL(urx, ReceiveSetup, channel_mapping);
+OBJECT_ACCESSOR_NS_DECL(urx, ReceiveSetup, tgc_profile);
+OBJECT_ACCESSOR_NS_DECL(urx, ReceiveSetup, tgc_sampling_frequency);
+OBJECT_ACCESSOR_NS_DECL(urx, ReceiveSetup, modulation_frequency);
+OBJECT_ACCESSOR_NS_DECL(urx, ReceiveSetup, time_offset);
+
+OBJECT_NS_DECL(urx, Transform);
+OBJECT_ACCESSOR_NS_DECL(urx, Transform, rotation);
+OBJECT_ACCESSOR_NS_DECL(urx, Transform, translation);
+
+OBJECT_NS_DECL(urx, TransmitSetup);
+OBJECT_ACCESSOR_NS_DECL(urx, TransmitSetup, probe);
+OBJECT_ACCESSOR_NS_DECL(urx, TransmitSetup, wave);
+OBJECT_ACCESSOR_NS_DECL(urx, TransmitSetup, probe_transform);
+OBJECT_ACCESSOR_NS_DECL(urx, TransmitSetup, time_offset);
+
+OBJECT_NS_DECL(urx, Vector3D);
+OBJECT_ACCESSOR_NS_DECL(urx, Vector3D, x);
+OBJECT_ACCESSOR_NS_DECL(urx, Vector3D, y);
+OBJECT_ACCESSOR_NS_DECL(urx, Vector3D, z);
+
+OBJECT_NS_DECL(urx, Vector2D);
+OBJECT_ACCESSOR_NS_DECL(urx, Vector2D, x);
+OBJECT_ACCESSOR_NS_DECL(urx, Vector2D, y);
+
+OBJECT_NS_DECL(urx, Version);
+OBJECT_ACCESSOR_NS_DECL(urx, Version, major);
+OBJECT_ACCESSOR_NS_DECL(urx, Version, minor);
+OBJECT_ACCESSOR_NS_DECL(urx, Version, patch);
+
+OBJECT_NS_DECL(urx, Wave);
+OBJECT_ACCESSOR_NS_DECL(urx, Wave, type);
+OBJECT_ACCESSOR_NS_DECL(urx, Wave, time_zero);
+OBJECT_ACCESSOR_NS_DECL(urx, Wave, time_zero_reference_point);
+OBJECT_ACCESSOR_NS_DECL(urx, Wave, channel_mapping);
+OBJECT_ACCESSOR_NS_DECL(urx, Wave, channel_excitations);
+OBJECT_ACCESSOR_NS_DECL(urx, Wave, channel_delays);
+OBJECT_ACCESSOR_NS_DECL(urx, Wave, parameters);
+
+VECTOR_RAW_DECL(double);
+VECTOR_RAW_NS_DECL(urx, Element);
+VECTOR_RAW_NS_DECL(urx, Event);
+VECTOR_RAW_NS_DECL(urx, Vector3D);
+VECTOR_SHARED_NS_DECL(urx, Probe);
+VECTOR_SHARED_NS_DECL(urx, Excitation);
+VECTOR_SHARED_NS_DECL(urx, Wave);
+VECTOR_SHARED_NS_DECL(urx, Group);
+VECTOR_SHARED_NS_DECL(urx, GroupData);
+VECTOR_SHARED_NS_DECL(urx, ElementGeometry);
+VECTOR_SHARED_NS_DECL(urx, ImpulseResponse);
+VECTOR_WEAK_NS_DECL(urx, Excitation);
+
+VECTOR_2D_RAW_DECL(double);
+VECTOR_2D_RAW_DECL(uint32_t);
+
 #ifdef __cplusplus
 }
 #endif
+
+#endif  // #define URX_LIB_BINDING

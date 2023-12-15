@@ -1,6 +1,14 @@
 acqObj = urx.Acquisition();
+
+acqObj.local_time = 'coucou';
+ptr = urx.LibBinding.getInstance().call('Acquisition_local_time', acqObj.id);
+ptr_val = urx.LibBinding.getInstance().call('std_string_get', ptr);
+assert(strcmp(ptr_val, 'coucou'))
+urx.LibBinding.getInstance().call('std_string_set', ptr, 'foobar');
+assert(strcmp('foobar', acqObj.local_time))
+
 acqObj.sound_speed = 1500;
-ptr = urx.LibBinding.getInstance().call(['Acquisition_' 'sound_speed'], acqObj.id);
+ptr = urx.LibBinding.getInstance().call('Acquisition_sound_speed', acqObj.id);
 ptr.setdatatype('doublePtr', 1)
 assert(ptr.Value == 1500)
 ptr.Value = 1540;

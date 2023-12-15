@@ -11,6 +11,8 @@ classdef Acquisition < urx.Object % handle
     country_code char
     system char
     sound_speed(1,1) double
+    timestamp(1,1) double
+   
     groups(:,1) = urx.Group.empty(0,1)
     %unique_receive_setups(:,1) = urx.ReceiveSetup.empty(0,1)
   end
