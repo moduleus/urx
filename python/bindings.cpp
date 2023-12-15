@@ -252,10 +252,13 @@ PYBIND11_MODULE(bindings, m) {
 
   // Element
   py::class_<urx::Element, std::shared_ptr<urx::Element>>(m, "Element")
-      .def(py::init(
-          [](const urx::Transform &t, const std::weak_ptr<urx::ElementGeometry> &eg,
-             const std::weak_ptr<urx::ImpulseResponse> &ir) { return urx::Element(t, eg, ir); }))
+      // .def(py::init(
+      //     [](const urx::Transform &t, const std::weak_ptr<urx::ElementGeometry> &eg,
+      //        const std::weak_ptr<urx::ImpulseResponse> &ir) { return urx::Element(t, eg, ir); }))
       .def(py::init())
+      .def(py::init<urx::Element>())
+      .def(py::init<urx::Transform, std::weak_ptr<urx::ElementGeometry>,
+                    std::weak_ptr<urx::ImpulseResponse>>())
       .def(pybind11::self == pybind11::self)
       .def(pybind11::self != pybind11::self)
       .def_readwrite("transform", &urx::Element::transform)
