@@ -5,6 +5,62 @@ import unittest
 
 class TestBindingsStdVecOpaqueBinding(unittest.TestCase):
 
+    def testVecFloat64(self):
+        testName = "VecFloat64"
+        print("\n--Test %s binding BEGIN--" % testName)
+
+        self.assertEqual(urx.VecFloat64(), [])
+        self.assertEqual(urx.VecFloat64([1.23, 2.34]), [1.23, 2.34])
+        self.assertTrue(np.array_equal(urx.VecFloat64([1.23, 2.34]), np.array(
+            [1.23, 2.34])))
+
+        v = [1.23, 2.34]
+        toto = v[0]
+        toto += 1
+        self.assertEqual(v, [1.23, 2.34])
+        v_ref = v
+        v_ref[0] += 1
+        self.assertEqual(v, [2.23, 2.34])
+
+        print("--Test %s END--" % testName)
+
+    def testVecUInt32(self):
+        testName = "VecUInt32"
+        print("\n--Test %s binding BEGIN--" % testName)
+
+        self.assertEqual(urx.VecUInt32(), [])
+        self.assertEqual(urx.VecUInt32([1, 2, 3]), [1, 2, 3])
+        self.assertTrue(np.array_equal(urx.VecUInt32([1, 2, 3]), np.array(
+            [1, 2, 3])))
+
+        v = [1, 2, 3]
+        toto = v[0]
+        toto += 1
+        self.assertEqual(v, [1, 2, 3])
+        v_ref = v
+        v_ref[0] += 1
+        self.assertEqual(v, [2, 2, 3])
+
+        print("--Test %s END--" % testName)
+
+    def testVecVecUInt32(self):
+        testName = "VecVecUInt32"
+        print("\n--Test %s binding BEGIN--" % testName)
+
+        self.assertEqual(urx.VecVecUInt32(), [])
+        self.assertEqual(urx.VecVecUInt32([[1, 2, 3], [4, 5, 6, 7, 8, 9]]), [
+                         [1, 2, 3], [4, 5, 6, 7, 8, 9]])
+
+        v = [[1, 2, 3], [4, 5, 6, 7, 8, 9]]
+        toto = v[0][0]
+        toto += 1
+        self.assertEqual(v[0], [1, 2, 3])
+        v_ref = v[0]
+        v_ref[0] += 1
+        self.assertEqual(v[0], [2, 2, 3])
+
+        print("--Test %s END--" % testName)
+
     def testVecVector3D(self):
         testName = "VecVector3D"
         print("\n--Test %s binding BEGIN--" % testName)
@@ -104,7 +160,7 @@ class TestBindingsStdVecOpaqueBinding(unittest.TestCase):
         self.assertEqual(vec[0], eg_3)
         self.assertEqual(vec, urx.VecElementGeometryPtr([eg_3, eg_2]))
 
-        # Modify eg_3 DOES affect C++ vector since vec is a pointer vector is a pointer
+        # Modify eg_3 DOES affect C++ since the vector holds pointers
         eg_3.perimeter[0] = v
         self.assertEqual(vec[0], eg_3)
         self.assertEqual(vec, urx.VecElementGeometryPtr([eg_3, eg_2]))
@@ -152,7 +208,7 @@ class TestBindingsStdVecOpaqueBinding(unittest.TestCase):
         self.assertEqual(vec[0], ir_3)
         self.assertEqual(vec, urx.VecImpulseResponsePtr([ir_3, ir_2]))
 
-        # Modify ir_3 DOES affect C++ vector since vec is a pointer vector is a pointer
+        # Modify ir_3 DOES affect C++ since the vector holds pointers
         ir_3.time_offset.value = 123.456
         self.assertEqual(vec[0], ir_3)
         self.assertEqual(vec, urx.VecImpulseResponsePtr([ir_3, ir_2]))
@@ -231,6 +287,52 @@ class TestBindingsStdVecOpaqueBinding(unittest.TestCase):
         self.assertEqual(vec[2], elt_3)
         self.assertEqual(vec, [elt_5, elt_2, elt_3])
         self.assertEqual(vec, urx.VecElement([elt_5, elt_2, elt_3]))
+
+        print("--Test %s END--" % testName)
+
+    def testVecExcitationPtr(self):
+        testName = "VecExcitationPtr"
+        print("\n--Test %s binding BEGIN--" % testName)
+
+        ex = urx.Excitation("linear", 42, urx.DoubleNan(np.nan), [3.14, -42])
+        ex_2 = urx.Excitation("linear", 123, 456, [789])
+        ex_3 = urx.Excitation("linear", 987, 654, [321])
+
+        # List
+        ex_list = [ex, ex_2]
+        # VecElement
+        vec = urx.VecExcitationPtr(ex_list)
+        vec_2 = urx.VecExcitationPtr(np.array(ex_list))
+        self.assertEqual(len(vec), 2)
+        self.assertEqual(len(vec_2), 2)
+        self.assertEqual(vec, vec_2)
+        vec[0] = ex_3
+        self.assertEqual(vec[0], ex_3)
+        self.assertEqual(vec, urx.VecExcitationPtr([ex_3, ex_2]))
+
+        # Modify ex_3 DOES affect C++ vector since the vector holds pointers
+        ex_3.sampling_frequency.value = 456.123
+        self.assertEqual(vec[0], ex_3)
+        self.assertEqual(vec, urx.VecExcitationPtr([ex_3, ex_2]))
+
+        # ex_ref is a reference to first element of C++ vector
+        ex_ref = vec[0]
+        # Modify ex_ref affects C++ vector
+        ex_ref.pulse_shape = "diverging"
+        self.assertEqual(vec[0], ex_ref)
+        self.assertEqual(vec, urx.VecExcitationPtr([ex_ref, ex_2]))
+        self.assertEqual(vec, [ex_ref, ex_2])
+        ex_5 = urx.Excitation(ex_ref)
+
+        # ex_ref is deallocated during the reallocation caused by the append
+        vec.append(ex_3)
+        self.assertEqual(len(vec), 3)
+        self.assertEqual(vec[0], ex_5)
+        self.assertEqual(vec[0], ex_ref)
+        self.assertEqual(vec[1], ex_2)
+        self.assertEqual(vec[2], ex_3)
+        self.assertEqual(vec, [ex_5, ex_2, ex_3])
+        self.assertEqual(vec, urx.VecExcitationPtr([ex_5, ex_2, ex_3]))
 
         print("--Test %s END--" % testName)
 

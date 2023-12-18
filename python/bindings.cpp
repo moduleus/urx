@@ -32,26 +32,33 @@
 #include <urx/impulse_response.h>
 #include <urx/urx.h>
 #include <urx/version.h>
+#include <urx/wave.h>
 #include <urx_utils/group_helper.h>
 
 namespace py = pybind11;
 
 using VecFloat32 = std::vector<float>;
 using VecFloat64 = std::vector<double>;
+using VecUInt32 = std::vector<uint32_t>;
+using VecVecUInt32 = std::vector<std::vector<uint32_t>>;
 
 using VecVector3D = std::vector<urx::Vector3D<double>>;
 using VecGroupPtr = std::vector<std::shared_ptr<urx::Group>>;
 using VecElementGeometryPtr = std::vector<std::shared_ptr<urx::ElementGeometry>>;
 using VecImpulseResponsePtr = std::vector<std::shared_ptr<urx::ImpulseResponse>>;
 using VecElement = std::vector<urx::Element>;
+using VecExcitationPtr = std::vector<std::shared_ptr<urx::Excitation>>;
 
 // PYBIND11_MAKE_OPAQUE(VecFloat32);
 PYBIND11_MAKE_OPAQUE(VecFloat64);
+PYBIND11_MAKE_OPAQUE(VecUInt32);
+PYBIND11_MAKE_OPAQUE(VecVecUInt32);
 
 PYBIND11_MAKE_OPAQUE(VecGroupPtr);
 PYBIND11_MAKE_OPAQUE(VecElementGeometryPtr);
 PYBIND11_MAKE_OPAQUE(VecImpulseResponsePtr);
 PYBIND11_MAKE_OPAQUE(VecElement);
+PYBIND11_MAKE_OPAQUE(VecExcitationPtr);
 
 // PYBIND11_MAKE_OPAQUE(urx::Vector3D<double>);
 PYBIND11_MAKE_OPAQUE(VecVector3D);
@@ -111,6 +118,10 @@ PYBIND11_MODULE(bindings, m) {
   // py::bind_vector<VecFloat32>(m, "VecFloat32", py::buffer_protocol());
   py::bind_vector<VecFloat64>(m, "VecFloat64", py::buffer_protocol());
   py::implicitly_convertible<py::list, VecFloat64>();
+  py::bind_vector<VecUInt32>(m, "VecUInt32", py::buffer_protocol());
+  py::implicitly_convertible<py::list, VecUInt32>();
+  py::bind_vector<VecVecUInt32>(m, "VecVecUInt32");
+  py::implicitly_convertible<py::list, VecVecUInt32>();
 
   py::bind_vector<VecGroupPtr>(m, "VecGroupPtr");
   py::bind_vector<VecVector3D>(m, "VecVector3D");
@@ -122,6 +133,8 @@ PYBIND11_MODULE(bindings, m) {
   py::implicitly_convertible<py::list, VecImpulseResponsePtr>();
   py::bind_vector<VecElement>(m, "VecElement");
   py::implicitly_convertible<py::list, VecElement>();
+  py::bind_vector<VecExcitationPtr>(m, "VecExcitationPtr");
+  py::implicitly_convertible<py::list, VecExcitationPtr>();
 
   py::enum_<urx::Group::SamplingType>(m, "SamplingType")
       .value("RF", urx::Group::SamplingType::RF)
@@ -317,6 +330,7 @@ PYBIND11_MODULE(bindings, m) {
       .def_readwrite("sampling_frequency", &urx::Excitation::sampling_frequency)
       .def_readwrite("waveform", &urx::Excitation::waveform);
 
+  // ProbeType
   py::enum_<urx::Probe::ProbeType>(m, "ProbeType")
       .value("LINEAR", urx::Probe::ProbeType::LINEAR)
       .value("CURVILINEAR", urx::Probe::ProbeType::CURVILINEAR)
@@ -339,6 +353,60 @@ PYBIND11_MODULE(bindings, m) {
       .def_readwrite("element_geometries", &urx::Probe::element_geometries)
       .def_readwrite("impulse_responses", &urx::Probe::impulse_responses)
       .def_readwrite("elements", &urx::Probe::elements);
+
+  // WaveType
+  py::enum_<urx::Wave::WaveType>(m, "WaveType")
+      .value("CONVERGING_WAVE", urx::Wave::WaveType::CONVERGING_WAVE)
+      .value("DIVERGING_WAVE", urx::Wave::WaveType::DIVERGING_WAVE)
+      .value("PLANE_WAVE", urx::Wave::WaveType::PLANE_WAVE)
+      .value("CYLINDRICAL_WAVE", urx::Wave::WaveType::CYLINDRICAL_WAVE)
+      .value("UNDEFINED", urx::Wave::WaveType::UNDEFINED);
+
+  // Wave
+  py::class_<urx::Wave, std::shared_ptr<urx::Wave>>(m, "Wave")
+      .def(py::init())
+      .def(py::init<urx::Wave>())
+      .def(py::init([](urx::Wave::WaveType type, urx::DoubleNan time_zero,
+                       urx::Vector3D<double> time_zero_reference_point,
+                       VecVecUInt32 channel_mapping, VecExcitationPtr channel_excitations_shared,
+                       VecFloat64 channel_delays, VecFloat64 parameters) {
+        std::vector<std::weak_ptr<urx::Excitation>> channel_excitations_weak(
+            channel_excitations_shared.begin(), channel_excitations_shared.end());
+        return urx::Wave(type, time_zero, time_zero_reference_point, channel_mapping,
+                         channel_excitations_weak, channel_delays, parameters);
+      }))
+      // .def(py::init<urx::Wave::WaveType, urx::DoubleNan, urx::Vector3D<double>, VecVecUInt32,
+      //               VecExcitationPtr, VecFloat64, VecFloat64>())
+      .def(pybind11::self == pybind11::self)
+      .def(pybind11::self != pybind11::self)
+      .def_readwrite("type", &urx::Wave::type)
+      .def_readwrite("time_zero", &urx::Wave::time_zero)
+      .def_readwrite("time_zero_reference_point", &urx::Wave::time_zero_reference_point)
+      .def_readwrite("channel_mapping", &urx::Wave::channel_mapping)
+      .def_property(
+          "channel_excitations",
+          [](urx::Wave &self) {
+            std::vector<std::shared_ptr<urx::Excitation>> shared_vector;
+            std::transform(self.channel_excitations.begin(), self.channel_excitations.end(),
+                           std::back_inserter(shared_vector),
+                           [](const std::weak_ptr<urx::Excitation> &ex_weak_ptr) {
+                             if (auto ex_shared_ptr = ex_weak_ptr.lock()) {
+                               return ex_shared_ptr;
+                             } else {
+                               return std::shared_ptr<urx::Excitation>();
+                             }
+                           });
+
+            return shared_vector;
+          },
+          [](urx::Wave &self,
+             const std::vector<std::shared_ptr<urx::Excitation>> &channel_excitations_shared) {
+            self.channel_excitations = std::vector<std::weak_ptr<urx::Excitation>>(
+                channel_excitations_shared.begin(), channel_excitations_shared.end());
+          })
+      // .def_readwrite("channel_excitations", &urx::Wave::channel_excitations)
+      .def_readwrite("channel_delays", &urx::Wave::channel_delays)
+      .def_readwrite("parameters", &urx::Wave::parameters);
 
   // Group
   py::class_<urx::Group, std::shared_ptr<urx::Group>>(m, "Group")
