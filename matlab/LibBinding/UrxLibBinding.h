@@ -15,7 +15,6 @@
 #define CONCAT_NS3(a, b, c) a::b::c
 
 #define _VECTOR_RAW_DECL(name)                                      \
-  uint64_t CONCAT3(vector, name, sizeof)(void);                     \
   void *CONCAT3(vector, name, new)(void);                           \
   void CONCAT3(vector, name, delete)(void *this_ptr);               \
   void CONCAT3(vector, name, clear)(void *this_ptr);                \
@@ -28,7 +27,6 @@
 #define VECTOR_RAW_DECL(type) _VECTOR_RAW_DECL(type)
 
 #define _VECTOR_2D_RAW_DECL(name)                                      \
-  uint64_t CONCAT3(vector_2d, name, sizeof)(void);                     \
   void *CONCAT3(vector_2d, name, new)(void);                           \
   void CONCAT3(vector_2d, name, delete)(void *this_ptr);               \
   void CONCAT3(vector_2d, name, clear)(void *this_ptr);                \
@@ -40,7 +38,6 @@
 #define VECTOR_2D_RAW_DECL(type) _VECTOR_2D_RAW_DECL(type)
 
 #define _VECTOR_SHARED_DECL(name)                                          \
-  uint64_t CONCAT3(vector_shared, name, sizeof)(void);                     \
   void *CONCAT3(vector_shared, name, new)(void);                           \
   void CONCAT3(vector_shared, name, delete)(void *this_ptr);               \
   void CONCAT3(vector_shared, name, clear)(void *this_ptr);                \
@@ -53,7 +50,6 @@
 #define VECTOR_SHARED_DECL(type) _VECTOR_SHARED_DECL(type)
 
 #define _VECTOR_WEAK_DECL(name)                                          \
-  uint64_t CONCAT3(vector_weak, name, sizeof)(void);                     \
   void *CONCAT3(vector_weak, name, new)(void);                           \
   void CONCAT3(vector_weak, name, delete)(void *this_ptr);               \
   void CONCAT3(vector_weak, name, clear)(void *this_ptr);                \
@@ -66,7 +62,6 @@
 #define VECTOR_WEAK_DECL(type) _VECTOR_WEAK_DECL(type)
 
 #define _OBJECT_DECL(name)              \
-  uint64_t CONCAT2(name, sizeof)(void); \
   void *CONCAT2(name, new)(void);       \
   void CONCAT2(name, delete)(void *this_ptr)
 
@@ -126,7 +121,7 @@ OBJECT_ACCESSOR_NS_DECL(urx, Excitation, waveform);
 
 OBJECT_NS_DECL(urx, GroupData);
 OBJECT_ACCESSOR_NS_DECL(urx, GroupData, group);
-OBJECT_ACCESSOR_NS_DECL(urx, GroupData, raw_data);
+//OBJECT_ACCESSOR_NS_DECL(urx, GroupData, raw_data);
 OBJECT_ACCESSOR_NS_DECL(urx, GroupData, group_timestamp);
 OBJECT_ACCESSOR_NS_DECL(urx, GroupData, sequence_timestamps);
 OBJECT_ACCESSOR_NS_DECL(urx, GroupData, event_timestamps);
@@ -196,20 +191,22 @@ OBJECT_ACCESSOR_NS_DECL(urx, Wave, channel_delays);
 OBJECT_ACCESSOR_NS_DECL(urx, Wave, parameters);
 
 VECTOR_RAW_DECL(double);
+
 VECTOR_RAW_NS_DECL(urx, Element);
 VECTOR_RAW_NS_DECL(urx, Event);
+VECTOR_RAW_NS_DECL(urx, GroupData);
 VECTOR_RAW_NS_DECL(urx, Vector3D);
+
+VECTOR_2D_RAW_DECL(double);
+VECTOR_2D_RAW_DECL(uint32_t);
+
 VECTOR_SHARED_NS_DECL(urx, Probe);
 VECTOR_SHARED_NS_DECL(urx, Excitation);
 VECTOR_SHARED_NS_DECL(urx, Wave);
 VECTOR_SHARED_NS_DECL(urx, Group);
-VECTOR_SHARED_NS_DECL(urx, GroupData);
 VECTOR_SHARED_NS_DECL(urx, ElementGeometry);
 VECTOR_SHARED_NS_DECL(urx, ImpulseResponse);
 VECTOR_WEAK_NS_DECL(urx, Excitation);
-
-VECTOR_2D_RAW_DECL(double);
-VECTOR_2D_RAW_DECL(uint32_t);
 
 #ifdef __cplusplus
 }

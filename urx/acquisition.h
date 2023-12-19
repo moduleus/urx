@@ -34,7 +34,7 @@ struct Acquisition {
   std::vector<std::shared_ptr<Excitation>> excitations;
   std::vector<std::shared_ptr<Wave>> waves;
   std::vector<std::shared_ptr<Group>> groups;
-  std::vector<std::shared_ptr<GroupData>> groups_data;
+  std::vector<GroupData> groups_data;
 };
 
 }  // namespace urx

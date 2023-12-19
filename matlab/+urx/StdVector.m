@@ -39,7 +39,7 @@ classdef StdVector < handle
     function updateParent(this, parent, parentPptNameOrDataIdx)
       if ischar(parentPptNameOrDataIdx)
         this.parentPptName = parentPptNameOrDataIdx;
-        ptrGetFunction = [parent.className() '_' this.parentPptName];
+        ptrGetFunction = [strrep(class(parent), '.', '_') '_' this.parentPptName];
         this.id = this.libBindingRef.call(ptrGetFunction, parent.id);
       else % std_vector
         dataPtr = parent.data();
