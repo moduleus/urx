@@ -40,8 +40,6 @@ class TestBindingsTransmitSetup(unittest.TestCase):
 
         probe = urx.Probe()
         wave = urx.Wave()
-        ts = urx.TransmitSetup(probe, wave, t_2, 42)
-
         probe_2 = urx.Probe(probe)
         probe_2.description = 'rca'
         self.assertNotEqual(probe, probe_2)
@@ -49,6 +47,14 @@ class TestBindingsTransmitSetup(unittest.TestCase):
         wave_2 = urx.Wave(wave)
         wave_2.type = urx.WaveType.PLANE_WAVE
         self.assertNotEqual(wave, wave_2)
+
+        ts = urx.TransmitSetup(probe_2, wave_2, t_2, 42)
+        self.assertEqual(ts.probe, probe_2)
+        self.assertEqual(ts.wave, wave_2)
+        self.assertEqual(ts.probe_transform, t_2)
+        self.assertEqual(ts.time_offset.value, 42)
+
+        ts = urx.TransmitSetup(probe, wave, t_2, 42)
 
         self.assertEqual(ts.probe_transform, t_2)
         t_2.rotation = v
