@@ -65,12 +65,32 @@ class TestBindingsProbe(unittest.TestCase):
         self.assertEqual(p_rca_bis.element_geometries[1], eg_2)
         self.assertEqual(p_rca_bis.elements[1].element_geometry, eg_2)
 
+        self.assertEqual(p_rca.element_geometries, [eg, eg_2])
+        element_geometries_ref = p_rca.element_geometries
+        element_geometries_ref[0] = eg_3
+        self.assertEqual(p_rca.element_geometries, element_geometries_ref)
+        self.assertNotEqual(p_rca, p_rca_bis)
+        p_rca.element_geometries = [eg, eg_2]
+        self.assertEqual(p_rca.element_geometries, element_geometries_ref)
+        self.assertEqual(p_rca.element_geometries, [eg, eg_2])
+        self.assertEqual(p_rca, p_rca_bis)
+
         p_rca.impulse_responses[1].sampling_frequency.value = 789.123
         self.assertEqual(p_rca, p_rca_bis)
         self.assertEqual(p_rca.impulse_responses[1], ir_2)
         self.assertEqual(p_rca.elements[1].element_geometry, eg_2)
         self.assertEqual(p_rca_bis.impulse_responses[1], ir_2)
         self.assertEqual(p_rca_bis.elements[1].element_geometry, eg_2)
+
+        self.assertEqual(p_rca.impulse_responses, [ir, ir_2])
+        impulse_responses_ref = p_rca.impulse_responses
+        impulse_responses_ref[0] = ir_3
+        self.assertEqual(p_rca.impulse_responses, impulse_responses_ref)
+        self.assertNotEqual(p_rca, p_rca_bis)
+        p_rca.impulse_responses = [ir, ir_2]
+        self.assertEqual(p_rca.impulse_responses, impulse_responses_ref)
+        self.assertEqual(p_rca.impulse_responses, [ir, ir_2])
+        self.assertEqual(p_rca, p_rca_bis)
 
         del eg_2
         del ir_2
@@ -101,14 +121,25 @@ class TestBindingsProbe(unittest.TestCase):
         self.assertRaises(
             RuntimeError, lambda p_rca_bis: p_rca_bis.elements[1].impulse_response, p_rca_bis)
 
+        # Reference is not possible
+        self.assertEqual(p_rca.type, urx.ProbeType.RCA)
+        type_2 = p_rca.type
+        type_2 = urx.ProbeType.LINEAR
+        self.assertNotEqual(p_rca.type, type_2)
         self.assertEqual(p_rca, p_rca_bis)
-        p_rca.type = urx.ProbeType.LINEAR
-        self.assertNotEqual(p_rca, p_rca_bis)
+        p_rca.type = urx.ProbeType.RCA
+        self.assertEqual(p_rca.type, urx.ProbeType.RCA)
+        self.assertEqual(p_rca, p_rca_bis)
 
-        p_rca_bis = urx.Probe(p_rca)
+        # Reference is not possible
+        self.assertEqual(p_rca.description, "rca probe")
+        description_2 = p_rca.description
+        description_2 = "Hello"
+        self.assertNotEqual(p_rca.description, description_2)
         self.assertEqual(p_rca, p_rca_bis)
-        p_rca.description = "Hello"
-        self.assertNotEqual(p_rca, p_rca_bis)
+        p_rca.description = "rca probe"
+        self.assertEqual(p_rca.description, "rca probe")
+        self.assertEqual(p_rca, p_rca_bis)
 
         print("--Test %s END--" % testName)
 
