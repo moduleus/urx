@@ -375,8 +375,6 @@ PYBIND11_MODULE(bindings, m) {
         return urx::Wave(type, time_zero, time_zero_reference_point, channel_mapping,
                          channel_excitations_weak, channel_delays, parameters);
       }))
-      // .def(py::init<urx::Wave::WaveType, urx::DoubleNan, urx::Vector3D<double>, VecVecUInt32,
-      //               VecExcitationPtr, VecFloat64, VecFloat64>())
       .def(pybind11::self == pybind11::self)
       .def(pybind11::self != pybind11::self)
       .def_readwrite("type", &urx::Wave::type)
@@ -404,9 +402,47 @@ PYBIND11_MODULE(bindings, m) {
             self.channel_excitations = std::vector<std::weak_ptr<urx::Excitation>>(
                 channel_excitations_shared.begin(), channel_excitations_shared.end());
           })
-      // .def_readwrite("channel_excitations", &urx::Wave::channel_excitations)
       .def_readwrite("channel_delays", &urx::Wave::channel_delays)
       .def_readwrite("parameters", &urx::Wave::parameters);
+
+  // TransmitSetup
+  py::class_<urx::TransmitSetup, std::shared_ptr<urx::TransmitSetup>>(m, "TransmitSetup")
+      .def(py::init())
+      .def(py::init<urx::TransmitSetup>())
+      .def(
+          py::init([](const std::shared_ptr<urx::Probe> &probe,
+                      const std::shared_ptr<urx::Wave> &wave, const urx::Transform &probe_transform,
+                      const std::variant<urx::DoubleNan, double> &time_offset) {
+            return urx::TransmitSetup(
+                probe, wave, probe_transform,
+                std::visit([](auto &&d) { return urx::DoubleNan(d); }, time_offset));
+          }))
+      .def(pybind11::self == pybind11::self)
+      .def(pybind11::self != pybind11::self)
+      .def_property(
+          "probe",
+          [](urx::TransmitSetup &self) {
+            if (self.probe.expired()) {
+              throw std::runtime_error("Current probe doesn't reference any Probe.\n");
+            }
+            return self.probe.lock();
+          },
+          [](urx::TransmitSetup &self, const std::shared_ptr<urx::Probe> &probe) {
+            self.probe = probe;
+          })
+      .def_property(
+          "wave",
+          [](urx::TransmitSetup &self) {
+            if (self.wave.expired()) {
+              throw std::runtime_error("Current wave doesn't reference any Wave.\n");
+            }
+            return self.wave.lock();
+          },
+          [](urx::TransmitSetup &self, const std::shared_ptr<urx::Wave> &wave) {
+            self.wave = wave;
+          })
+      .def_readwrite("probe_transform", &urx::TransmitSetup::probe_transform)
+      .def_readwrite("time_offset", &urx::TransmitSetup::time_offset);
 
   // Group
   py::class_<urx::Group, std::shared_ptr<urx::Group>>(m, "Group")
@@ -418,6 +454,7 @@ PYBIND11_MODULE(bindings, m) {
       .def_readwrite("sampling_type", &urx::Group::sampling_type)
       .def_readwrite("description", &urx::Group::description);
 
+  // GroupData
   py::class_<urx::GroupData, std::shared_ptr<urx::GroupData>>(m, "GroupData")
       .def(py::init())
       .def(pybind11::self == pybind11::self)
