@@ -1,5 +1,5 @@
 if(WITH_HDF5)
-  find_file(BOOST_PFR_HPP "boost/pfr.hpp")
+  find_package(Boost REQUIRED)
   find_package(magic_enum CONFIG REQUIRED)
 
   # Link ###
@@ -43,7 +43,9 @@ if(WITH_HDF5)
     ${CMAKE_CURRENT_SOURCE_DIR}/io/upgrade.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/io/upgrade.h
     ${CMAKE_CURRENT_SOURCE_DIR}/io/writer.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/io/writer.h)
+    ${CMAKE_CURRENT_SOURCE_DIR}/io/writer.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/io/common.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/io/common.h)
 endif()
 
 # Target library ### Create target
@@ -80,6 +82,8 @@ if(WITH_HDF5)
     ${URX_UTILS_LIBRARY}
     PRIVATE hdf5::hdf5-${SEARCH_TYPE} hdf5::hdf5_cpp-${SEARCH_TYPE}
     PRIVATE magic_enum::magic_enum)
+  target_include_directories(${URX_UTILS_LIBRARY} PRIVATE ${Boost_INCLUDE_DIRS})
+  target_precompile_headers(${URX_UTILS_LIBRARY} PRIVATE ${URX_PCH_IO})
 endif()
 
 # Create cmake config files ###

@@ -2,7 +2,6 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
-#include <format>
 #include <iterator>
 #include <memory>
 #include <stdexcept>
@@ -29,6 +28,7 @@
 #include <urx/impulse_response.h>
 #include <urx/probe.h>
 #include <urx/wave.h>
+#include <urx_utils/io/common.h>
 #include <urx_utils/io/writer.h>
 
 namespace urx {
@@ -136,7 +136,7 @@ void serialize_hdf5(const std::string& name, const std::vector<T>& field, const 
 
     size_t i = 0;
     for (const auto& iter : field) {
-      serialize_hdf5(std::format("{:0{}}", i, iter_length), iter, group_child, map);
+      serialize_hdf5(format_index_with_leading_zeros(i, iter_length), iter, group_child, map);
       i++;
     }
   }
