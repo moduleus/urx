@@ -366,14 +366,17 @@ PYBIND11_MODULE(bindings, m) {
   py::class_<urx::Wave, std::shared_ptr<urx::Wave>>(m, "Wave")
       .def(py::init())
       .def(py::init<urx::Wave>())
-      .def(py::init([](urx::Wave::WaveType type, urx::DoubleNan time_zero,
-                       urx::Vector3D<double> time_zero_reference_point,
-                       VecVecUInt32 channel_mapping, VecExcitationPtr channel_excitations_shared,
-                       VecFloat64 channel_delays, VecFloat64 parameters) {
+      .def(py::init([](const urx::Wave::WaveType &type,
+                       const std::variant<urx::DoubleNan, double> &time_zero,
+                       const urx::Vector3D<double> &time_zero_reference_point,
+                       const VecVecUInt32 &channel_mapping,
+                       const VecExcitationPtr &channel_excitations_shared,
+                       const VecFloat64 &channel_delays, const VecFloat64 &parameters) {
         std::vector<std::weak_ptr<urx::Excitation>> channel_excitations_weak(
             channel_excitations_shared.begin(), channel_excitations_shared.end());
-        return urx::Wave(type, time_zero, time_zero_reference_point, channel_mapping,
-                         channel_excitations_weak, channel_delays, parameters);
+        return urx::Wave(type, std::visit([](auto &&d) { return urx::DoubleNan(d); }, time_zero),
+                         time_zero_reference_point, channel_mapping, channel_excitations_weak,
+                         channel_delays, parameters);
       }))
       .def(pybind11::self == pybind11::self)
       .def(pybind11::self != pybind11::self)

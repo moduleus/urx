@@ -33,11 +33,8 @@ class TestBindingsWave(unittest.TestCase):
         ex_3 = urx.Excitation("linear", 123, 456, [111, 222])
         ex_4 = urx.Excitation(ex)
 
-        # w = urx.Wave()
         w = urx.Wave(urx.WaveType.CONVERGING_WAVE,
-                     urx.DoubleNan(0), urx.Vector3D(), [[1, 2, 3], [4, 5, 6, 7, 8, 9]], [ex, ex_2], [3.14, 42], [12.34, 56.78])
-        # w_3 = urx.Wave(urx.WaveType.PLANE_WAVE,
-        #                0, [[10, 11, 12], [14, 15, 16, 17, 18, 19]], urx.Vector3D(), [ex_3, ex_4], [7.89, 9.87], [12.34, 56.78])
+                     0, urx.Vector3D(), [[1, 2, 3], [4, 5, 6, 7, 8, 9]], [ex, ex_2], [3.14, 42], [12.34, 56.78])
         w_2 = urx.Wave(w)
         self.assertEqual(w, w_2)
 
