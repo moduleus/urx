@@ -30,6 +30,8 @@
 #include <urx/group.h>
 #include <urx/group_data.h>
 #include <urx/impulse_response.h>
+#include <urx/receive_setup.h>
+#include <urx/transmit_setup.h>
 #include <urx/urx.h>
 #include <urx/version.h>
 #include <urx/wave.h>

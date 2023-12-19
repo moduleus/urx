@@ -52,7 +52,7 @@ class TestBindingsTransmitSetup(unittest.TestCase):
         self.assertEqual(ts.probe, probe_2)
         self.assertEqual(ts.wave, wave_2)
         self.assertEqual(ts.probe_transform, t_2)
-        self.assertEqual(ts.time_offset.value, 42)
+        self.assertEqual(ts.time_offset, 42)
 
         ts = urx.TransmitSetup(probe, wave, t_2, 42)
 
