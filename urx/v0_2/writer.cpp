@@ -11,6 +11,8 @@
 #include <ostream>
 #include <type_traits>
 
+#include <H5Cpp.h>
+
 #include <urx/v0_2/aperture.h>
 #include <urx/v0_2/channel_data.h>
 #include <urx/v0_2/dataset.h>

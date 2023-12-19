@@ -92,7 +92,6 @@ set(URX_PCH
     "<cstdlib>"
     "<cstring>"
     "<exception>"
-    "<format>"
     "<iomanip>"
     "<ios>"
     "<iosfwd>"
@@ -117,7 +116,8 @@ set(URX_PCH
     "<vector>"
     "<version>")
 if(WITH_HDF5)
-  list(APPEND URX_PCH "<H5Cpp.h>" "<boost/pfr.hpp>" "<magic_enum.hpp>")
+  set(URX_PCH_IO_V2_0 "<H5Cpp.h>")
+  set(URX_PCH_IO "<H5Cpp.h>" "<boost/pfr.hpp>" "<magic_enum.hpp>")
 endif()
 if(WITH_TEST)
   set(URX_PCH_TEST

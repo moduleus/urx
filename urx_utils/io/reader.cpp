@@ -2,7 +2,6 @@
 #include <complex>
 #include <cstddef>
 #include <cstdint>
-#include <format>
 #include <memory>
 #include <optional>
 #include <stdexcept>
@@ -29,6 +28,7 @@
 #include <urx/impulse_response.h>
 #include <urx/probe.h>
 #include <urx/wave.h>
+#include <urx_utils/io/common.h>
 #include <urx_utils/io/reader.h>
 
 namespace urx {
@@ -133,7 +133,8 @@ void deserialize_hdf5(const std::string& name, std::vector<T>& field, const H5::
 
     for (size_t i = 0; i < group_child.getNumObjs(); i++) {
       field.push_back(T{});
-      deserialize_hdf5(std::format("{:0{}}", i, iter_length), field.back(), group_child, map);
+      deserialize_hdf5(format_index_with_leading_zeros(i, iter_length), field.back(), group_child,
+                       map);
     }
   }
 }
