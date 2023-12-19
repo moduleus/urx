@@ -447,6 +447,52 @@ PYBIND11_MODULE(bindings, m) {
       .def_readwrite("probe_transform", &urx::TransmitSetup::probe_transform)
       .def_readwrite("time_offset", &urx::TransmitSetup::time_offset);
 
+  // ReceiveSetup
+  py::class_<urx::ReceiveSetup, std::shared_ptr<urx::ReceiveSetup>>(m, "ReceiveSetup")
+      .def(py::init())
+      .def(py::init<urx::ReceiveSetup>())
+      .def(py::init([](const std::shared_ptr<urx::Probe> &probe,
+                       const urx::Transform &probe_transform,
+                       const std::variant<urx::DoubleNan, double> &sampling_frequency,
+                       uint32_t number_samples, const VecVecUInt32 &channel_mapping,
+                       const VecFloat64 &tgc_profile,
+                       const std::variant<urx::DoubleNan, double> &tgc_sampling_frequency,
+                       const std::variant<urx::DoubleNan, double> &modulation_frequency,
+                       const std::variant<urx::DoubleNan, double> &time_offset) {
+        urx::DoubleNan sampling_frequency_dn =
+            std::visit([](auto &&d) { return urx::DoubleNan(d); }, sampling_frequency);
+        urx::DoubleNan tgc_sampling_frequency_dn =
+            std::visit([](auto &&d) { return urx::DoubleNan(d); }, tgc_sampling_frequency);
+        urx::DoubleNan modulation_frequency_dn =
+            std::visit([](auto &&d) { return urx::DoubleNan(d); }, modulation_frequency);
+        urx::DoubleNan time_offset_dn =
+            std::visit([](auto &&d) { return urx::DoubleNan(d); }, time_offset);
+        return urx::ReceiveSetup(probe, probe_transform, sampling_frequency_dn, number_samples,
+                                 channel_mapping, tgc_profile, tgc_sampling_frequency_dn,
+                                 modulation_frequency_dn, time_offset_dn);
+      }))
+      .def(pybind11::self == pybind11::self)
+      .def(pybind11::self != pybind11::self)
+      .def_property(
+          "probe",
+          [](urx::ReceiveSetup &self) {
+            if (self.probe.expired()) {
+              throw std::runtime_error("Current probe doesn't reference any Probe.\n");
+            }
+            return self.probe.lock();
+          },
+          [](urx::ReceiveSetup &self, const std::shared_ptr<urx::Probe> &probe) {
+            self.probe = probe;
+          })
+      .def_readwrite("probe_transform", &urx::ReceiveSetup::probe_transform)
+      .def_readwrite("sampling_frequency", &urx::ReceiveSetup::sampling_frequency)
+      .def_readwrite("number_samples", &urx::ReceiveSetup::number_samples)
+      .def_readwrite("channel_mapping", &urx::ReceiveSetup::channel_mapping)
+      .def_readwrite("tgc_profile", &urx::ReceiveSetup::tgc_profile)
+      .def_readwrite("tgc_sampling_frequency", &urx::ReceiveSetup::tgc_sampling_frequency)
+      .def_readwrite("modulation_frequency", &urx::ReceiveSetup::modulation_frequency)
+      .def_readwrite("time_offset", &urx::ReceiveSetup::time_offset);
+
   // Group
   py::class_<urx::Group, std::shared_ptr<urx::Group>>(m, "Group")
       .def(py::init())
