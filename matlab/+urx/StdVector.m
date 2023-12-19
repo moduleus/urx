@@ -8,11 +8,11 @@ classdef StdVector < handle
     objectClassName(1,:) char
     nbDims
   end
-
+  
   properties (Constant)
     MANAGED_PRIMITIVES_TYPES = {'double'} % TODO: add int32..
   end
-
+  
   methods
     function this = StdVector(objectClassName, parent, parentPptNameOrDataIdx, nbDims)
       this.libBindingRef = urx.LibBinding.getInstance();
@@ -29,13 +29,13 @@ classdef StdVector < handle
         this.updateParent(parent, parentPptNameOrDataIdx);
       end
     end
-
+    
     function delete(this)
       if this.isAnAllocatedObject()
         this.libBindingRef.call([this.className() '_delete'], this.id);
       end
     end
-
+    
     function updateParent(this, parent, parentPptNameOrDataIdx)
       if ischar(parentPptNameOrDataIdx)
         this.parentPptName = parentPptNameOrDataIdx;
@@ -54,7 +54,7 @@ classdef StdVector < handle
       end
       this.parent = parent;
     end
-
+    
     function res = className(this)
       res = 'std_vector';
       if this.nbDims > 1
@@ -65,7 +65,7 @@ classdef StdVector < handle
       end
       res = [res '_' this.objectClassName];
     end
-
+    
     function res = objectSizeof(this)
       if this.nbDims > 1
         res = this.libBindingRef.call(['std_vector_' this.objectClassName '_sizeof']);
@@ -73,15 +73,15 @@ classdef StdVector < handle
         res = this.libBindingRef.call([this.objectClassName '_sizeof']);
       end
     end
-
+    
     function res = isAnAllocatedObject(this)
       res = isempty(this.parent);
     end
-
+    
     function clear(this)
       this.libBindingRef.call([this.className() '_clear'], this.id);
     end
-
+    
     function pushBack(this, val)
       if ~any(strcmp(this.objectClassName, this.MANAGED_PRIMITIVES_TYPES)) || this.nbDims > 1
         this.libBindingRef.call([this.className() '_push_back'], this.id, val.id);
@@ -89,19 +89,19 @@ classdef StdVector < handle
         this.libBindingRef.call([this.className() '_push_back'], this.id, val);
       end
     end
-
+    
     function res = len(this) % 'len' instead of 'size' for not interfering with matlab size() function
       res = this.libBindingRef.call([this.className() '_size' ], this.id);
     end
-
+    
     function res = data(this)
       res = this.libBindingRef.call([this.className() '_data'], this.id);
     end
-
+    
     function copy(this, other)
       this.libBindingRef.call([this.className() '_copy'], this.id, other.id);
     end
-
+    
     %% urx specific
     function updateFromCpp(this)
       objectsBasePtr = this.data();
@@ -112,7 +112,7 @@ classdef StdVector < handle
         if numel(this.objects) < i
           if this.nbDims == 1
             this.objects(i) = urx.(this.objectClassName)(this, int32(i - 1), ...
-                                                         objectsBasePtr + (i-1) * sizeofObject)
+              objectsBasePtr + (i-1) * sizeofObject)
           else
             if isempty(this.objects)
               this.objects = urx.StdVector(this.objectClassName, this, i, 1);
@@ -140,7 +140,7 @@ classdef StdVector < handle
         this.objects(nbObject:end) = [];
       end
     end
-
+    
     %% primivite types specific
     function res = getFromCpp(this)
       dataBasePtr = this.data();
@@ -163,7 +163,7 @@ classdef StdVector < handle
         end
       end
     end
-
+    
     function setToCpp(this, v)
       this.clear();
       if this.nbDims == 1

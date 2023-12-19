@@ -13,10 +13,10 @@ classdef Acquisition < urx.Object
     local_time char
     country_code char
     system char
-
+    
     sound_speed(1,1) double
     timestamp(1,1) double
-   
+    
     %probes(:,1) = urx.Probe.empty(0,1)
     %excitations(:,1) = urx.Excitation.empty(0,1)
     %waves(:,1) = urx.Wave.empty(0,1)

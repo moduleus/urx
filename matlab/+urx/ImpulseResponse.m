@@ -6,7 +6,7 @@ classdef ImpulseResponse < urx.Object
   properties (Access = public, SetObservable, GetObservable)
     sampling_frequency(1,1) double
     time_offset(1,1) double
-
+    
     data(:,1) double
   end
 end
