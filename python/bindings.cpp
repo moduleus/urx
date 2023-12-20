@@ -495,6 +495,16 @@ PYBIND11_MODULE(bindings, m) {
       .def_readwrite("modulation_frequency", &urx::ReceiveSetup::modulation_frequency)
       .def_readwrite("time_offset", &urx::ReceiveSetup::time_offset);
 
+  // Event
+  py::class_<urx::Event, std::shared_ptr<urx::Event>>(m, "Event")
+      .def(py::init())
+      .def(py::init<urx::Event>())
+      .def(py::init<urx::TransmitSetup, urx::ReceiveSetup>())
+      .def(pybind11::self == pybind11::self)
+      .def(pybind11::self != pybind11::self)
+      .def_readwrite("transmit_setup", &urx::Event::transmit_setup)
+      .def_readwrite("receive_setup", &urx::Event::receive_setup);
+
   // Group
   py::class_<urx::Group, std::shared_ptr<urx::Group>>(m, "Group")
       .def(py::init())
