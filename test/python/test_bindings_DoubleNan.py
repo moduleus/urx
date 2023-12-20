@@ -29,6 +29,7 @@ class TestBindingsDoubleNan(unittest.TestCase):
         self.assertTrue(np.isnan(d.value))
         self.assertEqual(d, d_2)
         self.assertEqual(d, urx.DoubleNan(np.nan))
+        self.assertNotEqual(d, np.nan)
         self.assertNotEqual(d.value, np.nan)
         self.assertEqual(d, dw.d)
         self.assertNotEqual(d.value, dw.d.value)
