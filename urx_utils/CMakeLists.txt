@@ -1,6 +1,6 @@
 if(WITH_HDF5)
   find_package(Boost REQUIRED)
-  find_package(magic_enum CONFIG REQUIRED)
+  find_package(magic_enum REQUIRED)
 
   # Link ###
   if(BUILD_SHARED_LIBS)
@@ -115,8 +115,8 @@ install(
   DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${URX_UTILS_LIBRARY}-${git_branch}
   FILES_MATCHING
-  PATTERN "urx_utils/*.hpp"
-  PATTERN "urx_utils/*.h"
+  PATTERN "*.hpp"
+  PATTERN "*.h"
   PATTERN ".git" EXCLUDE
   PATTERN "CI" EXCLUDE
   PATTERN "install" EXCLUDE
