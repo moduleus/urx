@@ -51,14 +51,14 @@ class TestBindingsElement(unittest.TestCase):
         self.assertEqual(elt.element_geometry, urx.ElementGeometry([v, v_2]))
         eg.perimeter[0] = v_3
         self.assertEqual(elt.element_geometry, urx.ElementGeometry([v_3, v_2]))
-        eg_2 = elt.element_geometry
-        eg_2.perimeter[0] = v
+        eg_ref = elt.element_geometry
+        eg_ref.perimeter[0] = v
         self.assertEqual(elt.element_geometry, eg)
-        self.assertEqual(elt.element_geometry, eg_2)
+        self.assertEqual(elt.element_geometry, eg_ref)
         del eg
         gc.collect()
-        self.assertEqual(elt.element_geometry, eg_2)
-        del eg_2
+        self.assertEqual(elt.element_geometry, eg_ref)
+        del eg_ref
         gc.collect()
         self.assertRaises(
             RuntimeError, lambda elt: elt.element_geometry, elt)
@@ -71,14 +71,14 @@ class TestBindingsElement(unittest.TestCase):
         ir.sampling_frequency.value = 123
         self.assertEqual(elt.impulse_response, urx.ImpulseResponse(
             123, np.nan, "sec", [3.14, -42]))
-        ir_2 = elt.impulse_response
-        ir_2.sampling_frequency.value = np.nan
+        ir_ref = elt.impulse_response
+        ir_ref.sampling_frequency.value = np.nan
         self.assertEqual(elt.impulse_response, ir)
-        self.assertEqual(elt.impulse_response, ir_2)
+        self.assertEqual(elt.impulse_response, ir_ref)
         del ir
         gc.collect()
-        self.assertEqual(elt.impulse_response, ir_2)
-        del ir_2
+        self.assertEqual(elt.impulse_response, ir_ref)
+        del ir_ref
         gc.collect()
         self.assertRaises(
             RuntimeError, lambda elt: elt.impulse_response, elt)
