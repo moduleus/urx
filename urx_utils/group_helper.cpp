@@ -26,6 +26,13 @@ size_t GroupHelper::sizeof_data_type() {
   return group_dt_to_sizeof.at(group_.data_type);
 }
 
+size_t GroupHelper::sizeof_sample() {
+  static std::unordered_map<Group::SamplingType, size_t> group_st_to_nels{
+      {Group::SamplingType::RF, 1}, {Group::SamplingType::IQ, 2}};
+
+  return group_st_to_nels.at(group_.sampling_type) * sizeof_data_type();
+}
+
 std::string GroupHelper::py_get_format() {
 #ifdef WITH_PYTHON
   static std::unordered_map<Group::DataType, std::string> group_dt_to_sizeof{

@@ -17,6 +17,7 @@ class GroupHelper {
   GroupHelper& operator=(GroupHelper const& other) = delete;
 
   size_t sizeof_data_type();
+  size_t sizeof_sample();
   std::string py_get_format();
 
  private:

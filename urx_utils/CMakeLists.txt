@@ -25,6 +25,8 @@ target_compile_options(
 
 # Set URX sources
 set(URX_UTILS_SRCS
+    ${CMAKE_CURRENT_SOURCE_DIR}/group_data_reader.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/group_data_reader.h
     ${CMAKE_CURRENT_SOURCE_DIR}/group_helper.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/group_helper.h
     ${CMAKE_CURRENT_SOURCE_DIR}/probe_helper.cpp
