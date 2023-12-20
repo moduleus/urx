@@ -39,8 +39,8 @@
 
 namespace py = pybind11;
 
-using VecFloat32 = std::vector<float>;
 using VecFloat64 = std::vector<double>;
+using VecVecFloat64 = std::vector<std::vector<double>>;
 using VecUInt32 = std::vector<uint32_t>;
 using VecVecUInt32 = std::vector<std::vector<uint32_t>>;
 
@@ -52,8 +52,8 @@ using VecElement = std::vector<urx::Element>;
 using VecExcitationPtr = std::vector<std::shared_ptr<urx::Excitation>>;
 using VecEvent = std::vector<urx::Event>;
 
-// PYBIND11_MAKE_OPAQUE(VecFloat32);
 PYBIND11_MAKE_OPAQUE(VecFloat64);
+PYBIND11_MAKE_OPAQUE(VecVecFloat64);
 PYBIND11_MAKE_OPAQUE(VecUInt32);
 PYBIND11_MAKE_OPAQUE(VecVecUInt32);
 
@@ -63,10 +63,7 @@ PYBIND11_MAKE_OPAQUE(VecImpulseResponsePtr);
 PYBIND11_MAKE_OPAQUE(VecElement);
 PYBIND11_MAKE_OPAQUE(VecExcitationPtr);
 PYBIND11_MAKE_OPAQUE(VecEvent);
-
-// PYBIND11_MAKE_OPAQUE(urx::Vector3D<double>);
 PYBIND11_MAKE_OPAQUE(VecVector3D);
-// PYBIND11_MAKE_OPAQUE(urx::DoubleNan);
 
 template <typename T>
 std::ostream &operator<<(std::ostream &out, const std::vector<T> &v) {
@@ -119,9 +116,10 @@ constexpr std::string get_format(const std::vector<T> &v) {
 PYBIND11_MODULE(bindings, m) {
   m.doc() = "Variant C++ binding POC";
 
-  // py::bind_vector<VecFloat32>(m, "VecFloat32", py::buffer_protocol());
   py::bind_vector<VecFloat64>(m, "VecFloat64", py::buffer_protocol());
   py::implicitly_convertible<py::list, VecFloat64>();
+  py::bind_vector<VecVecFloat64>(m, "VecVecFloat64");
+  py::implicitly_convertible<py::list, VecVecFloat64>();
   py::bind_vector<VecUInt32>(m, "VecUInt32", py::buffer_protocol());
   py::implicitly_convertible<py::list, VecUInt32>();
   py::bind_vector<VecVecUInt32>(m, "VecVecUInt32");
@@ -524,6 +522,7 @@ PYBIND11_MODULE(bindings, m) {
   // GroupData
   py::class_<urx::GroupData, std::shared_ptr<urx::GroupData>>(m, "GroupData")
       .def(py::init())
+      .def(py::init<urx::GroupData>())
       .def(pybind11::self == pybind11::self)
       .def(pybind11::self != pybind11::self)
       .def_property(
@@ -531,32 +530,29 @@ PYBIND11_MODULE(bindings, m) {
           [](urx::GroupData &self) {
             if (self.group.expired()) {
               throw std::runtime_error("Current group is not referenced by the acquisition.\n");
-              // return std::shared_ptr<urx::Group>(nullptr);
             }
             return self.group.lock();
           },
           [](urx::GroupData &self, const std::shared_ptr<urx::Group> &group) {
             self.group = group;
           })
-      .def_readwrite("group_timestamp", &urx::GroupData::group_timestamp)
       // .def_readwrite("sequence_timestamps", &urx::GroupData::sequence_timestamps)
-      .def_property(
-          "sequence_timestamps",
-          [](urx::GroupData &self) {
-            return py::array_t<double>(
-                py::buffer_info(self.sequence_timestamps.data(), sizeof(double),
-                                py::format_descriptor<double>::format(), 1,
-                                {self.sequence_timestamps.size()}, {sizeof(double)}),
-                py::cast(&self.sequence_timestamps));
-          },
-          [](urx::GroupData &self, const py::buffer &vec) {
-            py::buffer_info info = vec.request();
-            if (info.item_type_is_equivalent_to<double>()) {
-              // self.sequence_timestamps = VecFloat64(
-              //     static_cast<double *>(info.ptr), static_cast<double *>(info.ptr) + info.shape[0]);
-            }
-          })
-      .def_readwrite("event_timestamps", &urx::GroupData::event_timestamps)
+      // .def_property(
+      //     "sequence_timestamps",
+      //     [](urx::GroupData &self) {
+      //       return py::array_t<double>(
+      //           py::buffer_info(self.sequence_timestamps.data(), sizeof(double),
+      //                           py::format_descriptor<double>::format(), 1,
+      //                           {self.sequence_timestamps.size()}, {sizeof(double)}),
+      //           py::cast(&self.sequence_timestamps));
+      //     },
+      //     [](urx::GroupData &self, const py::buffer &vec) {
+      //       py::buffer_info info = vec.request();
+      //       if (info.item_type_is_equivalent_to<double>()) {
+      //         // self.sequence_timestamps = VecFloat64(
+      //         //     static_cast<double *>(info.ptr), static_cast<double *>(info.ptr) + info.shape[0]);
+      //       }
+      //     })
       // .def_readwrite("raw_data", &urx::GroupData::raw_data)
       .def_property(
           "raw_data",
@@ -589,7 +585,10 @@ PYBIND11_MODULE(bindings, m) {
               throw std::runtime_error("Dimension error: Too many data in second dimension");
 
             self.raw_data = std::make_shared<urx::RawDataWeak>(info.ptr, info.shape[0]);
-          });
+          })
+      .def_readwrite("group_timestamp", &urx::GroupData::group_timestamp)
+      .def_readwrite("sequence_timestamps", &urx::GroupData::sequence_timestamps)
+      .def_readwrite("event_timestamps", &urx::GroupData::event_timestamps);
 
   py::class_<urx::Dataset>(m, "Dataset")
       .def(py::init())

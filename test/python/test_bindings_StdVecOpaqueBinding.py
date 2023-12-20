@@ -51,13 +51,41 @@ class TestBindingsStdVecOpaqueBinding(unittest.TestCase):
         self.assertEqual(urx.VecVecUInt32([[1, 2, 3], [4, 5, 6, 7, 8, 9]]), [
                          [1, 2, 3], [4, 5, 6, 7, 8, 9]])
 
-        v = [[1, 2, 3], [4, 5, 6, 7, 8, 9]]
+        v = urx.VecVecUInt32([[1, 2, 3], [4, 5, 6, 7, 8, 9]])
         toto = v[0][0]
         toto += 1
         self.assertEqual(v[0], [1, 2, 3])
-        v_ref = v[0]
-        v_ref[0] += 1
+        v0_ref = v[0]
+        v0_ref[0] += 1
         self.assertEqual(v[0], [2, 2, 3])
+        v_ref = v
+        v_ref[0][0] += 1
+        self.assertEqual(v[0], [3, 2, 3])
+        v_ref.append([10, 11])
+        self.assertEqual(v[2], [10, 11])
+
+        print("--Test %s END--" % testName)
+
+    def testVecVecFloat64(self):
+        testName = "VecVecFloat64 binding"
+        print("\n--Test %s BEGIN--" % testName)
+
+        self.assertEqual(urx.VecVecFloat64(), [])
+        self.assertEqual(urx.VecVecFloat64([[1, 2, 3], [4, 5, 6, 7, 8, 9]]), [
+                         [1, 2, 3], [4, 5, 6, 7, 8, 9]])
+
+        v = urx.VecVecFloat64([[1, 2, 3], [4, 5, 6, 7, 8, 9]])
+        toto = v[0][0]
+        toto += 1
+        self.assertEqual(v[0], [1, 2, 3])
+        v0_ref = v[0]
+        v0_ref[0] += 1
+        self.assertEqual(v[0], [2, 2, 3])
+        v_ref = v
+        v_ref[0][0] += 1
+        self.assertEqual(v[0], [3, 2, 3])
+        v_ref.append([10, 11])
+        self.assertEqual(v[2], [10, 11])
 
         print("--Test %s END--" % testName)
 

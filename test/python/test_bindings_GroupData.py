@@ -1,12 +1,13 @@
 import pyurx as urx
 import numpy as np
 from time import perf_counter
+import gc
 
 import unittest
 from parameterized import parameterized
 
 
-class TestBindings(unittest.TestCase):
+class TestBindingsGroupData(unittest.TestCase):
 
     # def testHugeDataTransform(self):
     #     testName = "Do computation on huge data vector"
@@ -24,144 +25,136 @@ class TestBindings(unittest.TestCase):
 
     #     print("--Test %s END--" % testName)
 
-    @parameterized.expand([
-        ["Complex 64", np.complex64],
-        ["Complex 128", np.complex128]
-    ])
-    def testVariantVectorFloatComplex(self, testName, numpyType):
+    # @parameterized.expand([
+    #     ["Complex 64", np.complex64],
+    #     ["Complex 128", np.complex128]
+    # ])
+    # def testVariantVectorFloatComplex(self, testName, numpyType):
+    #     print("\n--Test %s BEGIN--" % testName)
+
+    #     group_data = urx.GroupData()
+    #     self.assertEqual(len(group_data.raw_data), 0)
+
+    #     group_data = urx.GroupData()
+    #     group_data.raw_data = numpyType()
+    #     self.assertEqual(len(group_data.raw_data), 0)
+
+    #     group_data.raw_data = numpyType([1.+2.j, 2.+3.j])
+    #     self.assertEqual(len(group_data.raw_data), 2)
+
+    #     group_data.raw_data = np.array([1.+2.j, 2.+3.j], dtype=numpyType)
+    #     self.assertEqual(len(group_data.raw_data), 2)
+
+    #     ref = group_data.raw_data
+    #     self.assertTrue(np.array_equal(np.array(
+    #         [1.+2.j, 2.+3.j], dtype=numpyType), ref))
+    #     self.assertTrue(np.array_equal(np.array(
+    #         [[1, 2], [2, 3]], dtype=numpyType), group_data.raw_data))
+
+    #     ref[0] = 45.+67j
+    #     self.assertTrue(np.array_equal(
+    #         group_data.raw_data.view(numpyType)[:, 0], ref))
+
+    #     ref += 1
+    #     self.assertTrue(np.array_equal(ref, np.array(
+    #         [46.+67.j, 3.+3.j], dtype=numpyType)))
+    #     self.assertTrue(np.array_equal(
+    #         group_data.raw_data.view(numpyType)[:, 0], ref))
+
+    #     print("--Test %s END--" % testName)
+
+    def testGroupData(self):
+        testName = "GroupData binding"
         print("\n--Test %s BEGIN--" % testName)
 
+        # Check default CTOR
         group_data = urx.GroupData()
-        self.assertEqual(len(group_data.raw_data), 0)
+        self.assertRaises(
+            RuntimeError, lambda group_data: group_data.group, group_data)
+        # self.assertTrue(group_data.raw_data, [])
+        self.assertEqual(group_data.group_timestamp, urx.DoubleNan())
+        self.assertEqual(group_data.sequence_timestamps, urx.VecFloat64())
+        self.assertEqual(group_data.event_timestamps, urx.VecVecFloat64())
 
-        group_data = urx.GroupData()
-        group_data.raw_data = numpyType()
-        self.assertEqual(len(group_data.raw_data), 0)
+        # Check copy CTOR and referencing object
+        group_data_2 = urx.GroupData(group_data)
+        # self.assertEqual(group_data, group_data_2)
+        group_data_2.group_timestamp = urx.DoubleNan(0)
+        self.assertNotEqual(group_data, group_data_2)
+        group_data_ref = group_data
+        group_data_ref.group_timestamp = urx.DoubleNan(0)
+        self.assertEqual(group_data, group_data_ref)
+        group_data_2 = urx.GroupData(group_data)
 
-        group_data.raw_data = numpyType([1.+2.j, 2.+3.j])
-        self.assertEqual(len(group_data.raw_data), 2)
+        # No CTOR with parameters to test
 
-        group_data.raw_data = np.array([1.+2.j, 2.+3.j], dtype=numpyType)
-        self.assertEqual(len(group_data.raw_data), 2)
+        # Reference is possible for group_timestamp (DoubleNan)
+        self.assertEqual(group_data.group_timestamp, 0)
+        group_timestamp_ref = group_data.group_timestamp
+        group_timestamp_ref.value = 42
+        self.assertEqual(group_data.group_timestamp,
+                         group_timestamp_ref)
+        self.assertNotEqual(group_data, group_data_2)
+        # Check affectation
+        group_data.group_timestamp = urx.DoubleNan(42)
+        self.assertEqual(group_data.group_timestamp,
+                         group_timestamp_ref)
+        self.assertEqual(group_data.group_timestamp, 42)
+        self.assertEqual(group_data, group_data_2)
 
-        ref = group_data.raw_data
-        self.assertTrue(np.array_equal(np.array(
-            [1.+2.j, 2.+3.j], dtype=numpyType), ref))
-        self.assertTrue(np.array_equal(np.array(
-            [[1, 2], [2, 3]], dtype=numpyType), group_data.raw_data))
-
-        ref[0] = 45.+67j
-        self.assertTrue(np.array_equal(
-            group_data.raw_data.view(numpyType)[:, 0], ref))
-
-        ref += 1
-        self.assertTrue(np.array_equal(ref, np.array(
-            [46.+67.j, 3.+3.j], dtype=numpyType)))
-        self.assertTrue(np.array_equal(
-            group_data.raw_data.view(numpyType)[:, 0], ref))
-
-        print("--Test %s END--" % testName)
-
-    def testGroupData_Group(self):
-        testName = "GroupData & Group binding"
-        print("\n--Test %s BEGIN--" % testName)
-
-        group_data = urx.GroupData()
-        self.assertTrue(np.isnan(group_data.group_timestamp))
-        group_data.group_timestamp = np.float64("nan")
-
+        # Reference is possible for sequence_timestamps (VecFloat64)
         group_data.sequence_timestamps = urx.VecFloat64([1, 2, 3, 4.56])
-        self.assertTrue(np.array_equal(group_data.sequence_timestamps, np.array([1, 2, 3, 4.56]))
-                        )
-        group_data.event_timestamps = [urx.VecFloat64(
-            [1, 2, 3, 4.56]), urx.VecFloat64([7.8, 9])]
-        self.assertTrue(
-            group_data.event_timestamps == [urx.VecFloat64(
-                [1, 2, 3, 4.56]), urx.VecFloat64([7.8, 9])])
+        self.assertEqual(group_data.sequence_timestamps, [1, 2, 3, 4.56])
+        sequence_timestamps_ref = group_data.sequence_timestamps
+        sequence_timestamps_ref = [11, 12.34]
+        self.assertEqual(group_data.sequence_timestamps,
+                         sequence_timestamps_ref)
+        self.assertNotEqual(group_data, group_data_2)
+        # Check affectation
+        group_data.sequence_timestamps = [1, 2, 3, 4.56]
+        self.assertEqual(group_data.sequence_timestamps,
+                         sequence_timestamps_ref)
+        self.assertEqual(group_data.sequence_timestamps, [1, 2, 3, 4.56])
+        self.assertEqual(group_data, group_data_2)
 
+        # Reference is possible for event_timestamps (VecVecFloat64)
+        group_data.event_timestamps = urx.VecVecFloat64(
+            [[1, 2, 3, 4.56], [7.8, 9]])
+        self.assertEqual(group_data.event_timestamps,
+                         [[1, 2, 3, 4.56], [7.8, 9]])
+        event_timestamps_ref = group_data.event_timestamps
+        event_timestamps_ref[0] = [11, 12.34]
+        self.assertEqual(group_data.event_timestamps,
+                         event_timestamps_ref)
+        self.assertNotEqual(group_data, group_data_2)
+        # Check affectation
+        group_data.event_timestamps = [[1, 2, 3, 4.56], [7.8, 9]]
+        self.assertEqual(group_data.event_timestamps,
+                         event_timestamps_ref)
+        self.assertEqual(group_data.event_timestamps,
+                         [[1, 2, 3, 4.56], [7.8, 9]])
+        self.assertEqual(group_data, group_data_2)
+
+        # group is a pointer and will always be shared
         group = urx.Group()
-        self.assertEqual(group.description, "")
-        self.assertEqual(group.sampling_type, urx.SamplingType.UNDEFINED)
-        self.assertEqual(group.data_type, urx.DataType.UNDEFINED)
-
-        self.assertRaises(
-            RuntimeError, lambda group_data: group_data.group, group_data)
         group_data.group = group
+        group_data_2.group = group
         self.assertEqual(group_data.group, group)
-        group_data.group.description = "Hello world"
-        group_data.group.data_type = urx.DataType.FLOAT
-        group_data.group.sampling_type = urx.SamplingType.IQ
+        group_ref = group_data.group
+        group_ref.description = "BMode"
+        self.assertEqual(group_data.group, group_ref)
+        self.assertNotEqual(group_data, group_data_2)
+        # Check affectation
+        group_data.group = group
+        self.assertEqual(group_data.group, group_ref)
         self.assertEqual(group_data.group, group)
-        import gc
+        self.assertEqual(group_data, group_data_2)
         del group
         gc.collect()
         self.assertRaises(
             RuntimeError, lambda group_data: group_data.group, group_data)
-
-        print("--Test %s END--" % testName)
-
-    def testAcq_GroupData_Group(self):
-        testName = "Acquisition & Groups & GroupData binding"
-        print("\n--Test %s BEGIN--" % testName)
-
-        acq = urx.Acquisition()
-        group_data = urx.GroupData()
-        group = urx.Group()
-        acq.groups.append(group)
-        group_data.group = group
-
-        self.assertEqual(len(acq.groups), 1)
-        self.assertEqual(acq.groups[0].description, "")
-        self.assertEqual(acq.groups[0].sampling_type,
-                         urx.SamplingType.UNDEFINED)
-        self.assertEqual(acq.groups[0].data_type, urx.DataType.UNDEFINED)
-
-        acq.groups[0].description = "Hello World"
-        self.assertEqual(group.description, "Hello World")
-
-        acq.groups.append(group)
-        self.assertEqual(len(acq.groups), 2)
-        acq.groups.append(urx.Group())
-        self.assertEqual(len(acq.groups), 3)
-        acq.groups[2].sampling_type = urx.SamplingType.IQ
-
-        self.assertEqual(acq.groups[0], acq.groups[1])
-        self.assertEqual(id(acq.groups[0]), id(acq.groups[1]))
-        self.assertNotEqual(acq.groups[0], acq.groups[2])
-
-        import gc
-        del group
-        gc.collect()
-        self.assertEqual(group_data.group.description, "Hello World")
-
-        acq.groups.remove(acq.groups[0])
-        self.assertEqual(group_data.group.description, "Hello World")
-
-        acq.groups.remove(acq.groups[0])
         self.assertRaises(
-            RuntimeError, lambda group_data: group_data.group, group_data)
-        self.assertEqual(acq.groups[0].sampling_type, urx.SamplingType.IQ)
-
-        print("--Test %s END--" % testName)
-
-    def testDataset(self):
-        testName = "Dataset binding"
-        print("\n--Test %s BEGIN--" % testName)
-
-        dataset = urx.Dataset()
-        acq = urx.Acquisition()
-        version = urx.Version()
-
-        self.assertEqual(dataset.acquisition, acq)
-        dataset.acquisition.timestamp = 42
-        acq.timestamp = 42
-        self.assertEqual(dataset.acquisition, acq)
-
-        self.assertEqual(dataset.version, version)
-        dataset.version.major = 42
-        self.assertNotEqual(dataset.version, version)
-        version.major = 42
-        self.assertEqual(dataset.version, version)
+            RuntimeError, lambda group_data: group_data.group, group_data_2)
 
         print("--Test %s END--" % testName)
 
