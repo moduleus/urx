@@ -38,7 +38,25 @@ class TestBindingsWave(unittest.TestCase):
         # Check CTOR with all parameters
         w = urx.Wave(urx.WaveType.CONVERGING_WAVE,
                      0, urx.Vector3D(), [[1, 2, 3], [4, 5, 6, 7, 8, 9]], [ex, ex_2], [3.14, 42], [12.34, 56.78])
+        self.assertEqual(w.type, urx.WaveType.CONVERGING_WAVE)
+        self.assertEqual(w.time_zero, 0)
+        self.assertEqual(w.time_zero_reference_point, urx.Vector3D())
+        self.assertEqual(w.channel_mapping, [[1, 2, 3], [4, 5, 6, 7, 8, 9]])
+        self.assertEqual(w.channel_excitations, [ex, ex_2])
+        self.assertEqual(w.channel_delays,  [3.14, 42])
+        self.assertEqual(w.parameters, [12.34, 56.78])
         w_2 = urx.Wave(w)
+        self.assertEqual(w, w_2)
+
+        # Reference is not possible for enum
+        self.assertEqual(w.type, urx.WaveType.CONVERGING_WAVE)
+        type_2 = w.type
+        type_2 = urx.WaveType.DIVERGING_WAVE
+        self.assertNotEqual(w.type, type_2)
+        self.assertEqual(w, w_2)
+        # Check affectation
+        w.type = urx.WaveType.CONVERGING_WAVE
+        self.assertEqual(w.type, urx.WaveType.CONVERGING_WAVE)
         self.assertEqual(w, w_2)
 
         # Reference is possible for time_zero (DoubleNan)
