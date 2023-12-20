@@ -153,7 +153,7 @@ class TestBindingsReceiveSetup(unittest.TestCase):
         self.assertEqual(rs.modulation_frequency, 6)
         self.assertEqual(rs, rs_2)
 
-        # Reference is possible for tgc_sampling_frequency (DoubleNan)
+        # Reference is possible for time_offset (DoubleNan)
         self.assertEqual(rs.time_offset, 7)
         time_offset_ref = rs.time_offset
         time_offset_ref.value = 123
