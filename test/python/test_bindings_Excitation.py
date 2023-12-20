@@ -40,7 +40,7 @@ class TestBindingsExcitation(unittest.TestCase):
             np.nan), urx.VecFloat64([3.14, -42]))
         self.assertEqual(ex, ex_2)
 
-        # Reference is possible for urx.VecFloat64
+        # Reference is possible for waveform (VecFloat64)
         self.assertEqual(ex, ex_2)
         waveform_ref = ex.waveform
         self.assertEqual(waveform_ref, [3.14, -42])
@@ -55,7 +55,7 @@ class TestBindingsExcitation(unittest.TestCase):
         ex.waveform = [3.14, -42]
         self.assertEqual(waveform_ref, [3.14, -42])
 
-        # Reference is possible for DoubleNan
+        # Reference is possible for transmit_frequency (DoubleNan)
         self.assertEqual(ex, ex_2)
         ex.transmit_frequency = urx.DoubleNan(np.nan)
         transmit_frequency_ref = ex.transmit_frequency
@@ -78,7 +78,7 @@ class TestBindingsExcitation(unittest.TestCase):
         self.assertNotEqual(ex, ex_2)
         ex.transmit_frequency = urx.DoubleNan(42)
 
-        # Reference is possible for DoubleNan
+        # Reference is possible for sampling_frequency (DoubleNan)
         self.assertEqual(ex, ex_2)
         ex.sampling_frequency = urx.DoubleNan(np.nan)
         sampling_frequency_ref = ex.sampling_frequency
@@ -101,7 +101,7 @@ class TestBindingsExcitation(unittest.TestCase):
         self.assertNotEqual(ex, ex_2)
         ex.sampling_frequency = urx.DoubleNan()
 
-        # Reference is not possible for string
+        # Reference is not possible for pulse_shape (string)
         self.assertEqual(ex, ex_2)
         pulse_shape = ex.pulse_shape
         self.assertEqual(pulse_shape, ex.pulse_shape)
