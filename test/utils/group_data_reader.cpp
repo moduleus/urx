@@ -74,20 +74,20 @@ TEST_CASE("Read back group data complex float data", "[group_data]") {
 
   size_t i = 0;
   for (size_t fi = 0; fi < group_data_reader.sequencesCount(); fi++) {
-    std::cout << "f" << fi << " {\n";
+    // std::cout << "f" << fi << " {\n";
     for (size_t ei = 0; ei < group_data_reader.eventsCount(); ei++) {
-      std::cout << "  e" << ei << " {\n";
+      // std::cout << "  e" << ei << " {\n";
       for (size_t ci = 0; ci < group_data_reader.channelsCount(ei); ci++) {
-        std::cout << "    c" << ei << " [ ";
+        // std::cout << "    c" << ei << " [ ";
         for (size_t si = 0; si < group_data_reader.samplesCount(ei); si++) {
-          std::cout << group_data_reader.at<CompInt32>(fi, ei, ci, si) << " ";
+          // std::cout << group_data_reader.at<CompInt32>(fi, ei, ci, si) << " ";
           REQUIRE(group_data_reader.at<CompInt32>(fi, ei, ci, si) == raw_data_ptr[i++]);
         }
-        std::cout << "]\n";
+        // std::cout << "]\n";
       }
-      std::cout << "  }\n";
+      // std::cout << "  }\n";
     }
-    std::cout << "}\n";
+    // std::cout << "}\n";
   }
 }
 
