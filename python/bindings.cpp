@@ -50,6 +50,7 @@ using VecElementGeometryPtr = std::vector<std::shared_ptr<urx::ElementGeometry>>
 using VecImpulseResponsePtr = std::vector<std::shared_ptr<urx::ImpulseResponse>>;
 using VecElement = std::vector<urx::Element>;
 using VecExcitationPtr = std::vector<std::shared_ptr<urx::Excitation>>;
+using VecEvent = std::vector<urx::Event>;
 
 // PYBIND11_MAKE_OPAQUE(VecFloat32);
 PYBIND11_MAKE_OPAQUE(VecFloat64);
@@ -61,6 +62,7 @@ PYBIND11_MAKE_OPAQUE(VecElementGeometryPtr);
 PYBIND11_MAKE_OPAQUE(VecImpulseResponsePtr);
 PYBIND11_MAKE_OPAQUE(VecElement);
 PYBIND11_MAKE_OPAQUE(VecExcitationPtr);
+PYBIND11_MAKE_OPAQUE(VecEvent);
 
 // PYBIND11_MAKE_OPAQUE(urx::Vector3D<double>);
 PYBIND11_MAKE_OPAQUE(VecVector3D);
@@ -137,6 +139,8 @@ PYBIND11_MODULE(bindings, m) {
   py::implicitly_convertible<py::list, VecElement>();
   py::bind_vector<VecExcitationPtr>(m, "VecExcitationPtr");
   py::implicitly_convertible<py::list, VecExcitationPtr>();
+  py::bind_vector<VecEvent>(m, "VecEvent");
+  py::implicitly_convertible<py::list, VecEvent>();
 
   py::enum_<urx::Group::SamplingType>(m, "SamplingType")
       .value("RF", urx::Group::SamplingType::RF)
@@ -509,11 +513,13 @@ PYBIND11_MODULE(bindings, m) {
   py::class_<urx::Group, std::shared_ptr<urx::Group>>(m, "Group")
       .def(py::init())
       .def(py::init<urx::Group>())
+      .def(py::init<urx::Group::SamplingType, urx::Group::DataType, std::string, VecEvent>())
       .def(pybind11::self == pybind11::self)
       .def(pybind11::self != pybind11::self)
-      .def_readwrite("data_type", &urx::Group::data_type)
       .def_readwrite("sampling_type", &urx::Group::sampling_type)
-      .def_readwrite("description", &urx::Group::description);
+      .def_readwrite("data_type", &urx::Group::data_type)
+      .def_readwrite("description", &urx::Group::description)
+      .def_readwrite("sequence", &urx::Group::sequence);
 
   // GroupData
   py::class_<urx::GroupData, std::shared_ptr<urx::GroupData>>(m, "GroupData")
