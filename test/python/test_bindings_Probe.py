@@ -73,6 +73,7 @@ class TestBindingsProbe(unittest.TestCase):
         element_geometries_ref[0] = eg_3
         self.assertEqual(p_rca.element_geometries, element_geometries_ref)
         self.assertNotEqual(p_rca, p_rca_bis)
+        # Check affectation
         p_rca.element_geometries = [eg, eg_2]
         self.assertEqual(p_rca.element_geometries, element_geometries_ref)
         self.assertEqual(p_rca.element_geometries, [eg, eg_2])
@@ -92,6 +93,7 @@ class TestBindingsProbe(unittest.TestCase):
         impulse_responses_ref[0] = ir_3
         self.assertEqual(p_rca.impulse_responses, impulse_responses_ref)
         self.assertNotEqual(p_rca, p_rca_bis)
+        # Check affectation
         p_rca.impulse_responses = [ir, ir_2]
         self.assertEqual(p_rca.impulse_responses, impulse_responses_ref)
         self.assertEqual(p_rca.impulse_responses, [ir, ir_2])
@@ -131,6 +133,7 @@ class TestBindingsProbe(unittest.TestCase):
         type_2 = urx.ProbeType.LINEAR
         self.assertNotEqual(p_rca.type, type_2)
         self.assertEqual(p_rca, p_rca_bis)
+        # Check affectation
         p_rca.type = urx.ProbeType.RCA
         self.assertEqual(p_rca.type, urx.ProbeType.RCA)
         self.assertEqual(p_rca, p_rca_bis)
@@ -141,6 +144,7 @@ class TestBindingsProbe(unittest.TestCase):
         description_2 = "Hello"
         self.assertNotEqual(p_rca.description, description_2)
         self.assertEqual(p_rca, p_rca_bis)
+        # Check affectation
         p_rca.description = "rca probe"
         self.assertEqual(p_rca.description, "rca probe")
         self.assertEqual(p_rca, p_rca_bis)
