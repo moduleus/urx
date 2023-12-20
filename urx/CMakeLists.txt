@@ -45,6 +45,16 @@ add_subdirectory("v0_2")
 
 # Install library ###
 
+# Create cmake config files ###
+configure_package_config_file(
+  ${PROJECT_NAME}Config.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
+  INSTALL_DESTINATION ${CMAKE_INSTALL_DIR}/${PROJECT_NAME}-${git_branch})
+
+write_basic_package_version_file(
+  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
+  COMPATIBILITY SameMajorVersion)
+
 install(
   TARGETS ${PROJECT_NAME}
   EXPORT ${PROJECT_NAME}Targets
@@ -60,12 +70,19 @@ install(
 
 install(
   DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${INSTALL_NAME}
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${INSTALL_NAME}/urx
   FILES_MATCHING
-  PATTERN "urx/*.hpp"
-  PATTERN "urx/*.h"
+  PATTERN "*.hpp"
+  PATTERN "*.h"
   PATTERN ".git" EXCLUDE
   PATTERN "CI" EXCLUDE
   PATTERN "install" EXCLUDE
   PATTERN "build" EXCLUDE
   PATTERN "log.h" EXCLUDE)
+
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/urx.h
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${INSTALL_NAME}/urx)
+
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
+              ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}-${git_branch})
