@@ -1,47 +1,58 @@
 classdef Object < handle
+
   properties (Access = public)
     libBindingRef = urx.LibBinding.empty(1,0)
     id(1,1) = libpointer
-    container {mustBeScalarOrEmpty}
-    containerId int32 {mustBeScalarOrEmpty}
+    saveId
+    ownerOfMemory(1,1) logical
+    pointerOfShared logical
+    saveOwnerOfMemory
   end
-  
-  % this.className() return the lower className, not "Object".
-  
+
   methods
-    function this = Object(container, containerId, id)
+    function this = Object(id, isSharedPointer)
       this.libBindingRef = urx.LibBinding.getInstance();
+      this.saveId = containers.Map( 'KeyType', 'char', 'ValueType', 'any');
+      this.saveOwnerOfMemory = containers.Map( 'KeyType', 'char', 'ValueType', 'logical');
+
       if nargin == 0
         this.id = this.libBindingRef.call([strrep(class(this), '.', '_') '_new']);
+        this.ownerOfMemory = true;
+        this.pointerOfShared = true;
       elseif nargin == 1
-        this.id = container;
-      else
         this.id = id;
-        this.containerId = containerId;
-        this.container = container;
+        this.ownerOfMemory = false;
+        this.pointerOfShared = true;
+      elseif nargin == 2
+        this.id = id;
+        this.ownerOfMemory = false;
+        this.pointerOfShared = isSharedPointer;
       end
       mc = metaclass(this);
       props = mc.PropertyList;
       for i = 1:numel(props)
         if strncmp(props(i).Name, 'stdVector', 9)
-          tiedObjName = (this.camelToSnakeCase(props(i).Name(10:end)));
-          
+          tiedObjName = (urx.Object.camelToSnakeCase(props(i).Name(10:end)));
+
           prop_id = find(strcmpi(tiedObjName, {props.Name}));
           if (isempty(prop_id))
             throw(MException('urx:fatalError', ['Failed to found ' tiedObjName ' property for ' this.className() '.stdVector' tiedObjName]));
           end
-          
+
           defaultVal = props(prop_id).DefaultValue;
           tiedObjClass = defaultVal.className();
-          
+
           if strcmp(tiedObjClass, 'cell')
             tiedObjClass = class(defaultVal{1});
           end
-          propNameSnake = this.camelToSnakeCase(props(i).Name);
+          propNameSnake = urx.Object.camelToSnakeCase(props(i).Name);
           this.(props(i).Name) = urx.StdVector(tiedObjClass, this, propNameSnake(12:end), ...
             isa(this.(tiedObjName), 'cell') + 1);
         end
         if props(i).SetObservable
+          if (isa(this.(props(i).Name), 'urx.Object'))
+            addlistener(this, props(i).Name, 'PreSet', @urx.Object.handlePropEvents);
+          end
           addlistener(this, props(i).Name, 'PostSet', @urx.Object.handlePropEvents);
         end
         if props(i).GetObservable
@@ -49,128 +60,168 @@ classdef Object < handle
         end
       end
     end
-    
-    function deleteCpp(this)
-      deleteFunction = [strrep(class(this), '.', '_') '_delete'];
-      this.libBindingRef.call(deleteFunction, this.id);
-      this.id = libpointer;
-    end
-    
+
     function delete(this)
-      if isempty(this.containerId)
-        this.deleteCpp();
+      if this.ownerOfMemory
+        deleteFunction = [strrep(class(this), '.', '_') '_delete'];
+        this.libBindingRef.call(deleteFunction, this.id);
+        this.id = libpointer;
       end
     end
-    
+
     function res = className(this)
       thisClass = class(this);
       res = thisClass(5:end); % no urx.
     end
-    
-    function res = isAnAllocatedObject(this)
-      res = isempty(this.container);
-    end
   end
-  
+
   methods (Static)
     function handlePropEvents(src,evnt)
+      persistent disablePostRecursion;
+      if isempty(disablePostRecursion)
+        disablePostRecursion = 0;
+      end
+      persistent disableGetRecursion;
+      if isempty(disableGetRecursion)
+        disableGetRecursion = 0;
+      end
       % avoid recursion
       s = dbstack;
+      % Security
+      if numel(s) == 1
+        disablePostRecursion = 0;
+        disableGetRecursion = 0;
+      end
+      % Condition to add a breakpoint if recursion
       if numel(s) > 1 && strcmp(s(2).name, 'Object.handlePropEvents')
+        s = dbstack;
+      end
+      if numel(s) > 1 && strcmp(s(2).name, 'Object.handlePropEvents') && disablePostRecursion > 0 && ...
+          (strcmp(evnt.EventName, 'PreSet') || strcmp(evnt.EventName, 'PostSet'))
         return;
       end
-      % While debugging.
-      
-      if numel(s) > 1 && (strcmp(s(2).name, 'datatipinfo') || strcmp(s(2).name, 'workspacefunc'))
+      if numel(s) > 1 && strcmp(s(2).name, 'Object.handlePropEvents') && disableGetRecursion > 0 && ...
+          strcmp(evnt.EventName, 'PreGet')
         return;
       end
-      
-      % get affected object/property infos
-      affectedObj = evnt.AffectedObject;
-      affectedPptName = src.Name;
-      
-      % potentially
-      tiedStdVecName = ['stdVector' urx.Object.snakeToCamelCase(affectedPptName)];
-      
+      % Condition to add a breakpoint if recursion allowed
+      if numel(s) > 1 && strcmp(s(2).name, 'Object.handlePropEvents')
+        s = dbstack;
+      end
+      % Disable hint for tipinfo and workspace info. To ease debug. Need to
+      % be removed before release.
+      if any(arrayfun(@(x) strcmp(x.name, 'datatipinfo'), s)) || any(arrayfun(@(x) strcmp(x.name, 'workspacefunc'), s))
+        disp('Disabled')
+        return;
+      end
+
+      % get affected affectedObject/property infos
+      affectedObject = evnt.AffectedObject;
+      affectedPropertyName = src.Name;
+      disableGetRecursion = disableGetRecursion + 1;
+      affectedProperty = affectedObject.(affectedPropertyName);
+      disableGetRecursion = disableGetRecursion - 1;
+
       % C pointer of the field.
-      functionAccessor = [strrep(class(affectedObj), '.', '_') '_' affectedPptName];
-      libBindingRef = urx.LibBinding.getInstance();
-      ptr = libBindingRef.call(functionAccessor, affectedObj.id);
-      
-      affectedPpt = affectedObj.(affectedPptName);
-      affectedPptClass = class(affectedPpt);
-      if iscell(affectedPptClass)
-        affectedPptClass = class(affectedPpt{1});
+      functionCFieldAccessor = strrep(class(affectedObject), '.', '_');
+      if affectedObject.ownerOfMemory
+        functionCFieldAccessor = [functionCFieldAccessor '_shared'];
       end
-      
+      functionCFieldAccessor = [functionCFieldAccessor '_' urx.Object.camelToSnakeCase(affectedPropertyName)];
+      libBindingRef = urx.LibBinding.getInstance();
+      affectedCFieldPtr = libBindingRef.call(functionCFieldAccessor, affectedObject.id);
+
+      affectedPropertyClassName = class(affectedProperty);
+      if iscell(affectedPropertyClassName)
+        affectedPropertyClassName = class(affectedProperty{1});
+      end
+
       % decision tree: event then, property class (char, double, int32/enum or urx.* from std_vector)
       switch evnt.EventName
-        
+
+        case 'PreSet'
+          %if isempty(affectedProperty) && affectedObject.saveId.isKey(affectedPropertyName)
+          %  affectedObject.saveId.remove(affectedPropertyName);
+          %  affectedObject.saveOwnerOfMemory.remove(affectedPropertyName);
+          %end
+          if ~isempty(affectedProperty)
+            affectedObject.saveId(affectedPropertyName) = affectedProperty.id;
+            affectedObject.saveOwnerOfMemory(affectedPropertyName) = affectedProperty.ownerOfMemory;
+          else
+            affectedObject.saveId(affectedPropertyName) = affectedCFieldPtr;
+            affectedObject.saveOwnerOfMemory(affectedPropertyName) = false;
+          end
+
         case 'PostSet'
-          if strcmp(affectedPptClass, 'char')
-            libBindingRef.call('std_string_set', ptr, affectedPpt);
-          elseif ismember(affectedPptClass, {'double', 'uint16', 'int32'})
-            affectedObjPpts = properties(affectedObj);
-            
-            % Check if std::vector
-            if any(strcmp(affectedObjPpts, tiedStdVecName))
-              affectedObj.(tiedStdVecName).setToCpp(affectedObj.(affectedPptName));
+          if strcmp(affectedPropertyClassName, 'char')
+            libBindingRef.call('std_string_set', affectedCFieldPtr, affectedProperty);
+          elseif isenum(affectedProperty) && isa(affectedProperty, 'int32')
+            if (numel(affectedProperty) ~= 1)
+              throw(MException('urx:fatalError', 'Only single value is supported.'));
+            end
+            affectedCFieldPtr.setdatatype('int32Ptr', numel(affectedProperty));
+            affectedCFieldPtr.Value = int32(affectedProperty);
+          elseif isa(affectedProperty, 'urx.StdVector')
+            % Should be launch only from child constructor after Object
+            % constructor has been called.
+          elseif ~isa(affectedProperty, 'urx.Object')
+            if (numel(affectedProperty) ~= 1)
+              throw(MException('urx:fatalError', 'Only single value is supported.'));
+            end
+            affectedCFieldPtr.setdatatype([affectedPropertyClassName 'Ptr'], numel(affectedProperty));
+            affectedCFieldPtr.Value = affectedProperty;
+          else % urx affectedObject
+
+            assignFunction = [strrep(affectedPropertyClassName, '.', '_') '_assign'];
+            if affectedObject.saveOwnerOfMemory(affectedPropertyName)
+              assignFunction = [assignFunction '_shared'];
             else
-              if (numel(affectedPpt) ~= 1)
-                throw(MException('urx:fatalError', 'Only single value is supported.'));
+              if affectedProperty.pointerOfShared && ~affectedProperty.ownerOfMemory
+                assignFunction = [assignFunction '_weak'];
+              else
+                assignFunction = [assignFunction '_raw'];
               end
-              ptr.setdatatype([affectedPptClass 'Ptr'], numel(affectedPpt));
-              ptr.Value = affectedPpt;
             end
-          else
-            throw(MException('urx:fatalError', [affectedPptClass ' is not supported in PostSet']));
-          end
-          
-          if strncmp(affectedPptClass, 'urx.', 4) && ~strncmp(affectedPptClass, 'urx.stdV', 8)
-            if any(strcmp(properties(affectedObj), tiedStdVecName)) % pool of instances case
-              tiedStdVecObjectClass = affectedObj.(tiedStdVecName).objectClassName;
-              tmpStdVec = urx.StdVector(tiedStdVecObjectClass); % temporary std vector object
-              for i=1:numel(affectedPpt)
-                tmpStdVec.pushBack(affectedPpt(i));     % push all right value to the tmp object
-                if affectedPpt(i).isAnAllocatedObject()
-                  affectedPpt(i).deleteCpp();           % free memory of dynamic/stand-alone urx.object
-                end
-              end
-              tmpStdVec.objects = affectedPpt;        % assign same right value to the std vector
-              tmpStdVec.updateFromCpp();              % from cpp update (recursive std vector)
-              affectedObj.(tiedStdVecName).copy(tmpStdVec); % final copy (cpp side)
-              affectedObj.(tiedStdVecName).objects = affectedPpt; % matlab side update
-            elseif ~isempty(affectedPpt) % simple pointer case
-              tiedStdVector = unique([affectedPpt.container]);
-              assert(numel(tiedStdVector) == 1, 'numel(tiedStdVector) should be == 1')
-              tiedStdVector.updateFromCpp();
+            if affectedProperty.pointerOfShared
+              assignFunction = [assignFunction '_shared'];
+            else
+              assignFunction = [assignFunction '_raw'];
+            end
+            libBindingRef.call(assignFunction, affectedObject.saveId(affectedPropertyName), affectedProperty.id);
+
+            if affectedObject.saveId.isKey(affectedPropertyName)
+              affectedProperty.id = affectedObject.saveId(affectedPropertyName);
+              affectedProperty.ownerOfMemory = affectedObject.saveOwnerOfMemory(affectedPropertyName);
             end
           end
-          
+
         case 'PreGet'
-          if strncmp(affectedPptClass, 'urx.', 4)
-            affectedObj.(affectedPptName) = urx.(affectedPptClass(5:end))(ptr);
-          elseif strcmp(affectedPptClass, 'char')
-            affectedObj.(affectedPptName) = libBindingRef.call('std_string_get', ptr);
-          elseif strcmp(affectedPptClass, 'double')
-            affectedObjPpts = properties(affectedObj);
-            if any(strcmp(affectedObjPpts, tiedStdVecName))
-              affectedObj.(affectedPptName) = affectedObj.(tiedStdVecName).getFromCpp();
-            else
-              if (numel(affectedPpt) ~= 1)
-                throw(MException('urx:fatalError', 'Only single value is supported.'));
-              end
-              
-              ptr.setdatatype('doublePtr', numel(affectedPpt));
-              affectedObj.(affectedPptName) = ptr.Value;
+          disablePostRecursion = disablePostRecursion + 1;
+          if strcmp(affectedPropertyClassName, 'char')
+            affectedObject.(affectedPropertyName) = libBindingRef.call('std_string_get', affectedCFieldPtr);
+          elseif isenum(affectedProperty) && isa(affectedProperty, 'int32')
+            if (numel(affectedProperty) ~= 1)
+              throw(MException('urx:fatalError', 'Only single value is supported.'));
             end
-          else
-            throw(MException('urx:fatalError', [affectedPptClass ' is not supported in PreGet']));
+            affectedCFieldPtr.setdatatype('int32Ptr', numel(affectedProperty));
+            affectedCFieldPtr.Value = int32(affectedProperty);
+          elseif strcmp(affectedPropertyClassName, 'urx.StdVector')
+            affectedObject.(affectedPropertyName).id = affectedCFieldPtr;
+          elseif ~isa(affectedProperty, 'urx.Object')
+            if (numel(affectedProperty) ~= 1)
+              throw(MException('urx:fatalError', 'Only single value is supported.'));
+            end
+
+            affectedCFieldPtr.setdatatype([affectedPropertyClassName 'Ptr'], numel(affectedProperty));
+            affectedObject.(affectedPropertyName) = affectedCFieldPtr.Value;
+          else % urx affectedObject
+            affectedObject.(affectedPropertyName) = urx.(affectedPropertyClassName(5:end))(affectedCFieldPtr, false);
           end
+          disablePostRecursion = disablePostRecursion - 1;
       end
     end
   end
-  
+
   methods (Static)
     function res = snakeToCamelCase(str)
       res = [upper(str(1)) regexprep(str(2:end), '_(\w)', '${upper($1)}')];

@@ -1,12 +1,17 @@
 classdef ImpulseResponse < urx.Object
-  properties (Access = public)
-    stdVectorVector3D urx.StdVector {mustBeScalarOrEmpty} = urx.StdVector.empty(0,1)
-  end
-  
   properties (Access = public, SetObservable, GetObservable)
-    sampling_frequency(1,1) double
-    time_offset(1,1) double
-    
-    data(:,1) double
+    samplingFrequency(1,1) double
+    timeOffset(1,1) double
+
+    units char
+
+    data urx.StdVector
+  end
+
+  methods
+    function this = ImpulseResponse(varargin)
+      this@urx.Object(varargin{:});
+      this.data = urx.StdVector('double', 1, urx.StdVectorType.RAW);
+    end
   end
 end

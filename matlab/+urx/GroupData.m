@@ -5,9 +5,9 @@ classdef GroupData < urx.Object
   end
   
   properties (Access = public, SetObservable, GetObservable)
-    group_timestamp(1,1) double
-    sequence_timestamps(:,1) double = []
-    event_timestamps(:,1) cell = {double([])}
+    groupTimestamp(1,1) double
+    sequenceTimestamps(:,1) double = []
+    eventTimestamps(:,1) cell = {double([])}
     % raw_data
     % size_of_data_type
     % data_type

@@ -11,16 +11,18 @@
 
 #define CONCAT2(a, b) a##_##b
 #define CONCAT3(a, b, c) a##_##b##_##c
+#define CONCAT4(a, b, c, d) a##_##b##_##c##_##d
 #define CONCAT_NS(a, b) a::b
 #define CONCAT_NS3(a, b, c) a::b::c
 
-#define _VECTOR_RAW_DECL(name)                                      \
-  void *CONCAT3(vector, name, new)(void);                           \
-  void CONCAT3(vector, name, delete)(void *this_ptr);               \
-  void CONCAT3(vector, name, clear)(void *this_ptr);                \
-  void CONCAT3(vector, name, push_back)(void *this_ptr, void *val); \
-  uint64_t CONCAT3(vector, name, size)(void *this_ptr);             \
-  void *CONCAT3(vector, name, data)(void *this_ptr);                \
+#define _VECTOR_RAW_DECL(name)                                              \
+  void *CONCAT3(vector, name, new)(void);                                   \
+  void CONCAT3(vector, name, delete)(void *this_ptr);                       \
+  void CONCAT3(vector, name, clear)(void *this_ptr);                        \
+  void CONCAT3(vector, name, push_back)(void *this_ptr, void *val);         \
+  void CONCAT4(vector, name, push_back, shared)(void *this_ptr, void *val); \
+  uint64_t CONCAT3(vector, name, size)(void *this_ptr);                     \
+  void *CONCAT3(vector, name, data)(void *this_ptr, uint64_t i);            \
   void CONCAT3(vector, name, copy)(void *this_ptr, void *other_ptr)
 
 #define VECTOR_RAW_NS_DECL(ns, type) _VECTOR_RAW_DECL(CONCAT2(ns, type))
@@ -32,43 +34,52 @@
   void CONCAT3(vector_2d, name, clear)(void *this_ptr);                \
   void CONCAT3(vector_2d, name, push_back)(void *this_ptr, void *val); \
   uint64_t CONCAT3(vector_2d, name, size)(void *this_ptr);             \
-  void *CONCAT3(vector_2d, name, data)(void *this_ptr);                \
+  void *CONCAT3(vector_2d, name, data)(void *this_ptr, uint64_t i);    \
   void CONCAT3(vector_2d, name, copy)(void *this_ptr, void *other_ptr)
 
 #define VECTOR_2D_RAW_DECL(type) _VECTOR_2D_RAW_DECL(type)
 
-#define _VECTOR_SHARED_DECL(name)                                          \
-  void *CONCAT3(vector_shared, name, new)(void);                           \
-  void CONCAT3(vector_shared, name, delete)(void *this_ptr);               \
-  void CONCAT3(vector_shared, name, clear)(void *this_ptr);                \
-  void CONCAT3(vector_shared, name, push_back)(void *this_ptr, void *val); \
-  uint64_t CONCAT3(vector_shared, name, size)(void *this_ptr);             \
-  void *CONCAT3(vector_shared, name, data)(void *this_ptr);                \
+#define _VECTOR_SHARED_DECL(name)                                                  \
+  void *CONCAT3(vector_shared, name, new)(void);                                   \
+  void CONCAT3(vector_shared, name, delete)(void *this_ptr);                       \
+  void CONCAT3(vector_shared, name, clear)(void *this_ptr);                        \
+  void CONCAT3(vector_shared, name, push_back)(void *this_ptr, void *val);         \
+  void CONCAT4(vector_shared, name, push_back, shared)(void *this_ptr, void *val); \
+  uint64_t CONCAT3(vector_shared, name, size)(void *this_ptr);                     \
+  void *CONCAT3(vector_shared, name, data)(void *this_ptr, uint64_t i);            \
   void CONCAT3(vector_shared, name, copy)(void *this_ptr, void *other_ptr)
 
 #define VECTOR_SHARED_NS_DECL(ns, type) _VECTOR_SHARED_DECL(CONCAT2(ns, type))
 #define VECTOR_SHARED_DECL(type) _VECTOR_SHARED_DECL(type)
 
-#define _VECTOR_WEAK_DECL(name)                                          \
-  void *CONCAT3(vector_weak, name, new)(void);                           \
-  void CONCAT3(vector_weak, name, delete)(void *this_ptr);               \
-  void CONCAT3(vector_weak, name, clear)(void *this_ptr);                \
-  void CONCAT3(vector_weak, name, push_back)(void *this_ptr, void *val); \
-  uint64_t CONCAT3(vector_weak, name, size)(void *this_ptr);             \
-  void *CONCAT3(vector_weak, name, data)(void *this_ptr);                \
+#define _VECTOR_WEAK_DECL(name)                                                  \
+  void *CONCAT3(vector_weak, name, new)(void);                                   \
+  void CONCAT3(vector_weak, name, delete)(void *this_ptr);                       \
+  void CONCAT3(vector_weak, name, clear)(void *this_ptr);                        \
+  void CONCAT3(vector_weak, name, push_back)(void *this_ptr, void *val);         \
+  void CONCAT4(vector_weak, name, push_back, shared)(void *this_ptr, void *val); \
+  uint64_t CONCAT3(vector_weak, name, size)(void *this_ptr);                     \
+  void *CONCAT3(vector_weak, name, data)(void *this_ptr, uint64_t i);            \
   void CONCAT3(vector_weak, name, copy)(void *this_ptr, void *other_ptr)
 
 #define VECTOR_WEAK_NS_DECL(ns, type) _VECTOR_WEAK_DECL(CONCAT2(ns, type))
 #define VECTOR_WEAK_DECL(type) _VECTOR_WEAK_DECL(type)
 
-#define _OBJECT_DECL(name)              \
-  void *CONCAT2(name, new)(void);       \
-  void CONCAT2(name, delete)(void *this_ptr)
+#define _OBJECT_DECL(name)                                                   \
+  void *CONCAT2(name, new)(void);                                            \
+  void CONCAT2(name, delete)(void *this_ptr);                                \
+  void CONCAT4(name, assign, raw, raw)(void *this_ptr, void *other_ptr);     \
+  void CONCAT4(name, assign, shared, raw)(void *this_ptr, void *other_ptr);  \
+  void CONCAT4(name, assign, raw, shared)(void *this_ptr, void *other_ptr);  \
+  void CONCAT4(name, assign, weak, shared)(void *this_ptr, void *other_ptr); \
+  void CONCAT4(name, assign, shared, shared)(void *this_ptr, void *other_ptr)
 
 #define OBJECT_NS_DECL(ns, type) _OBJECT_DECL(CONCAT2(ns, type))
 #define OBJECT_DECL(type) _OBJECT_DECL(type)
 
-#define _OBJECT_ACCESSOR_DECL(name, member) void *CONCAT2(name, member)(void *this_ptr)
+#define _OBJECT_ACCESSOR_DECL(name, member)    \
+  void *CONCAT2(name, member)(void *this_ptr); \
+  void *CONCAT3(name, shared, member)(void *this_ptr)
 
 #define OBJECT_ACCESSOR_NS_DECL(ns, type, member) _OBJECT_ACCESSOR_DECL(CONCAT2(ns, type), member)
 #define OBJECT_ACCESSOR_DECL(type, member) _OBJECT_ACCESSOR_DECL(type, member)

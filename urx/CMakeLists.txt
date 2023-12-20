@@ -1,25 +1,19 @@
 # Set URX sources
 set(URX_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/acquisition.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/aperture.h
     ${CMAKE_CURRENT_SOURCE_DIR}/dataset.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/destination_link.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/element.h
     ${CMAKE_CURRENT_SOURCE_DIR}/element_geometry.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/element.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/event.h
     ${CMAKE_CURRENT_SOURCE_DIR}/excitation.h
     ${CMAKE_CURRENT_SOURCE_DIR}/group_data.h
     ${CMAKE_CURRENT_SOURCE_DIR}/group.h
     ${CMAKE_CURRENT_SOURCE_DIR}/impulse_response.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/linear_array.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/matrix_array.h
     ${CMAKE_CURRENT_SOURCE_DIR}/probe.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/rca_array.h
     ${CMAKE_CURRENT_SOURCE_DIR}/receive_setup.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/event.h
     ${CMAKE_CURRENT_SOURCE_DIR}/transform.h
     ${CMAKE_CURRENT_SOURCE_DIR}/transmit_setup.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/types.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/urx.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/urx.h.in
     ${CMAKE_CURRENT_SOURCE_DIR}/vector.h
     ${CMAKE_CURRENT_SOURCE_DIR}/version.h
     ${CMAKE_CURRENT_SOURCE_DIR}/wave.h
@@ -30,7 +24,7 @@ configure_file(urx.h.in urx.h)
 
 # Target library ### Create target
 set(URX_LIBRARY ${PROJECT_NAME})
-add_library(${PROJECT_NAME} INTERFACE)
+add_library(${PROJECT_NAME} INTERFACE ${URX_SRCS})
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 # Define include directories
