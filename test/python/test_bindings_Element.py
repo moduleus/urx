@@ -14,6 +14,7 @@ class TestBindingsElement(unittest.TestCase):
         v_2 = urx.Vector3D(1, 2, 3)
         v_3 = urx.Vector3D(4, 5, 6)
 
+        # Check default CTOR
         elt = urx.Element()
         self.assertEqual(elt.transform, urx.Transform())
         self.assertRaises(
@@ -21,6 +22,7 @@ class TestBindingsElement(unittest.TestCase):
         self.assertRaises(
             RuntimeError, lambda elt: elt.impulse_response, elt)
 
+        # Check copy CTOR and referencing object
         elt_2 = urx.Element(elt)
         self.assertEqual(elt, elt_2)
         elt_2.transform = urx.Transform(v_2, v_2)
@@ -31,6 +33,7 @@ class TestBindingsElement(unittest.TestCase):
 
         t = urx.Transform(v_3, v_3)
 
+        # Check CTOR with all parameters
         elt = urx.Element(t, urx.ElementGeometry(), urx.ImpulseResponse())
         self.assertRaises(
             RuntimeError, lambda elt: elt.element_geometry, elt)
@@ -47,6 +50,8 @@ class TestBindingsElement(unittest.TestCase):
 
         eg = urx.ElementGeometry([v, v_2])
 
+        # Reference is possible for element_geometry since it's a weak_ptr
+        # Check affectation
         elt.element_geometry = eg
         self.assertEqual(elt.element_geometry, urx.ElementGeometry([v, v_2]))
         eg.perimeter[0] = v_3
@@ -60,11 +65,14 @@ class TestBindingsElement(unittest.TestCase):
         self.assertEqual(elt.element_geometry, eg_ref)
         del eg_ref
         gc.collect()
+        # Check the weak_ptr does not reference anymore the deleted object
         self.assertRaises(
             RuntimeError, lambda elt: elt.element_geometry, elt)
 
         ir = urx.ImpulseResponse(42, np.nan, "sec", [3.14, -42])
 
+        # Reference is possible for element_geometry since it's a weak_ptr
+        # Check affectation
         elt.impulse_response = ir
         self.assertEqual(elt.impulse_response, urx.ImpulseResponse(
             42, np.nan, "sec", [3.14, -42]))
@@ -80,6 +88,7 @@ class TestBindingsElement(unittest.TestCase):
         self.assertEqual(elt.impulse_response, ir_ref)
         del ir_ref
         gc.collect()
+        # Check the weak_ptr does not reference anymore the deleted object
         self.assertRaises(
             RuntimeError, lambda elt: elt.impulse_response, elt)
 
