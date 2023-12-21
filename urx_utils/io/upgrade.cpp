@@ -251,16 +251,11 @@ std::shared_ptr<urx::Dataset> ConvertV0_2(const std::string& filename) {
 
     switch (new_wave->type) {
       case urx::Wave::WaveType::CONVERGING_WAVE:
-      case urx::Wave::WaveType::DIVERGING_WAVE: {
+      case urx::Wave::WaveType::DIVERGING_WAVE:
+      case urx::Wave::WaveType::PLANE_WAVE: {
         new_wave->parameters = {old_wave->origin().translation().x(),
                                 old_wave->origin().translation().y(),
                                 old_wave->origin().translation().z()};
-        break;
-      }
-      case urx::Wave::WaveType::PLANE_WAVE: {
-        new_wave->parameters = {old_wave->origin().rotation().x(),
-                                old_wave->origin().rotation().y(),
-                                old_wave->origin().rotation().z()};
         break;
       }
       case urx::Wave::WaveType::CYLINDRICAL_WAVE: {
