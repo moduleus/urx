@@ -221,9 +221,10 @@ std::shared_ptr<urx::Dataset> ConvertV0_2(const std::string& filename) {
                          ? old_to_new_wave_type.at(wave->waveType())
                          : urx::Wave::WaveType::UNDEFINED;
 
-    new_wave->parameters = {wave->origin().rotation().x(),    wave->origin().rotation().y(),
-                            wave->origin().rotation().z(),    wave->origin().translation().x(),
-                            wave->origin().translation().y(), wave->origin().translation().z()};
+    if (new_wave->type == urx::Wave::WaveType::PLANE_WAVE) {
+      new_wave->parameters = {wave->origin().translation().x(), wave->origin().translation().y(),
+                              wave->origin().translation().z()};
+    }
 
     new_wave->channel_mapping.reserve(dataset_v0_2->channelData().uniqueEvents().size());
     new_wave->channel_excitations = std::vector<std::weak_ptr<Excitation>>(
