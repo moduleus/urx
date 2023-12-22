@@ -38,7 +38,7 @@
 #include <urx/vector.h>
 #include <urx/wave.h>
 
-namespace urx {
+namespace urx::utils::io {
 
 namespace {
 // Memo about conversion:
@@ -386,4 +386,4 @@ std::shared_ptr<urx::Dataset> Upgrade::LoadFromFile(const std::string& filename)
   return {};
 }
 
-}  // namespace urx
+}  // namespace urx::utils::io

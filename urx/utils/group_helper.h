@@ -5,7 +5,7 @@
 
 #include <urx/group.h>
 
-namespace urx {
+namespace urx::utils {
 
 class GroupHelper {
  public:
@@ -24,4 +24,4 @@ class GroupHelper {
   const Group& group_;
 };
 
-}  // namespace urx
+}  // namespace urx::utils

@@ -12,7 +12,7 @@
 #include <stdexcept>
 #endif
 
-namespace urx {
+namespace urx::utils {
 
 GroupHelper::GroupHelper(const Group& group) : group_(group) {}
 
@@ -47,4 +47,4 @@ std::string GroupHelper::py_get_format() {
 #endif
 }
 
-}  // namespace urx
+}  // namespace urx::utils

@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-namespace urx {
+namespace urx::utils {
 
 ///
 ///\brief Index to string with leading zeros.
@@ -54,4 +54,4 @@ map_invert(const std::vector<std::vector<T>>& map) {
   return inv_map;
 }
 
-}  // namespace urx
+}  // namespace urx::utils

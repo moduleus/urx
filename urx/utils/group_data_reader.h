@@ -4,7 +4,7 @@
 
 #include <urx/group_data.h>
 
-namespace urx {
+namespace urx::utils {
 
 class GroupDataReader {
  public:
@@ -54,4 +54,4 @@ class GroupDataReader {
   std::vector<size_t> samples_count_;   // Number of samples in channels relative to an event
 };
 
-}  // namespace urx
+}  // namespace urx::utils

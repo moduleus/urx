@@ -31,7 +31,7 @@
 #include <urx/utils/io/reader.h>
 #include <urx/wave.h>
 
-namespace urx {
+namespace urx::utils::io {
 
 namespace {
 
@@ -54,7 +54,7 @@ void deserialize_hdf5(const std::string& name, T& field, const H5::Group& group,
     const H5::StrType datatype(*std_to_h5.at(typeid(T)));
     const H5::DataSet dataset = group.openDataSet(name);
     dataset.read(&field, datatype);
-  } 
+  }
   // Enum
   else if constexpr (std::is_enum_v<T>) {
     const H5::StrType datatype(0, H5T_VARIABLE);
@@ -69,7 +69,7 @@ void deserialize_hdf5(const std::string& name, T& field, const H5::Group& group,
     } else {
       field = static_cast<T>(stoi(value));
     }
-  } 
+  }
   // Default
   else {
     const H5::Group group_child(group.openGroup(name));
@@ -270,4 +270,4 @@ std::shared_ptr<Dataset> Reader::loadFromFile(const std::string& filename) {
   return dataset;
 }
 
-}  // namespace urx
+}  // namespace urx::utils::io

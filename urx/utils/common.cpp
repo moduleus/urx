@@ -2,7 +2,7 @@
 
 #include <urx/utils/common.h>
 
-namespace urx {
+namespace urx::utils {
 
 std::string format_index_with_leading_zeros(const std::size_t index, const int length) {
   std::string str;
@@ -12,4 +12,4 @@ std::string format_index_with_leading_zeros(const std::size_t index, const int l
   return str;
 }
 
-}  // namespace urx
+}  // namespace urx::utils
