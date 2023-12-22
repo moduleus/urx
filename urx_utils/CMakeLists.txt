@@ -25,6 +25,8 @@ target_compile_options(
 
 # Set URX sources
 set(URX_UTILS_SRCS
+    ${CMAKE_CURRENT_SOURCE_DIR}/common.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/common.h
     ${CMAKE_CURRENT_SOURCE_DIR}/group_data_reader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/group_data_reader.h
     ${CMAKE_CURRENT_SOURCE_DIR}/group_helper.cpp
@@ -45,9 +47,7 @@ if(WITH_HDF5)
     ${CMAKE_CURRENT_SOURCE_DIR}/io/upgrade.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/io/upgrade.h
     ${CMAKE_CURRENT_SOURCE_DIR}/io/writer.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/io/writer.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/io/common.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/io/common.h)
+    ${CMAKE_CURRENT_SOURCE_DIR}/io/writer.h)
 endif()
 
 # Target library ### Create target

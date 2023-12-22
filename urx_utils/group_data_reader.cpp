@@ -1,3 +1,4 @@
+#include <urx_utils/common.h>
 #include <urx_utils/group_data_reader.h>
 #include <urx_utils/group_helper.h>
 
@@ -16,8 +17,9 @@ GroupDataReader::GroupDataReader(GroupData& group_data, const size_t custom_samp
 
   for (const auto& event : group_data_.group.lock()->sequence) {
     const auto& receive_setup = event.receive_setup;
+    const size_t channels_count = map_max(receive_setup.channel_mapping);
     const size_t samples_count = receive_setup.number_samples;
-    const size_t samples_offset = receive_setup.channel_mapping.size() * samples_count;
+    const size_t samples_offset = channels_count * samples_count;
 
     samples_offset_.emplace_back(samples_offset + samples_offset_.back());
     samples_count_.emplace_back(samples_count);
