@@ -2,7 +2,7 @@
 #include <urx/utils/group_data_reader.h>
 #include <urx/utils/group_helper.h>
 
-namespace urx {
+namespace urx::utils {
 
 GroupDataReader::GroupDataReader(GroupData& group_data, const size_t custom_sample_byte_size)
     : group_data_{group_data} {
@@ -48,4 +48,4 @@ size_t GroupDataReader::offset(const size_t sequence_idx, const size_t event_idx
 
 size_t GroupDataReader::sampleByteSize() const { return sample_byte_size_; }
 
-}  // namespace urx
+}  // namespace urx::utils

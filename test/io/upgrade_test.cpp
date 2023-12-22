@@ -16,16 +16,15 @@
 #include <urx/utils/io/writer.h>
 #include <urx/wave.h>
 
-namespace urx::test {
+namespace urx::utils::io::test {
 
 TEST_CASE("Upgrade HDF5 v0.2 file", "[hdf5_writer]") {
   const std::string dir = TEST_RESOURCE_DIR;
 
-  const std::shared_ptr<urx::Dataset> dataset = urx::Upgrade::LoadFromFile(dir + "v_0_2_short.urx");
-  urx::Writer::saveToFile(dir + "v_0_2_short.urx.res", *dataset);
+  const std::shared_ptr<Dataset> dataset = Upgrade::LoadFromFile(dir + "v_0_2_short.urx");
+  Writer::saveToFile(dir + "v_0_2_short.urx.res", *dataset);
 
-  const std::shared_ptr<urx::Dataset> dataset2 =
-      urx::Reader::loadFromFile(dir + "v_0_2_short.urx.res");
+  const std::shared_ptr<Dataset> dataset2 = Reader::loadFromFile(dir + "v_0_2_short.urx.res");
   REQUIRE(dataset2->acquisition.probes == dataset->acquisition.probes);
   REQUIRE(dataset2->acquisition.excitations == dataset->acquisition.excitations);
   REQUIRE(dataset2->acquisition.waves == dataset->acquisition.waves);
@@ -67,4 +66,4 @@ TEST_CASE("Upgrade HDF5 v0.3 file", "[hdf5_writer]") {
   dataset2.reset();
 }
 
-}  // namespace urx::test
+}  // namespace urx::utils::io::test

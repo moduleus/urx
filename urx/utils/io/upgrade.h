@@ -5,11 +5,11 @@
 
 #include <urx/dataset.h>
 
-namespace urx {
+namespace urx::utils::io {
 
 class Upgrade {
  public:
   static std::shared_ptr<urx::Dataset> LoadFromFile(const std::string& filename);
 };
 
-}  // namespace urx
+}  // namespace urx::utils::io

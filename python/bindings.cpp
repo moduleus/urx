@@ -508,9 +508,9 @@ PYBIND11_MODULE(bindings, m) {
             const py::ssize_t data_size = self.raw_data->getSize();
             void *data_ptr = self.raw_data->getBuffer();
             const py::ssize_t sizeof_data_type_var =
-                urx::GroupHelper::sizeof_data_type(self.raw_data->getDataType());
+                urx::utils::GroupHelper::sizeof_data_type(self.raw_data->getDataType());
             const std::string data_format =
-                urx::GroupHelper::py_get_format(self.raw_data->getDataType());
+                urx::utils::GroupHelper::py_get_format(self.raw_data->getDataType());
 
             auto buffer = py::buffer_info(
                 data_ptr, sizeof_data_type_var, data_format, are_data_complex ? 2 : 1,

@@ -17,7 +17,7 @@
     (void)(expr);    \
   } while (0)
 
-namespace urx::GroupHelper {
+namespace urx::utils::GroupHelper {
 
 size_t sizeof_data_type(const Group::DataType& data_type) {
   static std::unordered_map<Group::DataType, size_t> group_dt_to_sizeof{
@@ -51,4 +51,4 @@ std::string py_get_format(const Group::DataType& data_type) {
 #endif
 }
 
-}  // namespace urx::GroupHelper
+}  // namespace urx::utils::GroupHelper

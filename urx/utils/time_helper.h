@@ -12,7 +12,7 @@
 #include <utility>
 #include <vector>
 
-namespace urx {
+namespace urx::utils {
 /**
      * Returns true if the input string is ISO8601
      * Example: "2008-09-15T15:53:00"
@@ -32,4 +32,4 @@ inline bool isIso3166(const std::string& country_code) {
   const std::string r = R"(^[A-Z][A-Z]$)";
   return std::regex_match(country_code, std::regex(r));
 }
-}  // namespace urx
+}  // namespace urx::utils

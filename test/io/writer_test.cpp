@@ -27,7 +27,7 @@
 #include <urx/version.h>
 #include <urx/wave.h>
 
-namespace urx::test {
+namespace urx::utils::io::test {
 
 TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
   auto dataset = std::make_shared<urx::Dataset>();
@@ -46,7 +46,7 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
   {
     auto probe = std::make_shared<Probe>();
     probe->description = "Probe 1";
-    probe->type = urx::Probe::ProbeType::MATRIX;
+    probe->type = Probe::ProbeType::MATRIX;
     probe->transform.rotation.x = 1;
     probe->transform.rotation.y = 2;
     probe->transform.rotation.z = 3;
@@ -107,7 +107,7 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
 
     probe = std::make_shared<Probe>();
     probe->description = "Probe 2";
-    probe->type = static_cast<urx::Probe::ProbeType>(123);
+    probe->type = static_cast<Probe::ProbeType>(123);
     probe->transform.rotation.x = 3;
     probe->transform.rotation.y = 4;
     probe->transform.rotation.z = 5;
@@ -186,7 +186,7 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
 
   {
     auto wave = std::make_shared<Wave>();
-    wave->type = urx::Wave::WaveType::CYLINDRICAL_WAVE;
+    wave->type = Wave::WaveType::CYLINDRICAL_WAVE;
     wave->time_zero_reference_point.x = 3;
     wave->time_zero_reference_point.y = 4;
     wave->time_zero_reference_point.z = 5;
@@ -209,7 +209,7 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
     dataset->acquisition.waves.push_back(wave);
 
     wave = std::make_shared<Wave>();
-    wave->type = urx::Wave::WaveType::CONVERGING_WAVE;
+    wave->type = Wave::WaveType::CONVERGING_WAVE;
     wave->time_zero_reference_point.x = 5;
     wave->time_zero_reference_point.y = 4;
     wave->time_zero_reference_point.z = 4;
@@ -232,9 +232,9 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
   }
 
   {
-    auto group = std::make_shared<urx::Group>();
-    group->sampling_type = urx::Group::SamplingType::IQ;
-    group->data_type = urx::Group::DataType::INT16;
+    auto group = std::make_shared<Group>();
+    group->sampling_type = Group::SamplingType::IQ;
+    group->data_type = Group::DataType::INT16;
     {
       Event event;
       event.transmit_setup.probe = dataset->acquisition.probes[0];
@@ -294,9 +294,9 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
     group->description = "group description";
     dataset->acquisition.groups.push_back(group);
 
-    group = std::make_shared<urx::Group>();
-    group->sampling_type = urx::Group::SamplingType::RF;
-    group->data_type = urx::Group::DataType::DOUBLE;
+    group = std::make_shared<Group>();
+    group->sampling_type = Group::SamplingType::RF;
+    group->data_type = Group::DataType::DOUBLE;
     {
       Event event;
       event.transmit_setup.probe = dataset->acquisition.probes[1];
@@ -397,9 +397,9 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
     }
   }
 
-  urx::Writer::saveToFile("writer康🐜.urx", *dataset);
+  Writer::saveToFile("writer康🐜.urx", *dataset);
 
-  auto dataset_loaded = urx::Reader::loadFromFile("writer康🐜.urx");
+  auto dataset_loaded = Reader::loadFromFile("writer康🐜.urx");
 
   REQUIRE(dataset_loaded->acquisition.probes == dataset->acquisition.probes);
   REQUIRE(dataset_loaded->acquisition.excitations == dataset->acquisition.excitations);
@@ -413,4 +413,4 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
   REQUIRE(*dataset_loaded == *dataset);
 }
 
-}  // namespace urx::test
+}  // namespace urx::utils::io::test

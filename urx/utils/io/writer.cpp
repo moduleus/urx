@@ -31,7 +31,7 @@
 #include <urx/utils/io/writer.h>
 #include <urx/wave.h>
 
-namespace urx {
+namespace urx::utils::io {
 
 namespace {
 
@@ -264,4 +264,4 @@ void Writer::saveToFile(const std::string& filename, const Dataset& dataset) {
   serialize_hdf5("dataset", dataset, file, map_to_shared_ptr);
 }
 
-}  // namespace urx
+}  // namespace urx::utils::io
