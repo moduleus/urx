@@ -4,7 +4,7 @@
 #include <utility>
 
 #include <urx/group.h>
-#include <urx_utils/group_helper.h>
+#include <urx/utils/group_helper.h>
 
 #ifdef WITH_PYTHON
 #include <pybind11/pybind11.h>

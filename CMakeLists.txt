@@ -145,8 +145,6 @@ if(WITH_PYTHON)
   find_package(pybind11 CONFIG REQUIRED)
 endif()
 
-add_subdirectory("urx_utils")
-
 if(WITH_MATLAB)
   find_package(Matlab REQUIRED)
   add_subdirectory(matlab)

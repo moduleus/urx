@@ -25,8 +25,8 @@
 #include <urx/detail/raw_data.h>
 #include <urx/group.h>
 #include <urx/group_data.h>
+#include <urx/utils/group_helper.h>
 #include <urx/version.h>
-#include <urx_utils/group_helper.h>
 
 namespace py = pybind11;
 

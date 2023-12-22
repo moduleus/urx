@@ -22,11 +22,11 @@
 #include <urx/receive_setup.h>
 #include <urx/transform.h>
 #include <urx/transmit_setup.h>
+#include <urx/utils/io/reader.h>
+#include <urx/utils/io/writer.h>
 #include <urx/vector.h>
 #include <urx/version.h>
 #include <urx/wave.h>
-#include <urx_utils/io/reader.h>
-#include <urx_utils/io/writer.h>
 
 namespace urx::test {
 

@@ -12,10 +12,10 @@
 #include <urx/group.h>
 #include <urx/group_data.h>
 #include <urx/probe.h>
+#include <urx/utils/io/reader.h>
+#include <urx/utils/io/upgrade.h>
+#include <urx/utils/io/writer.h>
 #include <urx/wave.h>
-#include <urx_utils/io/reader.h>
-#include <urx_utils/io/upgrade.h>
-#include <urx_utils/io/writer.h>
 
 namespace urx::test {
 

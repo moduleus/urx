@@ -10,7 +10,7 @@ IncludeCategories:
     Priority: 4
     SortPriority: 0
     CaseSensitive: true
-  - Regex: '^<urx_utils/.*\.h>'
+  - Regex: '^<urx/utils/.*\.h>'
     Priority: 4
     SortPriority: 0
     CaseSensitive: true

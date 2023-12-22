@@ -4,8 +4,8 @@
 
 #include <urx/element.h>
 #include <urx/probe.h>
+#include <urx/utils/probe_helper.h>
 #include <urx/vector.h>
-#include <urx_utils/probe_helper.h>
 
 namespace urx::utils {
 
