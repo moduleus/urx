@@ -88,45 +88,11 @@ if(WITH_HDF5)
   target_precompile_headers(${URX_UTILS_LIBRARY} PRIVATE ${URX_PCH_IO})
 endif()
 
-# Create cmake config files ###
-configure_package_config_file(
-  ${URX_UTILS_LIBRARY}Config.cmake.in
-  ${CMAKE_CURRENT_BINARY_DIR}/${URX_UTILS_LIBRARY}Config.cmake
-  INSTALL_DESTINATION ${CMAKE_INSTALL_DIR}/${URX_UTILS_LIBRARY}-${git_branch})
-
-write_basic_package_version_file(
-  ${CMAKE_CURRENT_BINARY_DIR}/${URX_UTILS_LIBRARY}ConfigVersion.cmake
-  COMPATIBILITY SameMajorVersion)
-
 # Install library ###
 
 install(
   TARGETS ${URX_UTILS_LIBRARY} compiler_flags
-  EXPORT ${URX_UTILS_LIBRARY}Targets
+  EXPORT ${PROJECT_NAME}Targets
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   INCLUDES
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${URX_UTILS_LIBRARY}-${git_branch})
-
-install(
-  EXPORT ${URX_UTILS_LIBRARY}Targets
-  FILE ${URX_UTILS_LIBRARY}Targets.cmake
-  NAMESPACE ${URX_UTILS_LIBRARY}::
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${URX_UTILS_LIBRARY}-${git_branch})
-
-install(
-  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-  DESTINATION
-    ${CMAKE_INSTALL_INCLUDEDIR}/${URX_UTILS_LIBRARY}-${git_branch}/urx_utils
-  FILES_MATCHING
-  PATTERN "*.hpp"
-  PATTERN "*.h"
-  PATTERN ".git" EXCLUDE
-  PATTERN "CI" EXCLUDE
-  PATTERN "install" EXCLUDE
-  PATTERN "build" EXCLUDE
-  PATTERN "log.h" EXCLUDE)
-
-install(
-  FILES ${CMAKE_CURRENT_BINARY_DIR}/${URX_UTILS_LIBRARY}Config.cmake
-        ${CMAKE_CURRENT_BINARY_DIR}/${URX_UTILS_LIBRARY}ConfigVersion.cmake
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${URX_UTILS_LIBRARY}-${git_branch})
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${INSTALL_NAME})

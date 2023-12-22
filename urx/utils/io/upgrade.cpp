@@ -26,6 +26,9 @@
 #include <urx/receive_setup.h>
 #include <urx/transform.h>
 #include <urx/transmit_setup.h>
+#include <urx/utils/io/upgrade.h>
+#include <urx/utils/io/reader.h>
+#include <urx/utils/io/reader_v0_3.h>
 #include <urx/v0_2/dataset.h>
 #include <urx/v0_2/linear_array.h>
 #include <urx/v0_2/matrix_array.h>
@@ -62,9 +65,6 @@
 #include <urx/v0_3/wave_type.h>
 #include <urx/vector.h>
 #include <urx/wave.h>
-#include <urx_utils/io/reader.h>
-#include <urx_utils/io/reader_v0_3.h>
-#include <urx_utils/io/upgrade.h>
 
 namespace urx {
 

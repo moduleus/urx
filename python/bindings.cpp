@@ -33,9 +33,9 @@
 #include <urx/receive_setup.h>
 #include <urx/transmit_setup.h>
 #include <urx/urx.h>
+#include <urx/utils/group_helper.h>
 #include <urx/version.h>
 #include <urx/wave.h>
-#include <urx_utils/group_helper.h>
 
 namespace py = pybind11;
 

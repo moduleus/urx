@@ -1,6 +1,6 @@
-#include <urx_utils/common.h>
-#include <urx_utils/group_data_reader.h>
-#include <urx_utils/group_helper.h>
+#include <urx/utils/common.h>
+#include <urx/utils/group_data_reader.h>
+#include <urx/utils/group_helper.h>
 
 namespace urx {
 

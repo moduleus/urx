@@ -27,9 +27,9 @@
 #include <urx/group_data.h>
 #include <urx/impulse_response.h>
 #include <urx/probe.h>
+#include <urx/utils/common.h>
+#include <urx/utils/io/reader.h>
 #include <urx/wave.h>
-#include <urx_utils/common.h>
-#include <urx_utils/io/reader.h>
 
 namespace urx {
 

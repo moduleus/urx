@@ -3,7 +3,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <urx_utils/time_helper.h>
+#include <urx/utils/time_helper.h>
 
 namespace urx::test {
 
