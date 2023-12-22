@@ -4,7 +4,6 @@
 #include <optional>
 #include <vector>
 
-#include <urx/detail/compare.h>
 #include <urx/detail/double_nan.h>
 #include <urx/excitation.h>
 #include <urx/probe.h>
@@ -23,7 +22,15 @@ struct Wave {
     UNDEFINED = -1
   };
 
-  bool operator==(const Wave& other) const = default;
+  bool operator==(const Wave& other) const {
+    return type == other.type && time_zero == other.time_zero &&
+           time_zero_reference_point == other.time_zero_reference_point &&
+           channel_mapping == other.channel_mapping &&
+           channel_excitations == other.channel_excitations &&
+           channel_delays == other.channel_delays && parameters == other.parameters;
+  }
+
+  bool operator!=(const Wave& other) const { return !operator==(other); }
 
   WaveType type = WaveType::UNDEFINED;
 

@@ -10,7 +10,11 @@ namespace urx {
 // Root class. See wiki for documentation.
 
 struct Dataset {
-  bool operator==(const Dataset& other) const = default;
+  bool operator==(const Dataset& other) const {
+    return version == other.version && acquisition == other.acquisition;
+  }
+
+  bool operator!=(const Dataset& other) const { return !operator==(other); }
 
   Acquisition acquisition;
 

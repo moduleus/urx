@@ -13,7 +13,12 @@
 namespace urx {
 
 struct Excitation {
-  bool operator==(const Excitation& other) const = default;
+  bool operator==(const Excitation& other) const {
+    return pulse_shape == other.pulse_shape && transmit_frequency == other.transmit_frequency &&
+           sampling_frequency == other.sampling_frequency && waveform == other.waveform;
+  }
+
+  bool operator!=(const Excitation& other) const { return !operator==(other); }
 
   std::string pulse_shape;
 

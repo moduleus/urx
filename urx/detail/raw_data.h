@@ -93,8 +93,7 @@ class RawDataVector final : public IRawData<DataType> {
 template <typename DataType>
 class RawDataNoInit final : public IRawData<DataType> {
  public:
-  explicit RawDataNoInit(size_t size)
-      : _buffer(std::make_unique_for_overwrite<DataType[]>(size)), _size(size) {}
+  explicit RawDataNoInit(size_t size) : _buffer(std::make_unique<DataType[]>(size)), _size(size) {}
 
   const void* getBuffer() const override { return _buffer.get(); }
   void* getBuffer() override { return _buffer.get(); }
