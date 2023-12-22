@@ -11,7 +11,11 @@
 namespace urx {
 
 struct Event {
-  bool operator==(const Event& other) const = default;
+  bool operator==(const Event& other) const {
+    return transmit_setup == other.transmit_setup && receive_setup == other.receive_setup;
+  }
+
+  bool operator!=(const Event& other) const { return !operator==(other); }
 
   TransmitSetup transmit_setup;
 

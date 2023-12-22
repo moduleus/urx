@@ -206,7 +206,7 @@ class ChannelData : public Object {
             (m_numberOfChannels == other.m_numberOfChannels));
   }
 
-  inline bool operator!=(const ChannelData& other) const { return !(*this == other); }
+  bool operator!=(const ChannelData& other) const { return !operator==(other); }
 
  private:
   // string with the authors of the data

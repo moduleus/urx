@@ -18,7 +18,16 @@ namespace urx {
  * @brief The URX class describing the reception of the wave echos
  */
 struct ReceiveSetup {
-  bool operator==(const ReceiveSetup& other) const = default;
+  bool operator==(const ReceiveSetup& other) const {
+    return probe == other.probe && probe_transform == other.probe_transform &&
+           sampling_frequency == other.sampling_frequency &&
+           number_samples == other.number_samples && channel_mapping == other.channel_mapping &&
+           tgc_profile == other.tgc_profile &&
+           tgc_sampling_frequency == other.tgc_sampling_frequency &&
+           modulation_frequency == other.modulation_frequency && time_offset == other.time_offset;
+  }
+
+  bool operator!=(const ReceiveSetup& other) const { return !operator==(other); }
 
   std::weak_ptr<Probe> probe = std::weak_ptr<Probe>();
 

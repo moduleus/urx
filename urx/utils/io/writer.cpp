@@ -44,25 +44,32 @@ constexpr int iter_length = 8;
 template <typename T>
 void serialize_all(const T& field, const H5::Group& group, MapToSharedPtr& map);
 
-// Default
 template <typename T>
 void serialize_hdf5(const std::string& name, const T& field, const H5::Group& group,
                     MapToSharedPtr& map) {
-  const H5::Group group_child(group.createGroup(name));
-
-  serialize_all(field, group_child, map);
-}
-
-// Number
-template <typename T>
-concept Number = std::is_integral_v<T> || std::is_floating_point_v<T>;
-template <Number T>
-void serialize_hdf5(const std::string& name, const T& field, const H5::Group& group,
-                    MapToSharedPtr&) {
-  const H5::StrType datatype(*std_to_h5.at(typeid(T)));
-  const H5::DataSpace dataspace = H5::DataSpace(H5S_SCALAR);
-  const H5::DataSet dataset = group.createDataSet(name, datatype, dataspace);
-  dataset.write(&field, datatype, dataspace);
+  // Number
+  if constexpr (std::is_arithmetic_v<T>) {
+    const H5::StrType datatype(*std_to_h5.at(typeid(T)));
+    const H5::DataSpace dataspace = H5::DataSpace(H5S_SCALAR);
+    const H5::DataSet dataset = group.createDataSet(name, datatype, dataspace);
+    dataset.write(&field, datatype, dataspace);
+    
+  } 
+  // Enum
+  else if constexpr (std::is_enum_v<T>) {
+    const H5::StrType datatype(0, H5T_VARIABLE);
+    const H5::DataSpace dataspace(H5S_SCALAR);
+    const H5::DataSet dataset = group.createDataSet(name, datatype, dataspace);
+    const std::string_view sv = magic_enum::enum_name(field);
+    const std::string value =
+        sv.empty() ? std::to_string(static_cast<int>(field)) : std::string{sv};
+    dataset.write(value, datatype, dataspace);
+  } 
+  // Default
+  else {
+    const H5::Group group_child(group.createGroup(name));
+    serialize_all(field, group_child, map);
+  }
 }
 
 // String
@@ -76,7 +83,6 @@ void serialize_hdf5(const std::string& name, const std::string& field, const H5:
 }
 
 // DoubleNan
-template <>
 void serialize_hdf5(const std::string& name, const DoubleNan& field, const H5::Group& group,
                     MapToSharedPtr& map) {
   serialize_hdf5(name, field.value, group, map);
@@ -118,7 +124,7 @@ void serialize_hdf5(const std::string& name, const std::weak_ptr<T>& field, cons
 template <typename T>
 void serialize_hdf5(const std::string& name, const std::vector<T>& field, const H5::Group& group,
                     MapToSharedPtr& map) {
-  if constexpr (Number<T>) {
+  if constexpr (std::is_arithmetic_v<T>) {
     const size_t size = field.size();
     const hsize_t dims[1] = {size};
     const H5::DataSpace dataspace = H5::DataSpace(1, dims);
@@ -134,20 +140,6 @@ void serialize_hdf5(const std::string& name, const std::vector<T>& field, const 
       i++;
     }
   }
-}
-
-// Enumeration
-template <typename T>
-concept Enum = std::is_enum_v<T>;
-template <Enum T>
-void serialize_hdf5(const std::string& name, const T& field, const H5::Group& group,
-                    MapToSharedPtr&) {
-  const H5::StrType datatype(0, H5T_VARIABLE);
-  const H5::DataSpace dataspace(H5S_SCALAR);
-  const H5::DataSet dataset = group.createDataSet(name, datatype, dataspace);
-  const std::string_view sv = magic_enum::enum_name(field);
-  const std::string value = sv.empty() ? std::to_string(static_cast<int>(field)) : std::string{sv};
-  dataset.write(value, datatype, dataspace);
 }
 
 void serialize_all(const std::shared_ptr<Group>& gr, const std::shared_ptr<RawData>& field,

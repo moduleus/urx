@@ -13,7 +13,12 @@ namespace urx {
  * @brief The URX class describing the temporal impulse response
  */
 struct ImpulseResponse {
-  bool operator==(const ImpulseResponse& other) const = default;
+  bool operator==(const ImpulseResponse& other) const {
+    return sampling_frequency == other.sampling_frequency && time_offset == other.time_offset &&
+           units == other.units && data == other.data;
+  }
+
+  bool operator!=(const ImpulseResponse& other) const { return !operator==(other); }
 
   DoubleNan sampling_frequency;
   DoubleNan time_offset{0};

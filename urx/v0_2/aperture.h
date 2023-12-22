@@ -46,7 +46,7 @@ class Aperture : public Object {
             (m_fNumber == other.m_fNumber) && (m_fixedSize == other.m_fixedSize));
   }
 
-  inline bool operator!=(const Aperture& other) const { return !(*this == other); }
+  bool operator!=(const Aperture& other) const { return !operator==(other); }
 
  private:
   // Location of the aperture center in space

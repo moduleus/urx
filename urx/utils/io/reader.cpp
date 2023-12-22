@@ -46,23 +46,35 @@ void deserialize_all(T& field, const H5::Group& group, MapToSharedPtr& map);
 template <>
 void deserialize_all(std::shared_ptr<RawData>& field, const H5::Group& group, MapToSharedPtr& map);
 
-// Default
-template <typename T>
+template <class T>
 void deserialize_hdf5(const std::string& name, T& field, const H5::Group& group,
                       MapToSharedPtr& map) {
-  const H5::Group group_child(group.openGroup(name));
+  // Number
+  if constexpr (std::is_arithmetic_v<T>) {
+    const H5::StrType datatype(*std_to_h5.at(typeid(T)));
+    const H5::DataSet dataset = group.openDataSet(name);
+    dataset.read(&field, datatype);
+  } 
+  // Enum
+  else if constexpr (std::is_enum_v<T>) {
+    const H5::StrType datatype(0, H5T_VARIABLE);
+    const H5::DataSpace dataspace(H5S_SCALAR);
+    const H5::DataSet dataset = group.openDataSet(name);
+    std::string value;
+    dataset.read(value, datatype, dataspace);
 
-  deserialize_all(field, group_child, map);
-}
-
-// Number
-template <class T>
-concept Number = std::is_integral_v<T> || std::is_floating_point_v<T>;
-template <Number T>
-void deserialize_hdf5(const std::string& name, T& field, const H5::Group& group, MapToSharedPtr&) {
-  const H5::StrType datatype(*std_to_h5.at(typeid(T)));
-  const H5::DataSet dataset = group.openDataSet(name);
-  dataset.read(&field, datatype);
+    std::optional<T> convert = magic_enum::enum_cast<T>(value);
+    if (convert) {
+      field = *convert;
+    } else {
+      field = static_cast<T>(stoi(value));
+    }
+  } 
+  // Default
+  else {
+    const H5::Group group_child(group.openGroup(name));
+    deserialize_all(field, group_child, map);
+  }
 }
 
 // String
@@ -118,7 +130,7 @@ void deserialize_hdf5(const std::string& name, std::weak_ptr<T>& field, const H5
 template <typename T>
 void deserialize_hdf5(const std::string& name, std::vector<T>& field, const H5::Group& group,
                       MapToSharedPtr& map) {
-  if constexpr (Number<T>) {
+  if constexpr (std::is_arithmetic_v<T>) {
     const H5::DataSet dataset = group.openDataSet(name);
     const H5::StrType datatype(*std_to_h5.at(typeid(T)));
     const H5::DataSpace dataspace = dataset.getSpace();
@@ -136,25 +148,6 @@ void deserialize_hdf5(const std::string& name, std::vector<T>& field, const H5::
       deserialize_hdf5(format_index_with_leading_zeros(i, iter_length), field.back(), group_child,
                        map);
     }
-  }
-}
-
-// Enumeration
-template <typename T>
-concept Enum = std::is_enum_v<T>;
-template <Enum T>
-void deserialize_hdf5(const std::string& name, T& field, const H5::Group& group, MapToSharedPtr&) {
-  const H5::StrType datatype(0, H5T_VARIABLE);
-  const H5::DataSpace dataspace(H5S_SCALAR);
-  const H5::DataSet dataset = group.openDataSet(name);
-  std::string value;
-  dataset.read(value, datatype, dataspace);
-
-  std::optional<T> convert = magic_enum::enum_cast<T>(value);
-  if (convert) {
-    field = *convert;
-  } else {
-    field = static_cast<T>(stoi(value));
   }
 }
 

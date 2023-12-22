@@ -11,7 +11,8 @@
 namespace urx {
 
 struct ElementGeometry {
-  bool operator==(const ElementGeometry& other) const = default;
+  bool operator==(const ElementGeometry& other) const { return perimeter == other.perimeter; }
+  bool operator!=(const ElementGeometry& other) const { return !(*this == other); }
 
   std::vector<Vector3D<double>> perimeter;
 };

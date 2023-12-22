@@ -14,13 +14,13 @@ struct DoubleNan {
   explicit DoubleNan(double v) : value(v) {}
   DoubleNan(const DoubleNan&) = default;
 
-  auto operator<=>(const DoubleNan& other) const {
-    auto c = value <=> other.value;
-    if (c == std::partial_ordering::unordered) {
-      return std::partial_ordering::equivalent;
-    }
-    return c;
-  }
+  bool operator<(const DoubleNan& other) const { return value < other.value; }
+
+  bool operator<=(const DoubleNan& other) const { return value <= other.value; }
+
+  bool operator>(const DoubleNan& other) const { return value > other.value; }
+
+  bool operator>=(const DoubleNan& other) const { return value >= other.value; }
 
   bool operator==(const DoubleNan& other) const {
     if (std::isnan(value) && std::isnan(other.value)) {
@@ -28,6 +28,8 @@ struct DoubleNan {
     }
     return std::equal_to<>()(value, other.value);
   }
+
+  bool operator!=(const DoubleNan& other) const { return !operator==(other); }
 
   // NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)
   operator double() const { return value; }

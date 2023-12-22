@@ -36,6 +36,8 @@ struct GroupData {
                             (ptr_locked->sampling_type == Group::SamplingType::RF ? 1 : 2)) == 0);
   }
 
+  bool operator!=(const GroupData& other) const { return !operator==(other); }
+
   std::weak_ptr<Group> group = std::weak_ptr<Group>();
   std::shared_ptr<RawData> raw_data;
 
