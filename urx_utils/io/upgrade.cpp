@@ -309,12 +309,12 @@ std::shared_ptr<urx::Dataset> ConvertV0_2(const std::string& filename) {
           modulation_frequency.has_value() ? *modulation_frequency : urx::DoubleNan::NaN;
       new_event.receive_setup.probe_transform = {};
 
-      std::vector<uint32_t> new_channel_mapping;
-      std::transform(event->receiveSetup().channelMapping().begin(),
-                     event->receiveSetup().channelMapping().end(),
-                     std::back_inserter(new_channel_mapping),
-                     [](int value) -> uint32_t { return value; });
-      new_event.receive_setup.channel_mapping.push_back(new_channel_mapping);
+      {
+        const auto& old_cm = event->receiveSetup().channelMapping();
+        auto& new_cm = new_event.receive_setup.channel_mapping;
+        new_cm.resize(new_event.receive_setup.probe.lock()->elements.size());
+        for (std::size_t i = 0; i < old_cm.size(); i++) new_cm[old_cm[i]].emplace_back(i);
+      }
 
       new_event.receive_setup.number_samples = dataset_v0_2->channelData().numberOfSamples();
 
