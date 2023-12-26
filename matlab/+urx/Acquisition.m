@@ -13,7 +13,7 @@ classdef Acquisition < urx.Object
     excitations urx.StdVector
     waves urx.StdVector
     groups urx.StdVector
-    %groups_data(:,1) = urx.GroupData.empty(0,1)
+    groupsData urx.StdVector
   end
 
   methods
@@ -23,6 +23,7 @@ classdef Acquisition < urx.Object
       this.excitations = urx.StdVector('urx.Excitation', 1, urx.StdVectorType.SHARED, this);
       this.waves = urx.StdVector('urx.Wave', 1, urx.StdVectorType.SHARED, this);
       this.groups = urx.StdVector('urx.Group', 1, urx.StdVectorType.SHARED, this);
+      this.groupsData = urx.StdVector('urx.GroupData', 1, urx.StdVectorType.RAW, this);
     end
   end
 end

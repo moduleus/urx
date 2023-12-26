@@ -649,6 +649,85 @@ dataset.acquisition.timestamp = 1242;
 
 
 
+groupData = urx.GroupData();
+groupData.group = dataset.acquisition.groups.data(2);
+
+%group_data->raw_data = std::make_shared<RawDataNoInit<double>>(6);
+%double* buf = static_cast<double*>(group_data->raw_data->getBuffer());
+%buf[0] = 1.2;
+%buf[1] = 2.3;
+%buf[2] = 3.4;
+%buf[3] = 4.5;
+%buf[4] = 5.6;
+%buf[5] = 6.7;
+
+groupData.groupTimestamp = 283954.334;
+groupData.sequenceTimestamps.pushBack(1);
+groupData.sequenceTimestamps.pushBack(2);
+groupData.sequenceTimestamps.pushBack(4.5);
+groupData.sequenceTimestamps.pushBack(1);
+groupData.sequenceTimestamps.pushBack(.5);
+groupData.sequenceTimestamps.pushBack(5.6);
+
+eventTimestampI = urx.StdVector('double', 1, urx.StdVectorType.RAW);
+eventTimestampI.pushBack(1);
+eventTimestampI.pushBack(.24);
+eventTimestampI.pushBack(1);
+eventTimestampI.pushBack(5.2);
+eventTimestampI.pushBack(4.5);
+eventTimestampI.pushBack(7);
+eventTimestampI.pushBack(.964);
+eventTimestampI.pushBack(.5);
+groupData.eventTimestamps.pushBack(eventTimestampI);
+eventTimestampI = urx.StdVector('double', 1, urx.StdVectorType.RAW);
+eventTimestampI.pushBack(1);
+eventTimestampI.pushBack(2);
+eventTimestampI.pushBack(4);
+eventTimestampI.pushBack(85);
+eventTimestampI.pushBack(.15);
+eventTimestampI.pushBack(-4.5);
+eventTimestampI.pushBack(-7);
+eventTimestampI.pushBack(.45);
+eventTimestampI.pushBack(.6);
+eventTimestampI.pushBack(4);
+groupData.eventTimestamps.pushBack(eventTimestampI);
+dataset.acquisition.groupsData.pushBack(groupData);
+
+
+
+
+
+
+
+groupData = urx.GroupData();
+groupData.group = dataset.acquisition.groups.data(1);
+
+%group_data->raw_data = std::make_shared<RawDataNoInit<double>>(6);
+%double* buf = static_cast<double*>(group_data->raw_data->getBuffer());
+%buf[0] = 1.2;
+%buf[1] = 2.3;
+%buf[2] = 3.4;
+%buf[3] = 4.5;
+%buf[4] = 5.6;
+%buf[5] = 6.7;
+
+groupData.groupTimestamp = 123;
+groupData.sequenceTimestamps.pushBack(1);
+groupData.sequenceTimestamps.pushBack(2);
+groupData.sequenceTimestamps.pushBack(34);
+
+eventTimestampI = urx.StdVector('double', 1, urx.StdVectorType.RAW);
+eventTimestampI.pushBack(4);
+eventTimestampI.pushBack(5);
+eventTimestampI.pushBack(7);
+groupData.eventTimestamps.pushBack(eventTimestampI);
+eventTimestampI = urx.StdVector('double', 1, urx.StdVectorType.RAW);
+eventTimestampI.pushBack(8);
+eventTimestampI.pushBack(7);
+eventTimestampI.pushBack(6);
+groupData.eventTimestamps.pushBack(eventTimestampI);
+dataset.acquisition.groupsData.pushBack(groupData);
+
 
 
 
