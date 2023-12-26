@@ -15,10 +15,10 @@ classdef Probe < urx.Object
   methods
     function this = Probe(varargin)
       this@urx.Object(varargin{:});
-      this.elementGeometries = urx.StdVector('urx.ElementGeometry', 1, urx.StdVectorType.SHARED);
-      this.impulseResponses = urx.StdVector('urx.ImpulseResponse', 1, urx.StdVectorType.SHARED);
+      this.elementGeometries = urx.StdVector('urx.ElementGeometry', 1, urx.StdVectorType.SHARED, this);
+      this.impulseResponses = urx.StdVector('urx.ImpulseResponse', 1, urx.StdVectorType.SHARED, this);
 
-      this.elements = urx.StdVector('urx.Element', 1, urx.StdVectorType.RAW);
+      this.elements = urx.StdVector('urx.Element', 1, urx.StdVectorType.RAW, this);
     end
   end
 end

@@ -351,6 +351,7 @@ OBJECT_ACCESSOR_NS_IMPL(urx, Wave, channel_delays)
 OBJECT_ACCESSOR_NS_IMPL(urx, Wave, parameters)
 
 VECTOR_RAW_IMPL(double);
+VECTOR_RAW_IMPL(uint32_t);
 
 VECTOR_RAW_NS_IMPL(urx, Element)
 VECTOR_RAW_NS_IMPL(urx, Event)

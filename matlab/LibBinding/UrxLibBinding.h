@@ -202,6 +202,7 @@ OBJECT_ACCESSOR_NS_DECL(urx, Wave, channel_delays);
 OBJECT_ACCESSOR_NS_DECL(urx, Wave, parameters);
 
 VECTOR_RAW_DECL(double);
+VECTOR_RAW_DECL(uint32_t);
 
 VECTOR_RAW_NS_DECL(urx, Element);
 VECTOR_RAW_NS_DECL(urx, Event);

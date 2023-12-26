@@ -31,24 +31,6 @@ classdef Object < handle
       mc = metaclass(this);
       props = mc.PropertyList;
       for i = 1:numel(props)
-        if strncmp(props(i).Name, 'stdVector', 9)
-          tiedObjName = (urx.Object.camelToSnakeCase(props(i).Name(10:end)));
-
-          prop_id = find(strcmpi(tiedObjName, {props.Name}));
-          if (isempty(prop_id))
-            throw(MException('urx:fatalError', ['Failed to found ' tiedObjName ' property for ' this.className() '.stdVector' tiedObjName]));
-          end
-
-          defaultVal = props(prop_id).DefaultValue;
-          tiedObjClass = defaultVal.className();
-
-          if strcmp(tiedObjClass, 'cell')
-            tiedObjClass = class(defaultVal{1});
-          end
-          propNameSnake = urx.Object.camelToSnakeCase(props(i).Name);
-          this.(props(i).Name) = urx.StdVector(tiedObjClass, this, propNameSnake(12:end), ...
-            isa(this.(tiedObjName), 'cell') + 1);
-        end
         if props(i).SetObservable
           if (isa(this.(props(i).Name), 'urx.Object'))
             addlistener(this, props(i).Name, 'PreSet', @urx.Object.handlePropEvents);

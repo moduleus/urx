@@ -195,6 +195,215 @@ probe.elements.pushBack(element);
 dataset.acquisition.probes.pushBack(probe);
 
 
+excitation = urx.Excitation();
+excitation.pulseShape = 'sinusoidal';
+excitation.transmitFrequency = 123456789;
+excitation.samplingFrequency = 987654321;
+excitation.waveform.pushBack(0);
+excitation.waveform.pushBack(0.1);
+excitation.waveform.pushBack(0.2);
+dataset.acquisition.excitations.pushBack(excitation);
+
+
+excitation = urx.Excitation();
+excitation.pulseShape = 'square wave';
+excitation.transmitFrequency = 741085296;
+excitation.samplingFrequency = 369258147;
+excitation.waveform.pushBack(1);
+excitation.waveform.pushBack(1.1);
+excitation.waveform.pushBack(1.2);
+dataset.acquisition.excitations.pushBack(excitation);
+
+
+wave = urx.Wave();
+wave.type = urx.Wave.WaveType.CYLINDRICAL_WAVE;
+wave.timeZeroReferencePoint.x = 3;
+wave.timeZeroReferencePoint.y = 4;
+wave.timeZeroReferencePoint.z = 5;
+wave.timeZero = 5.11;
+
+channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI.pushBack(uint32(1));
+assert(channelMappingI.data(1), uint32(1));
+channelMappingI.pushBack(uint32(2));
+channelMappingI.pushBack(uint32(3));
+channelMappingI.pushBack(uint32(45));
+assert(channelMappingI.data(4), uint32(45));
+channelMappingI.pushBack(uint32(9));
+channelMappingI.pushBack(uint32(7));
+channelMappingI.pushBack(uint32(5));
+wave.channelMapping.pushBack(channelMappingI);
+assert(wave.channelMapping.data(1).data(4), uint32(45));
+
+channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI.pushBack(uint32(1));
+channelMappingI.pushBack(uint32(2));
+channelMappingI.pushBack(uint32(5));
+channelMappingI.pushBack(uint32(7));
+channelMappingI.pushBack(uint32(58));
+channelMappingI.pushBack(uint32(961));
+channelMappingI.pushBack(uint32(5));
+channelMappingI.pushBack(uint32(5));
+channelMappingI.pushBack(uint32(7));
+channelMappingI.pushBack(uint32(7));
+channelMappingI.pushBack(uint32(8));
+channelMappingI.pushBack(uint32(5));
+wave.channelMapping.pushBack(channelMappingI);
+
+channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI.pushBack(uint32(12));
+channelMappingI.pushBack(uint32(12));
+wave.channelMapping.pushBack(channelMappingI);
+
+channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI.pushBack(uint32(12));
+channelMappingI.pushBack(uint32(12));
+wave.channelMapping.pushBack(channelMappingI);
+
+channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI.pushBack(uint32(12));
+channelMappingI.pushBack(uint32(12));
+wave.channelMapping.pushBack(channelMappingI);
+
+channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI.pushBack(uint32(12));
+channelMappingI.pushBack(uint32(12));
+wave.channelMapping.pushBack(channelMappingI);
+
+channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI.pushBack(uint32(12));
+channelMappingI.pushBack(uint32(12));
+wave.channelMapping.pushBack(channelMappingI);
+
+channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI.pushBack(uint32(12));
+channelMappingI.pushBack(uint32(12));
+wave.channelMapping.pushBack(channelMappingI);
+
+channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI.pushBack(uint32(12));
+channelMappingI.pushBack(uint32(12));
+wave.channelMapping.pushBack(channelMappingI);
+
+channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI.pushBack(uint32(12));
+channelMappingI.pushBack(uint32(12));
+wave.channelMapping.pushBack(channelMappingI);
+
+channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI.pushBack(uint32(12));
+channelMappingI.pushBack(uint32(12));
+wave.channelMapping.pushBack(channelMappingI);
+
+wave.channelExcitations.pushBack(dataset.acquisition.excitations.data(1));
+wave.channelExcitations.pushBack(dataset.acquisition.excitations.data(2));
+wave.channelDelays.pushBack(1.2);
+wave.channelDelays.pushBack(45);
+wave.channelDelays.pushBack(.26);
+wave.channelDelays.pushBack(1.2);
+wave.channelDelays.pushBack(5);
+wave.parameters.pushBack(1);
+wave.parameters.pushBack(.2);
+wave.parameters.pushBack(4);
+wave.parameters.pushBack(3);
+wave.parameters.pushBack(6);
+wave.parameters.pushBack(4.5);
+dataset.acquisition.waves.pushBack(wave);
+
+
+
+
+
+
+
+
+wave = urx.Wave();
+wave.type = urx.Wave.WaveType.CONVERGING_WAVE;
+wave.timeZeroReferencePoint.x = 5;
+wave.timeZeroReferencePoint.y = 4;
+wave.timeZeroReferencePoint.z = 4;
+wave.timeZero = 5.11;
+
+channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI.pushBack(uint32(45));
+channelMappingI.pushBack(uint32(4));
+channelMappingI.pushBack(uint32(2));
+channelMappingI.pushBack(uint32(5));
+channelMappingI.pushBack(uint32(54));
+channelMappingI.pushBack(uint32(53));
+channelMappingI.pushBack(uint32(5));
+channelMappingI.pushBack(uint32(5));
+channelMappingI.pushBack(uint32(66));
+wave.channelMapping.pushBack(channelMappingI);
+
+channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI.pushBack(uint32(5));
+channelMappingI.pushBack(uint32(7));
+channelMappingI.pushBack(uint32(25));
+channelMappingI.pushBack(uint32(1));
+channelMappingI.pushBack(uint32(3));
+channelMappingI.pushBack(uint32(5));
+channelMappingI.pushBack(uint32(245));
+channelMappingI.pushBack(uint32(6));
+channelMappingI.pushBack(uint32(42));
+wave.channelMapping.pushBack(channelMappingI);
+
+channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI.pushBack(uint32(12));
+channelMappingI.pushBack(uint32(12));
+wave.channelMapping.pushBack(channelMappingI);
+
+channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI.pushBack(uint32(12));
+channelMappingI.pushBack(uint32(12));
+wave.channelMapping.pushBack(channelMappingI);
+
+channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI.pushBack(uint32(12));
+channelMappingI.pushBack(uint32(12));
+wave.channelMapping.pushBack(channelMappingI);
+
+channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI.pushBack(uint32(12));
+channelMappingI.pushBack(uint32(12));
+wave.channelMapping.pushBack(channelMappingI);
+
+channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI.pushBack(uint32(12));
+channelMappingI.pushBack(uint32(12));
+wave.channelMapping.pushBack(channelMappingI);
+
+channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI.pushBack(uint32(12));
+channelMappingI.pushBack(uint32(12));
+wave.channelMapping.pushBack(channelMappingI);
+
+channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI.pushBack(uint32(12));
+channelMappingI.pushBack(uint32(12));
+wave.channelMapping.pushBack(channelMappingI);
+
+channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI.pushBack(uint32(12));
+channelMappingI.pushBack(uint32(12));
+wave.channelMapping.pushBack(channelMappingI);
+
+wave.channelExcitations.pushBack(dataset.acquisition.excitations.data(2));
+wave.channelExcitations.pushBack(dataset.acquisition.excitations.data(1));
+wave.channelDelays.pushBack(1.2);
+wave.channelDelays.pushBack(.3);
+wave.channelDelays.pushBack(.5);
+wave.channelDelays.pushBack(10.4);
+wave.parameters.pushBack(7);
+wave.parameters.pushBack(53);
+wave.parameters.pushBack(.2);
+wave.parameters.pushBack(1);
+wave.parameters.pushBack(.3);
+wave.parameters.pushBack(5.6);
+wave.parameters.pushBack(7);
+dataset.acquisition.waves.pushBack(wave);
+
+
 
 
 
