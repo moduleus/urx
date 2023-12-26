@@ -404,6 +404,252 @@ wave.parameters.pushBack(7);
 dataset.acquisition.waves.pushBack(wave);
 
 
+group = urx.Group();
+group.samplingType = urx.Group.SamplingType.IQ;
+group.dataType = urx.Group.DataType.INT16;
+
+event = urx.Event();
+event.transmitSetup.probe = dataset.acquisition.probes.data(1);
+event.transmitSetup.probeTransform.rotation.x = 5;
+event.transmitSetup.probeTransform.rotation.y = 8;
+event.transmitSetup.probeTransform.rotation.z = 7;
+event.transmitSetup.probeTransform.translation.x = 5.2;
+event.transmitSetup.probeTransform.translation.y = 4.3;
+event.transmitSetup.probeTransform.translation.z = 8.2;
+event.transmitSetup.timeOffset = 120.2;
+event.transmitSetup.wave = dataset.acquisition.waves.data(2);
+event.receiveSetup.probe = dataset.acquisition.probes.data(2);
+event.receiveSetup.probeTransform.rotation.x = 51;
+event.receiveSetup.probeTransform.rotation.y = 85;
+event.receiveSetup.probeTransform.rotation.z = 73;
+event.receiveSetup.probeTransform.translation.x = 5.72;
+event.receiveSetup.probeTransform.translation.y = 4.83;
+event.receiveSetup.probeTransform.translation.z = 8.52;
+event.receiveSetup.samplingFrequency = 125468;
+event.receiveSetup.numberSamples = 4452;
+
+channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI.pushBack(uint32(1));
+channelMappingI.pushBack(uint32(2));
+channelMappingI.pushBack(uint32(753));
+channelMappingI.pushBack(uint32(8));
+channelMappingI.pushBack(uint32(6));
+channelMappingI.pushBack(uint32(2));
+channelMappingI.pushBack(uint32(1));
+event.receiveSetup.channelMapping.pushBack(channelMappingI);
+channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI.pushBack(uint32(4));
+channelMappingI.pushBack(uint32(5));
+channelMappingI.pushBack(uint32(7));
+channelMappingI.pushBack(uint32(6));
+channelMappingI.pushBack(uint32(21));
+channelMappingI.pushBack(uint32(8));
+channelMappingI.pushBack(uint32(9));
+channelMappingI.pushBack(uint32(3));
+event.receiveSetup.channelMapping.pushBack(channelMappingI);
+channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI.pushBack(uint32(1));
+channelMappingI.pushBack(uint32(2));
+channelMappingI.pushBack(uint32(5));
+channelMappingI.pushBack(uint32(7));
+channelMappingI.pushBack(uint32(3));
+channelMappingI.pushBack(uint32(6));
+channelMappingI.pushBack(uint32(5));
+event.receiveSetup.channelMapping.pushBack(channelMappingI);
+
+event.receiveSetup.tgcProfile.pushBack(1.2);
+event.receiveSetup.tgcProfile.pushBack(45.);
+event.receiveSetup.tgcProfile.pushBack(4.5);
+event.receiveSetup.tgcProfile.pushBack(-4.2);
+event.receiveSetup.tgcProfile.pushBack(1);
+event.receiveSetup.tgcProfile.pushBack(.5);
+event.receiveSetup.tgcProfile.pushBack(4.6);
+event.receiveSetup.tgcProfile.pushBack(1);
+event.receiveSetup.tgcProfile.pushBack(2);
+event.receiveSetup.tgcSamplingFrequency = 12.5;
+event.receiveSetup.modulationFrequency = 125;
+event.receiveSetup.timeOffset = 1205;
+group.sequence.pushBack(event);
+
+event = urx.Event();
+event.transmitSetup.probe = dataset.acquisition.probes.data(2);
+event.transmitSetup.probeTransform.rotation.x = 55;
+event.transmitSetup.probeTransform.rotation.y = 48;
+event.transmitSetup.probeTransform.rotation.z = 77;
+event.transmitSetup.probeTransform.translation.x = 552;
+event.transmitSetup.probeTransform.translation.y = 463;
+event.transmitSetup.probeTransform.translation.z = 872;
+event.transmitSetup.timeOffset = 12052;
+event.transmitSetup.wave = dataset.acquisition.waves.data(1);
+event.receiveSetup.probe = dataset.acquisition.probes.data(1);
+event.receiveSetup.probeTransform.rotation.x = 5;
+event.receiveSetup.probeTransform.rotation.y = 8;
+event.receiveSetup.probeTransform.rotation.z = 3;
+event.receiveSetup.probeTransform.translation.x = 52;
+event.receiveSetup.probeTransform.translation.y = 43;
+event.receiveSetup.probeTransform.translation.z = 52;
+event.receiveSetup.samplingFrequency = 1268;
+event.receiveSetup.numberSamples = 42;
+
+channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI.pushBack(uint32(1));
+channelMappingI.pushBack(uint32(2));
+channelMappingI.pushBack(uint32(3));
+event.receiveSetup.channelMapping.pushBack(channelMappingI);
+channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI.pushBack(uint32(4));
+channelMappingI.pushBack(uint32(5));
+channelMappingI.pushBack(uint32(6));
+event.receiveSetup.channelMapping.pushBack(channelMappingI);
+channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI.pushBack(uint32(7));
+channelMappingI.pushBack(uint32(8));
+channelMappingI.pushBack(uint32(9));
+event.receiveSetup.channelMapping.pushBack(channelMappingI);
+
+event.receiveSetup.tgcProfile.pushBack(1);
+event.receiveSetup.tgcProfile.pushBack(.2);
+event.receiveSetup.tgcProfile.pushBack(4.);
+event.receiveSetup.tgcProfile.pushBack(5);
+event.receiveSetup.tgcProfile.pushBack(.1);
+event.receiveSetup.tgcProfile.pushBack(5);
+event.receiveSetup.tgcProfile.pushBack(.45);
+event.receiveSetup.tgcProfile.pushBack(5);
+event.receiveSetup.tgcSamplingFrequency = 4.5;
+event.receiveSetup.modulationFrequency = 4.58;
+event.receiveSetup.timeOffset = 7.8;
+group.sequence.pushBack(event);
+
+group.description = 'group description';
+dataset.acquisition.groups.pushBack(group);
+
+
+group = urx.Group();
+group.samplingType = urx.Group.SamplingType.RF;
+group.dataType = urx.Group.DataType.DOUBLE;
+
+event = urx.Event();
+event.transmitSetup.probe = dataset.acquisition.probes.data(2);
+event.transmitSetup.probeTransform.rotation.x = 55;
+event.transmitSetup.probeTransform.rotation.y = 88;
+event.transmitSetup.probeTransform.rotation.z = 67;
+event.transmitSetup.probeTransform.translation.x = 5.72;
+event.transmitSetup.probeTransform.translation.y = 4.83;
+event.transmitSetup.probeTransform.translation.z = 8.52;
+event.transmitSetup.timeOffset = 1202.2;
+event.transmitSetup.wave = dataset.acquisition.waves.data(1);
+event.receiveSetup.probe = dataset.acquisition.probes.data(1);
+event.receiveSetup.probeTransform.rotation.x = 5101;
+event.receiveSetup.probeTransform.rotation.y = 825;
+event.receiveSetup.probeTransform.rotation.z = 733;
+event.receiveSetup.probeTransform.translation.x = 54.72;
+event.receiveSetup.probeTransform.translation.y = 45.83;
+event.receiveSetup.probeTransform.translation.z = 86.52;
+event.receiveSetup.samplingFrequency = 1275468;
+event.receiveSetup.numberSamples = 48452;
+
+channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI.pushBack(uint32(1));
+channelMappingI.pushBack(uint32(2));
+channelMappingI.pushBack(uint32(5753));
+channelMappingI.pushBack(uint32(58));
+channelMappingI.pushBack(uint32(60));
+channelMappingI.pushBack(uint32(2));
+channelMappingI.pushBack(uint32(1));
+event.receiveSetup.channelMapping.pushBack(channelMappingI);
+channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI.pushBack(uint32(4));
+channelMappingI.pushBack(uint32(57));
+channelMappingI.pushBack(uint32(7));
+channelMappingI.pushBack(uint32(76));
+channelMappingI.pushBack(uint32(21));
+channelMappingI.pushBack(uint32(87));
+channelMappingI.pushBack(uint32(9));
+channelMappingI.pushBack(uint32(3));
+event.receiveSetup.channelMapping.pushBack(channelMappingI);
+channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI.pushBack(uint32(17));
+channelMappingI.pushBack(uint32(26));
+channelMappingI.pushBack(uint32(57));
+channelMappingI.pushBack(uint32(7));
+channelMappingI.pushBack(uint32(8));
+channelMappingI.pushBack(uint32(3));
+channelMappingI.pushBack(uint32(6));
+channelMappingI.pushBack(uint32(5));
+event.receiveSetup.channelMapping.pushBack(channelMappingI);
+
+event.receiveSetup.tgcProfile.pushBack(1.2);
+event.receiveSetup.tgcProfile.pushBack(45.);
+event.receiveSetup.tgcProfile.pushBack(4.25);
+event.receiveSetup.tgcProfile.pushBack(-4.52);
+event.receiveSetup.tgcProfile.pushBack(1);
+event.receiveSetup.tgcProfile.pushBack(.5);
+event.receiveSetup.tgcProfile.pushBack(4.36);
+event.receiveSetup.tgcProfile.pushBack(1);
+event.receiveSetup.tgcProfile.pushBack(2);
+event.receiveSetup.tgcSamplingFrequency = -12.5;
+event.receiveSetup.modulationFrequency = 1925;
+event.receiveSetup.timeOffset = 206;
+group.sequence.pushBack(event);
+
+event = urx.Event();
+event.transmitSetup.probe = dataset.acquisition.probes.data(1);
+event.transmitSetup.probeTransform.rotation.x = 5;
+event.transmitSetup.probeTransform.rotation.y = 8;
+event.transmitSetup.probeTransform.rotation.z = 7;
+event.transmitSetup.probeTransform.translation.x = 52;
+event.transmitSetup.probeTransform.translation.y = 43;
+event.transmitSetup.probeTransform.translation.z = 82;
+event.transmitSetup.timeOffset = 1202;
+event.transmitSetup.wave = dataset.acquisition.waves.data(2);
+event.receiveSetup.probe = dataset.acquisition.probes.data(2);
+event.receiveSetup.probeTransform.rotation.x = 55;
+event.receiveSetup.probeTransform.rotation.y = 38;
+event.receiveSetup.probeTransform.rotation.z = 33;
+event.receiveSetup.probeTransform.translation.x = 2;
+event.receiveSetup.probeTransform.translation.y = 4;
+event.receiveSetup.probeTransform.translation.z = 2;
+event.receiveSetup.samplingFrequency = 12468;
+event.receiveSetup.numberSamples = 442;
+
+channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI.pushBack(uint32(15));
+channelMappingI.pushBack(uint32(32));
+channelMappingI.pushBack(uint32(3));
+event.receiveSetup.channelMapping.pushBack(channelMappingI);
+channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI.pushBack(uint32(4));
+channelMappingI.pushBack(uint32(55));
+channelMappingI.pushBack(uint32(6));
+event.receiveSetup.channelMapping.pushBack(channelMappingI);
+channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI.pushBack(uint32(7));
+channelMappingI.pushBack(uint32(48));
+channelMappingI.pushBack(uint32(9));
+event.receiveSetup.channelMapping.pushBack(channelMappingI);
+
+event.receiveSetup.tgcProfile.pushBack(17);
+event.receiveSetup.tgcProfile.pushBack(.2);
+event.receiveSetup.tgcProfile.pushBack(3.);
+event.receiveSetup.tgcProfile.pushBack(5);
+event.receiveSetup.tgcProfile.pushBack(.1);
+event.receiveSetup.tgcProfile.pushBack(35);
+event.receiveSetup.tgcProfile.pushBack(.445);
+event.receiveSetup.tgcProfile.pushBack(5);
+event.receiveSetup.tgcSamplingFrequency = 47.5;
+event.receiveSetup.modulationFrequency = 4.558;
+event.receiveSetup.timeOffset = 7.38;
+group.sequence.pushBack(event);
+
+group.description = 'group2 description';
+dataset.acquisition.groups.pushBack(group);
+
+
+dataset.acquisition.timestamp = 1242;
+
+
+
+
 
 
 
@@ -446,7 +692,7 @@ assert(g.sequence(2) == ev1)
 
 rxs = urx.ReceiveSetup();
 rxs1 = urx.ReceiveSetup();
-%acqObj.uniqueReceive_setups = [rxs rxs1];
+%acqObj.uniquereceiveSetups = [rxs rxs1];
 ev.receiveSetup = rxs;
 
 

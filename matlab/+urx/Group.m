@@ -1,11 +1,17 @@
 classdef Group < urx.Object
-  properties (Access = public)
-    stdVectorSequence urx.StdVector {mustBeScalarOrEmpty} = urx.StdVector.empty(0,1)
-  end
-  
   properties (Access = public, SetObservable, GetObservable)
-    samplingType(1,1) urx.Group.SamplingType
-    sequence(:,1) = urx.Event.empty(0,1)
+    samplingType(1,1) int32
+    dataType(1,1) int32
+
     description char
+
+    sequence urx.StdVector
+  end
+
+  methods
+    function this = Group(varargin)
+      this@urx.Object(varargin{:});
+      this.sequence = urx.StdVector('urx.Event', 1, urx.StdVectorType.RAW, this);
+    end
   end
 end
