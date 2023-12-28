@@ -20,8 +20,8 @@ classdef ReceiveSetup < urx.Object
   methods
     function this = ReceiveSetup(varargin)
       this@urx.Object(varargin{:});
-      this.channelMapping = urx.StdVector('uint32', 2, urx.StdVectorType.RAW, this);
-      this.tgcProfile = urx.StdVector('double', 1, urx.StdVectorType.RAW, this);
+      this.channelMapping = urx.StdVector('uint32', 2, urx.PtrType.RAW, this);
+      this.tgcProfile = urx.StdVector('double', 1, urx.PtrType.RAW, this);
     end
   end
 end

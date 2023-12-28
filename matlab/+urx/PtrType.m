@@ -1,4 +1,4 @@
-classdef StdVectorType < int32
+classdef PtrType < int32
   enumeration
     RAW(0)
     SHARED(1)

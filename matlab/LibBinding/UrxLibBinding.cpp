@@ -472,3 +472,17 @@ RAW_DATA_SHARED_NS_IMPL(urx, RawData, double);
 // NOLINTEND(cppcoreguidelines-owning-memory,bugprone-macro-parentheses)
 
 uint64_t get_pointer(void *ptr) { return (uint64_t)ptr; }
+
+void *load_from_file(const char *filename) {
+#ifdef WITH_HDF5
+  return new std::shared_ptr<urx::Dataset>(urx::Upgrade::LoadFromFile(filename));
+#else
+  return nullptr;
+#endif
+}
+
+void save_to_file(const char *filename, void *dataset) {
+#ifdef WITH_HDF5
+  urx::Writer::saveToFile(filename, static_cast<std::shared_ptr<urx::Dataset> *>(dataset));
+#endif
+}

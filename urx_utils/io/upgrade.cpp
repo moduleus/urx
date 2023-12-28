@@ -748,6 +748,10 @@ std::shared_ptr<urx::Dataset> Upgrade::LoadFromFile(const std::string& filename)
     if (major == urx::v0_3::URX_VERSION_MAJOR && minor == urx::v0_3::URX_VERSION_MINOR) {
       return ConvertV0_3(filename);
     }
+
+    if (major == urx::URX_VERSION_MAJOR && minor == urx::URX_VERSION_MINOR) {
+      return urx::Reader::loadFromFile(filename);
+    }
   }
 
   return {};

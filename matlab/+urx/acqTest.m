@@ -1,4 +1,4 @@
-clear all
+clear all %#ok
 feature('DefaultCharacterSet','UTF-8');
 
 dataset = urx.Dataset();
@@ -222,7 +222,7 @@ wave.timeZeroReferencePoint.y = 4;
 wave.timeZeroReferencePoint.z = 5;
 wave.timeZero = 5.11;
 
-channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI = urx.StdVector('uint32', 1, urx.PtrType.RAW);
 channelMappingI.pushBack(uint32(1));
 assert(channelMappingI.data(1), uint32(1));
 channelMappingI.pushBack(uint32(2));
@@ -235,7 +235,7 @@ channelMappingI.pushBack(uint32(5));
 wave.channelMapping.pushBack(channelMappingI);
 assert(wave.channelMapping.data(1).data(4), uint32(45));
 
-channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI = urx.StdVector('uint32', 1, urx.PtrType.RAW);
 channelMappingI.pushBack(uint32(1));
 channelMappingI.pushBack(uint32(2));
 channelMappingI.pushBack(uint32(5));
@@ -250,47 +250,47 @@ channelMappingI.pushBack(uint32(8));
 channelMappingI.pushBack(uint32(5));
 wave.channelMapping.pushBack(channelMappingI);
 
-channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI = urx.StdVector('uint32', 1, urx.PtrType.RAW);
 channelMappingI.pushBack(uint32(12));
 channelMappingI.pushBack(uint32(12));
 wave.channelMapping.pushBack(channelMappingI);
 
-channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI = urx.StdVector('uint32', 1, urx.PtrType.RAW);
 channelMappingI.pushBack(uint32(12));
 channelMappingI.pushBack(uint32(12));
 wave.channelMapping.pushBack(channelMappingI);
 
-channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI = urx.StdVector('uint32', 1, urx.PtrType.RAW);
 channelMappingI.pushBack(uint32(12));
 channelMappingI.pushBack(uint32(12));
 wave.channelMapping.pushBack(channelMappingI);
 
-channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI = urx.StdVector('uint32', 1, urx.PtrType.RAW);
 channelMappingI.pushBack(uint32(12));
 channelMappingI.pushBack(uint32(12));
 wave.channelMapping.pushBack(channelMappingI);
 
-channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI = urx.StdVector('uint32', 1, urx.PtrType.RAW);
 channelMappingI.pushBack(uint32(12));
 channelMappingI.pushBack(uint32(12));
 wave.channelMapping.pushBack(channelMappingI);
 
-channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI = urx.StdVector('uint32', 1, urx.PtrType.RAW);
 channelMappingI.pushBack(uint32(12));
 channelMappingI.pushBack(uint32(12));
 wave.channelMapping.pushBack(channelMappingI);
 
-channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI = urx.StdVector('uint32', 1, urx.PtrType.RAW);
 channelMappingI.pushBack(uint32(12));
 channelMappingI.pushBack(uint32(12));
 wave.channelMapping.pushBack(channelMappingI);
 
-channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI = urx.StdVector('uint32', 1, urx.PtrType.RAW);
 channelMappingI.pushBack(uint32(12));
 channelMappingI.pushBack(uint32(12));
 wave.channelMapping.pushBack(channelMappingI);
 
-channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI = urx.StdVector('uint32', 1, urx.PtrType.RAW);
 channelMappingI.pushBack(uint32(12));
 channelMappingI.pushBack(uint32(12));
 wave.channelMapping.pushBack(channelMappingI);
@@ -324,7 +324,7 @@ wave.timeZeroReferencePoint.y = 4;
 wave.timeZeroReferencePoint.z = 4;
 wave.timeZero = 5.11;
 
-channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI = urx.StdVector('uint32', 1, urx.PtrType.RAW);
 channelMappingI.pushBack(uint32(45));
 channelMappingI.pushBack(uint32(4));
 channelMappingI.pushBack(uint32(2));
@@ -336,7 +336,7 @@ channelMappingI.pushBack(uint32(5));
 channelMappingI.pushBack(uint32(66));
 wave.channelMapping.pushBack(channelMappingI);
 
-channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI = urx.StdVector('uint32', 1, urx.PtrType.RAW);
 channelMappingI.pushBack(uint32(5));
 channelMappingI.pushBack(uint32(7));
 channelMappingI.pushBack(uint32(25));
@@ -348,42 +348,42 @@ channelMappingI.pushBack(uint32(6));
 channelMappingI.pushBack(uint32(42));
 wave.channelMapping.pushBack(channelMappingI);
 
-channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI = urx.StdVector('uint32', 1, urx.PtrType.RAW);
 channelMappingI.pushBack(uint32(12));
 channelMappingI.pushBack(uint32(12));
 wave.channelMapping.pushBack(channelMappingI);
 
-channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI = urx.StdVector('uint32', 1, urx.PtrType.RAW);
 channelMappingI.pushBack(uint32(12));
 channelMappingI.pushBack(uint32(12));
 wave.channelMapping.pushBack(channelMappingI);
 
-channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI = urx.StdVector('uint32', 1, urx.PtrType.RAW);
 channelMappingI.pushBack(uint32(12));
 channelMappingI.pushBack(uint32(12));
 wave.channelMapping.pushBack(channelMappingI);
 
-channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI = urx.StdVector('uint32', 1, urx.PtrType.RAW);
 channelMappingI.pushBack(uint32(12));
 channelMappingI.pushBack(uint32(12));
 wave.channelMapping.pushBack(channelMappingI);
 
-channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI = urx.StdVector('uint32', 1, urx.PtrType.RAW);
 channelMappingI.pushBack(uint32(12));
 channelMappingI.pushBack(uint32(12));
 wave.channelMapping.pushBack(channelMappingI);
 
-channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI = urx.StdVector('uint32', 1, urx.PtrType.RAW);
 channelMappingI.pushBack(uint32(12));
 channelMappingI.pushBack(uint32(12));
 wave.channelMapping.pushBack(channelMappingI);
 
-channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI = urx.StdVector('uint32', 1, urx.PtrType.RAW);
 channelMappingI.pushBack(uint32(12));
 channelMappingI.pushBack(uint32(12));
 wave.channelMapping.pushBack(channelMappingI);
 
-channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI = urx.StdVector('uint32', 1, urx.PtrType.RAW);
 channelMappingI.pushBack(uint32(12));
 channelMappingI.pushBack(uint32(12));
 wave.channelMapping.pushBack(channelMappingI);
@@ -428,7 +428,7 @@ event.receiveSetup.probeTransform.translation.z = 8.52;
 event.receiveSetup.samplingFrequency = 125468;
 event.receiveSetup.numberSamples = 4452;
 
-channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI = urx.StdVector('uint32', 1, urx.PtrType.RAW);
 channelMappingI.pushBack(uint32(1));
 channelMappingI.pushBack(uint32(2));
 channelMappingI.pushBack(uint32(753));
@@ -437,7 +437,7 @@ channelMappingI.pushBack(uint32(6));
 channelMappingI.pushBack(uint32(2));
 channelMappingI.pushBack(uint32(1));
 event.receiveSetup.channelMapping.pushBack(channelMappingI);
-channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI = urx.StdVector('uint32', 1, urx.PtrType.RAW);
 channelMappingI.pushBack(uint32(4));
 channelMappingI.pushBack(uint32(5));
 channelMappingI.pushBack(uint32(7));
@@ -447,7 +447,7 @@ channelMappingI.pushBack(uint32(8));
 channelMappingI.pushBack(uint32(9));
 channelMappingI.pushBack(uint32(3));
 event.receiveSetup.channelMapping.pushBack(channelMappingI);
-channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI = urx.StdVector('uint32', 1, urx.PtrType.RAW);
 channelMappingI.pushBack(uint32(1));
 channelMappingI.pushBack(uint32(2));
 channelMappingI.pushBack(uint32(5));
@@ -491,17 +491,17 @@ event.receiveSetup.probeTransform.translation.z = 52;
 event.receiveSetup.samplingFrequency = 1268;
 event.receiveSetup.numberSamples = 42;
 
-channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI = urx.StdVector('uint32', 1, urx.PtrType.RAW);
 channelMappingI.pushBack(uint32(1));
 channelMappingI.pushBack(uint32(2));
 channelMappingI.pushBack(uint32(3));
 event.receiveSetup.channelMapping.pushBack(channelMappingI);
-channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI = urx.StdVector('uint32', 1, urx.PtrType.RAW);
 channelMappingI.pushBack(uint32(4));
 channelMappingI.pushBack(uint32(5));
 channelMappingI.pushBack(uint32(6));
 event.receiveSetup.channelMapping.pushBack(channelMappingI);
-channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI = urx.StdVector('uint32', 1, urx.PtrType.RAW);
 channelMappingI.pushBack(uint32(7));
 channelMappingI.pushBack(uint32(8));
 channelMappingI.pushBack(uint32(9));
@@ -548,7 +548,7 @@ event.receiveSetup.probeTransform.translation.z = 86.52;
 event.receiveSetup.samplingFrequency = 1275468;
 event.receiveSetup.numberSamples = 48452;
 
-channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI = urx.StdVector('uint32', 1, urx.PtrType.RAW);
 channelMappingI.pushBack(uint32(1));
 channelMappingI.pushBack(uint32(2));
 channelMappingI.pushBack(uint32(5753));
@@ -557,7 +557,7 @@ channelMappingI.pushBack(uint32(60));
 channelMappingI.pushBack(uint32(2));
 channelMappingI.pushBack(uint32(1));
 event.receiveSetup.channelMapping.pushBack(channelMappingI);
-channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI = urx.StdVector('uint32', 1, urx.PtrType.RAW);
 channelMappingI.pushBack(uint32(4));
 channelMappingI.pushBack(uint32(57));
 channelMappingI.pushBack(uint32(7));
@@ -567,7 +567,7 @@ channelMappingI.pushBack(uint32(87));
 channelMappingI.pushBack(uint32(9));
 channelMappingI.pushBack(uint32(3));
 event.receiveSetup.channelMapping.pushBack(channelMappingI);
-channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI = urx.StdVector('uint32', 1, urx.PtrType.RAW);
 channelMappingI.pushBack(uint32(17));
 channelMappingI.pushBack(uint32(26));
 channelMappingI.pushBack(uint32(57));
@@ -612,17 +612,17 @@ event.receiveSetup.probeTransform.translation.z = 2;
 event.receiveSetup.samplingFrequency = 12468;
 event.receiveSetup.numberSamples = 442;
 
-channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI = urx.StdVector('uint32', 1, urx.PtrType.RAW);
 channelMappingI.pushBack(uint32(15));
 channelMappingI.pushBack(uint32(32));
 channelMappingI.pushBack(uint32(3));
 event.receiveSetup.channelMapping.pushBack(channelMappingI);
-channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI = urx.StdVector('uint32', 1, urx.PtrType.RAW);
 channelMappingI.pushBack(uint32(4));
 channelMappingI.pushBack(uint32(55));
 channelMappingI.pushBack(uint32(6));
 event.receiveSetup.channelMapping.pushBack(channelMappingI);
-channelMappingI = urx.StdVector('uint32', 1, urx.StdVectorType.RAW);
+channelMappingI = urx.StdVector('uint32', 1, urx.PtrType.RAW);
 channelMappingI.pushBack(uint32(7));
 channelMappingI.pushBack(uint32(48));
 channelMappingI.pushBack(uint32(9));
@@ -651,16 +651,15 @@ dataset.acquisition.timestamp = 1242;
 groupData = urx.GroupData();
 groupData.group = dataset.acquisition.groups.data(2);
 
-rawData = urx.RawData_double_real(libpointer, true, 6);
+rawData = urx.RawData_double_real(libpointer, [], [], 6);
 assert(rawData.size == 6);
+rawData.data(1,1) = 1.2;
+rawData.data(2,1) = 2.3;
+rawData.data(3,1) = 3.4;
+rawData.data(4,1) = 4.5;
+rawData.data(5,1) = 5.6;
+rawData.data(6,1) = 6.7;
 groupData.rawData = rawData;
-% %double* buf = static_cast<double*>(group_data->raw_data->getBuffer());
-% %buf[0] = 1.2;
-% %buf[1] = 2.3;
-% %buf[2] = 3.4;
-% %buf[3] = 4.5;
-% %buf[4] = 5.6;
-% %buf[5] = 6.7;
 
 groupData.groupTimestamp = 283954.334;
 groupData.sequenceTimestamps.pushBack(1);
@@ -670,7 +669,7 @@ groupData.sequenceTimestamps.pushBack(1);
 groupData.sequenceTimestamps.pushBack(.5);
 groupData.sequenceTimestamps.pushBack(5.6);
 
-eventTimestampI = urx.StdVector('double', 1, urx.StdVectorType.RAW);
+eventTimestampI = urx.StdVector('double', 1, urx.PtrType.RAW);
 eventTimestampI.pushBack(1);
 eventTimestampI.pushBack(.24);
 eventTimestampI.pushBack(1);
@@ -680,7 +679,7 @@ eventTimestampI.pushBack(7);
 eventTimestampI.pushBack(.964);
 eventTimestampI.pushBack(.5);
 groupData.eventTimestamps.pushBack(eventTimestampI);
-eventTimestampI = urx.StdVector('double', 1, urx.StdVectorType.RAW);
+eventTimestampI = urx.StdVector('double', 1, urx.PtrType.RAW);
 eventTimestampI.pushBack(1);
 eventTimestampI.pushBack(2);
 eventTimestampI.pushBack(4);
@@ -699,43 +698,46 @@ dataset.acquisition.groupsData.pushBack(groupData);
 
 
 
-% 
-% groupData = urx.GroupData();
-% groupData.group = dataset.acquisition.groups.data(1);
-% 
-% %groupData.rawData = urx.RawData('double', 'real');% std::make_shared<RawDataNoInit<double>>(6);
-% %double* buf = static_cast<double*>(group_data->raw_data->getBuffer());
-% %buf[0] = 1.2;
-% %buf[1] = 2.3;
-% %buf[2] = 3.4;
-% %buf[3] = 4.5;
-% %buf[4] = 5.6;
-% %buf[5] = 6.7;
-% 
-% groupData.groupTimestamp = 123;
-% groupData.sequenceTimestamps.pushBack(1);
-% groupData.sequenceTimestamps.pushBack(2);
-% groupData.sequenceTimestamps.pushBack(34);
-% 
-% eventTimestampI = urx.StdVector('double', 1, urx.StdVectorType.RAW);
-% eventTimestampI.pushBack(4);
-% eventTimestampI.pushBack(5);
-% eventTimestampI.pushBack(7);
-% groupData.eventTimestamps.pushBack(eventTimestampI);
-% eventTimestampI = urx.StdVector('double', 1, urx.StdVectorType.RAW);
-% eventTimestampI.pushBack(8);
-% eventTimestampI.pushBack(7);
-% eventTimestampI.pushBack(6);
-% groupData.eventTimestamps.pushBack(eventTimestampI);
-% dataset.acquisition.groupsData.pushBack(groupData);
-% 
-% 
-% 
-% 
-% 
-% 
-% 
-% 
+
+groupData = urx.GroupData();
+groupData.group = dataset.acquisition.groups.data(1);
+
+rawData = urx.RawData_int16_t_complex(libpointer, [], [], 4);
+assert(rawData.size == 4);
+rawData.data(1,1) = 123;
+rawData.data(1,1) = 456;
+rawData.data(2,1) = 159;
+rawData.data(2,1) = 753;
+rawData.data(3,1) = 789;
+rawData.data(3,1) = 456;
+rawData.data(4,1) = 123;
+rawData.data(4,1) = 753;
+groupData.rawData = rawData;
+
+groupData.groupTimestamp = 123;
+groupData.sequenceTimestamps.pushBack(1);
+groupData.sequenceTimestamps.pushBack(2);
+groupData.sequenceTimestamps.pushBack(34);
+
+eventTimestampI = urx.StdVector('double', 1, urx.PtrType.RAW);
+eventTimestampI.pushBack(4);
+eventTimestampI.pushBack(5);
+eventTimestampI.pushBack(7);
+groupData.eventTimestamps.pushBack(eventTimestampI);
+eventTimestampI = urx.StdVector('double', 1, urx.PtrType.RAW);
+eventTimestampI.pushBack(8);
+eventTimestampI.pushBack(7);
+eventTimestampI.pushBack(6);
+groupData.eventTimestamps.pushBack(eventTimestampI);
+dataset.acquisition.groupsData.pushBack(groupData);
+
+%dataset.saveToFile('c:/temp/test.urx');
+
+
+
+
+
+
 % acqObj = urx.Acquisition();
 % 
 % acqObj.localTime = 'coucou';

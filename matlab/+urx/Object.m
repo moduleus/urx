@@ -3,34 +3,39 @@ classdef Object < handle
   properties (Access = public)
     libBindingRef = urx.LibBinding.empty(1,0)
     id(1,1) = libpointer
-    ownerOfMemory(1,1) logical
-    pointerOfShared logical
+    ptrType urx.PtrType
     saveId
-    saveOwnerOfMemory logical
-    saveIsSharedPtr logical
+    savePtrType urx.PtrType
     parent
   end
 
   methods
-    function this = Object(id, isSharedPointer, varargin)
+    % Constructor for urx object.
+
+    % User should only use it with empty argument or set only varargin:
+    % urx.RawData_double_real([], [], [], 5)
+
+    % varargin are parameters passed to the constructor. If set, id,
+    % ptrType and parent are ignored.
+
+    % parent is used when an object is inside another object. For example:
+    % Acquisition is inside a Dataset object. This feature should not be
+    % used by user.
+    function this = Object(id, ptrType, parent, varargin)
       this.libBindingRef = urx.LibBinding.getInstance();
 
       if nargin == 0
         this.id = this.libBindingRef.call([strrep(class(this), '.', '_') '_new']);
-        this.ownerOfMemory = true;
-        this.pointerOfShared = true;
-      elseif nargin == 1
+        this.ptrType = urx.PtrType.SHARED;
+      elseif nargin == 3 % Only used from PreGet event.
         this.id = id;
-        this.ownerOfMemory = false;
-        this.pointerOfShared = true;
-      elseif nargin == 2
-        this.id = id;
-        this.ownerOfMemory = false;
-        this.pointerOfShared = isSharedPointer;
-      else
+        this.ptrType = ptrType;
+        this.parent = parent;
+      elseif nargin == 4
         this.id = this.libBindingRef.call([strrep(class(this), '.', '_') '_new'], varargin{:});
-        this.ownerOfMemory = true;
-        this.pointerOfShared = true;
+        this.ptrType = urx.PtrType.SHARED;
+      else
+        assert(false);
       end
       mc = metaclass(this);
       props = mc.PropertyList;
@@ -48,7 +53,9 @@ classdef Object < handle
     end
 
     function freeMem(this)
-      if this.ownerOfMemory
+      % If the object has no parent, the C shared_ptr associted must be
+      % released.
+      if isempty(this.parent)
         deleteFunction = [strrep(class(this), '.', '_') '_delete'];
         this.libBindingRef.call(deleteFunction, this.id);
         this.id = libpointer;
@@ -59,11 +66,7 @@ classdef Object < handle
       this.freeMem();
     end
 
-    function res = className(this)
-      thisClass = class(this);
-      res = thisClass(5:end); % no urx.
-    end
-
+    % May be useful to ease debug.
     function res = showPtr(this, ptr)
       res = uint64(this.libBindingRef.call('get_pointer', ptr));
     end
@@ -71,26 +74,28 @@ classdef Object < handle
 
   methods (Static)
     function handlePropEvents(src,evnt)
-      persistent disablePostRecursion;
-      if isempty(disablePostRecursion)
-        disablePostRecursion = 0;
+      % Since this function read properties from urx object, it may be
+      % needed to disable Get/Set Recution.
+      persistent disableSetRecursion;
+      if isempty(disableSetRecursion)
+        disableSetRecursion = 0;
       end
       persistent disableGetRecursion;
       if isempty(disableGetRecursion)
         disableGetRecursion = 0;
       end
-      % avoid recursion
+
+      % get stack to eventually avoid recursion and side effects.
       s = dbstack;
+
       % Security
       if numel(s) == 1
-        disablePostRecursion = 0;
-        disableGetRecursion = 0;
+        assert(disableSetRecursion == 0);
+        assert(disableGetRecursion == 0);
       end
-      % Condition to add a breakpoint if recursion
-      if numel(s) > 1 && strcmp(s(2).name, 'Object.handlePropEvents')
-        s = dbstack;
-      end
-      if numel(s) > 1 && strcmp(s(2).name, 'Object.handlePropEvents') && disablePostRecursion > 0 && ...
+
+      % Disable recursion for Set.
+      if numel(s) > 1 && strcmp(s(2).name, 'Object.handlePropEvents') && disableSetRecursion > 0 && ...
           (strcmp(evnt.EventName, 'PreSet') || strcmp(evnt.EventName, 'PostSet'))
         return;
       end
@@ -98,37 +103,46 @@ classdef Object < handle
           strcmp(evnt.EventName, 'PreGet')
         return;
       end
-      % Condition to add a breakpoint if recursion allowed
-      if numel(s) > 1 && strcmp(s(2).name, 'Object.handlePropEvents')
-        s = dbstack;
-      end
+
       % Disable hint for tipinfo and workspace info. To ease debug. Need to
       % be removed before release.
       if any(arrayfun(@(x) strcmp(x.name, 'datatipinfo'), s)) || any(arrayfun(@(x) strcmp(x.name, 'workspacefunc'), s))
-        disp('Disabled')
+        % disp will be shown in tipinfo.
+        disp(['Disabled ' evnt.EventName ' for ' src.Name '. Shown value may be wrong.'])
         return;
       end
+
       % Don't observe when called from constructor with inheritance.
+      % Object constructor must be called before child constructor.
+      % So all properties already have listeners set.
       for i = 1:numel(s)
         strInheritance = strfind(s(i).name, '.');
+        % Try to found in the stack "Name.Name".
         if numel(strInheritance) == 1 && strcmp(s(i).name, [s(i).name(1:strInheritance-1) '.' s(i).name(1:strInheritance-1)])
           return;
         end
       end
 
-      % get affected affectedObject/property infos
+      % Get data from event.
       affectedObject = evnt.AffectedObject;
       affectedPropertyName = src.Name;
       disableGetRecursion = disableGetRecursion + 1;
+      % Get current cached value of the property.
+      % Get must be disabled to avoid recursion.
       affectedProperty = affectedObject.(affectedPropertyName);
       disableGetRecursion = disableGetRecursion - 1;
+      % If no value has been set, you need to force update to get value and
+      % to set id to C pointer.
       if isempty(affectedProperty) && strcmp(evnt.EventName, 'PreSet')
+        % Wihout disableGetRecursion, it will generate an PreGet event.
         affectedProperty = affectedObject.(affectedPropertyName);
       end
 
-      % C pointer of the field.
+      % For update of the C pointer at every call to be sure that value is
+      % up to date.
+      % Maybe only isempty(affectedProperty)
       functionCFieldAccessor = strrep(class(affectedObject), '.', '_');
-      if affectedObject.ownerOfMemory
+      if affectedObject.ptrType == urx.PtrType.SHARED
         functionCFieldAccessor = [functionCFieldAccessor '_shared'];
       end
       functionCFieldAccessor = [functionCFieldAccessor '_' urx.Object.camelToSnakeCase(affectedPropertyName)];
@@ -136,45 +150,46 @@ classdef Object < handle
       affectedCFieldPtr = libBindingRef.call(functionCFieldAccessor, affectedObject.id);
 
       affectedPropertyClassName = class(affectedProperty);
-      if iscell(affectedPropertyClassName)
-        affectedPropertyClassName = class(affectedProperty{1});
-      end
 
       % decision tree: event then, property class (char, double, int32/enum or urx.* from std_vector)
       switch evnt.EventName
+        % Save important data before Matlab erase the old value by the new
+        % one.
+        % PostSet will need them to update urx object in C data.
         case 'PreSet'
           affectedObject.saveId = affectedProperty.id;
-          affectedObject.saveOwnerOfMemory = affectedProperty.ownerOfMemory;
-          affectedObject.saveIsSharedPtr = affectedProperty.pointerOfShared;
+          affectedObject.savePtrType = affectedProperty.ptrType;
 
         case 'PostSet'
-          if strcmp(affectedPropertyClassName, 'char')
+          if ischar(affectedProperty)
             libBindingRef.call('std_string_set', affectedCFieldPtr, affectedProperty);
-          elseif isenum(affectedProperty) && isa(affectedProperty, 'int32')
-            if (numel(affectedProperty) ~= 1)
-              throw(MException('urx:fatalError', 'Only single value is supported.'));
-            end
-            affectedCFieldPtr.setdatatype('int32Ptr', numel(affectedProperty));
+          elseif isenum(affectedProperty)
+            assert(numel(affectedProperty) == 1);
+            affectedCFieldPtr.setdatatype('int32Ptr', 1);
             affectedCFieldPtr.Value = int32(affectedProperty);
+          % Native type.
           elseif ~isa(affectedProperty, 'urx.Object')
             if (numel(affectedProperty) ~= 1)
               throw(MException('urx:fatalError', 'Only single value is supported.'));
             end
             affectedCFieldPtr.setdatatype([affectedPropertyClassName 'Ptr'], numel(affectedProperty));
             affectedCFieldPtr.Value = affectedProperty;
-          else % urx affectedObject
+          else % urx.Object
 
+            % When you assign an urx object to another one, you don't
+            % assign pointer, you copy data from a pointer to another
+            % pointer.
+            % So after assigning new data to old data, you need to free new
+            % data (that has been copied to old data).
             assignFunction = [strrep(affectedPropertyClassName, '.', '_') '_assign'];
-            if affectedObject.saveOwnerOfMemory
+            if affectedObject.savePtrType == urx.PtrType.SHARED
               assignFunction = [assignFunction '_shared'];
+            elseif affectedObject.savePtrType == urx.PtrType.WEAK
+              assignFunction = [assignFunction '_weak'];
             else
-              if affectedProperty.pointerOfShared && ~affectedProperty.ownerOfMemory
-                assignFunction = [assignFunction '_weak'];
-              else
-                assignFunction = [assignFunction '_raw'];
-              end
+              assignFunction = [assignFunction '_raw'];
             end
-            if affectedProperty.pointerOfShared
+            if affectedProperty.ptrType
               assignFunction = [assignFunction '_shared'];
             else
               assignFunction = [assignFunction '_raw'];
@@ -182,41 +197,78 @@ classdef Object < handle
             libBindingRef.call(assignFunction, affectedObject.saveId, affectedProperty.id);
 
             affectedProperty.freeMem();
+
+            % Restore pointer and ptrType of the property.
             affectedProperty.id = affectedObject.saveId;
-            affectedProperty.ownerOfMemory = affectedObject.saveOwnerOfMemory;
-            affectedProperty.pointerOfShared = affectedObject.saveIsSharedPtr;
+            affectedProperty.ptrType = affectedObject.savePtrType;
+
+            % The property must remember the parent. You may want to delete
+            % the parent object and want to use the object property. I.e.
+            % dataset = urx.Dataset();
+            % version = urx.Version();
+            % version.minor = 111;
+            % dataset.version = version;
+            % clear dataset
+            % Here, version variable must be usable even if dataset
+            % (and dataset.version) is cleared.
             affectedProperty.parent = affectedObject;
           end
 
+        % Before every get:
+        %   - if the property is a native type: the value must be updated,
+        %   - if the property is an object (C or urx), the pointer of the C
+        %       object must be updated.
         case 'PreGet'
-          disablePostRecursion = disablePostRecursion + 1;
-          if strcmp(affectedPropertyClassName, 'char')
+          % Disable recursion because all
+          % affectedObject.(affectedPropertyName) will generate an
+          % PreSet/PostSet.
+          disableSetRecursion = disableSetRecursion + 1;
+          if ischar(affectedProperty)
             affectedObject.(affectedPropertyName) = libBindingRef.call('std_string_get', affectedCFieldPtr);
-          elseif isenum(affectedProperty) && isa(affectedProperty, 'int32')
-            if (numel(affectedProperty) ~= 1)
-              throw(MException('urx:fatalError', 'Only single value is supported.'));
-            end
-            affectedCFieldPtr.setdatatype('int32Ptr', numel(affectedProperty));
+          elseif isenum(affectedProperty)
+            assert(numel(affectedProperty) == 1);
+            affectedCFieldPtr.setdatatype('int32Ptr', 1);
             affectedCFieldPtr.Value = int32(affectedProperty);
-          elseif strcmp(affectedPropertyClassName, 'urx.StdVector')
+          elseif isa(affectedProperty, 'urx.StdVector')
             affectedObject.(affectedPropertyName).id = affectedCFieldPtr;
-          elseif ~isa(affectedProperty, 'urx.Object')
-            if (numel(affectedProperty) ~= 1)
-              throw(MException('urx:fatalError', 'Only single value is supported.'));
+          % Native type.
+          elseif ~isa(affectedProperty, 'urx.Object') 
+            % RawData.data is the only property that have an array of an
+            % not urx.Object.
+            if (strncmp(class(affectedObject), 'urx.RawData', strlength('urx.RawData')) && strcmp(affectedPropertyName, 'data'))
+              strSplit = split(class(affectedObject), '_');
+              if (strcmp(strSplit(end), 'real'))
+                d2dim = 1;
+              else
+                d2dim = 2;
+              end
+              affectedCFieldPtr.setdatatype([cell2mat(strSplit(2)) 'Ptr'], affectedObject.size, d2dim);
+            else
+              assert(numel(affectedProperty) == 1);
+              affectedCFieldPtr.setdatatype([affectedPropertyClassName 'Ptr'], 1);
             end
 
-            affectedCFieldPtr.setdatatype([affectedPropertyClassName 'Ptr'], numel(affectedProperty));
             affectedObject.(affectedPropertyName) = affectedCFieldPtr.Value;
-          else % urx affectedObject
-            ptrIsShared = strcmp(affectedPropertyName, 'rawData');
-            if isempty(affectedObject.(affectedPropertyName))
-              affectedObject.(affectedPropertyName) = urx.(affectedPropertyClassName(5:end))(affectedCFieldPtr, ptrIsShared);
+          else % urx.Object
+            % Ugly but to get data from a pointer, You need to know if you
+            % are manipulating shared_ptr, weak_ptr or raw pointer.
+            if any(strcmp({'rawData'},affectedPropertyName))
+              ptrIsShared = urx.PtrType.SHARED;
+            elseif any(strcmp({'elementGeometry','impulseResponse','group','probe','wave'},affectedPropertyName))
+              ptrIsShared = urx.PtrType.WEAK;
             else
+              ptrIsShared = urx.PtrType.RAW;
+            end
+            if isempty(affectedObject.(affectedPropertyName))
+              affectedObject.(affectedPropertyName) = urx.(affectedPropertyClassName(5:end))(affectedCFieldPtr, ptrIsShared, affectedObject);
+            else
+              % If object has already been cached, check if nothing has
+              % changed.
               assert(affectedObject.showPtr(affectedObject.(affectedPropertyName).id) == affectedObject.showPtr(affectedCFieldPtr));
-              assert(affectedObject.(affectedPropertyName).pointerOfShared == ptrIsShared);
+              assert(affectedObject.(affectedPropertyName).ptrType == ptrIsShared);
             end
           end
-          disablePostRecursion = disablePostRecursion - 1;
+          disableSetRecursion = disableSetRecursion - 1;
       end
     end
   end

@@ -33,8 +33,7 @@ class RawDataVector final : public RawData {
 template <typename T>
 class RawDataNoInit final : public RawData {
  public:
-  explicit RawDataNoInit(size_t size)
-      : _buffer(std::make_unique_for_overwrite<T[]>(size)), _size(size) {}
+  explicit RawDataNoInit(size_t size) : _buffer(new T[size]), _size(size) {}
 
   const void* getBuffer() const override { return _buffer.get(); }
   void* getBuffer() override { return _buffer.get(); }

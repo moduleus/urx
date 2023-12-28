@@ -6,7 +6,7 @@ classdef ElementGeometry < urx.Object
   methods
     function this = ElementGeometry(varargin)
       this@urx.Object(varargin{:});
-      this.perimeter = urx.StdVector('urx.Vector3D', 1, urx.StdVectorType.RAW, this);
+      this.perimeter = urx.StdVector('urx.Vector3D', 1, urx.PtrType.RAW, this);
     end
   end
 end

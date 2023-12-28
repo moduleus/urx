@@ -12,9 +12,8 @@ classdef GroupData < urx.Object
   methods
     function this = GroupData(varargin)
       this@urx.Object(varargin{:});
-      this.rawData = urx.RawData_double_complex(libpointer, true, 0);
-      this.sequenceTimestamps = urx.StdVector('double', 1, urx.StdVectorType.RAW, this);
-      this.eventTimestamps = urx.StdVector('double', 2, urx.StdVectorType.RAW, this);
+      this.sequenceTimestamps = urx.StdVector('double', 1, urx.PtrType.RAW, this);
+      this.eventTimestamps = urx.StdVector('double', 2, urx.PtrType.RAW, this);
     end
   end
 end

@@ -11,7 +11,7 @@ classdef Excitation < urx.Object
   methods
     function this = Excitation(varargin)
       this@urx.Object(varargin{:});
-      this.waveform = urx.StdVector('double', 1, urx.StdVectorType.RAW, this);
+      this.waveform = urx.StdVector('double', 1, urx.PtrType.RAW, this);
     end
   end
 end

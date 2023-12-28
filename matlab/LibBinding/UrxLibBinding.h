@@ -66,8 +66,8 @@
 #define VECTOR_WEAK_NS_DECL(ns, type) _VECTOR_WEAK_DECL(CONCAT2(ns, type))
 #define VECTOR_WEAK_DECL(type) _VECTOR_WEAK_DECL(type)
 
-#define _RAW_DATA_SHARED_NS_DECL(name, type_data, type_number)          \
-  void * CONCAT5(name, type_data, type_number, shared, size)(void *this_ptr); \
+#define _RAW_DATA_SHARED_NS_DECL(name, type_data, type_number)               \
+  void *CONCAT5(name, type_data, type_number, shared, size)(void *this_ptr); \
   void *CONCAT5(name, type_data, type_number, shared, data)(void *this_ptr);
 
 #define RAW_DATA_SHARED_NS_DECL(ns, type_data)                    \
@@ -90,7 +90,7 @@
 #define OBJECT_DECL(type) _OBJECT_DECL(type)
 
 #define _OBJECT_RAW_DATA_DECL(name)           \
-  void *CONCAT2(name, new)(uint64_t size);             \
+  void *CONCAT2(name, new)(uint64_t size);    \
   void CONCAT2(name, delete)(void *this_ptr); \
   void CONCAT4(name, assign, shared, shared)(void *this_ptr, void *other_ptr)
 
@@ -254,7 +254,10 @@ RAW_DATA_SHARED_NS_DECL(urx, int32_t);
 RAW_DATA_SHARED_NS_DECL(urx, float);
 RAW_DATA_SHARED_NS_DECL(urx, double);
 
-uint64_t get_pointer(void* ptr);
+uint64_t get_pointer(void *ptr);
+
+void* load_from_file(const char* filename);
+void save_to_file(const char* filename, void* dataset);
 
 #ifdef __cplusplus
 }
