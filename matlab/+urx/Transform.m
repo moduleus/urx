@@ -1,6 +1,6 @@
 classdef Transform < urx.Object
   properties (Access = public, SetObservable, GetObservable)
-    rotation(1,1) urx.Vector3D
-    translation(1,1) urx.Vector3D
+    rotation urx.Vector3D {mustBeScalarOrEmpty}
+    translation urx.Vector3D {mustBeScalarOrEmpty}
   end
 end

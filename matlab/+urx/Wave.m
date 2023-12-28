@@ -5,7 +5,7 @@ classdef Wave < urx.Object
 
     timeZero(1,1) double
 
-    timeZeroReferencePoint(1,1) urx.Vector3D
+    timeZeroReferencePoint urx.Vector3D {mustBeScalarOrEmpty}
 
     channelMapping urx.StdVector
 

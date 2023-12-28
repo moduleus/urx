@@ -648,18 +648,19 @@ dataset.acquisition.groups.pushBack(group);
 dataset.acquisition.timestamp = 1242;
 
 
-
 groupData = urx.GroupData();
 groupData.group = dataset.acquisition.groups.data(2);
 
-%group_data->raw_data = std::make_shared<RawDataNoInit<double>>(6);
-%double* buf = static_cast<double*>(group_data->raw_data->getBuffer());
-%buf[0] = 1.2;
-%buf[1] = 2.3;
-%buf[2] = 3.4;
-%buf[3] = 4.5;
-%buf[4] = 5.6;
-%buf[5] = 6.7;
+rawData = urx.RawData_double_real(libpointer, true, 6);
+assert(rawData.size == 6);
+groupData.rawData = rawData;
+% %double* buf = static_cast<double*>(group_data->raw_data->getBuffer());
+% %buf[0] = 1.2;
+% %buf[1] = 2.3;
+% %buf[2] = 3.4;
+% %buf[3] = 4.5;
+% %buf[4] = 5.6;
+% %buf[5] = 6.7;
 
 groupData.groupTimestamp = 283954.334;
 groupData.sequenceTimestamps.pushBack(1);
@@ -698,85 +699,87 @@ dataset.acquisition.groupsData.pushBack(groupData);
 
 
 
+% 
+% groupData = urx.GroupData();
+% groupData.group = dataset.acquisition.groups.data(1);
+% 
+% %groupData.rawData = urx.RawData('double', 'real');% std::make_shared<RawDataNoInit<double>>(6);
+% %double* buf = static_cast<double*>(group_data->raw_data->getBuffer());
+% %buf[0] = 1.2;
+% %buf[1] = 2.3;
+% %buf[2] = 3.4;
+% %buf[3] = 4.5;
+% %buf[4] = 5.6;
+% %buf[5] = 6.7;
+% 
+% groupData.groupTimestamp = 123;
+% groupData.sequenceTimestamps.pushBack(1);
+% groupData.sequenceTimestamps.pushBack(2);
+% groupData.sequenceTimestamps.pushBack(34);
+% 
+% eventTimestampI = urx.StdVector('double', 1, urx.StdVectorType.RAW);
+% eventTimestampI.pushBack(4);
+% eventTimestampI.pushBack(5);
+% eventTimestampI.pushBack(7);
+% groupData.eventTimestamps.pushBack(eventTimestampI);
+% eventTimestampI = urx.StdVector('double', 1, urx.StdVectorType.RAW);
+% eventTimestampI.pushBack(8);
+% eventTimestampI.pushBack(7);
+% eventTimestampI.pushBack(6);
+% groupData.eventTimestamps.pushBack(eventTimestampI);
+% dataset.acquisition.groupsData.pushBack(groupData);
+% 
+% 
+% 
+% 
+% 
+% 
+% 
+% 
+% acqObj = urx.Acquisition();
+% 
+% acqObj.localTime = 'coucou';
+% ptr = urx.LibBinding.getInstance().call('urx_Acquisition_shared_local_time', acqObj.id);
+% ptr_val = urx.LibBinding.getInstance().call('std_string_get', ptr);
+% assert(strcmp(ptr_val, 'coucou'))
+% urx.LibBinding.getInstance().call('std_string_set', ptr, 'foobar');
+% assert(strcmp('foobar', acqObj.localTime))
+% 
+% acqObj.soundSpeed = 1500;
+% ptr = urx.LibBinding.getInstance().call('urx_Acquisition_shared_sound_speed', acqObj.id);
+% ptr.setdatatype('doublePtr', 1)
+% assert(ptr.Value == 1500)
+% ptr.Value = 1540;
+% assert(1540 == acqObj.soundSpeed)
+% % return
+% 
+% g = urx.Group();
+% g.description = 'my description 0';
+% g1 = urx.Group();
+% g1.description = 'my description 1';
+% % return
+% acqObj.groups = [g g1];
+% assert(acqObj.groups(1) == g)
+% assert(acqObj.groups(2) == g1)
+% % return;
+% 
+% 
+% ev = urx.Event();
+% ev1 = urx.Event();
+% g.sequence = [ev ev1];
+% assert(g.sequence(1) == ev)
+% assert(g.sequence(2) == ev1)
+% 
+% rxs = urx.ReceiveSetup();
+% rxs1 = urx.ReceiveSetup();
+% %acqObj.uniquereceiveSetups = [rxs rxs1];
+% ev.receiveSetup = rxs;
+% 
+% 
+% 
+% 
+% 
+% 
+% 
 
-groupData = urx.GroupData();
-groupData.group = dataset.acquisition.groups.data(1);
-
-%group_data->raw_data = std::make_shared<RawDataNoInit<double>>(6);
-%double* buf = static_cast<double*>(group_data->raw_data->getBuffer());
-%buf[0] = 1.2;
-%buf[1] = 2.3;
-%buf[2] = 3.4;
-%buf[3] = 4.5;
-%buf[4] = 5.6;
-%buf[5] = 6.7;
-
-groupData.groupTimestamp = 123;
-groupData.sequenceTimestamps.pushBack(1);
-groupData.sequenceTimestamps.pushBack(2);
-groupData.sequenceTimestamps.pushBack(34);
-
-eventTimestampI = urx.StdVector('double', 1, urx.StdVectorType.RAW);
-eventTimestampI.pushBack(4);
-eventTimestampI.pushBack(5);
-eventTimestampI.pushBack(7);
-groupData.eventTimestamps.pushBack(eventTimestampI);
-eventTimestampI = urx.StdVector('double', 1, urx.StdVectorType.RAW);
-eventTimestampI.pushBack(8);
-eventTimestampI.pushBack(7);
-eventTimestampI.pushBack(6);
-groupData.eventTimestamps.pushBack(eventTimestampI);
-dataset.acquisition.groupsData.pushBack(groupData);
-
-
-
-
-
-
-
-
-acqObj = urx.Acquisition();
-
-acqObj.localTime = 'coucou';
-ptr = urx.LibBinding.getInstance().call('urx_Acquisition_shared_local_time', acqObj.id);
-ptr_val = urx.LibBinding.getInstance().call('std_string_get', ptr);
-assert(strcmp(ptr_val, 'coucou'))
-urx.LibBinding.getInstance().call('std_string_set', ptr, 'foobar');
-assert(strcmp('foobar', acqObj.localTime))
-
-acqObj.soundSpeed = 1500;
-ptr = urx.LibBinding.getInstance().call('urx_Acquisition_shared_sound_speed', acqObj.id);
-ptr.setdatatype('doublePtr', 1)
-assert(ptr.Value == 1500)
-ptr.Value = 1540;
-assert(1540 == acqObj.soundSpeed)
-% return
-
-g = urx.Group();
-g.description = 'my description 0';
-g1 = urx.Group();
-g1.description = 'my description 1';
-% return
-acqObj.groups = [g g1];
-assert(acqObj.groups(1) == g)
-assert(acqObj.groups(2) == g1)
-% return;
-
-
-ev = urx.Event();
-ev1 = urx.Event();
-g.sequence = [ev ev1];
-assert(g.sequence(1) == ev)
-assert(g.sequence(2) == ev1)
-
-rxs = urx.ReceiveSetup();
-rxs1 = urx.ReceiveSetup();
-%acqObj.uniquereceiveSetups = [rxs rxs1];
-ev.receiveSetup = rxs;
-
-
-
-
-
-
-
+clear

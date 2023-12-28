@@ -3,17 +3,17 @@ classdef Object < handle
   properties (Access = public)
     libBindingRef = urx.LibBinding.empty(1,0)
     id(1,1) = libpointer
-    saveId
     ownerOfMemory(1,1) logical
     pointerOfShared logical
-    saveOwnerOfMemory
+    saveId
+    saveOwnerOfMemory logical
+    saveIsSharedPtr logical
+    parent
   end
 
   methods
-    function this = Object(id, isSharedPointer)
+    function this = Object(id, isSharedPointer, varargin)
       this.libBindingRef = urx.LibBinding.getInstance();
-      this.saveId = containers.Map( 'KeyType', 'char', 'ValueType', 'any');
-      this.saveOwnerOfMemory = containers.Map( 'KeyType', 'char', 'ValueType', 'logical');
 
       if nargin == 0
         this.id = this.libBindingRef.call([strrep(class(this), '.', '_') '_new']);
@@ -27,6 +27,10 @@ classdef Object < handle
         this.id = id;
         this.ownerOfMemory = false;
         this.pointerOfShared = isSharedPointer;
+      else
+        this.id = this.libBindingRef.call([strrep(class(this), '.', '_') '_new'], varargin{:});
+        this.ownerOfMemory = true;
+        this.pointerOfShared = true;
       end
       mc = metaclass(this);
       props = mc.PropertyList;
@@ -43,7 +47,7 @@ classdef Object < handle
       end
     end
 
-    function delete(this)
+    function freeMem(this)
       if this.ownerOfMemory
         deleteFunction = [strrep(class(this), '.', '_') '_delete'];
         this.libBindingRef.call(deleteFunction, this.id);
@@ -51,9 +55,17 @@ classdef Object < handle
       end
     end
 
+    function delete(this)
+      this.freeMem();
+    end
+
     function res = className(this)
       thisClass = class(this);
       res = thisClass(5:end); % no urx.
+    end
+
+    function res = showPtr(this, ptr)
+      res = uint64(this.libBindingRef.call('get_pointer', ptr));
     end
   end
 
@@ -96,6 +108,13 @@ classdef Object < handle
         disp('Disabled')
         return;
       end
+      % Don't observe when called from constructor with inheritance.
+      for i = 1:numel(s)
+        strInheritance = strfind(s(i).name, '.');
+        if numel(strInheritance) == 1 && strcmp(s(i).name, [s(i).name(1:strInheritance-1) '.' s(i).name(1:strInheritance-1)])
+          return;
+        end
+      end
 
       % get affected affectedObject/property infos
       affectedObject = evnt.AffectedObject;
@@ -103,6 +122,9 @@ classdef Object < handle
       disableGetRecursion = disableGetRecursion + 1;
       affectedProperty = affectedObject.(affectedPropertyName);
       disableGetRecursion = disableGetRecursion - 1;
+      if isempty(affectedProperty) && strcmp(evnt.EventName, 'PreSet')
+        affectedProperty = affectedObject.(affectedPropertyName);
+      end
 
       % C pointer of the field.
       functionCFieldAccessor = strrep(class(affectedObject), '.', '_');
@@ -120,19 +142,10 @@ classdef Object < handle
 
       % decision tree: event then, property class (char, double, int32/enum or urx.* from std_vector)
       switch evnt.EventName
-
         case 'PreSet'
-          %if isempty(affectedProperty) && affectedObject.saveId.isKey(affectedPropertyName)
-          %  affectedObject.saveId.remove(affectedPropertyName);
-          %  affectedObject.saveOwnerOfMemory.remove(affectedPropertyName);
-          %end
-          if ~isempty(affectedProperty)
-            affectedObject.saveId(affectedPropertyName) = affectedProperty.id;
-            affectedObject.saveOwnerOfMemory(affectedPropertyName) = affectedProperty.ownerOfMemory;
-          else
-            affectedObject.saveId(affectedPropertyName) = affectedCFieldPtr;
-            affectedObject.saveOwnerOfMemory(affectedPropertyName) = false;
-          end
+          affectedObject.saveId = affectedProperty.id;
+          affectedObject.saveOwnerOfMemory = affectedProperty.ownerOfMemory;
+          affectedObject.saveIsSharedPtr = affectedProperty.pointerOfShared;
 
         case 'PostSet'
           if strcmp(affectedPropertyClassName, 'char')
@@ -143,9 +156,6 @@ classdef Object < handle
             end
             affectedCFieldPtr.setdatatype('int32Ptr', numel(affectedProperty));
             affectedCFieldPtr.Value = int32(affectedProperty);
-          elseif isa(affectedProperty, 'urx.StdVector')
-            % Should be launch only from child constructor after Object
-            % constructor has been called.
           elseif ~isa(affectedProperty, 'urx.Object')
             if (numel(affectedProperty) ~= 1)
               throw(MException('urx:fatalError', 'Only single value is supported.'));
@@ -155,7 +165,7 @@ classdef Object < handle
           else % urx affectedObject
 
             assignFunction = [strrep(affectedPropertyClassName, '.', '_') '_assign'];
-            if affectedObject.saveOwnerOfMemory(affectedPropertyName)
+            if affectedObject.saveOwnerOfMemory
               assignFunction = [assignFunction '_shared'];
             else
               if affectedProperty.pointerOfShared && ~affectedProperty.ownerOfMemory
@@ -169,12 +179,13 @@ classdef Object < handle
             else
               assignFunction = [assignFunction '_raw'];
             end
-            libBindingRef.call(assignFunction, affectedObject.saveId(affectedPropertyName), affectedProperty.id);
+            libBindingRef.call(assignFunction, affectedObject.saveId, affectedProperty.id);
 
-            if affectedObject.saveId.isKey(affectedPropertyName)
-              affectedProperty.id = affectedObject.saveId(affectedPropertyName);
-              affectedProperty.ownerOfMemory = affectedObject.saveOwnerOfMemory(affectedPropertyName);
-            end
+            affectedProperty.freeMem();
+            affectedProperty.id = affectedObject.saveId;
+            affectedProperty.ownerOfMemory = affectedObject.saveOwnerOfMemory;
+            affectedProperty.pointerOfShared = affectedObject.saveIsSharedPtr;
+            affectedProperty.parent = affectedObject;
           end
 
         case 'PreGet'
@@ -197,7 +208,13 @@ classdef Object < handle
             affectedCFieldPtr.setdatatype([affectedPropertyClassName 'Ptr'], numel(affectedProperty));
             affectedObject.(affectedPropertyName) = affectedCFieldPtr.Value;
           else % urx affectedObject
-            affectedObject.(affectedPropertyName) = urx.(affectedPropertyClassName(5:end))(affectedCFieldPtr, false);
+            ptrIsShared = strcmp(affectedPropertyName, 'rawData');
+            if isempty(affectedObject.(affectedPropertyName))
+              affectedObject.(affectedPropertyName) = urx.(affectedPropertyClassName(5:end))(affectedCFieldPtr, ptrIsShared);
+            else
+              assert(affectedObject.showPtr(affectedObject.(affectedPropertyName).id) == affectedObject.showPtr(affectedCFieldPtr));
+              assert(affectedObject.(affectedPropertyName).pointerOfShared == ptrIsShared);
+            end
           end
           disablePostRecursion = disablePostRecursion - 1;
       end

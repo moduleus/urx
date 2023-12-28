@@ -7,4 +7,10 @@ classdef TransmitSetup < urx.Object
 
     timeOffset(1,1) double
   end
+
+  methods
+    function this = TransmitSetup(varargin)
+      this@urx.Object(varargin{:});
+    end
+  end
 end

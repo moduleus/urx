@@ -14,7 +14,7 @@ class RawData {
   virtual size_t getSize() const = 0;
 
  protected:
-  ~RawData() = default;
+  virtual ~RawData() = default;
 };
 
 template <typename T>

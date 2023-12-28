@@ -12,6 +12,7 @@
 #define CONCAT2(a, b) a##_##b
 #define CONCAT3(a, b, c) a##_##b##_##c
 #define CONCAT4(a, b, c, d) a##_##b##_##c##_##d
+#define CONCAT5(a, b, c, d, e) a##_##b##_##c##_##d##_##e
 #define CONCAT_NS(a, b) a::b
 #define CONCAT_NS3(a, b, c) a::b::c
 
@@ -65,6 +66,17 @@
 #define VECTOR_WEAK_NS_DECL(ns, type) _VECTOR_WEAK_DECL(CONCAT2(ns, type))
 #define VECTOR_WEAK_DECL(type) _VECTOR_WEAK_DECL(type)
 
+#define _RAW_DATA_SHARED_NS_DECL(name, type_data, type_number)          \
+  void * CONCAT5(name, type_data, type_number, shared, size)(void *this_ptr); \
+  void *CONCAT5(name, type_data, type_number, shared, data)(void *this_ptr);
+
+#define RAW_DATA_SHARED_NS_DECL(ns, type_data)                    \
+  _RAW_DATA_SHARED_NS_DECL(CONCAT2(ns, RawData), type_data, real) \
+  _RAW_DATA_SHARED_NS_DECL(CONCAT2(ns, RawData), type_data, complex)
+#define RAW_DATA_SHARED_DECL(type_data)              \
+  _RAW_DATA_SHARED_NS_DECL(RawData, type_data, real) \
+  _RAW_DATA_SHARED_NS_DECL(RawData, type_data, complex)
+
 #define _OBJECT_DECL(name)                                                   \
   void *CONCAT2(name, new)(void);                                            \
   void CONCAT2(name, delete)(void *this_ptr);                                \
@@ -76,6 +88,14 @@
 
 #define OBJECT_NS_DECL(ns, type) _OBJECT_DECL(CONCAT2(ns, type))
 #define OBJECT_DECL(type) _OBJECT_DECL(type)
+
+#define _OBJECT_RAW_DATA_DECL(name)           \
+  void *CONCAT2(name, new)(uint64_t size);             \
+  void CONCAT2(name, delete)(void *this_ptr); \
+  void CONCAT4(name, assign, shared, shared)(void *this_ptr, void *other_ptr)
+
+#define OBJECT_NS_RAW_DATA_DECL(ns, type, t1, t2) _OBJECT_RAW_DATA_DECL(CONCAT4(ns, type, t1, t2))
+#define OBJECT_RAW_DATA_DECL(type, t2, t3) _OBJECT_RAW_DATA_DECL(CONCAT3(type, t1, t2))
 
 #define _OBJECT_ACCESSOR_DECL(name, member)    \
   void *CONCAT2(name, member)(void *this_ptr); \
@@ -132,7 +152,7 @@ OBJECT_ACCESSOR_NS_DECL(urx, Excitation, waveform);
 
 OBJECT_NS_DECL(urx, GroupData);
 OBJECT_ACCESSOR_NS_DECL(urx, GroupData, group);
-//OBJECT_ACCESSOR_NS_DECL(urx, GroupData, raw_data);
+OBJECT_ACCESSOR_NS_DECL(urx, GroupData, raw_data);
 OBJECT_ACCESSOR_NS_DECL(urx, GroupData, group_timestamp);
 OBJECT_ACCESSOR_NS_DECL(urx, GroupData, sequence_timestamps);
 OBJECT_ACCESSOR_NS_DECL(urx, GroupData, event_timestamps);
@@ -156,6 +176,15 @@ OBJECT_ACCESSOR_NS_DECL(urx, Probe, transform);
 OBJECT_ACCESSOR_NS_DECL(urx, Probe, element_geometries);
 OBJECT_ACCESSOR_NS_DECL(urx, Probe, impulse_responses);
 OBJECT_ACCESSOR_NS_DECL(urx, Probe, elements);
+
+OBJECT_NS_RAW_DATA_DECL(urx, RawData, int16_t, real);
+OBJECT_NS_RAW_DATA_DECL(urx, RawData, int16_t, complex);
+OBJECT_NS_RAW_DATA_DECL(urx, RawData, int32_t, real);
+OBJECT_NS_RAW_DATA_DECL(urx, RawData, int32_t, complex);
+OBJECT_NS_RAW_DATA_DECL(urx, RawData, float, real);
+OBJECT_NS_RAW_DATA_DECL(urx, RawData, float, complex);
+OBJECT_NS_RAW_DATA_DECL(urx, RawData, double, real);
+OBJECT_NS_RAW_DATA_DECL(urx, RawData, double, complex);
 
 OBJECT_NS_DECL(urx, ReceiveSetup);
 OBJECT_ACCESSOR_NS_DECL(urx, ReceiveSetup, probe);
@@ -219,6 +248,13 @@ VECTOR_SHARED_NS_DECL(urx, Group);
 VECTOR_SHARED_NS_DECL(urx, ElementGeometry);
 VECTOR_SHARED_NS_DECL(urx, ImpulseResponse);
 VECTOR_WEAK_NS_DECL(urx, Excitation);
+
+RAW_DATA_SHARED_NS_DECL(urx, int16_t);
+RAW_DATA_SHARED_NS_DECL(urx, int32_t);
+RAW_DATA_SHARED_NS_DECL(urx, float);
+RAW_DATA_SHARED_NS_DECL(urx, double);
+
+uint64_t get_pointer(void* ptr);
 
 #ifdef __cplusplus
 }

@@ -3,4 +3,10 @@ classdef Dataset < urx.Object
     version urx.Version {mustBeScalarOrEmpty}
     acquisition urx.Acquisition {mustBeScalarOrEmpty}
   end
+
+  methods
+    function this = Dataset(varargin)
+      this@urx.Object(varargin{:});
+    end
+  end
 end

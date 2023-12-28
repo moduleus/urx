@@ -1,9 +1,9 @@
 classdef GroupData < urx.Object
   properties (Access = public, SetObservable, GetObservable)
     group urx.Group {mustBeScalarOrEmpty}
-    %std::shared_ptr<RawData> raw_data;
+    rawData urx.RawData {mustBeScalarOrEmpty}
 
-    groupTimestamp double
+    groupTimestamp(1,1) double
 
     sequenceTimestamps urx.StdVector
     eventTimestamps urx.StdVector
@@ -12,6 +12,7 @@ classdef GroupData < urx.Object
   methods
     function this = GroupData(varargin)
       this@urx.Object(varargin{:});
+      this.rawData = urx.RawData_double_complex(libpointer, true, 0);
       this.sequenceTimestamps = urx.StdVector('double', 1, urx.StdVectorType.RAW, this);
       this.eventTimestamps = urx.StdVector('double', 2, urx.StdVectorType.RAW, this);
     end
