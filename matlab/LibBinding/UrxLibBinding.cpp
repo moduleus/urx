@@ -15,6 +15,11 @@
 #include <urx/group_data.h>
 #include <urx/receive_setup.h>
 
+#ifdef WITH_HDF5
+#include <urx_utils/io/upgrade.h>
+#include <urx_utils/io/writer.h>
+#endif
+
 #define xstr(s) str(s)
 #define str(s) #s
 
@@ -227,14 +232,11 @@ BOOL WINAPI DllMain(HINSTANCE /*hinstDLL*/,  // handle to DLL module
   void CONCAT4(snake, assign, raw, raw)(void *this_ptr, void *other_ptr) {                   \
     *static_cast<type *>(this_ptr) = *static_cast<type *>(other_ptr);                        \
   }                                                                                          \
-  void CONCAT4(snake, assign, shared, raw)(void *this_ptr, void *other_ptr) {                \
-    **static_cast<std::shared_ptr<type> *>(this_ptr) = *static_cast<type *>(other_ptr);      \
-  }                                                                                          \
   void CONCAT4(snake, assign, raw, shared)(void *this_ptr, void *other_ptr) {                \
     *static_cast<type *>(this_ptr) = **static_cast<std::shared_ptr<type> *>(other_ptr);      \
   }                                                                                          \
   void CONCAT4(snake, assign, weak, shared)(void *this_ptr, void *other_ptr) {               \
-    *static_cast<std::weak_ptr<type> *>(other_ptr) =                                         \
+    *static_cast<std::weak_ptr<type> *>(this_ptr) =                                         \
         *static_cast<std::shared_ptr<type> *>(other_ptr);                                    \
   }                                                                                          \
   void CONCAT4(snake, assign, shared, shared)(void *this_ptr, void *other_ptr) {             \
@@ -483,6 +485,6 @@ void *load_from_file(const char *filename) {
 
 void save_to_file(const char *filename, void *dataset) {
 #ifdef WITH_HDF5
-  urx::Writer::saveToFile(filename, static_cast<std::shared_ptr<urx::Dataset> *>(dataset));
+  urx::Writer::saveToFile(filename, **static_cast<std::shared_ptr<urx::Dataset> *>(dataset));
 #endif
 }

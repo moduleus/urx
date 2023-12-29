@@ -81,7 +81,6 @@
   void *CONCAT2(name, new)(void);                                            \
   void CONCAT2(name, delete)(void *this_ptr);                                \
   void CONCAT4(name, assign, raw, raw)(void *this_ptr, void *other_ptr);     \
-  void CONCAT4(name, assign, shared, raw)(void *this_ptr, void *other_ptr);  \
   void CONCAT4(name, assign, raw, shared)(void *this_ptr, void *other_ptr);  \
   void CONCAT4(name, assign, weak, shared)(void *this_ptr, void *other_ptr); \
   void CONCAT4(name, assign, shared, shared)(void *this_ptr, void *other_ptr)
@@ -256,8 +255,8 @@ RAW_DATA_SHARED_NS_DECL(urx, double);
 
 uint64_t get_pointer(void *ptr);
 
-void* load_from_file(const char* filename);
-void save_to_file(const char* filename, void* dataset);
+void *load_from_file(const char *filename);
+void save_to_file(const char *filename, void *dataset);
 
 #ifdef __cplusplus
 }

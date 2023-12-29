@@ -62,6 +62,7 @@
 #include <urx/v0_3/wave_type.h>
 #include <urx/vector.h>
 #include <urx/wave.h>
+#include <urx_utils/io/reader.h>
 #include <urx_utils/io/reader_v0_3.h>
 #include <urx_utils/io/upgrade.h>
 
@@ -375,33 +376,33 @@ std::shared_ptr<urx::Dataset> ConvertV0_2(const std::string& filename) {
   }
 
   {
-    const std::shared_ptr<GroupData> new_group_data = std::make_shared<GroupData>();
+    GroupData new_group_data;
 
-    new_group_data->group = retval->acquisition.groups[0];
+    new_group_data.group = retval->acquisition.groups[0];
 
     const size_t sequences = dataset_v0_2->channelData().numberOfFrames();
 
-    new_group_data->raw_data =
+    new_group_data.raw_data =
         std::make_shared<urx::RawDataVector<T>>(std::move(dataset_v0_2->channelData().data()));
 
-    new_group_data->sequence_timestamps.reserve(sequences);
-    new_group_data->event_timestamps.reserve(sequences);
+    new_group_data.sequence_timestamps.reserve(sequences);
+    new_group_data.event_timestamps.reserve(sequences);
     const auto opt_rate = dataset_v0_2->channelData().repetitionRate();
     const double sequence_rate = opt_rate.has_value() ? *opt_rate : urx::DoubleNan::NaN;
     for (const size_t i : std::views::iota(0ULL, sequences)) {
-      new_group_data->sequence_timestamps.push_back(i / sequence_rate);
+      new_group_data.sequence_timestamps.push_back(i / sequence_rate);
 
       std::vector<double> event_offset;
       event_offset.reserve(retval->acquisition.groups[0]->sequence.size());
       for (const auto& event : retval->acquisition.groups[0]->sequence) {
         event_offset.push_back(i / sequence_rate + event.transmit_setup.time_offset);
       }
-      new_group_data->event_timestamps.push_back(std::move(event_offset));
+      new_group_data.event_timestamps.push_back(std::move(event_offset));
     }
 
-    new_group_data->group_timestamp = 0;
+    new_group_data.group_timestamp = 0;
 
-    retval->acquisition.groups_data.push_back(new_group_data);
+    retval->acquisition.groups_data.push_back(std::move(new_group_data));
   }
 
   return retval;
@@ -679,7 +680,7 @@ std::shared_ptr<urx::Dataset> ConvertV0_3(const std::string& filename) {
 
   retval->acquisition.groups_data.reserve(dataset_v0_3->acquisition.group_data.size());
   for (const auto& old_group_data : dataset_v0_3->acquisition.group_data) {
-    const std::shared_ptr<GroupData> new_group_data = std::make_shared<GroupData>();
+    GroupData new_group_data;
 
     auto group_probe = std::find_if(
         dataset_v0_3->acquisition.groups.begin(), dataset_v0_3->acquisition.groups.end(),
@@ -687,22 +688,22 @@ std::shared_ptr<urx::Dataset> ConvertV0_3(const std::string& filename) {
              old_group_data->group.lock()](const std::shared_ptr<urx::v0_3::IGroup>& group_i) {
           return old_group.get() == group_i.get();
         });
-    new_group_data->group =
+    new_group_data.group =
         retval->acquisition
             .groups[std::distance(dataset_v0_3->acquisition.groups.begin(), group_probe)];
 
-    new_group_data->raw_data = old_group_data->data;
-    new_group_data->group_timestamp = static_cast<double>(old_group_data->timestamp);
+    new_group_data.raw_data = old_group_data->data;
+    new_group_data.group_timestamp = static_cast<double>(old_group_data->timestamp);
 
-    new_group_data->sequence_timestamps.reserve(old_group_data->sequence_timestamps.size());
+    new_group_data.sequence_timestamps.reserve(old_group_data->sequence_timestamps.size());
     std::transform(old_group_data->sequence_timestamps.begin(),
                    old_group_data->sequence_timestamps.end(),
-                   std::back_inserter(new_group_data->sequence_timestamps),
+                   std::back_inserter(new_group_data.sequence_timestamps),
                    [](uint64_t value) { return static_cast<double>(value); });
 
-    new_group_data->event_timestamps.reserve(old_group_data->event_timestamps.size());
+    new_group_data.event_timestamps.reserve(old_group_data->event_timestamps.size());
     std::transform(old_group_data->event_timestamps.begin(), old_group_data->event_timestamps.end(),
-                   std::back_inserter(new_group_data->event_timestamps),
+                   std::back_inserter(new_group_data.event_timestamps),
                    [](const std::vector<uint64_t>& value) {
                      std::vector<double> retval_i;
                      retval_i.reserve(value.size());
@@ -711,7 +712,7 @@ std::shared_ptr<urx::Dataset> ConvertV0_3(const std::string& filename) {
                      return retval_i;
                    });
 
-    retval->acquisition.groups_data.push_back(new_group_data);
+    retval->acquisition.groups_data.push_back(std::move(new_group_data));
   }
 
   return retval;

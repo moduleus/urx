@@ -731,7 +731,7 @@ eventTimestampI.pushBack(6);
 groupData.eventTimestamps.pushBack(eventTimestampI);
 dataset.acquisition.groupsData.pushBack(groupData);
 
-%dataset.saveToFile('c:/temp/test.urx');
+dataset.saveToFile('c:/temp/test.urx');
 
 
 
