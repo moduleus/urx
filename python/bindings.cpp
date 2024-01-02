@@ -74,25 +74,6 @@ std::ostream &operator<<(std::ostream &out, const std::vector<T> &v) {
 }
 
 template <typename T>
-struct is_complex_t : public std::false_type {};
-
-template <typename T>
-struct is_complex_t<std::complex<T>> : public std::true_type {};
-
-template <typename T>
-struct is_complex_t<std::vector<std::complex<T>>> : public std::true_type {};
-
-template <typename T>
-constexpr bool is_complex() {
-  return is_complex_t<T>::value;
-}
-
-template <typename T>
-constexpr bool is_complex(const T &v) {
-  return is_complex<T>();
-}
-
-template <typename T>
 constexpr py::ssize_t sizeof_data_type(const std::vector<std::complex<T>> &v) {
   return sizeof(T);
 }
@@ -557,14 +538,14 @@ PYBIND11_MODULE(bindings, m) {
       .def_property(
           "raw_data",
           [](urx::GroupData &self) {
-            const std::shared_ptr<urx::Group> shared_group = self.group.lock();
             const bool are_data_complex =
-                shared_group->sampling_type == urx::Group::SamplingType::IQ;
+                self.raw_data->getSamplingType() == urx::Group::SamplingType::IQ;
             const py::ssize_t data_size = self.raw_data->getSize();
-            urx::GroupHelper group_helper{*shared_group};
             void *data_ptr = self.raw_data->getBuffer();
-            const py::ssize_t sizeof_data_type_var = group_helper.sizeof_data_type();
-            const std::string data_format = group_helper.py_get_format();
+            const py::ssize_t sizeof_data_type_var =
+                urx::GroupHelper::sizeof_data_type(self.raw_data->getDataType());
+            const std::string data_format =
+                urx::GroupHelper::py_get_format(self.raw_data->getDataType());
 
             auto buffer = py::buffer_info(
                 data_ptr, sizeof_data_type_var, data_format, are_data_complex ? 2 : 1,
@@ -574,7 +555,7 @@ PYBIND11_MODULE(bindings, m) {
                     ? std::vector<py::ssize_t>{sizeof_data_type_var * 2, sizeof_data_type_var}
                     : std::vector<py::ssize_t>{sizeof_data_type_var});
 
-            return py::array(buffer, py::cast(self.raw_data.get()));
+            return py::array(buffer, py::cast(self.raw_data->getBuffer()));
           },
           [](urx::GroupData &self, const py::buffer &vec) {
             py::buffer_info info = vec.request();
@@ -584,7 +565,45 @@ PYBIND11_MODULE(bindings, m) {
             if (info.ndim == 2 && info.shape[1] != 2)
               throw std::runtime_error("Dimension error: Too many data in second dimension");
 
-            self.raw_data = std::make_shared<urx::RawDataWeak>(info.ptr, info.shape[0]);
+            if (info.ndim == 1) {
+              if (info.item_type_is_equivalent_to<std::complex<double>>()) {
+                self.raw_data = std::make_shared<urx::RawDataWeak<std::complex<double>>>(
+                    info.ptr, info.shape[0]);
+              } else if (info.item_type_is_equivalent_to<std::complex<float>>()) {
+                self.raw_data = std::make_shared<urx::RawDataWeak<std::complex<float>>>(
+                    info.ptr, info.shape[0]);
+              } else if (info.item_type_is_equivalent_to<int16_t>()) {
+                self.raw_data =
+                    std::make_shared<urx::RawDataWeak<int16_t>>(info.ptr, info.shape[0]);
+              } else if (info.item_type_is_equivalent_to<int32_t>()) {
+                self.raw_data =
+                    std::make_shared<urx::RawDataWeak<int32_t>>(info.ptr, info.shape[0]);
+              } else if (info.item_type_is_equivalent_to<float>()) {
+                self.raw_data = std::make_shared<urx::RawDataWeak<float>>(info.ptr, info.shape[0]);
+              } else if (info.item_type_is_equivalent_to<double>()) {
+                self.raw_data = std::make_shared<urx::RawDataWeak<double>>(info.ptr, info.shape[0]);
+              } else {
+                throw std::runtime_error("No equivalent data type to provided buffer");
+              }
+            } else {  // info.ndim == 2
+              if (info.item_type_is_equivalent_to<int16_t>()) {
+                self.raw_data = std::make_shared<urx::RawDataWeak<std::complex<int16_t>>>(
+                    info.ptr, info.shape[0]);
+              } else if (info.item_type_is_equivalent_to<int32_t>()) {
+                self.raw_data = std::make_shared<urx::RawDataWeak<std::complex<int32_t>>>(
+                    info.ptr, info.shape[0]);
+              } else if (info.item_type_is_equivalent_to<float>()) {
+                self.raw_data = std::make_shared<urx::RawDataWeak<std::complex<float>>>(
+                    info.ptr, info.shape[0]);
+              } else if (info.item_type_is_equivalent_to<double>()) {
+                self.raw_data = std::make_shared<urx::RawDataWeak<std::complex<double>>>(
+                    info.ptr, info.shape[0]);
+              } else {
+                throw std::runtime_error("No equivalent data type to provided buffer");
+              }
+            }
+            // if (info.format)
+            //   self.raw_data = std::make_shared<urx::RawDataWeak<float>>(info.ptr, info.shape[0]);
           })
       .def_readwrite("group_timestamp", &urx::GroupData::group_timestamp)
       .def_readwrite("sequence_timestamps", &urx::GroupData::sequence_timestamps)
