@@ -51,6 +51,9 @@ using VecImpulseResponsePtr = std::vector<std::shared_ptr<urx::ImpulseResponse>>
 using VecElement = std::vector<urx::Element>;
 using VecExcitationPtr = std::vector<std::shared_ptr<urx::Excitation>>;
 using VecEvent = std::vector<urx::Event>;
+using VecProbePtr = std::vector<std::shared_ptr<urx::Probe>>;
+using VecWavePtr = std::vector<std::shared_ptr<urx::Wave>>;
+using VecGroupDataPtr = std::vector<std::shared_ptr<urx::GroupData>>;
 
 PYBIND11_MAKE_OPAQUE(VecFloat64);
 PYBIND11_MAKE_OPAQUE(VecVecFloat64);
@@ -64,6 +67,9 @@ PYBIND11_MAKE_OPAQUE(VecElement);
 PYBIND11_MAKE_OPAQUE(VecExcitationPtr);
 PYBIND11_MAKE_OPAQUE(VecEvent);
 PYBIND11_MAKE_OPAQUE(VecVector3D);
+PYBIND11_MAKE_OPAQUE(VecProbePtr);
+PYBIND11_MAKE_OPAQUE(VecWavePtr);
+PYBIND11_MAKE_OPAQUE(VecGroupDataPtr);
 
 template <typename T>
 std::ostream &operator<<(std::ostream &out, const std::vector<T> &v) {
@@ -107,6 +113,7 @@ PYBIND11_MODULE(bindings, m) {
   py::implicitly_convertible<py::list, VecVecUInt32>();
 
   py::bind_vector<VecGroupPtr>(m, "VecGroupPtr");
+  py::implicitly_convertible<py::list, VecGroupPtr>();
   py::bind_vector<VecVector3D>(m, "VecVector3D");
   py::implicitly_convertible<py::list, VecVector3D>();
 
@@ -120,6 +127,12 @@ PYBIND11_MODULE(bindings, m) {
   py::implicitly_convertible<py::list, VecExcitationPtr>();
   py::bind_vector<VecEvent>(m, "VecEvent");
   py::implicitly_convertible<py::list, VecEvent>();
+  py::bind_vector<VecProbePtr>(m, "VecProbePtr");
+  py::implicitly_convertible<py::list, VecProbePtr>();
+  py::bind_vector<VecWavePtr>(m, "VecWavePtr");
+  py::implicitly_convertible<py::list, VecWavePtr>();
+  py::bind_vector<VecGroupDataPtr>(m, "VecGroupDataPtr");
+  py::implicitly_convertible<py::list, VecGroupDataPtr>();
 
   py::enum_<urx::Group::SamplingType>(m, "SamplingType")
       .value("RF", urx::Group::SamplingType::RF)
@@ -562,8 +575,16 @@ PYBIND11_MODULE(bindings, m) {
             if (info.ndim > 2)
               throw std::runtime_error("Dimension error: Too many dimensions in this data array");
 
-            if (info.ndim == 2 && info.shape[1] != 2)
-              throw std::runtime_error("Dimension error: Too many data in second dimension");
+            if (info.ndim == 2) {
+              if (info.shape[1] > 2)
+                throw std::runtime_error(
+                    "Dimension error: Too many data in second dimension (2nd dimension must be "
+                    "equal to 2)");
+              else if (info.shape[1] < 2)
+                throw std::runtime_error(
+                    "Dimension error: Not enough data in second dimension (2nd dimension must be "
+                    "equal to 2)");
+            }
 
             if (info.ndim == 1) {
               if (info.item_type_is_equivalent_to<std::complex<double>>()) {
@@ -609,21 +630,29 @@ PYBIND11_MODULE(bindings, m) {
       .def_readwrite("sequence_timestamps", &urx::GroupData::sequence_timestamps)
       .def_readwrite("event_timestamps", &urx::GroupData::event_timestamps);
 
+  py::class_<urx::Acquisition>(m, "Acquisition")
+      .def(py::init())
+      .def(py::init<urx::Acquisition>())
+      .def(pybind11::self == pybind11::self)
+      .def(pybind11::self != pybind11::self)
+      .def_readwrite("authors", &urx::Acquisition::authors)
+      .def_readwrite("description", &urx::Acquisition::description)
+      .def_readwrite("local_time", &urx::Acquisition::local_time)
+      .def_readwrite("country_code", &urx::Acquisition::country_code)
+      .def_readwrite("system", &urx::Acquisition::system)
+      .def_readwrite("sound_speed", &urx::Acquisition::sound_speed)
+      .def_readwrite("timestamp", &urx::Acquisition::timestamp)
+      .def_readwrite("probes", &urx::Acquisition::probes)
+      .def_readwrite("excitations", &urx::Acquisition::excitations)
+      .def_readwrite("waves", &urx::Acquisition::waves)
+      .def_readwrite("groups", &urx::Acquisition::groups)
+      .def_readwrite("groups_data", &urx::Acquisition::groups_data);
+
   py::class_<urx::Dataset>(m, "Dataset")
       .def(py::init())
       .def(pybind11::self == pybind11::self)
       .def(pybind11::self != pybind11::self)
       .def_readwrite("version", &urx::Dataset::version)
       .def_readwrite("acquisition", &urx::Dataset::acquisition);
-
-  py::class_<urx::Acquisition>(m, "Acquisition")
-      .def(py::init())
-      .def(pybind11::self == pybind11::self)
-      .def(pybind11::self != pybind11::self)
-      .def_readwrite("system", &urx::Acquisition::system)
-      .def_readwrite("sound_speed", &urx::Acquisition::sound_speed)
-      .def_readwrite("timestamp", &urx::Acquisition::timestamp)
-      .def_readwrite("groups", &urx::Acquisition::groups)
-      .def_readwrite("group_data", &urx::Acquisition::groups_data);
 }
 // NOLINTEND(misc-redundant-expression)
