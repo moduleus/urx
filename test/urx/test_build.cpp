@@ -77,7 +77,8 @@ TEST_CASE("Instantiate all RawDataNoInit classes to check build", "[test_build]"
 
 TEST_CASE("Instantiate all RawDataWeak classes to check build", "[test_build]") {
   std::vector<double> tmp(42);
-  const RawDataWeak raw_data_vector_double(static_cast<void*>(tmp.data()), 42);
+  const RawDataWeak<decltype(tmp)::value_type> raw_data_vector_double(
+      static_cast<void*>(tmp.data()), 42);
 }
 
 }  // namespace urx::test
