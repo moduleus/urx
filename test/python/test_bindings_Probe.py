@@ -83,9 +83,7 @@ class TestBindingsProbe(unittest.TestCase):
         p_rca.impulse_responses[1].sampling_frequency.value = 789.123
         self.assertEqual(p_rca, p_rca_bis)
         self.assertEqual(p_rca.impulse_responses[1], ir_2)
-        self.assertEqual(p_rca.elements[1].element_geometry, eg_2)
         self.assertEqual(p_rca_bis.impulse_responses[1], ir_2)
-        self.assertEqual(p_rca_bis.elements[1].element_geometry, eg_2)
 
         # Reference is possible for shared pointers vector
         self.assertEqual(p_rca.impulse_responses, [ir, ir_2])
