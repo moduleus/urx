@@ -12,20 +12,55 @@ class TestBindingsDataset(unittest.TestCase):
         testName = "Dataset binding"
         print("\n--Test %s BEGIN--" % testName)
 
+        # Check default CTOR
         dataset = urx.Dataset()
+        self.assertEqual(dataset.acquisition, urx.Acquisition())
+        self.assertEqual(dataset.version, urx.Version())
+
         acq = urx.Acquisition()
-        version = urx.Version()
+        acq.description = "Hello"
 
-        self.assertEqual(dataset.acquisition, acq)
-        dataset.acquisition.timestamp = 42
-        acq.timestamp = 42
-        self.assertEqual(dataset.acquisition, acq)
+        v = urx.Version()
+        v.major = 42
 
-        self.assertEqual(dataset.version, version)
-        dataset.version.major = 42
-        self.assertNotEqual(dataset.version, version)
-        version.major = 42
-        self.assertEqual(dataset.version, version)
+        # Check copy CTOR and referencing object
+        dataset_2 = urx.Dataset(dataset)
+        self.assertEqual(dataset, dataset_2)
+        dataset_2.acquisition = acq
+        self.assertNotEqual(dataset, dataset_2)
+        dataset_ref = dataset
+        dataset_ref.acquisition = acq
+        self.assertEqual(dataset, dataset_ref)
+
+        # Check CTOR with all parameters
+        dataset = urx.Dataset(acq, v)
+        self.assertEqual(dataset.acquisition, acq)
+        self.assertEqual(dataset.version, v)
+        dataset_2 = urx.Dataset(dataset)
+
+        # Reference is possible for acquisition (Acquisition)
+        self.assertEqual(dataset.acquisition, acq)
+        acq_ref = dataset.acquisition
+        acq_ref.description = "World"
+        self.assertEqual(dataset.acquisition, acq_ref)
+        self.assertNotEqual(dataset, dataset_2)
+        # Check assignment
+        dataset.acquisition = acq
+        self.assertEqual(dataset.acquisition, acq_ref)
+        self.assertEqual(dataset.acquisition, acq)
+        self.assertEqual(dataset, dataset_2)
+
+        # Reference is possible for version (Version)
+        self.assertEqual(dataset.version, v)
+        v_ref = dataset.version
+        v_ref.major = 24
+        self.assertEqual(dataset.version, v_ref)
+        self.assertNotEqual(dataset, dataset_2)
+        # Check assignment
+        dataset.version = v
+        self.assertEqual(dataset.version, v_ref)
+        self.assertEqual(dataset.version, v)
+        self.assertEqual(dataset, dataset_2)
 
         print("--Test %s END--" % testName)
 

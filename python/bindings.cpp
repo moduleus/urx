@@ -650,6 +650,8 @@ PYBIND11_MODULE(bindings, m) {
 
   py::class_<urx::Dataset>(m, "Dataset")
       .def(py::init())
+      .def(py::init<urx::Dataset>())
+      .def(py::init<urx::Acquisition, urx::Version>())
       .def(pybind11::self == pybind11::self)
       .def(pybind11::self != pybind11::self)
       .def_readwrite("version", &urx::Dataset::version)

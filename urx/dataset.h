@@ -12,9 +12,9 @@ namespace urx {
 struct Dataset {
   bool operator==(const Dataset& other) const = default;
 
-  Version version;
-
   Acquisition acquisition;
+
+  Version version;
 };
 
 }  // namespace urx
