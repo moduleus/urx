@@ -19,9 +19,6 @@ set(URX_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/wave.h
     ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt)
 
-# Configure a header file to pass the version number only
-configure_file(urx.h.in urx.h)
-
 # Target library ### Create target
 set(URX_LIBRARY ${PROJECT_NAME})
 add_library(${PROJECT_NAME} INTERFACE ${URX_SRCS})

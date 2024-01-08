@@ -4,7 +4,7 @@ project(
   Urx
   VERSION 0.6.8
   LANGUAGES C CXX
-  DESCRIPTION "Ultrasound File Format C++ implementation")
+  DESCRIPTION "Ultrasound Raw eXchange format C++ implementation")
 
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
