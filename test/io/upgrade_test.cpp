@@ -1,3 +1,4 @@
+#include <filesystem>
 #include <memory>
 #include <string>
 #include <utility>
@@ -31,6 +32,7 @@ TEST_CASE("Upgrade HDF5 v0.2 file", "[hdf5_writer]") {
   REQUIRE(dataset2->acquisition.groups == dataset->acquisition.groups);
   REQUIRE(dataset2->acquisition.groups_data == dataset->acquisition.groups_data);
   REQUIRE(*dataset2 == *dataset);
+  REQUIRE(std::filesystem::remove(dir + "v_0_2_short.urx.res"));
 }
 
 TEST_CASE("Upgrade HDF5 v0.3 file", "[hdf5_writer]") {
