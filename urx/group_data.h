@@ -20,9 +20,8 @@ struct GroupData {
     return group == other.group && raw_data->getSize() == other.raw_data->getSize() &&
            group_timestamp == other.group_timestamp &&
            sequence_timestamps == other.sequence_timestamps &&
-           event_timestamps == other.event_timestamps && (*raw_data == *(other.raw_data));
+           event_timestamps == other.event_timestamps && raw_data == other.raw_data;
   }
-  // bool operator==(const GroupData& other) const = default;
 
   bool operator!=(const GroupData& other) const { return !operator==(other); }
 
