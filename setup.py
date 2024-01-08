@@ -43,6 +43,7 @@ setuptools.setup(
                 "-DWITH_PYTHON:BOOL=ON",
                 "-DBUILD_SHARED_LIBS:BOOL=OFF",
                 "-DCALL_FROM_SETUP_PY:BOOL=ON",
+                "-DBUILD_TESTING:BOOL=OFF",
                 f"-Dpybind11_DIR={pybind11_dir_path}"
             ],
             # Disable Ninja build generator

@@ -2,7 +2,6 @@
 
 #include <chrono>
 #include <cstdint>
-#include <format>
 #include <fstream>
 #include <memory>
 #include <string>
@@ -16,8 +15,8 @@
 #include <urx/receive_setup.h>
 
 #ifdef WITH_HDF5
-#include <urx_utils/io/upgrade.h>
-#include <urx_utils/io/writer.h>
+#include <urx/utils/io/upgrade.h>
+#include <urx/utils/io/writer.h>
 #endif
 
 #define xstr(s) str(s)
@@ -51,7 +50,7 @@ BOOL WINAPI DllMain(HINSTANCE /*hinstDLL*/,  // handle to DLL module
 
     case DLL_PROCESS_DETACH:
       if (alloc_cout != 0) {
-        outfile << std::format("Urx Matlab wrapper: {} memory leaks\n", alloc_cout);
+        outfile << "Urx Matlab wrapper: " << alloc_cout << " memory leaks\n";
       }
       break;
   }
@@ -236,7 +235,7 @@ BOOL WINAPI DllMain(HINSTANCE /*hinstDLL*/,  // handle to DLL module
     *static_cast<type *>(this_ptr) = **static_cast<std::shared_ptr<type> *>(other_ptr);      \
   }                                                                                          \
   void CONCAT4(snake, assign, weak, shared)(void *this_ptr, void *other_ptr) {               \
-    *static_cast<std::weak_ptr<type> *>(this_ptr) =                                         \
+    *static_cast<std::weak_ptr<type> *>(this_ptr) =                                          \
         *static_cast<std::shared_ptr<type> *>(other_ptr);                                    \
   }                                                                                          \
   void CONCAT4(snake, assign, shared, shared)(void *this_ptr, void *other_ptr) {             \
@@ -477,7 +476,7 @@ uint64_t get_pointer(void *ptr) { return (uint64_t)ptr; }
 
 void *load_from_file(const char *filename) {
 #ifdef WITH_HDF5
-  return new std::shared_ptr<urx::Dataset>(urx::Upgrade::LoadFromFile(filename));
+  return new std::shared_ptr<urx::Dataset>(urx::utils::io::Upgrade::LoadFromFile(filename));
 #else
   return nullptr;
 #endif
@@ -485,6 +484,7 @@ void *load_from_file(const char *filename) {
 
 void save_to_file(const char *filename, void *dataset) {
 #ifdef WITH_HDF5
-  urx::Writer::saveToFile(filename, **static_cast<std::shared_ptr<urx::Dataset> *>(dataset));
+  urx::utils::io::Writer::saveToFile(filename,
+                                     **static_cast<std::shared_ptr<urx::Dataset> *>(dataset));
 #endif
 }

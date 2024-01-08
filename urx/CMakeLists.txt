@@ -13,7 +13,7 @@ set(URX_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/receive_setup.h
     ${CMAKE_CURRENT_SOURCE_DIR}/transform.h
     ${CMAKE_CURRENT_SOURCE_DIR}/transmit_setup.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/urx.h.in
+    ${CMAKE_CURRENT_SOURCE_DIR}/urx.h
     ${CMAKE_CURRENT_SOURCE_DIR}/vector.h
     ${CMAKE_CURRENT_SOURCE_DIR}/version.h
     ${CMAKE_CURRENT_SOURCE_DIR}/wave.h
@@ -73,9 +73,6 @@ install(
   PATTERN "install" EXCLUDE
   PATTERN "build" EXCLUDE
   PATTERN "log.h" EXCLUDE)
-
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/urx.h
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${INSTALL_NAME}/urx)
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
               ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake

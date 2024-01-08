@@ -38,31 +38,32 @@ TEST_CASE("Upgrade HDF5 v0.2 file", "[hdf5_writer]") {
 TEST_CASE("Upgrade HDF5 v0.3 file", "[hdf5_writer]") {
   const std::string dir = TEST_RESOURCE_DIR;
 
-  std::shared_ptr<urx::Dataset> dataset = urx::Upgrade::LoadFromFile(dir + "v_0_3_rcaarray.uff");
-  urx::Writer::saveToFile(dir + "v_0_3_rcaarray.urx.res", *dataset);
+  std::shared_ptr<urx::Dataset> dataset =
+      urx::utils::io::Upgrade::LoadFromFile(dir + "v_0_3_rcaarray.uff");
+  urx::utils::io::Writer::saveToFile(dir + "v_0_3_rcaarray.urx.res", *dataset);
   std::shared_ptr<urx::Dataset> dataset2 =
-      urx::Reader::loadFromFile(dir + "v_0_3_rcaarray.urx.res");
+      urx::utils::io::Reader::loadFromFile(dir + "v_0_3_rcaarray.urx.res");
   REQUIRE(*dataset2 == *dataset);
   dataset.reset();
   dataset2.reset();
 
-  dataset = urx::Upgrade::LoadFromFile(dir + "v_0_3_channel_mapping.uff");
-  urx::Writer::saveToFile(dir + "v_0_3_channel_mapping.urx.res", *dataset);
-  dataset2 = urx::Reader::loadFromFile(dir + "v_0_3_channel_mapping.urx.res");
+  dataset = urx::utils::io::Upgrade::LoadFromFile(dir + "v_0_3_channel_mapping.uff");
+  urx::utils::io::Writer::saveToFile(dir + "v_0_3_channel_mapping.urx.res", *dataset);
+  dataset2 = urx::utils::io::Reader::loadFromFile(dir + "v_0_3_channel_mapping.urx.res");
   REQUIRE(*dataset2 == *dataset);
   dataset.reset();
   dataset2.reset();
 
-  dataset = urx::Upgrade::LoadFromFile(dir + "v_0_3_group_data.uff");
-  urx::Writer::saveToFile(dir + "v_0_3_group_data.urx.res", *dataset);
-  dataset2 = urx::Reader::loadFromFile(dir + "v_0_3_group_data.urx.res");
+  dataset = urx::utils::io::Upgrade::LoadFromFile(dir + "v_0_3_group_data.uff");
+  urx::utils::io::Writer::saveToFile(dir + "v_0_3_group_data.urx.res", *dataset);
+  dataset2 = urx::utils::io::Reader::loadFromFile(dir + "v_0_3_group_data.urx.res");
   REQUIRE(*dataset2 == *dataset);
   dataset.reset();
   dataset2.reset();
 
-  dataset = urx::Upgrade::LoadFromFile(dir + "v_0_3_group_links.uff");
-  urx::Writer::saveToFile(dir + "v_0_3_group_links.urx.res", *dataset);
-  dataset2 = urx::Reader::loadFromFile(dir + "v_0_3_group_links.urx.res");
+  dataset = urx::utils::io::Upgrade::LoadFromFile(dir + "v_0_3_group_links.uff");
+  urx::utils::io::Writer::saveToFile(dir + "v_0_3_group_links.urx.res", *dataset);
+  dataset2 = urx::utils::io::Reader::loadFromFile(dir + "v_0_3_group_links.urx.res");
   REQUIRE(*dataset2 == *dataset);
   dataset.reset();
   dataset2.reset();

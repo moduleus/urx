@@ -25,9 +25,9 @@
 #include <urx/receive_setup.h>
 #include <urx/transform.h>
 #include <urx/transmit_setup.h>
-#include <urx/utils/io/upgrade.h>
 #include <urx/utils/io/reader.h>
 #include <urx/utils/io/reader_v0_3.h>
+#include <urx/utils/io/upgrade.h>
 #include <urx/v0_2/dataset.h>
 #include <urx/v0_2/linear_array.h>
 #include <urx/v0_2/matrix_array.h>
@@ -358,7 +358,8 @@ std::shared_ptr<urx::Dataset> ConvertV0_2(const std::string& filename) {
         const auto& old_cm = old_event->receiveSetup().channelMapping();
         auto& new_cm = new_event.receive_setup.channel_mapping;
         new_cm.resize(new_event.receive_setup.probe.lock()->elements.size());
-        for (std::size_t i = 0; i < old_cm.size(); i++) new_cm[old_cm[i]].emplace_back(i);
+        for (std::size_t i = 0; i < old_cm.size(); i++)
+          new_cm[old_cm[i]].push_back(static_cast<unsigned int>(i));
       }
 
       new_event.receive_setup.number_samples = dataset_v0_2->channelData().numberOfSamples();
@@ -410,7 +411,7 @@ std::shared_ptr<urx::Dataset> ConvertV0_3(const std::string& filename) {
       {urx::v0_3::WaveType::CYLINDRICAL_WAVE, urx::Wave::WaveType::CYLINDRICAL_WAVE}};
 
   const std::shared_ptr<urx::v0_3::Dataset> dataset_v0_3 =
-      urx::v0_3::Reader::loadFromFile(filename);
+      urx::utils::io::v0_3::Reader::loadFromFile(filename);
 
   std::shared_ptr<urx::Dataset> retval = std::make_shared<urx::Dataset>();
 
@@ -745,7 +746,7 @@ std::shared_ptr<urx::Dataset> Upgrade::LoadFromFile(const std::string& filename)
     }
 
     if (major == urx::URX_VERSION_MAJOR && minor == urx::URX_VERSION_MINOR) {
-      return urx::Reader::loadFromFile(filename);
+      return urx::utils::io::Reader::loadFromFile(filename);
     }
   }
 

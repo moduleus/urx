@@ -1,5 +1,5 @@
 if(WITH_HDF5)
-  find_package(Boost REQUIRED)
+  find_file(BOOST_PFR_HPP "boost/pfr.hpp")
   find_package(magic_enum REQUIRED)
 
   # Link ###
@@ -55,9 +55,6 @@ set(URX_UTILS_LIBRARY UrxUtils)
 add_library(${URX_UTILS_LIBRARY} ${URX_UTILS_SRCS})
 add_library(Urx::${URX_UTILS_LIBRARY} ALIAS ${URX_UTILS_LIBRARY})
 if(WITH_PYTHON)
-  target_compile_definitions(${URX_UTILS_LIBRARY} PRIVATE WITH_PYTHON)
-  target_link_libraries(${URX_UTILS_LIBRARY} PRIVATE Python3::Python
-                                                     pybind11::headers)
   target_precompile_headers(${URX_UTILS_LIBRARY} PRIVATE ${URX_PCH}
                             ${URX_PCH_PYTHON})
 else()

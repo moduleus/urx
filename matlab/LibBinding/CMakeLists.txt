@@ -11,7 +11,7 @@ if(WITH_HDF5)
   target_link_libraries(UrxLibBinding PRIVATE Urx::UrxUtils)
 endif()
 
-if(BUILD_SHARED_LIBS)
+if(WIN32 AND BUILD_SHARED_LIBS)
   add_custom_command(
     TARGET UrxLibBinding
     POST_BUILD

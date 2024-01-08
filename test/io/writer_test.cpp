@@ -361,11 +361,11 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
 
   {
     {
-      auto group_data = std::make_shared<GroupData>();
-      group_data->group = dataset->acquisition.groups[1];
+      GroupData group_data;
+      group_data.group = dataset->acquisition.groups[1];
 
-      group_data->raw_data = std::make_shared<RawDataNoInit<double>>(6);
-      double* buf = static_cast<double*>(group_data->raw_data->getBuffer());
+      group_data.raw_data = std::make_shared<RawDataNoInit<double>>(6);
+      double* buf = static_cast<double*>(group_data.raw_data->getBuffer());
       buf[0] = 1.2;
       buf[1] = 2.3;
       buf[2] = 3.4;
@@ -373,27 +373,27 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
       buf[4] = 5.6;
       buf[5] = 6.7;
 
-      group_data->group_timestamp = 283954.334;
-      group_data->sequence_timestamps = {1, 2, 4.2, 1, .5, 5.6};
-      group_data->event_timestamps = {{1, .24, 1., 5.2, 4.5, 7, .964, .5},
+      group_data.group_timestamp = 283954.334;
+      group_data.sequence_timestamps = {1, 2, 4.2, 1, .5, 5.6};
+      group_data.event_timestamps = {{1, .24, 1., 5.2, 4.5, 7, .964, .5},
                                       {1, 2, 4, 85, .15, -4.5, -7, .45, .6, 4}};
-      dataset->acquisition.groups_data.push_back(group_data);
+      dataset->acquisition.groups_data.push_back(std::move(group_data));
     }
     {
-      auto group_data = std::make_shared<GroupData>();
-      group_data->group = dataset->acquisition.groups[0];
+      GroupData group_data;
+      group_data.group = dataset->acquisition.groups[0];
 
-      group_data->raw_data = std::make_shared<RawDataNoInit<std::complex<short>>>(4);
+      group_data.raw_data = std::make_shared<RawDataNoInit<std::complex<short>>>(4);
       std::complex<short>* buf =
-          static_cast<std::complex<short>*>(group_data->raw_data->getBuffer());
+          static_cast<std::complex<short>*>(group_data.raw_data->getBuffer());
       buf[0] = {123, 456};
       buf[1] = {159, 753};
       buf[2] = {789, 456};
       buf[3] = {123, 753};
-      group_data->group_timestamp = 123;
-      group_data->sequence_timestamps = {1, 2, 34};
-      group_data->event_timestamps = {{4, 5, 7}, {8, 7, 6}};
-      dataset->acquisition.groups_data.push_back(group_data);
+      group_data.group_timestamp = 123;
+      group_data.sequence_timestamps = {1, 2, 34};
+      group_data.event_timestamps = {{4, 5, 7}, {8, 7, 6}};
+      dataset->acquisition.groups_data.push_back(std::move(group_data));
     }
   }
 

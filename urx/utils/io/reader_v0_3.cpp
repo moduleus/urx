@@ -2,7 +2,6 @@
 #include <charconv>
 #include <cstddef>
 #include <cstdint>
-#include <format>
 #include <iterator>
 #include <memory>
 #include <optional>
@@ -17,6 +16,8 @@
 #include <H5Cpp.h>
 
 #include <urx/detail/raw_data.h>
+#include <urx/utils/common.h>
+#include <urx/utils/io/reader_v0_3.h>
 #include <urx/v0_3/acquisition.h>
 #include <urx/v0_3/aperture.h>
 #include <urx/v0_3/dataset.h>
@@ -48,9 +49,8 @@
 #include <urx/v0_3/trigger_source.h>
 #include <urx/v0_3/version.h>
 #include <urx/v0_3/wave.h>
-#include <urx_utils/io/reader_v0_3.h>
 
-namespace urx::v0_3 {
+namespace urx::utils::io::v0_3 {
 
 namespace {
 
@@ -99,7 +99,7 @@ void read(std::string& text, const H5::Group& group, const std::string& name) {
   dataset.read(text, datatype, dataspace);
 }
 
-void read(Version& version, const H5::Group& group, const std::string& name) {
+void read(urx::v0_3::Version& version, const H5::Group& group, const std::string& name) {
   const H5::Group group_child(group.openGroup(name));
 
   read(version.major, group_child, "major");
@@ -108,10 +108,10 @@ void read(Version& version, const H5::Group& group, const std::string& name) {
   read(version.specialization, group_child, "specialization");
 }
 
-void read(TriggerDestination& version, const H5::Group& group, const std::string& name) {
+void read(urx::v0_3::TriggerDestination& version, const H5::Group& group, const std::string& name) {
   int32_t value;
   read(value, group, name);
-  version = static_cast<TriggerDestination>(value);
+  version = static_cast<urx::v0_3::TriggerDestination>(value);
 }
 
 template <typename T>
@@ -123,42 +123,45 @@ void read(T& version, const H5::Group& group, const std::string& name, MapToShar
   version = static_cast<T>(value);
 }
 
-void read(std::shared_ptr<GroupLink>& igroup, const H5::Group& group, const std::string& name,
+void read(std::shared_ptr<urx::v0_3::GroupLink>& igroup, const H5::Group& group,
+          const std::string& name, MapToSharedPtr& map);
+void read(urx::v0_3::Sequence& sequence, const H5::Group& group, const std::string& name,
           MapToSharedPtr& map);
-void read(Sequence& sequence, const H5::Group& group, const std::string& name, MapToSharedPtr& map);
-void read(std::shared_ptr<IGroup>& field, const H5::Group& group, const std::string& name,
-          MapToSharedPtr& map);
+void read(std::shared_ptr<urx::v0_3::IGroup>& field, const H5::Group& group,
+          const std::string& name, MapToSharedPtr& map);
 template <typename T>
 void read(std::vector<T>& vector, const H5::Group& group, const std::string& name,
           MapToSharedPtr& map);
 void read(std::vector<double>& vector, const H5::Group& group, const std::string& name);
 void read(std::vector<std::vector<uint32_t>>& vector, const H5::Group& group,
           const std::string& name);
-void read(std::optional<TriggerIn>& trigger_in, const H5::Group& group, const std::string& name,
-          MapToSharedPtr& map);
-void read(std::optional<TriggerOut>& trigger_out, const H5::Group& group, const std::string& name,
-          MapToSharedPtr& map);
-void read(std::shared_ptr<Event>& event, const H5::Group& group, const std::string& name,
-          MapToSharedPtr& map);
-void read(std::shared_ptr<Probe>& probe, const H5::Group& group, const std::string& name,
-          MapToSharedPtr& map);
-void read(std::shared_ptr<ElementGeometry>& element_geometry, const H5::Group& group,
+void read(std::optional<urx::v0_3::TriggerIn>& trigger_in, const H5::Group& group,
           const std::string& name, MapToSharedPtr& map);
-void read(Position& position, const H5::Group& group, const std::string& name, MapToSharedPtr& map);
-void read(std::shared_ptr<ImpulseResponse>& impulse_response, const H5::Group& group,
+void read(std::optional<urx::v0_3::TriggerOut>& trigger_out, const H5::Group& group,
           const std::string& name, MapToSharedPtr& map);
-void read(Element& element, const H5::Group& group, const std::string& name, MapToSharedPtr& map);
-void read(std::shared_ptr<Wave>& wave, const H5::Group& group, const std::string& name,
+void read(std::shared_ptr<urx::v0_3::Event>& event, const H5::Group& group, const std::string& name,
           MapToSharedPtr& map);
-void read(std::shared_ptr<Excitation>& excitation, const H5::Group& group, const std::string& name,
+void read(std::shared_ptr<urx::v0_3::Probe>& probe, const H5::Group& group, const std::string& name,
           MapToSharedPtr& map);
-void read(std::shared_ptr<GroupData>& group_data, const H5::Group& group, const std::string& name,
+void read(std::shared_ptr<urx::v0_3::ElementGeometry>& element_geometry, const H5::Group& group,
+          const std::string& name, MapToSharedPtr& map);
+void read(urx::v0_3::Position& position, const H5::Group& group, const std::string& name,
           MapToSharedPtr& map);
-void read(TransmitSetup& transmit_setup, const H5::Group& group, const std::string& name,
+void read(std::shared_ptr<urx::v0_3::ImpulseResponse>& impulse_response, const H5::Group& group,
+          const std::string& name, MapToSharedPtr& map);
+void read(urx::v0_3::Element& element, const H5::Group& group, const std::string& name,
           MapToSharedPtr& map);
-void read(ReceiveSetup& receive_setup, const H5::Group& group, const std::string& name,
+void read(std::shared_ptr<urx::v0_3::Wave>& wave, const H5::Group& group, const std::string& name,
           MapToSharedPtr& map);
-void read(TimedEvent& timed_event, const H5::Group& group, const std::string& name,
+void read(std::shared_ptr<urx::v0_3::Excitation>& excitation, const H5::Group& group,
+          const std::string& name, MapToSharedPtr& map);
+void read(std::shared_ptr<urx::v0_3::GroupData>& group_data, const H5::Group& group,
+          const std::string& name, MapToSharedPtr& map);
+void read(urx::v0_3::TransmitSetup& transmit_setup, const H5::Group& group, const std::string& name,
+          MapToSharedPtr& map);
+void read(urx::v0_3::ReceiveSetup& receive_setup, const H5::Group& group, const std::string& name,
+          MapToSharedPtr& map);
+void read(urx::v0_3::TimedEvent& timed_event, const H5::Group& group, const std::string& name,
           MapToSharedPtr& map);
 void read(std::shared_ptr<urx::RawData>& field, const H5::Group& group, const std::string& name);
 
@@ -178,18 +181,18 @@ void read(std::weak_ptr<T>& weak, const H5::Group& group, const std::string& nam
   }
 }
 
-void read(std::shared_ptr<GroupLink>& igroup, const H5::Group& group, const std::string& name,
-          MapToSharedPtr& map) {
+void read(std::shared_ptr<urx::v0_3::GroupLink>& igroup, const H5::Group& group,
+          const std::string& name, MapToSharedPtr& map) {
   const H5::Group group_child(group.openGroup(name));
 
-  igroup = std::make_shared<GroupLink>();
+  igroup = std::make_shared<urx::v0_3::GroupLink>();
 
   read(igroup->trigger_in, group_child, "trigger_in", map);
   read(igroup->source, group_child, "source_id", map);
   read(igroup->destination, group_child, "destination_id", map);
 }
 
-void read(TimedEvent& timed_event, const H5::Group& group, const std::string& name,
+void read(urx::v0_3::TimedEvent& timed_event, const H5::Group& group, const std::string& name,
           MapToSharedPtr& map) {
   const H5::Group group_child(group.openGroup(name));
 
@@ -213,7 +216,7 @@ void read(std::shared_ptr<urx::RawData>& field, const H5::Group& group, const st
   dataset.read(field->getBuffer(), datatype_raw);
 }
 
-void read(Sequence& sequence, const H5::Group& group, const std::string& name,
+void read(urx::v0_3::Sequence& sequence, const H5::Group& group, const std::string& name,
           MapToSharedPtr& map) {
   const H5::Group group_child(group.openGroup(name));
 
@@ -224,17 +227,18 @@ void read(Sequence& sequence, const H5::Group& group, const std::string& name,
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
-void read(std::shared_ptr<IGroup>& field, const H5::Group& group, const std::string& name,
-          MapToSharedPtr& map) {
+void read(std::shared_ptr<urx::v0_3::IGroup>& field, const H5::Group& group,
+          const std::string& name, MapToSharedPtr& map) {
   const H5::Group group_child(group.openGroup(name));
 
   if (group_child.getNumObjs() == 7) {
-    const std::shared_ptr<Group> new_group = std::make_shared<Group>();
+    const std::shared_ptr<urx::v0_3::Group> new_group = std::make_shared<urx::v0_3::Group>();
     read(new_group->sequence, group_child, "sequence", map);
     read(new_group->repetition_rate, group_child, "repetition_rate");
     field = new_group;
   } else {
-    const std::shared_ptr<SuperGroup> new_group = std::make_shared<SuperGroup>();
+    const std::shared_ptr<urx::v0_3::SuperGroup> new_group =
+        std::make_shared<urx::v0_3::SuperGroup>();
     read(new_group->initial_group, group_child, "initial_group", map);
     field = new_group;
   }
@@ -251,9 +255,10 @@ void read(std::vector<T>& vector, const H5::Group& group, const std::string& nam
           MapToSharedPtr& map) {
   const H5::Group group_child(group.openGroup(name));
 
+  constexpr int iter_length = 8;
   for (const size_t i : std::views::iota(0ULL, group_child.getNumObjs())) {
     T t;
-    read(t, group_child, std::format("{:08}", i + 1), map);
+    read(t, group_child, format_index_with_leading_zeros(i + 1, iter_length), map);
     vector.push_back(std::move(t));
   }
 }
@@ -297,7 +302,8 @@ void read(std::vector<double>& vector, const H5::Group& group, const std::string
   dataset.read(vector.data(), datatype);
 }
 
-void read(std::vector<TriggerSource>& vector, const H5::Group& group, const std::string& name) {
+void read(std::vector<urx::v0_3::TriggerSource>& vector, const H5::Group& group,
+          const std::string& name) {
   const H5::DataSet dataset = group.openDataSet(name);
   const H5::StrType datatype(H5::PredType::NATIVE_INT32);
   const H5::DataSpace dataspace = dataset.getSpace();
@@ -329,21 +335,21 @@ void read(std::vector<std::vector<uint32_t>>& vector, const H5::Group& group,
                  [](uint32_t value) { return std::vector<uint32_t>{value}; });
 }
 
-void read(std::optional<TriggerIn>& trigger_in, const H5::Group& group, const std::string& name,
-          MapToSharedPtr& map) {
+void read(std::optional<urx::v0_3::TriggerIn>& trigger_in, const H5::Group& group,
+          const std::string& name, MapToSharedPtr& map) {
   const H5::Group group_child(group.openGroup(name));
 
   if (!group_child.exists("sources") || !group_child.exists("edge")) {
     return;
   }
 
-  trigger_in = TriggerIn{};
+  trigger_in = urx::v0_3::TriggerIn{};
 
   read(trigger_in->sources, group_child, "sources");
   read(trigger_in->edge, group_child, "edge", map);
 }
 
-void read(TransmitSetup& transmit_setup, const H5::Group& group, const std::string& name,
+void read(urx::v0_3::TransmitSetup& transmit_setup, const H5::Group& group, const std::string& name,
           MapToSharedPtr& map) {
   const H5::Group group_child(group.openGroup(name));
 
@@ -353,7 +359,7 @@ void read(TransmitSetup& transmit_setup, const H5::Group& group, const std::stri
   read(transmit_setup.wave, group_child, "wave_id", map);
 }
 
-void read(ReceiveSetup& receive_setup, const H5::Group& group, const std::string& name,
+void read(urx::v0_3::ReceiveSetup& receive_setup, const H5::Group& group, const std::string& name,
           MapToSharedPtr& map) {
   const H5::Group group_child(group.openGroup(name));
 
@@ -370,11 +376,11 @@ void read(ReceiveSetup& receive_setup, const H5::Group& group, const std::string
   read(receive_setup.modulation_frequency, group_child, "modulation_frequency");
 }
 
-void read(std::shared_ptr<Event>& event, const H5::Group& group, const std::string& name,
+void read(std::shared_ptr<urx::v0_3::Event>& event, const H5::Group& group, const std::string& name,
           MapToSharedPtr& map) {
   const H5::Group group_child(group.openGroup(name));
 
-  event = std::make_shared<Event>();
+  event = std::make_shared<urx::v0_3::Event>();
 
   read(event->transmit_setup, group_child, "transmit_setup", map);
   read(event->receive_setup, group_child, "receive_setup", map);
@@ -383,7 +389,7 @@ void read(std::shared_ptr<Event>& event, const H5::Group& group, const std::stri
   read(event->trigger_out, group_child, "trigger_out", map);
 }
 
-void read(Position& position, const H5::Group& group, const std::string& name,
+void read(urx::v0_3::Position& position, const H5::Group& group, const std::string& name,
           MapToSharedPtr& /*map*/) {
   const H5::Group group_child(group.openGroup(name));
 
@@ -392,20 +398,20 @@ void read(Position& position, const H5::Group& group, const std::string& name,
   read(position.z, group_child, "z");
 }
 
-void read(std::shared_ptr<ElementGeometry>& element_geometry, const H5::Group& group,
+void read(std::shared_ptr<urx::v0_3::ElementGeometry>& element_geometry, const H5::Group& group,
           const std::string& name, MapToSharedPtr& map) {
   const H5::Group group_child(group.openGroup(name));
 
-  element_geometry = std::make_shared<ElementGeometry>();
+  element_geometry = std::make_shared<urx::v0_3::ElementGeometry>();
 
   read(element_geometry->positions, group_child, "positions", map);
 }
 
-void read(std::shared_ptr<ImpulseResponse>& impulse_response, const H5::Group& group,
+void read(std::shared_ptr<urx::v0_3::ImpulseResponse>& impulse_response, const H5::Group& group,
           const std::string& name, MapToSharedPtr& /*map*/) {
   const H5::Group group_child(group.openGroup(name));
 
-  impulse_response = std::make_shared<ImpulseResponse>();
+  impulse_response = std::make_shared<urx::v0_3::ImpulseResponse>();
 
   read(impulse_response->time_offset, group_child, "time_offset");
   read(impulse_response->sampling_frequency, group_child, "sampling_frequency");
@@ -413,7 +419,7 @@ void read(std::shared_ptr<ImpulseResponse>& impulse_response, const H5::Group& g
   read(impulse_response->units, group_child, "units");
 }
 
-void read(Translation& translation, const H5::Group& group, const std::string& name) {
+void read(urx::v0_3::Translation& translation, const H5::Group& group, const std::string& name) {
   const H5::Group group_child(group.openGroup(name));
 
   read(translation.x, group_child, "x");
@@ -421,7 +427,7 @@ void read(Translation& translation, const H5::Group& group, const std::string& n
   read(translation.z, group_child, "z");
 }
 
-void read(Rotation& rotation, const H5::Group& group, const std::string& name) {
+void read(urx::v0_3::Rotation& rotation, const H5::Group& group, const std::string& name) {
   const H5::Group group_child(group.openGroup(name));
 
   read(rotation.x, group_child, "x");
@@ -429,14 +435,15 @@ void read(Rotation& rotation, const H5::Group& group, const std::string& name) {
   read(rotation.z, group_child, "z");
 }
 
-void read(Transform& transform, const H5::Group& group, const std::string& name) {
+void read(urx::v0_3::Transform& transform, const H5::Group& group, const std::string& name) {
   const H5::Group group_child(group.openGroup(name));
 
   read(transform.translation, group_child, "translation");
   read(transform.rotation, group_child, "rotation");
 }
 
-void read(Element& element, const H5::Group& group, const std::string& name, MapToSharedPtr& map) {
+void read(urx::v0_3::Element& element, const H5::Group& group, const std::string& name,
+          MapToSharedPtr& map) {
   const H5::Group group_child(group.openGroup(name));
 
   read(element.transform, group_child, "transform");
@@ -445,7 +452,8 @@ void read(Element& element, const H5::Group& group, const std::string& name, Map
   read(element.impulse_response, group_child, "impulse_response_id", map);
 }
 
-void read(std::optional<Aperture>& aperture, const H5::Group& group, const std::string& name) {
+void read(std::optional<urx::v0_3::Aperture>& aperture, const H5::Group& group,
+          const std::string& name) {
   const H5::Group group_child(group.openGroup(name));
 
   if (!group_child.exists("origin") || !group_child.exists("window") ||
@@ -453,7 +461,7 @@ void read(std::optional<Aperture>& aperture, const H5::Group& group, const std::
     return;
   }
 
-  aperture = Aperture{};
+  aperture = urx::v0_3::Aperture{};
 
   read(aperture->origin, group_child, "origin");
   read(aperture->window, group_child, "window");
@@ -461,7 +469,7 @@ void read(std::optional<Aperture>& aperture, const H5::Group& group, const std::
   read(aperture->fixed_size, group_child, "fixed_size");
 }
 
-void read(std::shared_ptr<Probe>& probe, const H5::Group& group, const std::string& name,
+void read(std::shared_ptr<urx::v0_3::Probe>& probe, const H5::Group& group, const std::string& name,
           MapToSharedPtr& map) {
   const H5::Group group_child(group.openGroup(name));
 
@@ -470,7 +478,8 @@ void read(std::shared_ptr<Probe>& probe, const H5::Group& group, const std::stri
   read(probe_type, group_child, "probe_type");
 
   if (probe_type == "LinearArray") {
-    const std::shared_ptr<LinearArray> new_probe = std::make_shared<LinearArray>();
+    const std::shared_ptr<urx::v0_3::LinearArray> new_probe =
+        std::make_shared<urx::v0_3::LinearArray>();
 
     read(new_probe->number_elements, group_child, "number_elements");
     read(new_probe->pitch, group_child, "pitch");
@@ -479,7 +488,8 @@ void read(std::shared_ptr<Probe>& probe, const H5::Group& group, const std::stri
 
     probe = new_probe;
   } else if (probe_type == "MatrixArray") {
-    const std::shared_ptr<MatrixArray> new_probe = std::make_shared<MatrixArray>();
+    const std::shared_ptr<urx::v0_3::MatrixArray> new_probe =
+        std::make_shared<urx::v0_3::MatrixArray>();
 
     read(new_probe->number_elements_x, group_child, "number_elements_x");
     read(new_probe->number_elements_y, group_child, "number_elements_y");
@@ -490,7 +500,7 @@ void read(std::shared_ptr<Probe>& probe, const H5::Group& group, const std::stri
 
     probe = new_probe;
   } else if (probe_type == "RcaArray") {
-    const std::shared_ptr<RcaArray> new_probe = std::make_shared<RcaArray>();
+    const std::shared_ptr<urx::v0_3::RcaArray> new_probe = std::make_shared<urx::v0_3::RcaArray>();
 
     read(new_probe->number_elements_x, group_child, "number_elements_x");
     read(new_probe->number_elements_y, group_child, "number_elements_y");
@@ -508,18 +518,18 @@ void read(std::shared_ptr<Probe>& probe, const H5::Group& group, const std::stri
   read(probe->focal_length, group_child, "focal_length");
   read(probe->element_geometries, group_child, "element_geometries", map);
   read(probe->impulse_responses, group_child, "impulse_responses", map);
-  map.insert({typeid(ElementGeometry), &probe->element_geometries});
-  map.insert({typeid(ImpulseResponse), &probe->impulse_responses});
+  map.insert({typeid(urx::v0_3::ElementGeometry), &probe->element_geometries});
+  map.insert({typeid(urx::v0_3::ImpulseResponse), &probe->impulse_responses});
   read(probe->elements, group_child, "elements", map);
-  map.erase(typeid(ElementGeometry));
-  map.erase(typeid(ImpulseResponse));
+  map.erase(typeid(urx::v0_3::ElementGeometry));
+  map.erase(typeid(urx::v0_3::ImpulseResponse));
 }
 
-void read(std::shared_ptr<Wave>& wave, const H5::Group& group, const std::string& name,
+void read(std::shared_ptr<urx::v0_3::Wave>& wave, const H5::Group& group, const std::string& name,
           MapToSharedPtr& map) {
   const H5::Group group_child(group.openGroup(name));
 
-  wave = std::make_shared<Wave>();
+  wave = std::make_shared<urx::v0_3::Wave>();
 
   read(wave->origin, group_child, "origin");
   read(wave->wave_type, group_child, "wave_type", map);
@@ -532,11 +542,11 @@ void read(std::shared_ptr<Wave>& wave, const H5::Group& group, const std::string
   read(wave->channel_delays, group_child, "channel_delays");
 }
 
-void read(std::shared_ptr<Excitation>& excitation, const H5::Group& group, const std::string& name,
-          MapToSharedPtr& /*map*/) {
+void read(std::shared_ptr<urx::v0_3::Excitation>& excitation, const H5::Group& group,
+          const std::string& name, MapToSharedPtr& /*map*/) {
   const H5::Group group_child(group.openGroup(name));
 
-  excitation = std::make_shared<Excitation>();
+  excitation = std::make_shared<urx::v0_3::Excitation>();
 
   read(excitation->pulse_shape, group_child, "pulse_shape");
   read(excitation->transmit_frequency, group_child, "transmit_frequency");
@@ -544,11 +554,11 @@ void read(std::shared_ptr<Excitation>& excitation, const H5::Group& group, const
   read(excitation->waveform, group_child, "waveform");
 }
 
-void read(std::shared_ptr<GroupData>& group_data, const H5::Group& group, const std::string& name,
-          MapToSharedPtr& map) {
+void read(std::shared_ptr<urx::v0_3::GroupData>& group_data, const H5::Group& group,
+          const std::string& name, MapToSharedPtr& map) {
   const H5::Group group_child(group.openGroup(name));
 
-  group_data = std::make_shared<GroupData>();
+  group_data = std::make_shared<urx::v0_3::GroupData>();
 
   read(group_data->group, group_child, "group_id", map);
   read(group_data->data, group_child, "data");
@@ -557,8 +567,8 @@ void read(std::shared_ptr<GroupData>& group_data, const H5::Group& group, const 
   //read(group_data->event_timestamps, group_child, "event_timestamps", map);
 }
 
-void read(std::optional<TriggerOut>& trigger_out, const H5::Group& group, const std::string& name,
-          MapToSharedPtr& map) {
+void read(std::optional<urx::v0_3::TriggerOut>& trigger_out, const H5::Group& group,
+          const std::string& name, MapToSharedPtr& map) {
   const H5::Group group_child(group.openGroup(name));
 
   if (!group_child.exists("time_offset") || !group_child.exists("pulse_duration") ||
@@ -566,7 +576,7 @@ void read(std::optional<TriggerOut>& trigger_out, const H5::Group& group, const 
     return;
   }
 
-  trigger_out = TriggerOut{};
+  trigger_out = urx::v0_3::TriggerOut{};
 
   read(trigger_out->time_offset, group_child, "time_offset");
   read(trigger_out->pulse_duration, group_child, "pulse_duration");
@@ -574,7 +584,8 @@ void read(std::optional<TriggerOut>& trigger_out, const H5::Group& group, const 
   read(trigger_out->polarity, group_child, "polarity", map);
 }
 
-void read(Acquisition& acq, const H5::Group& group, const std::string& name, MapToSharedPtr& map) {
+void read(urx::v0_3::Acquisition& acq, const H5::Group& group, const std::string& name,
+          MapToSharedPtr& map) {
   const H5::Group group_child(group.openGroup(name));
 
   read(acq.time_offset, group_child, "time_offset");
@@ -604,17 +615,18 @@ void read(Acquisition& acq, const H5::Group& group, const std::string& name, Map
 
 }  // namespace
 
-std::shared_ptr<Dataset> Reader::loadFromFile(const std::string& filename) {
-  auto dataset = std::make_shared<Dataset>();
+std::shared_ptr<urx::v0_3::Dataset> Reader::loadFromFile(const std::string& filename) {
+  auto dataset = std::make_shared<urx::v0_3::Dataset>();
 
   const H5::H5File file(filename.data(), H5F_ACC_RDONLY);
-  MapToSharedPtr map_to_shared_ptr{{typeid(GroupLink), &dataset->acquisition.group_link},
-                                   {typeid(IGroup), &dataset->acquisition.groups},
-                                   {typeid(Probe), &dataset->acquisition.probes},
-                                   {typeid(Event), &dataset->acquisition.unique_events},
-                                   {typeid(Wave), &dataset->acquisition.waves},
-                                   {typeid(Excitation), &dataset->acquisition.excitation},
-                                   {typeid(GroupData), &dataset->acquisition.group_data}};
+  MapToSharedPtr map_to_shared_ptr{
+      {typeid(urx::v0_3::GroupLink), &dataset->acquisition.group_link},
+      {typeid(urx::v0_3::IGroup), &dataset->acquisition.groups},
+      {typeid(urx::v0_3::Probe), &dataset->acquisition.probes},
+      {typeid(urx::v0_3::Event), &dataset->acquisition.unique_events},
+      {typeid(urx::v0_3::Wave), &dataset->acquisition.waves},
+      {typeid(urx::v0_3::Excitation), &dataset->acquisition.excitation},
+      {typeid(urx::v0_3::GroupData), &dataset->acquisition.group_data}};
 
   read(dataset->version, file, "version");
   read(dataset->acquisition, file, "acquisition", map_to_shared_ptr);
@@ -622,4 +634,4 @@ std::shared_ptr<Dataset> Reader::loadFromFile(const std::string& filename) {
   return dataset;
 }
 
-}  // namespace urx::v0_3
+}  // namespace urx::utils::io::v0_3
