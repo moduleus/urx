@@ -4,7 +4,6 @@
 #define URX_CHANNEL_DATA_H
 
 #include <algorithm>
-#include <compare>
 #include <cstddef>
 #include <cstdint>
 #include <ios>

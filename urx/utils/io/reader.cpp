@@ -1,12 +1,11 @@
-#include <array>
 #include <complex>
 #include <cstddef>
 #include <cstdint>
+#include <functional>
+#include <map>
 #include <memory>
 #include <optional>
 #include <stdexcept>
-#include <string_view>
-#include <type_traits>
 #include <typeindex>
 #include <unordered_map>
 #include <utility>
@@ -29,6 +28,7 @@
 #include <urx/probe.h>
 #include <urx/utils/common.h>
 #include <urx/utils/io/reader.h>
+#include <urx/utils/io/serialize_helper.h>
 #include <urx/wave.h>
 
 namespace urx::utils::io {
@@ -58,24 +58,26 @@ void deserialize_hdf5(const std::string& name, T& field, const H5::Group& group,
   // Number
   if constexpr (std::is_arithmetic_v<T>) {
     const H5::StrType datatype(*std_to_h5.at(typeid(T)));
-    const H5::DataSet dataset = group.openDataSet(name);
-    dataset.read(&field, datatype);
-    /*
-    const H5::Attribute attribute = group.openAttribute(name);
-    attribute.read(datatype, &field);
-    */
-  } 
+    if (group.exists(name)) {
+      const H5::DataSet dataset = group.openDataSet(name);
+      dataset.read(&field, datatype);
+    } else {
+      const H5::Attribute attribute = group.openAttribute(name);
+      attribute.read(datatype, &field);
+    }
+  }
   // Enum
   else if constexpr (std::is_enum_v<T>) {
     const H5::StrType datatype(0, H5T_VARIABLE);
     const H5::DataSpace dataspace(H5S_SCALAR);
     std::string value;
-    const H5::DataSet dataset = group.openDataSet(name);
-    dataset.read(value, datatype, dataspace);
-    /*
-    const H5::Attribute attribute = group.openAttribute(name);
-    attribute.read(datatype, value);
-    */
+    if (group.exists(name)) {
+      const H5::DataSet dataset = group.openDataSet(name);
+      dataset.read(value, datatype, dataspace);
+    } else {
+      const H5::Attribute attribute = group.openAttribute(name);
+      attribute.read(datatype, value);
+    }
 
     std::optional<T> convert = magic_enum::enum_cast<T>(value);
     if (convert) {
@@ -97,8 +99,13 @@ void deserialize_hdf5(const std::string& name, std::string& field, const H5::Gro
                       MapToSharedPtr&) {
   const H5::StrType datatype(0, H5T_VARIABLE);
   const H5::DataSpace dataspace(H5S_SCALAR);
-  const H5::Attribute attribute = group.openAttribute(name);
-  attribute.read(datatype, field);
+  if (group.exists(name)) {
+    const H5::DataSet dataset = group.openDataSet(name);
+    dataset.read(field, datatype, dataspace);
+  } else {
+    const H5::Attribute attribute = group.openAttribute(name);
+    attribute.read(datatype, field);
+  }
 }
 
 // DoubleNan
@@ -127,8 +134,7 @@ void deserialize_hdf5(const std::string&, std::shared_ptr<RawData>& field, const
 template <typename T>
 void deserialize_hdf5(const std::string& name, std::weak_ptr<T>& field, const H5::Group& group,
                       MapToSharedPtr& map) {
-  if (group.exists(name)) {
-    // if (group.attrExists(name))
+  if (group.exists(name) || group.attrExists(name)) {
     std::size_t idx;
 
     deserialize_hdf5(name, idx, group, map);
@@ -142,19 +148,31 @@ template <typename T>
 void deserialize_hdf5(const std::string& name, std::vector<T>& field, const H5::Group& group,
                       MapToSharedPtr& map) {
   if constexpr (std::is_arithmetic_v<T>) {
-    const H5::DataSet dataset = group.openDataSet(name);
-    // const H5::Attribute attribute = group.openAttribute(name);
     const H5::StrType datatype(*std_to_h5.at(typeid(T)));
-    const H5::DataSpace dataspace = dataset.getSpace();
-    // const H5::DataSpace dataspace = attribute.getSpace();
+
+    H5::DataSet dataset;
+    H5::DataSpace dataspace;
+    H5::Attribute attribute;
+
+    if (group.exists(name)) {
+      dataset = group.openDataSet(name);
+      dataspace = dataset.getSpace();
+    } else {
+      attribute = group.openAttribute(name);
+      dataspace = attribute.getSpace();
+    }
+
     const int ndims = dataspace.getSimpleExtentNdims();
     std::vector<hsize_t> dimension;
     dimension.resize(ndims);
     dataspace.getSimpleExtentDims(dimension.data());
     field.resize(dimension[0]);
     if (dimension[0] != 0) {
-      dataset.read(field.data(), datatype);
-      //attribute.read(datatype, field.data());
+      if (group.exists(name)) {
+        dataset.read(field.data(), datatype);
+      } else {
+        attribute.read(datatype, field.data());
+      }
     }
   } else {
     const H5::Group group_child(group.openGroup(name));
@@ -198,9 +216,9 @@ void deserialize_all(T& field, const H5::Group& group, MapToSharedPtr& map) {
                  {typeid(std::size_t), &H5::PredType::NATIVE_UINT64}};
   }
 
-  auto a = boost::pfr::names_as_array<T>();
-  boost::pfr::for_each_field(field, [&a, &group, &map](auto& child, std::size_t idx) {
-    deserialize_hdf5(std::string{a[idx]}, child, group, map);
+  boost::pfr::for_each_field(field, [&group, &map, &field](auto& child) {
+    deserialize_hdf5(SerializeHelper::member_name.at(typeid(T)).at(DIFF_PTR(field, child)), child,
+                     group, map);
   });
 }
 
@@ -209,9 +227,9 @@ template <>
 void deserialize_all(Probe& field, const H5::Group& group, MapToSharedPtr& map) {
   map.insert({typeid(ElementGeometry), &field.element_geometries});
   map.insert({typeid(ImpulseResponse), &field.impulse_responses});
-  auto a = boost::pfr::names_as_array<Probe>();
-  boost::pfr::for_each_field(field, [&a, &group, &map](auto& child, std::size_t idx) {
-    deserialize_hdf5(std::string{a[idx]}, child, group, map);
+  boost::pfr::for_each_field(field, [&group, &map, &field](auto& child) {
+    deserialize_hdf5(SerializeHelper::member_name.at(typeid(Probe)).at(DIFF_PTR(field, child)),
+                     child, group, map);
   });
   map.erase(typeid(ElementGeometry));
   map.erase(typeid(ImpulseResponse));

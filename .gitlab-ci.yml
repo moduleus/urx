@@ -121,14 +121,15 @@ format:autopep8-format:
   image: $CI_REGISTRY/common/ci/dockerci/autopep8:latest
   tags:
     - docker
-  before_script:
-    - mkdir CI
   script:
-    - autopep8 -r . -i
+    - mkdir CI
+    - shopt -s globstar
+    - autopep8 -r **/*.py -i
     - git diff > CI/format.patch
     - cat CI/format.patch
     - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Please, format your python code with autopep8."; exit 1; fi
   allow_failure: true
+  dependencies: []
   artifacts:
     when: on_failure
     paths:

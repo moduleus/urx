@@ -1,7 +1,5 @@
 #pragma once
 
-#include <compare>
-
 #include <urx/urx.h>
 
 namespace urx {

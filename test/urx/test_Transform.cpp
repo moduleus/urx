@@ -7,7 +7,7 @@ namespace urx::test {
 
 TEST_CASE("Transform CTOR", "[test_transform]") {
   const Transform t_1;
-  const Vector3D<double> c_1{.x = 0, .y = 0, .z = 0};
+  const Vector3D<double> c_1{0, 0, 0};
   const Transform t_2 = {c_1, c_1};
 
   REQUIRE(t_1 == t_2);

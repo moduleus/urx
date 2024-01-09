@@ -1,4 +1,5 @@
 #include <memory>
+#include <string>
 #include <utility>
 
 #include <catch2/catch_test_macros.hpp>

@@ -3,7 +3,6 @@
 #ifndef URX_APERTURE_H
 #define URX_APERTURE_H
 
-#include <exception>
 #include <iosfwd>
 #include <optional>
 #include <string>

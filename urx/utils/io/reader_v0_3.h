@@ -11,4 +11,4 @@ class Reader {
   static std::shared_ptr<urx::v0_3::Dataset> loadFromFile(const std::string& filename);
 };
 
-}  // namespace urx::v0_3
+}  // namespace urx::utils::io::v0_3

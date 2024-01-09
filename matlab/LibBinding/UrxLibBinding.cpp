@@ -1,18 +1,33 @@
 #include "UrxLibBinding.h"
 
-#include <chrono>
+#include <complex>
 #include <cstdint>
-#include <fstream>
+#include <ios>
+#include <iosfwd>
+#include <iostream>
 #include <memory>
+#include <ostream>
 #include <string>
 #include <utility>
 #include <vector>
 
 #include <urx/acquisition.h>
 #include <urx/dataset.h>
+#include <urx/detail/raw_data.h>
+#include <urx/element.h>
+#include <urx/element_geometry.h>
+#include <urx/event.h>
+#include <urx/excitation.h>
 #include <urx/group.h>
 #include <urx/group_data.h>
+#include <urx/impulse_response.h>
+#include <urx/probe.h>
 #include <urx/receive_setup.h>
+#include <urx/transform.h>
+#include <urx/transmit_setup.h>
+#include <urx/vector.h>
+#include <urx/version.h>
+#include <urx/wave.h>
 
 #ifdef WITH_HDF5
 #include <urx/utils/io/upgrade.h>
@@ -22,9 +37,12 @@
 #define xstr(s) str(s)
 #define str(s) #s
 
-static size_t alloc_cout = 0;
+namespace {
+size_t alloc_cout = 0;
 
-static std::ofstream outfile("c:\\temp\\test.txt");
+// std::ofstream outfile("c:\\temp\\test.txt");
+std::ostream &outfile(std::cout);
+}  // namespace
 
 #if WIN32
 #include <windows.h>
@@ -65,12 +83,12 @@ BOOL WINAPI DllMain(HINSTANCE /*hinstDLL*/,  // handle to DLL module
   void *CONCAT3(vector, snake, new)() {                                                         \
     alloc_cout++;                                                                               \
     auto retval = new std::vector<type>();                                                      \
-    outfile << (size_t)retval << " " << __FUNCTION__ << "\n" << std::flush;                     \
+    outfile << reinterpret_cast<size_t>(retval) << " " << __FUNCTION__ << "\n" << std::flush;   \
     return retval;                                                                              \
   }                                                                                             \
   void CONCAT3(vector, snake, delete)(void *this_ptr) {                                         \
     alloc_cout--;                                                                               \
-    outfile << (size_t)this_ptr << " " << __FUNCTION__ << "\n" << std::flush;                   \
+    outfile << reinterpret_cast<size_t>(this_ptr) << " " << __FUNCTION__ << "\n" << std::flush; \
     delete static_cast<std::vector<type> *>(this_ptr);                                          \
   }                                                                                             \
   void CONCAT3(vector, snake, clear)(void *this_ptr) {                                          \
@@ -98,34 +116,34 @@ BOOL WINAPI DllMain(HINSTANCE /*hinstDLL*/,  // handle to DLL module
   _VECTOR_RAW_IMPL(CONCAT2(ns, name_snake), CONCAT_NS(ns, name_real))
 #define VECTOR_RAW_IMPL(name) _VECTOR_RAW_IMPL(name, name)
 
-#define _VECTOR_2D_RAW_IMPL(snake, type)                                      \
-  void *CONCAT3(vector_2d, snake, new)() {                                    \
-    alloc_cout++;                                                             \
-    auto retval = new std::vector<std::vector<type>>();                       \
-    outfile << (size_t)retval << " " << __FUNCTION__ << "\n" << std::flush;   \
-    return retval;                                                            \
-  }                                                                           \
-  void CONCAT3(vector_2d, snake, delete)(void *this_ptr) {                    \
-    alloc_cout--;                                                             \
-    outfile << (size_t)this_ptr << " " << __FUNCTION__ << "\n" << std::flush; \
-    delete static_cast<std::vector<std::vector<type>> *>(this_ptr);           \
-  }                                                                           \
-  void CONCAT3(vector_2d, snake, clear)(void *this_ptr) {                     \
-    static_cast<std::vector<std::vector<type>> *>(this_ptr)->clear();         \
-  }                                                                           \
-  void CONCAT3(vector_2d, snake, push_back)(void *this_ptr, void *val) {      \
-    static_cast<std::vector<std::vector<type>> *>(this_ptr)->push_back(       \
-        *static_cast<std::vector<type> *>(val));                              \
-  }                                                                           \
-  uint64_t CONCAT3(vector_2d, snake, size)(void *this_ptr) {                  \
-    return static_cast<std::vector<std::vector<type>> *>(this_ptr)->size();   \
-  }                                                                           \
-  void *CONCAT3(vector_2d, snake, data)(void *this_ptr, uint64_t i) {         \
-    return &(*static_cast<std::vector<std::vector<type>> *>(this_ptr))[i];    \
-  }                                                                           \
-  void CONCAT3(vector_2d, snake, copy)(void *this_ptr, void *other_ptr) {     \
-    *static_cast<std::vector<std::vector<type>> *>(this_ptr) =                \
-        *static_cast<std::vector<std::vector<type>> *>(other_ptr);            \
+#define _VECTOR_2D_RAW_IMPL(snake, type)                                                        \
+  void *CONCAT3(vector_2d, snake, new)() {                                                      \
+    alloc_cout++;                                                                               \
+    auto retval = new std::vector<std::vector<type>>();                                         \
+    outfile << reinterpret_cast<size_t>(retval) << " " << __FUNCTION__ << "\n" << std::flush;   \
+    return retval;                                                                              \
+  }                                                                                             \
+  void CONCAT3(vector_2d, snake, delete)(void *this_ptr) {                                      \
+    alloc_cout--;                                                                               \
+    outfile << reinterpret_cast<size_t>(this_ptr) << " " << __FUNCTION__ << "\n" << std::flush; \
+    delete static_cast<std::vector<std::vector<type>> *>(this_ptr);                             \
+  }                                                                                             \
+  void CONCAT3(vector_2d, snake, clear)(void *this_ptr) {                                       \
+    static_cast<std::vector<std::vector<type>> *>(this_ptr)->clear();                           \
+  }                                                                                             \
+  void CONCAT3(vector_2d, snake, push_back)(void *this_ptr, void *val) {                        \
+    static_cast<std::vector<std::vector<type>> *>(this_ptr)->push_back(                         \
+        *static_cast<std::vector<type> *>(val));                                                \
+  }                                                                                             \
+  uint64_t CONCAT3(vector_2d, snake, size)(void *this_ptr) {                                    \
+    return static_cast<std::vector<std::vector<type>> *>(this_ptr)->size();                     \
+  }                                                                                             \
+  void *CONCAT3(vector_2d, snake, data)(void *this_ptr, uint64_t i) {                           \
+    return &(*static_cast<std::vector<std::vector<type>> *>(this_ptr))[i];                      \
+  }                                                                                             \
+  void CONCAT3(vector_2d, snake, copy)(void *this_ptr, void *other_ptr) {                       \
+    *static_cast<std::vector<std::vector<type>> *>(this_ptr) =                                  \
+        *static_cast<std::vector<std::vector<type>> *>(other_ptr);                              \
   }
 
 #define VECTOR_2D_RAW_NS_IMPL(ns, name) _VECTOR_2D_RAW_IMPL(CONCAT2(ns, name), CONCAT_NS(ns, name))
@@ -133,38 +151,38 @@ BOOL WINAPI DllMain(HINSTANCE /*hinstDLL*/,  // handle to DLL module
   _VECTOR_2D_RAW_IMPL(CONCAT2(ns, name_snake), CONCAT_NS(ns, name_real))
 #define VECTOR_2D_RAW_IMPL(name) _VECTOR_2D_RAW_IMPL(name, name)
 
-#define _VECTOR_SHARED_IMPL(snake, type)                                             \
-  void *CONCAT3(vector_shared, snake, new)() {                                       \
-    alloc_cout++;                                                                    \
-    auto retval = new std::vector<std::shared_ptr<type>>();                          \
-    outfile << (size_t)retval << " " << __FUNCTION__ << "\n" << std::flush;          \
-    return retval;                                                                   \
-  }                                                                                  \
-  void CONCAT3(vector_shared, snake, delete)(void *this_ptr) {                       \
-    alloc_cout--;                                                                    \
-    outfile << (size_t)this_ptr << " " << __FUNCTION__ << "\n" << std::flush;        \
-    delete static_cast<std::vector<std::shared_ptr<type>> *>(this_ptr);              \
-  }                                                                                  \
-  void CONCAT3(vector_shared, snake, clear)(void *this_ptr) {                        \
-    static_cast<std::vector<std::shared_ptr<type>> *>(this_ptr)->clear();            \
-  }                                                                                  \
-  void CONCAT3(vector_shared, snake, push_back)(void *this_ptr, void *val) {         \
-    static_cast<std::vector<std::shared_ptr<type>> *>(this_ptr)->push_back(          \
-        *static_cast<std::shared_ptr<type> *>(val));                                 \
-  }                                                                                  \
-  void CONCAT4(vector_shared, snake, push_back, shared)(void *this_ptr, void *val) { \
-    static_cast<std::vector<std::shared_ptr<type>> *>(this_ptr)->push_back(          \
-        *static_cast<std::shared_ptr<type> *>(val));                                 \
-  }                                                                                  \
-  uint64_t CONCAT3(vector_shared, snake, size)(void *this_ptr) {                     \
-    return static_cast<std::vector<std::shared_ptr<type>> *>(this_ptr)->size();      \
-  }                                                                                  \
-  void *CONCAT3(vector_shared, snake, data)(void *this_ptr, uint64_t i) {            \
-    return &(*static_cast<std::vector<std::shared_ptr<type>> *>(this_ptr))[i];       \
-  }                                                                                  \
-  void CONCAT3(vector_shared, snake, copy)(void *this_ptr, void *other_ptr) {        \
-    *static_cast<std::vector<std::shared_ptr<type>> *>(this_ptr) =                   \
-        *static_cast<std::vector<std::shared_ptr<type>> *>(other_ptr);               \
+#define _VECTOR_SHARED_IMPL(snake, type)                                                        \
+  void *CONCAT3(vector_shared, snake, new)() {                                                  \
+    alloc_cout++;                                                                               \
+    auto retval = new std::vector<std::shared_ptr<type>>();                                     \
+    outfile << reinterpret_cast<size_t>(retval) << " " << __FUNCTION__ << "\n" << std::flush;   \
+    return retval;                                                                              \
+  }                                                                                             \
+  void CONCAT3(vector_shared, snake, delete)(void *this_ptr) {                                  \
+    alloc_cout--;                                                                               \
+    outfile << reinterpret_cast<size_t>(this_ptr) << " " << __FUNCTION__ << "\n" << std::flush; \
+    delete static_cast<std::vector<std::shared_ptr<type>> *>(this_ptr);                         \
+  }                                                                                             \
+  void CONCAT3(vector_shared, snake, clear)(void *this_ptr) {                                   \
+    static_cast<std::vector<std::shared_ptr<type>> *>(this_ptr)->clear();                       \
+  }                                                                                             \
+  void CONCAT3(vector_shared, snake, push_back)(void *this_ptr, void *val) {                    \
+    static_cast<std::vector<std::shared_ptr<type>> *>(this_ptr)->push_back(                     \
+        *static_cast<std::shared_ptr<type> *>(val));                                            \
+  }                                                                                             \
+  void CONCAT4(vector_shared, snake, push_back, shared)(void *this_ptr, void *val) {            \
+    static_cast<std::vector<std::shared_ptr<type>> *>(this_ptr)->push_back(                     \
+        *static_cast<std::shared_ptr<type> *>(val));                                            \
+  }                                                                                             \
+  uint64_t CONCAT3(vector_shared, snake, size)(void *this_ptr) {                                \
+    return static_cast<std::vector<std::shared_ptr<type>> *>(this_ptr)->size();                 \
+  }                                                                                             \
+  void *CONCAT3(vector_shared, snake, data)(void *this_ptr, uint64_t i) {                       \
+    return &(*static_cast<std::vector<std::shared_ptr<type>> *>(this_ptr))[i];                  \
+  }                                                                                             \
+  void CONCAT3(vector_shared, snake, copy)(void *this_ptr, void *other_ptr) {                   \
+    *static_cast<std::vector<std::shared_ptr<type>> *>(this_ptr) =                              \
+        *static_cast<std::vector<std::shared_ptr<type>> *>(other_ptr);                          \
   }
 
 #define VECTOR_SHARED_NS_IMPL(ns, name) _VECTOR_SHARED_IMPL(CONCAT2(ns, name), CONCAT_NS(ns, name))
@@ -172,38 +190,38 @@ BOOL WINAPI DllMain(HINSTANCE /*hinstDLL*/,  // handle to DLL module
   _VECTOR_SHARED_IMPL(CONCAT2(ns, name_snake), CONCAT_NS(ns, name_real))
 #define VECTOR_SHARED_IMPL(name) _VECTOR_SHARED_IMPL(name, name)
 
-#define _VECTOR_WEAK_IMPL(snake, type)                                                   \
-  void *CONCAT3(vector_weak, snake, new)() {                                             \
-    alloc_cout++;                                                                        \
-    auto retval = new std::vector<std::weak_ptr<type>>();                                \
-    outfile << (size_t)retval << " " << __FUNCTION__ << "\n" << std::flush;              \
-    return retval;                                                                       \
-  }                                                                                      \
-  void CONCAT3(vector_weak, snake, delete)(void *this_ptr) {                             \
-    alloc_cout--;                                                                        \
-    outfile << (size_t)this_ptr << " " << __FUNCTION__ << "\n" << std::flush;            \
-    delete static_cast<std::vector<std::weak_ptr<type>> *>(this_ptr);                    \
-  }                                                                                      \
-  void CONCAT3(vector_weak, snake, clear)(void *this_ptr) {                              \
-    static_cast<std::vector<std::weak_ptr<type>> *>(this_ptr)->clear();                  \
-  }                                                                                      \
-  void CONCAT3(vector_weak, snake, push_back)(void *this_ptr, void *val) {               \
-    static_cast<std::vector<std::weak_ptr<type>> *>(this_ptr)->push_back(                \
-        *static_cast<std::weak_ptr<type> *>(val));                                       \
-  }                                                                                      \
-  void CONCAT4(vector_weak, snake, push_back, shared)(void *this_ptr, void *val) {       \
-    static_cast<std::vector<std::weak_ptr<type>> *>(this_ptr)->push_back(                \
-        *static_cast<std::weak_ptr<type> *>(val));                                       \
-  }                                                                                      \
-  uint64_t CONCAT3(vector_weak, snake, size)(void *this_ptr) {                           \
-    return static_cast<std::vector<std::weak_ptr<type>> *>(this_ptr)->size();            \
-  }                                                                                      \
-  void *CONCAT3(vector_weak, snake, data)(void *this_ptr, uint64_t i) {                  \
-    return (*static_cast<std::vector<std::weak_ptr<type>> *>(this_ptr))[i].lock().get(); \
-  }                                                                                      \
-  void CONCAT3(vector_weak, snake, copy)(void *this_ptr, void *other_ptr) {              \
-    *static_cast<std::vector<std::weak_ptr<type>> *>(this_ptr) =                         \
-        *static_cast<std::vector<std::weak_ptr<type>> *>(other_ptr);                     \
+#define _VECTOR_WEAK_IMPL(snake, type)                                                          \
+  void *CONCAT3(vector_weak, snake, new)() {                                                    \
+    alloc_cout++;                                                                               \
+    auto retval = new std::vector<std::weak_ptr<type>>();                                       \
+    outfile << reinterpret_cast<size_t>(retval) << " " << __FUNCTION__ << "\n" << std::flush;   \
+    return retval;                                                                              \
+  }                                                                                             \
+  void CONCAT3(vector_weak, snake, delete)(void *this_ptr) {                                    \
+    alloc_cout--;                                                                               \
+    outfile << reinterpret_cast<size_t>(this_ptr) << " " << __FUNCTION__ << "\n" << std::flush; \
+    delete static_cast<std::vector<std::weak_ptr<type>> *>(this_ptr);                           \
+  }                                                                                             \
+  void CONCAT3(vector_weak, snake, clear)(void *this_ptr) {                                     \
+    static_cast<std::vector<std::weak_ptr<type>> *>(this_ptr)->clear();                         \
+  }                                                                                             \
+  void CONCAT3(vector_weak, snake, push_back)(void *this_ptr, void *val) {                      \
+    static_cast<std::vector<std::weak_ptr<type>> *>(this_ptr)->push_back(                       \
+        *static_cast<std::weak_ptr<type> *>(val));                                              \
+  }                                                                                             \
+  void CONCAT4(vector_weak, snake, push_back, shared)(void *this_ptr, void *val) {              \
+    static_cast<std::vector<std::weak_ptr<type>> *>(this_ptr)->push_back(                       \
+        *static_cast<std::weak_ptr<type> *>(val));                                              \
+  }                                                                                             \
+  uint64_t CONCAT3(vector_weak, snake, size)(void *this_ptr) {                                  \
+    return static_cast<std::vector<std::weak_ptr<type>> *>(this_ptr)->size();                   \
+  }                                                                                             \
+  void *CONCAT3(vector_weak, snake, data)(void *this_ptr, uint64_t i) {                         \
+    return (*static_cast<std::vector<std::weak_ptr<type>> *>(this_ptr))[i].lock().get();        \
+  }                                                                                             \
+  void CONCAT3(vector_weak, snake, copy)(void *this_ptr, void *other_ptr) {                     \
+    *static_cast<std::vector<std::weak_ptr<type>> *>(this_ptr) =                                \
+        *static_cast<std::vector<std::weak_ptr<type>> *>(other_ptr);                            \
   }
 
 #define VECTOR_WEAK_NS_IMPL(ns, name) _VECTOR_WEAK_IMPL(CONCAT2(ns, name), CONCAT_NS(ns, name))
@@ -211,36 +229,37 @@ BOOL WINAPI DllMain(HINSTANCE /*hinstDLL*/,  // handle to DLL module
   _VECTOR_WEAK_IMPL(CONCAT2(ns, name_snake), CONCAT_NS(ns, name_real))
 #define VECTOR_WEAK_IMPL(name) _VECTOR_WEAK_IMPL(name, name)
 
-#define _OBJECT_IMPL(snake, type)                                                            \
-  void *CONCAT2(snake, new)(void) {                                                          \
-    alloc_cout++;                                                                            \
-    auto retval = new std::shared_ptr<type>(new type());                                     \
-    outfile << (size_t)retval << " " << (size_t)retval->get() << " " << __FUNCTION__ << "\n" \
-            << std::flush;                                                                   \
-    return retval;                                                                           \
-  }                                                                                          \
-  void CONCAT2(snake, delete)(void *this_ptr) {                                              \
-    alloc_cout--;                                                                            \
-    outfile << (size_t)this_ptr << " "                                                       \
-            << (size_t) static_cast<std::shared_ptr<type> *>(this_ptr)->get() << " "         \
-            << (size_t) static_cast<std::shared_ptr<type> *>(this_ptr)->use_count() << " "   \
-            << __FUNCTION__ << "\n"                                                          \
-            << std::flush;                                                                   \
-    delete static_cast<std::shared_ptr<type> *>(this_ptr);                                   \
-  }                                                                                          \
-  void CONCAT4(snake, assign, raw, raw)(void *this_ptr, void *other_ptr) {                   \
-    *static_cast<type *>(this_ptr) = *static_cast<type *>(other_ptr);                        \
-  }                                                                                          \
-  void CONCAT4(snake, assign, raw, shared)(void *this_ptr, void *other_ptr) {                \
-    *static_cast<type *>(this_ptr) = **static_cast<std::shared_ptr<type> *>(other_ptr);      \
-  }                                                                                          \
-  void CONCAT4(snake, assign, weak, shared)(void *this_ptr, void *other_ptr) {               \
-    *static_cast<std::weak_ptr<type> *>(this_ptr) =                                          \
-        *static_cast<std::shared_ptr<type> *>(other_ptr);                                    \
-  }                                                                                          \
-  void CONCAT4(snake, assign, shared, shared)(void *this_ptr, void *other_ptr) {             \
-    *static_cast<std::shared_ptr<type> *>(this_ptr) =                                        \
-        *static_cast<std::shared_ptr<type> *>(other_ptr);                                    \
+#define _OBJECT_IMPL(snake, type)                                                                 \
+  void *CONCAT2(snake, new)(void) {                                                               \
+    alloc_cout++;                                                                                 \
+    auto retval = new std::shared_ptr<type>(new type());                                          \
+    outfile << reinterpret_cast<size_t>(retval) << " " << reinterpret_cast<size_t>(retval->get()) \
+            << " " << __FUNCTION__ << "\n"                                                        \
+            << std::flush;                                                                        \
+    return retval;                                                                                \
+  }                                                                                               \
+  void CONCAT2(snake, delete)(void *this_ptr) {                                                   \
+    alloc_cout--;                                                                                 \
+    outfile << reinterpret_cast<size_t>(this_ptr) << " "                                          \
+            << reinterpret_cast<size_t>(static_cast<std::shared_ptr<type> *>(this_ptr)->get())    \
+            << " " << static_cast<std::shared_ptr<type> *>(this_ptr)->use_count() << " "          \
+            << __FUNCTION__ << "\n"                                                               \
+            << std::flush;                                                                        \
+    delete static_cast<std::shared_ptr<type> *>(this_ptr);                                        \
+  }                                                                                               \
+  void CONCAT4(snake, assign, raw, raw)(void *this_ptr, void *other_ptr) {                        \
+    *static_cast<type *>(this_ptr) = *static_cast<type *>(other_ptr);                             \
+  }                                                                                               \
+  void CONCAT4(snake, assign, raw, shared)(void *this_ptr, void *other_ptr) {                     \
+    *static_cast<type *>(this_ptr) = **static_cast<std::shared_ptr<type> *>(other_ptr);           \
+  }                                                                                               \
+  void CONCAT4(snake, assign, weak, shared)(void *this_ptr, void *other_ptr) {                    \
+    *static_cast<std::weak_ptr<type> *>(this_ptr) =                                               \
+        *static_cast<std::shared_ptr<type> *>(other_ptr);                                         \
+  }                                                                                               \
+  void CONCAT4(snake, assign, shared, shared)(void *this_ptr, void *other_ptr) {                  \
+    *static_cast<std::shared_ptr<type> *>(this_ptr) =                                             \
+        *static_cast<std::shared_ptr<type> *>(other_ptr);                                         \
   }
 
 #define _RAW_DATA_SHARED_NS_IMPL_real_shared_size(name, type_data)                             \
@@ -287,26 +306,28 @@ BOOL WINAPI DllMain(HINSTANCE /*hinstDLL*/,  // handle to DLL module
   _OBJECT_IMPL(CONCAT2(ns, name_snake), CONCAT_NS(ns, name_real))
 #define OBJECT_IMPL(name) _VECTOR_RAW_IMPL(name, name)
 
-#define _OBJECT_RAW_DATA_IMPL(snake, type, other_type)                                           \
-  void *CONCAT2(snake, new)(uint64_t size) {                                                     \
-    alloc_cout++;                                                                                \
-    auto retval = new std::shared_ptr<other_type>(new other_type(size));                         \
-    outfile << (size_t)retval << " " << (size_t)retval->get() << " " << __FUNCTION__ << "\n"     \
-            << std::flush;                                                                       \
-    return retval;                                                                               \
-  }                                                                                              \
-  void CONCAT2(snake, delete)(void *this_ptr) {                                                  \
-    alloc_cout--;                                                                                \
-    outfile << (size_t)this_ptr << " "                                                           \
-            << (size_t) static_cast<std::shared_ptr<other_type> *>(this_ptr)->get() << " "       \
-            << (size_t) static_cast<std::shared_ptr<other_type> *>(this_ptr)->use_count() << " " \
-            << __FUNCTION__ << "\n"                                                              \
-            << std::flush;                                                                       \
-    delete static_cast<std::shared_ptr<other_type> *>(this_ptr);                                 \
-  }                                                                                              \
-  void CONCAT4(snake, assign, shared, shared)(void *this_ptr, void *other_ptr) {                 \
-    *static_cast<std::shared_ptr<type> *>(this_ptr) =                                            \
-        std::dynamic_pointer_cast<type>(*static_cast<std::shared_ptr<other_type> *>(other_ptr)); \
+#define _OBJECT_RAW_DATA_IMPL(snake, type, other_type)                                            \
+  void *CONCAT2(snake, new)(uint64_t size) {                                                      \
+    alloc_cout++;                                                                                 \
+    auto retval = new std::shared_ptr<other_type>(new other_type(size));                          \
+    outfile << reinterpret_cast<size_t>(retval) << " " << reinterpret_cast<size_t>(retval->get()) \
+            << " " << __FUNCTION__ << "\n"                                                        \
+            << std::flush;                                                                        \
+    return retval;                                                                                \
+  }                                                                                               \
+  void CONCAT2(snake, delete)(void *this_ptr) {                                                   \
+    alloc_cout--;                                                                                 \
+    outfile << reinterpret_cast<size_t>(this_ptr) << " "                                          \
+            << reinterpret_cast<size_t>(                                                          \
+                   static_cast<std::shared_ptr<other_type> *>(this_ptr)->get())                   \
+            << " " << static_cast<std::shared_ptr<other_type> *>(this_ptr)->use_count() << " "    \
+            << __FUNCTION__ << "\n"                                                               \
+            << std::flush;                                                                        \
+    delete static_cast<std::shared_ptr<other_type> *>(this_ptr);                                  \
+  }                                                                                               \
+  void CONCAT4(snake, assign, shared, shared)(void *this_ptr, void *other_ptr) {                  \
+    *static_cast<std::shared_ptr<type> *>(this_ptr) =                                             \
+        std::dynamic_pointer_cast<type>(*static_cast<std::shared_ptr<other_type> *>(other_ptr));  \
   }
 
 #define OBJECT_NS_RAW_DATA_IMPL(ns, name, t1, t2, other_name) \
@@ -327,7 +348,7 @@ BOOL WINAPI DllMain(HINSTANCE /*hinstDLL*/,  // handle to DLL module
 uint64_t ptr2val(void *p) { return reinterpret_cast<uint64_t>(p); }
 void *val2ptr(uint64_t v) { return reinterpret_cast<void *>(v); }
 
-void std_string_set(void *this_ptr, const char *c) { *static_cast<std::string *>(this_ptr) = c; }
+void std_string_set(void *this_ptr, const char *v) { *static_cast<std::string *>(this_ptr) = v; }
 const char *std_string_get(void *this_ptr) { return static_cast<std::string *>(this_ptr)->c_str(); }
 
 OBJECT_NS_IMPL(urx, Acquisition)
@@ -470,9 +491,7 @@ RAW_DATA_SHARED_NS_IMPL(urx, RawData, int32_t);
 RAW_DATA_SHARED_NS_IMPL(urx, RawData, float);
 RAW_DATA_SHARED_NS_IMPL(urx, RawData, double);
 
-// NOLINTEND(cppcoreguidelines-owning-memory,bugprone-macro-parentheses)
-
-uint64_t get_pointer(void *ptr) { return (uint64_t)ptr; }
+uint64_t get_pointer(void *ptr) { return reinterpret_cast<uint64_t>(ptr); }
 
 void *load_from_file(const char *filename) {
 #ifdef WITH_HDF5
@@ -488,3 +507,5 @@ void save_to_file(const char *filename, void *dataset) {
                                      **static_cast<std::shared_ptr<urx::Dataset> *>(dataset));
 #endif
 }
+
+// NOLINTEND(cppcoreguidelines-owning-memory,bugprone-macro-parentheses)

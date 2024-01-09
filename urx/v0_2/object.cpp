@@ -1,5 +1,6 @@
 // Copyright Moduleus
 
+#include <ios>
 #include <memory>
 #include <ostream>
 #include <utility>

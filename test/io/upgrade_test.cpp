@@ -8,6 +8,7 @@
 
 #include <urx/acquisition.h>
 #include <urx/dataset.h>
+#include <urx/detail/compare.h>
 #include <urx/excitation.h>
 #include <urx/group.h>
 #include <urx/group_data.h>

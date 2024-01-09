@@ -3,7 +3,7 @@
 
 #ifdef __cplusplus
 #include <cstddef>
-#include <cstdint>
+#include <cstdint>  // IWYU pragma: keep
 #else
 #include <stddef.h>  // IWYU pragma: keep
 #include <stdint.h>  // IWYU pragma: keep

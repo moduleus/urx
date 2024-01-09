@@ -1,6 +1,7 @@
 ﻿#include <complex>
 #include <limits>
 #include <memory>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -8,6 +9,7 @@
 
 #include <urx/acquisition.h>
 #include <urx/dataset.h>
+#include <urx/detail/compare.h>
 #include <urx/detail/double_nan.h>
 #include <urx/detail/raw_data.h>
 #include <urx/element.h>
@@ -55,12 +57,11 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
     probe->transform.translation.z = 3.2;
     {
       auto element_geometry = std::make_shared<ElementGeometry>();
-      element_geometry->perimeter = {{.x = 15, .y = 23, .z = 543}, {.x = 2.2, .y = 1.4, .z = 0.2}};
+      element_geometry->perimeter = {{15, 23, 543}, {2.2, 1.4, 0.2}};
       probe->element_geometries.push_back(element_geometry);
 
       element_geometry = std::make_shared<ElementGeometry>();
-      element_geometry->perimeter = {{.x = 2.2, .y = 1.4, .z = 0.2},
-                                     {.x = 1.2, .y = 2.4, .z = 543}};
+      element_geometry->perimeter = {{2.2, 1.4, 0.2}, {1.2, 2.4, 543}};
       probe->element_geometries.push_back(element_geometry);
     }
     {
@@ -116,13 +117,11 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
     probe->transform.translation.z = 5.2;
     {
       auto element_geometry = std::make_shared<ElementGeometry>();
-      element_geometry->perimeter = {{.x = 123, .y = 4.5, .z = 5.4},
-                                     {.x = 1.1, .y = 22.1, .z = 5.4}};
+      element_geometry->perimeter = {{123, 4.5, 5.4}, {1.1, 22.1, 5.4}};
       probe->element_geometries.push_back(element_geometry);
 
       element_geometry = std::make_shared<ElementGeometry>();
-      element_geometry->perimeter = {{.x = 5.5, .y = 6.6, .z = 7.7},
-                                     {.x = 1.1, .y = 0.0, .z = 5.5}};
+      element_geometry->perimeter = {{5.5, 6.6, 7.7}, {1.1, 0.0, 5.5}};
       probe->element_geometries.push_back(element_geometry);
     }
     {
@@ -376,7 +375,7 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
       group_data.group_timestamp = 283954.334;
       group_data.sequence_timestamps = {1, 2, 4.2, 1, .5, 5.6};
       group_data.event_timestamps = {{1, .24, 1., 5.2, 4.5, 7, .964, .5},
-                                      {1, 2, 4, 85, .15, -4.5, -7, .45, .6, 4}};
+                                     {1, 2, 4, 85, .15, -4.5, -7, .45, .6, 4}};
       dataset->acquisition.groups_data.push_back(std::move(group_data));
     }
     {

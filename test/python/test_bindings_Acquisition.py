@@ -321,12 +321,13 @@ class TestBindingsAcquisition(unittest.TestCase):
         self.assertEqual(acq.groups_data[1], gd_2)
         self.assertEqual(acq, acq_2)
 
-        gd_2.group_timestamp = urx.DoubleNan(99)
-        self.assertEqual(acq.groups_data[1], gd_2)
-        self.assertEqual(acq_2.groups_data[1], gd_2)
-        gd_2.group_timestamp = urx.DoubleNan(42)
+        # gd_2 is a copy. Not a shared_ptr.
+        # gd_2.group_timestamp = urx.DoubleNan(99)
+        # self.assertEqual(acq.groups_data[1], gd_2)
+        # self.assertEqual(acq_2.groups_data[1], gd_2)
+        # gd_2.group_timestamp = urx.DoubleNan(42)
 
-        # Reference is possible for shared pointers vector
+        # Reference is possible for GroupData vector
         self.assertEqual(acq.groups_data, [gd, gd_2])
         groups_data_ref = acq.groups_data
         groups_data_ref[0] = gd_3

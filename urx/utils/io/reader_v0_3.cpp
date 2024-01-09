@@ -5,7 +5,6 @@
 #include <iterator>
 #include <memory>
 #include <optional>
-#include <ranges>
 #include <system_error>
 #include <type_traits>
 #include <typeindex>
@@ -114,10 +113,9 @@ void read(urx::v0_3::TriggerDestination& version, const H5::Group& group, const 
   version = static_cast<urx::v0_3::TriggerDestination>(value);
 }
 
-template <typename T>
-concept IsEnum = std::is_enum_v<T>;
-template <IsEnum T>
-void read(T& version, const H5::Group& group, const std::string& name, MapToSharedPtr&) {
+template <class T>
+std::enable_if_t<std::is_enum_v<T>, void> read(T& version, const H5::Group& group,
+                                               const std::string& name, MapToSharedPtr&) {
   int32_t value;
   read(value, group, name);
   version = static_cast<T>(value);
@@ -256,7 +254,7 @@ void read(std::vector<T>& vector, const H5::Group& group, const std::string& nam
   const H5::Group group_child(group.openGroup(name));
 
   constexpr int iter_length = 8;
-  for (const size_t i : std::views::iota(0ULL, group_child.getNumObjs())) {
+  for (size_t i = 0; i < group_child.getNumObjs(); i++) {
     T t;
     read(t, group_child, format_index_with_leading_zeros(i + 1, iter_length), map);
     vector.push_back(std::move(t));
@@ -280,7 +278,7 @@ void read(std::vector<std::weak_ptr<T>>& vector, const H5::Group& group, const s
 
   vector.reserve(dimension[0]);
 
-  for (const size_t i : std::views::iota(0ULL, dimension[0])) {
+  for (size_t i = 0; i < dimension[0]; i++) {
     uint32_t idx;
     const std::from_chars_result retval =
         std::from_chars(raw_data.data() + (i * 8), raw_data.data() + ((i + 1) * 8), idx);

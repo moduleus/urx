@@ -1,8 +1,9 @@
 #include <algorithm>
-#include <array>
 #include <cstddef>
 #include <cstdint>
+#include <functional>
 #include <iterator>
+#include <map>
 #include <memory>
 #include <stdexcept>
 #include <string_view>
@@ -28,6 +29,7 @@
 #include <urx/impulse_response.h>
 #include <urx/probe.h>
 #include <urx/utils/common.h>
+#include <urx/utils/io/serialize_helper.h>
 #include <urx/utils/io/writer.h>
 #include <urx/wave.h>
 
@@ -40,10 +42,7 @@ using MapToSharedPtr = std::unordered_map<std::type_index, const void*>;
 std::unordered_map<std::type_index, const H5::PredType*> std_to_h5;
 
 constexpr int iter_length = 8;
-//constexpr bool use_attribute = false;
-
-//template <typename T>
-//void save() {}
+constexpr bool use_attribute = false;
 
 template <typename T>
 void serialize_all(const T& field, const H5::Group& group, MapToSharedPtr& map);
@@ -55,25 +54,29 @@ void serialize_hdf5(const std::string& name, const T& field, const H5::Group& gr
   if constexpr (std::is_arithmetic_v<T>) {
     const H5::StrType datatype(*std_to_h5.at(typeid(T)));
     const H5::DataSpace dataspace = H5::DataSpace(H5S_SCALAR);
-    const H5::DataSet dataset = group.createDataSet(name, datatype, dataspace);
-    dataset.write(&field, datatype, dataspace);
-    /*
-    const H5::Attribute attribute = group.createAttribute(name, datatype, dataspace);
-    attribute.write(datatype, &field);
-    */
-  } 
+    if constexpr (use_attribute) {
+      const H5::Attribute attribute = group.createAttribute(name, datatype, dataspace);
+      attribute.write(datatype, &field);
+    } else {
+      const H5::DataSet dataset = group.createDataSet(name, datatype, dataspace);
+      dataset.write(&field, datatype, dataspace);
+    }
+  }
   // Enum
   else if constexpr (std::is_enum_v<T>) {
     const H5::StrType datatype(0, H5T_VARIABLE);
     const H5::DataSpace dataspace(H5S_SCALAR);
-    const H5::DataSet dataset = group.createDataSet(name, datatype, dataspace);
-    // const H5::Attribute attribute = group.createAttribute(name, datatype, dataspace);
     const std::string_view sv = magic_enum::enum_name(field);
     const std::string value =
         sv.empty() ? std::to_string(static_cast<int>(field)) : std::string{sv};
-    dataset.write(value, datatype, dataspace);
-    // attribute.write(datatype, value);
-  } 
+    if constexpr (use_attribute) {
+      const H5::Attribute attribute = group.createAttribute(name, datatype, dataspace);
+      attribute.write(datatype, value);
+    } else {
+      const H5::DataSet dataset = group.createDataSet(name, datatype, dataspace);
+      dataset.write(value, datatype, dataspace);
+    }
+  }
   // Default
   else {
     const H5::Group group_child(group.createGroup(name));
@@ -87,8 +90,15 @@ void serialize_hdf5(const std::string& name, const std::string& field, const H5:
                     MapToSharedPtr&) {
   const H5::StrType datatype(0, H5T_VARIABLE);
   const H5::DataSpace dataspace(H5S_SCALAR);
-  const H5::Attribute attribute = group.createAttribute(name, datatype, dataspace);
-  attribute.write(datatype, field);
+  const H5::DSetCreatPropList plist;
+  plist.setLayout(field.size() < 65536 ? H5D_COMPACT : H5D_CONTIGUOUS);
+  if constexpr (use_attribute) {
+    const H5::Attribute attribute = group.createAttribute(name, datatype, dataspace);
+    attribute.write(datatype, field);
+  } else {
+    const H5::DataSet dataset = group.createDataSet(name, datatype, dataspace, plist);
+    dataset.write(field, datatype, dataspace);
+  }
 }
 
 // DoubleNan
@@ -138,9 +148,16 @@ void serialize_hdf5(const std::string& name, const std::vector<T>& field, const 
     const hsize_t dims[1] = {size};
     const H5::DataSpace dataspace = H5::DataSpace(1, dims);
     const H5::PredType* datatype = std_to_h5.at(typeid(T));
-    const H5::Attribute attribute = group.createAttribute(name, *datatype, dataspace);
-    if (size != 0) {
-      attribute.write(*datatype, field.data());
+    if constexpr (use_attribute) {
+      const H5::Attribute attribute = group.createAttribute(name, *datatype, dataspace);
+      if (size != 0) {
+        attribute.write(*datatype, field.data());
+      }
+    } else {
+      const H5::DSetCreatPropList plist;
+      plist.setLayout(size < 8192 ? H5D_COMPACT : H5D_CONTIGUOUS);
+      const H5::DataSet dataset = group.createDataSet(name, *datatype, dataspace, plist);
+      dataset.write(field.data(), *datatype);
     }
   } else {
     const H5::Group group_child(group.createGroup(name));
@@ -184,13 +201,14 @@ void serialize_all(const T& field, const H5::Group& group, MapToSharedPtr& map) 
                  {typeid(std::size_t), &H5::PredType::NATIVE_UINT64}};
   }
 
-  auto a = boost::pfr::names_as_array<T>();
-  boost::pfr::for_each_field(field, [&a, &group, &map, &field](const auto& child, std::size_t idx) {
-    if constexpr (std::is_same_v<std::remove_cvref_t<decltype(child)>, std::shared_ptr<RawData>> &&
-                  std::is_same_v<std::remove_cvref_t<T>, GroupData>) {
+  boost::pfr::for_each_field(field, [&group, &map, &field](const auto& child) {
+    if constexpr (std::is_same_v<std::remove_cv_t<std::remove_reference_t<decltype(child)>>,
+                                 std::shared_ptr<RawData>> &&
+                  std::is_same_v<std::remove_cv_t<std::remove_reference_t<T>>, GroupData>) {
       serialize_all(reinterpret_cast<const GroupData&>(field).group.lock(), child, group, map);
     } else {
-      serialize_hdf5(std::string{a[idx]}, child, group, map);
+      serialize_hdf5(SerializeHelper::member_name.at(typeid(T)).at(DIFF_PTR(field, child)), child,
+                     group, map);
     }
   });
 }
@@ -200,15 +218,15 @@ template <>
 void serialize_all(const Probe& field, const H5::Group& group, MapToSharedPtr& map) {
   map.insert({typeid(ElementGeometry), &field.element_geometries});
   map.insert({typeid(ImpulseResponse), &field.impulse_responses});
-  auto a = boost::pfr::names_as_array<Probe>();
-  boost::pfr::for_each_field(field, [&a, &group, &map](const auto& child, std::size_t idx) {
-    serialize_hdf5(std::string{a[idx]}, child, group, map);
+  boost::pfr::for_each_field(field, [&group, &map, &field](const auto& child) {
+    serialize_hdf5(SerializeHelper::member_name.at(typeid(Probe)).at(DIFF_PTR(field, child)), child,
+                   group, map);
   });
   map.erase(typeid(ElementGeometry));
   map.erase(typeid(ImpulseResponse));
 }
 
-// for_each_field doesn't support std::variant.
+// RawData.
 void serialize_all(const std::shared_ptr<Group>& gr, const std::shared_ptr<RawData>& field,
                    const H5::Group& group, MapToSharedPtr&) {
   enum class Format { ARRAY_2D, COMPOUND };

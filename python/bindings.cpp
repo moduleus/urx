@@ -1,12 +1,14 @@
 #include <algorithm>
 #include <complex>
-#include <iosfwd>
+#include <cstddef>
+#include <cstdint>
 #include <iterator>
 #include <memory>
 #include <stdexcept>
 #include <string>
 #include <type_traits>
 #include <utility>
+#include <variant>
 #include <vector>
 
 #include <pybind11/attr.h>
@@ -16,23 +18,28 @@
 #include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
-#include <pybind11/stl.h>
+#include <pybind11/stl.h>  // IWYU pragma: keep
 #include <pybind11/stl_bind.h>
 
 #include <urx/acquisition.h>
 #include <urx/dataset.h>
+#include <urx/detail/compare.h>
 #include <urx/detail/double_nan.h>
 #include <urx/detail/raw_data.h>
 #include <urx/element.h>
 #include <urx/element_geometry.h>
+#include <urx/event.h>
 #include <urx/excitation.h>
 #include <urx/group.h>
 #include <urx/group_data.h>
 #include <urx/impulse_response.h>
+#include <urx/probe.h>
 #include <urx/receive_setup.h>
+#include <urx/transform.h>
 #include <urx/transmit_setup.h>
 #include <urx/urx.h>
 #include <urx/utils/group_helper.h>
+#include <urx/vector.h>
 #include <urx/version.h>
 #include <urx/wave.h>
 
@@ -52,7 +59,7 @@ using VecExcitationPtr = std::vector<std::shared_ptr<urx::Excitation>>;
 using VecEvent = std::vector<urx::Event>;
 using VecProbePtr = std::vector<std::shared_ptr<urx::Probe>>;
 using VecWavePtr = std::vector<std::shared_ptr<urx::Wave>>;
-using VecGroupDataPtr = std::vector<std::shared_ptr<urx::GroupData>>;
+using VecGroupData = std::vector<urx::GroupData>;
 
 PYBIND11_MAKE_OPAQUE(VecFloat64);
 PYBIND11_MAKE_OPAQUE(VecVecFloat64);
@@ -68,7 +75,7 @@ PYBIND11_MAKE_OPAQUE(VecEvent);
 PYBIND11_MAKE_OPAQUE(VecVector3D);
 PYBIND11_MAKE_OPAQUE(VecProbePtr);
 PYBIND11_MAKE_OPAQUE(VecWavePtr);
-PYBIND11_MAKE_OPAQUE(VecGroupDataPtr);
+PYBIND11_MAKE_OPAQUE(VecGroupData);
 
 template <typename T>
 py::ssize_t sizeof_data_type(const std::vector<std::complex<T>> &v) {
@@ -122,8 +129,8 @@ PYBIND11_MODULE(bindings, m) {
   py::implicitly_convertible<py::list, VecProbePtr>();
   py::bind_vector<VecWavePtr>(m, "VecWavePtr");
   py::implicitly_convertible<py::list, VecWavePtr>();
-  py::bind_vector<VecGroupDataPtr>(m, "VecGroupDataPtr");
-  py::implicitly_convertible<py::list, VecGroupDataPtr>();
+  py::bind_vector<VecGroupData>(m, "VecGroupData");
+  py::implicitly_convertible<py::list, VecGroupData>();
 
   py::enum_<urx::Group::SamplingType>(m, "SamplingType")
       .value("RF", urx::Group::SamplingType::RF)
@@ -212,7 +219,7 @@ PYBIND11_MODULE(bindings, m) {
 
   // Version
   py::class_<urx::Version>(m, "Version")
-      .def(py::init<double, double, double>())
+      .def(py::init<uint16_t, uint16_t, uint16_t>())
       .def(py::init<urx::Version>())
       .def(py::init())
       .def(pybind11::self == pybind11::self)
@@ -335,7 +342,7 @@ PYBIND11_MODULE(bindings, m) {
                        const VecVecUInt32 &channel_mapping,
                        const VecExcitationPtr &channel_excitations_shared,
                        const VecFloat64 &channel_delays, const VecFloat64 &parameters) {
-        std::vector<std::weak_ptr<urx::Excitation>> channel_excitations_weak(
+        const std::vector<std::weak_ptr<urx::Excitation>> channel_excitations_weak(
             channel_excitations_shared.begin(), channel_excitations_shared.end());
         return urx::Wave{type,
                          std::visit([](auto &&d) { return urx::DoubleNan(d); }, time_zero),
@@ -360,9 +367,8 @@ PYBIND11_MODULE(bindings, m) {
                            [](const std::weak_ptr<urx::Excitation> &ex_weak_ptr) {
                              if (auto ex_shared_ptr = ex_weak_ptr.lock()) {
                                return ex_shared_ptr;
-                             } else {
-                               return std::shared_ptr<urx::Excitation>();
                              }
+                             return std::shared_ptr<urx::Excitation>();
                            });
 
             return shared_vector;
@@ -426,13 +432,13 @@ PYBIND11_MODULE(bindings, m) {
                        const std::variant<urx::DoubleNan, double> &tgc_sampling_frequency,
                        const std::variant<urx::DoubleNan, double> &modulation_frequency,
                        const std::variant<urx::DoubleNan, double> &time_offset) {
-        urx::DoubleNan sampling_frequency_dn =
+        const urx::DoubleNan sampling_frequency_dn =
             std::visit([](auto &&d) { return urx::DoubleNan(d); }, sampling_frequency);
-        urx::DoubleNan tgc_sampling_frequency_dn =
+        const urx::DoubleNan tgc_sampling_frequency_dn =
             std::visit([](auto &&d) { return urx::DoubleNan(d); }, tgc_sampling_frequency);
-        urx::DoubleNan modulation_frequency_dn =
+        const urx::DoubleNan modulation_frequency_dn =
             std::visit([](auto &&d) { return urx::DoubleNan(d); }, modulation_frequency);
-        urx::DoubleNan time_offset_dn =
+        const urx::DoubleNan time_offset_dn =
             std::visit([](auto &&d) { return urx::DoubleNan(d); }, time_offset);
         return urx::ReceiveSetup{
             probe,           probe_transform, sampling_frequency_dn,     number_samples,
@@ -532,7 +538,7 @@ PYBIND11_MODULE(bindings, m) {
                 throw std::runtime_error(
                     "Dimension error: Too many data in second dimension (2nd dimension must be "
                     "equal to 2)");
-              else if (info.shape[1] < 2)
+              if (info.shape[1] < 2)
                 throw std::runtime_error(
                     "Dimension error: Not enough data in second dimension (2nd dimension must be "
                     "equal to 2)");

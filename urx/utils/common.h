@@ -1,8 +1,13 @@
 #pragma once
 
+#include <algorithm>  // IWYU pragma: keep
+#include <cstddef>
+#include <cstdint>
 #include <numeric>
 #include <string>
+#include <type_traits>
 #include <vector>
+#include <version>
 
 namespace urx::utils {
 

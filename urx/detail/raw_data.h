@@ -1,5 +1,7 @@
 #pragma once
 
+#include <complex>
+#include <cstring>
 #include <memory>
 #include <typeindex>
 #include <unordered_map>
@@ -33,7 +35,7 @@ class RawData {
   virtual const void* getBuffer() const = 0;
   virtual void* getBuffer() = 0;
   virtual size_t getSize() const = 0;
-  virtual constexpr Group::SamplingType getSamplingType() const = 0;
+  virtual Group::SamplingType getSamplingType() const = 0;
   virtual Group::DataType getDataType() const = 0;
 
   bool operator==(const RawData& other) const {
@@ -47,7 +49,6 @@ class RawData {
                            (getSamplingType() == Group::SamplingType::RF ? 1 : 2)) == 0;
   }
 
- protected:
   virtual ~RawData() = default;
 };
 
@@ -61,10 +62,12 @@ class IRawData : public RawData {
   };
 
   Group::DataType getDataType() const override {
-    std::type_index type = typeid(value_type);
-    if constexpr (is_complex_t<value_type>::value) {
-      type = typeid(typename value_type::value_type);
-    }
+    const std::type_index type([]() -> std::type_index {
+      if constexpr (is_complex_t<value_type>::value) {
+        return typeid(typename value_type::value_type);
+      }
+      return typeid(value_type);
+    }());
     static std::unordered_map<std::type_index, Group::DataType> typeid_to_dt{
         {std::type_index(typeid(int16_t)), Group::DataType::INT16},
         {std::type_index(typeid(int32_t)), Group::DataType::INT32},
@@ -74,14 +77,14 @@ class IRawData : public RawData {
     return typeid_to_dt.at(type);
   };
 
- protected:
-  virtual ~IRawData() = default;
+  ~IRawData() override = default;
 };
 
 template <typename DataType>
 class RawDataVector final : public IRawData<DataType> {
  public:
   explicit RawDataVector(std::vector<DataType>&& vector) : _vector(std::move(vector)) {}
+  ~RawDataVector() override = default;
 
   const void* getBuffer() const override { return _vector.data(); }
   void* getBuffer() override { return _vector.data(); }
@@ -95,6 +98,7 @@ template <typename DataType>
 class RawDataNoInit final : public IRawData<DataType> {
  public:
   explicit RawDataNoInit(size_t size) : _buffer(std::make_unique<DataType[]>(size)), _size(size) {}
+  ~RawDataNoInit() override = default;
 
   const void* getBuffer() const override { return _buffer.get(); }
   void* getBuffer() override { return _buffer.get(); }
@@ -109,6 +113,7 @@ template <typename DataType>
 class RawDataWeak final : public IRawData<DataType> {
  public:
   RawDataWeak(void* buffer, size_t size) : _buffer(buffer), _size(size) {}
+  ~RawDataWeak() override = default;
 
   const void* getBuffer() const override { return _buffer; }
   void* getBuffer() override { return _buffer; }

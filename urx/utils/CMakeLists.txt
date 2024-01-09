@@ -46,6 +46,8 @@ if(WITH_HDF5)
     ${CMAKE_CURRENT_SOURCE_DIR}/io/reader.h
     ${CMAKE_CURRENT_SOURCE_DIR}/io/upgrade.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/io/upgrade.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/io/serialize_helper.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/io/serialize_helper.h
     ${CMAKE_CURRENT_SOURCE_DIR}/io/writer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/io/writer.h)
 endif()

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <algorithm>
-#include <compare>
 #include <ios>
 #include <istream>
 #include <locale>

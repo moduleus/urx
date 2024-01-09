@@ -2,16 +2,16 @@
 #include <cstddef>
 #include <cstdint>
 #include <iterator>
-#include <ranges>
-#include <type_traits>
 #include <unordered_map>
 #include <utility>
 #include <vector>
+#include <version>
 
 #include <H5Cpp.h>
 
 #include <urx/acquisition.h>
 #include <urx/dataset.h>
+#include <urx/detail/compare.h>
 #include <urx/detail/double_nan.h>
 #include <urx/detail/raw_data.h>
 #include <urx/element.h>
@@ -25,6 +25,7 @@
 #include <urx/receive_setup.h>
 #include <urx/transform.h>
 #include <urx/transmit_setup.h>
+#include <urx/urx.h>
 #include <urx/utils/io/reader.h>
 #include <urx/utils/io/reader_v0_3.h>
 #include <urx/utils/io/upgrade.h>
@@ -146,54 +147,54 @@ std::shared_ptr<urx::Dataset> ConvertV0_2(const std::string& filename) {
           old_probe_linear) {
         const auto opt_height = old_element.x();
         const double height = opt_height.has_value() ? *opt_height : urx::DoubleNan::NaN;
-        new_element_geometry->perimeter.emplace_back(x - old_probe_linear->pitch() / 2,
-                                                     y - height / 2, z);
-        new_element_geometry->perimeter.emplace_back(x - old_probe_linear->pitch() / 2,
-                                                     y + height / 2, z);
-        new_element_geometry->perimeter.emplace_back(x + old_probe_linear->pitch() / 2,
-                                                     y + height / 2, z);
-        new_element_geometry->perimeter.emplace_back(x + old_probe_linear->pitch() / 2,
-                                                     y - height / 2, z);
+        new_element_geometry->perimeter.push_back(
+            {x - old_probe_linear->pitch() / 2, y - height / 2, z});
+        new_element_geometry->perimeter.push_back(
+            {x - old_probe_linear->pitch() / 2, y + height / 2, z});
+        new_element_geometry->perimeter.push_back(
+            {x + old_probe_linear->pitch() / 2, y + height / 2, z});
+        new_element_geometry->perimeter.push_back(
+            {x + old_probe_linear->pitch() / 2, y - height / 2, z});
       } else if (auto old_probe_rca = std::static_pointer_cast<urx::v0_2::RcaArray>(old_probe);
                  old_probe_rca) {
         if (element_i < old_probe_rca->numberElementsX()) {
-          new_element_geometry->perimeter.emplace_back(
-              x - old_probe_rca->pitchX() / 2,
-              y - old_probe_rca->pitchY() / 2 * old_probe_rca->numberElementsY(), z);
-          new_element_geometry->perimeter.emplace_back(
-              x - old_probe_rca->pitchX() / 2,
-              y + old_probe_rca->pitchY() / 2 * old_probe_rca->numberElementsY(), z);
-          new_element_geometry->perimeter.emplace_back(
-              x + old_probe_rca->pitchX() / 2,
-              y + old_probe_rca->pitchY() / 2 * old_probe_rca->numberElementsY(), z);
-          new_element_geometry->perimeter.emplace_back(
-              x + old_probe_rca->pitchX() / 2,
-              y - old_probe_rca->pitchY() / 2 * old_probe_rca->numberElementsY(), z);
+          new_element_geometry->perimeter.push_back(
+              {x - old_probe_rca->pitchX() / 2,
+               y - old_probe_rca->pitchY() / 2 * old_probe_rca->numberElementsY(), z});
+          new_element_geometry->perimeter.push_back(
+              {x - old_probe_rca->pitchX() / 2,
+               y + old_probe_rca->pitchY() / 2 * old_probe_rca->numberElementsY(), z});
+          new_element_geometry->perimeter.push_back(
+              {x + old_probe_rca->pitchX() / 2,
+               y + old_probe_rca->pitchY() / 2 * old_probe_rca->numberElementsY(), z});
+          new_element_geometry->perimeter.push_back(
+              {x + old_probe_rca->pitchX() / 2,
+               y - old_probe_rca->pitchY() / 2 * old_probe_rca->numberElementsY(), z});
         } else {
-          new_element_geometry->perimeter.emplace_back(
-              x - old_probe_rca->pitchX() / 2 * old_probe_rca->numberElementsX(),
-              y - old_probe_rca->pitchY() / 2, z);
-          new_element_geometry->perimeter.emplace_back(
-              x - old_probe_rca->pitchX() / 2 * old_probe_rca->numberElementsX(),
-              y + old_probe_rca->pitchY() / 2, z);
-          new_element_geometry->perimeter.emplace_back(
-              x + old_probe_rca->pitchX() / 2 * old_probe_rca->numberElementsX(),
-              y + old_probe_rca->pitchY() / 2, z);
-          new_element_geometry->perimeter.emplace_back(
-              x + old_probe_rca->pitchX() / 2 * old_probe_rca->numberElementsX(),
-              y - old_probe_rca->pitchY() / 2, z);
+          new_element_geometry->perimeter.push_back(
+              {x - old_probe_rca->pitchX() / 2 * old_probe_rca->numberElementsX(),
+               y - old_probe_rca->pitchY() / 2, z});
+          new_element_geometry->perimeter.push_back(
+              {x - old_probe_rca->pitchX() / 2 * old_probe_rca->numberElementsX(),
+               y + old_probe_rca->pitchY() / 2, z});
+          new_element_geometry->perimeter.push_back(
+              {x + old_probe_rca->pitchX() / 2 * old_probe_rca->numberElementsX(),
+               y + old_probe_rca->pitchY() / 2, z});
+          new_element_geometry->perimeter.push_back(
+              {x + old_probe_rca->pitchX() / 2 * old_probe_rca->numberElementsX(),
+               y - old_probe_rca->pitchY() / 2, z});
         }
       } else if (auto old_probe_matrix =
                      std::static_pointer_cast<urx::v0_2::MatrixArray>(old_probe);
                  old_probe_matrix) {
-        new_element_geometry->perimeter.emplace_back(x - old_probe_matrix->pitchX() / 2,
-                                                     y - old_probe_matrix->pitchY() / 2, z);
-        new_element_geometry->perimeter.emplace_back(x - old_probe_matrix->pitchX() / 2,
-                                                     y + old_probe_matrix->pitchY() / 2, z);
-        new_element_geometry->perimeter.emplace_back(x + old_probe_matrix->pitchX() / 2,
-                                                     y + old_probe_matrix->pitchY() / 2, z);
-        new_element_geometry->perimeter.emplace_back(x + old_probe_matrix->pitchX() / 2,
-                                                     y - old_probe_matrix->pitchY() / 2, z);
+        new_element_geometry->perimeter.push_back(
+            {x - old_probe_matrix->pitchX() / 2, y - old_probe_matrix->pitchY() / 2, z});
+        new_element_geometry->perimeter.push_back(
+            {x - old_probe_matrix->pitchX() / 2, y + old_probe_matrix->pitchY() / 2, z});
+        new_element_geometry->perimeter.push_back(
+            {x + old_probe_matrix->pitchX() / 2, y + old_probe_matrix->pitchY() / 2, z});
+        new_element_geometry->perimeter.push_back(
+            {x + old_probe_matrix->pitchX() / 2, y - old_probe_matrix->pitchY() / 2, z});
       }
 
       new_probe->element_geometries.push_back(new_element_geometry);
@@ -244,7 +245,7 @@ std::shared_ptr<urx::Dataset> ConvertV0_2(const std::string& filename) {
   for (const auto& old_wave : dataset_v0_2->channelData().uniqueWaves()) {
     const std::shared_ptr<urx::Wave> new_wave = std::make_shared<urx::Wave>();
 
-    new_wave->type = old_to_new_wave_type.contains(old_wave->waveType())
+    new_wave->type = old_to_new_wave_type.find(old_wave->waveType()) != old_to_new_wave_type.end()
                          ? old_to_new_wave_type.at(old_wave->waveType())
                          : urx::Wave::WaveType::UNDEFINED;
 
@@ -384,7 +385,7 @@ std::shared_ptr<urx::Dataset> ConvertV0_2(const std::string& filename) {
     new_group_data.event_timestamps.reserve(sequences);
     const auto opt_rate = dataset_v0_2->channelData().repetitionRate();
     const double sequence_rate = opt_rate.has_value() ? *opt_rate : urx::DoubleNan::NaN;
-    for (const size_t i : std::views::iota(0ULL, sequences)) {
+    for (size_t i = 0; i < sequences; i++) {
       new_group_data.sequence_timestamps.push_back(i / sequence_rate);
 
       std::vector<double> event_offset;
@@ -535,7 +536,7 @@ std::shared_ptr<urx::Dataset> ConvertV0_3(const std::string& filename) {
   for (const auto& old_wave : dataset_v0_3->acquisition.waves) {
     const std::shared_ptr<urx::Wave> new_wave = std::make_shared<urx::Wave>();
 
-    new_wave->type = old_to_new_wave_type.contains(old_wave->wave_type)
+    new_wave->type = old_to_new_wave_type.find(old_wave->wave_type) != old_to_new_wave_type.end()
                          ? old_to_new_wave_type.at(old_wave->wave_type)
                          : urx::Wave::WaveType::UNDEFINED;
     new_wave->time_zero = old_wave->time_zero;

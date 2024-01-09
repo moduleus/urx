@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 
-#include <urx/v0_3/aperture.h>
 #include <urx/v0_3/excitation.h>
 #include <urx/v0_3/position.h>
 #include <urx/v0_3/transform.h>

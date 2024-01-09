@@ -1,7 +1,11 @@
 #pragma once
 
+#include <cstddef>
+#include <memory>
+#include <stdexcept>
 #include <vector>
 
+#include <urx/detail/raw_data.h>
 #include <urx/group_data.h>
 
 namespace urx::utils {
@@ -30,6 +34,7 @@ class GroupDataReader {
   template <typename T>
   T& at(const size_t sequence_idx, const size_t event_idx, const size_t channel_idx,
         const size_t sample_idx) {
+    // NOLINTNEXTLINE(readability-suspicious-call-argument)
     return *operator()<T>(sequence_idx, event_idx, channel_idx, sample_idx);
   }
 
