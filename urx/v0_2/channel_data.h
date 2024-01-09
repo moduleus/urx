@@ -4,7 +4,6 @@
 #define URX_CHANNEL_DATA_H
 
 #include <algorithm>
-#include <compare>
 #include <cstddef>
 #include <cstdint>
 #include <ios>
@@ -206,7 +205,7 @@ class ChannelData : public Object {
             (m_numberOfChannels == other.m_numberOfChannels));
   }
 
-  inline bool operator!=(const ChannelData& other) const { return !(*this == other); }
+  bool operator!=(const ChannelData& other) const { return !operator==(other); }
 
  private:
   // string with the authors of the data

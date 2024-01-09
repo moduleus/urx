@@ -1,3 +1,7 @@
+cmake_policy(SET CMP0079 NEW)
+target_compile_definitions(UrxUtils PRIVATE WITH_PYTHON)
+target_link_libraries(UrxUtils PRIVATE Python3::Python pybind11::headers)
+
 pybind11_add_module(BindingsPython bindings.cpp)
 target_link_libraries(BindingsPython PUBLIC ${PROJECT_NAME} Urx::UrxUtils)
 

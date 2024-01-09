@@ -1,42 +1,29 @@
-classdef Acquisition < handle
-  properties (Access = public)
-    id
-  end
-  
-  properties (Access = public)
-      groups = []
-  end
-
-
-  methods 
-    function this = Acquisition()
-      this.id = MexURX('Acquisition_new');
-    end
-
-    function delete(this)
-      MexURX('Acquisition_delete', this.id);
-    end
-
-    function delGroup(this, group_idx)
-      MexURX('Acquisition_del_i_group', this.id, group_idx-1);
-      this.groups(group_idx) = [];
-    end
-
-    function grp = getGroup(this, group_idx)
-      grp = MexURX('Acquisition_get_i_group', this.id, group_idx-1);
-    end
-
-    function addGroup(this, group)
-      if nargin > 1
-        MexURX('Acquisition_add_group', this.id, group.id);
-      else
-        MexURX('Acquisition_add_new_group', this.id);
-      end
-      this.groups(end+1) = this.getGroup(length(this.groups)+1);
-    end
+classdef Acquisition < urx.Object
+  properties (Access = public, SetObservable, GetObservable)
+    authors char
+    description char
+    localTime char
+    countryCode char
+    system char
     
-    function a = subsasgn(a,s,b)
-    end
+    soundSpeed(1,1) double
+    timestamp(1,1) double
     
+    probes urx.StdVector
+    excitations urx.StdVector
+    waves urx.StdVector
+    groups urx.StdVector
+    groupsData urx.StdVector
   end
-end 
+
+  methods
+    function this = Acquisition(varargin)
+      this@urx.Object(varargin{:});
+      this.probes = urx.StdVector('urx.Probe', 1, urx.PtrType.SHARED, this);
+      this.excitations = urx.StdVector('urx.Excitation', 1, urx.PtrType.SHARED, this);
+      this.waves = urx.StdVector('urx.Wave', 1, urx.PtrType.SHARED, this);
+      this.groups = urx.StdVector('urx.Group', 1, urx.PtrType.SHARED, this);
+      this.groupsData = urx.StdVector('urx.GroupData', 1, urx.PtrType.RAW, this);
+    end
+  end
+end

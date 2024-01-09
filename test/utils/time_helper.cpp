@@ -1,11 +1,12 @@
 #include <memory>
+#include <string>
 #include <utility>
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <urx_utils/time_helper.h>
+#include <urx/utils/time_helper.h>
 
-namespace urx::test {
+namespace urx::utils::test {
 
 TEST_CASE("CHECK_ISO8601", "[DATE ISO]") {
   REQUIRE(isIso8601("2008-09-12T15:53:00"));
@@ -44,4 +45,4 @@ TEST_CASE("CHECK_NOT_ISO3166", "[DATE ISO]") {
   REQUIRE(!isIso3166(""));
 }
 
-}  // namespace urx::test
+}  // namespace urx::utils::test

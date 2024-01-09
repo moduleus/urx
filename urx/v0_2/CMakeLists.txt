@@ -59,7 +59,7 @@ set(URX_V0_2_SRCS
 
 add_library(Urxv0_2)
 add_library(Urx::Urxv0_2 ALIAS Urxv0_2)
-target_precompile_headers(Urxv0_2 PRIVATE ${URX_PCH})
+target_precompile_headers(Urxv0_2 PRIVATE ${URX_PCH} ${URX_PCH_IO_V2_0})
 
 target_sources(Urxv0_2 PRIVATE ${URX_V0_2_SRCS})
 
@@ -87,13 +87,7 @@ set_target_properties(Urxv0_2 PROPERTIES OUTPUT_NAME "Urxv0_2-${git_branch}")
 
 install(
   TARGETS Urxv0_2
-  EXPORT Urxv0_2Targets
+  EXPORT ${PROJECT_NAME}Targets
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   INCLUDES
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${INSTALL_NAME})
-
-install(
-  EXPORT Urxv0_2Targets
-  FILE Urxv0_2Targets.cmake
-  NAMESPACE Urx::
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${INSTALL_NAME})

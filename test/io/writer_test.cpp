@@ -1,6 +1,7 @@
 ﻿#include <complex>
 #include <limits>
 #include <memory>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -22,13 +23,13 @@
 #include <urx/receive_setup.h>
 #include <urx/transform.h>
 #include <urx/transmit_setup.h>
+#include <urx/utils/io/reader.h>
+#include <urx/utils/io/writer.h>
 #include <urx/vector.h>
 #include <urx/version.h>
 #include <urx/wave.h>
-#include <urx_utils/io/reader.h>
-#include <urx_utils/io/writer.h>
 
-namespace urx::test {
+namespace urx::utils::io::test {
 
 TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
   auto dataset = std::make_shared<urx::Dataset>();
@@ -47,7 +48,7 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
   {
     auto probe = std::make_shared<Probe>();
     probe->description = "Probe 1";
-    probe->type = urx::Probe::ProbeType::MATRIX;
+    probe->type = Probe::ProbeType::MATRIX;
     probe->transform.rotation.x = 1;
     probe->transform.rotation.y = 2;
     probe->transform.rotation.z = 3;
@@ -56,12 +57,11 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
     probe->transform.translation.z = 3.2;
     {
       auto element_geometry = std::make_shared<ElementGeometry>();
-      element_geometry->perimeter = {{.x = 15, .y = 23, .z = 543}, {.x = 2.2, .y = 1.4, .z = 0.2}};
+      element_geometry->perimeter = {{15, 23, 543}, {2.2, 1.4, 0.2}};
       probe->element_geometries.push_back(element_geometry);
 
       element_geometry = std::make_shared<ElementGeometry>();
-      element_geometry->perimeter = {{.x = 2.2, .y = 1.4, .z = 0.2},
-                                     {.x = 1.2, .y = 2.4, .z = 543}};
+      element_geometry->perimeter = {{2.2, 1.4, 0.2}, {1.2, 2.4, 543}};
       probe->element_geometries.push_back(element_geometry);
     }
     {
@@ -108,7 +108,7 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
 
     probe = std::make_shared<Probe>();
     probe->description = "Probe 2";
-    probe->type = static_cast<urx::Probe::ProbeType>(123);
+    probe->type = static_cast<Probe::ProbeType>(123);
     probe->transform.rotation.x = 3;
     probe->transform.rotation.y = 4;
     probe->transform.rotation.z = 5;
@@ -117,13 +117,11 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
     probe->transform.translation.z = 5.2;
     {
       auto element_geometry = std::make_shared<ElementGeometry>();
-      element_geometry->perimeter = {{.x = 123, .y = 4.5, .z = 5.4},
-                                     {.x = 1.1, .y = 22.1, .z = 5.4}};
+      element_geometry->perimeter = {{123, 4.5, 5.4}, {1.1, 22.1, 5.4}};
       probe->element_geometries.push_back(element_geometry);
 
       element_geometry = std::make_shared<ElementGeometry>();
-      element_geometry->perimeter = {{.x = 5.5, .y = 6.6, .z = 7.7},
-                                     {.x = 1.1, .y = 0.0, .z = 5.5}};
+      element_geometry->perimeter = {{5.5, 6.6, 7.7}, {1.1, 0.0, 5.5}};
       probe->element_geometries.push_back(element_geometry);
     }
     {
@@ -187,7 +185,7 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
 
   {
     auto wave = std::make_shared<Wave>();
-    wave->type = urx::Wave::WaveType::CYLINDRICAL_WAVE;
+    wave->type = Wave::WaveType::CYLINDRICAL_WAVE;
     wave->time_zero_reference_point.x = 3;
     wave->time_zero_reference_point.y = 4;
     wave->time_zero_reference_point.z = 5;
@@ -210,7 +208,7 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
     dataset->acquisition.waves.push_back(wave);
 
     wave = std::make_shared<Wave>();
-    wave->type = urx::Wave::WaveType::CONVERGING_WAVE;
+    wave->type = Wave::WaveType::CONVERGING_WAVE;
     wave->time_zero_reference_point.x = 5;
     wave->time_zero_reference_point.y = 4;
     wave->time_zero_reference_point.z = 4;
@@ -233,9 +231,9 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
   }
 
   {
-    auto group = std::make_shared<urx::Group>();
-    group->sampling_type = urx::Group::SamplingType::IQ;
-    group->data_type = urx::Group::DataType::INT16;
+    auto group = std::make_shared<Group>();
+    group->sampling_type = Group::SamplingType::IQ;
+    group->data_type = Group::DataType::INT16;
     {
       Event event;
       event.transmit_setup.probe = dataset->acquisition.probes[0];
@@ -295,9 +293,9 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
     group->description = "group description";
     dataset->acquisition.groups.push_back(group);
 
-    group = std::make_shared<urx::Group>();
-    group->sampling_type = urx::Group::SamplingType::RF;
-    group->data_type = urx::Group::DataType::DOUBLE;
+    group = std::make_shared<Group>();
+    group->sampling_type = Group::SamplingType::RF;
+    group->data_type = Group::DataType::DOUBLE;
     {
       Event event;
       event.transmit_setup.probe = dataset->acquisition.probes[1];
@@ -362,11 +360,11 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
 
   {
     {
-      auto group_data = std::make_shared<GroupData>();
-      group_data->group = dataset->acquisition.groups[1];
+      GroupData group_data;
+      group_data.group = dataset->acquisition.groups[1];
 
-      group_data->raw_data = std::make_shared<RawDataNoInit<double>>(6);
-      double* buf = static_cast<double*>(group_data->raw_data->getBuffer());
+      group_data.raw_data = std::make_shared<RawDataNoInit<double>>(6);
+      double* buf = static_cast<double*>(group_data.raw_data->getBuffer());
       buf[0] = 1.2;
       buf[1] = 2.3;
       buf[2] = 3.4;
@@ -374,40 +372,44 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
       buf[4] = 5.6;
       buf[5] = 6.7;
 
-      group_data->group_timestamp = 283954.334;
-      group_data->sequence_timestamps = {1, 2, 4.2, 1, .5, 5.6};
-      group_data->event_timestamps = {{1, .24, 1., 5.2, 4.5, 7, .964, .5},
-                                      {1, 2, 4, 85, .15, -4.5, -7, .45, .6, 4}};
-      dataset->acquisition.groups_data.push_back(group_data);
+      group_data.group_timestamp = 283954.334;
+      group_data.sequence_timestamps = {1, 2, 4.2, 1, .5, 5.6};
+      group_data.event_timestamps = {{1, .24, 1., 5.2, 4.5, 7, .964, .5},
+                                     {1, 2, 4, 85, .15, -4.5, -7, .45, .6, 4}};
+      dataset->acquisition.groups_data.push_back(std::move(group_data));
     }
     {
-      auto group_data = std::make_shared<GroupData>();
-      group_data->group = dataset->acquisition.groups[0];
+      GroupData group_data;
+      group_data.group = dataset->acquisition.groups[0];
 
-      group_data->raw_data = std::make_shared<RawDataNoInit<std::complex<short>>>(4);
+      group_data.raw_data = std::make_shared<RawDataNoInit<std::complex<short>>>(4);
       std::complex<short>* buf =
-          static_cast<std::complex<short>*>(group_data->raw_data->getBuffer());
+          static_cast<std::complex<short>*>(group_data.raw_data->getBuffer());
       buf[0] = {123, 456};
       buf[1] = {159, 753};
       buf[2] = {789, 456};
       buf[3] = {123, 753};
-      group_data->group_timestamp = 123;
-      group_data->sequence_timestamps = {1, 2, 34};
-      group_data->event_timestamps = {{4, 5, 7}, {8, 7, 6}};
-      dataset->acquisition.groups_data.push_back(group_data);
+      group_data.group_timestamp = 123;
+      group_data.sequence_timestamps = {1, 2, 34};
+      group_data.event_timestamps = {{4, 5, 7}, {8, 7, 6}};
+      dataset->acquisition.groups_data.push_back(std::move(group_data));
     }
   }
 
-  urx::Writer::saveToFile("writer康🐜.urx", *dataset);
+  Writer::saveToFile("writer康🐜.urx", *dataset);
 
-  auto dataset_loaded = urx::Reader::loadFromFile("writer康🐜.urx");
+  auto dataset_loaded = Reader::loadFromFile("writer康🐜.urx");
 
   REQUIRE(dataset_loaded->acquisition.probes == dataset->acquisition.probes);
   REQUIRE(dataset_loaded->acquisition.excitations == dataset->acquisition.excitations);
+  REQUIRE(dataset_loaded->acquisition.waves[0]->channel_mapping ==
+          dataset->acquisition.waves[0]->channel_mapping);
+  REQUIRE(dataset_loaded->acquisition.waves[0] == dataset->acquisition.waves[0]);
+  REQUIRE(dataset_loaded->acquisition.waves[0] == dataset->acquisition.waves[0]);
   REQUIRE(dataset_loaded->acquisition.waves == dataset->acquisition.waves);
   REQUIRE(dataset_loaded->acquisition.groups == dataset->acquisition.groups);
   REQUIRE(dataset_loaded->acquisition.groups_data == dataset->acquisition.groups_data);
   REQUIRE(*dataset_loaded == *dataset);
 }
 
-}  // namespace urx::test
+}  // namespace urx::utils::io::test

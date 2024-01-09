@@ -16,9 +16,9 @@ grp_data.raw_data=tmp;
 acq.addGroup()
 acq.addGroup(grp)
 try
-    acq.addGroup(grp)
+  acq.addGroup(grp)
 catch exceptions
-    disp(exceptions.message)
+  disp(exceptions.message)
 end
 grp.sampling_type
 grp.sampling_type = urx.Group.SamplingType.RF
@@ -34,10 +34,10 @@ g.description = 'crash'
 grp.description
 clear grp
 try
-    g.description = 'crash'
+  g.description = 'crash'
 catch exceptions
-    disp(exceptions.identifier)
-    disp(exceptions.message)
+  disp(exceptions.identifier)
+  disp(exceptions.message)
 end
 
 

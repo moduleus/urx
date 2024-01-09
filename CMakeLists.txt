@@ -4,14 +4,14 @@ project(
   Urx
   VERSION 0.6.8
   LANGUAGES C CXX
-  DESCRIPTION "Ultrasound File Format C++ implementation")
+  DESCRIPTION "Ultrasound Raw eXchange format C++ implementation")
 
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 
 # Configure compiler ###
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -32,9 +32,7 @@ add_compile_definitions(_SILENCE_NONFLOATING_COMPLEX_DEPRECATION_WARNING)
 
 include(CTest)
 
-if(BUILD_SHARED_LIBS)
-  set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
-endif()
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
 find_package(Git REQUIRED)
 execute_process(
@@ -76,23 +74,20 @@ include(CPack)
 option(WITH_HDF5 "Build with HDF5" OFF)
 option(WITH_MATLAB "Build Matlab wrappers" OFF)
 option(WITH_PYTHON "Build Python module" OFF)
-option(WITH_TEST "Build unit tests" OFF)
+enable_testing()
 
 set(URX_PCH
     "<algorithm>"
     "<array>"
     "<cassert>"
     "<cmath>"
-    "<compare>"
     "<complex>"
-    "<concepts>"
     "<cstddef>"
     "<cstdint>"
     "<cstdio>"
     "<cstdlib>"
     "<cstring>"
     "<exception>"
-    "<format>"
     "<iomanip>"
     "<ios>"
     "<iosfwd>"
@@ -117,9 +112,10 @@ set(URX_PCH
     "<vector>"
     "<version>")
 if(WITH_HDF5)
-  list(APPEND URX_PCH "<H5Cpp.h>" "<boost/pfr.hpp>" "<magic_enum.hpp>")
+  set(URX_PCH_IO_V2_0 "<H5Cpp.h>")
+  set(URX_PCH_IO "<H5Cpp.h>" "<boost/pfr.hpp>" "<magic_enum.hpp>")
 endif()
-if(WITH_TEST)
+if(BUILD_TESTING)
   set(URX_PCH_TEST
       "<catch2/catch_test_macros.hpp>"
       "<catch2/matchers/catch_matchers_floating_point.hpp>"
@@ -145,10 +141,7 @@ if(WITH_PYTHON)
   find_package(pybind11 CONFIG REQUIRED)
 endif()
 
-add_subdirectory("urx_utils")
-
 if(WITH_MATLAB)
-  find_package(Matlab REQUIRED)
   add_subdirectory(matlab)
 endif()
 
@@ -156,14 +149,10 @@ if(WITH_PYTHON)
   add_subdirectory(python)
 endif()
 
-if(WITH_TEST)
-  enable_testing()
+if(BUILD_TESTING)
   find_package(Catch2 REQUIRED)
   add_subdirectory(test)
 endif()
-
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${URX_SRCS}
-                                                    ${URX_UTILS_SRCS})
 
 # Create cmake config files ###
 write_basic_package_version_file(

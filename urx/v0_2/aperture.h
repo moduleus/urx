@@ -3,7 +3,6 @@
 #ifndef URX_APERTURE_H
 #define URX_APERTURE_H
 
-#include <exception>
 #include <iosfwd>
 #include <optional>
 #include <string>
@@ -46,7 +45,7 @@ class Aperture : public Object {
             (m_fNumber == other.m_fNumber) && (m_fixedSize == other.m_fixedSize));
   }
 
-  inline bool operator!=(const Aperture& other) const { return !(*this == other); }
+  bool operator!=(const Aperture& other) const { return !operator==(other); }
 
  private:
   // Location of the aperture center in space

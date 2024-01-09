@@ -8,8 +8,12 @@
 #include <cstdio>
 #include <ios>
 #include <limits>
+#include <optional>
 #include <ostream>
 #include <type_traits>
+#include <vector>
+
+#include <H5Cpp.h>
 
 #include <urx/v0_2/aperture.h>
 #include <urx/v0_2/channel_data.h>

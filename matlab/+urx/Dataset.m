@@ -1,44 +1,31 @@
-classdef Dataset < handle
-  properties (Access = private)
-    id_
-  end
-  
-  properties (Access = public)
-    version
-    acquisition
+classdef Dataset < urx.Object
+  properties (Access = public, SetObservable, GetObservable)
+    version urx.Version {mustBeScalarOrEmpty}
+    acquisition urx.Acquisition {mustBeScalarOrEmpty}
   end
 
-
-  methods 
-    function this = Dataset()
-      this.id_ = MexURX('new_Dataset');
-      [major,minor,patch]=MexURX('get_Dataset_version',this.id_);
-      this.version = urx.Version(major,minor,patch);
-      %this.acquisition = MexURX('get_Dataset_acquisition',this.id_);
+  methods
+    function this = Dataset(varargin)
+      this@urx.Object(varargin{:});
     end
 
-    function delete(this)
-      MexURX('delete_Dataset', this.id_);
-    end
-
-    function setVersion(this,value)
-      MexURX('set_Dataset_version',this.id_, [value.major, value.minor, value.patch]);
-      [major,minor,patch]=MexURX('get_Dataset_version',this.id_);
-      this.version = urx.Version(major,minor,patch);
-    end
-
-    function setAcquisition(this,value)
-      MexURX('set_Dataset_acquisition',this.id_, value.id_);
-      this.acquisition = MexURX('get_Dataset_acquisition',this.id_);
-    end
-    
-    function a = subsasgn(a,s,b)
-      if strcmp(s.subs,'version')
-        setVersion(a,b);
-      elseif strcmp(s.subs,'acquisition')
-        setAcquisition(a,b);
+    function saveToFile(this, filename)
+      arguments
+        this
+        filename char
       end
+
+      this.libBindingRef.call('save_to_file', filename, this.id);
     end
-    
   end
-end 
+
+  methods(Static)
+    function this = loadFromFile(filename)
+      arguments
+        filename char
+      end
+
+      this = urx.LibBinding.getInstance().call('load_from_file', filename);
+    end
+  end
+end

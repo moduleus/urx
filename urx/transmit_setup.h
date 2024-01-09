@@ -15,7 +15,12 @@
 namespace urx {
 
 struct TransmitSetup {
-  bool operator==(const TransmitSetup& other) const = default;
+  bool operator==(const TransmitSetup& other) const {
+    return probe == other.probe && wave == other.wave && probe_transform == other.probe_transform &&
+           time_offset == other.time_offset;
+  }
+
+  bool operator!=(const TransmitSetup& other) const { return !operator==(other); }
 
   std::weak_ptr<Probe> probe = std::weak_ptr<Probe>();
   std::weak_ptr<Wave> wave = std::weak_ptr<Wave>();

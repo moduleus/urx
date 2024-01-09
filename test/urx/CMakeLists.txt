@@ -1,5 +1,11 @@
-set(URX_TEST_FILES test_build.cpp test_double_nan.cpp test_element_geometry.cpp
-                   test_vector.cpp test_transform.cpp test_version.cpp)
+set(URX_TEST_FILES
+    test_build.cpp
+    test_DoubleNan.cpp
+    test_ElementGeometry.cpp
+    test_RawData.cpp
+    test_Vector.cpp
+    test_Transform.cpp
+    test_Version.cpp)
 
 add_executable(UrxClasses ${URX_TEST_FILES})
 target_precompile_headers(UrxClasses PRIVATE ${URX_PCH} ${URX_PCH_TEST})

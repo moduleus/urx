@@ -4,35 +4,14 @@
 #ifndef URX_WRITER_H
 #define URX_WRITER_H
 
-#include <cstddef>
 #include <iosfwd>
 #include <memory>
-#include <optional>
 #include <string>
 #include <utility>
-#include <vector>
 
-#include <urx/v0_2/aperture.h>
-#include <urx/v0_2/channel_data.h>
 #include <urx/v0_2/dataset.h>
-#include <urx/v0_2/element.h>
-#include <urx/v0_2/event.h>
-#include <urx/v0_2/excitation.h>
-#include <urx/v0_2/linear_array.h>
-#include <urx/v0_2/matrix_array.h>
 #include <urx/v0_2/object.h>
-#include <urx/v0_2/probe.h>
-#include <urx/v0_2/rca_array.h>
-#include <urx/v0_2/receive_setup.h>
-#include <urx/v0_2/rotation.h>
-#include <urx/v0_2/timed_event.h>
-#include <urx/v0_2/transform.h>
-#include <urx/v0_2/translation.h>
-#include <urx/v0_2/transmit_setup.h>
-#include <urx/v0_2/transmit_wave.h>
 #include <urx/v0_2/urx.h>
-#include <urx/v0_2/version.h>
-#include <urx/v0_2/wave.h>
 
 namespace urx::v0_2 {
 
