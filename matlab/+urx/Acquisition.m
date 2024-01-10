@@ -1,4 +1,11 @@
 classdef Acquisition < urx.Object
+  properties (Access = public)
+    probesStd
+    excitationsStd
+    wavesStd
+    groupsStd
+    groupsDataStd
+  end
   properties (Access = public, SetObservable, GetObservable)
     authors char
     description char
@@ -9,21 +16,21 @@ classdef Acquisition < urx.Object
     soundSpeed(1,1) double
     timestamp(1,1) double
     
-    probes urx.StdVector
-    excitations urx.StdVector
-    waves urx.StdVector
-    groups urx.StdVector
-    groupsData urx.StdVector
+    probes(1,:) urx.Probe
+    excitations(1,:) urx.Excitation
+    waves(1,:) urx.Wave
+    groups(1,:) urx.Group
+    groupsData(1,:) urx.GroupData
   end
 
   methods
     function this = Acquisition(varargin)
       this@urx.Object(varargin{:});
-      this.probes = urx.StdVector('urx.Probe', 1, urx.PtrType.SHARED, this);
-      this.excitations = urx.StdVector('urx.Excitation', 1, urx.PtrType.SHARED, this);
-      this.waves = urx.StdVector('urx.Wave', 1, urx.PtrType.SHARED, this);
-      this.groups = urx.StdVector('urx.Group', 1, urx.PtrType.SHARED, this);
-      this.groupsData = urx.StdVector('urx.GroupData', 1, urx.PtrType.RAW, this);
+      this.probesStd = urx.StdVector('urx.Probe', 1, urx.PtrType.SHARED, this);
+      this.excitationsStd = urx.StdVector('urx.Excitation', 1, urx.PtrType.SHARED, this);
+      this.wavesStd = urx.StdVector('urx.Wave', 1, urx.PtrType.SHARED, this);
+      this.groupsStd = urx.StdVector('urx.Group', 1, urx.PtrType.SHARED, this);
+      this.groupsDataStd = urx.StdVector('urx.GroupData', 1, urx.PtrType.RAW, this);
     end
   end
 end

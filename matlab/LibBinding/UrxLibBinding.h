@@ -24,7 +24,7 @@
   void CONCAT4(vector, name, push_back, shared)(void *this_ptr, void *val); \
   uint64_t CONCAT3(vector, name, size)(void *this_ptr);                     \
   void *CONCAT3(vector, name, data)(void *this_ptr, uint64_t i);            \
-  void CONCAT3(vector, name, copy)(void *this_ptr, void *other_ptr)
+  void CONCAT3(vector, name, assign)(void *this_ptr, void *other_ptr)
 
 #define VECTOR_RAW_NS_DECL(ns, type) _VECTOR_RAW_DECL(CONCAT2(ns, type))
 #define VECTOR_RAW_DECL(type) _VECTOR_RAW_DECL(type)
@@ -36,7 +36,7 @@
   void CONCAT3(vector_2d, name, push_back)(void *this_ptr, void *val); \
   uint64_t CONCAT3(vector_2d, name, size)(void *this_ptr);             \
   void *CONCAT3(vector_2d, name, data)(void *this_ptr, uint64_t i);    \
-  void CONCAT3(vector_2d, name, copy)(void *this_ptr, void *other_ptr)
+  void CONCAT3(vector_2d, name, assign)(void *this_ptr, void *other_ptr)
 
 #define VECTOR_2D_RAW_DECL(type) _VECTOR_2D_RAW_DECL(type)
 
@@ -48,7 +48,7 @@
   void CONCAT4(vector_shared, name, push_back, shared)(void *this_ptr, void *val); \
   uint64_t CONCAT3(vector_shared, name, size)(void *this_ptr);                     \
   void *CONCAT3(vector_shared, name, data)(void *this_ptr, uint64_t i);            \
-  void CONCAT3(vector_shared, name, copy)(void *this_ptr, void *other_ptr)
+  void CONCAT3(vector_shared, name, assign)(void *this_ptr, void *other_ptr)
 
 #define VECTOR_SHARED_NS_DECL(ns, type) _VECTOR_SHARED_DECL(CONCAT2(ns, type))
 #define VECTOR_SHARED_DECL(type) _VECTOR_SHARED_DECL(type)
@@ -61,7 +61,7 @@
   void CONCAT4(vector_weak, name, push_back, shared)(void *this_ptr, void *val); \
   uint64_t CONCAT3(vector_weak, name, size)(void *this_ptr);                     \
   void *CONCAT3(vector_weak, name, data)(void *this_ptr, uint64_t i);            \
-  void CONCAT3(vector_weak, name, copy)(void *this_ptr, void *other_ptr)
+  void CONCAT3(vector_weak, name, assign)(void *this_ptr, void *other_ptr)
 
 #define VECTOR_WEAK_NS_DECL(ns, type) _VECTOR_WEAK_DECL(CONCAT2(ns, type))
 #define VECTOR_WEAK_DECL(type) _VECTOR_WEAK_DECL(type)
@@ -96,8 +96,9 @@
 #define OBJECT_NS_RAW_DATA_DECL(ns, type, t1, t2) _OBJECT_RAW_DATA_DECL(CONCAT4(ns, type, t1, t2))
 #define OBJECT_RAW_DATA_DECL(type, t2, t3) _OBJECT_RAW_DATA_DECL(CONCAT3(type, t1, t2))
 
-#define _OBJECT_ACCESSOR_DECL(name, member)    \
-  void *CONCAT2(name, member)(void *this_ptr); \
+#define _OBJECT_ACCESSOR_DECL(name, member)          \
+  void *CONCAT2(name, member)(void *this_ptr);       \
+  void *CONCAT3(name, weak, member)(void *this_ptr); \
   void *CONCAT3(name, shared, member)(void *this_ptr)
 
 #define OBJECT_ACCESSOR_NS_DECL(ns, type, member) _OBJECT_ACCESSOR_DECL(CONCAT2(ns, type), member)

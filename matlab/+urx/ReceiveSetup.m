@@ -1,4 +1,8 @@
 classdef ReceiveSetup < urx.Object
+  properties (Access = public)
+    channelMappingStd
+    tgcProfileStd
+  end
   properties (Access = public, SetObservable, GetObservable)
     probe urx.Probe {mustBeScalarOrEmpty}
 
@@ -8,9 +12,9 @@ classdef ReceiveSetup < urx.Object
 
     numberSamples(1,1) uint32
 
-    channelMapping urx.StdVector
+    channelMapping(1,:) cell
 
-    tgcProfile urx.StdVector
+    tgcProfile(1,:) double
     tgcSamplingFrequency(1,1) double
 
     modulationFrequency(1,1) double
@@ -20,8 +24,8 @@ classdef ReceiveSetup < urx.Object
   methods
     function this = ReceiveSetup(varargin)
       this@urx.Object(varargin{:});
-      this.channelMapping = urx.StdVector('uint32', 2, urx.PtrType.RAW, this);
-      this.tgcProfile = urx.StdVector('double', 1, urx.PtrType.RAW, this);
+      this.channelMappingStd = urx.StdVector('uint32', 2, urx.PtrType.RAW, this);
+      this.tgcProfileStd = urx.StdVector('double', 1, urx.PtrType.RAW, this);
     end
   end
 end

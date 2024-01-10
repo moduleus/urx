@@ -3,24 +3,20 @@ classdef StdVector < handle
     libBindingRef = urx.LibBinding.empty(1,0)
     id(1,1) = libpointer
     objectClassName(1,:) char
-    nbDims
-    type(1,1) urx.PtrType
+    nbDims uint8
+    ptrType(1,1) urx.PtrType
     parent urx.Object {mustBeScalarOrEmpty} = urx.Object.empty(1,0)
   end
   
-  properties (Constant)
-    MANAGED_PRIMITIVES_TYPES = {'double'} % TODO: add int32..
-  end
-  
   methods
-    function this = StdVector(objectClassName, nbDims, type, parent)
+    function this = StdVector(objectClassName, nbDims, ptrType, parent)
       this.libBindingRef = urx.LibBinding.getInstance();
       this.objectClassName = objectClassName;
       if nargin < 2
         nbDims = 1;
       end
       this.nbDims = nbDims;
-      this.type = type;
+      this.ptrType = ptrType;
       if nargin < 4
         this.id = this.libBindingRef.call(this.functionName('new'));
       else
@@ -39,9 +35,9 @@ classdef StdVector < handle
         if this.nbDims > 1
           res = [res '_' int2str(this.nbDims) 'd'];
         end
-        if this.type == urx.PtrType.SHARED
+        if this.ptrType == urx.PtrType.SHARED
           res = [res '_shared'];
-        elseif this.type == urx.PtrType.WEAK
+        elseif this.ptrType == urx.PtrType.WEAK
           res = [res '_weak'];
         end
         if regexp(this.objectClassName,'[u]?int\d+')
@@ -79,10 +75,10 @@ classdef StdVector < handle
     
     function res = data(this, i)
       if this.nbDims > 1
-        res = urx.StdVector(this.objectClassName, this.nbDims-1, this.type, this.parent);
+        res = urx.StdVector(this.objectClassName, this.nbDims-1, this.ptrType, this.parent);
         res.id = this.libBindingRef.call(this.functionName('data'), this.id, i-1);
       elseif strcmp(this.objectClassName(1:4), 'urx.')
-        res = urx.(this.objectClassName(5:end))(this.libBindingRef.call(this.functionName('data'), this.id, i-1), this.type, this.parent);
+        res = urx.(this.objectClassName(5:end))(this.libBindingRef.call(this.functionName('data'), this.id, i-1), this.ptrType, this.parent);
       else
         resPtr = this.libBindingRef.call(this.functionName('data'), this.id, i-1);
         resPtr.setdatatype([this.objectClassName 'Ptr'], 1);

@@ -1,4 +1,10 @@
 classdef Wave < urx.Object
+  properties (Access = public)
+    channelMappingStd
+    channelExcitationsStd
+    channelDelaysStd
+    parametersStd
+  end
   properties (Access = public, SetObservable, GetObservable)
 
     type(1,1) int32
@@ -7,22 +13,22 @@ classdef Wave < urx.Object
 
     timeZeroReferencePoint urx.Vector3D {mustBeScalarOrEmpty}
 
-    channelMapping urx.StdVector
+    channelMapping(1,:) cell
 
-    channelExcitations urx.StdVector
+    channelExcitations(1,:) urx.Excitation
 
-    channelDelays urx.StdVector
+    channelDelays(1,:) double
 
-    parameters urx.StdVector
+    parameters(1,:) double
   end
 
   methods
     function this = Wave(varargin)
       this@urx.Object(varargin{:});
-      this.channelMapping = urx.StdVector('uint32', 2, urx.PtrType.RAW, this);
-      this.channelExcitations = urx.StdVector('urx.Excitation', 1, urx.PtrType.WEAK, this);
-      this.channelDelays = urx.StdVector('double', 1, urx.PtrType.RAW, this);
-      this.parameters = urx.StdVector('double', 1, urx.PtrType.RAW, this);
+      this.channelMappingStd = urx.StdVector('uint32', 2, urx.PtrType.RAW, this);
+      this.channelExcitationsStd = urx.StdVector('urx.Excitation', 1, urx.PtrType.WEAK, this);
+      this.channelDelaysStd = urx.StdVector('double', 1, urx.PtrType.RAW, this);
+      this.parametersStd = urx.StdVector('double', 1, urx.PtrType.RAW, this);
     end
   end
 end
