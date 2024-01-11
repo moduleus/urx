@@ -27,14 +27,14 @@ class TestBindingsExcitation(unittest.TestCase):
 
         # Check CTOR with all parameters
         ex = urx.Excitation("linear", 42, np.nan, urx.VecFloat64([3.14, -42]))
-        self.assertEqual(ex, urx.Excitation("linear", 42, np.nan, [3.14, -42]))
+        self.assertEqual(ex, urx.Excitation("linear", 42.0, np.nan, [3.14, -42]))
         ex_2 = urx.Excitation(ex)
         self.assertEqual(ex, ex_2)
 
         # Check CTOR with all parameters varying double and DoubleNan
         ex = urx.Excitation("linear", urx.DoubleNan(42), np.nan, [3.14, -42])
         self.assertEqual(ex, ex_2)
-        ex = urx.Excitation("linear", 42, urx.DoubleNan(np.nan), [3.14, -42])
+        ex = urx.Excitation("linear", 42.0, urx.DoubleNan(np.nan), [3.14, -42])
         self.assertEqual(ex, ex_2)
         ex = urx.Excitation("linear", urx.DoubleNan(42), urx.DoubleNan(
             np.nan), urx.VecFloat64([3.14, -42]))

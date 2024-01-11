@@ -152,37 +152,49 @@ PYBIND11_MODULE(bindings, m) {
       .def_readwrite("value", &urx::DoubleNan::value)
       .def(pybind11::self == pybind11::self)
       .def(pybind11::self != pybind11::self)
-      .def(pybind11::self == double())
-      .def(pybind11::self != double())
       .def(double() == pybind11::self)
       .def(double() != pybind11::self)
+
       .def(py::self + py::self)
-      .def(py::self += py::self)
-      .def(py::self += double())
       .def(double() + py::self)
       .def(py::self + double())
-      .def(py::self -= double())
+
+      .def(py::self - py::self)
       .def(double() - py::self)
       .def(py::self - double())
-      .def(py::self *= double())
+
+      .def(py::self * py::self)
       .def(double() * py::self)
       .def(py::self * double())
-      .def(py::self /= double())
+
+      .def(py::self / py::self)
       .def(double() / py::self)
       .def(py::self / double())
+
+      .def(py::self += py::self)
+      .def(py::self += double())
+
+      .def(py::self -= py::self)
+      .def(py::self -= double())
+
+      .def(py::self *= py::self)
+      .def(py::self *= double())
+
+      .def(py::self /= py::self)
+      .def(py::self /= double())
+
       .def(+py::self)
       .def(-py::self);
+  py::implicitly_convertible<double, urx::DoubleNan>();
+  py::implicitly_convertible<int, urx::DoubleNan>();
 
   // ImpulseResponse
   py::class_<urx::ImpulseResponse, std::shared_ptr<urx::ImpulseResponse>>(m, "ImpulseResponse")
       .def(py::init())
       .def(py::init<urx::ImpulseResponse>())
-      .def(py::init([](const std::variant<urx::DoubleNan, double> &sampling_frequency,
-                       const std::variant<urx::DoubleNan, double> &time_offset,
+      .def(py::init([](const urx::DoubleNan &sampling_frequency, const urx::DoubleNan &time_offset,
                        const std::string &units, const std::vector<double> &vec) {
-        return urx::ImpulseResponse{
-            std::visit([](auto &&d) { return urx::DoubleNan(d); }, sampling_frequency),
-            std::visit([](auto &&d) { return urx::DoubleNan(d); }, time_offset), units, vec};
+        return urx::ImpulseResponse{sampling_frequency, time_offset, units, vec};
       }))
       .def(pybind11::self == pybind11::self)
       .def(pybind11::self != pybind11::self)
@@ -285,13 +297,9 @@ PYBIND11_MODULE(bindings, m) {
   py::class_<urx::Excitation, std::shared_ptr<urx::Excitation>>(m, "Excitation")
       .def(py::init())
       .def(py::init<urx::Excitation>())
-      .def(py::init([](const std::string &pulse_shape,
-                       const std::variant<urx::DoubleNan, double> &transmit_frequency,
-                       const std::variant<urx::DoubleNan, double> &sampling_frequency,
-                       const std::vector<double> &vec) {
-        return urx::Excitation{
-            pulse_shape, std::visit([](auto &&d) { return urx::DoubleNan(d); }, transmit_frequency),
-            std::visit([](auto &&d) { return urx::DoubleNan(d); }, sampling_frequency), vec};
+      .def(py::init([](const std::string &pulse_shape, const urx::DoubleNan &transmit_frequency,
+                       const urx::DoubleNan &sampling_frequency, const std::vector<double> &vec) {
+        return urx::Excitation{pulse_shape, transmit_frequency, sampling_frequency, vec};
       }))
       .def(pybind11::self == pybind11::self)
       .def(pybind11::self != pybind11::self)
@@ -336,8 +344,7 @@ PYBIND11_MODULE(bindings, m) {
   py::class_<urx::Wave, std::shared_ptr<urx::Wave>>(m, "Wave")
       .def(py::init())
       .def(py::init<urx::Wave>())
-      .def(py::init([](const urx::Wave::WaveType &type,
-                       const std::variant<urx::DoubleNan, double> &time_zero,
+      .def(py::init([](const urx::Wave::WaveType &type, const urx::DoubleNan &time_zero,
                        const urx::Vector3D<double> &time_zero_reference_point,
                        const VecVecUInt32 &channel_mapping,
                        const VecExcitationPtr &channel_excitations_shared,
@@ -345,7 +352,7 @@ PYBIND11_MODULE(bindings, m) {
         const std::vector<std::weak_ptr<urx::Excitation>> channel_excitations_weak(
             channel_excitations_shared.begin(), channel_excitations_shared.end());
         return urx::Wave{type,
-                         std::visit([](auto &&d) { return urx::DoubleNan(d); }, time_zero),
+                         time_zero,
                          time_zero_reference_point,
                          channel_mapping,
                          channel_excitations_weak,
@@ -385,14 +392,11 @@ PYBIND11_MODULE(bindings, m) {
   py::class_<urx::TransmitSetup, std::shared_ptr<urx::TransmitSetup>>(m, "TransmitSetup")
       .def(py::init())
       .def(py::init<urx::TransmitSetup>())
-      .def(
-          py::init([](const std::shared_ptr<urx::Probe> &probe,
-                      const std::shared_ptr<urx::Wave> &wave, const urx::Transform &probe_transform,
-                      const std::variant<urx::DoubleNan, double> &time_offset) {
-            return urx::TransmitSetup{
-                probe, wave, probe_transform,
-                std::visit([](auto &&d) { return urx::DoubleNan(d); }, time_offset)};
-          }))
+      .def(py::init([](const std::shared_ptr<urx::Probe> &probe,
+                       const std::shared_ptr<urx::Wave> &wave,
+                       const urx::Transform &probe_transform, const urx::DoubleNan &time_offset) {
+        return urx::TransmitSetup{probe, wave, probe_transform, time_offset};
+      }))
       .def(pybind11::self == pybind11::self)
       .def(pybind11::self != pybind11::self)
       .def_property(
@@ -424,27 +428,17 @@ PYBIND11_MODULE(bindings, m) {
   py::class_<urx::ReceiveSetup, std::shared_ptr<urx::ReceiveSetup>>(m, "ReceiveSetup")
       .def(py::init())
       .def(py::init<urx::ReceiveSetup>())
-      .def(py::init([](const std::shared_ptr<urx::Probe> &probe,
-                       const urx::Transform &probe_transform,
-                       const std::variant<urx::DoubleNan, double> &sampling_frequency,
-                       uint32_t number_samples, const VecVecUInt32 &channel_mapping,
-                       const VecFloat64 &tgc_profile,
-                       const std::variant<urx::DoubleNan, double> &tgc_sampling_frequency,
-                       const std::variant<urx::DoubleNan, double> &modulation_frequency,
-                       const std::variant<urx::DoubleNan, double> &time_offset) {
-        const urx::DoubleNan sampling_frequency_dn =
-            std::visit([](auto &&d) { return urx::DoubleNan(d); }, sampling_frequency);
-        const urx::DoubleNan tgc_sampling_frequency_dn =
-            std::visit([](auto &&d) { return urx::DoubleNan(d); }, tgc_sampling_frequency);
-        const urx::DoubleNan modulation_frequency_dn =
-            std::visit([](auto &&d) { return urx::DoubleNan(d); }, modulation_frequency);
-        const urx::DoubleNan time_offset_dn =
-            std::visit([](auto &&d) { return urx::DoubleNan(d); }, time_offset);
-        return urx::ReceiveSetup{
-            probe,           probe_transform, sampling_frequency_dn,     number_samples,
-            channel_mapping, tgc_profile,     tgc_sampling_frequency_dn, modulation_frequency_dn,
-            time_offset_dn};
-      }))
+      .def(py::init(
+          [](const std::shared_ptr<urx::Probe> &probe, const urx::Transform &probe_transform,
+             const urx::DoubleNan &sampling_frequency, uint32_t number_samples,
+             const VecVecUInt32 &channel_mapping, const VecFloat64 &tgc_profile,
+             const urx::DoubleNan &tgc_sampling_frequency,
+             const urx::DoubleNan &modulation_frequency, const urx::DoubleNan &time_offset) {
+            return urx::ReceiveSetup{
+                probe,           probe_transform, sampling_frequency,     number_samples,
+                channel_mapping, tgc_profile,     tgc_sampling_frequency, modulation_frequency,
+                time_offset};
+          }))
       .def(pybind11::self == pybind11::self)
       .def(pybind11::self != pybind11::self)
       .def_property(

@@ -26,19 +26,18 @@ class TestBindingsImpulseResponse(unittest.TestCase):
         self.assertEqual(ir, ir_ref)
 
         # Check CTOR with all parameters
-        ir = urx.ImpulseResponse(
-            42, np.nan, "sec", urx.VecFloat64([3.14, -42]))
-        self.assertEqual(ir, urx.ImpulseResponse(
-            42, np.nan, "sec", [3.14, -42]))
+        ir = urx.ImpulseResponse(42, np.nan, "sec", urx.VecFloat64([3.14, -42]))
+        self.assertEqual(ir, urx.ImpulseResponse(42, np.nan, "sec", [3.14, -42]))
         ir_2 = urx.ImpulseResponse(ir)
         self.assertEqual(ir, ir_2)
 
         ir = urx.ImpulseResponse(urx.DoubleNan(42), np.nan, "sec", [3.14, -42])
         self.assertEqual(ir, ir_2)
-        ir = urx.ImpulseResponse(42, urx.DoubleNan(np.nan), "sec", [3.14, -42])
+        ir = urx.ImpulseResponse(42.0, urx.DoubleNan(np.nan), "sec", [3.14, -42])
         self.assertEqual(ir, ir_2)
-        ir = urx.ImpulseResponse(urx.DoubleNan(42), urx.DoubleNan(
-            np.nan), "sec", urx.VecFloat64([3.14, -42]))
+        ir = urx.ImpulseResponse(
+            urx.DoubleNan(42), urx.DoubleNan(np.nan), "sec", urx.VecFloat64([3.14, -42])
+        )
         self.assertEqual(ir, ir_2)
 
         # Reference is possible for data (VecFloat64)
