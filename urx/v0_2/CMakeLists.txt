@@ -59,7 +59,9 @@ set(URX_V0_2_SRCS
 
 add_library(Urxv0_2)
 add_library(Urx::Urxv0_2 ALIAS Urxv0_2)
-target_precompile_headers(Urxv0_2 PRIVATE ${URX_PCH} ${URX_PCH_IO_V2_0})
+if(ENABLE_PCH)
+  target_precompile_headers(Urxv0_2 PRIVATE ${URX_PCH} ${URX_PCH_IO_V2_0})
+endif()
 
 target_sources(Urxv0_2 PRIVATE ${URX_V0_2_SRCS})
 
