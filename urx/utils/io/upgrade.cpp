@@ -2,12 +2,15 @@
 #include <cstddef>
 #include <cstdint>
 #include <iterator>
+#include <stdexcept>
+#include <string_view>
 #include <unordered_map>
 #include <utility>
 #include <vector>
 #include <version>
 
 #include <H5Cpp.h>
+#include <magic_enum.hpp>
 
 #include <urx/acquisition.h>
 #include <urx/dataset.h>

@@ -1,17 +1,23 @@
 #pragma once
 
+#include <cstdint>
+#include <memory>
+#include <type_traits>
+#include <utility>
+#include <vector>
+
 #include <pybind11/pybind11.h>
 
-#include <urx/vector.h>
-#include <urx/group.h>
-#include <urx/element_geometry.h>
-#include <urx/impulse_response.h>
 #include <urx/element.h>
-#include <urx/excitation.h>
+#include <urx/element_geometry.h>
 #include <urx/event.h>
-#include <urx/probe.h>
-#include <urx/wave.h>
+#include <urx/excitation.h>
+#include <urx/group.h>
 #include <urx/group_data.h>
+#include <urx/impulse_response.h>
+#include <urx/probe.h>
+#include <urx/vector.h>
+#include <urx/wave.h>
 
 using VecFloat64 = std::vector<double>;
 using VecVecFloat64 = std::vector<std::vector<double>>;

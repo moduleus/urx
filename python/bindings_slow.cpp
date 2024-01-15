@@ -1,4 +1,17 @@
+#include <algorithm>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
+
+#include <pybind11/attr.h>
+#include <pybind11/pybind11.h>
+#include <pybind11/pytypes.h>
+#include <pybind11/stl_bind.h>
+
 #include "bindings.h"
+
+#include <urx/detail/compare.h>
 
 namespace py = pybind11;
 
