@@ -1,5 +1,8 @@
 # Set URX sources
 set(URX_SRCS
+    ${CMAKE_CURRENT_SOURCE_DIR}/detail/compare.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/detail/double_nan.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/detail/raw_data.h
     ${CMAKE_CURRENT_SOURCE_DIR}/acquisition.h
     ${CMAKE_CURRENT_SOURCE_DIR}/dataset.h
     ${CMAKE_CURRENT_SOURCE_DIR}/element_geometry.h
