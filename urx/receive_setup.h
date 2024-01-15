@@ -14,9 +14,6 @@
 
 namespace urx {
 
-/**
- * @brief The URX class describing the reception of the wave echos
- */
 struct ReceiveSetup {
   bool operator==(const ReceiveSetup& other) const {
     return probe == other.probe && probe_transform == other.probe_transform &&
