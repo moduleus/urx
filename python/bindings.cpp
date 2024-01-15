@@ -1,3 +1,5 @@
+#include "bindings.h"
+
 #include <algorithm>
 #include <complex>
 #include <cstddef>
@@ -45,22 +47,6 @@
 
 namespace py = pybind11;
 
-using VecFloat64 = std::vector<double>;
-using VecVecFloat64 = std::vector<std::vector<double>>;
-using VecUInt32 = std::vector<uint32_t>;
-using VecVecUInt32 = std::vector<std::vector<uint32_t>>;
-
-using VecVector3D = std::vector<urx::Vector3D<double>>;
-using VecGroupPtr = std::vector<std::shared_ptr<urx::Group>>;
-using VecElementGeometryPtr = std::vector<std::shared_ptr<urx::ElementGeometry>>;
-using VecImpulseResponsePtr = std::vector<std::shared_ptr<urx::ImpulseResponse>>;
-using VecElement = std::vector<urx::Element>;
-using VecExcitationPtr = std::vector<std::shared_ptr<urx::Excitation>>;
-using VecEvent = std::vector<urx::Event>;
-using VecProbePtr = std::vector<std::shared_ptr<urx::Probe>>;
-using VecWavePtr = std::vector<std::shared_ptr<urx::Wave>>;
-using VecGroupData = std::vector<urx::GroupData>;
-
 PYBIND11_MAKE_OPAQUE(VecFloat64);
 PYBIND11_MAKE_OPAQUE(VecVecFloat64);
 PYBIND11_MAKE_OPAQUE(VecUInt32);
@@ -77,60 +63,11 @@ PYBIND11_MAKE_OPAQUE(VecProbePtr);
 PYBIND11_MAKE_OPAQUE(VecWavePtr);
 PYBIND11_MAKE_OPAQUE(VecGroupData);
 
-template <typename T>
-py::ssize_t sizeof_data_type(const std::vector<std::complex<T>> &v) {
-  return sizeof(T);
-}
-
-template <typename T>
-py::ssize_t sizeof_data_type(const std::vector<T> &v) {
-  return sizeof(T);
-}
-
-template <typename T>
-std::string get_format(const std::vector<std::complex<T>> &v) {
-  return py::format_descriptor<T>::format();
-}
-
-template <typename T>
-std::string get_format(const std::vector<T> &v) {
-  return py::format_descriptor<T>::format();
-}
-
 // NOLINTBEGIN(misc-redundant-expression)
 PYBIND11_MODULE(bindings, m) {
   m.doc() = "Variant C++ binding POC";
 
-  py::bind_vector<VecFloat64>(m, "VecFloat64", py::buffer_protocol());
-  py::implicitly_convertible<py::list, VecFloat64>();
-  py::bind_vector<VecVecFloat64>(m, "VecVecFloat64");
-  py::implicitly_convertible<py::list, VecVecFloat64>();
-  py::bind_vector<VecUInt32>(m, "VecUInt32", py::buffer_protocol());
-  py::implicitly_convertible<py::list, VecUInt32>();
-  py::bind_vector<VecVecUInt32>(m, "VecVecUInt32");
-  py::implicitly_convertible<py::list, VecVecUInt32>();
-
-  py::bind_vector<VecGroupPtr>(m, "VecGroupPtr");
-  py::implicitly_convertible<py::list, VecGroupPtr>();
-  py::bind_vector<VecVector3D>(m, "VecVector3D");
-  py::implicitly_convertible<py::list, VecVector3D>();
-
-  py::bind_vector<VecElementGeometryPtr>(m, "VecElementGeometryPtr");
-  py::implicitly_convertible<py::list, VecElementGeometryPtr>();
-  py::bind_vector<VecImpulseResponsePtr>(m, "VecImpulseResponsePtr");
-  py::implicitly_convertible<py::list, VecImpulseResponsePtr>();
-  py::bind_vector<VecElement>(m, "VecElement");
-  py::implicitly_convertible<py::list, VecElement>();
-  py::bind_vector<VecExcitationPtr>(m, "VecExcitationPtr");
-  py::implicitly_convertible<py::list, VecExcitationPtr>();
-  py::bind_vector<VecEvent>(m, "VecEvent");
-  py::implicitly_convertible<py::list, VecEvent>();
-  py::bind_vector<VecProbePtr>(m, "VecProbePtr");
-  py::implicitly_convertible<py::list, VecProbePtr>();
-  py::bind_vector<VecWavePtr>(m, "VecWavePtr");
-  py::implicitly_convertible<py::list, VecWavePtr>();
-  py::bind_vector<VecGroupData>(m, "VecGroupData");
-  py::implicitly_convertible<py::list, VecGroupData>();
+  urx::python::detail::registerVector(m);
 
   py::enum_<urx::Group::SamplingType>(m, "SamplingType")
       .value("RF", urx::Group::SamplingType::RF)
