@@ -123,8 +123,7 @@ format:autopep8-format:
     - docker
   script:
     - mkdir CI
-    - shopt -s globstar
-    - autopep8 -r **/*.py -i
+    - find . -name "*.py" -exec autopep8 {} -i \;
     - git diff > CI/format.patch
     - cat CI/format.patch
     - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Please, format your python code with autopep8."; exit 1; fi
