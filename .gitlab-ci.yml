@@ -7,8 +7,8 @@ workflow:
 
 stages:
   - build
-  - format
   - test
+  - format
   - tag
   - install
   - doc
@@ -122,6 +122,8 @@ format:autopep8-format:
   tags:
     - docker
   script:
+    - git diff
+    - cat test/io/resources/v_0_2_short.urx
     - mkdir CI
     - find . -name "*.py" -exec autopep8 {} -i \;
     - git diff > CI/format.patch

@@ -35,7 +35,12 @@
 #include <urx/transform.h>
 #include <urx/transmit_setup.h>
 #include <urx/urx.h>
+#include <urx/utils/group_data_reader.h>
 #include <urx/utils/group_helper.h>
+#include <urx/utils/io/upgrade.h>
+#include <urx/utils/io/writer.h>
+#include <urx/utils/probe_helper.h>
+#include <urx/utils/time_helper.h>
 #include <urx/vector.h>
 #include <urx/version.h>
 #include <urx/wave.h>
@@ -518,7 +523,7 @@ PYBIND11_MODULE(bindings, m) {
       .def_readwrite("groups", &urx::Acquisition::groups)
       .def_readwrite("groups_data", &urx::Acquisition::groups_data);
 
-  py::class_<urx::Dataset>(m, "Dataset")
+  py::class_<urx::Dataset, std::shared_ptr<urx::Dataset>>(m, "Dataset")
       .def(py::init())
       .def(py::init<const urx::Dataset &>())
       .def(py::init<const urx::Acquisition &, const urx::Version &>())
@@ -526,5 +531,33 @@ PYBIND11_MODULE(bindings, m) {
       .def(pybind11::self != pybind11::self)
       .def_readwrite("version", &urx::Dataset::version)
       .def_readwrite("acquisition", &urx::Dataset::acquisition);
+
+  // Util static methods
+  m.def("load_from_file", &urx::utils::io::Upgrade::LoadFromFile);
+  m.def("save_to_file", &urx::utils::io::Writer::saveToFile);
+
+  // group_data_reader.h
+  py::class_<urx::utils::GroupDataReader>(m, "GroupDataReader")
+      .def(py::init<urx::GroupData &, size_t>())
+      .def("sequencesCount", &urx::utils::GroupDataReader::sequencesCount)
+      .def("eventsCount", &urx::utils::GroupDataReader::eventsCount)
+      .def("channelsCount", &urx::utils::GroupDataReader::channelsCount)
+      .def("samplesCount", &urx::utils::GroupDataReader::samplesCount)
+      .def("offset", &urx::utils::GroupDataReader::offset)
+      .def("sampleByteSize", &urx::utils::GroupDataReader::sampleByteSize);
+
+  // group_helper
+  m.def("sizeof_data_type", &urx::utils::GroupHelper::sizeof_data_type);
+  m.def("py_get_format", &urx::utils::GroupHelper::py_get_format);
+  m.def("sizeof_sample", &urx::utils::GroupHelper::sizeof_sample);
+
+  // probe_helper.h
+  m.def("update_rca_elements_positions", &urx::utils::updateRcaElementsPositions);
+  m.def("update_matrix_elements_positions", &urx::utils::updateMatrixElementsPositions);
+  m.def("update_linear_elements_positions", &urx::utils::updateLinearElementsPositions);
+
+  // time_helper.h
+  m.def("isIso8601", &urx::utils::isIso8601);
+  m.def("isIso3166", &urx::utils::isIso3166);
 }
 // NOLINTEND(misc-redundant-expression)

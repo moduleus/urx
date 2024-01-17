@@ -40,7 +40,7 @@ setuptools.setup(
             source_dir=str(Path(__file__).parent.absolute()),
             cmake_configure_options=[
                 "-DWITH_PYTHON:BOOL=ON",
-                "-DWITH_HDF5:BOOL=OFF",
+                "-DWITH_HDF5:BOOL=ON",
                 "-DBUILD_SHARED_LIBS:BOOL=OFF",
                 "-DCALL_FROM_SETUP_PY:BOOL=ON",
                 "-DBUILD_TESTING:BOOL=OFF",
