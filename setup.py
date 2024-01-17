@@ -44,7 +44,8 @@ setuptools.setup(
                 "-DBUILD_SHARED_LIBS:BOOL=OFF",
                 "-DCALL_FROM_SETUP_PY:BOOL=ON",
                 "-DBUILD_TESTING:BOOL=OFF",
-                f"-Dpybind11_DIR={pybind11_dir_path}"
+                f"-Dpybind11_DIR={pybind11_dir_path}",
+                f"-DPython3_EXECUTABLE={sys.executable}"
             ],
             # Disable Ninja build generator
             cmake_generator=None

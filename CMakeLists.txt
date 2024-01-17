@@ -131,7 +131,6 @@ if(ENABLE_PCH)
       "<pybind11/operators.h>"
       "<pybind11/pybind11.h>"
       "<pybind11/pytypes.h>"
-      "<pybind11/stl.h>"
       "<pybind11/stl_bind.h>")
 endif()
 
