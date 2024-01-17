@@ -35,6 +35,22 @@ using VecProbePtr = std::vector<std::shared_ptr<urx::Probe>>;
 using VecWavePtr = std::vector<std::shared_ptr<urx::Wave>>;
 using VecGroupData = std::vector<urx::GroupData>;
 
+PYBIND11_MAKE_OPAQUE(VecFloat64);
+PYBIND11_MAKE_OPAQUE(VecVecFloat64);
+PYBIND11_MAKE_OPAQUE(VecUInt32);
+PYBIND11_MAKE_OPAQUE(VecVecUInt32);
+
+PYBIND11_MAKE_OPAQUE(VecGroupPtr);
+PYBIND11_MAKE_OPAQUE(VecElementGeometryPtr);
+PYBIND11_MAKE_OPAQUE(VecImpulseResponsePtr);
+PYBIND11_MAKE_OPAQUE(VecElement);
+PYBIND11_MAKE_OPAQUE(VecExcitationPtr);
+PYBIND11_MAKE_OPAQUE(VecEvent);
+PYBIND11_MAKE_OPAQUE(VecVector3D);
+PYBIND11_MAKE_OPAQUE(VecProbePtr);
+PYBIND11_MAKE_OPAQUE(VecWavePtr);
+PYBIND11_MAKE_OPAQUE(VecGroupData);
+
 namespace urx::python::detail {
 void registerVector(pybind11::module_& m);
 }

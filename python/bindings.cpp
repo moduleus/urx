@@ -42,22 +42,6 @@
 
 namespace py = pybind11;
 
-PYBIND11_MAKE_OPAQUE(VecFloat64);
-PYBIND11_MAKE_OPAQUE(VecVecFloat64);
-PYBIND11_MAKE_OPAQUE(VecUInt32);
-PYBIND11_MAKE_OPAQUE(VecVecUInt32);
-
-PYBIND11_MAKE_OPAQUE(VecGroupPtr);
-PYBIND11_MAKE_OPAQUE(VecElementGeometryPtr);
-PYBIND11_MAKE_OPAQUE(VecImpulseResponsePtr);
-PYBIND11_MAKE_OPAQUE(VecElement);
-PYBIND11_MAKE_OPAQUE(VecExcitationPtr);
-PYBIND11_MAKE_OPAQUE(VecEvent);
-PYBIND11_MAKE_OPAQUE(VecVector3D);
-PYBIND11_MAKE_OPAQUE(VecProbePtr);
-PYBIND11_MAKE_OPAQUE(VecWavePtr);
-PYBIND11_MAKE_OPAQUE(VecGroupData);
-
 // NOLINTBEGIN(misc-redundant-expression)
 PYBIND11_MODULE(bindings, m) {
   m.doc() = "Variant C++ binding POC";
