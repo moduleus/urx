@@ -350,9 +350,15 @@ build:windows-python:
     - win10
     - python
   before_script:
-    - pew new CI-urx -i build -i twine -i wheel -i setuptools
+    - pew new CI-urx -i build -i twine -i wheel -i setuptools -i cmake
   script:
-    - pew in CI-urx pip install .
+    - git clone --depth 1 --branch boost-pfr-with-get_name https://git.moduleus.com/common/sw/3rdparty/vcpkg.git
+    - $vcpkg_tag = (Get-Content vcpkg\scripts\vcpkg-tool-metadata.txt) | Select-String -Pattern '^VCPKG_TOOL_RELEASE_TAG=(.*)'  | %{$_.Matches.Groups[1].value}
+    - $url="https://github.com/microsoft/vcpkg-tool/releases/download/$vcpkg_tag/vcpkg.exe"
+    - $destination="$Env:VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag.exe"
+    - if(-not(Test-Path $destination)){Invoke-WebRequest -Uri $url -OutFile $destination}
+    - Copy-Item $destination vcpkg/vcpkg.exe
+    - pew in CI-urx pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=$($PWD -replace '\\', '\\')\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake"
 
 test:windows-python:
   stage: test
@@ -373,9 +379,13 @@ build:ubuntu-python:
     - ubuntu
     - python
   before_script:
-    - pew new CI-urx -i build -i twine -i wheel -i setuptools
+    - pew new CI-urx -i build -i twine -i wheel -i setuptools -i cmake
   script:
-    - pew in CI-urx pip install .
+    - git clone --depth 1 --branch boost-pfr-with-get_name https://git.moduleus.com/common/sw/3rdparty/vcpkg.git
+    - vcpkg_tag=$(sed -n 's/^VCPKG_TOOL_RELEASE_TAG=\(.*\)/\1/p' < vcpkg/scripts/vcpkg-tool-metadata.txt)
+    - if [ ! -f "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag" ]; then wget -O "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag" "https://github.com/microsoft/vcpkg-tool/releases/download/$vcpkg_tag/vcpkg-glibc" || exit 1; chmod +x "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag"; fi
+    - cp $VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag vcpkg/vcpkg || exit 1
+    - pew in CI-urx pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=`pwd`/vcpkg/scripts/buildsystems/vcpkg.cmake"
 
 test:ubuntu-python:
   stage: test

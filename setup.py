@@ -10,17 +10,17 @@ from setuptools import setup, find_packages
 from pathlib import Path
 
 
-def find_package_filepath(package, filename):
-    found_paths = [file.locate()
-                   for file in imp.files(package) if file.name == filename]
-    if not found_paths:
-        raise Exception(f"No '{filename}' found in '{package}'.")
-    return found_paths[0]
-
-
-pybind11_dir_path = find_package_filepath(
-    "pybind11", "pybind11Config.cmake").parent
-
+CMAKE_TOOLCHAIN_FILE = next(
+    (arg for arg in sys.argv if arg.startswith("CMAKE_TOOLCHAIN_FILE")), None)
+if CMAKE_TOOLCHAIN_FILE != None:
+    sys.argv.remove(CMAKE_TOOLCHAIN_FILE)
+    if sys.platform == 'win32':
+        TRIPLET = "x64-windows-static-md"
+    else:
+        TRIPLET = "x64-linux"
+else:
+    raise Exception(
+        'Missing CMAKE_TOOLCHAIN_FILE for VCPKG in --global-option')
 
 init_py = inspect.cleandoc(
     f"""
@@ -31,7 +31,6 @@ init_py = inspect.cleandoc(
     """
 )
 
-
 setuptools.setup(
     ext_modules=[
         cmake_build_extension.CMakeExtension(
@@ -41,10 +40,15 @@ setuptools.setup(
             source_dir=str(Path(__file__).parent.absolute()),
             cmake_configure_options=[
                 "-DWITH_PYTHON:BOOL=ON",
+                "-DWITH_HDF5:BOOL=OFF",
                 "-DBUILD_SHARED_LIBS:BOOL=OFF",
                 "-DCALL_FROM_SETUP_PY:BOOL=ON",
                 "-DBUILD_TESTING:BOOL=OFF",
-                f"-Dpybind11_DIR={pybind11_dir_path}",
+                f"-DVCPKG_TARGET_TRIPLET={TRIPLET}",
+                f"-DVCPKG_HOST_TRIPLET={TRIPLET}",
+                f"-D{CMAKE_TOOLCHAIN_FILE}",
+                "-DVCPKG_MANIFEST_MODE:BOOL=ON",
+                f"-DVCPKG_MANIFEST_DIR={str(Path(__file__).parent.absolute())}",
                 f"-DPython3_EXECUTABLE={sys.executable}"
             ],
             # Disable Ninja build generator
