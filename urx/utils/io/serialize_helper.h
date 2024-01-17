@@ -1,9 +1,9 @@
 #pragma once
 
 #include <cstddef>
-#include <map>
 #include <string>
 #include <typeindex>
+#include <unordered_map>
 
 namespace urx::utils::io {
 
@@ -11,7 +11,7 @@ namespace urx::utils::io {
   (reinterpret_cast<size_t>(&(child)) - reinterpret_cast<size_t>(&(parent)))
 
 struct SerializeHelper {
-  static std::map<std::type_index, std::map<size_t, std::string>> member_name;
+  static std::unordered_map<std::type_index, std::unordered_map<size_t, std::string>> member_name;
 };
 
 }  // namespace urx::utils::io
