@@ -10,10 +10,10 @@ from setuptools import setup, find_packages
 from pathlib import Path
 
 
-CMAKE_TOOLCHAIN_FILE = next(
+CMAKE_TOOLCHAIN_FILE_arg = next(
     (arg for arg in sys.argv if arg.startswith("CMAKE_TOOLCHAIN_FILE")), None)
-if CMAKE_TOOLCHAIN_FILE != None:
-    sys.argv.remove(CMAKE_TOOLCHAIN_FILE)
+if CMAKE_TOOLCHAIN_FILE_arg != None:
+    sys.argv.remove(CMAKE_TOOLCHAIN_FILE_arg)
     if sys.platform == 'win32':
         TRIPLET = "x64-windows-static-md"
     else:
@@ -21,6 +21,14 @@ if CMAKE_TOOLCHAIN_FILE != None:
 else:
     raise Exception(
         'Missing CMAKE_TOOLCHAIN_FILE for VCPKG in --global-option')
+
+cmake_build_type_arg = next(
+    (arg for arg in sys.argv if arg.startswith("cmake_build_type=")), None)
+if cmake_build_type_arg != None:
+    sys.argv.remove(cmake_build_type_arg)
+    cmake_build_type_arg = cmake_build_type_arg[len("cmake_build_type="):]
+else:
+    cmake_build_type_arg = "Release"
 
 init_py = inspect.cleandoc(
     f"""
@@ -38,6 +46,7 @@ setuptools.setup(
             install_prefix="pyurx",
             write_top_level_init=init_py,
             source_dir=str(Path(__file__).parent.absolute()),
+            cmake_build_type=f"{cmake_build_type_arg}",
             cmake_configure_options=[
                 "-DWITH_PYTHON:BOOL=ON",
                 "-DWITH_HDF5:BOOL=ON",
@@ -46,7 +55,7 @@ setuptools.setup(
                 "-DBUILD_TESTING:BOOL=OFF",
                 f"-DVCPKG_TARGET_TRIPLET={TRIPLET}",
                 f"-DVCPKG_HOST_TRIPLET={TRIPLET}",
-                f"-D{CMAKE_TOOLCHAIN_FILE}",
+                f"-D{CMAKE_TOOLCHAIN_FILE_arg}",
                 "-DVCPKG_MANIFEST_MODE:BOOL=ON",
                 f"-DVCPKG_MANIFEST_DIR={str(Path(__file__).parent.absolute())}",
                 f"-DPython3_EXECUTABLE={sys.executable}"

@@ -1,6 +1,4 @@
-#include <functional>
 #include <memory>
-#include <utility>
 
 #include <urx/acquisition.h>
 #include <urx/dataset.h>

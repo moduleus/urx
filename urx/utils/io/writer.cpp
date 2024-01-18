@@ -1,9 +1,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
-#include <functional>
 #include <iterator>
-#include <map>
 #include <memory>
 #include <stdexcept>
 #include <string_view>

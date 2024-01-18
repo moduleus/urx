@@ -122,8 +122,6 @@ format:autopep8-format:
   tags:
     - docker
   script:
-    - git diff
-    - cat test/io/resources/v_0_2_short.urx
     - mkdir CI
     - find . -name "*.py" -exec autopep8 {} -i \;
     - git diff > CI/format.patch
@@ -352,7 +350,7 @@ build:windows-python:
     - win10
     - python
   before_script:
-    - pew new CI-urx -i build -i twine -i wheel -i setuptools -i cmake
+    - pew new CI-urx -r requirements-gitlab.txt
   script:
     - git clone --depth 1 --branch boost-pfr-with-get_name https://git.moduleus.com/common/sw/3rdparty/vcpkg.git
     - $vcpkg_tag = (Get-Content vcpkg\scripts\vcpkg-tool-metadata.txt) | Select-String -Pattern '^VCPKG_TOOL_RELEASE_TAG=(.*)'  | %{$_.Matches.Groups[1].value}
@@ -381,7 +379,7 @@ build:ubuntu-python:
     - ubuntu
     - python
   before_script:
-    - pew new CI-urx -i build -i twine -i wheel -i setuptools -i cmake
+    - pew new CI-urx -r requirements-gitlab.txt
   script:
     - git clone --depth 1 --branch boost-pfr-with-get_name https://git.moduleus.com/common/sw/3rdparty/vcpkg.git
     - vcpkg_tag=$(sed -n 's/^VCPKG_TOOL_RELEASE_TAG=\(.*\)/\1/p' < vcpkg/scripts/vcpkg-tool-metadata.txt)
