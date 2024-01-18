@@ -30,6 +30,7 @@
 #include <urx/transform.h>
 #include <urx/transmit_setup.h>
 #include <urx/urx.h>
+#include <urx/utils/group_data_reader.h>
 #include <urx/utils/io/reader.h>
 #include <urx/utils/io/reader_v0_3.h>
 #include <urx/utils/io/upgrade.h>
@@ -73,6 +74,35 @@
 namespace urx::utils::io {
 
 namespace {
+
+///
+/// Utility function to correct polarization on samples received on rows elements on RCA.
+///
+template <class T>
+void negateSamplesReceivedOnRows(urx::GroupData& group_data) {
+  const urx::Group& group = *group_data.group.lock();
+  GroupDataReader data_reader{group_data};
+  for (size_t evt_idx = 0; evt_idx < data_reader.eventsCount(); evt_idx++) {
+    const auto& event = group.sequence[evt_idx];
+    if (event.receive_setup.probe.lock()->type != urx::Probe::ProbeType::RCA) continue;
+
+    const auto& cm = event.receive_setup.channel_mapping;
+    const auto& pe = event.receive_setup.probe.lock()->elements;
+    const auto& e0p = pe[cm[0][0]].transform.translation;
+    const auto& e1p = pe[cm[1][0]].transform.translation;
+
+    bool is_received_on_rows = std::abs(e1p.x - e0p.x) > std::abs(e1p.y - e0p.y);
+
+    if (is_received_on_rows) {
+      for (size_t seq_idx = 0; seq_idx < data_reader.sequencesCount(); seq_idx++) {
+        std::transform(data_reader.operator()<T>(seq_idx, evt_idx),
+                       data_reader.operator()<T>(seq_idx, evt_idx + 1),
+                       data_reader.operator()<T>(seq_idx, evt_idx), std::negate<T>());
+      }
+    }
+  }
+}
+
 // Memo about conversion:
 // From uff v0_2, has been removed: Aperture, Probe::focalLength, TransmitWave::weight
 template <typename T>
@@ -402,6 +432,8 @@ std::shared_ptr<urx::Dataset> ConvertV0_2(const std::string& filename) {
     new_group_data.group_timestamp = 0;
 
     retval->acquisition.groups_data.push_back(std::move(new_group_data));
+
+    negateSamplesReceivedOnRows<T>(new_group_data);
   }
 
   return retval;
@@ -708,6 +740,8 @@ std::shared_ptr<urx::Dataset> ConvertV0_3(const std::string& filename) {
                    });
 
     retval->acquisition.groups_data.push_back(std::move(new_group_data));
+
+    negateSamplesReceivedOnRows<short>(new_group_data);
   }
 
   return retval;
