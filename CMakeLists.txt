@@ -26,6 +26,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_LINK_WHAT_YOU_USE ON)
 
 option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
+option(ENABLE_PCH "Build with PCH" ON)
 
 add_compile_options($<$<CXX_COMPILER_ID:MSVC>:/MP>)
 add_compile_definitions(_SILENCE_NONFLOATING_COMPLEX_DEPRECATION_WARNING)
@@ -76,60 +77,62 @@ option(WITH_MATLAB "Build Matlab wrappers" OFF)
 option(WITH_PYTHON "Build Python module" OFF)
 enable_testing()
 
-set(URX_PCH
-    "<algorithm>"
-    "<array>"
-    "<cassert>"
-    "<cmath>"
-    "<complex>"
-    "<cstddef>"
-    "<cstdint>"
-    "<cstdio>"
-    "<cstdlib>"
-    "<cstring>"
-    "<exception>"
-    "<iomanip>"
-    "<ios>"
-    "<iosfwd>"
-    "<iostream>"
-    "<istream>"
-    "<iterator>"
-    "<limits>"
-    "<locale>"
-    "<memory>"
-    "<optional>"
-    "<ostream>"
-    "<regex>"
-    "<sstream>"
-    "<stdexcept>"
-    "<string_view>"
-    "<string>"
-    "<type_traits>"
-    "<typeindex>"
-    "<unordered_map>"
-    "<utility>"
-    "<variant>"
-    "<vector>"
-    "<version>")
-if(WITH_HDF5)
-  set(URX_PCH_IO_V2_0 "<H5Cpp.h>")
-  set(URX_PCH_IO "<H5Cpp.h>" "<boost/pfr.hpp>" "<magic_enum.hpp>")
+if(ENABLE_PCH)
+  set(URX_PCH
+      "<algorithm>"
+      "<array>"
+      "<cassert>"
+      "<cmath>"
+      "<complex>"
+      "<cstddef>"
+      "<cstdint>"
+      "<cstdio>"
+      "<cstdlib>"
+      "<cstring>"
+      "<exception>"
+      "<iomanip>"
+      "<ios>"
+      "<iosfwd>"
+      "<iostream>"
+      "<istream>"
+      "<iterator>"
+      "<limits>"
+      "<locale>"
+      "<memory>"
+      "<optional>"
+      "<ostream>"
+      "<regex>"
+      "<sstream>"
+      "<stdexcept>"
+      "<string_view>"
+      "<string>"
+      "<type_traits>"
+      "<typeindex>"
+      "<unordered_map>"
+      "<utility>"
+      "<variant>"
+      "<vector>"
+      "<version>")
+  if(WITH_HDF5)
+    set(URX_PCH_IO_V2_0 "<H5Cpp.h>")
+    set(URX_PCH_IO "<H5Cpp.h>" "<boost/pfr.hpp>" "<magic_enum.hpp>")
+  endif()
+  if(BUILD_TESTING)
+    set(URX_PCH_TEST
+        "<catch2/catch_test_macros.hpp>"
+        "<catch2/matchers/catch_matchers_floating_point.hpp>"
+        "<catch2/matchers/catch_matchers.hpp>")
+  endif()
+  set(URX_PCH_PYTHON
+      "<pybind11/attr.h>"
+      "<pybind11/buffer_info.h>"
+      "<pybind11/cast.h>"
+      "<pybind11/numpy.h>"
+      "<pybind11/operators.h>"
+      "<pybind11/pybind11.h>"
+      "<pybind11/pytypes.h>"
+      "<pybind11/stl_bind.h>")
 endif()
-if(BUILD_TESTING)
-  set(URX_PCH_TEST
-      "<catch2/catch_test_macros.hpp>"
-      "<catch2/matchers/catch_matchers_floating_point.hpp>"
-      "<catch2/matchers/catch_matchers.hpp>")
-endif()
-set(URX_PCH_PYTHON
-    "<pybind11/attr.h>"
-    "<pybind11/buffer_info.h>"
-    "<pybind11/cast.h>"
-    "<pybind11/numpy.h>"
-    "<pybind11/operators.h>"
-    "<pybind11/pybind11.h>"
-    "<pybind11/pytypes.h>"
-    "<pybind11/stl_bind.h>")
 
 add_subdirectory("urx")
 

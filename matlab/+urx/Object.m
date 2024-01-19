@@ -73,6 +73,35 @@ classdef Object < handle
   end
 
   methods (Static)
+    function res = functionAssign(className, typeDest, typeSrc)
+      res = [className '_assign'];
+      if typeDest == urx.PtrType.SHARED
+        res = [res '_shared'];
+      elseif typeDest == urx.PtrType.WEAK
+        res = [res '_weak'];
+      else
+        res = [res '_raw'];
+      end
+      if typeSrc
+        res = [res '_shared'];
+      else
+        res = [res '_raw'];
+      end
+    end
+    
+    function res = functionVector(className, func, type, nbDims)
+      res = 'vector';
+      if type == urx.PtrType.SHARED
+        res = [res '_shared'];
+      elseif type == urx.PtrType.WEAK
+        res = [res '_weak'];
+      end
+      if nbDims == 2
+        res = [res '_2d'];
+      end
+      res = [res '_' className '_' func];
+    end
+    
     function handlePropEvents(src,evnt)
       % Since this function read properties from urx object, it may be
       % needed to disable Get/Set Recution.
@@ -126,6 +155,11 @@ classdef Object < handle
       % Get data from event.
       affectedObject = evnt.AffectedObject;
       affectedPropertyName = src.Name;
+      if any(strcmp(properties(affectedObject), [affectedPropertyName 'Std']))
+        affectedPropertyStd = affectedObject.([affectedPropertyName 'Std']);
+      else
+        affectedPropertyStd = [];
+      end
       disableGetRecursion = disableGetRecursion + 1;
       % Get current cached value of the property.
       % Get must be disabled to avoid recursion.
@@ -144,6 +178,8 @@ classdef Object < handle
       functionCFieldAccessor = strrep(class(affectedObject), '.', '_');
       if affectedObject.ptrType == urx.PtrType.SHARED
         functionCFieldAccessor = [functionCFieldAccessor '_shared'];
+      elseif affectedObject.ptrType == urx.PtrType.WEAK
+        functionCFieldAccessor = [functionCFieldAccessor '_weak'];
       end
       functionCFieldAccessor = [functionCFieldAccessor '_' urx.Object.camelToSnakeCase(affectedPropertyName)];
       libBindingRef = urx.LibBinding.getInstance();
@@ -157,8 +193,10 @@ classdef Object < handle
         % one.
         % PostSet will need them to update urx object in C data.
         case 'PreSet'
-          affectedObject.saveId = affectedProperty.id;
-          affectedObject.savePtrType = affectedProperty.ptrType;
+          if isa(affectedProperty, 'urx.Object') && isempty(affectedPropertyStd)
+            affectedObject.saveId = affectedProperty.id;
+            affectedObject.savePtrType = affectedProperty.ptrType;
+          end
 
         case 'PostSet'
           if ischar(affectedProperty)
@@ -167,57 +205,72 @@ classdef Object < handle
             assert(numel(affectedProperty) == 1);
             affectedCFieldPtr.setdatatype('int32Ptr', 1);
             affectedCFieldPtr.Value = int32(affectedProperty);
-          % Native type.
-          elseif ~isa(affectedProperty, 'urx.Object')
-            if (numel(affectedProperty) ~= 1)
-              throw(MException('urx:fatalError', 'Only single value is supported.'));
-            end
-            affectedCFieldPtr.setdatatype([affectedPropertyClassName 'Ptr'], numel(affectedProperty));
-            affectedCFieldPtr.Value = affectedProperty;
-          else % urx.Object
-
-            % When you assign an urx object to another one, you don't
-            % assign pointer, you copy data from a pointer to another
-            % pointer.
-            % So after assigning new data to old data, you need to free new
-            % data (that has been copied to old data).
-            assignFunction = [strrep(affectedPropertyClassName, '.', '_') '_assign'];
-            if affectedObject.savePtrType == urx.PtrType.SHARED
-              assignFunction = [assignFunction '_shared'];
-            elseif affectedObject.savePtrType == urx.PtrType.WEAK
-              assignFunction = [assignFunction '_weak'];
+            % Not a stdVector
+          elseif isempty(affectedPropertyStd)
+            % Native type.
+            if ~isa(affectedProperty, 'urx.Object')
+              if numel(affectedProperty) ~= 1 && (~strncmp(class(affectedObject), 'urx.RawData', strlength('urx.RawData')) || ~strcmp(affectedPropertyName, 'data'))
+                throw(MException('urx:fatalError', 'Only single value is supported.'));
+              end
+              affectedCFieldPtr.setdatatype([affectedPropertyClassName 'Ptr'], size(affectedProperty, 1), size(affectedProperty, 2));
+              affectedCFieldPtr.Value = affectedProperty;
+              % urx.Object
             else
-              assignFunction = [assignFunction '_raw'];
+
+              % When you assign an urx object to another one, you don't
+              % assign pointer, you copy data from a pointer to another
+              % pointer.
+              % So after assigning new data to old data, you need to free new
+              % data (that has been copied to old data).
+              assignFunction = urx.Object.functionAssign(strrep(affectedPropertyClassName, '.', '_'), affectedObject.savePtrType, affectedProperty.ptrType);
+              libBindingRef.call(assignFunction, affectedCFieldPtr, affectedProperty.id);
+
+              affectedProperty.freeMem();
+
+              % Restore pointer and ptrType of the property.
+              affectedProperty.id = affectedObject.saveId;
+              affectedProperty.ptrType = affectedObject.savePtrType;
+
+              % The property must remember the parent. You may want to delete
+              % the parent object and want to use the object property. I.e.
+              % dataset = urx.Dataset();
+              % version = urx.Version();
+              % version.minor = 111;
+              % dataset.version = version;
+              % clear dataset
+              % Here, version variable must be usable even if dataset
+              % (and dataset.version) is cleared.
+              affectedProperty.parent = affectedObject;
             end
-            if affectedProperty.ptrType
-              assignFunction = [assignFunction '_shared'];
+          else
+            affectedPropertyStd.id = affectedCFieldPtr;
+            affectedPropertyStd.clear();
+            % Check consistency.
+            if affectedPropertyStd.nbDims == 1
+              assert(strcmp(class(affectedProperty), affectedPropertyStd.objectClassName));
+              for i = 1:numel(affectedProperty)
+                if isa(affectedProperty(i), 'urx.Object')
+                  affectedProperty(i).parent = affectedObject;
+                end
+                affectedPropertyStd.pushBack(affectedProperty(i));
+              end
             else
-              assignFunction = [assignFunction '_raw'];
+              assert(affectedPropertyStd.nbDims == 2);
+              assert(iscell(affectedProperty));
+              for i = 1:numel(affectedProperty)
+                vectori = urx.StdVector(affectedPropertyStd.objectClassName, affectedPropertyStd.nbDims-1, affectedPropertyStd.ptrType);
+                for j = 1:numel(affectedProperty{i})
+                  vectori.pushBack(affectedProperty{i}(j));
+                end
+                affectedPropertyStd.pushBack(vectori);
+              end
             end
-            libBindingRef.call(assignFunction, affectedObject.saveId, affectedProperty.id);
-
-            affectedProperty.freeMem();
-
-            % Restore pointer and ptrType of the property.
-            affectedProperty.id = affectedObject.saveId;
-            affectedProperty.ptrType = affectedObject.savePtrType;
-
-            % The property must remember the parent. You may want to delete
-            % the parent object and want to use the object property. I.e.
-            % dataset = urx.Dataset();
-            % version = urx.Version();
-            % version.minor = 111;
-            % dataset.version = version;
-            % clear dataset
-            % Here, version variable must be usable even if dataset
-            % (and dataset.version) is cleared.
-            affectedProperty.parent = affectedObject;
           end
 
-        % Before every get:
-        %   - if the property is a native type: the value must be updated,
-        %   - if the property is an object (C or urx), the pointer of the C
-        %       object must be updated.
+          % Before every get:
+          %   - if the property is a native type: the value must be updated,
+          %   - if the property is an object (C or urx), the pointer of the C
+          %       object must be updated.
         case 'PreGet'
           % Disable recursion because all
           % affectedObject.(affectedPropertyName) will generate an
@@ -229,30 +282,27 @@ classdef Object < handle
             assert(numel(affectedProperty) == 1);
             affectedCFieldPtr.setdatatype('int32Ptr', 1);
             affectedCFieldPtr.Value = int32(affectedProperty);
-          elseif isa(affectedProperty, 'urx.StdVector')
-            affectedObject.(affectedPropertyName).id = affectedCFieldPtr;
-          % Native type.
-          elseif ~isa(affectedProperty, 'urx.Object') 
+          elseif ~isa(affectedProperty, 'urx.Object') && isempty(affectedPropertyStd)
             % RawData.data is the only property that have an array of an
             % not urx.Object.
-            if (strncmp(class(affectedObject), 'urx.RawData', strlength('urx.RawData')) && strcmp(affectedPropertyName, 'data'))
+            if strncmp(class(affectedObject), 'urx.RawData', strlength('urx.RawData')) && strcmp(affectedPropertyName, 'data')
               strSplit = split(class(affectedObject), '_');
-              if (strcmp(strSplit(end), 'real'))
+              if strcmp(strSplit(end), 'real')
                 d2dim = 1;
               else
                 d2dim = 2;
               end
-              affectedCFieldPtr.setdatatype([cell2mat(strSplit(2)) 'Ptr'], affectedObject.size, d2dim);
+              affectedCFieldPtr.setdatatype([strSplit{2} 'Ptr'], d2dim, affectedObject.size);
             else
               assert(numel(affectedProperty) == 1);
               affectedCFieldPtr.setdatatype([affectedPropertyClassName 'Ptr'], 1);
             end
 
             affectedObject.(affectedPropertyName) = affectedCFieldPtr.Value;
-          else % urx.Object
+          elseif isempty(affectedPropertyStd) % urx.Object
             % Ugly but to get data from a pointer, You need to know if you
             % are manipulating shared_ptr, weak_ptr or raw pointer.
-            if any(strcmp({'rawData'},affectedPropertyName))
+            if any(strcmp({'rawData'}, affectedPropertyName))
               ptrIsShared = urx.PtrType.SHARED;
             elseif any(strcmp({'elementGeometry','impulseResponse','group','probe','wave'},affectedPropertyName))
               ptrIsShared = urx.PtrType.WEAK;

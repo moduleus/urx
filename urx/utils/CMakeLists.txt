@@ -56,11 +56,13 @@ endif()
 set(URX_UTILS_LIBRARY UrxUtils)
 add_library(${URX_UTILS_LIBRARY} ${URX_UTILS_SRCS})
 add_library(Urx::${URX_UTILS_LIBRARY} ALIAS ${URX_UTILS_LIBRARY})
-if(WITH_PYTHON)
-  target_precompile_headers(${URX_UTILS_LIBRARY} PRIVATE ${URX_PCH}
-                            ${URX_PCH_PYTHON})
-else()
-  target_precompile_headers(${URX_UTILS_LIBRARY} PRIVATE ${URX_PCH})
+if(ENABLE_PCH)
+  if(WITH_PYTHON)
+    target_precompile_headers(${URX_UTILS_LIBRARY} PRIVATE ${URX_PCH}
+                              ${URX_PCH_PYTHON})
+  else()
+    target_precompile_headers(${URX_UTILS_LIBRARY} PRIVATE ${URX_PCH})
+  endif()
 endif()
 
 # Define include directories
@@ -84,7 +86,9 @@ if(WITH_HDF5)
     PRIVATE hdf5::hdf5-${SEARCH_TYPE} hdf5::hdf5_cpp-${SEARCH_TYPE}
     PRIVATE magic_enum::magic_enum)
   target_include_directories(${URX_UTILS_LIBRARY} PRIVATE ${Boost_INCLUDE_DIRS})
-  target_precompile_headers(${URX_UTILS_LIBRARY} PRIVATE ${URX_PCH_IO})
+  if(ENABLE_PCH)
+    target_precompile_headers(${URX_UTILS_LIBRARY} PRIVATE ${URX_PCH_IO})
+  endif()
 endif()
 
 # Install library ###

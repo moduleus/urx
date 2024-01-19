@@ -2,12 +2,15 @@
 #include <cstddef>
 #include <cstdint>
 #include <iterator>
+#include <stdexcept>
+#include <string_view>
 #include <unordered_map>
 #include <utility>
 #include <vector>
 #include <version>
 
 #include <H5Cpp.h>
+#include <magic_enum.hpp>
 
 #include <urx/acquisition.h>
 #include <urx/dataset.h>
@@ -252,17 +255,16 @@ std::shared_ptr<urx::Dataset> ConvertV0_2(const std::string& filename) {
     switch (new_wave->type) {
       case urx::Wave::WaveType::CONVERGING_WAVE:
       case urx::Wave::WaveType::DIVERGING_WAVE:
+      case urx::Wave::WaveType::CYLINDRICAL_WAVE: {
+        throw std::runtime_error(("Upgrade from " +
+                                  std::string(magic_enum::enum_name(new_wave->type)) +
+                                  " is not implemented.\n")
+                                     .c_str());
+      }
       case urx::Wave::WaveType::PLANE_WAVE: {
         new_wave->parameters = {old_wave->origin().translation().x(),
                                 old_wave->origin().translation().y(),
                                 old_wave->origin().translation().z()};
-        break;
-      }
-      case urx::Wave::WaveType::CYLINDRICAL_WAVE: {
-        new_wave->parameters = {
-            old_wave->origin().translation().x(), old_wave->origin().translation().y(),
-            old_wave->origin().translation().z(), old_wave->origin().rotation().x(),
-            old_wave->origin().rotation().y(),    old_wave->origin().rotation().z()};
         break;
       }
       default: {
@@ -546,20 +548,16 @@ std::shared_ptr<urx::Dataset> ConvertV0_3(const std::string& filename) {
 
     switch (new_wave->type) {
       case urx::Wave::WaveType::CONVERGING_WAVE:
-      case urx::Wave::WaveType::DIVERGING_WAVE: {
-        new_wave->parameters = {old_wave->origin.translation.x, old_wave->origin.translation.y,
-                                old_wave->origin.translation.z};
-        break;
+      case urx::Wave::WaveType::DIVERGING_WAVE:
+      case urx::Wave::WaveType::CYLINDRICAL_WAVE: {
+        throw std::runtime_error(("Upgrade from " +
+                                  std::string(magic_enum::enum_name(new_wave->type)) +
+                                  " is not implemented.\n")
+                                     .c_str());
       }
       case urx::Wave::WaveType::PLANE_WAVE: {
-        new_wave->parameters = {old_wave->origin.rotation.x, old_wave->origin.rotation.y,
-                                old_wave->origin.rotation.z};
-        break;
-      }
-      case urx::Wave::WaveType::CYLINDRICAL_WAVE: {
         new_wave->parameters = {old_wave->origin.translation.x, old_wave->origin.translation.y,
-                                old_wave->origin.translation.z, old_wave->origin.rotation.x,
-                                old_wave->origin.rotation.y,    old_wave->origin.rotation.z};
+                                old_wave->origin.translation.z};
         break;
       }
       default: {
@@ -718,9 +716,8 @@ std::shared_ptr<urx::Dataset> ConvertV0_3(const std::string& filename) {
 std::shared_ptr<urx::Dataset> Upgrade::LoadFromFile(const std::string& filename) {
   const H5::H5File file(filename.data(), H5F_ACC_RDONLY);
 
-  // Check v0_2 format.
-  if (file.nameExists("version")) {
-    const H5::Group group_version(file.openGroup("version"));
+  auto readVersion = [](const H5::H5Location& location) {
+    const H5::Group group_version(location.openGroup("version"));
     const H5::StrType datatype(H5::PredType::NATIVE_INT);
     const H5::DataSet dataset_major = group_version.openDataSet("major");
     int major;
@@ -728,6 +725,13 @@ std::shared_ptr<urx::Dataset> Upgrade::LoadFromFile(const std::string& filename)
     const H5::DataSet dataset_minor = group_version.openDataSet("minor");
     int minor;
     dataset_minor.read(&minor, datatype);
+
+    return std::tuple(major, minor);
+  };
+
+  // Check v0_2 format.
+  if (file.nameExists("version")) {
+    auto [major, minor] = readVersion(file);
 
     if (major == urx::v0_2::URX_VERSION_MAJOR && minor == urx::v0_2::URX_VERSION_MINOR) {
       const H5::Group group_channel_data(file.openGroup("channel_data"));
@@ -745,6 +749,13 @@ std::shared_ptr<urx::Dataset> Upgrade::LoadFromFile(const std::string& filename)
     if (major == urx::v0_3::URX_VERSION_MAJOR && minor == urx::v0_3::URX_VERSION_MINOR) {
       return ConvertV0_3(filename);
     }
+
+    if (major == urx::URX_VERSION_MAJOR && minor == urx::URX_VERSION_MINOR) {
+      return urx::utils::io::Reader::loadFromFile(filename);
+    }
+  } else if (file.nameExists("dataset")) {
+    const H5::Group group_version(file.openGroup("dataset"));
+    auto [major, minor] = readVersion(group_version);
 
     if (major == urx::URX_VERSION_MAJOR && minor == urx::URX_VERSION_MINOR) {
       return urx::utils::io::Reader::loadFromFile(filename);

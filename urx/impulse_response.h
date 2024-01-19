@@ -9,9 +9,6 @@
 
 namespace urx {
 
-/**
- * @brief The URX class describing the temporal impulse response
- */
 struct ImpulseResponse {
   bool operator==(const ImpulseResponse& other) const {
     return sampling_frequency == other.sampling_frequency && time_offset == other.time_offset &&

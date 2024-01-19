@@ -8,7 +8,9 @@ set(URX_TEST_FILES
     test_Version.cpp)
 
 add_executable(UrxClasses ${URX_TEST_FILES})
-target_precompile_headers(UrxClasses PRIVATE ${URX_PCH} ${URX_PCH_TEST})
+if(ENABLE_PCH)
+  target_precompile_headers(UrxClasses PRIVATE ${URX_PCH} ${URX_PCH_TEST})
+endif()
 
 target_include_directories(UrxClasses PUBLIC ${PROJECT_SOURCE_DIR}/urx)
 
