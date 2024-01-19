@@ -184,53 +184,6 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
   }
 
   {
-    auto wave = std::make_shared<Wave>();
-    wave->type = Wave::WaveType::CYLINDRICAL_WAVE;
-    wave->time_zero_reference_point.x = 3;
-    wave->time_zero_reference_point.y = 4;
-    wave->time_zero_reference_point.z = 5;
-    wave->time_zero = 5.11;
-    wave->channel_mapping = {{1, 2, 3, 45, 9, 7, 5},
-                             {1, 2, 5, 7, 58, 961, 5, 5, 7, 7, 8, 5},
-                             {12, 12},
-                             {12, 12},
-                             {12, 12},
-                             {12, 12},
-                             {12, 12},
-                             {12, 12},
-                             {12, 12},
-                             {12, 12},
-                             {12, 12}};
-    wave->channel_excitations = {dataset->acquisition.excitations[0],
-                                 dataset->acquisition.excitations[1]};
-    wave->channel_delays = {1.2, 45, .26, 1.2, 5};
-    wave->parameters = {1, .2, 4, 3, 6, 4.5};
-    dataset->acquisition.waves.push_back(wave);
-
-    wave = std::make_shared<Wave>();
-    wave->type = Wave::WaveType::CONVERGING_WAVE;
-    wave->time_zero_reference_point.x = 5;
-    wave->time_zero_reference_point.y = 4;
-    wave->time_zero_reference_point.z = 4;
-    wave->time_zero = 5.11;
-    wave->channel_mapping = {{45, 4, 2, 5, 54, 53, 5, 5, 66},
-                             {5, 7, 25, 1, 3, 5, 245, 6, 42},
-                             {12, 12},
-                             {12, 12},
-                             {12, 12},
-                             {12, 12},
-                             {12, 12},
-                             {12, 12},
-                             {12, 12},
-                             {12, 12}};
-    wave->channel_excitations = {dataset->acquisition.excitations[1],
-                                 dataset->acquisition.excitations[0]};
-    wave->channel_delays = {1.2, .3, .5, 10.4};
-    wave->parameters = {7, 53, .2, 1, .3, 5.6, 7};
-    dataset->acquisition.waves.push_back(wave);
-  }
-
-  {
     auto group = std::make_shared<Group>();
     group->sampling_type = Group::SamplingType::IQ;
     group->data_type = Group::DataType::INT16;
@@ -244,7 +197,16 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
       event.transmit_setup.probe_transform.translation.y = 4.3;
       event.transmit_setup.probe_transform.translation.z = 8.2;
       event.transmit_setup.time_offset = 120.2;
-      event.transmit_setup.wave = dataset->acquisition.waves[1];
+      event.transmit_setup.wave.type = Wave::WaveType::CONVERGING_WAVE;
+      event.transmit_setup.wave.time_zero_reference_point.x = 5;
+      event.transmit_setup.wave.time_zero_reference_point.y = 4;
+      event.transmit_setup.wave.time_zero_reference_point.z = 4;
+      event.transmit_setup.wave.time_zero = 5.11;
+      event.transmit_setup.wave.parameters = {7, 53, .2, 1, .3, 5.6, 7};
+      event.transmit_setup.active_elements = {{0, 1}, {0}};
+      event.transmit_setup.excitations = {dataset->acquisition.excitations[1],
+                                          dataset->acquisition.excitations[0]};
+      event.transmit_setup.delays = {1.2, .3};
       event.receive_setup.probe = dataset->acquisition.probes[1];
       event.receive_setup.probe_transform.rotation.x = 51;
       event.receive_setup.probe_transform.rotation.y = 85;
@@ -254,7 +216,7 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
       event.receive_setup.probe_transform.translation.z = 8.52;
       event.receive_setup.sampling_frequency = 125468;
       event.receive_setup.number_samples = 4452;
-      event.receive_setup.channel_mapping = {
+      event.receive_setup.active_elements = {
           {1, 2, 753, 8, 6, 2, 1}, {4, 5, 7, 6, 21, 8, 9, 3}, {1, 2, 5, 7, 3, 6, 5}};
       event.receive_setup.tgc_profile = {1.2, 45., 4.5, -4.2, 1, .5, 4.6, 1, 2};
       event.receive_setup.tgc_sampling_frequency = 12.5;
@@ -273,7 +235,16 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
       event.transmit_setup.probe_transform.translation.y = 463;
       event.transmit_setup.probe_transform.translation.z = 872;
       event.transmit_setup.time_offset = 12052;
-      event.transmit_setup.wave = dataset->acquisition.waves[0];
+      event.transmit_setup.wave.type = Wave::WaveType::CONVERGING_WAVE;
+      event.transmit_setup.wave.time_zero_reference_point.x = 5;
+      event.transmit_setup.wave.time_zero_reference_point.y = 4;
+      event.transmit_setup.wave.time_zero_reference_point.z = 4;
+      event.transmit_setup.wave.time_zero = 5.11;
+      event.transmit_setup.wave.parameters = {7, 53, .2, 1, .3, 5.6, 7};
+      event.transmit_setup.active_elements = {{0, 1}, {1}};
+      event.transmit_setup.excitations = {dataset->acquisition.excitations[1],
+                                          dataset->acquisition.excitations[0]};
+      event.transmit_setup.delays = {1.2, .3};
       event.receive_setup.probe = dataset->acquisition.probes[0];
       event.receive_setup.probe_transform.rotation.x = 5;
       event.receive_setup.probe_transform.rotation.y = 8;
@@ -283,7 +254,7 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
       event.receive_setup.probe_transform.translation.z = 52;
       event.receive_setup.sampling_frequency = 1268;
       event.receive_setup.number_samples = 42;
-      event.receive_setup.channel_mapping = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
+      event.receive_setup.active_elements = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
       event.receive_setup.tgc_profile = {1, .2, 4., 5, .1, 5, .45, 5};
       event.receive_setup.tgc_sampling_frequency = 4.5;
       event.receive_setup.modulation_frequency = 4.58;
@@ -306,7 +277,16 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
       event.transmit_setup.probe_transform.translation.y = 4.83;
       event.transmit_setup.probe_transform.translation.z = 8.52;
       event.transmit_setup.time_offset = 1202.2;
-      event.transmit_setup.wave = dataset->acquisition.waves[0];
+      event.transmit_setup.wave.type = Wave::WaveType::CYLINDRICAL_WAVE;
+      event.transmit_setup.wave.time_zero_reference_point.x = 3;
+      event.transmit_setup.wave.time_zero_reference_point.y = 4;
+      event.transmit_setup.wave.time_zero_reference_point.z = 5;
+      event.transmit_setup.wave.time_zero = 5.11;
+      event.transmit_setup.wave.parameters = {1, .2, 4, 3, 6, 4.5};
+      event.transmit_setup.active_elements = {{0}, {1}};
+      event.transmit_setup.excitations = {dataset->acquisition.excitations[1],
+                                          dataset->acquisition.excitations[0]};
+      event.transmit_setup.delays = {1.2, 45};
       event.receive_setup.probe = dataset->acquisition.probes[0];
       event.receive_setup.probe_transform.rotation.x = 5101;
       event.receive_setup.probe_transform.rotation.y = 825;
@@ -316,7 +296,7 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
       event.receive_setup.probe_transform.translation.z = 86.52;
       event.receive_setup.sampling_frequency = 1275468;
       event.receive_setup.number_samples = 48452;
-      event.receive_setup.channel_mapping = {
+      event.receive_setup.active_elements = {
           {1, 2, 5753, 58, 60, 2, 1}, {4, 57, 7, 76, 21, 87, 9, 3}, {17, 26, 57, 7, 8, 3, 6, 5}};
       event.receive_setup.tgc_profile = {01.2, 45., 4.25, -4.52, 1, .5, 4.36, 1, 2};
       event.receive_setup.tgc_sampling_frequency = -12.5;
@@ -335,7 +315,15 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
       event.transmit_setup.probe_transform.translation.y = 43;
       event.transmit_setup.probe_transform.translation.z = 82;
       event.transmit_setup.time_offset = 1202;
-      event.transmit_setup.wave = dataset->acquisition.waves[1];
+      event.transmit_setup.wave.type = Wave::WaveType::CONVERGING_WAVE;
+      event.transmit_setup.wave.time_zero_reference_point.x = 5;
+      event.transmit_setup.wave.time_zero_reference_point.y = 4;
+      event.transmit_setup.wave.time_zero_reference_point.z = 4;
+      event.transmit_setup.wave.time_zero = 5.11;
+      event.transmit_setup.wave.parameters = {7, 53, .2, 1, .3, 5.6, 7};
+      event.transmit_setup.active_elements = {{1}};
+      event.transmit_setup.excitations = {dataset->acquisition.excitations[0]};
+      event.transmit_setup.delays = {1.6};
       event.receive_setup.probe = dataset->acquisition.probes[1];
       event.receive_setup.probe_transform.rotation.x = 55;
       event.receive_setup.probe_transform.rotation.y = 38;
@@ -345,7 +333,7 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
       event.receive_setup.probe_transform.translation.z = 2;
       event.receive_setup.sampling_frequency = 12468;
       event.receive_setup.number_samples = 442;
-      event.receive_setup.channel_mapping = {{15, 32, 3}, {4, 55, 6}, {7, 48, 9}};
+      event.receive_setup.active_elements = {{15, 32, 3}, {4, 55, 6}, {7, 48, 9}};
       event.receive_setup.tgc_profile = {17, .2, 3., 5, .1, 35, .445, 5};
       event.receive_setup.tgc_sampling_frequency = 47.5;
       event.receive_setup.modulation_frequency = 4.558;
@@ -402,11 +390,6 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
 
   REQUIRE(dataset_loaded->acquisition.probes == dataset->acquisition.probes);
   REQUIRE(dataset_loaded->acquisition.excitations == dataset->acquisition.excitations);
-  REQUIRE(dataset_loaded->acquisition.waves[0]->channel_mapping ==
-          dataset->acquisition.waves[0]->channel_mapping);
-  REQUIRE(dataset_loaded->acquisition.waves[0] == dataset->acquisition.waves[0]);
-  REQUIRE(dataset_loaded->acquisition.waves[0] == dataset->acquisition.waves[0]);
-  REQUIRE(dataset_loaded->acquisition.waves == dataset->acquisition.waves);
   REQUIRE(dataset_loaded->acquisition.groups == dataset->acquisition.groups);
   REQUIRE(dataset_loaded->acquisition.groups_data == dataset->acquisition.groups_data);
   REQUIRE(*dataset_loaded == *dataset);

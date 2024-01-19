@@ -18,7 +18,7 @@ struct ReceiveSetup {
   bool operator==(const ReceiveSetup& other) const {
     return probe == other.probe && probe_transform == other.probe_transform &&
            sampling_frequency == other.sampling_frequency &&
-           number_samples == other.number_samples && channel_mapping == other.channel_mapping &&
+           number_samples == other.number_samples && active_elements == other.active_elements &&
            tgc_profile == other.tgc_profile &&
            tgc_sampling_frequency == other.tgc_sampling_frequency &&
            modulation_frequency == other.modulation_frequency && time_offset == other.time_offset;
@@ -34,7 +34,7 @@ struct ReceiveSetup {
 
   uint32_t number_samples = 0;
 
-  std::vector<std::vector<uint32_t>> channel_mapping;
+  std::vector<std::vector<uint32_t>> active_elements;
 
   std::vector<double> tgc_profile;
   DoubleNan tgc_sampling_frequency;

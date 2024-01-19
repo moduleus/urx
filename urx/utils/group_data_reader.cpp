@@ -24,7 +24,7 @@ GroupDataReader::GroupDataReader(GroupData& group_data, const size_t custom_samp
 
   for (const auto& event : group_data_.group.lock()->sequence) {
     const auto& receive_setup = event.receive_setup;
-    const size_t channels_count = map_max(receive_setup.channel_mapping);
+    const size_t channels_count = receive_setup.active_elements.size();
     const size_t samples_count = receive_setup.number_samples;
     const size_t samples_offset = channels_count * samples_count;
 
