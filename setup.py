@@ -40,6 +40,7 @@ init_py = inspect.cleandoc(
 )
 
 setuptools.setup(
+    name="pyurx",
     ext_modules=[
         cmake_build_extension.CMakeExtension(
             name="pyurx",

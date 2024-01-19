@@ -6,7 +6,6 @@ CI_Android/
 install/
 Temporary/
 doc/
-pyurx/
 pyurx.egg-info/
 test/python/__pycache__/
 
@@ -20,4 +19,3 @@ test/python/__pycache__/
 
 /.venv/
 /vcpkg*/
-

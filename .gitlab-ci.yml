@@ -80,7 +80,7 @@ format:cmake-format:
     - cmake-format
   script:
     - find . -name "CMakeLists.txt" | xargs cmake-format -i
-    - if [ -n "$(git diff-index --name-only HEAD --)" ]; then echo "Please, format your CMake files."; echo "$(git diff-index --name-only HEAD --)"; exit 1; fi
+    - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Please, format your CMake files."; echo "$(git status --porcelain)"; exit 1; fi
   dependencies: []
 
 format:clang-tidy:
@@ -105,7 +105,7 @@ format:iwyu:
     - fix_includes.py --nosafe_headers < CI/iwyu_tool.log
     - git diff > CI/iwyu.patch
     - cat CI/iwyu.patch
-    - if [[ `git status --porcelain` ]]; then echo "Please apply iwyu patch to fix your includes"; exit 1; fi
+    - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Please apply iwyu patch to fix your includes"; exit 1; fi
   dependencies:
     - build:ubuntu-with-HDF5-static
   allow_failure: true
@@ -123,7 +123,7 @@ format:autopep8-format:
     - docker
   script:
     - mkdir CI
-    - find . -name "*.py" -exec autopep8 {} -i \;
+    - autopep8 -r -i .
     - git diff > CI/format.patch
     - cat CI/format.patch
     - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Please, format your python code with autopep8."; exit 1; fi
@@ -386,6 +386,8 @@ build:ubuntu-python:
     - if [ ! -f "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag" ]; then wget -O "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag" "https://github.com/microsoft/vcpkg-tool/releases/download/$vcpkg_tag/vcpkg-glibc" || exit 1; chmod +x "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag"; fi
     - cp $VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag vcpkg/vcpkg || exit 1
     - pew in CI-urx pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=`pwd`/vcpkg/scripts/buildsystems/vcpkg.cmake"
+    - pew in CI-urx pybind11-stubgen pyurx --ignore-invalid-expressions="urx::.*" --output-dir=python/stubs
+    - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Run pybind11-stubgen before commit."; echo "$(git status --porcelain)"; git diff; exit 1; fi
 
 test:ubuntu-python:
   stage: test
