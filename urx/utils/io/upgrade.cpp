@@ -716,9 +716,8 @@ std::shared_ptr<urx::Dataset> ConvertV0_3(const std::string& filename) {
 std::shared_ptr<urx::Dataset> Upgrade::LoadFromFile(const std::string& filename) {
   const H5::H5File file(filename.data(), H5F_ACC_RDONLY);
 
-  // Check v0_2 format.
-  if (file.nameExists("version")) {
-    const H5::Group group_version(file.openGroup("version"));
+  auto readVersion = [](const H5::H5Location& location) {
+    const H5::Group group_version(location.openGroup("version"));
     const H5::StrType datatype(H5::PredType::NATIVE_INT);
     const H5::DataSet dataset_major = group_version.openDataSet("major");
     int major;
@@ -726,6 +725,13 @@ std::shared_ptr<urx::Dataset> Upgrade::LoadFromFile(const std::string& filename)
     const H5::DataSet dataset_minor = group_version.openDataSet("minor");
     int minor;
     dataset_minor.read(&minor, datatype);
+
+    return std::tuple(major, minor);
+  };
+
+  // Check v0_2 format.
+  if (file.nameExists("version")) {
+    auto [major, minor] = readVersion(file);
 
     if (major == urx::v0_2::URX_VERSION_MAJOR && minor == urx::v0_2::URX_VERSION_MINOR) {
       const H5::Group group_channel_data(file.openGroup("channel_data"));
@@ -743,6 +749,13 @@ std::shared_ptr<urx::Dataset> Upgrade::LoadFromFile(const std::string& filename)
     if (major == urx::v0_3::URX_VERSION_MAJOR && minor == urx::v0_3::URX_VERSION_MINOR) {
       return ConvertV0_3(filename);
     }
+
+    if (major == urx::URX_VERSION_MAJOR && minor == urx::URX_VERSION_MINOR) {
+      return urx::utils::io::Reader::loadFromFile(filename);
+    }
+  } else if (file.nameExists("dataset")) {
+    const H5::Group group_version(file.openGroup("dataset"));
+    auto [major, minor] = readVersion(group_version);
 
     if (major == urx::URX_VERSION_MAJOR && minor == urx::URX_VERSION_MINOR) {
       return urx::utils::io::Reader::loadFromFile(filename);

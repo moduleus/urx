@@ -10,11 +10,16 @@ class TestBindingsUtils(unittest.TestCase):
         testName = "Utils IO binding"
         print("\n--Test %s BEGIN--" % testName)
 
-        t = urx.load_from_file(str((Path(__file__).parent.absolute(
+        dataset = urx.load_from_file(str((Path(__file__).parent.absolute(
         ) / "../io/resources/v_0_3_channel_mapping.uff")))
 
         urx.save_to_file(str((Path(__file__).parent.absolute(
-        ) / "../io/resources/v_0_3_channel_mapping.uff.pyres")), t)
+        ) / "../io/resources/v_0_3_channel_mapping.uff.pyres")), dataset)
+
+        dataset2 = urx.load_from_file(str((Path(__file__).parent.absolute(
+        ) / "../io/resources/v_0_3_channel_mapping.uff.pyres")))
+
+        self.assertEqual(dataset, dataset2)
 
         print("--Test %s END--" % testName)
 

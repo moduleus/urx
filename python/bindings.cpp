@@ -39,7 +39,6 @@
 #include <urx/utils/group_helper.h>
 #include <urx/utils/io/upgrade.h>
 #include <urx/utils/io/writer.h>
-#include <urx/utils/probe_helper.h>
 #include <urx/utils/time_helper.h>
 #include <urx/vector.h>
 #include <urx/version.h>
@@ -550,11 +549,6 @@ PYBIND11_MODULE(bindings, m) {
   m.def("sizeof_data_type", &urx::utils::GroupHelper::sizeof_data_type);
   m.def("py_get_format", &urx::utils::GroupHelper::py_get_format);
   m.def("sizeof_sample", &urx::utils::GroupHelper::sizeof_sample);
-
-  // probe_helper.h
-  m.def("update_rca_elements_positions", &urx::utils::updateRcaElementsPositions);
-  m.def("update_matrix_elements_positions", &urx::utils::updateMatrixElementsPositions);
-  m.def("update_linear_elements_positions", &urx::utils::updateLinearElementsPositions);
 
   // time_helper.h
   m.def("isIso8601", &urx::utils::isIso8601);
