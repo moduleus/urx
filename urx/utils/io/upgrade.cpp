@@ -367,9 +367,9 @@ std::shared_ptr<urx::Dataset> ConvertV0_2(const std::string& filename) {
 
     new_group_data.group_timestamp = 0;
 
-    retval->acquisition.groups_data.push_back(std::move(new_group_data));
-
     negateSamplesReceivedOnRows<T>(new_group_data);
+
+    retval->acquisition.groups_data.push_back(std::move(new_group_data));
   }
 
   return retval;
@@ -670,9 +670,9 @@ std::shared_ptr<urx::Dataset> ConvertV0_3(const std::string& filename) {
                      return retval_i;
                    });
 
-    retval->acquisition.groups_data.push_back(std::move(new_group_data));
-
     negateSamplesReceivedOnRows<short>(new_group_data);
+
+    retval->acquisition.groups_data.push_back(std::move(new_group_data));
   }
 
   return retval;
