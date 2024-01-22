@@ -42,22 +42,13 @@ add_library(Urx::Urxv0_3 ALIAS Urxv0_3)
 
 target_sources(Urxv0_3 PRIVATE ${URX_V0_3_SRCS})
 
-target_include_directories(
-  Urxv0_3
-  INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>
-            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${INSTALL_NAME}>)
+target_link_libraries(Urxv0_3 INTERFACE Urx::Urx)
 
 set_target_properties(Urxv0_3 PROPERTIES OUTPUT_NAME "Urxv0_3-${git_branch}")
 
 install(
   TARGETS Urxv0_3
-  EXPORT Urxv0_3Targets
+  EXPORT ${PROJECT_NAME}Targets
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   INCLUDES
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${INSTALL_NAME})
-
-install(
-  EXPORT Urxv0_3Targets
-  FILE Urxv0_3Targets.cmake
-  NAMESPACE Urx::
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${INSTALL_NAME})

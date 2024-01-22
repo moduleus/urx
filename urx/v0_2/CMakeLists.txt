@@ -65,10 +65,7 @@ endif()
 
 target_sources(Urxv0_2 PRIVATE ${URX_V0_2_SRCS})
 
-target_include_directories(
-  Urxv0_2
-  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>
-         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${INSTALL_NAME}>)
+target_link_libraries(Urxv0_2 PUBLIC Urx::Urx)
 
 if(WITH_HDF5)
   if(BUILD_SHARED_LIBS)

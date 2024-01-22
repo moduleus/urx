@@ -12,8 +12,6 @@ if(ENABLE_PCH)
   target_precompile_headers(UrxClasses PRIVATE ${URX_PCH} ${URX_PCH_TEST})
 endif()
 
-target_include_directories(UrxClasses PUBLIC ${PROJECT_SOURCE_DIR}/urx)
-
 target_link_libraries(UrxClasses PRIVATE Urx::Urx Catch2::Catch2WithMain)
 
 catch_discover_tests(UrxClasses)

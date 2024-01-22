@@ -65,13 +65,6 @@ if(ENABLE_PCH)
   endif()
 endif()
 
-# Define include directories
-target_include_directories(
-  ${URX_UTILS_LIBRARY}
-  PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${URX_UTILS_LIBRARY}-${git_branch}>
-)
 set_target_properties(
   ${URX_UTILS_LIBRARY} PROPERTIES OUTPUT_NAME
                                   "${URX_UTILS_LIBRARY}-${git_branch}")
@@ -84,7 +77,7 @@ if(WITH_HDF5)
   target_link_libraries(
     ${URX_UTILS_LIBRARY}
     PRIVATE hdf5::hdf5-${SEARCH_TYPE} hdf5::hdf5_cpp-${SEARCH_TYPE}
-    PRIVATE magic_enum::magic_enum)
+            magic_enum::magic_enum)
   target_include_directories(${URX_UTILS_LIBRARY} PRIVATE ${Boost_INCLUDE_DIRS})
   if(ENABLE_PCH)
     target_precompile_headers(${URX_UTILS_LIBRARY} PRIVATE ${URX_PCH_IO})

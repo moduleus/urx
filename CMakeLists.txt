@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.9)
 
 project(
   Urx
-  VERSION 0.6.10
+  VERSION 0.6.11
   LANGUAGES C CXX
   DESCRIPTION "Ultrasound Raw eXchange format C++ implementation")
 
