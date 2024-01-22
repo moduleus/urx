@@ -96,6 +96,7 @@ element1.transform.translation.x = 44155;
 element1.transform.translation.y = 44255;
 element1.transform.translation.z = 44355;
 element1.elementGeometry = elementGeometry1;
+assert(element1.elementGeometry.perimeter(1).x, 2.2);
 element1.impulseResponse = impulseResponse2;
 
 element2 = urx.Element();
