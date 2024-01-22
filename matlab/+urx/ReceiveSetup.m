@@ -1,5 +1,5 @@
 classdef ReceiveSetup < urx.Object
-  properties (Access = public)
+  properties (Access = ?urx.Object)
     channelMappingStd
     tgcProfileStd
   end

@@ -1,5 +1,5 @@
 classdef Group < urx.Object
-  properties (Access = public)
+  properties (Access = ?urx.Object)
     sequenceStd
   end
   properties (Access = public, SetObservable, GetObservable)

@@ -1,5 +1,5 @@
 classdef ElementGeometry < urx.Object
-  properties (Access = public)
+  properties (Access = ?urx.Object)
     perimeterStd
   end
   properties (Access = public, SetObservable, GetObservable)

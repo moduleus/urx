@@ -1,5 +1,5 @@
 classdef Acquisition < urx.Object
-  properties (Access = public)
+  properties (Access = ?urx.Object)
     probesStd
     excitationsStd
     wavesStd

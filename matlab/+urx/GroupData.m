@@ -1,5 +1,5 @@
 classdef GroupData < urx.Object
-  properties (Access = public)
+  properties (Access = ?urx.Object)
     sequenceTimestampsStd
     eventTimestampsStd
   end

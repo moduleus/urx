@@ -1,12 +1,8 @@
-classdef Object < handle
-
-  properties (Access = public)
-    libBindingRef = urx.LibBinding.empty(1,0)
-    id(1,1) = libpointer
-    ptrType urx.PtrType
+classdef Object < urx.ObjectField
+  properties (Access = private)
+    parent {mustBeScalarOrEmpty} = urx.Object.empty(1,0)
     saveId
     savePtrType urx.PtrType
-    parent
   end
 
   methods
@@ -155,7 +151,7 @@ classdef Object < handle
       % Get data from event.
       affectedObject = evnt.AffectedObject;
       affectedPropertyName = src.Name;
-      if any(strcmp(properties(affectedObject), [affectedPropertyName 'Std']))
+      if isa(affectedObject, 'urx.Object') && any(strcmp({metaclass(affectedObject).PropertyList.Name}, [affectedPropertyName 'Std']))
         affectedPropertyStd = affectedObject.([affectedPropertyName 'Std']);
       else
         affectedPropertyStd = [];
