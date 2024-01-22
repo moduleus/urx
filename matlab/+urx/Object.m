@@ -1,12 +1,8 @@
-classdef Object < handle
-
-  properties (Access = public)
-    libBindingRef = urx.LibBinding.empty(1,0)
-    id(1,1) = libpointer
-    ptrType urx.PtrType
+classdef Object < urx.ObjectField
+  properties (Access = private)
+    parent {mustBeScalarOrEmpty} = urx.Object.empty(1,0)
     saveId
     savePtrType urx.PtrType
-    parent
   end
 
   methods
@@ -88,7 +84,7 @@ classdef Object < handle
         res = [res '_raw'];
       end
     end
-    
+
     function res = functionVector(className, func, type, nbDims)
       res = 'vector';
       if type == urx.PtrType.SHARED
@@ -101,7 +97,7 @@ classdef Object < handle
       end
       res = [res '_' className '_' func];
     end
-    
+
     function handlePropEvents(src,evnt)
       % Since this function read properties from urx object, it may be
       % needed to disable Get/Set Recution.
@@ -155,7 +151,7 @@ classdef Object < handle
       % Get data from event.
       affectedObject = evnt.AffectedObject;
       affectedPropertyName = src.Name;
-      if any(strcmp(properties(affectedObject), [affectedPropertyName 'Std']))
+      if isa(affectedObject, 'urx.Object') && any(strcmp({metaclass(affectedObject).PropertyList.Name}, [affectedPropertyName 'Std']))
         affectedPropertyStd = affectedObject.([affectedPropertyName 'Std']);
       else
         affectedPropertyStd = [];
@@ -225,22 +221,30 @@ classdef Object < handle
               assignFunction = urx.Object.functionAssign(strrep(affectedPropertyClassName, '.', '_'), affectedObject.savePtrType, affectedProperty.ptrType);
               libBindingRef.call(assignFunction, affectedCFieldPtr, affectedProperty.id);
 
-              affectedProperty.freeMem();
+              % New value has never been affected.
+              if isempty(affectedProperty.parent)
+                affectedProperty.freeMem();
 
-              % Restore pointer and ptrType of the property.
-              affectedProperty.id = affectedObject.saveId;
-              affectedProperty.ptrType = affectedObject.savePtrType;
+                % Restore pointer and ptrType of the property.
+                affectedProperty.id = affectedObject.saveId;
+                affectedProperty.ptrType = affectedObject.savePtrType;
 
-              % The property must remember the parent. You may want to delete
-              % the parent object and want to use the object property. I.e.
-              % dataset = urx.Dataset();
-              % version = urx.Version();
-              % version.minor = 111;
-              % dataset.version = version;
-              % clear dataset
-              % Here, version variable must be usable even if dataset
-              % (and dataset.version) is cleared.
-              affectedProperty.parent = affectedObject;
+                % The property must remember the parent. You may want to delete
+                % the parent object and want to use the object property. I.e.
+                % dataset = urx.Dataset();
+                % version = urx.Version();
+                % version.minor = 111;
+                % dataset.version = version;
+                % clear dataset
+                % Here, version variable must be usable even if dataset
+                % (and dataset.version) is cleared.
+                affectedProperty.parent = affectedObject;
+
+                % shared stored in weak ptr.
+              elseif affectedObject.savePtrType == urx.PtrType.WEAK && affectedProperty.ptrType == urx.PtrType.SHARED
+              else
+                assert(false);
+              end
             end
           else
             affectedPropertyStd.id = affectedCFieldPtr;
@@ -312,10 +316,22 @@ classdef Object < handle
             if isempty(affectedObject.(affectedPropertyName))
               affectedObject.(affectedPropertyName) = urx.(affectedPropertyClassName(5:end))(affectedCFieldPtr, ptrIsShared, affectedObject);
             else
-              % If object has already been cached, check if nothing has
-              % changed.
-              assert(affectedObject.showPtr(affectedObject.(affectedPropertyName).id) == affectedObject.showPtr(affectedCFieldPtr));
-              assert(affectedObject.(affectedPropertyName).ptrType == ptrIsShared);
+              % Type may have changed when assigning WEAK from a SHARED.
+              if (ptrIsShared == urx.PtrType.WEAK && affectedObject.(affectedPropertyName).ptrType == urx.PtrType.SHARED)
+                newProperty = urx.(affectedPropertyClassName(5:end))(affectedCFieldPtr, ptrIsShared, affectedObject);
+                props = properties(newProperty);
+
+                for i = 1:numel(props)
+                  newProperty.(cell2mat(props(i))) = affectedObject.(affectedPropertyName).(cell2mat(props(i)));
+                end
+
+                affectedObject.(affectedPropertyName) = newProperty;
+
+              else
+                % If object has already been cached, check if nothing has changed.
+                assert(affectedObject.showPtr(affectedObject.(affectedPropertyName).id) == affectedObject.showPtr(affectedCFieldPtr));
+                assert(affectedObject.(affectedPropertyName).ptrType == ptrIsShared);
+              end
             end
           end
           disableSetRecursion = disableSetRecursion - 1;

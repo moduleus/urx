@@ -1,5 +1,5 @@
 classdef Probe < urx.Object
-  properties (Access = public)
+  properties (Access = ?urx.Object)
     elementGeometriesStd
     impulseResponsesStd
     elementsStd

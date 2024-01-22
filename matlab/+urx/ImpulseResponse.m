@@ -1,5 +1,5 @@
 classdef ImpulseResponse < urx.Object
-  properties (Access = public)
+  properties (Access = ?urx.Object)
     dataStd
   end
   properties (Access = public, SetObservable, GetObservable)

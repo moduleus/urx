@@ -1,5 +1,5 @@
 classdef Excitation < urx.Object
-  properties (Access = public)
+  properties (Access = ?urx.Object)
     waveformStd
   end
   properties (Access = public, SetObservable, GetObservable)

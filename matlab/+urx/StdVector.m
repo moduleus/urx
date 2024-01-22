@@ -1,10 +1,7 @@
-classdef StdVector < handle
+classdef StdVector < urx.ObjectField
   properties (Access = public)
-    libBindingRef = urx.LibBinding.empty(1,0)
-    id(1,1) = libpointer
     objectClassName(1,:) char
     nbDims uint8
-    ptrType(1,1) urx.PtrType
     parent urx.Object {mustBeScalarOrEmpty} = urx.Object.empty(1,0)
   end
   
