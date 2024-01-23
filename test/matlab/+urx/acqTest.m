@@ -1,5 +1,10 @@
-clear all %#ok
+function acqTest(libraryPath, headerPath)
+
 feature('DefaultCharacterSet','UTF-8');
+
+if (nargin >= 2)
+  urx.LibBinding.getInstance(libraryPath, headerPath);
+end
 
 dataset = urx.Dataset();
 
@@ -141,7 +146,7 @@ vector2 = urx.Vector3D();
 vector2.x = 1.1;
 vector2.y = 0.0;
 vector2.z = 5.5;
-elementGeometry.perimeter = [vector1, vector2];
+elementGeometry2.perimeter = [vector1, vector2];
 probe2.elementGeometries = [elementGeometry1, elementGeometry2];
 
 impulseResponse1 = urx.ImpulseResponse();
@@ -381,7 +386,7 @@ groupData2.sequenceTimestamps = [1, 2, 34];
 groupData2.eventTimestamps = {[4, 5, 7], [8, 7, 6]};
 dataset.acquisition.groupsData = [groupData1, groupData2];
 
-dataset.saveToFile('c:/temp/test.urx');
+dataset.saveToFile('test.urx');
 
 
 
@@ -434,4 +439,6 @@ dataset.saveToFile('c:/temp/test.urx');
 %
 %
 
-clear
+clear all
+
+end

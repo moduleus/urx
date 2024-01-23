@@ -13,7 +13,7 @@ stages:
   - install
   - doc
 
-doc:Doxygen:
+doc:doxygen:
   stage: doc
   tags:
     - docker
@@ -28,7 +28,7 @@ doc:Doxygen:
     expire_in: 1 day
   dependencies: []
 
-doc:PlantUml:
+doc:plantuml:
   stage: doc
   tags:
     - docker
@@ -400,3 +400,36 @@ test:ubuntu-python:
     - pew in CI-urx python -m unittest discover test/python
   after_script:
     - pew rm CI-urx
+
+test:windows-matlab:
+  stage: test
+  dependencies:
+    - build:windows-with-HDF5-static
+  tags:
+    - matlab
+    - win10
+  script:
+    - cd test/matlab
+    - C:/"Program Files"/MATLAB/R2023b/bin/matlab.exe -wait -batch windowsGitlabCi
+
+test:ubuntu-matlab-static:
+  stage: test
+  dependencies:
+    - build:ubuntu-with-HDF5-static
+  tags:
+    - matlab
+    - ubuntu
+  script:
+    - cd test/matlab
+    - ssh moduleus@localhost "cd $PWD && /opt/matlab/R2022b/bin/matlab -wait -batch ubuntuGitlabCi"
+
+test:ubuntu-matlab-shared:
+  stage: test
+  dependencies:
+    - build:ubuntu-with-HDF5-shared
+  tags:
+    - matlab
+    - ubuntu
+  script:
+    - cd test/matlab
+    - ssh moduleus@localhost "cd $PWD && /opt/matlab/R2022b/bin/matlab -wait -batch ubuntuGitlabCi"

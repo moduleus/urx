@@ -1,9 +1,8 @@
-#define LOG_NEW_DELETE
-
 #include "UrxLibBinding.h"
 
 #include <complex>
 #include <cstdint>
+#include <fstream>
 #include <ios>
 #include <iosfwd>
 #include <memory>
@@ -35,23 +34,23 @@
 #include <urx/utils/io/writer.h>
 #endif
 
-#ifdef LOG_NEW_DELETE
-#include <fstream>
-#endif
-
 #define xstr(s) str(s)
 #define str(s) #s
 
 namespace {
 size_t alloc_cout = 0;
 
-#ifdef LOG_NEW_DELETE
-std::ofstream &getLog() {
-  static std::ofstream outfile("c:\\temp\\test.txt");
-  return outfile;
-  // std::ostream &outfile(std::cout);
+constexpr bool log_new_delete = false;
+
+std::ostream &getLog() {
+  if constexpr (log_new_delete) {
+    static std::ofstream outfile("c:\\temp\\test.txt");
+    return outfile;
+  } else {
+    std::ostream &outfile(std::cout);
+    return outfile;
+  }
 }
-#endif
 }  // namespace
 
 #if WIN32
