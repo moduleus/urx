@@ -166,7 +166,7 @@ void read(std::shared_ptr<urx::RawData>& field, const H5::Group& group, const st
 template <typename T>
 void read(std::weak_ptr<T>& weak, const H5::Group& group, const std::string& name,
           MapToSharedPtr& map) {
-  if (group.exists(name)) {
+  if (group.nameExists(name)) {
     std::string idx;
 
     read(idx, group, name);
@@ -337,7 +337,7 @@ void read(std::optional<urx::v0_3::TriggerIn>& trigger_in, const H5::Group& grou
           const std::string& name, MapToSharedPtr& map) {
   const H5::Group group_child(group.openGroup(name));
 
-  if (!group_child.exists("sources") || !group_child.exists("edge")) {
+  if (!group_child.nameExists("sources") || !group_child.nameExists("edge")) {
     return;
   }
 
@@ -454,8 +454,8 @@ void read(std::optional<urx::v0_3::Aperture>& aperture, const H5::Group& group,
           const std::string& name) {
   const H5::Group group_child(group.openGroup(name));
 
-  if (!group_child.exists("origin") || !group_child.exists("window") ||
-      !group_child.exists("f_number") || !group_child.exists("fixed_size")) {
+  if (!group_child.nameExists("origin") || !group_child.nameExists("window") ||
+      !group_child.nameExists("f_number") || !group_child.nameExists("fixed_size")) {
     return;
   }
 
@@ -569,8 +569,8 @@ void read(std::optional<urx::v0_3::TriggerOut>& trigger_out, const H5::Group& gr
           const std::string& name, MapToSharedPtr& map) {
   const H5::Group group_child(group.openGroup(name));
 
-  if (!group_child.exists("time_offset") || !group_child.exists("pulse_duration") ||
-      !group_child.exists("destination") || !group_child.exists("polarity")) {
+  if (!group_child.nameExists("time_offset") || !group_child.nameExists("pulse_duration") ||
+      !group_child.nameExists("destination") || !group_child.nameExists("polarity")) {
     return;
   }
 

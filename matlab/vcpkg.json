@@ -25,7 +25,16 @@
             "dependencies": [
                 "catch2"
             ]
+        },
+        "matlab": {
+            "description": "Enable matlab"
         }
     },
+    "overrides": [
+        {
+            "name": "hdf5",
+            "version": "1.8.23"
+        }
+    ],
     "builtin-baseline": "f31398b18d1c7cdf2360bebbe73010afdf8e6cb4"
 }

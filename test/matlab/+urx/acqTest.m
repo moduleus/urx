@@ -388,10 +388,7 @@ dataset.acquisition.groupsData = [groupData1, groupData2];
 
 dataset.saveToFile('test.urx');
 
-
-
-
-
+delete 'test.urx'
 
 % acqObj = urx.Acquisition();
 %

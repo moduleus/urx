@@ -194,7 +194,7 @@ void Reader<DataType>::ReaderImpl::readChannelData(const H5::Group& group) {
   channelData.setSoundSpeed(readMetadataTypeDataset(group, "sound_speed"));
   channelData.setRepetitionRate(readOptionalMetadataTypeDataset(group, "repetition_rate"));
 
-  if (!m_skipChannelDataData && group.openDataSet("data").getDataType() != H5DataType) {
+  if (!m_skipChannelDataData && !(group.openDataSet("data").getDataType() == H5DataType)) {
     LOG_THIS(ERROR) << "Invalid format of data.\n";
     return;
   }

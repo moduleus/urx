@@ -717,7 +717,13 @@ std::shared_ptr<urx::Dataset> ConvertV0_3(const std::string& filename) {
 std::shared_ptr<urx::Dataset> Upgrade::LoadFromFile(const std::string& filename) {
   const H5::H5File file(filename.data(), H5F_ACC_RDONLY);
 
-  auto readVersion = [](const H5::H5Location& location) {
+  auto readVersion = [](const H5::
+#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR <= 8
+                            CommonFG
+#else
+                            H5Location
+#endif
+                                & location) {
     const H5::Group group_version(location.openGroup("version"));
     const H5::StrType datatype(H5::PredType::NATIVE_INT);
     const H5::DataSet dataset_major = group_version.openDataSet("major");
