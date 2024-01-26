@@ -1,5 +1,23 @@
 cmake_minimum_required(VERSION 3.9)
 
+# With options
+option(WITH_HDF5 "Build with HDF5" OFF)
+if(WITH_HDF5)
+  list(APPEND VCPKG_MANIFEST_FEATURES "hdf5")
+endif()
+option(WITH_MATLAB "Build Matlab wrappers" OFF)
+if(WITH_MATLAB)
+  list(APPEND VCPKG_MANIFEST_FEATURES "matlab")
+endif()
+option(WITH_PYTHON "Build Python module" OFF)
+if(WITH_PYTHON)
+  list(APPEND VCPKG_MANIFEST_FEATURES "python")
+endif()
+enable_testing()
+if(BUILD_TESTING)
+  list(APPEND VCPKG_MANIFEST_FEATURES "tests")
+endif()
+
 project(
   Urx
   VERSION 0.6.11
@@ -70,12 +88,6 @@ set(CPACK_PACKAGE_VERSION_MINOR "${${PROJECT_NAME}_VERSION_MINOR}")
 set(CPACK_PACKAGE_VERSION_PATCH "${${PROJECT_NAME}_VERSION_PATCH}")
 set(CPACK_SOURCE_GENERATOR "ZIP")
 include(CPack)
-
-# With options
-option(WITH_HDF5 "Build with HDF5" OFF)
-option(WITH_MATLAB "Build Matlab wrappers" OFF)
-option(WITH_PYTHON "Build Python module" OFF)
-enable_testing()
 
 if(ENABLE_PCH)
   set(URX_PCH

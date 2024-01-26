@@ -56,7 +56,7 @@ void deserialize_hdf5(const std::string& name, T& field, const H5::Group& group,
   // Number
   if constexpr (std::is_arithmetic_v<T>) {
     const H5::StrType datatype(*std_to_h5.at(typeid(T)));
-    if (group.exists(name)) {
+    if (group.nameExists(name)) {
       const H5::DataSet dataset = group.openDataSet(name);
       dataset.read(&field, datatype);
     } else {
@@ -69,7 +69,7 @@ void deserialize_hdf5(const std::string& name, T& field, const H5::Group& group,
     const H5::StrType datatype(0, H5T_VARIABLE);
     const H5::DataSpace dataspace(H5S_SCALAR);
     std::string value;
-    if (group.exists(name)) {
+    if (group.nameExists(name)) {
       const H5::DataSet dataset = group.openDataSet(name);
       dataset.read(value, datatype, dataspace);
     } else {
@@ -97,7 +97,7 @@ void deserialize_hdf5(const std::string& name, std::string& field, const H5::Gro
                       MapToSharedPtr&) {
   const H5::StrType datatype(0, H5T_VARIABLE);
   const H5::DataSpace dataspace(H5S_SCALAR);
-  if (group.exists(name)) {
+  if (group.nameExists(name)) {
     const H5::DataSet dataset = group.openDataSet(name);
     dataset.read(field, datatype, dataspace);
   } else {
@@ -132,7 +132,7 @@ void deserialize_hdf5(const std::string&, std::shared_ptr<RawData>& field, const
 template <typename T>
 void deserialize_hdf5(const std::string& name, std::weak_ptr<T>& field, const H5::Group& group,
                       MapToSharedPtr& map) {
-  if (group.exists(name) || group.attrExists(name)) {
+  if (group.nameExists(name) || group.attrExists(name)) {
     std::size_t idx;
 
     deserialize_hdf5(name, idx, group, map);
@@ -152,7 +152,7 @@ void deserialize_hdf5(const std::string& name, std::vector<T>& field, const H5::
     H5::DataSpace dataspace;
     H5::Attribute attribute;
 
-    if (group.exists(name)) {
+    if (group.nameExists(name)) {
       dataset = group.openDataSet(name);
       dataspace = dataset.getSpace();
     } else {
@@ -166,7 +166,7 @@ void deserialize_hdf5(const std::string& name, std::vector<T>& field, const H5::
     dataspace.getSimpleExtentDims(dimension.data());
     field.resize(dimension[0]);
     if (dimension[0] != 0) {
-      if (group.exists(name)) {
+      if (group.nameExists(name)) {
         dataset.read(field.data(), datatype);
       } else {
         attribute.read(datatype, field.data());
@@ -176,7 +176,7 @@ void deserialize_hdf5(const std::string& name, std::vector<T>& field, const H5::
     const H5::Group group_child(group.openGroup(name));
 
     size_t i = 0;
-    while (group_child.exists(format_index_with_leading_zeros(i, iter_length)) ||
+    while (group_child.nameExists(format_index_with_leading_zeros(i, iter_length)) ||
            group_child.attrExists(format_index_with_leading_zeros(i, iter_length))) {
       field.push_back(T{});
       deserialize_hdf5(format_index_with_leading_zeros(i, iter_length), field.back(), group_child,

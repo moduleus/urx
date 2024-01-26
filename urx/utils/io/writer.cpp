@@ -88,12 +88,14 @@ void serialize_hdf5(const std::string& name, const std::string& field, const H5:
                     MapToSharedPtr&) {
   const H5::StrType datatype(0, H5T_VARIABLE);
   const H5::DataSpace dataspace(H5S_SCALAR);
-  const H5::DSetCreatPropList plist;
-  plist.setLayout(field.size() < 65536 ? H5D_COMPACT : H5D_CONTIGUOUS);
   if constexpr (use_attribute) {
     const H5::Attribute attribute = group.createAttribute(name, datatype, dataspace);
     attribute.write(datatype, field);
   } else {
+    const H5::DSetCreatPropList plist;
+#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR >= 14
+    plist.setLayout(field.size() < 65536 ? H5D_COMPACT : H5D_CONTIGUOUS);
+#endif
     const H5::DataSet dataset = group.createDataSet(name, datatype, dataspace, plist);
     dataset.write(field, datatype, dataspace);
   }
@@ -153,7 +155,9 @@ void serialize_hdf5(const std::string& name, const std::vector<T>& field, const 
       }
     } else {
       const H5::DSetCreatPropList plist;
+#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR >= 14
       plist.setLayout(size < 8192 ? H5D_COMPACT : H5D_CONTIGUOUS);
+#endif
       const H5::DataSet dataset = group.createDataSet(name, *datatype, dataspace, plist);
       dataset.write(field.data(), *datatype);
     }
