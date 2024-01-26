@@ -43,8 +43,6 @@ void registerVector(pybind11::module_& m) {
   py::implicitly_convertible<py::list, VecEvent>();
   py::bind_vector<VecProbePtr>(m, "VecProbePtr");
   py::implicitly_convertible<py::list, VecProbePtr>();
-  py::bind_vector<VecWavePtr>(m, "VecWavePtr");
-  py::implicitly_convertible<py::list, VecWavePtr>();
   py::bind_vector<VecGroupData>(m, "VecGroupData");
   py::implicitly_convertible<py::list, VecGroupData>();
 }

@@ -1,12 +1,11 @@
 import pyurx as urx
 import unittest
-import gc
 from pathlib import Path
 
 
 class TestBindingsUtils(unittest.TestCase):
 
-    def testIO(self):
+    def testUtilsIo(self):
         testName = "Utils IO binding"
         print("\n--Test %s BEGIN--" % testName)
 

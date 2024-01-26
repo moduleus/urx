@@ -14,8 +14,9 @@ class TestBindingsTransmitSetup(unittest.TestCase):
         ts = urx.TransmitSetup()
         self.assertRaises(
             RuntimeError, lambda ts: ts.probe, ts)
-        self.assertRaises(
-            RuntimeError, lambda ts: ts.wave, ts)
+        self.assertEqual(ts.active_elements, urx.VecVecUInt32())
+        self.assertEqual(ts.excitations, urx.VecExcitationPtr())
+        self.assertEqual(ts.delays, urx.VecFloat64())
         self.assertEqual(ts.probe_transform, urx.Transform())
         self.assertEqual(ts.time_offset, urx.DoubleNan(0))
 
@@ -33,12 +34,21 @@ class TestBindingsTransmitSetup(unittest.TestCase):
         ts_ref.probe_transform = t_2
         self.assertEqual(ts, ts_ref)
 
+        ex = urx.Excitation("linear", urx.DoubleNan(42), np.nan, [3.14, -42])
+        ex_2 = urx.Excitation(ex)
+
+        ex_3 = urx.Excitation("linear", 123, 456, [111, 222])
+        ex_4 = urx.Excitation(ex)
+
         # Check CTOR with all parameters
-        ts = urx.TransmitSetup(urx.Probe(), urx.Wave(), t_2, 42)
+        ts = urx.TransmitSetup(urx.Probe(), urx.Wave(), [[1, 2, 3], [
+                               4, 5, 6, 7, 8, 9]], [ex, ex_2], [3.14, 42], t_2, 42)
+        ts_2 = urx.TransmitSetup(ts)
         self.assertRaises(
             RuntimeError, lambda ts: ts.probe, ts)
-        self.assertRaises(
-            RuntimeError, lambda ts: ts.wave, ts)
+        self.assertEqual(ts.active_elements, [[1, 2, 3], [4, 5, 6, 7, 8, 9]])
+        self.assertEqual(ts.excitations, [ex, ex_2])
+        self.assertEqual(ts.delays,  [3.14, 42])
 
         probe = urx.Probe()
         wave = urx.Wave()
@@ -50,13 +60,15 @@ class TestBindingsTransmitSetup(unittest.TestCase):
         wave_2.type = urx.WaveType.PLANE_WAVE
         self.assertNotEqual(wave, wave_2)
 
-        ts = urx.TransmitSetup(probe_2, wave_2, t_2, 42)
+        ts = urx.TransmitSetup(probe_2, wave_2, [[1, 2, 3], [
+                               4, 5, 6, 7, 8, 9]], [ex, ex_2], [3.14, 42], t_2, 42)
         self.assertEqual(ts.probe, probe_2)
         self.assertEqual(ts.wave, wave_2)
         self.assertEqual(ts.probe_transform, t_2)
         self.assertEqual(ts.time_offset, 42)
 
-        ts = urx.TransmitSetup(probe, wave, t_2, 42)
+        ts = urx.TransmitSetup(probe, wave, [[1, 2, 3], [
+                               4, 5, 6, 7, 8, 9]], [ex, ex_2], [3.14, 42], t_2, 42)
 
         # probe is a pointer and thus shared between objects
         self.assertEqual(ts.probe, probe)
@@ -69,16 +81,59 @@ class TestBindingsTransmitSetup(unittest.TestCase):
         self.assertRaises(
             RuntimeError, lambda ts: ts.probe, ts)
 
-        # wave is a pointer and thus shared between objects
+        # wave is not a pointer
         self.assertEqual(ts.wave, wave)
         ts.wave = wave_2
         self.assertEqual(ts.wave, wave_2)
         wave_2.type = urx.WaveType.DIVERGING_WAVE
-        self.assertEqual(ts.wave, wave_2)
+        self.assertNotEqual(ts.wave, wave_2)
         del wave_2
         gc.collect()
-        self.assertRaises(
-            RuntimeError, lambda ts: ts.wave, ts)
+        ts_2.wave.type = urx.WaveType.PLANE_WAVE
+
+        # Reference is possible for active_elements (VecVecUInt32)
+        self.assertEqual(ts.active_elements,  [[1, 2, 3], [4, 5, 6, 7, 8, 9]])
+        channel_mapping_ref = ts.active_elements
+        channel_mapping_ref[0] = [10, 11]
+        self.assertEqual(ts.active_elements, channel_mapping_ref)
+        self.assertNotEqual(ts, ts_2)
+        # Check assignment
+        ts.active_elements = [[1, 2, 3], [4, 5, 6, 7, 8, 9]]
+        self.assertEqual(ts.active_elements,  [[1, 2, 3], [4, 5, 6, 7, 8, 9]])
+        self.assertEqual(ts, ts_2)
+
+        # Vector of weak pointers cannot be referenced, thus a copy is made
+        self.assertEqual(ts.excitations, [ex, ex_2])
+        channel_excitations_2 = ts.excitations
+        channel_excitations_2[0] = ex_3
+        self.assertNotEqual(ts.excitations, channel_excitations_2)
+        self.assertEqual(ts, ts_2)
+        # Check assignment
+        ts.excitations = [ex_3, ex_4, ex_2]
+        self.assertEqual(ts.excitations, [ex_3, ex_4, ex_2])
+        self.assertNotEqual(ts, ts_2)
+        ts_2 = urx.TransmitSetup(ts)
+        self.assertEqual(ts, ts_2)
+
+        del ex_4
+        gc.collect()
+
+        self.assertEqual(len(ts.excitations), 3)
+        self.assertEqual(len(ts_2.excitations), 3)
+
+        self.assertIsNone(ts.excitations[1])
+        self.assertIsNone(ts_2.excitations[1])
+
+        # Reference is possible for delays (VecFloat64)
+        self.assertEqual(ts.delays, [3.14, 42])
+        channel_delays_ref = ts.delays
+        channel_delays_ref[0] = 123
+        self.assertEqual(ts.delays, channel_delays_ref)
+        self.assertNotEqual(ts, ts_2)
+        # Check assignment
+        ts.delays = [3.14, 42]
+        self.assertEqual(ts.delays, [3.14, 42])
+        self.assertEqual(ts, ts_2)
 
         # Reference is possible for probe_transform
         ts_2 = urx.TransmitSetup(ts)

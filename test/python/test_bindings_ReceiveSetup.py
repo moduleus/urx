@@ -1,5 +1,4 @@
 import pyurx as urx
-import numpy as np
 import unittest
 import gc
 
@@ -17,7 +16,7 @@ class TestBindingsReceiveSetup(unittest.TestCase):
         self.assertEqual(rs.probe_transform, urx.Transform())
         self.assertEqual(rs.sampling_frequency, urx.DoubleNan())
         self.assertEqual(rs.number_samples, 0)
-        self.assertEqual(rs.channel_mapping, urx.VecVecUInt32())
+        self.assertEqual(rs.active_elements, urx.VecVecUInt32())
         self.assertEqual(rs.tgc_profile, urx.VecFloat64())
         self.assertEqual(rs.tgc_sampling_frequency, urx.DoubleNan())
         self.assertEqual(rs.modulation_frequency, urx.DoubleNan())
@@ -103,15 +102,15 @@ class TestBindingsReceiveSetup(unittest.TestCase):
         rs.number_samples = 2
         self.assertEqual(rs, rs_2)
 
-        # Reference is possible for channel_mapping (VecVecUInt32)
-        self.assertEqual(rs.channel_mapping, [[3]])
-        channel_mapping_ref = rs.channel_mapping
+        # Reference is possible for active_elements (VecVecUInt32)
+        self.assertEqual(rs.active_elements, [[3]])
+        channel_mapping_ref = rs.active_elements
         channel_mapping_ref[0] = [10, 11]
-        self.assertEqual(rs.channel_mapping, channel_mapping_ref)
+        self.assertEqual(rs.active_elements, channel_mapping_ref)
         self.assertNotEqual(rs, rs_2)
         # Check assignment
-        rs.channel_mapping = [[3]]
-        self.assertEqual(rs.channel_mapping, [[3]])
+        rs.active_elements = [[3]]
+        self.assertEqual(rs.active_elements, [[3]])
         self.assertEqual(rs, rs_2)
 
         # Reference is possible for tgc_profile (VecFloat64)

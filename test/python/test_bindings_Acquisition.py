@@ -23,7 +23,6 @@ class TestBindingsAcquisition(unittest.TestCase):
         self.assertEqual(acq.timestamp, urx.DoubleNan())
         self.assertEqual(acq.probes, [])
         self.assertEqual(acq.excitations, [])
-        self.assertEqual(acq.waves, [])
         self.assertEqual(acq.groups, [])
         self.assertEqual(acq.groups_data, [])
 
@@ -221,50 +220,6 @@ class TestBindingsAcquisition(unittest.TestCase):
         self.assertRaises(
             IndexError, lambda acq: acq.excitations[1], acq)
         self.assertEqual(acq.excitations[0].pulse_shape, "Hello")
-
-        # waves is a pointer vector, thus all modifications are shared
-        w = urx.Wave()
-        w_2 = urx.Wave()
-        w_2.type = urx.WaveType.PLANE_WAVE
-        w_3 = urx.Wave(w_2)
-        acq.waves = [w, w_2]
-        acq_2 = urx.Acquisition(acq)
-        self.assertEqual(acq.waves[1], w_2)
-        self.assertEqual(acq, acq_2)
-
-        w_2.type = urx.WaveType.DIVERGING_WAVE
-        self.assertEqual(acq.waves[1], w_2)
-        self.assertEqual(acq_2.waves[1], w_2)
-        w_2.type = urx.WaveType.PLANE_WAVE
-
-        # Reference is possible for shared pointers vector
-        self.assertEqual(acq.waves, [w, w_2])
-        waves_ref = acq.waves
-        waves_ref[0] = w_3
-        self.assertEqual(acq.waves, waves_ref)
-        self.assertNotEqual(acq, acq_2)
-        # Check assignment
-        acq.waves = [w, w_2]
-        self.assertEqual(acq.waves, waves_ref)
-        self.assertEqual(acq.waves, [w, w_2])
-        self.assertEqual(acq, acq_2)
-
-        # deleting the local variable does not impact the shared pointers vectors
-        del w
-        del w_2
-        gc.collect()
-        self.assertEqual(len(acq.waves), 2)
-        self.assertEqual(len(acq_2.waves), 2)
-
-        # deleting the pointers inside the vectors to check resize
-        del acq.waves[0]
-        del acq_2.waves[0]
-        gc.collect()
-        self.assertEqual(len(acq.waves), 1)
-        self.assertEqual(len(acq_2.waves), 1)
-        self.assertRaises(
-            IndexError, lambda acq: acq.waves[1], acq)
-        self.assertEqual(acq.waves[0].type, urx.WaveType.PLANE_WAVE)
 
         # groups is a pointer vector, thus all modifications are shared
         g = urx.Group()

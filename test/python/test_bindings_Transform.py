@@ -1,5 +1,4 @@
 import pyurx as urx
-import numpy as np
 import unittest
 
 
