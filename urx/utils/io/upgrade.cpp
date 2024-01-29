@@ -1,21 +1,18 @@
 #include <algorithm>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <functional>
 #include <iterator>
-#include <stdexcept>
-#include <string_view>
 #include <tuple>
 #include <unordered_map>
 #include <utility>
-#include <vector>
 #include <version>
 
 #include <H5Cpp.h>
-#include <magic_enum.hpp>
 
 #include <urx/acquisition.h>
 #include <urx/dataset.h>
-#include <urx/detail/compare.h>
 #include <urx/detail/double_nan.h>
 #include <urx/detail/raw_data.h>
 #include <urx/element.h>
@@ -30,6 +27,7 @@
 #include <urx/transform.h>
 #include <urx/transmit_setup.h>
 #include <urx/urx.h>
+#include <urx/utils/group_data_reader.h>
 #include <urx/utils/io/reader.h>
 #include <urx/utils/io/reader_v0_3.h>
 #include <urx/utils/io/upgrade.h>
@@ -41,7 +39,6 @@
 #include <urx/v0_2/reader.h>
 #include <urx/v0_2/types.h>
 #include <urx/v0_2/urx.h>
-#include <urx/v0_2/wave.h>
 #include <urx/v0_3/acquisition.h>
 #include <urx/v0_3/dataset.h>
 #include <urx/v0_3/element.h>
@@ -73,6 +70,35 @@
 namespace urx::utils::io {
 
 namespace {
+
+///
+/// Utility function to correct polarization on samples received on rows elements on RCA.
+///
+template <class T>
+void negateSamplesReceivedOnRows(urx::GroupData& group_data) {
+  const urx::Group& group = *group_data.group.lock();
+  GroupDataReader data_reader{group_data};
+  for (size_t evt_idx = 0; evt_idx < data_reader.eventsCount(); evt_idx++) {
+    const auto& event = group.sequence[evt_idx];
+    if (event.receive_setup.probe.lock()->type != urx::Probe::ProbeType::RCA) continue;
+
+    const auto& cm = event.receive_setup.active_elements;
+    const auto& pe = event.receive_setup.probe.lock()->elements;
+    const auto& e0p = pe[cm[0][0]].transform.translation;
+    const auto& e1p = pe[cm[1][0]].transform.translation;
+
+    const bool is_received_on_rows = std::abs(e1p.x - e0p.x) > std::abs(e1p.y - e0p.y);
+
+    if (is_received_on_rows) {
+      for (size_t seq_idx = 0; seq_idx < data_reader.sequencesCount(); seq_idx++) {
+        std::transform(data_reader.operator()<T>(seq_idx, evt_idx),
+                       data_reader.operator()<T>(seq_idx, evt_idx + 1),
+                       data_reader.operator()<T>(seq_idx, evt_idx), std::negate<T>());
+      }
+    }
+  }
+}
+
 // Memo about conversion:
 // From uff v0_2, has been removed: Aperture, Probe::focalLength, TransmitWave::weight
 template <typename T>
@@ -217,87 +243,6 @@ std::shared_ptr<urx::Dataset> ConvertV0_2(const std::string& filename) {
     retval->acquisition.probes.push_back(new_probe);
   }
 
-  std::vector<size_t> map_wave_to_excitation;
-  size_t excitation_i = 0;
-  for (const auto& old_wave : dataset_v0_2->channelData().uniqueWaves()) {
-    const auto& old_excitation = old_wave->excitation();
-
-    const std::shared_ptr<urx::Excitation> new_excitation = std::make_shared<urx::Excitation>();
-    const auto& opt_pulse_shape = old_excitation.pulseShape();
-    new_excitation->pulse_shape = opt_pulse_shape.has_value() ? *opt_pulse_shape : "";
-    const auto& opt_sampling_frequency = old_excitation.samplingFrequency();
-    new_excitation->sampling_frequency =
-        opt_sampling_frequency.has_value() ? *opt_sampling_frequency : urx::DoubleNan::NaN;
-    const auto& opt_transmit_frequency = old_excitation.transmitFrequency();
-    new_excitation->transmit_frequency =
-        opt_transmit_frequency.has_value() ? *opt_transmit_frequency : urx::DoubleNan::NaN;
-    std::transform(old_excitation.waveform().begin(), old_excitation.waveform().end(),
-                   std::back_inserter(new_excitation->waveform),
-                   [](urx::v0_2::MetadataType value) -> double { return value; });
-    auto it = std::find(retval->acquisition.excitations.begin(),
-                        retval->acquisition.excitations.end(), new_excitation);
-    if (it == std::end(retval->acquisition.excitations)) {
-      retval->acquisition.excitations.push_back(new_excitation);
-      map_wave_to_excitation.push_back(excitation_i);
-      excitation_i++;
-    } else {
-      map_wave_to_excitation.push_back(std::distance(retval->acquisition.excitations.begin(), it));
-    }
-  }
-
-  size_t wave_i = 0;
-  for (const auto& old_wave : dataset_v0_2->channelData().uniqueWaves()) {
-    const std::shared_ptr<urx::Wave> new_wave = std::make_shared<urx::Wave>();
-
-    new_wave->type = old_to_new_wave_type.find(old_wave->waveType()) != old_to_new_wave_type.end()
-                         ? old_to_new_wave_type.at(old_wave->waveType())
-                         : urx::Wave::WaveType::UNDEFINED;
-
-    switch (new_wave->type) {
-      case urx::Wave::WaveType::CONVERGING_WAVE:
-      case urx::Wave::WaveType::DIVERGING_WAVE:
-      case urx::Wave::WaveType::CYLINDRICAL_WAVE: {
-        throw std::runtime_error(("Upgrade from " +
-                                  std::string(magic_enum::enum_name(new_wave->type)) +
-                                  " is not implemented.\n")
-                                     .c_str());
-      }
-      case urx::Wave::WaveType::PLANE_WAVE: {
-        new_wave->parameters = {old_wave->origin().translation().x(),
-                                old_wave->origin().translation().y(),
-                                old_wave->origin().translation().z()};
-        break;
-      }
-      default: {
-        break;
-      }
-    }
-
-    new_wave->channel_mapping.reserve(dataset_v0_2->channelData().uniqueEvents().size());
-    new_wave->channel_excitations = std::vector<std::weak_ptr<Excitation>>(
-        dataset_v0_2->channelData().uniqueEvents().size(),
-        retval->acquisition.excitations[map_wave_to_excitation[wave_i]]);
-    for (const auto& old_event : dataset_v0_2->channelData().uniqueEvents()) {
-      std::vector<uint32_t> new_channel_mapping;
-      std::transform(old_event->transmitSetup().channelMapping().begin(),
-                     old_event->transmitSetup().channelMapping().end(),
-                     std::back_inserter(new_channel_mapping),
-                     [](int value) -> uint32_t { return value; });
-      new_wave->channel_mapping.push_back(new_channel_mapping);
-
-      if (old_event->transmitSetup().getTransmitWave().wave().lock().get() == old_wave.get()) {
-        new_wave->time_zero = old_event->transmitSetup().getTransmitWave().timeOffset();
-        new_wave->time_zero_reference_point = {0, 0, 0};
-      }
-    }
-
-    new_wave->channel_delays = std::vector<double>(new_wave->channel_excitations.size());
-
-    retval->acquisition.waves.push_back(new_wave);
-
-    wave_i++;
-  }
-
   {
     const std::shared_ptr<Group> new_group = std::make_shared<Group>();
     new_group->sampling_type = urx::Group::SamplingType::RF;
@@ -307,6 +252,7 @@ std::shared_ptr<urx::Dataset> ConvertV0_2(const std::string& filename) {
       new_group->data_type = urx::Group::DataType::FLOAT;
     }
     new_group->description = "";
+
     for (const auto& old_sequence : dataset_v0_2->channelData().sequence()) {
       const auto& old_event = old_sequence.evenement().lock();
 
@@ -323,16 +269,33 @@ std::shared_ptr<urx::Dataset> ConvertV0_2(const std::string& filename) {
           retval->acquisition
               .probes[std::distance(dataset_v0_2->channelData().probes().begin(), it_probe)];
 
-      auto it_wave =
-          std::find_if(dataset_v0_2->channelData().uniqueWaves().begin(),
-                       dataset_v0_2->channelData().uniqueWaves().end(),
-                       [old_wave = old_event->transmitSetup().getTransmitWave().wave().lock()](
-                           const std::shared_ptr<urx::v0_2::Wave>& wave_i2) {
-                         return old_wave.get() == wave_i2.get();
-                       });
-      new_event.transmit_setup.wave =
-          retval->acquisition
-              .waves[std::distance(dataset_v0_2->channelData().uniqueWaves().begin(), it_wave)];
+      const auto& old_wave = *old_event->transmitSetup().getTransmitWave().wave().lock();
+      urx::Wave& new_wave = new_event.transmit_setup.wave;
+      new_wave.type = old_to_new_wave_type.find(old_wave.waveType()) != old_to_new_wave_type.end()
+                          ? old_to_new_wave_type.at(old_wave.waveType())
+                          : urx::Wave::WaveType::UNDEFINED;
+      new_wave.time_zero = old_event->transmitSetup().getTransmitWave().timeOffset();
+      new_wave.time_zero_reference_point = {0, 0, 0};
+      switch (new_wave.type) {
+        case urx::Wave::WaveType::CONVERGING_WAVE:
+        case urx::Wave::WaveType::DIVERGING_WAVE:
+        case urx::Wave::WaveType::PLANE_WAVE: {
+          new_wave.parameters = {old_wave.origin().translation().x(),
+                                 old_wave.origin().translation().y(),
+                                 old_wave.origin().translation().z()};
+          break;
+        }
+        case urx::Wave::WaveType::CYLINDRICAL_WAVE: {
+          new_wave.parameters = {
+              old_wave.origin().translation().x(), old_wave.origin().translation().y(),
+              old_wave.origin().translation().z(), old_wave.origin().rotation().x(),
+              old_wave.origin().rotation().y(),    old_wave.origin().rotation().z()};
+          break;
+        }
+        default: {
+          break;
+        }
+      }
 
       it_probe = std::find_if(dataset_v0_2->channelData().probes().begin(),
                               dataset_v0_2->channelData().probes().end(),
@@ -357,15 +320,14 @@ std::shared_ptr<urx::Dataset> ConvertV0_2(const std::string& filename) {
       new_event.receive_setup.modulation_frequency =
           opt_modulation_frequency.has_value() ? *opt_modulation_frequency : urx::DoubleNan::NaN;
       new_event.receive_setup.probe_transform = {};
-
-      {
-        const auto& old_cm = old_event->receiveSetup().channelMapping();
-        auto& new_cm = new_event.receive_setup.channel_mapping;
-        new_cm.resize(new_event.receive_setup.probe.lock()->elements.size());
-        for (std::size_t i = 0; i < old_cm.size(); i++)
-          new_cm[old_cm[i]].push_back(static_cast<unsigned int>(i));
-      }
-
+      new_event.receive_setup.active_elements.reserve(
+          old_event->receiveSetup().channelMapping().size());
+      std::transform(old_event->receiveSetup().channelMapping().begin(),
+                     old_event->receiveSetup().channelMapping().end(),
+                     std::back_inserter(new_event.receive_setup.active_elements),
+                     [](urx::v0_2::MetadataType value) -> std::vector<uint32_t> {
+                       return {static_cast<uint32_t>(value)};
+                     });
       new_event.receive_setup.number_samples = dataset_v0_2->channelData().numberOfSamples();
 
       new_group->sequence.push_back(std::move(new_event));
@@ -400,6 +362,8 @@ std::shared_ptr<urx::Dataset> ConvertV0_2(const std::string& filename) {
     }
 
     new_group_data.group_timestamp = 0;
+
+    negateSamplesReceivedOnRows<T>(new_group_data);
 
     retval->acquisition.groups_data.push_back(std::move(new_group_data));
   }
@@ -535,68 +499,6 @@ std::shared_ptr<urx::Dataset> ConvertV0_3(const std::string& filename) {
     retval->acquisition.probes.push_back(new_probe);
   }
 
-  retval->acquisition.waves.reserve(dataset_v0_3->acquisition.waves.size());
-  for (const auto& old_wave : dataset_v0_3->acquisition.waves) {
-    const std::shared_ptr<urx::Wave> new_wave = std::make_shared<urx::Wave>();
-
-    new_wave->type = old_to_new_wave_type.find(old_wave->wave_type) != old_to_new_wave_type.end()
-                         ? old_to_new_wave_type.at(old_wave->wave_type)
-                         : urx::Wave::WaveType::UNDEFINED;
-    new_wave->time_zero = old_wave->time_zero;
-    new_wave->time_zero_reference_point.x = old_wave->time_zero_reference_point.x;
-    new_wave->time_zero_reference_point.y = old_wave->time_zero_reference_point.y;
-    new_wave->time_zero_reference_point.z = old_wave->time_zero_reference_point.z;
-
-    switch (new_wave->type) {
-      case urx::Wave::WaveType::CONVERGING_WAVE:
-      case urx::Wave::WaveType::DIVERGING_WAVE:
-      case urx::Wave::WaveType::CYLINDRICAL_WAVE: {
-        throw std::runtime_error(("Upgrade from " +
-                                  std::string(magic_enum::enum_name(new_wave->type)) +
-                                  " is not implemented.\n")
-                                     .c_str());
-      }
-      case urx::Wave::WaveType::PLANE_WAVE: {
-        new_wave->parameters = {old_wave->origin.translation.x, old_wave->origin.translation.y,
-                                old_wave->origin.translation.z};
-        break;
-      }
-      default: {
-        break;
-      }
-    }
-
-    new_wave->channel_mapping.reserve(old_wave->channel_mapping.size());
-    std::transform(old_wave->channel_mapping.begin(), old_wave->channel_mapping.end(),
-                   std::back_inserter(new_wave->channel_mapping),
-                   [](const std::vector<uint32_t>& value) {
-                     std::vector<uint32_t> retval_i;
-                     retval_i.reserve(value.size());
-                     std::transform(value.begin(), value.end(), std::back_inserter(retval_i),
-                                    [](uint32_t value2) { return value2 + 1; });
-                     return retval_i;
-                   });
-
-    new_wave->channel_delays = old_wave->channel_delays;
-
-    new_wave->channel_excitations.reserve(old_wave->channel_excitations.size());
-    std::transform(
-        old_wave->channel_excitations.begin(), old_wave->channel_excitations.end(),
-        std::back_inserter(new_wave->channel_excitations),
-        [new_excitations = retval->acquisition.excitations,
-         old_excitations = dataset_v0_3->acquisition.excitation](
-            const std::weak_ptr<urx::v0_3::Excitation>& value) {
-          auto it_exc = std::find_if(
-              old_excitations.begin(), old_excitations.end(),
-              [exc_ptr = value.lock().get()](const std::shared_ptr<urx::v0_3::Excitation>& exc_i) {
-                return exc_ptr == exc_i.get();
-              });
-          return new_excitations[std::distance(old_excitations.begin(), it_exc)];
-        });
-
-    retval->acquisition.waves.push_back(new_wave);
-  }
-
   retval->acquisition.groups.reserve(dataset_v0_3->acquisition.groups.size());
   for (const auto& old_group : dataset_v0_3->acquisition.groups) {
     const std::shared_ptr<Group> new_group = std::make_shared<Group>();
@@ -629,9 +531,66 @@ std::shared_ptr<urx::Dataset> ConvertV0_3(const std::string& filename) {
                                         const std::shared_ptr<urx::v0_3::Wave>& wave_i) {
                                       return old_wave.get() == wave_i.get();
                                     });
-        new_event.transmit_setup.wave =
-            retval->acquisition
-                .waves[std::distance(dataset_v0_3->acquisition.waves.begin(), it_wave)];
+        const auto& old_wave = *it_wave;
+        urx::Wave& new_wave = new_event.transmit_setup.wave;
+        new_wave.type = old_to_new_wave_type.find(old_wave->wave_type) != old_to_new_wave_type.end()
+                            ? old_to_new_wave_type.at(old_wave->wave_type)
+                            : urx::Wave::WaveType::UNDEFINED;
+        new_wave.time_zero = old_wave->time_zero;
+        new_wave.time_zero_reference_point.x = old_wave->time_zero_reference_point.x;
+        new_wave.time_zero_reference_point.y = old_wave->time_zero_reference_point.y;
+        new_wave.time_zero_reference_point.z = old_wave->time_zero_reference_point.z;
+
+        switch (new_wave.type) {
+          case urx::Wave::WaveType::CONVERGING_WAVE:
+          case urx::Wave::WaveType::DIVERGING_WAVE: {
+            new_wave.parameters = {old_wave->origin.translation.x, old_wave->origin.translation.y,
+                                   old_wave->origin.translation.z};
+            break;
+          }
+          case urx::Wave::WaveType::PLANE_WAVE: {
+            new_wave.parameters = {old_wave->origin.rotation.x, old_wave->origin.rotation.y,
+                                   old_wave->origin.rotation.z};
+            break;
+          }
+          case urx::Wave::WaveType::CYLINDRICAL_WAVE: {
+            new_wave.parameters = {old_wave->origin.translation.x, old_wave->origin.translation.y,
+                                   old_wave->origin.translation.z, old_wave->origin.rotation.x,
+                                   old_wave->origin.rotation.y,    old_wave->origin.rotation.z};
+            break;
+          }
+          default: {
+            break;
+          }
+        }
+
+        new_event.transmit_setup.delays = old_wave->channel_delays;
+
+        new_event.transmit_setup.active_elements.reserve(old_wave->channel_mapping.size());
+        std::transform(old_wave->channel_mapping.begin(), old_wave->channel_mapping.end(),
+                       std::back_inserter(new_event.transmit_setup.active_elements),
+                       [](const std::vector<uint32_t>& value) {
+                         std::vector<uint32_t> retval_i;
+                         retval_i.reserve(value.size());
+                         std::transform(value.begin(), value.end(), std::back_inserter(retval_i),
+                                        [](uint32_t value2) { return value2; });
+                         return retval_i;
+                       });
+
+        new_event.transmit_setup.excitations.reserve(old_wave->channel_excitations.size());
+        std::transform(old_wave->channel_excitations.begin(), old_wave->channel_excitations.end(),
+                       std::back_inserter(new_event.transmit_setup.excitations),
+                       [new_excitations = retval->acquisition.excitations,
+                        old_excitations = dataset_v0_3->acquisition.excitation](
+                           const std::weak_ptr<urx::v0_3::Excitation>& value) {
+                         auto it_exc =
+                             std::find_if(old_excitations.begin(), old_excitations.end(),
+                                          [exc_ptr = value.lock().get()](
+                                              const std::shared_ptr<urx::v0_3::Excitation>& exc_i) {
+                                            return exc_ptr == exc_i.get();
+                                          });
+                         return new_excitations[std::distance(old_excitations.begin(), it_exc)];
+                       });
 
         auto it_probe2 = std::find_if(dataset_v0_3->acquisition.probes.begin(),
                                       dataset_v0_3->acquisition.probes.end(),
@@ -647,16 +606,16 @@ std::shared_ptr<urx::Dataset> ConvertV0_3(const std::string& filename) {
         new_event.receive_setup.sampling_frequency = old_event->receive_setup.sampling_frequency;
         new_event.receive_setup.number_samples = old_event->receive_setup.nb_samples;
 
-        new_event.receive_setup.channel_mapping.reserve(
+        new_event.receive_setup.active_elements.reserve(
             old_event->receive_setup.channel_mapping.size());
         std::transform(old_event->receive_setup.channel_mapping.begin(),
                        old_event->receive_setup.channel_mapping.end(),
-                       std::back_inserter(new_event.receive_setup.channel_mapping),
+                       std::back_inserter(new_event.receive_setup.active_elements),
                        [](const std::vector<uint32_t>& value) {
                          std::vector<uint32_t> retval_i;
                          retval_i.reserve(value.size());
                          std::transform(value.begin(), value.end(), std::back_inserter(retval_i),
-                                        [](uint32_t value2) { return value2 + 1; });
+                                        [](uint32_t value2) { return value2; });
                          return retval_i;
                        });
 
@@ -706,6 +665,8 @@ std::shared_ptr<urx::Dataset> ConvertV0_3(const std::string& filename) {
                                     [](uint64_t value2) { return static_cast<double>(value2); });
                      return retval_i;
                    });
+
+    negateSamplesReceivedOnRows<short>(new_group_data);
 
     retval->acquisition.groups_data.push_back(std::move(new_group_data));
   }

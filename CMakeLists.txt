@@ -13,7 +13,7 @@ option(WITH_PYTHON "Build Python module" OFF)
 if(WITH_PYTHON)
   list(APPEND VCPKG_MANIFEST_FEATURES "python")
 endif()
-enable_testing()
+option(BUILD_TESTING "Build the testing tree." ON)
 if(BUILD_TESTING)
   list(APPEND VCPKG_MANIFEST_FEATURES "tests")
 endif()
@@ -50,6 +50,7 @@ add_compile_options($<$<CXX_COMPILER_ID:MSVC>:/MP>)
 add_compile_definitions(_SILENCE_NONFLOATING_COMPLEX_DEPRECATION_WARNING)
 
 include(CTest)
+enable_testing()
 
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 

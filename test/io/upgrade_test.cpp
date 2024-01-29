@@ -16,7 +16,6 @@
 #include <urx/utils/io/reader.h>
 #include <urx/utils/io/upgrade.h>
 #include <urx/utils/io/writer.h>
-#include <urx/wave.h>
 
 namespace urx::utils::io::test {
 
@@ -29,7 +28,6 @@ TEST_CASE("Upgrade HDF5 v0.2 file", "[hdf5_writer]") {
   const std::shared_ptr<Dataset> dataset2 = Reader::loadFromFile(dir + "v_0_2_short.urx.res");
   REQUIRE(dataset2->acquisition.probes == dataset->acquisition.probes);
   REQUIRE(dataset2->acquisition.excitations == dataset->acquisition.excitations);
-  REQUIRE(dataset2->acquisition.waves == dataset->acquisition.waves);
   REQUIRE(dataset2->acquisition.groups == dataset->acquisition.groups);
   REQUIRE(dataset2->acquisition.groups_data == dataset->acquisition.groups_data);
   REQUIRE(*dataset2 == *dataset);

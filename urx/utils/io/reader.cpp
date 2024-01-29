@@ -27,7 +27,6 @@
 #include <urx/utils/common.h>
 #include <urx/utils/io/reader.h>
 #include <urx/utils/io/serialize_helper.h>
-#include <urx/wave.h>
 
 namespace urx::utils::io {
 
@@ -296,7 +295,6 @@ std::shared_ptr<Dataset> Reader::loadFromFile(const std::string& filename) {
   const H5::H5File file(filename.data(), H5F_ACC_RDONLY);
   MapToSharedPtr map_to_shared_ptr{{typeid(Group), &dataset->acquisition.groups},
                                    {typeid(Probe), &dataset->acquisition.probes},
-                                   {typeid(Wave), &dataset->acquisition.waves},
                                    {typeid(Excitation), &dataset->acquisition.excitations},
                                    {typeid(GroupData), &dataset->acquisition.groups_data}};
 

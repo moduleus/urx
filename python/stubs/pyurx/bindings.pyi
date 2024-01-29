@@ -5,7 +5,7 @@ from __future__ import annotations
 import numpy
 import typing
 import typing_extensions
-__all__ = ['Acquisition', 'DataType', 'Dataset', 'DoubleNan', 'Element', 'ElementGeometry', 'Event', 'Excitation', 'Group', 'GroupData', 'GroupDataReader', 'ImpulseResponse', 'Probe', 'ProbeType', 'ReceiveSetup', 'SamplingType', 'Transform', 'TransmitSetup', 'URX_VERSION_MAJOR', 'URX_VERSION_MINOR', 'URX_VERSION_PATCH', 'VecElement', 'VecElementGeometryPtr', 'VecEvent', 'VecExcitationPtr', 'VecFloat64', 'VecGroupData', 'VecGroupPtr', 'VecImpulseResponsePtr', 'VecProbePtr', 'VecUInt32', 'VecVecFloat64', 'VecVecUInt32', 'VecVector3D', 'VecWavePtr', 'Vector2D', 'Vector3D', 'Version', 'Wave', 'WaveType', 'isIso3166', 'isIso8601', 'load_from_file', 'py_get_format', 'save_to_file', 'sizeof_data_type', 'sizeof_sample']
+__all__ = ['Acquisition', 'DataType', 'Dataset', 'DoubleNan', 'Element', 'ElementGeometry', 'Event', 'Excitation', 'Group', 'GroupData', 'GroupDataReader', 'ImpulseResponse', 'Probe', 'ProbeType', 'ReceiveSetup', 'SamplingType', 'Transform', 'TransmitSetup', 'URX_VERSION_MAJOR', 'URX_VERSION_MINOR', 'URX_VERSION_PATCH', 'VecElement', 'VecElementGeometryPtr', 'VecEvent', 'VecExcitationPtr', 'VecFloat64', 'VecGroupData', 'VecGroupPtr', 'VecImpulseResponsePtr', 'VecProbePtr', 'VecUInt32', 'VecVecFloat64', 'VecVecUInt32', 'VecVector3D', 'Vector2D', 'Vector3D', 'Version', 'Wave', 'WaveType', 'isIso3166', 'isIso8601', 'load_from_file', 'py_get_format', 'save_to_file', 'sizeof_data_type', 'sizeof_sample']
 class Acquisition:
     __hash__: typing.ClassVar[None] = None
     authors: str
@@ -19,7 +19,6 @@ class Acquisition:
     sound_speed: DoubleNan
     system: str
     timestamp: DoubleNan
-    waves: VecWavePtr
     def __eq__(self, arg0: Acquisition) -> bool:
         ...
     @typing.overload
@@ -394,7 +393,7 @@ class ProbeType:
         ...
 class ReceiveSetup:
     __hash__: typing.ClassVar[None] = None
-    channel_mapping: VecVecUInt32
+    active_elements: VecVecUInt32
     modulation_frequency: DoubleNan
     number_samples: int
     probe: Probe
@@ -475,6 +474,9 @@ class Transform:
         ...
 class TransmitSetup:
     __hash__: typing.ClassVar[None] = None
+    active_elements: VecVecUInt32
+    delays: VecFloat64
+    excitations: VecExcitationPtr
     probe: Probe
     probe_transform: Transform
     time_offset: DoubleNan
@@ -488,7 +490,7 @@ class TransmitSetup:
     def __init__(self, arg0: TransmitSetup) -> None:
         ...
     @typing.overload
-    def __init__(self, arg0: Probe, arg1: Wave, arg2: Transform, arg3: DoubleNan) -> None:
+    def __init__(self, arg0: Probe, arg1: Wave, arg2: VecVecUInt32, arg3: VecExcitationPtr, arg4: VecFloat64, arg5: Transform, arg6: DoubleNan) -> None:
         ...
     def __ne__(self, arg0: TransmitSetup) -> bool:
         ...
@@ -1761,105 +1763,6 @@ class VecVector3D:
         """
         Remove the first item from the list whose value is x. It is an error if there is no such item.
         """
-class VecWavePtr:
-    __hash__: typing.ClassVar[None] = None
-    def __bool__(self) -> bool:
-        """
-        Check whether the list is nonempty
-        """
-    def __contains__(self, x: ...) -> bool:
-        """
-        Return true the container contains ``x``
-        """
-    @typing.overload
-    def __delitem__(self, arg0: int) -> None:
-        """
-        Delete the list elements at index ``i``
-        """
-    @typing.overload
-    def __delitem__(self, arg0: slice) -> None:
-        """
-        Delete list elements using a slice object
-        """
-    def __eq__(self, arg0: VecWavePtr) -> bool:
-        ...
-    @typing.overload
-    def __getitem__(self, s: slice) -> VecWavePtr:
-        """
-        Retrieve list elements using a slice object
-        """
-    @typing.overload
-    def __getitem__(self, arg0: int) -> ...:
-        ...
-    @typing.overload
-    def __init__(self) -> None:
-        ...
-    @typing.overload
-    def __init__(self, arg0: VecWavePtr) -> None:
-        """
-        Copy constructor
-        """
-    @typing.overload
-    def __init__(self, arg0: typing.Iterable) -> None:
-        ...
-    def __iter__(self) -> typing.Iterator:
-        ...
-    def __len__(self) -> int:
-        ...
-    def __ne__(self, arg0: VecWavePtr) -> bool:
-        ...
-    def __repr__(self) -> str:
-        """
-        Return the canonical string representation of this list.
-        """
-    @typing.overload
-    def __setitem__(self, arg0: int, arg1: ...) -> None:
-        ...
-    @typing.overload
-    def __setitem__(self, arg0: slice, arg1: VecWavePtr) -> None:
-        """
-        Assign list elements using a slice object
-        """
-    def append(self, x: ...) -> None:
-        """
-        Add an item to the end of the list
-        """
-    def clear(self) -> None:
-        """
-        Clear the contents
-        """
-    def count(self, x: ...) -> int:
-        """
-        Return the number of times ``x`` appears in the list
-        """
-    @typing.overload
-    def extend(self, L: VecWavePtr) -> None:
-        """
-        Extend the list by appending all the items in the given list
-        """
-    @typing.overload
-    def extend(self, L: typing.Iterable) -> None:
-        """
-        Extend the list by appending all the items in the given list
-        """
-    def insert(self, i: int, x: ...) -> None:
-        """
-        Insert an item at a given position.
-        """
-    @typing.overload
-    def pop(self) -> ...:
-        """
-        Remove and return the last item
-        """
-    @typing.overload
-    def pop(self, i: int) -> ...:
-        """
-        Remove and return the item at index ``i``
-        """
-    def remove(self, x: ...) -> None:
-        """
-        Remove the first item from the list whose value is x. It is an error if there is no such item.
-        """
 class Vector2D:
     __hash__: typing.ClassVar[None] = None
     x: float
@@ -1915,9 +1818,6 @@ class Version:
         ...
 class Wave:
     __hash__: typing.ClassVar[None] = None
-    channel_delays: VecFloat64
-    channel_excitations: VecExcitationPtr
-    channel_mapping: VecVecUInt32
     parameters: VecFloat64
     time_zero: DoubleNan
     time_zero_reference_point: Vector3D
@@ -1931,7 +1831,7 @@ class Wave:
     def __init__(self, arg0: Wave) -> None:
         ...
     @typing.overload
-    def __init__(self, arg0: WaveType, arg1: DoubleNan, arg2: Vector3D, arg3: VecVecUInt32, arg4: VecExcitationPtr, arg5: VecFloat64, arg6: VecFloat64) -> None:
+    def __init__(self, arg0: WaveType, arg1: DoubleNan, arg2: Vector3D, arg3: VecFloat64) -> None:
         ...
     def __ne__(self, arg0: Wave) -> bool:
         ...

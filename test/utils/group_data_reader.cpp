@@ -25,11 +25,11 @@ TEST_CASE("Read back group data complex float data", "[group_data]") {
   auto& sequence = group->sequence;
 
   auto receive_setup_c_3_s_2 = ReceiveSetup();
-  receive_setup_c_3_s_2.channel_mapping = {{1}, {0, 1}, {2}, {0}};
+  receive_setup_c_3_s_2.active_elements = {{1, 3}, {0, 1}, {2}};
   receive_setup_c_3_s_2.number_samples = 2;
 
   auto receive_setup_c_4_s_3 = ReceiveSetup();
-  receive_setup_c_4_s_3.channel_mapping = {{3}, {2, 1}, {0}, {2}};
+  receive_setup_c_4_s_3.active_elements = {{2}, {1}, {1, 3}, {0}};
   receive_setup_c_4_s_3.number_samples = 3;
 
   const int n_events = 5;

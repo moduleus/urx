@@ -23,7 +23,7 @@ struct Acquisition {
            local_time == other.local_time && country_code == other.country_code &&
            system == other.system && sound_speed == other.sound_speed &&
            timestamp == other.timestamp && probes == other.probes &&
-           excitations == other.excitations && waves == other.waves && groups == other.groups &&
+           excitations == other.excitations && groups == other.groups &&
            groups_data == other.groups_data;
   }
 
@@ -40,7 +40,6 @@ struct Acquisition {
 
   std::vector<std::shared_ptr<Probe>> probes;
   std::vector<std::shared_ptr<Excitation>> excitations;
-  std::vector<std::shared_ptr<Wave>> waves;
   std::vector<std::shared_ptr<Group>> groups;
   std::vector<GroupData> groups_data;
 };

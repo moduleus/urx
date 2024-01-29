@@ -322,7 +322,8 @@ class TestBindingsStdVecOpaqueBinding(unittest.TestCase):
 
         rs = urx.ReceiveSetup(urx.Probe(), urx.Transform(),
                               1, 2, [[3]], [4], 5, 6, 7)
-        ts = urx.TransmitSetup(urx.Probe(), urx.Wave(), urx.Transform(), 42)
+        ts = urx.TransmitSetup(urx.Probe(), urx.Wave(),
+                               [], [], [], urx.Transform(), 42)
 
         evt = urx.Event()
         evt_2 = urx.Event(ts, rs)

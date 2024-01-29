@@ -267,56 +267,28 @@ PYBIND11_MODULE(bindings, m) {
       .def(py::init<const urx::Wave &>())
       .def(py::init([](const urx::Wave::WaveType &type, const urx::DoubleNan &time_zero,
                        const urx::Vector3D<double> &time_zero_reference_point,
-                       const VecVecUInt32 &channel_mapping,
-                       const VecExcitationPtr &channel_excitations_shared,
-                       const VecFloat64 &channel_delays, const VecFloat64 &parameters) {
-        const std::vector<std::weak_ptr<urx::Excitation>> channel_excitations_weak(
-            channel_excitations_shared.begin(), channel_excitations_shared.end());
-        return urx::Wave{type,
-                         time_zero,
-                         time_zero_reference_point,
-                         channel_mapping,
-                         channel_excitations_weak,
-                         channel_delays,
-                         parameters};
+                       const VecFloat64 &parameters) {
+        return urx::Wave{type, time_zero, time_zero_reference_point, parameters};
       }))
       .def(pybind11::self == pybind11::self)
       .def(pybind11::self != pybind11::self)
       .def_readwrite("type", &urx::Wave::type)
       .def_readwrite("time_zero", &urx::Wave::time_zero)
       .def_readwrite("time_zero_reference_point", &urx::Wave::time_zero_reference_point)
-      .def_readwrite("channel_mapping", &urx::Wave::channel_mapping)
-      .def_property(
-          "channel_excitations",
-          [](urx::Wave &self) {
-            std::vector<std::shared_ptr<urx::Excitation>> shared_vector;
-            std::transform(self.channel_excitations.begin(), self.channel_excitations.end(),
-                           std::back_inserter(shared_vector),
-                           [](const std::weak_ptr<urx::Excitation> &ex_weak_ptr) {
-                             if (auto ex_shared_ptr = ex_weak_ptr.lock()) {
-                               return ex_shared_ptr;
-                             }
-                             return std::shared_ptr<urx::Excitation>();
-                           });
-
-            return shared_vector;
-          },
-          [](urx::Wave &self,
-             const std::vector<std::shared_ptr<urx::Excitation>> &channel_excitations_shared) {
-            self.channel_excitations = std::vector<std::weak_ptr<urx::Excitation>>(
-                channel_excitations_shared.begin(), channel_excitations_shared.end());
-          })
-      .def_readwrite("channel_delays", &urx::Wave::channel_delays)
       .def_readwrite("parameters", &urx::Wave::parameters);
 
   // TransmitSetup
   py::class_<urx::TransmitSetup, std::shared_ptr<urx::TransmitSetup>>(m, "TransmitSetup")
       .def(py::init())
       .def(py::init<const urx::TransmitSetup &>())
-      .def(py::init([](const std::shared_ptr<urx::Probe> &probe,
-                       const std::shared_ptr<urx::Wave> &wave,
-                       const urx::Transform &probe_transform, const urx::DoubleNan &time_offset) {
-        return urx::TransmitSetup{probe, wave, probe_transform, time_offset};
+      .def(py::init([](const std::shared_ptr<urx::Probe> &probe, const urx::Wave &wave,
+                       const VecVecUInt32 &active_elements, const VecExcitationPtr &excitations,
+                       const VecFloat64 &delays, const urx::Transform &probe_transform,
+                       const urx::DoubleNan &time_offset) {
+        const std::vector<std::weak_ptr<urx::Excitation>> excitations_weak(excitations.begin(),
+                                                                           excitations.end());
+        return urx::TransmitSetup{
+            probe, wave, active_elements, excitations_weak, delays, probe_transform, time_offset};
       }))
       .def(pybind11::self == pybind11::self)
       .def(pybind11::self != pybind11::self)
@@ -331,17 +303,29 @@ PYBIND11_MODULE(bindings, m) {
           [](urx::TransmitSetup &self, const std::shared_ptr<urx::Probe> &probe) {
             self.probe = probe;
           })
+      .def_readwrite("wave", &urx::TransmitSetup::wave)
+      .def_readwrite("active_elements", &urx::TransmitSetup::active_elements)
       .def_property(
-          "wave",
+          "excitations",
           [](urx::TransmitSetup &self) {
-            if (self.wave.expired()) {
-              throw std::runtime_error("Current wave doesn't reference any Wave.\n");
-            }
-            return self.wave.lock();
+            std::vector<std::shared_ptr<urx::Excitation>> shared_vector;
+            std::transform(self.excitations.begin(), self.excitations.end(),
+                           std::back_inserter(shared_vector),
+                           [](const std::weak_ptr<urx::Excitation> &ex_weak_ptr) {
+                             if (auto ex_shared_ptr = ex_weak_ptr.lock()) {
+                               return ex_shared_ptr;
+                             }
+                             return std::shared_ptr<urx::Excitation>();
+                           });
+
+            return shared_vector;
           },
-          [](urx::TransmitSetup &self, const std::shared_ptr<urx::Wave> &wave) {
-            self.wave = wave;
+          [](urx::TransmitSetup &self,
+             const std::vector<std::shared_ptr<urx::Excitation>> &channel_excitations_shared) {
+            self.excitations = std::vector<std::weak_ptr<urx::Excitation>>(
+                channel_excitations_shared.begin(), channel_excitations_shared.end());
           })
+      .def_readwrite("delays", &urx::TransmitSetup::delays)
       .def_readwrite("probe_transform", &urx::TransmitSetup::probe_transform)
       .def_readwrite("time_offset", &urx::TransmitSetup::time_offset);
 
@@ -352,12 +336,12 @@ PYBIND11_MODULE(bindings, m) {
       .def(py::init(
           [](const std::shared_ptr<urx::Probe> &probe, const urx::Transform &probe_transform,
              const urx::DoubleNan &sampling_frequency, uint32_t number_samples,
-             const VecVecUInt32 &channel_mapping, const VecFloat64 &tgc_profile,
+             const VecVecUInt32 &active_elements, const VecFloat64 &tgc_profile,
              const urx::DoubleNan &tgc_sampling_frequency,
              const urx::DoubleNan &modulation_frequency, const urx::DoubleNan &time_offset) {
             return urx::ReceiveSetup{
                 probe,           probe_transform, sampling_frequency,     number_samples,
-                channel_mapping, tgc_profile,     tgc_sampling_frequency, modulation_frequency,
+                active_elements, tgc_profile,     tgc_sampling_frequency, modulation_frequency,
                 time_offset};
           }))
       .def(pybind11::self == pybind11::self)
@@ -376,7 +360,7 @@ PYBIND11_MODULE(bindings, m) {
       .def_readwrite("probe_transform", &urx::ReceiveSetup::probe_transform)
       .def_readwrite("sampling_frequency", &urx::ReceiveSetup::sampling_frequency)
       .def_readwrite("number_samples", &urx::ReceiveSetup::number_samples)
-      .def_readwrite("channel_mapping", &urx::ReceiveSetup::channel_mapping)
+      .def_readwrite("active_elements", &urx::ReceiveSetup::active_elements)
       .def_readwrite("tgc_profile", &urx::ReceiveSetup::tgc_profile)
       .def_readwrite("tgc_sampling_frequency", &urx::ReceiveSetup::tgc_sampling_frequency)
       .def_readwrite("modulation_frequency", &urx::ReceiveSetup::modulation_frequency)
@@ -518,7 +502,6 @@ PYBIND11_MODULE(bindings, m) {
       .def_readwrite("timestamp", &urx::Acquisition::timestamp)
       .def_readwrite("probes", &urx::Acquisition::probes)
       .def_readwrite("excitations", &urx::Acquisition::excitations)
-      .def_readwrite("waves", &urx::Acquisition::waves)
       .def_readwrite("groups", &urx::Acquisition::groups)
       .def_readwrite("groups_data", &urx::Acquisition::groups_data);
 
