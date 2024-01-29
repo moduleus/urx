@@ -573,7 +573,7 @@ std::shared_ptr<urx::Dataset> ConvertV0_3(const std::string& filename) {
                          std::vector<uint32_t> retval_i;
                          retval_i.reserve(value.size());
                          std::transform(value.begin(), value.end(), std::back_inserter(retval_i),
-                                        [](uint32_t value2) { return value2; });
+                                        [](uint32_t value2) { return value2 - 1; });
                          return retval_i;
                        });
 
@@ -615,7 +615,7 @@ std::shared_ptr<urx::Dataset> ConvertV0_3(const std::string& filename) {
                          std::vector<uint32_t> retval_i;
                          retval_i.reserve(value.size());
                          std::transform(value.begin(), value.end(), std::back_inserter(retval_i),
-                                        [](uint32_t value2) { return value2; });
+                                        [](uint32_t value2) { return value2 - 1; });
                          return retval_i;
                        });
 
