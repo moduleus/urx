@@ -16,7 +16,6 @@
 #include <urx/utils/io/reader.h>
 #include <urx/utils/io/upgrade.h>
 #include <urx/utils/io/writer.h>
-#include <urx/wave.h>
 
 namespace urx::utils::io::test {
 

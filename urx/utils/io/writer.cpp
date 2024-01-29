@@ -29,7 +29,6 @@
 #include <urx/utils/common.h>
 #include <urx/utils/io/serialize_helper.h>
 #include <urx/utils/io/writer.h>
-#include <urx/wave.h>
 
 namespace urx::utils::io {
 

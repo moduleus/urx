@@ -124,7 +124,6 @@ OBJECT_ACCESSOR_NS_DECL(urx, Acquisition, sound_speed);
 OBJECT_ACCESSOR_NS_DECL(urx, Acquisition, timestamp);
 OBJECT_ACCESSOR_NS_DECL(urx, Acquisition, probes);
 OBJECT_ACCESSOR_NS_DECL(urx, Acquisition, excitations);
-OBJECT_ACCESSOR_NS_DECL(urx, Acquisition, waves);
 OBJECT_ACCESSOR_NS_DECL(urx, Acquisition, groups);
 OBJECT_ACCESSOR_NS_DECL(urx, Acquisition, groups_data);
 
@@ -191,7 +190,7 @@ OBJECT_ACCESSOR_NS_DECL(urx, ReceiveSetup, probe);
 OBJECT_ACCESSOR_NS_DECL(urx, ReceiveSetup, probe_transform);
 OBJECT_ACCESSOR_NS_DECL(urx, ReceiveSetup, sampling_frequency);
 OBJECT_ACCESSOR_NS_DECL(urx, ReceiveSetup, number_samples);
-OBJECT_ACCESSOR_NS_DECL(urx, ReceiveSetup, channel_mapping);
+OBJECT_ACCESSOR_NS_DECL(urx, ReceiveSetup, active_elements);
 OBJECT_ACCESSOR_NS_DECL(urx, ReceiveSetup, tgc_profile);
 OBJECT_ACCESSOR_NS_DECL(urx, ReceiveSetup, tgc_sampling_frequency);
 OBJECT_ACCESSOR_NS_DECL(urx, ReceiveSetup, modulation_frequency);
@@ -204,6 +203,9 @@ OBJECT_ACCESSOR_NS_DECL(urx, Transform, translation);
 OBJECT_NS_DECL(urx, TransmitSetup);
 OBJECT_ACCESSOR_NS_DECL(urx, TransmitSetup, probe);
 OBJECT_ACCESSOR_NS_DECL(urx, TransmitSetup, wave);
+OBJECT_ACCESSOR_NS_DECL(urx, TransmitSetup, active_elements);
+OBJECT_ACCESSOR_NS_DECL(urx, TransmitSetup, excitations);
+OBJECT_ACCESSOR_NS_DECL(urx, TransmitSetup, delays);
 OBJECT_ACCESSOR_NS_DECL(urx, TransmitSetup, probe_transform);
 OBJECT_ACCESSOR_NS_DECL(urx, TransmitSetup, time_offset);
 
@@ -225,9 +227,6 @@ OBJECT_NS_DECL(urx, Wave);
 OBJECT_ACCESSOR_NS_DECL(urx, Wave, type);
 OBJECT_ACCESSOR_NS_DECL(urx, Wave, time_zero);
 OBJECT_ACCESSOR_NS_DECL(urx, Wave, time_zero_reference_point);
-OBJECT_ACCESSOR_NS_DECL(urx, Wave, channel_mapping);
-OBJECT_ACCESSOR_NS_DECL(urx, Wave, channel_excitations);
-OBJECT_ACCESSOR_NS_DECL(urx, Wave, channel_delays);
 OBJECT_ACCESSOR_NS_DECL(urx, Wave, parameters);
 
 VECTOR_RAW_DECL(double);

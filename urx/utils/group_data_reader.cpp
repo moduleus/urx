@@ -5,7 +5,6 @@
 #include <urx/group.h>
 #include <urx/group_data.h>
 #include <urx/receive_setup.h>
-#include <urx/utils/common.h>
 #include <urx/utils/group_data_reader.h>
 #include <urx/utils/group_helper.h>
 

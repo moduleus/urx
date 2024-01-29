@@ -236,15 +236,15 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
       event.transmit_setup.probe_transform.translation.z = 872;
       event.transmit_setup.time_offset = 12052;
       event.transmit_setup.wave.type = Wave::WaveType::CONVERGING_WAVE;
-      event.transmit_setup.wave.time_zero_reference_point.x = 5;
-      event.transmit_setup.wave.time_zero_reference_point.y = 4;
-      event.transmit_setup.wave.time_zero_reference_point.z = 4;
-      event.transmit_setup.wave.time_zero = 5.11;
-      event.transmit_setup.wave.parameters = {7, 53, .2, 1, .3, 5.6, 7};
-      event.transmit_setup.active_elements = {{0, 1}, {1}};
+      event.transmit_setup.wave.time_zero_reference_point.x = 1;
+      event.transmit_setup.wave.time_zero_reference_point.y = 2;
+      event.transmit_setup.wave.time_zero_reference_point.z = 3;
+      event.transmit_setup.wave.time_zero = 4.11;
+      event.transmit_setup.wave.parameters = {7, .3, 5.6, 7};
+      event.transmit_setup.active_elements = {{1}, {0, 1}};
       event.transmit_setup.excitations = {dataset->acquisition.excitations[1],
-                                          dataset->acquisition.excitations[0]};
-      event.transmit_setup.delays = {1.2, .3};
+                                          dataset->acquisition.excitations[1]};
+      event.transmit_setup.delays = {.3, 1.2};
       event.receive_setup.probe = dataset->acquisition.probes[0];
       event.receive_setup.probe_transform.rotation.x = 5;
       event.receive_setup.probe_transform.rotation.y = 8;
@@ -281,11 +281,11 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
       event.transmit_setup.wave.time_zero_reference_point.x = 3;
       event.transmit_setup.wave.time_zero_reference_point.y = 4;
       event.transmit_setup.wave.time_zero_reference_point.z = 5;
-      event.transmit_setup.wave.time_zero = 5.11;
+      event.transmit_setup.wave.time_zero = 5.161;
       event.transmit_setup.wave.parameters = {1, .2, 4, 3, 6, 4.5};
       event.transmit_setup.active_elements = {{0}, {1}};
-      event.transmit_setup.excitations = {dataset->acquisition.excitations[1],
-                                          dataset->acquisition.excitations[0]};
+      event.transmit_setup.excitations = {dataset->acquisition.excitations[0],
+                                          dataset->acquisition.excitations[1]};
       event.transmit_setup.delays = {1.2, 45};
       event.receive_setup.probe = dataset->acquisition.probes[0];
       event.receive_setup.probe_transform.rotation.x = 5101;
@@ -316,11 +316,11 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
       event.transmit_setup.probe_transform.translation.z = 82;
       event.transmit_setup.time_offset = 1202;
       event.transmit_setup.wave.type = Wave::WaveType::CONVERGING_WAVE;
-      event.transmit_setup.wave.time_zero_reference_point.x = 5;
-      event.transmit_setup.wave.time_zero_reference_point.y = 4;
-      event.transmit_setup.wave.time_zero_reference_point.z = 4;
-      event.transmit_setup.wave.time_zero = 5.11;
-      event.transmit_setup.wave.parameters = {7, 53, .2, 1, .3, 5.6, 7};
+      event.transmit_setup.wave.time_zero_reference_point.x = 6;
+      event.transmit_setup.wave.time_zero_reference_point.y = 5;
+      event.transmit_setup.wave.time_zero_reference_point.z = 2;
+      event.transmit_setup.wave.time_zero = 4.11;
+      event.transmit_setup.wave.parameters = {7, 53, .3, 5.6, 7};
       event.transmit_setup.active_elements = {{1}};
       event.transmit_setup.excitations = {dataset->acquisition.excitations[0]};
       event.transmit_setup.delays = {1.6};

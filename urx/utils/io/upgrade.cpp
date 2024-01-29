@@ -1,21 +1,18 @@
 #include <algorithm>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <functional>
 #include <iterator>
-#include <stdexcept>
-#include <string_view>
 #include <tuple>
 #include <unordered_map>
 #include <utility>
-#include <vector>
 #include <version>
 
 #include <H5Cpp.h>
-#include <magic_enum.hpp>
 
 #include <urx/acquisition.h>
 #include <urx/dataset.h>
-#include <urx/detail/compare.h>
 #include <urx/detail/double_nan.h>
 #include <urx/detail/raw_data.h>
 #include <urx/element.h>
@@ -42,7 +39,6 @@
 #include <urx/v0_2/reader.h>
 #include <urx/v0_2/types.h>
 #include <urx/v0_2/urx.h>
-#include <urx/v0_2/wave.h>
 #include <urx/v0_3/acquisition.h>
 #include <urx/v0_3/dataset.h>
 #include <urx/v0_3/element.h>
@@ -91,7 +87,7 @@ void negateSamplesReceivedOnRows(urx::GroupData& group_data) {
     const auto& e0p = pe[cm[0][0]].transform.translation;
     const auto& e1p = pe[cm[1][0]].transform.translation;
 
-    bool is_received_on_rows = std::abs(e1p.x - e0p.x) > std::abs(e1p.y - e0p.y);
+    const bool is_received_on_rows = std::abs(e1p.x - e0p.x) > std::abs(e1p.y - e0p.y);
 
     if (is_received_on_rows) {
       for (size_t seq_idx = 0; seq_idx < data_reader.sequencesCount(); seq_idx++) {

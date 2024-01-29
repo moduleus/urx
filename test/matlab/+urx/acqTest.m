@@ -199,37 +199,6 @@ excitation2.samplingFrequency = 369258147;
 excitation2.waveform = [1, 1.1, 1.2];
 dataset.acquisition.excitations = [excitation1, excitation2];
 
-wave1 = urx.Wave();
-wave1.type = urx.Wave.WaveType.CYLINDRICAL_WAVE;
-wave1.timeZeroReferencePoint.x = 3;
-wave1.timeZeroReferencePoint.y = 4;
-wave1.timeZeroReferencePoint.z = 5;
-wave1.timeZero = 5.11;
-
-wave1.channelMapping = {[1, 2, 3, 45, 9, 7, 5], [1, 2, 5, 7, 58, 961, 5, 5, 7, 7, 8, 5], ...
-  [12, 12], [12, 12], [12, 12], [12, 12], [12, 12], [12, 12], [12, 12], [12, 12], [12, 12]};
-
-wave1.channelExcitations = [dataset.acquisition.excitations(1), dataset.acquisition.excitations(2)];
-wave1.channelDelays = [1.2, 45, .26, 1.2, 5];
-wave1.parameters = [1, .2, 4, 3, 6, 4.5];
-
-
-wave2 = urx.Wave();
-wave2.type = urx.Wave.WaveType.CONVERGING_WAVE;
-wave2.timeZeroReferencePoint.x = 5;
-wave2.timeZeroReferencePoint.y = 4;
-wave2.timeZeroReferencePoint.z = 4;
-wave2.timeZero = 5.11;
-
-wave2.channelMapping = {[45, 4, 2, 5, 54, 53, 5, 5, 66], [5, 7, 25, 1, 3, 5, 245, 6, 42], ...
-  [12, 12], [12, 12], [12, 12], [12, 12], [12, 12], [12, 12], [12, 12], [12, 12]};
-
-wave2.channelExcitations = [dataset.acquisition.excitations(2), dataset.acquisition.excitations(1)];
-wave2.channelDelays = [1.2, .3, .5, 10.4];
-wave2.parameters = [7, 53, .2, 1, .3, 5.6, 7];
-dataset.acquisition.waves = [wave1, wave2];
-
-
 group1 = urx.Group();
 group1.samplingType = urx.Group.SamplingType.IQ;
 group1.dataType = urx.Group.DataType.INT16;
@@ -243,7 +212,16 @@ event1.transmitSetup.probeTransform.translation.x = 5.2;
 event1.transmitSetup.probeTransform.translation.y = 4.3;
 event1.transmitSetup.probeTransform.translation.z = 8.2;
 event1.transmitSetup.timeOffset = 120.2;
-event1.transmitSetup.wave = dataset.acquisition.waves(2);
+event1.transmitSetup.wave.type = urx.Wave.WaveType.CYLINDRICAL_WAVE;
+event1.transmitSetup.wave.timeZeroReferencePoint.x = 5;
+event1.transmitSetup.wave.timeZeroReferencePoint.y = 4;
+event1.transmitSetup.wave.timeZeroReferencePoint.z = 4;
+event1.transmitSetup.wave.timeZero = 5.11;
+event1.transmitSetup.wave.parameters = [7, 53, .2, 1, .3, 5.6, 7];
+event1.transmitSetup.activeElements = {[0, 1], [0]};
+event1.transmitSetup.excitations = [dataset.acquisition.excitations(2), dataset.acquisition.excitations(1)];
+event1.transmitSetup.delays = [1.2, .3];
+
 event1.receiveSetup.probe = dataset.acquisition.probes(2);
 event1.receiveSetup.probeTransform.rotation.x = 51;
 event1.receiveSetup.probeTransform.rotation.y = 85;
@@ -253,7 +231,7 @@ event1.receiveSetup.probeTransform.translation.y = 4.83;
 event1.receiveSetup.probeTransform.translation.z = 8.52;
 event1.receiveSetup.samplingFrequency = 125468;
 event1.receiveSetup.numberSamples = 4452;
-event1.receiveSetup.channelMapping = {[1, 2, 753, 8, 6, 2, 1], [4, 5, 7, 6, 21, 8, 9, 3], [1, 2, 5, 7, 3, 6, 5]};
+event1.receiveSetup.activeElements = {[1, 2, 753, 8, 6, 2, 1], [4, 5, 7, 6, 21, 8, 9, 3], [1, 2, 5, 7, 3, 6, 5]};
 event1.receiveSetup.tgcProfile = [1.2, 45., 4.5, -4.2, 1, .5, 4.6, 1, 2];
 event1.receiveSetup.tgcSamplingFrequency = 12.5;
 event1.receiveSetup.modulationFrequency = 125;
@@ -268,7 +246,16 @@ event2.transmitSetup.probeTransform.translation.x = 552;
 event2.transmitSetup.probeTransform.translation.y = 463;
 event2.transmitSetup.probeTransform.translation.z = 872;
 event2.transmitSetup.timeOffset = 12052;
-event2.transmitSetup.wave = dataset.acquisition.waves(1);
+event2.transmitSetup.wave.type = urx.Wave.WaveType.CONVERGING_WAVE;
+event2.transmitSetup.wave.timeZeroReferencePoint.x = 1;
+event2.transmitSetup.wave.timeZeroReferencePoint.y = 2;
+event2.transmitSetup.wave.timeZeroReferencePoint.z = 3;
+event2.transmitSetup.wave.timeZero = 4.11;
+event2.transmitSetup.wave.parameters = [7, .3, 5.6, 7];
+event2.transmitSetup.activeElements = {[1], [0, 1]};
+event2.transmitSetup.excitations = [dataset.acquisition.excitations(2), dataset.acquisition.excitations(2)];
+event2.transmitSetup.delays = [.3, 1.2];
+
 event2.receiveSetup.probe = dataset.acquisition.probes(1);
 event2.receiveSetup.probeTransform.rotation.x = 5;
 event2.receiveSetup.probeTransform.rotation.y = 8;
@@ -278,7 +265,7 @@ event2.receiveSetup.probeTransform.translation.y = 43;
 event2.receiveSetup.probeTransform.translation.z = 52;
 event2.receiveSetup.samplingFrequency = 1268;
 event2.receiveSetup.numberSamples = 42;
-event2.receiveSetup.channelMapping = {[1, 2, 3], [4, 5, 6], [7, 8, 9]};
+event2.receiveSetup.activeElements = {[1, 2, 3], [4, 5, 6], [7, 8, 9]};
 event2.receiveSetup.tgcProfile = [1, .2, 4., 5, .1, 5, .45, 5];
 event2.receiveSetup.tgcSamplingFrequency = 4.5;
 event2.receiveSetup.modulationFrequency = 4.58;
@@ -301,7 +288,16 @@ event1.transmitSetup.probeTransform.translation.x = 5.72;
 event1.transmitSetup.probeTransform.translation.y = 4.83;
 event1.transmitSetup.probeTransform.translation.z = 8.52;
 event1.transmitSetup.timeOffset = 1202.2;
-event1.transmitSetup.wave = dataset.acquisition.waves(1);
+event1.transmitSetup.wave.type = urx.Wave.WaveType.CYLINDRICAL_WAVE;
+event1.transmitSetup.wave.timeZeroReferencePoint.x = 3;
+event1.transmitSetup.wave.timeZeroReferencePoint.y = 4;
+event1.transmitSetup.wave.timeZeroReferencePoint.z = 5;
+event1.transmitSetup.wave.timeZero = 5.161;
+event1.transmitSetup.wave.parameters = [1, .2, 4, 3, 6, 4.5];
+event1.transmitSetup.activeElements = {[0], [1]};
+event1.transmitSetup.excitations = [dataset.acquisition.excitations(1), dataset.acquisition.excitations(2)];
+event1.transmitSetup.delays = [1.2, 45];
+
 event1.receiveSetup.probe = dataset.acquisition.probes(1);
 event1.receiveSetup.probeTransform.rotation.x = 5101;
 event1.receiveSetup.probeTransform.rotation.y = 825;
@@ -311,7 +307,7 @@ event1.receiveSetup.probeTransform.translation.y = 45.83;
 event1.receiveSetup.probeTransform.translation.z = 86.52;
 event1.receiveSetup.samplingFrequency = 1275468;
 event1.receiveSetup.numberSamples = 48452;
-event1.receiveSetup.channelMapping = {[1, 2, 5753, 58, 60, 2, 1], [4, 57, 7, 76, 21, 87, 9, 3], [17, 26, 57, 7, 8, 3, 6, 5]};
+event1.receiveSetup.activeElements = {[1, 2, 5753, 58, 60, 2, 1], [4, 57, 7, 76, 21, 87, 9, 3], [17, 26, 57, 7, 8, 3, 6, 5]};
 event1.receiveSetup.tgcProfile = [1.2, 45., 4.25, -4.52, 1, .5, 4.36, 1, 2];
 event1.receiveSetup.tgcSamplingFrequency = -12.5;
 event1.receiveSetup.modulationFrequency = 1925;
@@ -326,7 +322,16 @@ event2.transmitSetup.probeTransform.translation.x = 52;
 event2.transmitSetup.probeTransform.translation.y = 43;
 event2.transmitSetup.probeTransform.translation.z = 82;
 event2.transmitSetup.timeOffset = 1202;
-event2.transmitSetup.wave = dataset.acquisition.waves(2);
+event2.transmitSetup.wave.type = urx.Wave.WaveType.CONVERGING_WAVE;
+event2.transmitSetup.wave.timeZeroReferencePoint.x = 6;
+event2.transmitSetup.wave.timeZeroReferencePoint.y = 5;
+event2.transmitSetup.wave.timeZeroReferencePoint.z = 2;
+event2.transmitSetup.wave.timeZero = 4.11;
+event2.transmitSetup.wave.parameters = [7, 53, .3, 5.6, 7];
+event2.transmitSetup.activeElements = {[1]};
+event2.transmitSetup.excitations = [dataset.acquisition.excitations(1)];
+event2.transmitSetup.delays = [1.6];
+
 event2.receiveSetup.probe = dataset.acquisition.probes(2);
 event2.receiveSetup.probeTransform.rotation.x = 55;
 event2.receiveSetup.probeTransform.rotation.y = 38;
@@ -336,7 +341,7 @@ event2.receiveSetup.probeTransform.translation.y = 4;
 event2.receiveSetup.probeTransform.translation.z = 2;
 event2.receiveSetup.samplingFrequency = 12468;
 event2.receiveSetup.numberSamples = 442;
-event2.receiveSetup.channelMapping = {[15, 32, 3], [4, 55, 6], [7, 48, 9]};
+event2.receiveSetup.activeElements = {[15, 32, 3], [4, 55, 6], [7, 48, 9]};
 event2.receiveSetup.tgcProfile = [17, .2, 3., 5, .1, 35, .445, 5];
 event2.receiveSetup.tgcSamplingFrequency = 47.5;
 event2.receiveSetup.modulationFrequency = 4.558;

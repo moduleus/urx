@@ -308,7 +308,7 @@ classdef Object < urx.ObjectField
             % are manipulating shared_ptr, weak_ptr or raw pointer.
             if any(strcmp({'rawData'}, affectedPropertyName))
               ptrIsShared = urx.PtrType.SHARED;
-            elseif any(strcmp({'elementGeometry','impulseResponse','group','probe','wave'},affectedPropertyName))
+            elseif any(strcmp({'elementGeometry','impulseResponse','group','probe'},affectedPropertyName))
               ptrIsShared = urx.PtrType.WEAK;
             else
               ptrIsShared = urx.PtrType.RAW;
