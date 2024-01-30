@@ -3,9 +3,12 @@ build/
 out/
 CI/
 CI_Android/
+doc/
 
 # IDE dir
 .vs/
 .vscode/
 
 *.swp
+
+/vcpkg*/
