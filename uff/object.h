@@ -11,12 +11,14 @@
 #include <limits>  // IWYU pragma: keep
 #include <string>
 
-// Standard indentation
-#define UFF_STD_INDENT "  "
-#define UNDEFINED "UNDEFINED"
-#define UFF_NAN std::numeric_limits<MetadataType>::quiet_NaN()
+#include "uff/uff.h"
 
 namespace uff {
+
+// Standard indentation
+constexpr char UFF_STD_INDENT[] = "  ";
+constexpr char UNDEFINED[] = "UNDEFINED";
+constexpr MetadataType UFF_NAN = std::numeric_limits<MetadataType>::quiet_NaN();
 
 /**
  * The uff::Object class is the base class for all UFF components.
