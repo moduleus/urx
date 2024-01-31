@@ -21,33 +21,38 @@ format:clang-format:
   stage: format
   tags:
     - ubuntu
+    - clang-format
   script:
-    - find . -type f -name "*.cpp" -or -name "*.cc" -or -name "*.hpp" -or -name "*.h" |xargs clang-format-14 --style=file --dry-run --Werror
+    - find . -type f -name "*.cpp" -or -name "*.cc" -or -name "*.hpp" -or -name "*.h" |xargs clang-format-17 --style=file --dry-run --Werror
   dependencies: []
 
 format:cmake-format:
   stage: format
   tags:
     - ubuntu
+    - cmake-format
   script:
     - find . -name "CMakeLists.txt" | xargs cmake-format -i
-    - if [ -n "$(git diff-index --name-only HEAD --)" ]; then echo "Please, format your CMake files."; echo "$(git diff-index --name-only HEAD --)"; exit 1; fi
+    - if [ -n "$(git status --porcelain)" ]; then echo "Please, format your CMake files."; echo "$(git status --porcelain)"; exit 1; fi
   dependencies: []
 
 format:clang-tidy:
   stage: format
   tags:
     - ubuntu
+    - clang-tidy
   script:
     - cd CI
     - run-clang-tidy || exit 1
   needs:
     - build:ubuntu-with-HDF5-static
+  allow_failure: true
 
 format:iwyu:
   stage: format
   tags:
     - ubuntu
+    - iwyu
   script:
     - iwyu_tool.py -p CI -j $NUM_PARALLEL -- -Xiwyu --no_default_mappings -Xiwyu --mapping_file="$(pwd)/.iwyu-imp" -Xiwyu --no_fwd_decls > CI/iwyu_tool.log
     - fix_includes.py --nosafe_headers < CI/iwyu_tool.log

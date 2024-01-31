@@ -248,8 +248,7 @@ void Reader<DataType>::readDataTypeArrayDataset(const H5::Group& group, const st
   int ndims = dataspace.getSimpleExtentNdims();
   //std::cout << "ndims:" << ndims << std::endl;
   dimensions.resize(ndims);
-  dataspace.getSimpleExtentDims(
-      reinterpret_cast<unsigned long long*>(dimensions.data()));  // Poor casting
+  dataspace.getSimpleExtentDims(reinterpret_cast<hsize_t*>(dimensions.data()));  // Poor casting
   size_t numel = 1;
   for (auto sz : dimensions) {
     numel *= sz;
@@ -278,8 +277,7 @@ void Reader<DataType>::readMetadataTypeArrayDataset(const H5::Group& group, cons
   int ndims = dataspace.getSimpleExtentNdims();
   //std::cout << "ndims:" << ndims << std::endl;
   dimensions.resize(ndims);
-  dataspace.getSimpleExtentDims(
-      reinterpret_cast<unsigned long long*>(dimensions.data()));  // Poor casting
+  dataspace.getSimpleExtentDims(reinterpret_cast<hsize_t*>(dimensions.data()));  // Poor casting
   size_t numel = 1;
   for (auto sz : dimensions) {
     numel *= sz;
