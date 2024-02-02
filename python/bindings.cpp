@@ -37,7 +37,7 @@
 #include <urx/urx.h>
 #include <urx/utils/group_data_reader.h>
 #include <urx/utils/group_helper.h>
-#include <urx/utils/io/upgrade.h>
+#include <urx/utils/io/reader.h>
 #include <urx/utils/io/writer.h>
 #include <urx/utils/time_helper.h>
 #include <urx/vector.h>
@@ -515,7 +515,7 @@ PYBIND11_MODULE(bindings, m) {
       .def_readwrite("acquisition", &urx::Dataset::acquisition);
 
   // Util static methods
-  m.def("load_from_file", &urx::utils::io::Upgrade::LoadFromFile);
+  m.def("load_from_file", &urx::utils::io::Reader::load_from_file);
   m.def("save_to_file", &urx::utils::io::Writer::saveToFile);
 
   // group_data_reader.h

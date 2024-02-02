@@ -30,7 +30,7 @@
 #include <urx/wave.h>
 
 #ifdef WITH_HDF5
-#include <urx/utils/io/upgrade.h>
+#include <urx/utils/io/reader.h>
 #include <urx/utils/io/writer.h>
 #endif
 
@@ -506,7 +506,7 @@ uint64_t get_pointer(void *ptr) { return reinterpret_cast<uint64_t>(ptr); }
 
 void *load_from_file(const char *filename) {
 #ifdef WITH_HDF5
-  return new std::shared_ptr<urx::Dataset>(urx::utils::io::Upgrade::LoadFromFile(filename));
+  return new std::shared_ptr<urx::Dataset>(urx::utils::io::Reader::load_from_file(filename));
 #else
   return nullptr;
 #endif
