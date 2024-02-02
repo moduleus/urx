@@ -233,20 +233,20 @@ void serialize_all(const std::shared_ptr<Group>& gr, const std::shared_ptr<RawDa
   enum class Format { ARRAY_2D, COMPOUND };
   constexpr Format format = Format::ARRAY_2D;
 
-  static std::unordered_map<Group::DataType, std::type_index> group_dt_to_typeid{
-      {Group::DataType::INT16, typeid(int16_t)},
-      {Group::DataType::INT32, typeid(int32_t)},
-      {Group::DataType::FLOAT, typeid(float)},
-      {Group::DataType::DOUBLE, typeid(double)}};
-  static std::unordered_map<Group::DataType, size_t> group_dt_to_sizeof{
-      {Group::DataType::INT16, sizeof(int16_t)},
-      {Group::DataType::INT32, sizeof(int32_t)},
-      {Group::DataType::FLOAT, sizeof(float)},
-      {Group::DataType::DOUBLE, sizeof(double)}};
+  static std::unordered_map<DataType, std::type_index> group_dt_to_typeid{
+      {DataType::INT16, typeid(int16_t)},
+      {DataType::INT32, typeid(int32_t)},
+      {DataType::FLOAT, typeid(float)},
+      {DataType::DOUBLE, typeid(double)}};
+  static std::unordered_map<DataType, size_t> group_dt_to_sizeof{
+      {DataType::INT16, sizeof(int16_t)},
+      {DataType::INT32, sizeof(int32_t)},
+      {DataType::FLOAT, sizeof(float)},
+      {DataType::DOUBLE, sizeof(double)}};
 
   const H5::PredType* datatype = std_to_h5.at(group_dt_to_typeid.at(gr->data_type));
 
-  const bool isComplex = gr->sampling_type == Group::SamplingType::IQ;
+  const bool isComplex = gr->sampling_type == SamplingType::IQ;
   if constexpr (format == Format::ARRAY_2D) {
     const hsize_t dims[2] = {field->getSize(), isComplex ? 2ULL : 1ULL};
     const H5::DataSpace dataspace = H5::DataSpace(2, dims);

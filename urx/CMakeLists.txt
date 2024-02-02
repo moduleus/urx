@@ -7,6 +7,7 @@ set(URX_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/dataset.h
     ${CMAKE_CURRENT_SOURCE_DIR}/element_geometry.h
     ${CMAKE_CURRENT_SOURCE_DIR}/element.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/enums.h
     ${CMAKE_CURRENT_SOURCE_DIR}/event.h
     ${CMAKE_CURRENT_SOURCE_DIR}/excitation.h
     ${CMAKE_CURRENT_SOURCE_DIR}/group_data.h

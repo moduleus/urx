@@ -27,25 +27,25 @@ TEST_CASE("RawDataVector", "[test_RawData]") {
   const RawDataVector<std::complex<int16_t>> raw_data_vector_comp_int16(
       std::vector<std::complex<int16_t>>{{1, 2}, {-3, 4}});
 
-  CHECK(raw_data_vector_double.getDataType() == Group::DataType::DOUBLE);
-  CHECK(raw_data_vector_float.getDataType() == Group::DataType::FLOAT);
-  CHECK(raw_data_vector_int32.getDataType() == Group::DataType::INT32);
-  CHECK(raw_data_vector_int16.getDataType() == Group::DataType::INT16);
+  CHECK(raw_data_vector_double.getDataType() == DataType::DOUBLE);
+  CHECK(raw_data_vector_float.getDataType() == DataType::FLOAT);
+  CHECK(raw_data_vector_int32.getDataType() == DataType::INT32);
+  CHECK(raw_data_vector_int16.getDataType() == DataType::INT16);
 
-  CHECK(raw_data_vector_comp_double.getDataType() == Group::DataType::DOUBLE);
-  CHECK(raw_data_vector_comp_float.getDataType() == Group::DataType::FLOAT);
-  CHECK(raw_data_vector_comp_int32.getDataType() == Group::DataType::INT32);
-  CHECK(raw_data_vector_comp_int16.getDataType() == Group::DataType::INT16);
+  CHECK(raw_data_vector_comp_double.getDataType() == DataType::DOUBLE);
+  CHECK(raw_data_vector_comp_float.getDataType() == DataType::FLOAT);
+  CHECK(raw_data_vector_comp_int32.getDataType() == DataType::INT32);
+  CHECK(raw_data_vector_comp_int16.getDataType() == DataType::INT16);
 
-  CHECK(raw_data_vector_double.getSamplingType() == Group::SamplingType::RF);
-  CHECK(raw_data_vector_float.getSamplingType() == Group::SamplingType::RF);
-  CHECK(raw_data_vector_int32.getSamplingType() == Group::SamplingType::RF);
-  CHECK(raw_data_vector_int16.getSamplingType() == Group::SamplingType::RF);
+  CHECK(raw_data_vector_double.getSamplingType() == SamplingType::RF);
+  CHECK(raw_data_vector_float.getSamplingType() == SamplingType::RF);
+  CHECK(raw_data_vector_int32.getSamplingType() == SamplingType::RF);
+  CHECK(raw_data_vector_int16.getSamplingType() == SamplingType::RF);
 
-  CHECK(raw_data_vector_comp_double.getSamplingType() == Group::SamplingType::IQ);
-  CHECK(raw_data_vector_comp_float.getSamplingType() == Group::SamplingType::IQ);
-  CHECK(raw_data_vector_comp_int32.getSamplingType() == Group::SamplingType::IQ);
-  CHECK(raw_data_vector_comp_int16.getSamplingType() == Group::SamplingType::IQ);
+  CHECK(raw_data_vector_comp_double.getSamplingType() == SamplingType::IQ);
+  CHECK(raw_data_vector_comp_float.getSamplingType() == SamplingType::IQ);
+  CHECK(raw_data_vector_comp_int32.getSamplingType() == SamplingType::IQ);
+  CHECK(raw_data_vector_comp_int16.getSamplingType() == SamplingType::IQ);
 }
 
 TEST_CASE("RawDataNoInit", "[test_build]") {
@@ -59,25 +59,25 @@ TEST_CASE("RawDataNoInit", "[test_build]") {
   const RawDataNoInit<std::complex<int32_t>> raw_data_vector_comp_int32(42);
   const RawDataNoInit<std::complex<int16_t>> raw_data_vector_comp_int16(42);
 
-  CHECK(raw_data_vector_double.getDataType() == Group::DataType::DOUBLE);
-  CHECK(raw_data_vector_float.getDataType() == Group::DataType::FLOAT);
-  CHECK(raw_data_vector_int32.getDataType() == Group::DataType::INT32);
-  CHECK(raw_data_vector_int16.getDataType() == Group::DataType::INT16);
+  CHECK(raw_data_vector_double.getDataType() == DataType::DOUBLE);
+  CHECK(raw_data_vector_float.getDataType() == DataType::FLOAT);
+  CHECK(raw_data_vector_int32.getDataType() == DataType::INT32);
+  CHECK(raw_data_vector_int16.getDataType() == DataType::INT16);
 
-  CHECK(raw_data_vector_comp_double.getDataType() == Group::DataType::DOUBLE);
-  CHECK(raw_data_vector_comp_float.getDataType() == Group::DataType::FLOAT);
-  CHECK(raw_data_vector_comp_int32.getDataType() == Group::DataType::INT32);
-  CHECK(raw_data_vector_comp_int16.getDataType() == Group::DataType::INT16);
+  CHECK(raw_data_vector_comp_double.getDataType() == DataType::DOUBLE);
+  CHECK(raw_data_vector_comp_float.getDataType() == DataType::FLOAT);
+  CHECK(raw_data_vector_comp_int32.getDataType() == DataType::INT32);
+  CHECK(raw_data_vector_comp_int16.getDataType() == DataType::INT16);
 
-  CHECK(raw_data_vector_double.getSamplingType() == Group::SamplingType::RF);
-  CHECK(raw_data_vector_float.getSamplingType() == Group::SamplingType::RF);
-  CHECK(raw_data_vector_int32.getSamplingType() == Group::SamplingType::RF);
-  CHECK(raw_data_vector_int16.getSamplingType() == Group::SamplingType::RF);
+  CHECK(raw_data_vector_double.getSamplingType() == SamplingType::RF);
+  CHECK(raw_data_vector_float.getSamplingType() == SamplingType::RF);
+  CHECK(raw_data_vector_int32.getSamplingType() == SamplingType::RF);
+  CHECK(raw_data_vector_int16.getSamplingType() == SamplingType::RF);
 
-  CHECK(raw_data_vector_comp_double.getSamplingType() == Group::SamplingType::IQ);
-  CHECK(raw_data_vector_comp_float.getSamplingType() == Group::SamplingType::IQ);
-  CHECK(raw_data_vector_comp_int32.getSamplingType() == Group::SamplingType::IQ);
-  CHECK(raw_data_vector_comp_int16.getSamplingType() == Group::SamplingType::IQ);
+  CHECK(raw_data_vector_comp_double.getSamplingType() == SamplingType::IQ);
+  CHECK(raw_data_vector_comp_float.getSamplingType() == SamplingType::IQ);
+  CHECK(raw_data_vector_comp_int32.getSamplingType() == SamplingType::IQ);
+  CHECK(raw_data_vector_comp_int16.getSamplingType() == SamplingType::IQ);
 }
 
 TEST_CASE("RawDataWeak", "[test_build]") {
@@ -108,25 +108,25 @@ TEST_CASE("RawDataWeak", "[test_build]") {
   const RawDataWeak<decltype(tmp_comp_int16)::value_type> raw_data_vector_comp_int16(
       static_cast<void*>(tmp_comp_int16.data()), 1u);
 
-  CHECK(raw_data_vector_double.getDataType() == Group::DataType::DOUBLE);
-  CHECK(raw_data_vector_float.getDataType() == Group::DataType::FLOAT);
-  CHECK(raw_data_vector_int32.getDataType() == Group::DataType::INT32);
-  CHECK(raw_data_vector_int16.getDataType() == Group::DataType::INT16);
+  CHECK(raw_data_vector_double.getDataType() == DataType::DOUBLE);
+  CHECK(raw_data_vector_float.getDataType() == DataType::FLOAT);
+  CHECK(raw_data_vector_int32.getDataType() == DataType::INT32);
+  CHECK(raw_data_vector_int16.getDataType() == DataType::INT16);
 
-  CHECK(raw_data_vector_comp_double.getDataType() == Group::DataType::DOUBLE);
-  CHECK(raw_data_vector_comp_float.getDataType() == Group::DataType::FLOAT);
-  CHECK(raw_data_vector_comp_int32.getDataType() == Group::DataType::INT32);
-  CHECK(raw_data_vector_comp_int16.getDataType() == Group::DataType::INT16);
+  CHECK(raw_data_vector_comp_double.getDataType() == DataType::DOUBLE);
+  CHECK(raw_data_vector_comp_float.getDataType() == DataType::FLOAT);
+  CHECK(raw_data_vector_comp_int32.getDataType() == DataType::INT32);
+  CHECK(raw_data_vector_comp_int16.getDataType() == DataType::INT16);
 
-  CHECK(raw_data_vector_double.getSamplingType() == Group::SamplingType::RF);
-  CHECK(raw_data_vector_float.getSamplingType() == Group::SamplingType::RF);
-  CHECK(raw_data_vector_int32.getSamplingType() == Group::SamplingType::RF);
-  CHECK(raw_data_vector_int16.getSamplingType() == Group::SamplingType::RF);
+  CHECK(raw_data_vector_double.getSamplingType() == SamplingType::RF);
+  CHECK(raw_data_vector_float.getSamplingType() == SamplingType::RF);
+  CHECK(raw_data_vector_int32.getSamplingType() == SamplingType::RF);
+  CHECK(raw_data_vector_int16.getSamplingType() == SamplingType::RF);
 
-  CHECK(raw_data_vector_comp_double.getSamplingType() == Group::SamplingType::IQ);
-  CHECK(raw_data_vector_comp_float.getSamplingType() == Group::SamplingType::IQ);
-  CHECK(raw_data_vector_comp_int32.getSamplingType() == Group::SamplingType::IQ);
-  CHECK(raw_data_vector_comp_int16.getSamplingType() == Group::SamplingType::IQ);
+  CHECK(raw_data_vector_comp_double.getSamplingType() == SamplingType::IQ);
+  CHECK(raw_data_vector_comp_float.getSamplingType() == SamplingType::IQ);
+  CHECK(raw_data_vector_comp_int32.getSamplingType() == SamplingType::IQ);
+  CHECK(raw_data_vector_comp_int16.getSamplingType() == SamplingType::IQ);
 }
 
 TEST_CASE("getDataType throws on wrong template", "[test_RawData]") {

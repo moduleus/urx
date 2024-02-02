@@ -35,18 +35,18 @@ class RawData {
   virtual const void* getBuffer() const = 0;
   virtual void* getBuffer() = 0;
   virtual size_t getSize() const = 0;
-  virtual Group::SamplingType getSamplingType() const = 0;
-  virtual Group::DataType getDataType() const = 0;
+  virtual SamplingType getSamplingType() const = 0;
+  virtual DataType getDataType() const = 0;
 
   bool operator==(const RawData& other) const {
-    static std::unordered_map<Group::DataType, size_t> group_dt_to_sizeof{
-        {Group::DataType::INT16, sizeof(int16_t)},
-        {Group::DataType::INT32, sizeof(int32_t)},
-        {Group::DataType::FLOAT, sizeof(float)},
-        {Group::DataType::DOUBLE, sizeof(double)}};
+    static std::unordered_map<DataType, size_t> group_dt_to_sizeof{
+        {DataType::INT16, sizeof(int16_t)},
+        {DataType::INT32, sizeof(int32_t)},
+        {DataType::FLOAT, sizeof(float)},
+        {DataType::DOUBLE, sizeof(double)}};
     return std::memcmp(getBuffer(), other.getBuffer(),
                        getSize() * group_dt_to_sizeof.at(getDataType()) *
-                           (getSamplingType() == Group::SamplingType::RF ? 1 : 2)) == 0;
+                           (getSamplingType() == SamplingType::RF ? 1 : 2)) == 0;
   }
 
   virtual ~RawData() = default;
@@ -57,22 +57,22 @@ class IRawData : public RawData {
  public:
   using value_type = T;
 
-  Group::SamplingType getSamplingType() const override {
-    return is_complex_t<value_type>::value ? Group::SamplingType::IQ : Group::SamplingType::RF;
+  SamplingType getSamplingType() const override {
+    return is_complex_t<value_type>::value ? SamplingType::IQ : SamplingType::RF;
   };
 
-  Group::DataType getDataType() const override {
+  DataType getDataType() const override {
     const std::type_index type([]() -> std::type_index {
       if constexpr (is_complex_t<value_type>::value) {
         return typeid(typename value_type::value_type);
       }
       return typeid(value_type);
     }());
-    static std::unordered_map<std::type_index, Group::DataType> typeid_to_dt{
-        {std::type_index(typeid(int16_t)), Group::DataType::INT16},
-        {std::type_index(typeid(int32_t)), Group::DataType::INT32},
-        {std::type_index(typeid(float)), Group::DataType::FLOAT},
-        {std::type_index(typeid(double)), Group::DataType::DOUBLE}};
+    static std::unordered_map<std::type_index, DataType> typeid_to_dt{
+        {std::type_index(typeid(int16_t)), DataType::INT16},
+        {std::type_index(typeid(int32_t)), DataType::INT32},
+        {std::type_index(typeid(float)), DataType::FLOAT},
+        {std::type_index(typeid(double)), DataType::DOUBLE}};
 
     return typeid_to_dt.at(type);
   };

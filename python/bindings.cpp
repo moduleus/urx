@@ -25,6 +25,7 @@
 #include <urx/detail/raw_data.h>
 #include <urx/element.h>
 #include <urx/element_geometry.h>
+#include <urx/enums.h>
 #include <urx/event.h>
 #include <urx/excitation.h>
 #include <urx/group.h>
@@ -52,12 +53,12 @@ PYBIND11_MODULE(bindings, m) {
 
   urx::python::detail::registerVector(m);
 
-  py::enum_<urx::Group::SamplingType>(m, "SamplingType")
+  py::enum_<urx::SamplingType>(m, "SamplingType")
       .value("RF", urx::Group::SamplingType::RF)
       .value("IQ", urx::Group::SamplingType::IQ)
       .value("UNDEFINED", urx::Group::SamplingType::UNDEFINED);
 
-  py::enum_<urx::Group::DataType>(m, "DataType")
+  py::enum_<urx::DataType>(m, "DataType")
       .value("INT16", urx::Group::DataType::INT16)
       .value("INT32", urx::Group::DataType::INT32)
       .value("FLOAT", urx::Group::DataType::FLOAT)
@@ -229,19 +230,19 @@ PYBIND11_MODULE(bindings, m) {
       .def_readwrite("waveform", &urx::Excitation::waveform);
 
   // ProbeType
-  py::enum_<urx::Probe::ProbeType>(m, "ProbeType")
-      .value("LINEAR", urx::Probe::ProbeType::LINEAR)
-      .value("CURVILINEAR", urx::Probe::ProbeType::CURVILINEAR)
-      .value("RCA", urx::Probe::ProbeType::RCA)
-      .value("MATRIX", urx::Probe::ProbeType::MATRIX)
-      .value("SPARSE", urx::Probe::ProbeType::SPARSE)
-      .value("UNDEFINED", urx::Probe::ProbeType::UNDEFINED);
+  py::enum_<urx::ProbeType>(m, "ProbeType")
+      .value("LINEAR", urx::ProbeType::LINEAR)
+      .value("CURVILINEAR", urx::ProbeType::CURVILINEAR)
+      .value("RCA", urx::ProbeType::RCA)
+      .value("MATRIX", urx::ProbeType::MATRIX)
+      .value("SPARSE", urx::ProbeType::SPARSE)
+      .value("UNDEFINED", urx::ProbeType::UNDEFINED);
 
   // Probe
   py::class_<urx::Probe, std::shared_ptr<urx::Probe>>(m, "Probe")
       .def(py::init())
       .def(py::init<const urx::Probe &>())
-      .def(py::init<const std::string &, urx::Probe::ProbeType, const urx::Transform &,
+      .def(py::init<const std::string &, urx::ProbeType, const urx::Transform &,
                     const VecElementGeometryPtr &, const VecImpulseResponsePtr &,
                     const VecElement &>())
       .def(pybind11::self == pybind11::self)
@@ -254,18 +255,18 @@ PYBIND11_MODULE(bindings, m) {
       .def_readwrite("elements", &urx::Probe::elements);
 
   // WaveType
-  py::enum_<urx::Wave::WaveType>(m, "WaveType")
-      .value("CONVERGING_WAVE", urx::Wave::WaveType::CONVERGING_WAVE)
-      .value("DIVERGING_WAVE", urx::Wave::WaveType::DIVERGING_WAVE)
-      .value("PLANE_WAVE", urx::Wave::WaveType::PLANE_WAVE)
-      .value("CYLINDRICAL_WAVE", urx::Wave::WaveType::CYLINDRICAL_WAVE)
-      .value("UNDEFINED", urx::Wave::WaveType::UNDEFINED);
+  py::enum_<urx::WaveType>(m, "WaveType")
+      .value("CONVERGING_WAVE", urx::WaveType::CONVERGING_WAVE)
+      .value("DIVERGING_WAVE", urx::WaveType::DIVERGING_WAVE)
+      .value("PLANE_WAVE", urx::WaveType::PLANE_WAVE)
+      .value("CYLINDRICAL_WAVE", urx::WaveType::CYLINDRICAL_WAVE)
+      .value("UNDEFINED", urx::WaveType::UNDEFINED);
 
   // Wave
   py::class_<urx::Wave, std::shared_ptr<urx::Wave>>(m, "Wave")
       .def(py::init())
       .def(py::init<const urx::Wave &>())
-      .def(py::init([](const urx::Wave::WaveType &type, const urx::DoubleNan &time_zero,
+      .def(py::init([](const urx::WaveType &type, const urx::DoubleNan &time_zero,
                        const urx::Vector3D<double> &time_zero_reference_point,
                        const VecFloat64 &parameters) {
         return urx::Wave{type, time_zero, time_zero_reference_point, parameters};
