@@ -12,7 +12,7 @@ namespace urx::utils {
 
 class GroupDataReader {
  public:
-  explicit GroupDataReader(GroupData& group_data, const size_t custom_sample_byte_size = 1);
+  explicit GroupDataReader(const GroupData& group_data, const size_t custom_sample_byte_size = 1);
 
   GroupDataReader(GroupDataReader&& other) noexcept = delete;
   GroupDataReader(GroupDataReader const& other) = delete;
@@ -23,12 +23,12 @@ class GroupDataReader {
   T* operator()(const size_t sequence_idx = 0, const size_t event_idx = 0,
                 const size_t channel_idx = 0, const size_t sample_idx = 0) {
     if constexpr (!std::is_same_v<T, void>) {
-      if (sizeof(T) != sample_byte_size_) throw std::runtime_error("Invalid cast with raw_data");
+      if (sizeof(T) != _sample_byte_size) throw std::runtime_error("Invalid cast with raw_data");
     }
 
-    char* byte_data = reinterpret_cast<char*>(group_data_.raw_data->getBuffer());
+    char* byte_data = reinterpret_cast<char*>(_group_data.raw_data->getBuffer());
     return reinterpret_cast<T*>(
-        byte_data + offset(sequence_idx, event_idx, channel_idx, sample_idx) * sample_byte_size_);
+        byte_data + offset(sequence_idx, event_idx, channel_idx, sample_idx) * _sample_byte_size);
   }
 
   template <typename T>
@@ -52,11 +52,11 @@ class GroupDataReader {
   size_t sampleByteSize() const;
 
  private:
-  GroupData& group_data_;
+  const GroupData& _group_data;
 
-  size_t sample_byte_size_;             // Number of bytes per sample
-  std::vector<size_t> samples_offset_;  // Samples offset relative to an event
-  std::vector<size_t> samples_count_;   // Number of samples in channels relative to an event
+  size_t _sample_byte_size;             // Number of bytes per sample
+  std::vector<size_t> _samples_offset;  // Samples offset relative to an event
+  std::vector<size_t> _samples_count;   // Number of samples in channels relative to an event
 };
 
 }  // namespace urx::utils

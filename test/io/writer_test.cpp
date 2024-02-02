@@ -7,6 +7,8 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include "urx/enums.h"
+
 #include <urx/acquisition.h>
 #include <urx/dataset.h>
 #include <urx/detail/compare.h>
@@ -384,9 +386,9 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
     }
   }
 
-  Writer::saveToFile("writer康🐜.urx", *dataset);
+  writer::saveToFile("writer康🐜.urx", *dataset);
 
-  auto dataset_loaded = Reader::loadFromFile("writer康🐜.urx");
+  auto dataset_loaded = reader::loadFromFile("writer康🐜.urx");
 
   REQUIRE(dataset_loaded->acquisition.probes == dataset->acquisition.probes);
   REQUIRE(dataset_loaded->acquisition.excitations == dataset->acquisition.excitations);

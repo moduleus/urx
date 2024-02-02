@@ -41,8 +41,8 @@ TEST_CASE("Instantiate all classes to check build", "[test_build]") {
   const ReceiveSetup receive_setup;
   const Transform transform;
   const TransmitSetup transmit_setup;
-  const Vector2D<double> vector2D;
-  const Vector3D<double> vector3D;
+  const Vector2D<double> vector_2d;
+  const Vector3D<double> vector_3d;
   const Version version;
   const Wave wave;
 }

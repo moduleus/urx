@@ -15,7 +15,7 @@ classdef Dataset < urx.Object
         filename char
       end
 
-      this.libBindingRef.call('save_to_file', filename, this.id);
+      this.libBindingRef.call('saveToFile', filename, this.id);
     end
   end
 
@@ -25,7 +25,7 @@ classdef Dataset < urx.Object
         filename char
       end
 
-      this = urx.LibBinding.getInstance().call('load_from_file', filename);
+      this = urx.LibBinding.getInstance().call('loadFromFile', filename);
     end
   end
 end

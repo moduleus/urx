@@ -12,17 +12,17 @@
 namespace urx {
 
 template <typename T>
-struct is_complex_t : public std::false_type {};
+struct IsComplex : public std::false_type {};
 
 template <typename T>
-struct is_complex_t<std::complex<T>> : public std::true_type {};
+struct IsComplex<std::complex<T>> : public std::true_type {};
 
 template <typename T>
-struct is_complex_t<std::vector<std::complex<T>>> : public std::true_type {};
+struct IsComplex<std::vector<std::complex<T>>> : public std::true_type {};
 
 template <typename T>
 constexpr bool is_complex() {
-  return is_complex_t<T>::value;
+  return IsComplex<T>::value;
 }
 
 template <typename T>
@@ -55,18 +55,18 @@ class RawData {
 template <typename T>
 class IRawData : public RawData {
  public:
-  using value_type = T;
+  using ValueType = T;
 
   SamplingType getSamplingType() const override {
-    return is_complex_t<value_type>::value ? SamplingType::IQ : SamplingType::RF;
+    return IsComplex<ValueType>::value ? SamplingType::IQ : SamplingType::RF;
   };
 
   DataType getDataType() const override {
     const std::type_index type([]() -> std::type_index {
-      if constexpr (is_complex_t<value_type>::value) {
-        return typeid(typename value_type::value_type);
+      if constexpr (IsComplex<ValueType>::value) {
+        return typeid(typename ValueType::value_type);
       }
-      return typeid(value_type);
+      return typeid(ValueType);
     }());
     static std::unordered_map<std::type_index, DataType> typeid_to_dt{
         {std::type_index(typeid(int16_t)), DataType::INT16},

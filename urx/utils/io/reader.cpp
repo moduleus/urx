@@ -28,30 +28,30 @@
 #include <urx/utils/io/reader.h>
 #include <urx/utils/io/serialize_helper.h>
 
-namespace urx::utils::io {
+namespace urx::utils::io::reader {
 
 namespace {
 
 using MapToSharedPtr = std::unordered_map<std::type_index, const void*>;
 
 template <typename T>
-const std::vector<std::shared_ptr<T>>& get_shared_ptr(MapToSharedPtr& map) {
+const std::vector<std::shared_ptr<T>>& getSharedPtr(MapToSharedPtr& map) {
   return *reinterpret_cast<const std::vector<std::shared_ptr<T>>*>(
       map.at(std::type_index{typeid(T)}));
 }
 
 std::unordered_map<std::type_index, const H5::PredType*> std_to_h5;
 
-constexpr int iter_length = 8;
+constexpr int ITER_LENGTH = 8;
 
 template <typename T>
-void deserialize_all(T& field, const H5::Group& group, MapToSharedPtr& map);
+void deserializeAll(T& field, const H5::Group& group, MapToSharedPtr& map);
 template <>
-void deserialize_all(std::shared_ptr<RawData>& field, const H5::Group& group, MapToSharedPtr& map);
+void deserializeAll(std::shared_ptr<RawData>& field, const H5::Group& group, MapToSharedPtr& map);
 
 template <class T>
-void deserialize_hdf5(const std::string& name, T& field, const H5::Group& group,
-                      MapToSharedPtr& map) {
+void deserializeHdf5(const std::string& name, T& field, const H5::Group& group,
+                     MapToSharedPtr& map) {
   // Number
   if constexpr (std::is_arithmetic_v<T>) {
     const H5::StrType datatype(*std_to_h5.at(typeid(T)));
@@ -86,14 +86,14 @@ void deserialize_hdf5(const std::string& name, T& field, const H5::Group& group,
   // Default
   else {
     const H5::Group group_child(group.openGroup(name));
-    deserialize_all(field, group_child, map);
+    deserializeAll(field, group_child, map);
   }
 }
 
 // String
 template <>
-void deserialize_hdf5(const std::string& name, std::string& field, const H5::Group& group,
-                      MapToSharedPtr&) {
+void deserializeHdf5(const std::string& name, std::string& field, const H5::Group& group,
+                     MapToSharedPtr&) {
   const H5::StrType datatype(0, H5T_VARIABLE);
   const H5::DataSpace dataspace(H5S_SCALAR);
   if (group.nameExists(name)) {
@@ -107,43 +107,43 @@ void deserialize_hdf5(const std::string& name, std::string& field, const H5::Gro
 
 // DoubleNan
 template <>
-void deserialize_hdf5(const std::string& name, DoubleNan& field, const H5::Group& group,
-                      MapToSharedPtr& map) {
-  deserialize_hdf5(name, field.value, group, map);
+void deserializeHdf5(const std::string& name, DoubleNan& field, const H5::Group& group,
+                     MapToSharedPtr& map) {
+  deserializeHdf5(name, field.value, group, map);
 }
 
 // shared_ptr
 template <typename T>
-void deserialize_hdf5(const std::string& name, std::shared_ptr<T>& field, const H5::Group& group,
-                      MapToSharedPtr& map) {
+void deserializeHdf5(const std::string& name, std::shared_ptr<T>& field, const H5::Group& group,
+                     MapToSharedPtr& map) {
   field = std::make_shared<T>();
-  deserialize_hdf5(name, *field, group, map);
+  deserializeHdf5(name, *field, group, map);
 }
 
 // RawData
 template <>
-void deserialize_hdf5(const std::string&, std::shared_ptr<RawData>& field, const H5::Group& group,
-                      MapToSharedPtr& map) {
-  deserialize_all(field, group, map);
+void deserializeHdf5(const std::string&, std::shared_ptr<RawData>& field, const H5::Group& group,
+                     MapToSharedPtr& map) {
+  deserializeAll(field, group, map);
 }
 
 // weak_ptr
 template <typename T>
-void deserialize_hdf5(const std::string& name, std::weak_ptr<T>& field, const H5::Group& group,
-                      MapToSharedPtr& map) {
+void deserializeHdf5(const std::string& name, std::weak_ptr<T>& field, const H5::Group& group,
+                     MapToSharedPtr& map) {
   if (group.nameExists(name) || group.attrExists(name)) {
     std::size_t idx;
 
-    deserialize_hdf5(name, idx, group, map);
+    deserializeHdf5(name, idx, group, map);
 
-    field = get_shared_ptr<T>(map)[idx];
+    field = getSharedPtr<T>(map)[idx];
   }
 }
 
 // Vector
 template <typename T>
-void deserialize_hdf5(const std::string& name, std::vector<T>& field, const H5::Group& group,
-                      MapToSharedPtr& map) {
+void deserializeHdf5(const std::string& name, std::vector<T>& field, const H5::Group& group,
+                     MapToSharedPtr& map) {
   if constexpr (std::is_arithmetic_v<T>) {
     const H5::StrType datatype(*std_to_h5.at(typeid(T)));
 
@@ -175,18 +175,18 @@ void deserialize_hdf5(const std::string& name, std::vector<T>& field, const H5::
     const H5::Group group_child(group.openGroup(name));
 
     size_t i = 0;
-    while (group_child.nameExists(format_index_with_leading_zeros(i, iter_length)) ||
-           group_child.attrExists(format_index_with_leading_zeros(i, iter_length))) {
+    while (group_child.nameExists(common::formatIndexWithLeadingZeros(i, ITER_LENGTH)) ||
+           group_child.attrExists(common::formatIndexWithLeadingZeros(i, ITER_LENGTH))) {
       field.push_back(T{});
-      deserialize_hdf5(format_index_with_leading_zeros(i, iter_length), field.back(), group_child,
-                       map);
+      deserializeHdf5(common::formatIndexWithLeadingZeros(i, ITER_LENGTH), field.back(),
+                      group_child, map);
       i++;
     }
   }
 }
 
 template <typename T>
-void deserialize_all(T& field, const H5::Group& group, MapToSharedPtr& map) {
+void deserializeAll(T& field, const H5::Group& group, MapToSharedPtr& map) {
   if (std_to_h5.empty()) {
     std_to_h5 = {{typeid(char), &H5::PredType::NATIVE_CHAR},
                  {typeid(signed char), &H5::PredType::NATIVE_SCHAR},
@@ -214,19 +214,19 @@ void deserialize_all(T& field, const H5::Group& group, MapToSharedPtr& map) {
   }
 
   boost::pfr::for_each_field(field, [&group, &map, &field](auto& child) {
-    deserialize_hdf5(SerializeHelper::member_name.at(typeid(T)).at(DIFF_PTR(field, child)), child,
-                     group, map);
+    deserializeHdf5(SerializeHelper::member_name.at(typeid(T)).at(DIFF_PTR(field, child)), child,
+                    group, map);
   });
 }
 
 // Need to update map for Probe.
 template <>
-void deserialize_all(Probe& field, const H5::Group& group, MapToSharedPtr& map) {
+void deserializeAll(Probe& field, const H5::Group& group, MapToSharedPtr& map) {
   map.insert({typeid(ElementGeometry), &field.element_geometries});
   map.insert({typeid(ImpulseResponse), &field.impulse_responses});
   boost::pfr::for_each_field(field, [&group, &map, &field](auto& child) {
-    deserialize_hdf5(SerializeHelper::member_name.at(typeid(Probe)).at(DIFF_PTR(field, child)),
-                     child, group, map);
+    deserializeHdf5(SerializeHelper::member_name.at(typeid(Probe)).at(DIFF_PTR(field, child)),
+                    child, group, map);
   });
   map.erase(typeid(ElementGeometry));
   map.erase(typeid(ImpulseResponse));
@@ -234,7 +234,7 @@ void deserialize_all(Probe& field, const H5::Group& group, MapToSharedPtr& map) 
 
 // for_each_field doesn't support RawData.
 template <>
-void deserialize_all(std::shared_ptr<RawData>& field, const H5::Group& group, MapToSharedPtr&) {
+void deserializeAll(std::shared_ptr<RawData>& field, const H5::Group& group, MapToSharedPtr&) {
   const H5::DataSet dataset = group.openDataSet("raw_data");
   const H5::DataSpace dataspace = dataset.getSpace();
   const H5::DataType datatype_raw = dataset.getDataType();
@@ -288,7 +288,7 @@ void deserialize_all(std::shared_ptr<RawData>& field, const H5::Group& group, Ma
 }
 }  // namespace
 
-std::shared_ptr<Dataset> Reader::loadFromFile(const std::string& filename) {
+std::shared_ptr<Dataset> loadFromFile(const std::string& filename) {
   // OK
   auto dataset = std::make_shared<Dataset>();
 
@@ -298,9 +298,9 @@ std::shared_ptr<Dataset> Reader::loadFromFile(const std::string& filename) {
                                    {typeid(Excitation), &dataset->acquisition.excitations},
                                    {typeid(GroupData), &dataset->acquisition.groups_data}};
 
-  deserialize_hdf5("dataset", *dataset, file, map_to_shared_ptr);
+  deserializeHdf5("dataset", *dataset, file, map_to_shared_ptr);
 
   return dataset;
 }
 
-}  // namespace urx::utils::io
+}  // namespace urx::utils::io::reader

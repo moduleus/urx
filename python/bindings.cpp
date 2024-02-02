@@ -54,16 +54,16 @@ PYBIND11_MODULE(bindings, m) {
   urx::python::detail::registerVector(m);
 
   py::enum_<urx::SamplingType>(m, "SamplingType")
-      .value("RF", urx::Group::SamplingType::RF)
-      .value("IQ", urx::Group::SamplingType::IQ)
-      .value("UNDEFINED", urx::Group::SamplingType::UNDEFINED);
+      .value("RF", urx::SamplingType::RF)
+      .value("IQ", urx::SamplingType::IQ)
+      .value("UNDEFINED", urx::SamplingType::UNDEFINED);
 
   py::enum_<urx::DataType>(m, "DataType")
-      .value("INT16", urx::Group::DataType::INT16)
-      .value("INT32", urx::Group::DataType::INT32)
-      .value("FLOAT", urx::Group::DataType::FLOAT)
-      .value("DOUBLE", urx::Group::DataType::DOUBLE)
-      .value("UNDEFINED", urx::Group::DataType::UNDEFINED);
+      .value("INT16", urx::DataType::INT16)
+      .value("INT32", urx::DataType::INT32)
+      .value("FLOAT", urx::DataType::FLOAT)
+      .value("DOUBLE", urx::DataType::DOUBLE)
+      .value("UNDEFINED", urx::DataType::UNDEFINED);
 
   // DoubleNan
   py::class_<urx::DoubleNan>(m, "DoubleNan")
@@ -381,8 +381,7 @@ PYBIND11_MODULE(bindings, m) {
   py::class_<urx::Group, std::shared_ptr<urx::Group>>(m, "Group")
       .def(py::init())
       .def(py::init<const urx::Group &>())
-      .def(py::init<urx::Group::SamplingType, urx::Group::DataType, const std::string &,
-                    const VecEvent &>())
+      .def(py::init<urx::SamplingType, urx::DataType, const std::string &, const VecEvent &>())
       .def(pybind11::self == pybind11::self)
       .def(pybind11::self != pybind11::self)
       .def_readwrite("sampling_type", &urx::Group::sampling_type)
@@ -410,14 +409,13 @@ PYBIND11_MODULE(bindings, m) {
       .def_property(
           "raw_data",
           [](urx::GroupData &self) {
-            const bool are_data_complex =
-                self.raw_data->getSamplingType() == urx::Group::SamplingType::IQ;
+            const bool are_data_complex = self.raw_data->getSamplingType() == urx::SamplingType::IQ;
             const py::ssize_t data_size = self.raw_data->getSize();
             void *data_ptr = self.raw_data->getBuffer();
             const py::ssize_t sizeof_data_type_var =
-                urx::utils::GroupHelper::sizeof_data_type(self.raw_data->getDataType());
+                urx::utils::group_helper::sizeofDataType(self.raw_data->getDataType());
             const std::string data_format =
-                urx::utils::GroupHelper::py_get_format(self.raw_data->getDataType());
+                urx::utils::group_helper::pyGetFormat(self.raw_data->getDataType());
 
             auto buffer = py::buffer_info(
                 data_ptr, sizeof_data_type_var, data_format, are_data_complex ? 2 : 1,
@@ -516,8 +514,8 @@ PYBIND11_MODULE(bindings, m) {
       .def_readwrite("acquisition", &urx::Dataset::acquisition);
 
   // Util static methods
-  m.def("load_from_file", &urx::utils::io::Reader::load_from_file);
-  m.def("save_to_file", &urx::utils::io::Writer::saveToFile);
+  m.def("loadFromFile", &urx::utils::io::reader::loadFromFile);
+  m.def("saveToFile", &urx::utils::io::writer::saveToFile);
 
   // group_data_reader.h
   py::class_<urx::utils::GroupDataReader>(m, "GroupDataReader")
@@ -530,12 +528,12 @@ PYBIND11_MODULE(bindings, m) {
       .def("sampleByteSize", &urx::utils::GroupDataReader::sampleByteSize);
 
   // group_helper
-  m.def("sizeof_data_type", &urx::utils::GroupHelper::sizeof_data_type);
-  m.def("py_get_format", &urx::utils::GroupHelper::py_get_format);
-  m.def("sizeof_sample", &urx::utils::GroupHelper::sizeof_sample);
+  m.def("sizeofDataType", &urx::utils::group_helper::sizeofDataType);
+  m.def("pyGetFormat", &urx::utils::group_helper::pyGetFormat);
+  m.def("sizeofSample", &urx::utils::group_helper::sizeofSample);
 
   // time_helper.h
-  m.def("isIso8601", &urx::utils::isIso8601);
-  m.def("isIso3166", &urx::utils::isIso3166);
+  m.def("isIso8601", &urx::utils::time_helper::isIso8601);
+  m.def("isIso3166", &urx::utils::time_helper::isIso3166);
 }
 // NOLINTEND(misc-redundant-expression)

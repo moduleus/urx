@@ -1,9 +1,9 @@
 #pragma once
 
-#include <cstddef>
 #include <string>
+#include <version>
 
-namespace urx::utils {
+namespace urx::utils::common {
 
 ///
 ///\brief Index to string with leading zeros.
@@ -14,6 +14,6 @@ namespace urx::utils {
 ///\param length The string output length (minimum)
 ///\return The index value as a string with as many necessary leading zeros to fill length characters
 ///
-std::string format_index_with_leading_zeros(const std::size_t index, const int length);
+std::string formatIndexWithLeadingZeros(const std::size_t index, const int length);
 
-}  // namespace urx::utils
+}  // namespace urx::utils::common

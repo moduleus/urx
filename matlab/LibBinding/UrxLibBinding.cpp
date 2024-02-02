@@ -504,17 +504,17 @@ RAW_DATA_SHARED_NS_IMPL(urx, RawData, double);
 
 uint64_t get_pointer(void *ptr) { return reinterpret_cast<uint64_t>(ptr); }
 
-void *load_from_file(const char *filename) {
+void *loadFromFile(const char *filename) {
 #ifdef WITH_HDF5
-  return new std::shared_ptr<urx::Dataset>(urx::utils::io::Reader::load_from_file(filename));
+  return new std::shared_ptr<urx::Dataset>(urx::utils::io::reader::loadFromFile(filename));
 #else
   return nullptr;
 #endif
 }
 
-void save_to_file(const char *filename, void *dataset) {
+void saveToFile(const char *filename, void *dataset) {
 #ifdef WITH_HDF5
-  urx::utils::io::Writer::saveToFile(filename,
+  urx::utils::io::writer::saveToFile(filename,
                                      **static_cast<std::shared_ptr<urx::Dataset> *>(dataset));
 #endif
 }

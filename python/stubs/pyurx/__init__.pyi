@@ -38,13 +38,13 @@ from pyurx.bindings import Wave
 from pyurx.bindings import WaveType
 from pyurx.bindings import isIso3166
 from pyurx.bindings import isIso8601
-from pyurx.bindings import load_from_file
-from pyurx.bindings import py_get_format
-from pyurx.bindings import save_to_file
-from pyurx.bindings import sizeof_data_type
-from pyurx.bindings import sizeof_sample
+from pyurx.bindings import loadFromFile
+from pyurx.bindings import pyGetFormat
+from pyurx.bindings import saveToFile
+from pyurx.bindings import sizeofDataType
+from pyurx.bindings import sizeofSample
 from . import bindings
-__all__ = ['Acquisition', 'DataType', 'Dataset', 'DoubleNan', 'Element', 'ElementGeometry', 'Event', 'Excitation', 'Group', 'GroupData', 'GroupDataReader', 'ImpulseResponse', 'Probe', 'ProbeType', 'ReceiveSetup', 'SamplingType', 'Transform', 'TransmitSetup', 'URX_VERSION_MAJOR', 'URX_VERSION_MINOR', 'URX_VERSION_PATCH', 'VecElement', 'VecElementGeometryPtr', 'VecEvent', 'VecExcitationPtr', 'VecFloat64', 'VecGroupData', 'VecGroupPtr', 'VecImpulseResponsePtr', 'VecProbePtr', 'VecUInt32', 'VecVecFloat64', 'VecVecUInt32', 'VecVector3D', 'Vector2D', 'Vector3D', 'Version', 'Wave', 'WaveType', 'bindings', 'cmake_build_extension', 'isIso3166', 'isIso8601', 'load_from_file', 'py_get_format', 'save_to_file', 'sizeof_data_type', 'sizeof_sample']
+__all__ = ['Acquisition', 'DataType', 'Dataset', 'DoubleNan', 'Element', 'ElementGeometry', 'Event', 'Excitation', 'Group', 'GroupData', 'GroupDataReader', 'ImpulseResponse', 'Probe', 'ProbeType', 'ReceiveSetup', 'SamplingType', 'Transform', 'TransmitSetup', 'URX_VERSION_MAJOR', 'URX_VERSION_MINOR', 'URX_VERSION_PATCH', 'VecElement', 'VecElementGeometryPtr', 'VecEvent', 'VecExcitationPtr', 'VecFloat64', 'VecGroupData', 'VecGroupPtr', 'VecImpulseResponsePtr', 'VecProbePtr', 'VecUInt32', 'VecVecFloat64', 'VecVecUInt32', 'VecVector3D', 'Vector2D', 'Vector3D', 'Version', 'Wave', 'WaveType', 'bindings', 'cmake_build_extension', 'isIso3166', 'isIso8601', 'loadFromFile', 'pyGetFormat', 'saveToFile', 'sizeofDataType', 'sizeofSample']
 URX_VERSION_MAJOR: int = 1
 URX_VERSION_MINOR: int = 0
 URX_VERSION_PATCH: int = 0
