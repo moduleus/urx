@@ -5,6 +5,7 @@
 #include <vector>
 
 #include <urx/detail/double_nan.h>
+#include <urx/enums.h>
 #include <urx/excitation.h>
 #include <urx/probe.h>
 #include <urx/transform.h>
@@ -14,14 +15,6 @@
 namespace urx {
 
 struct Wave {
-  enum class WaveType {
-    CONVERGING_WAVE = 0,
-    DIVERGING_WAVE = 1,
-    PLANE_WAVE = 2,
-    CYLINDRICAL_WAVE = 3,
-    UNDEFINED = -1
-  };
-
   bool operator==(const Wave& other) const {
     return type == other.type && time_zero == other.time_zero &&
            time_zero_reference_point == other.time_zero_reference_point &&

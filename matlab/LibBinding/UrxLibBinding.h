@@ -255,8 +255,8 @@ RAW_DATA_SHARED_NS_DECL(urx, double);
 
 uint64_t get_pointer(void *ptr);
 
-void *load_from_file(const char *filename);
-void save_to_file(const char *filename, void *dataset);
+void *loadFromFile(const char *filename);
+void saveToFile(const char *filename, void *dataset);
 
 #ifdef __cplusplus
 }

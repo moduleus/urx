@@ -40,12 +40,8 @@ if(WITH_HDF5)
   list(
     APPEND
     URX_UTILS_SRCS
-    ${CMAKE_CURRENT_SOURCE_DIR}/io/reader_v0_3.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/io/reader_v0_3.h
     ${CMAKE_CURRENT_SOURCE_DIR}/io/reader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/io/reader.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/io/upgrade.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/io/upgrade.h
     ${CMAKE_CURRENT_SOURCE_DIR}/io/serialize_helper.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/io/serialize_helper.h
     ${CMAKE_CURRENT_SOURCE_DIR}/io/writer.cpp
@@ -71,7 +67,7 @@ set_target_properties(
 
 target_link_libraries(
   ${URX_UTILS_LIBRARY}
-  PUBLIC Urx::Urx Urx::Urxv0_2
+  PUBLIC Urx::Urx
   PRIVATE compiler_flags)
 if(WITH_HDF5)
   target_link_libraries(

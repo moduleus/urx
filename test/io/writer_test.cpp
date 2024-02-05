@@ -7,6 +7,8 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include "urx/enums.h"
+
 #include <urx/acquisition.h>
 #include <urx/dataset.h>
 #include <urx/detail/compare.h>
@@ -48,7 +50,7 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
   {
     auto probe = std::make_shared<Probe>();
     probe->description = "Probe 1";
-    probe->type = Probe::ProbeType::MATRIX;
+    probe->type = ProbeType::MATRIX;
     probe->transform.rotation.x = 1;
     probe->transform.rotation.y = 2;
     probe->transform.rotation.z = 3;
@@ -108,7 +110,7 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
 
     probe = std::make_shared<Probe>();
     probe->description = "Probe 2";
-    probe->type = static_cast<Probe::ProbeType>(123);
+    probe->type = static_cast<ProbeType>(123);
     probe->transform.rotation.x = 3;
     probe->transform.rotation.y = 4;
     probe->transform.rotation.z = 5;
@@ -185,8 +187,8 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
 
   {
     auto group = std::make_shared<Group>();
-    group->sampling_type = Group::SamplingType::IQ;
-    group->data_type = Group::DataType::INT16;
+    group->sampling_type = SamplingType::IQ;
+    group->data_type = DataType::INT16;
     {
       Event event;
       event.transmit_setup.probe = dataset->acquisition.probes[0];
@@ -197,7 +199,7 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
       event.transmit_setup.probe_transform.translation.y = 4.3;
       event.transmit_setup.probe_transform.translation.z = 8.2;
       event.transmit_setup.time_offset = 120.2;
-      event.transmit_setup.wave.type = Wave::WaveType::CONVERGING_WAVE;
+      event.transmit_setup.wave.type = WaveType::CONVERGING_WAVE;
       event.transmit_setup.wave.time_zero_reference_point.x = 5;
       event.transmit_setup.wave.time_zero_reference_point.y = 4;
       event.transmit_setup.wave.time_zero_reference_point.z = 4;
@@ -235,7 +237,7 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
       event.transmit_setup.probe_transform.translation.y = 463;
       event.transmit_setup.probe_transform.translation.z = 872;
       event.transmit_setup.time_offset = 12052;
-      event.transmit_setup.wave.type = Wave::WaveType::CONVERGING_WAVE;
+      event.transmit_setup.wave.type = WaveType::CONVERGING_WAVE;
       event.transmit_setup.wave.time_zero_reference_point.x = 1;
       event.transmit_setup.wave.time_zero_reference_point.y = 2;
       event.transmit_setup.wave.time_zero_reference_point.z = 3;
@@ -265,8 +267,8 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
     dataset->acquisition.groups.push_back(group);
 
     group = std::make_shared<Group>();
-    group->sampling_type = Group::SamplingType::RF;
-    group->data_type = Group::DataType::DOUBLE;
+    group->sampling_type = SamplingType::RF;
+    group->data_type = DataType::DOUBLE;
     {
       Event event;
       event.transmit_setup.probe = dataset->acquisition.probes[1];
@@ -277,7 +279,7 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
       event.transmit_setup.probe_transform.translation.y = 4.83;
       event.transmit_setup.probe_transform.translation.z = 8.52;
       event.transmit_setup.time_offset = 1202.2;
-      event.transmit_setup.wave.type = Wave::WaveType::CYLINDRICAL_WAVE;
+      event.transmit_setup.wave.type = WaveType::CYLINDRICAL_WAVE;
       event.transmit_setup.wave.time_zero_reference_point.x = 3;
       event.transmit_setup.wave.time_zero_reference_point.y = 4;
       event.transmit_setup.wave.time_zero_reference_point.z = 5;
@@ -315,7 +317,7 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
       event.transmit_setup.probe_transform.translation.y = 43;
       event.transmit_setup.probe_transform.translation.z = 82;
       event.transmit_setup.time_offset = 1202;
-      event.transmit_setup.wave.type = Wave::WaveType::CONVERGING_WAVE;
+      event.transmit_setup.wave.type = WaveType::CONVERGING_WAVE;
       event.transmit_setup.wave.time_zero_reference_point.x = 6;
       event.transmit_setup.wave.time_zero_reference_point.y = 5;
       event.transmit_setup.wave.time_zero_reference_point.z = 2;
@@ -384,9 +386,9 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
     }
   }
 
-  Writer::saveToFile("writer康🐜.urx", *dataset);
+  writer::saveToFile("writer康🐜.urx", *dataset);
 
-  auto dataset_loaded = Reader::loadFromFile("writer康🐜.urx");
+  auto dataset_loaded = reader::loadFromFile("writer康🐜.urx");
 
   REQUIRE(dataset_loaded->acquisition.probes == dataset->acquisition.probes);
   REQUIRE(dataset_loaded->acquisition.excitations == dataset->acquisition.excitations);

@@ -4,7 +4,6 @@
 #include <unordered_map>
 #include <utility>
 
-#include <urx/group.h>
 #include <urx/utils/group_helper.h>
 
 #ifdef WITH_PYTHON
@@ -14,36 +13,36 @@
 #endif
 
 #define UNUSED(expr) \
-  do {               \
+  if (false) {       \
     (void)(expr);    \
-  } while (0)
+  }
 
-namespace urx::utils::GroupHelper {
+namespace urx::utils::group_helper {
 
-size_t sizeof_data_type(const Group::DataType& data_type) {
-  static std::unordered_map<Group::DataType, size_t> group_dt_to_sizeof{
-      {Group::DataType::INT16, sizeof(int16_t)},
-      {Group::DataType::INT32, sizeof(int32_t)},
-      {Group::DataType::FLOAT, sizeof(float)},
-      {Group::DataType::DOUBLE, sizeof(double)}};
+size_t sizeofDataType(const DataType& data_type) {
+  static std::unordered_map<DataType, size_t> group_dt_to_sizeof{
+      {DataType::INT16, sizeof(int16_t)},
+      {DataType::INT32, sizeof(int32_t)},
+      {DataType::FLOAT, sizeof(float)},
+      {DataType::DOUBLE, sizeof(double)}};
 
   return group_dt_to_sizeof.at(data_type);
 }
 
-size_t sizeof_sample(const Group::SamplingType& sampling_type, const Group::DataType& data_type) {
-  static std::unordered_map<Group::SamplingType, size_t> group_st_to_nels{
-      {Group::SamplingType::RF, 1}, {Group::SamplingType::IQ, 2}};
+size_t sizeofSample(const SamplingType& sampling_type, const DataType& data_type) {
+  static std::unordered_map<SamplingType, size_t> group_st_to_nels{{SamplingType::RF, 1},
+                                                                   {SamplingType::IQ, 2}};
 
-  return group_st_to_nels.at(sampling_type) * sizeof_data_type(data_type);
+  return group_st_to_nels.at(sampling_type) * sizeofDataType(data_type);
 }
 
-std::string py_get_format(const Group::DataType& data_type) {
+std::string pyGetFormat(const DataType& data_type) {
 #ifdef WITH_PYTHON
-  static std::unordered_map<Group::DataType, std::string> group_dt_to_sizeof{
-      {Group::DataType::INT16, pybind11::format_descriptor<int16_t>::format()},
-      {Group::DataType::INT32, pybind11::format_descriptor<int32_t>::format()},
-      {Group::DataType::FLOAT, pybind11::format_descriptor<float>::format()},
-      {Group::DataType::DOUBLE, pybind11::format_descriptor<double>::format()}};
+  static std::unordered_map<DataType, std::string> group_dt_to_sizeof{
+      {DataType::INT16, pybind11::format_descriptor<int16_t>::format()},
+      {DataType::INT32, pybind11::format_descriptor<int32_t>::format()},
+      {DataType::FLOAT, pybind11::format_descriptor<float>::format()},
+      {DataType::DOUBLE, pybind11::format_descriptor<double>::format()}};
 
   return group_dt_to_sizeof.at(data_type);
 #else
@@ -52,4 +51,4 @@ std::string py_get_format(const Group::DataType& data_type) {
 #endif
 }
 
-}  // namespace urx::utils::GroupHelper
+}  // namespace urx::utils::group_helper

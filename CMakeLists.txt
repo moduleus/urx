@@ -20,7 +20,7 @@ endif()
 
 project(
   Urx
-  VERSION 0.6.12
+  VERSION 0.6.13
   LANGUAGES C CXX
   DESCRIPTION "Ultrasound Raw eXchange format C++ implementation")
 
@@ -44,7 +44,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_LINK_WHAT_YOU_USE ON)
 
 option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
-option(ENABLE_PCH "Build with PCH" ON)
+option(ENABLE_PCH "Build with PCH" OFF)
 
 add_compile_options($<$<CXX_COMPILER_ID:MSVC>:/MP>)
 add_compile_definitions(_SILENCE_NONFLOATING_COMPLEX_DEPRECATION_WARNING)

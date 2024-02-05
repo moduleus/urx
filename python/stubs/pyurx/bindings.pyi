@@ -5,7 +5,7 @@ from __future__ import annotations
 import numpy
 import typing
 import typing_extensions
-__all__ = ['Acquisition', 'DataType', 'Dataset', 'DoubleNan', 'Element', 'ElementGeometry', 'Event', 'Excitation', 'Group', 'GroupData', 'GroupDataReader', 'ImpulseResponse', 'Probe', 'ProbeType', 'ReceiveSetup', 'SamplingType', 'Transform', 'TransmitSetup', 'URX_VERSION_MAJOR', 'URX_VERSION_MINOR', 'URX_VERSION_PATCH', 'VecElement', 'VecElementGeometryPtr', 'VecEvent', 'VecExcitationPtr', 'VecFloat64', 'VecGroupData', 'VecGroupPtr', 'VecImpulseResponsePtr', 'VecProbePtr', 'VecUInt32', 'VecVecFloat64', 'VecVecUInt32', 'VecVector3D', 'Vector2D', 'Vector3D', 'Version', 'Wave', 'WaveType', 'isIso3166', 'isIso8601', 'load_from_file', 'py_get_format', 'save_to_file', 'sizeof_data_type', 'sizeof_sample']
+__all__ = ['Acquisition', 'DataType', 'Dataset', 'DoubleNan', 'Element', 'ElementGeometry', 'Event', 'Excitation', 'Group', 'GroupData', 'GroupDataReader', 'ImpulseResponse', 'Probe', 'ProbeType', 'ReceiveSetup', 'SamplingType', 'Transform', 'TransmitSetup', 'URX_VERSION_MAJOR', 'URX_VERSION_MINOR', 'URX_VERSION_PATCH', 'VecElement', 'VecElementGeometryPtr', 'VecEvent', 'VecExcitationPtr', 'VecFloat64', 'VecGroupData', 'VecGroupPtr', 'VecImpulseResponsePtr', 'VecProbePtr', 'VecUInt32', 'VecVecFloat64', 'VecVecUInt32', 'VecVector3D', 'Vector2D', 'Vector3D', 'Version', 'Wave', 'WaveType', 'isIso3166', 'isIso8601', 'loadFromFile', 'pyGetFormat', 'saveToFile', 'sizeofDataType', 'sizeofSample']
 class Acquisition:
     __hash__: typing.ClassVar[None] = None
     authors: str
@@ -1885,15 +1885,15 @@ def isIso3166(arg0: str) -> bool:
     ...
 def isIso8601(arg0: str) -> bool:
     ...
-def load_from_file(arg0: str) -> Dataset:
+def loadFromFile(arg0: str) -> Dataset:
     ...
-def py_get_format(arg0: DataType) -> str:
+def pyGetFormat(arg0: DataType) -> str:
     ...
-def save_to_file(arg0: str, arg1: Dataset) -> None:
+def saveToFile(arg0: str, arg1: Dataset) -> None:
     ...
-def sizeof_data_type(arg0: DataType) -> int:
+def sizeofDataType(arg0: DataType) -> int:
     ...
-def sizeof_sample(arg0: SamplingType, arg1: DataType) -> int:
+def sizeofSample(arg0: SamplingType, arg1: DataType) -> int:
     ...
 URX_VERSION_MAJOR: int = 1
 URX_VERSION_MINOR: int = 0

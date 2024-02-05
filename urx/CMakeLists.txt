@@ -7,6 +7,7 @@ set(URX_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/dataset.h
     ${CMAKE_CURRENT_SOURCE_DIR}/element_geometry.h
     ${CMAKE_CURRENT_SOURCE_DIR}/element.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/enums.h
     ${CMAKE_CURRENT_SOURCE_DIR}/event.h
     ${CMAKE_CURRENT_SOURCE_DIR}/excitation.h
     ${CMAKE_CURRENT_SOURCE_DIR}/group_data.h
@@ -36,8 +37,6 @@ target_include_directories(
 set_target_properties(${PROJECT_NAME}
                       PROPERTIES OUTPUT_NAME "${PROJECT_NAME}-${git_branch}")
 
-add_subdirectory("v0_2")
-add_subdirectory("v0_3")
 add_subdirectory("utils")
 
 # Install library ###

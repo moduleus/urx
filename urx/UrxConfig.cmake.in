@@ -10,4 +10,4 @@ find_dependency(magic_enum CONFIG NO_DEFAULT_PATH)
 
 include("${CMAKE_CURRENT_LIST_DIR}/UrxTargets.cmake")
 
-check_required_components(Urx Urxv0_2 Urxv0_3 UrxUtils)
+check_required_components(Urx UrxUtils)

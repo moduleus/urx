@@ -5,10 +5,6 @@
 
 #include <urx/dataset.h>
 
-namespace urx::utils::io {
-class Reader {
- public:
-  static std::shared_ptr<Dataset> loadFromFile(const std::string& filename);
-};
-
-}  // namespace urx::utils::io
+namespace urx::utils::io::reader {
+std::shared_ptr<Dataset> loadFromFile(const std::string& filename);
+}  // namespace urx::utils::io::reader

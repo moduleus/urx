@@ -6,6 +6,8 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include "urx/enums.h"
+
 #include <urx/detail/raw_data.h>
 #include <urx/event.h>
 #include <urx/group.h>
@@ -19,8 +21,8 @@ TEST_CASE("Read back group data complex float data", "[group_data]") {
   using CompInt32 = std::complex<int32_t>;
 
   auto group = std::make_shared<Group>();
-  group->sampling_type = Group::SamplingType::IQ;
-  group->data_type = Group::DataType::INT32;
+  group->sampling_type = SamplingType::IQ;
+  group->data_type = DataType::INT32;
 
   auto& sequence = group->sequence;
 
