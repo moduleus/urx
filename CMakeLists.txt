@@ -148,6 +148,7 @@ if(ENABLE_PCH)
 endif()
 
 add_subdirectory("urx")
+add_subdirectory("uac")
 
 if(WITH_PYTHON)
   find_package(
