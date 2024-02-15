@@ -10,6 +10,8 @@
 
 namespace urx {
 
+namespace detail {
+template <class TransmitSetup, class ReceiveSetup>
 struct Event {
   bool operator==(const Event& other) const {
     return transmit_setup == other.transmit_setup && receive_setup == other.receive_setup;
@@ -21,5 +23,7 @@ struct Event {
 
   ReceiveSetup receive_setup;
 };
+}  // namespace detail
+using Event = detail::Event<TransmitSetup, ReceiveSetup>;
 
 }  // namespace urx

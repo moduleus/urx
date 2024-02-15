@@ -51,7 +51,20 @@ namespace py = pybind11;
 PYBIND11_MODULE(bindings, m) {
   m.doc() = "Python binding of urx library";
 
-  urx::python::detail::registerVector(m);
+  // urx::python::detail::registerVector(m);
+  urx::python::detail::bindVector<VecUInt8>(m);
+  urx::python::detail::bindVector<VecUInt16>(m);
+  urx::python::detail::bindVector<VecUInt32>(m);
+  urx::python::detail::bindVector<VecVecUInt32>(m);
+  urx::python::detail::bindVector<VecUInt64>(m);
+  urx::python::detail::bindVector<VecInt8>(m);
+  urx::python::detail::bindVector<VecInt16>(m);
+  urx::python::detail::bindVector<VecInt32>(m);
+  urx::python::detail::bindVector<VecInt64>(m);
+  urx::python::detail::bindVector<VecFloat32>(m);
+  urx::python::detail::bindVector<VecFloat64>(m);
+  urx::python::detail::bindVector<VecVecFloat64>(m);
+  urx::python::detail::bindVector<VecString>(m);
 
   py::enum_<urx::SamplingType>(m, "SamplingType")
       .value("RF", urx::SamplingType::RF)
@@ -114,7 +127,7 @@ PYBIND11_MODULE(bindings, m) {
       .def(py::init())
       .def(py::init<const urx::ImpulseResponse &>())
       .def(py::init([](const urx::DoubleNan &sampling_frequency, const urx::DoubleNan &time_offset,
-                       const std::string &units, const std::vector<double> &vec) {
+                       const std::string &units, const VecFloat64 &vec) {
         return urx::ImpulseResponse{sampling_frequency, time_offset, units, vec};
       }))
       .def(pybind11::self == pybind11::self)
@@ -123,6 +136,7 @@ PYBIND11_MODULE(bindings, m) {
       .def_readwrite("time_offset", &urx::ImpulseResponse::time_offset)
       .def_readwrite("units", &urx::ImpulseResponse::units)
       .def_readwrite("data", &urx::ImpulseResponse::data);
+  urx::python::detail::bindVector<VecImpulseResponsePtr>(m);
 
   // Vector3D
   py::class_<urx::Vector3D<double>>(m, "Vector3D")
@@ -134,6 +148,7 @@ PYBIND11_MODULE(bindings, m) {
       .def_readwrite("x", &urx::Vector3D<double>::x)
       .def_readwrite("y", &urx::Vector3D<double>::y)
       .def_readwrite("z", &urx::Vector3D<double>::z);
+  urx::python::detail::bindVector<VecVector3D>(m);
 
   // Vector2D
   py::class_<urx::Vector2D<double>>(m, "Vector2D")
@@ -169,6 +184,7 @@ PYBIND11_MODULE(bindings, m) {
       .def(pybind11::self == pybind11::self)
       .def(pybind11::self != pybind11::self)
       .def_readwrite("perimeter", &urx::ElementGeometry::perimeter);
+  urx::python::detail::bindVector<VecElementGeometryPtr>(m);
 
   // Transform
   py::class_<urx::Transform>(m, "Transform")
@@ -213,6 +229,7 @@ PYBIND11_MODULE(bindings, m) {
           [](urx::Element &self, const std::shared_ptr<urx::ImpulseResponse> &impulse_response) {
             self.impulse_response = impulse_response;
           });
+  urx::python::detail::bindVector<VecElement>(m);
 
   // Excitation
   py::class_<urx::Excitation, std::shared_ptr<urx::Excitation>>(m, "Excitation")
@@ -228,6 +245,7 @@ PYBIND11_MODULE(bindings, m) {
       .def_readwrite("transmit_frequency", &urx::Excitation::transmit_frequency)
       .def_readwrite("sampling_frequency", &urx::Excitation::sampling_frequency)
       .def_readwrite("waveform", &urx::Excitation::waveform);
+  urx::python::detail::bindVector<VecExcitationPtr>(m);
 
   // ProbeType
   py::enum_<urx::ProbeType>(m, "ProbeType")
@@ -253,6 +271,7 @@ PYBIND11_MODULE(bindings, m) {
       .def_readwrite("element_geometries", &urx::Probe::element_geometries)
       .def_readwrite("impulse_responses", &urx::Probe::impulse_responses)
       .def_readwrite("elements", &urx::Probe::elements);
+  urx::python::detail::bindVector<VecProbePtr>(m);
 
   // WaveType
   py::enum_<urx::WaveType>(m, "WaveType")
@@ -309,7 +328,7 @@ PYBIND11_MODULE(bindings, m) {
       .def_property(
           "excitations",
           [](urx::TransmitSetup &self) {
-            std::vector<std::shared_ptr<urx::Excitation>> shared_vector;
+            VecExcitationPtr shared_vector;
             std::transform(self.excitations.begin(), self.excitations.end(),
                            std::back_inserter(shared_vector),
                            [](const std::weak_ptr<urx::Excitation> &ex_weak_ptr) {
@@ -321,8 +340,7 @@ PYBIND11_MODULE(bindings, m) {
 
             return shared_vector;
           },
-          [](urx::TransmitSetup &self,
-             const std::vector<std::shared_ptr<urx::Excitation>> &channel_excitations_shared) {
+          [](urx::TransmitSetup &self, const VecExcitationPtr &channel_excitations_shared) {
             self.excitations = std::vector<std::weak_ptr<urx::Excitation>>(
                 channel_excitations_shared.begin(), channel_excitations_shared.end());
           })
@@ -376,6 +394,7 @@ PYBIND11_MODULE(bindings, m) {
       .def(pybind11::self != pybind11::self)
       .def_readwrite("transmit_setup", &urx::Event::transmit_setup)
       .def_readwrite("receive_setup", &urx::Event::receive_setup);
+  urx::python::detail::bindVector<VecEvent>(m);
 
   // Group
   py::class_<urx::Group, std::shared_ptr<urx::Group>>(m, "Group")
@@ -388,6 +407,7 @@ PYBIND11_MODULE(bindings, m) {
       .def_readwrite("data_type", &urx::Group::data_type)
       .def_readwrite("description", &urx::Group::description)
       .def_readwrite("sequence", &urx::Group::sequence);
+  urx::python::detail::bindVector<VecGroupPtr>(m);
 
   // GroupData
   py::class_<urx::GroupData, std::shared_ptr<urx::GroupData>>(m, "GroupData")
@@ -486,6 +506,7 @@ PYBIND11_MODULE(bindings, m) {
       .def_readwrite("group_timestamp", &urx::GroupData::group_timestamp)
       .def_readwrite("sequence_timestamps", &urx::GroupData::sequence_timestamps)
       .def_readwrite("event_timestamps", &urx::GroupData::event_timestamps);
+  urx::python::detail::bindVector<VecGroupData>(m);
 
   py::class_<urx::Acquisition>(m, "Acquisition")
       .def(py::init())

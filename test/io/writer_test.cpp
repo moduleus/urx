@@ -7,8 +7,6 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include "urx/enums.h"
-
 #include <urx/acquisition.h>
 #include <urx/dataset.h>
 #include <urx/detail/compare.h>
@@ -16,6 +14,7 @@
 #include <urx/detail/raw_data.h>
 #include <urx/element.h>
 #include <urx/element_geometry.h>
+#include <urx/enums.h>
 #include <urx/event.h>
 #include <urx/excitation.h>
 #include <urx/group.h>
@@ -34,7 +33,7 @@
 namespace urx::utils::io::test {
 
 TEST_CASE("Write HDF5 file", "[hdf5_writer]") {
-  auto dataset = std::make_shared<urx::Dataset>();
+  auto dataset = std::make_shared<Dataset>();
 
   dataset->version.major = 123;
   dataset->version.minor = 456;

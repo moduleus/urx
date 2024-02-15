@@ -17,6 +17,8 @@
 
 namespace urx {
 
+namespace detail {
+template <class Excitation, class Group>
 struct Acquisition {
   bool operator==(const Acquisition& other) const {
     return authors == other.authors && description == other.description &&
@@ -43,5 +45,7 @@ struct Acquisition {
   std::vector<std::shared_ptr<Group>> groups;
   std::vector<GroupData> groups_data;
 };
+}  // namespace detail
+using Acquisition = detail::Acquisition<Excitation, Group>;
 
 }  // namespace urx

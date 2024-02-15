@@ -22,12 +22,21 @@ from pyurx.bindings import VecElement
 from pyurx.bindings import VecElementGeometryPtr
 from pyurx.bindings import VecEvent
 from pyurx.bindings import VecExcitationPtr
+from pyurx.bindings import VecFloat32
 from pyurx.bindings import VecFloat64
 from pyurx.bindings import VecGroupData
 from pyurx.bindings import VecGroupPtr
 from pyurx.bindings import VecImpulseResponsePtr
+from pyurx.bindings import VecInt16
+from pyurx.bindings import VecInt32
+from pyurx.bindings import VecInt64
+from pyurx.bindings import VecInt8
 from pyurx.bindings import VecProbePtr
+from pyurx.bindings import VecString
+from pyurx.bindings import VecUInt16
 from pyurx.bindings import VecUInt32
+from pyurx.bindings import VecUInt64
+from pyurx.bindings import VecUInt8
 from pyurx.bindings import VecVecFloat64
 from pyurx.bindings import VecVecUInt32
 from pyurx.bindings import VecVector3D
@@ -44,7 +53,7 @@ from pyurx.bindings import saveToFile
 from pyurx.bindings import sizeofDataType
 from pyurx.bindings import sizeofSample
 from . import bindings
-__all__ = ['Acquisition', 'DataType', 'Dataset', 'DoubleNan', 'Element', 'ElementGeometry', 'Event', 'Excitation', 'Group', 'GroupData', 'GroupDataReader', 'ImpulseResponse', 'Probe', 'ProbeType', 'ReceiveSetup', 'SamplingType', 'Transform', 'TransmitSetup', 'URX_VERSION_MAJOR', 'URX_VERSION_MINOR', 'URX_VERSION_PATCH', 'VecElement', 'VecElementGeometryPtr', 'VecEvent', 'VecExcitationPtr', 'VecFloat64', 'VecGroupData', 'VecGroupPtr', 'VecImpulseResponsePtr', 'VecProbePtr', 'VecUInt32', 'VecVecFloat64', 'VecVecUInt32', 'VecVector3D', 'Vector2D', 'Vector3D', 'Version', 'Wave', 'WaveType', 'bindings', 'cmake_build_extension', 'isIso3166', 'isIso8601', 'loadFromFile', 'pyGetFormat', 'saveToFile', 'sizeofDataType', 'sizeofSample']
+__all__ = ['Acquisition', 'DataType', 'Dataset', 'DoubleNan', 'Element', 'ElementGeometry', 'Event', 'Excitation', 'Group', 'GroupData', 'GroupDataReader', 'ImpulseResponse', 'Probe', 'ProbeType', 'ReceiveSetup', 'SamplingType', 'Transform', 'TransmitSetup', 'URX_VERSION_MAJOR', 'URX_VERSION_MINOR', 'URX_VERSION_PATCH', 'VecElement', 'VecElementGeometryPtr', 'VecEvent', 'VecExcitationPtr', 'VecFloat32', 'VecFloat64', 'VecGroupData', 'VecGroupPtr', 'VecImpulseResponsePtr', 'VecInt16', 'VecInt32', 'VecInt64', 'VecInt8', 'VecProbePtr', 'VecString', 'VecUInt16', 'VecUInt32', 'VecUInt64', 'VecUInt8', 'VecVecFloat64', 'VecVecUInt32', 'VecVector3D', 'Vector2D', 'Vector3D', 'Version', 'Wave', 'WaveType', 'bindings', 'cmake_build_extension', 'isIso3166', 'isIso8601', 'loadFromFile', 'pyGetFormat', 'saveToFile', 'sizeofDataType', 'sizeofSample']
 URX_VERSION_MAJOR: int = 1
 URX_VERSION_MINOR: int = 0
 URX_VERSION_PATCH: int = 0

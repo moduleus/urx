@@ -1,6 +1,5 @@
 #include <algorithm>
 
-#include <urx/detail/raw_data.h>
 #include <urx/event.h>
 #include <urx/group.h>
 #include <urx/group_data.h>
