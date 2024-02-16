@@ -27,8 +27,6 @@ add_subdirectory(utils)
 
 add_subdirectory(urx)
 
-add_subdirectory(uac)
-
 if(WITH_HDF5)
   add_subdirectory(io)
 endif()
