@@ -6,27 +6,27 @@ workflow:
     - if: $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE != "merge_request_event"
 
 stages:
-  # - build
-  # - test
+  - build
+  - test
   - format
-  # - tag
-  # - install
+  - tag
+  - install
   - doc
 
-# doc:doxygen:
-#   stage: doc
-#   tags:
-#     - docker
-#   image: $CI_REGISTRY/common/ci/dockerci/doxygen:latest
-#   script:
-#     - doxygen doc/Doxyfile
-#     - mv doc/html public
-#   allow_failure: true
-#   artifacts:
-#     paths:
-#       - public
-#     expire_in: 1 day
-#   dependencies: []
+doc:doxygen:
+  stage: doc
+  tags:
+    - docker
+  image: $CI_REGISTRY/common/ci/dockerci/doxygen:latest
+  script:
+    - doxygen doc/Doxyfile
+    - mv doc/html public
+  allow_failure: true
+  artifacts:
+    paths:
+      - public
+    expire_in: 1 day
+  dependencies: []
 
 doc:plantuml:
   stage: doc
@@ -35,7 +35,7 @@ doc:plantuml:
   image: $CI_REGISTRY/common/ci/dockerci/hpp2plantuml:latest
   script:
     - mkdir -p doc/plantuml
-    - hpp2plantuml -i "u*/*.h" -o doc/plantuml/architecture.puml
+    - hpp2plantuml -i "urx/*.h" -o doc/plantuml/architecture.puml
     - sed -r -i "/.+\(.*\).*/d" doc/plantuml/architecture.puml
     - perl -0777 -i -pe "s/^.*urx\.Acquisition.*\*-- urx.Excitation\n\n\n//gm" doc/plantuml/architecture.puml
     - perl -0777 -i -pe "s/^.*urx\.Acquisition.*\*-- urx.Group\n\n\n//gm" doc/plantuml/architecture.puml
@@ -83,379 +83,379 @@ format:cmake-format:
     - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Please, format your CMake files."; echo "$(git status --porcelain)"; exit 1; fi
   dependencies: []
 
-# format:clang-tidy:
-#   stage: format
-#   tags:
-#     - ubuntu
-#     - clang-tidy
-#   script:
-#     - cd CI
-#     - run-clang-tidy-17 || exit 1
-#   dependencies:
-#     - build:ubuntu-with-HDF5-static
+format:clang-tidy:
+  stage: format
+  tags:
+    - ubuntu
+    - clang-tidy
+  script:
+    - cd CI
+    - run-clang-tidy-17 || exit 1
+  dependencies:
+    - build:ubuntu-with-HDF5-static
 
-# format:iwyu:
-#   stage: format
-#   tags:
-#     - ubuntu
-#     - iwyu
-#   script:
-#     - sed -i "s/-Winvalid-pch.*cmake_pch.hxx //g" CI/compile_commands.json
-#     - iwyu_tool.py -p CI -j $NUM_PARALLEL -- -Xiwyu --no_default_mappings -Xiwyu --mapping_file="$(pwd)/.iwyu-imp" -Xiwyu --no_fwd_decls > CI/iwyu_tool.log
-#     - fix_includes.py --nosafe_headers < CI/iwyu_tool.log
-#     - git diff > CI/iwyu.patch
-#     - cat CI/iwyu.patch
-#     - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Please apply iwyu patch to fix your includes"; exit 1; fi
-#   dependencies:
-#     - build:ubuntu-with-HDF5-static
-#   allow_failure: true
-#   artifacts:
-#     when: on_failure
-#     paths:
-#       - CI/iwyu_tool.log
-#       - CI/iwyu.patch
-#     expire_in: 1 day
+format:iwyu:
+  stage: format
+  tags:
+    - ubuntu
+    - iwyu
+  script:
+    - sed -i "s/-Winvalid-pch.*cmake_pch.hxx //g" CI/compile_commands.json
+    - iwyu_tool.py -p CI -j $NUM_PARALLEL -- -Xiwyu --no_default_mappings -Xiwyu --mapping_file="$(pwd)/.iwyu-imp" -Xiwyu --no_fwd_decls > CI/iwyu_tool.log
+    - fix_includes.py --nosafe_headers < CI/iwyu_tool.log
+    - git diff > CI/iwyu.patch
+    - cat CI/iwyu.patch
+    - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Please apply iwyu patch to fix your includes"; exit 1; fi
+  dependencies:
+    - build:ubuntu-with-HDF5-static
+  allow_failure: true
+  artifacts:
+    when: on_failure
+    paths:
+      - CI/iwyu_tool.log
+      - CI/iwyu.patch
+    expire_in: 1 day
 
-# format:autopep8-format:
-#   stage: format
-#   image: $CI_REGISTRY/common/ci/dockerci/autopep8:latest
-#   tags:
-#     - docker
-#   script:
-#     - mkdir CI
-#     - autopep8 -r -i .
-#     - git diff > CI/format.patch
-#     - cat CI/format.patch
-#     - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Please, format your python code with autopep8."; exit 1; fi
-#   allow_failure: true
-#   dependencies: []
-#   artifacts:
-#     when: on_failure
-#     paths:
-#       - CI/format.patch
-#     expire_in: 1 day
+format:autopep8-format:
+  stage: format
+  image: $CI_REGISTRY/common/ci/dockerci/autopep8:latest
+  tags:
+    - docker
+  script:
+    - mkdir CI
+    - autopep8 -r -i .
+    - git diff > CI/format.patch
+    - cat CI/format.patch
+    - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Please, format your python code with autopep8."; exit 1; fi
+  allow_failure: true
+  dependencies: []
+  artifacts:
+    when: on_failure
+    paths:
+      - CI/format.patch
+    expire_in: 1 day
 
-# tag:version:
-#   stage: tag
-#   dependencies:
-#     - build:ubuntu-with-HDF5-shared
-#   rules:
-#     - if: $CI_COMMIT_TAG
-#       when: never
-#     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-#   script:
-#     - git tag $(cat CI/version.txt)
-#     - git push --tags
-#   tags:
-#     - ubuntu
-#     - build
+tag:version:
+  stage: tag
+  dependencies:
+    - build:ubuntu-with-HDF5-shared
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  script:
+    - git tag $(cat CI/version.txt)
+    - git push --tags
+  tags:
+    - ubuntu
+    - build
 
-# build:windows-with-HDF5-static:
-#   stage: build
-#   tags:
-#     - win10
-#     - build
-#   script:
-#     - git clone --depth 1 --branch hdf5_1_8_23 https://git.moduleus.com/common/sw/3rdparty/vcpkg.git
-#     - $vcpkg_tag = (Get-Content vcpkg\scripts\vcpkg-tool-metadata.txt) | Select-String -Pattern '^VCPKG_TOOL_RELEASE_TAG=(.*)'  | %{$_.Matches.Groups[1].value}
-#     - $url="https://github.com/microsoft/vcpkg-tool/releases/download/$vcpkg_tag/vcpkg.exe"
-#     - $destination="$Env:VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag.exe"
-#     - if(-not(Test-Path $destination)){Invoke-WebRequest -Uri $url -OutFile $destination}
-#     - Copy-Item $destination vcpkg/vcpkg.exe
-#     - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows-static-md -DVCPKG_HOST_TRIPLET=x64-windows-static-md -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DENABLE_PCH:BOOL=OFF
-#     - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
-#   artifacts:
-#     paths:
-#       - CI
-#     expire_in: 1 day
+build:windows-with-HDF5-static:
+  stage: build
+  tags:
+    - win10
+    - build
+  script:
+    - git clone --depth 1 --branch hdf5_1_8_23 https://git.moduleus.com/common/sw/3rdparty/vcpkg.git
+    - $vcpkg_tag = (Get-Content vcpkg\scripts\vcpkg-tool-metadata.txt) | Select-String -Pattern '^VCPKG_TOOL_RELEASE_TAG=(.*)'  | %{$_.Matches.Groups[1].value}
+    - $url="https://github.com/microsoft/vcpkg-tool/releases/download/$vcpkg_tag/vcpkg.exe"
+    - $destination="$Env:VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag.exe"
+    - if(-not(Test-Path $destination)){Invoke-WebRequest -Uri $url -OutFile $destination}
+    - Copy-Item $destination vcpkg/vcpkg.exe
+    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows-static-md -DVCPKG_HOST_TRIPLET=x64-windows-static-md -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DENABLE_PCH:BOOL=OFF
+    - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
+  artifacts:
+    paths:
+      - CI
+    expire_in: 1 day
 
-# test:windows-with-HDF5-static:
-#   stage: test
-#   dependencies:
-#     - build:windows-with-HDF5-static
-#   tags:
-#     - win10
-#     - test
-#   script:
-#     - cd CI
-#     - ctest --output-on-failure -C Release
+test:windows-with-HDF5-static:
+  stage: test
+  dependencies:
+    - build:windows-with-HDF5-static
+  tags:
+    - win10
+    - test
+  script:
+    - cd CI
+    - ctest --output-on-failure -C Release
 
-# install:windows-with-HDF5-static:
-#   stage: install
-#   dependencies:
-#     - build:windows-with-HDF5-static
-#   rules:
-#     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-#   tags:
-#     - win10
-#     - build
-#   script:
-#     - cmake.exe --install CI --config Release
+install:windows-with-HDF5-static:
+  stage: install
+  dependencies:
+    - build:windows-with-HDF5-static
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  tags:
+    - win10
+    - build
+  script:
+    - cmake.exe --install CI --config Release
 
-# build:windows-with-HDF5-shared:
-#   stage: build
-#   tags:
-#     - win10
-#     - build
-#   script:
-#     - git clone --depth 1 --branch hdf5_1_8_23 https://git.moduleus.com/common/sw/3rdparty/vcpkg.git
-#     - $vcpkg_tag = (Get-Content vcpkg\scripts\vcpkg-tool-metadata.txt) | Select-String -Pattern '^VCPKG_TOOL_RELEASE_TAG=(.*)'  | %{$_.Matches.Groups[1].value}
-#     - $url="https://github.com/microsoft/vcpkg-tool/releases/download/$vcpkg_tag/vcpkg.exe"
-#     - $destination="$Env:VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag.exe"
-#     - if(-not(Test-Path $destination)){Invoke-WebRequest -Uri $url -OutFile $destination}
-#     - Copy-Item $destination vcpkg/vcpkg.exe
-#     - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows -DVCPKG_HOST_TRIPLET=x64-windows -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=OFF
-#     - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
-#   artifacts:
-#     paths:
-#       - CI
-#     expire_in: 1 day
+build:windows-with-HDF5-shared:
+  stage: build
+  tags:
+    - win10
+    - build
+  script:
+    - git clone --depth 1 --branch hdf5_1_8_23 https://git.moduleus.com/common/sw/3rdparty/vcpkg.git
+    - $vcpkg_tag = (Get-Content vcpkg\scripts\vcpkg-tool-metadata.txt) | Select-String -Pattern '^VCPKG_TOOL_RELEASE_TAG=(.*)'  | %{$_.Matches.Groups[1].value}
+    - $url="https://github.com/microsoft/vcpkg-tool/releases/download/$vcpkg_tag/vcpkg.exe"
+    - $destination="$Env:VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag.exe"
+    - if(-not(Test-Path $destination)){Invoke-WebRequest -Uri $url -OutFile $destination}
+    - Copy-Item $destination vcpkg/vcpkg.exe
+    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows -DVCPKG_HOST_TRIPLET=x64-windows -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=OFF
+    - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
+  artifacts:
+    paths:
+      - CI
+    expire_in: 1 day
 
-# test:windows-with-HDF5-shared:
-#   stage: test
-#   dependencies:
-#     - build:windows-with-HDF5-shared
-#   tags:
-#     - win10
-#     - test
-#   script:
-#     - cd CI
-#     - ctest --output-on-failure -C Release
+test:windows-with-HDF5-shared:
+  stage: test
+  dependencies:
+    - build:windows-with-HDF5-shared
+  tags:
+    - win10
+    - test
+  script:
+    - cd CI
+    - ctest --output-on-failure -C Release
 
-# install:windows-with-HDF5-shared:
-#   stage: install
-#   dependencies:
-#     - build:windows-with-HDF5-shared
-#   rules:
-#     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-#   tags:
-#     - win10
-#     - build
-#   script:
-#     - cmake.exe --install CI --config Release
+install:windows-with-HDF5-shared:
+  stage: install
+  dependencies:
+    - build:windows-with-HDF5-shared
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  tags:
+    - win10
+    - build
+  script:
+    - cmake.exe --install CI --config Release
 
-# build:ubuntu-with-HDF5-static:
-#   stage: build
-#   tags:
-#     - ubuntu
-#     - build
-#   script:
-#     - git clone --branch hdf5_1_8_23 https://git.moduleus.com/common/sw/3rdparty/vcpkg.git
-#     - vcpkg_tag=$(sed -n 's/^VCPKG_TOOL_RELEASE_TAG=\(.*\)/\1/p' < vcpkg/scripts/vcpkg-tool-metadata.txt)
-#     - if [ ! -f "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag" ]; then wget -O "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag" "https://github.com/microsoft/vcpkg-tool/releases/download/$vcpkg_tag/vcpkg-glibc" || exit 1; chmod +x "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag"; fi
-#     - cp $VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag vcpkg/vcpkg || exit 1
-#     - CFLAGS='-gdwarf-4' CXXFLAGS='-gdwarf-4' cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/usr/bin/clang-17 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-17 -DCMAKE_AR=/usr/bin/llvm-ar-17 -DCMAKE_AS=/usr/bin/llvm-as-17 -DCMAKE_RANLIB=/usr/bin/llvm-ranlib-17 -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_MANIFEST_DIR="matlab" -DVCPKG_TARGET_TRIPLET=x64-linux -DVCPKG_HOST_TRIPLET=x64-linux -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-#     - VERBOSE=1 cmake --build CI --config Release --parallel $NUM_PARALLEL
-#   artifacts:
-#     paths:
-#       - CI
-#     expire_in: 1 day
-# test:ubuntu-with-HDF5-static:
-#   stage: test
-#   dependencies:
-#     - build:ubuntu-with-HDF5-static
-#   tags:
-#     - ubuntu
-#     - build
-#   script:
-#     - cd CI
-#     - ctest --output-on-failure -C Release
+build:ubuntu-with-HDF5-static:
+  stage: build
+  tags:
+    - ubuntu
+    - build
+  script:
+    - git clone --branch hdf5_1_8_23 https://git.moduleus.com/common/sw/3rdparty/vcpkg.git
+    - vcpkg_tag=$(sed -n 's/^VCPKG_TOOL_RELEASE_TAG=\(.*\)/\1/p' < vcpkg/scripts/vcpkg-tool-metadata.txt)
+    - if [ ! -f "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag" ]; then wget -O "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag" "https://github.com/microsoft/vcpkg-tool/releases/download/$vcpkg_tag/vcpkg-glibc" || exit 1; chmod +x "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag"; fi
+    - cp $VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag vcpkg/vcpkg || exit 1
+    - CFLAGS='-gdwarf-4' CXXFLAGS='-gdwarf-4' cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/usr/bin/clang-17 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-17 -DCMAKE_AR=/usr/bin/llvm-ar-17 -DCMAKE_AS=/usr/bin/llvm-as-17 -DCMAKE_RANLIB=/usr/bin/llvm-ranlib-17 -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_MANIFEST_DIR="matlab" -DVCPKG_TARGET_TRIPLET=x64-linux -DVCPKG_HOST_TRIPLET=x64-linux -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+    - VERBOSE=1 cmake --build CI --config Release --parallel $NUM_PARALLEL
+  artifacts:
+    paths:
+      - CI
+    expire_in: 1 day
+test:ubuntu-with-HDF5-static:
+  stage: test
+  dependencies:
+    - build:ubuntu-with-HDF5-static
+  tags:
+    - ubuntu
+    - build
+  script:
+    - cd CI
+    - ctest --output-on-failure -C Release
 
-# install:ubuntu-with-HDF5-static:
-#   stage: install
-#   dependencies:
-#     - build:ubuntu-with-HDF5-static
-#   rules:
-#     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-#   tags:
-#     - ubuntu
-#     - build
-#   script:
-#     - cmake --install CI --config Release
+install:ubuntu-with-HDF5-static:
+  stage: install
+  dependencies:
+    - build:ubuntu-with-HDF5-static
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  tags:
+    - ubuntu
+    - build
+  script:
+    - cmake --install CI --config Release
 
-# build:ubuntu-with-HDF5-shared:
-#   stage: build
-#   tags:
-#     - ubuntu
-#     - build
-#   script:
-#     - git clone --depth 1 --branch hdf5_1_8_23 https://git.moduleus.com/common/sw/3rdparty/vcpkg.git
-#     - vcpkg_tag=$(sed -n 's/^VCPKG_TOOL_RELEASE_TAG=\(.*\)/\1/p' < vcpkg/scripts/vcpkg-tool-metadata.txt)
-#     - if [ ! -f "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag" ]; then wget -O "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag" "https://github.com/microsoft/vcpkg-tool/releases/download/$vcpkg_tag/vcpkg-glibc" || exit 1; chmod +x "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag"; fi
-#     - cp $VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag vcpkg/vcpkg || exit 1
-#     - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-linux-dynamic -DVCPKG_HOST_TRIPLET=x64-linux-dynamic -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-#     - cmake --build CI --config Release --parallel $NUM_PARALLEL
-#   artifacts:
-#     paths:
-#       - CI
-#     expire_in: 1 day
+build:ubuntu-with-HDF5-shared:
+  stage: build
+  tags:
+    - ubuntu
+    - build
+  script:
+    - git clone --depth 1 --branch hdf5_1_8_23 https://git.moduleus.com/common/sw/3rdparty/vcpkg.git
+    - vcpkg_tag=$(sed -n 's/^VCPKG_TOOL_RELEASE_TAG=\(.*\)/\1/p' < vcpkg/scripts/vcpkg-tool-metadata.txt)
+    - if [ ! -f "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag" ]; then wget -O "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag" "https://github.com/microsoft/vcpkg-tool/releases/download/$vcpkg_tag/vcpkg-glibc" || exit 1; chmod +x "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag"; fi
+    - cp $VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag vcpkg/vcpkg || exit 1
+    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-linux-dynamic -DVCPKG_HOST_TRIPLET=x64-linux-dynamic -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+    - cmake --build CI --config Release --parallel $NUM_PARALLEL
+  artifacts:
+    paths:
+      - CI
+    expire_in: 1 day
 
-# test:ubuntu-with-HDF5-shared:
-#   stage: test
-#   dependencies:
-#     - build:ubuntu-with-HDF5-shared
-#   tags:
-#     - ubuntu
-#     - build
-#   script:
-#     - cd CI
-#     - ctest --output-on-failure -C Release
+test:ubuntu-with-HDF5-shared:
+  stage: test
+  dependencies:
+    - build:ubuntu-with-HDF5-shared
+  tags:
+    - ubuntu
+    - build
+  script:
+    - cd CI
+    - ctest --output-on-failure -C Release
 
-# install:ubuntu-with-HDF5-shared:
-#   stage: install
-#   dependencies:
-#     - build:ubuntu-with-HDF5-shared
-#   rules:
-#     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-#   tags:
-#     - ubuntu
-#     - build
-#   script:
-#     - cmake --install CI --config Release
+install:ubuntu-with-HDF5-shared:
+  stage: install
+  dependencies:
+    - build:ubuntu-with-HDF5-shared
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  tags:
+    - ubuntu
+    - build
+  script:
+    - cmake --install CI --config Release
 
-# # Check only once WITH_HDF5=OFF
-# build:ubuntu-without-HDF5-static:
-#   stage: build
-#   tags:
-#     - ubuntu
-#     - build
-#   script:
-#     - git clone --depth 1 --branch hdf5_1_8_23 https://git.moduleus.com/common/sw/3rdparty/vcpkg.git
-#     - vcpkg_tag=$(sed -n 's/^VCPKG_TOOL_RELEASE_TAG=\(.*\)/\1/p' < vcpkg/scripts/vcpkg-tool-metadata.txt)
-#     - if [ ! -f "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag" ]; then wget -O "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag" "https://github.com/microsoft/vcpkg-tool/releases/download/$vcpkg_tag/vcpkg-glibc" || exit 1; chmod +x "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag"; fi
-#     - cp $VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag vcpkg/vcpkg || exit 1
-#     - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-linux -DVCPKG_HOST_TRIPLET=x64-linux -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=OFF -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-#     - cmake --build CI --config Release --parallel $NUM_PARALLEL
-#   artifacts:
-#     paths:
-#       - CI
-#     expire_in: 1 day
+# Check only once WITH_HDF5=OFF
+build:ubuntu-without-HDF5-static:
+  stage: build
+  tags:
+    - ubuntu
+    - build
+  script:
+    - git clone --depth 1 --branch hdf5_1_8_23 https://git.moduleus.com/common/sw/3rdparty/vcpkg.git
+    - vcpkg_tag=$(sed -n 's/^VCPKG_TOOL_RELEASE_TAG=\(.*\)/\1/p' < vcpkg/scripts/vcpkg-tool-metadata.txt)
+    - if [ ! -f "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag" ]; then wget -O "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag" "https://github.com/microsoft/vcpkg-tool/releases/download/$vcpkg_tag/vcpkg-glibc" || exit 1; chmod +x "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag"; fi
+    - cp $VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag vcpkg/vcpkg || exit 1
+    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-linux -DVCPKG_HOST_TRIPLET=x64-linux -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=OFF -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+    - cmake --build CI --config Release --parallel $NUM_PARALLEL
+  artifacts:
+    paths:
+      - CI
+    expire_in: 1 day
 
-# test:ubuntu-without-HDF5-static:
-#   stage: test
-#   dependencies:
-#     - build:ubuntu-without-HDF5-static
-#   tags:
-#     - ubuntu
-#     - build
-#   script:
-#     - cd CI
-#     - ctest --output-on-failure -C Release
+test:ubuntu-without-HDF5-static:
+  stage: test
+  dependencies:
+    - build:ubuntu-without-HDF5-static
+  tags:
+    - ubuntu
+    - build
+  script:
+    - cd CI
+    - ctest --output-on-failure -C Release
 
-# build:windows-python:
-#   stage: build
-#   dependencies: []
-#   tags:
-#     - win10
-#     - python
-#   before_script:
-#     - pew new CI-urx -r requirements-gitlab.txt
-#   script:
-#     - git clone --depth 1 --branch hdf5_1_8_23 https://git.moduleus.com/common/sw/3rdparty/vcpkg.git
-#     - $vcpkg_tag = (Get-Content vcpkg\scripts\vcpkg-tool-metadata.txt) | Select-String -Pattern '^VCPKG_TOOL_RELEASE_TAG=(.*)'  | %{$_.Matches.Groups[1].value}
-#     - $url="https://github.com/microsoft/vcpkg-tool/releases/download/$vcpkg_tag/vcpkg.exe"
-#     - $destination="$Env:VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag.exe"
-#     - if(-not(Test-Path $destination)){Invoke-WebRequest -Uri $url -OutFile $destination}
-#     - Copy-Item $destination vcpkg/vcpkg.exe
-#     - pew in CI-urx pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=$($PWD -replace '\\', '\\')\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake"
+build:windows-python:
+  stage: build
+  dependencies: []
+  tags:
+    - win10
+    - python
+  before_script:
+    - pew new CI-urx -r requirements-gitlab.txt
+  script:
+    - git clone --depth 1 --branch hdf5_1_8_23 https://git.moduleus.com/common/sw/3rdparty/vcpkg.git
+    - $vcpkg_tag = (Get-Content vcpkg\scripts\vcpkg-tool-metadata.txt) | Select-String -Pattern '^VCPKG_TOOL_RELEASE_TAG=(.*)'  | %{$_.Matches.Groups[1].value}
+    - $url="https://github.com/microsoft/vcpkg-tool/releases/download/$vcpkg_tag/vcpkg.exe"
+    - $destination="$Env:VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag.exe"
+    - if(-not(Test-Path $destination)){Invoke-WebRequest -Uri $url -OutFile $destination}
+    - Copy-Item $destination vcpkg/vcpkg.exe
+    - pew in CI-urx pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=$($PWD -replace '\\', '\\')\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake"
 
-# test:windows-python:
-#   stage: test
-#   dependencies:
-#     - build:windows-python
-#   tags:
-#     - win10
-#     - python
-#   script:
-#     - pew in CI-urx python -m unittest discover test/python
-#   after_script:
-#     - pew rm CI-urx
+test:windows-python:
+  stage: test
+  dependencies:
+    - build:windows-python
+  tags:
+    - win10
+    - python
+  script:
+    - pew in CI-urx python -m unittest discover test/python
+  after_script:
+    - pew rm CI-urx
 
-# build:ubuntu-python:
-#   stage: build
-#   dependencies: []
-#   tags:
-#     - ubuntu
-#     - python
-#   before_script:
-#     - pew new CI-urx -r requirements-gitlab.txt
-#   script:
-#     - git clone --depth 1 --branch hdf5_1_8_23 https://git.moduleus.com/common/sw/3rdparty/vcpkg.git
-#     - vcpkg_tag=$(sed -n 's/^VCPKG_TOOL_RELEASE_TAG=\(.*\)/\1/p' < vcpkg/scripts/vcpkg-tool-metadata.txt)
-#     - if [ ! -f "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag" ]; then wget -O "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag" "https://github.com/microsoft/vcpkg-tool/releases/download/$vcpkg_tag/vcpkg-glibc" || exit 1; chmod +x "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag"; fi
-#     - cp $VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag vcpkg/vcpkg || exit 1
-#     - pew in CI-urx pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=`pwd`/vcpkg/scripts/buildsystems/vcpkg.cmake"
-#     - pew in CI-urx pybind11-stubgen pyurx --ignore-invalid-expressions="urx::.*" --output-dir=python/stubs
-#     - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Run pybind11-stubgen before commit."; echo "$(git status --porcelain)"; git diff; exit 1; fi
+build:ubuntu-python:
+  stage: build
+  dependencies: []
+  tags:
+    - ubuntu
+    - python
+  before_script:
+    - pew new CI-urx -r requirements-gitlab.txt
+  script:
+    - git clone --depth 1 --branch hdf5_1_8_23 https://git.moduleus.com/common/sw/3rdparty/vcpkg.git
+    - vcpkg_tag=$(sed -n 's/^VCPKG_TOOL_RELEASE_TAG=\(.*\)/\1/p' < vcpkg/scripts/vcpkg-tool-metadata.txt)
+    - if [ ! -f "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag" ]; then wget -O "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag" "https://github.com/microsoft/vcpkg-tool/releases/download/$vcpkg_tag/vcpkg-glibc" || exit 1; chmod +x "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag"; fi
+    - cp $VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag vcpkg/vcpkg || exit 1
+    - pew in CI-urx pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=`pwd`/vcpkg/scripts/buildsystems/vcpkg.cmake"
+    - pew in CI-urx pybind11-stubgen pyurx --ignore-invalid-expressions="urx::.*" --output-dir=python/stubs
+    - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Run pybind11-stubgen before commit."; echo "$(git status --porcelain)"; git diff; exit 1; fi
 
-# test:ubuntu-python:
-#   stage: test
-#   dependencies:
-#     - build:ubuntu-python
-#   tags:
-#     - ubuntu
-#     - build
-#   script:
-#     - pew in CI-urx python -m unittest discover test/python
-#   after_script:
-#     - pew rm CI-urx
+test:ubuntu-python:
+  stage: test
+  dependencies:
+    - build:ubuntu-python
+  tags:
+    - ubuntu
+    - build
+  script:
+    - pew in CI-urx python -m unittest discover test/python
+  after_script:
+    - pew rm CI-urx
 
-# build:windows-matlab-static:
-#   stage: build
-#   tags:
-#     - matlab
-#     - win10
-#   script:
-#     - git clone --depth 1 --branch hdf5_1_8_23 https://git.moduleus.com/common/sw/3rdparty/vcpkg.git
-#     - $vcpkg_tag = (Get-Content vcpkg\scripts\vcpkg-tool-metadata.txt) | Select-String -Pattern '^VCPKG_TOOL_RELEASE_TAG=(.*)'  | %{$_.Matches.Groups[1].value}
-#     - $url="https://github.com/microsoft/vcpkg-tool/releases/download/$vcpkg_tag/vcpkg.exe"
-#     - $destination="$Env:VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag.exe"
-#     - if(-not(Test-Path $destination)){Invoke-WebRequest -Uri $url -OutFile $destination}
-#     - Copy-Item $destination vcpkg/vcpkg.exe
-#     - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows-static-md -DVCPKG_HOST_TRIPLET=x64-windows-static-md -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=OFF -DWITH_MATLAB:BOOL=ON -DENABLE_PCH:BOOL=OFF
-#     - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
-#   artifacts:
-#     paths:
-#       - CI
-#     expire_in: 1 day
+build:windows-matlab-static:
+  stage: build
+  tags:
+    - matlab
+    - win10
+  script:
+    - git clone --depth 1 --branch hdf5_1_8_23 https://git.moduleus.com/common/sw/3rdparty/vcpkg.git
+    - $vcpkg_tag = (Get-Content vcpkg\scripts\vcpkg-tool-metadata.txt) | Select-String -Pattern '^VCPKG_TOOL_RELEASE_TAG=(.*)'  | %{$_.Matches.Groups[1].value}
+    - $url="https://github.com/microsoft/vcpkg-tool/releases/download/$vcpkg_tag/vcpkg.exe"
+    - $destination="$Env:VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag.exe"
+    - if(-not(Test-Path $destination)){Invoke-WebRequest -Uri $url -OutFile $destination}
+    - Copy-Item $destination vcpkg/vcpkg.exe
+    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows-static-md -DVCPKG_HOST_TRIPLET=x64-windows-static-md -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=OFF -DWITH_MATLAB:BOOL=ON -DENABLE_PCH:BOOL=OFF
+    - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
+  artifacts:
+    paths:
+      - CI
+    expire_in: 1 day
 
-# test:windows-matlab-static:
-#   stage: test
-#   dependencies:
-#     - build:windows-matlab-static
-#   tags:
-#     - matlab
-#     - win10
-#   script:
-#     - cd test/matlab
-#     - C:/"Program Files"/MATLAB/R2023b/bin/matlab.exe -wait -batch windowsGitlabCi
+test:windows-matlab-static:
+  stage: test
+  dependencies:
+    - build:windows-matlab-static
+  tags:
+    - matlab
+    - win10
+  script:
+    - cd test/matlab
+    - C:/"Program Files"/MATLAB/R2023b/bin/matlab.exe -wait -batch windowsGitlabCi
 
-# build:ubuntu-matlab-static:
-#   stage: build
-#   tags:
-#     - matlab
-#     - ubuntu
-#   script:
-#     - git clone --branch hdf5_1_8_23 https://git.moduleus.com/common/sw/3rdparty/vcpkg.git
-#     - vcpkg_tag=$(sed -n 's/^VCPKG_TOOL_RELEASE_TAG=\(.*\)/\1/p' < vcpkg/scripts/vcpkg-tool-metadata.txt)
-#     - if [ ! -f "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag" ]; then wget -O "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag" "https://github.com/microsoft/vcpkg-tool/releases/download/$vcpkg_tag/vcpkg-glibc" || exit 1; chmod +x "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag"; fi
-#     - cp $VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag vcpkg/vcpkg || exit 1
-#     - CFLAGS='-gdwarf-4' CXXFLAGS='-gdwarf-4' cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/usr/bin/clang-17 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-17 -DCMAKE_AR=/usr/bin/llvm-ar-17 -DCMAKE_AS=/usr/bin/llvm-as-17 -DCMAKE_RANLIB=/usr/bin/llvm-ranlib-17 -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_MANIFEST_DIR="matlab" -DVCPKG_TARGET_TRIPLET=x64-linux -DVCPKG_HOST_TRIPLET=x64-linux -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=OFF -DWITH_MATLAB:BOOL=ON -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-#     - VERBOSE=1 cmake --build CI --config Release --parallel $NUM_PARALLEL
-#   artifacts:
-#     paths:
-#       - CI
-#     expire_in: 1 day
+build:ubuntu-matlab-static:
+  stage: build
+  tags:
+    - matlab
+    - ubuntu
+  script:
+    - git clone --branch hdf5_1_8_23 https://git.moduleus.com/common/sw/3rdparty/vcpkg.git
+    - vcpkg_tag=$(sed -n 's/^VCPKG_TOOL_RELEASE_TAG=\(.*\)/\1/p' < vcpkg/scripts/vcpkg-tool-metadata.txt)
+    - if [ ! -f "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag" ]; then wget -O "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag" "https://github.com/microsoft/vcpkg-tool/releases/download/$vcpkg_tag/vcpkg-glibc" || exit 1; chmod +x "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag"; fi
+    - cp $VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag vcpkg/vcpkg || exit 1
+    - CFLAGS='-gdwarf-4' CXXFLAGS='-gdwarf-4' cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/usr/bin/clang-17 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-17 -DCMAKE_AR=/usr/bin/llvm-ar-17 -DCMAKE_AS=/usr/bin/llvm-as-17 -DCMAKE_RANLIB=/usr/bin/llvm-ranlib-17 -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_MANIFEST_DIR="matlab" -DVCPKG_TARGET_TRIPLET=x64-linux -DVCPKG_HOST_TRIPLET=x64-linux -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=OFF -DWITH_MATLAB:BOOL=ON -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+    - VERBOSE=1 cmake --build CI --config Release --parallel $NUM_PARALLEL
+  artifacts:
+    paths:
+      - CI
+    expire_in: 1 day
 
-# test:ubuntu-matlab-static:
-#   stage: test
-#   dependencies:
-#     - build:ubuntu-matlab-static
-#   tags:
-#     - matlab
-#     - ubuntu
-#   script:
-#     - cd test/matlab
-#     - ssh moduleus@localhost "cd $PWD && export HDF5_DISABLE_VERSION_CHECK=1 && /opt/matlab/R2022b/bin/matlab -batch ubuntuGitlabCi"
-#   after_script:
-#     - ssh moduleus@localhost "rm -f $PWD/test/matlab/test.urx"
+test:ubuntu-matlab-static:
+  stage: test
+  dependencies:
+    - build:ubuntu-matlab-static
+  tags:
+    - matlab
+    - ubuntu
+  script:
+    - cd test/matlab
+    - ssh moduleus@localhost "cd $PWD && export HDF5_DISABLE_VERSION_CHECK=1 && /opt/matlab/R2022b/bin/matlab -batch ubuntuGitlabCi"
+  after_script:
+    - ssh moduleus@localhost "rm -f $PWD/test/matlab/test.urx"
