@@ -6,6 +6,7 @@
 
 #include <urx/detail/compare.h>
 #include <urx/detail/double_nan.h>
+#include <urx/excitation.h>
 #include <urx/probe.h>
 #include <urx/transform.h>
 #include <urx/urx.h>
@@ -14,6 +15,8 @@
 
 namespace urx {
 
+namespace detail {
+template <class Excitation>
 struct TransmitSetup {
   bool operator==(const TransmitSetup& other) const {
     return probe == other.probe && wave == other.wave && probe_transform == other.probe_transform &&
@@ -34,5 +37,7 @@ struct TransmitSetup {
 
   DoubleNan time_offset{0};
 };
+}  // namespace detail
+using TransmitSetup = detail::TransmitSetup<Excitation>;
 
 }  // namespace urx

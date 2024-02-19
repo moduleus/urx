@@ -5,7 +5,6 @@
 #include <stdexcept>
 #include <vector>
 
-#include <urx/detail/raw_data.h>
 #include <urx/group_data.h>
 
 namespace urx::utils {

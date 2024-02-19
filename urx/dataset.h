@@ -9,6 +9,8 @@ namespace urx {
 
 // Root class. See wiki for documentation.
 
+namespace detail {
+template <class Acquisition>
 struct Dataset {
   bool operator==(const Dataset& other) const {
     return version == other.version && acquisition == other.acquisition;
@@ -20,5 +22,7 @@ struct Dataset {
 
   Version version;
 };
+}  // namespace detail
+using Dataset = detail::Dataset<Acquisition>;
 
 }  // namespace urx

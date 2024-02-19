@@ -40,10 +40,10 @@
 namespace {
 size_t alloc_cout = 0;
 
-constexpr bool log_new_delete = false;
+constexpr bool LOG_NEW_DELETE = false;
 
 std::ostream &getLog() {
-  if constexpr (log_new_delete) {
+  if constexpr (LOG_NEW_DELETE) {
     static std::ofstream outfile("c:\\temp\\test.txt");
     return outfile;
   } else {
@@ -360,8 +360,8 @@ BOOL WINAPI DllMain(HINSTANCE /*hinstDLL*/,  // handle to DLL module
 uint64_t ptr2val(void *p) { return reinterpret_cast<uint64_t>(p); }
 void *val2ptr(uint64_t v) { return reinterpret_cast<void *>(v); }
 
-void std_string_set(void *this_ptr, const char *v) { *static_cast<std::string *>(this_ptr) = v; }
-const char *std_string_get(void *this_ptr) { return static_cast<std::string *>(this_ptr)->c_str(); }
+void stdStringSet(void *this_ptr, const char *v) { *static_cast<std::string *>(this_ptr) = v; }
+const char *stdStringGet(void *this_ptr) { return static_cast<std::string *>(this_ptr)->c_str(); }
 
 OBJECT_NS_IMPL(urx, Acquisition)
 OBJECT_ACCESSOR_NS_IMPL(urx, Acquisition, authors)
@@ -502,7 +502,7 @@ RAW_DATA_SHARED_NS_IMPL(urx, RawData, int32_t);
 RAW_DATA_SHARED_NS_IMPL(urx, RawData, float);
 RAW_DATA_SHARED_NS_IMPL(urx, RawData, double);
 
-uint64_t get_pointer(void *ptr) { return reinterpret_cast<uint64_t>(ptr); }
+uint64_t getPointer(void *ptr) { return reinterpret_cast<uint64_t>(ptr); }
 
 void *loadFromFile(const char *filename) {
 #ifdef WITH_HDF5
