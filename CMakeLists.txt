@@ -44,7 +44,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_LINK_WHAT_YOU_USE ON)
 
 option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
-option(ENABLE_PCH "Build with PCH" OFF)
+option(ENABLE_PCH "Build with PCH" ON)
 
 add_compile_options($<$<CXX_COMPILER_ID:MSVC>:/MP>)
 add_compile_definitions(_SILENCE_NONFLOATING_COMPLEX_DEPRECATION_WARNING)
@@ -88,7 +88,10 @@ set(CPACK_PACKAGE_VERSION_MAJOR "${${PROJECT_NAME}_VERSION_MAJOR}")
 set(CPACK_PACKAGE_VERSION_MINOR "${${PROJECT_NAME}_VERSION_MINOR}")
 set(CPACK_PACKAGE_VERSION_PATCH "${${PROJECT_NAME}_VERSION_PATCH}")
 set(CPACK_SOURCE_GENERATOR "ZIP")
-include(CPack)
+
+if(NOT CPack_CMake_INCLUDED EQUAL 1)
+  include(CPack)
+endif()
 
 if(ENABLE_PCH)
   set(URX_PCH
@@ -127,7 +130,6 @@ if(ENABLE_PCH)
       "<vector>"
       "<version>")
   if(WITH_HDF5)
-    set(URX_PCH_IO_V2_0 "<H5Cpp.h>")
     set(URX_PCH_IO "<H5Cpp.h>" "<boost/pfr.hpp>" "<magic_enum.hpp>")
   endif()
   if(BUILD_TESTING)

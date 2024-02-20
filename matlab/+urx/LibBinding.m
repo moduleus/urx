@@ -8,15 +8,18 @@ classdef LibBinding < handle
   methods (Access = private)
     function this = LibBinding(libraryPath, headerPath)
       currentPath = [fileparts(mfilename('fullpath')) '/'];
-      if isunix()
-        this.libName = 'libUrxLibBinding';
-        if nargin < 1
-          libraryPath = [currentPath '../../../urx-build/matlab/LibBinding/' this.libName '.so'];
-        end
+      if nargin >= 1
+        splitPath = split(libraryPath, ["\" "/"]);
+        splitName = split(splitPath(end), ".");
+        finaleName = join(splitName(1:end-1), ".");
+        this.libName = finaleName{1};
       else
-        this.libName = 'UrxLibBinding';
-        if nargin < 1
-          libraryPath = [currentPath '../../../urx_build/Matlab/LibBinding/Debug/' this.libName '.dll'];
+        if isunix()
+          this.libName = 'libUrxLibBinding';
+          libraryPath = [currentPath '../../../urx-build/matlab/LibBinding/' this.libName '.so'];
+        else
+            this.libName = 'UrxLibBinding';
+            libraryPath = [currentPath '../../../urx_build/Matlab/LibBinding/Release/' this.libName '.dll'];
         end
       end
       if nargin < 2 || isempty(headerPath)
@@ -32,6 +35,11 @@ classdef LibBinding < handle
   
   methods
     function varargout = call(this, varargin)
+      for i = 1:numel(varargin)
+        if isa(varargin{i}, 'urx.ObjectField')
+          varargin{i} = varargin{i}.id;
+        end
+      end
       varargout{:} = calllib(this.libName, varargin{:});
     end
   end

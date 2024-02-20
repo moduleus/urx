@@ -22,9 +22,9 @@ classdef StdVector < urx.ObjectField
     end
     
     function delete(this)
-      %if this.isAnAllocatedObject()
-      %  this.libBindingRef.call(this.functionName('delete'), this.id);
-      %end
+      if isempty(this.parent)
+        this.libBindingRef.call(this.functionName('delete'), this);
+      end
     end
     
     function res = functionName(this, fun, owner)
@@ -53,38 +53,38 @@ classdef StdVector < urx.ObjectField
     end
     
     function clear(this)
-      this.libBindingRef.call(this.functionName('clear'), this.id);
+      this.libBindingRef.call(this.functionName('clear'), this);
     end
     
     function pushBack(this, val)
       if this.nbDims > 1
-        this.libBindingRef.call(this.functionName('push_back'), this.id, val.id);
+        this.libBindingRef.call(this.functionName('push_back'), this, val);
       elseif isa(val, 'urx.Object') || this.nbDims > 1
-        this.libBindingRef.call(this.functionName('push_back', val.ptrType == urx.PtrType.SHARED), this.id, val.id);
+        this.libBindingRef.call(this.functionName('push_back', val.ptrType == urx.PtrType.SHARED), this, val);
       else
-        this.libBindingRef.call(this.functionName('push_back'), this.id, val);
+        this.libBindingRef.call(this.functionName('push_back'), this, val);
       end
     end
     
     function res = len(this) % 'len' instead of 'size' for not interfering with matlab size() function
-      res = this.libBindingRef.call(this.functionName('size'), this.id);
+      res = this.libBindingRef.call(this.functionName('size'), this);
     end
     
     function res = data(this, i)
       if this.nbDims > 1
         res = urx.StdVector(this.objectClassName, this.nbDims-1, this.ptrType, this.parent);
-        res.id = this.libBindingRef.call(this.functionName('data'), this.id, i-1);
+        res.id = this.libBindingRef.call(this.functionName('data'), this, i-1);
       elseif strcmp(this.objectClassName(1:4), 'urx.')
-        res = urx.(this.objectClassName(5:end))(this.libBindingRef.call(this.functionName('data'), this.id, i-1), this.ptrType, this.parent);
+        res = urx.(this.objectClassName(5:end))(this.libBindingRef.call(this.functionName('data'), this, i-1), this.ptrType, this.parent);
       else
-        resPtr = this.libBindingRef.call(this.functionName('data'), this.id, i-1);
+        resPtr = this.libBindingRef.call(this.functionName('data'), this, i-1);
         resPtr.setdatatype([this.objectClassName 'Ptr'], 1);
         res = resPtr.Value;
       end
     end
     
     function copy(this, other)
-      this.libBindingRef.call(this.functionName('copy'), this.id, other.id);
+      this.libBindingRef.call(this.functionName('copy'), this, other);
     end
   end
 end

@@ -15,19 +15,15 @@ classdef Acquisition < urx.Object
     soundSpeed(1,1) double
     timestamp(1,1) double
     
-    probes(1,:) urx.Probe
-    excitations(1,:) urx.Excitation
-    groups(1,:) urx.Group
-    groupsData(1,:) urx.GroupData
+    probes(1,:) urx.Probe {urx.Validator.sharedPtrInCpp}
+    excitations(1,:) urx.Excitation {urx.Validator.sharedPtrInCpp}
+    groups(1,:) urx.Group {urx.Validator.sharedPtrInCpp}
+    groupsData(1,:) urx.GroupData {urx.Validator.rawInCpp}
   end
 
   methods
     function this = Acquisition(varargin)
       this@urx.Object(varargin{:});
-      this.probesStd = urx.StdVector('urx.Probe', 1, urx.PtrType.SHARED, this);
-      this.excitationsStd = urx.StdVector('urx.Excitation', 1, urx.PtrType.SHARED, this);
-      this.groupsStd = urx.StdVector('urx.Group', 1, urx.PtrType.SHARED, this);
-      this.groupsDataStd = urx.StdVector('urx.GroupData', 1, urx.PtrType.RAW, this);
     end
   end
 end

@@ -18,6 +18,10 @@ classdef Object < urx.ObjectField
     % Acquisition is inside a Dataset object. This feature should not be
     % used by user.
     function this = Object(id, ptrType, parent, varargin)
+      % Need to skip when initializing a matrix with a none zero size.
+      if nargin == 1 && isempty(id)
+        return;
+      end
       this.libBindingRef = urx.LibBinding.getInstance();
 
       if nargin == 0
@@ -45,13 +49,28 @@ classdef Object < urx.ObjectField
         if props(i).GetObservable
           addlistener(this, props(i).Name, 'PreGet', @urx.Object.handlePropEvents);
         end
+        % Initialize *Std properties.
+        if any(arrayfun(@(x) strcmp(x.Name, [props(i).Name 'Std']), props)) && ~iscell(this.(props(i).Name))
+          if any(cellfun(@(x) strcmp(func2str(x), 'urx.Validator.sharedPtrInCpp'), props(i).Validation.ValidatorFunctions))
+            stdPtrType = urx.PtrType.SHARED;
+          elseif any(cellfun(@(x) strcmp(func2str(x), 'urx.Validator.weakPtrInCpp'), props(i).Validation.ValidatorFunctions))
+            stdPtrType = urx.PtrType.WEAK;
+          elseif any(cellfun(@(x) strcmp(func2str(x), 'urx.Validator.rawInCpp'), props(i).Validation.ValidatorFunctions))
+            stdPtrType = urx.PtrType.RAW;
+          elseif ~isa(this.(props(i).Name), 'urx.Object')
+            stdPtrType = urx.PtrType.RAW;
+          else
+            assert(false);
+          end
+          this.([props(i).Name 'Std']) = urx.StdVector(class(this.(props(i).Name)), 1, stdPtrType, this);
+        end
       end
     end
 
     function freeMem(this)
-      % If the object has no parent, the C shared_ptr associted must be
+      % If the object has no parent, the C shared_ptr associated must be
       % released.
-      if isempty(this.parent)
+      if isempty(this.parent) && ~isempty(this.ptrType) && this.ptrType == urx.PtrType.SHARED
         deleteFunction = [strrep(class(this), '.', '_') '_delete'];
         this.libBindingRef.call(deleteFunction, this.id);
         this.id = libpointer;
@@ -60,11 +79,6 @@ classdef Object < urx.ObjectField
 
     function delete(this)
       this.freeMem();
-    end
-
-    % May be useful to ease debug.
-    function res = showPtr(this, ptr)
-      res = uint64(this.libBindingRef.call('get_pointer', ptr));
     end
   end
 
@@ -164,7 +178,7 @@ classdef Object < urx.ObjectField
       % If no value has been set, you need to force update to get value and
       % to set id to C pointer.
       if isempty(affectedProperty) && strcmp(evnt.EventName, 'PreSet')
-        % Wihout disableGetRecursion, it will generate an PreGet event.
+        % Without disableGetRecursion, it will generate an PreGet event.
         affectedProperty = affectedObject.(affectedPropertyName);
       end
 
@@ -180,6 +194,18 @@ classdef Object < urx.ObjectField
       functionCFieldAccessor = [functionCFieldAccessor '_' urx.Object.camelToSnakeCase(affectedPropertyName)];
       libBindingRef = urx.LibBinding.getInstance();
       affectedCFieldPtr = libBindingRef.call(functionCFieldAccessor, affectedObject.id);
+
+      if strcmp(affectedPropertyName, "hwconfig")
+        affectedPropertyHwPtr = affectedObject.([affectedPropertyName 'Ptr']);
+        if isempty(affectedPropertyHwPtr)
+          affectedPropertyHwPtr = uac.HwConfig(affectedCFieldPtr, urx.PtrType.RAW, affectedObject);
+          affectedObject.([affectedPropertyName 'Ptr']) = affectedPropertyHwPtr;
+        else
+          assert(urx.Object.showPtr(affectedPropertyHwPtr.id) == urx.Object.showPtr(affectedCFieldPtr));
+        end
+      else
+        affectedPropertyHwPtr = [];
+      end
 
       affectedPropertyClassName = class(affectedProperty);
 
@@ -201,8 +227,35 @@ classdef Object < urx.ObjectField
             assert(numel(affectedProperty) == 1);
             affectedCFieldPtr.setdatatype('int32Ptr', 1);
             affectedCFieldPtr.Value = int32(affectedProperty);
-            % Not a stdVector
-          elseif isempty(affectedPropertyStd)
+          elseif ~isempty(affectedPropertyStd)
+            affectedPropertyStd.id = affectedCFieldPtr;
+            affectedPropertyStd.clear();
+            % Check consistency.
+            if affectedPropertyStd.nbDims == 1
+              assert(strcmp(class(affectedProperty), affectedPropertyStd.objectClassName));
+              for i = 1:numel(affectedProperty)
+                affectedPropertyStd.pushBack(affectedProperty(i));
+                % Update id and ptrType
+                affectedProperty(i) = affectedPropertyStd.data(i);
+                if isa(affectedProperty(i), 'urx.Object')
+                  affectedProperty(i).parent = affectedObject;
+                end
+              end
+            else
+              assert(affectedPropertyStd.nbDims == 2);
+              assert(iscell(affectedProperty));
+              for i = 1:numel(affectedProperty)
+                vectori = urx.StdVector(affectedPropertyStd.objectClassName, affectedPropertyStd.nbDims-1, affectedPropertyStd.ptrType);
+                for j = 1:numel(affectedProperty{i})
+                  vectori.pushBack(affectedProperty{i}(j));
+                end
+                affectedPropertyStd.pushBack(vectori);
+              end
+            end
+          elseif ~isempty(affectedPropertyHwPtr)
+            affectedPropertyHwPtr.clear();
+            affectedPropertyHwPtr.fromStruct(affectedProperty);
+          else
             % Native type.
             if ~isa(affectedProperty, 'urx.Object')
               if numel(affectedProperty) ~= 1 && (~strncmp(class(affectedObject), 'urx.RawData', strlength('urx.RawData')) || ~strcmp(affectedPropertyName, 'data'))
@@ -242,31 +295,9 @@ classdef Object < urx.ObjectField
 
                 % shared stored in weak ptr.
               elseif affectedObject.savePtrType == urx.PtrType.WEAK && affectedProperty.ptrType == urx.PtrType.SHARED
+              elseif affectedObject.savePtrType == urx.PtrType.WEAK && affectedProperty.ptrType == urx.PtrType.WEAK
               else
                 assert(false);
-              end
-            end
-          else
-            affectedPropertyStd.id = affectedCFieldPtr;
-            affectedPropertyStd.clear();
-            % Check consistency.
-            if affectedPropertyStd.nbDims == 1
-              assert(strcmp(class(affectedProperty), affectedPropertyStd.objectClassName));
-              for i = 1:numel(affectedProperty)
-                if isa(affectedProperty(i), 'urx.Object')
-                  affectedProperty(i).parent = affectedObject;
-                end
-                affectedPropertyStd.pushBack(affectedProperty(i));
-              end
-            else
-              assert(affectedPropertyStd.nbDims == 2);
-              assert(iscell(affectedProperty));
-              for i = 1:numel(affectedProperty)
-                vectori = urx.StdVector(affectedPropertyStd.objectClassName, affectedPropertyStd.nbDims-1, affectedPropertyStd.ptrType);
-                for j = 1:numel(affectedProperty{i})
-                  vectori.pushBack(affectedProperty{i}(j));
-                end
-                affectedPropertyStd.pushBack(vectori);
               end
             end
           end
@@ -286,7 +317,23 @@ classdef Object < urx.ObjectField
             assert(numel(affectedProperty) == 1);
             affectedCFieldPtr.setdatatype('int32Ptr', 1);
             affectedCFieldPtr.Value = int32(affectedProperty);
-          elseif ~isa(affectedProperty, 'urx.Object') && isempty(affectedPropertyStd)
+          elseif ~isempty(affectedPropertyStd)
+            if urx.Object.showPtr(affectedPropertyStd.id) ~= urx.Object.showPtr(affectedCFieldPtr)
+              affectedPropertyStd.id = affectedCFieldPtr;
+              len = affectedPropertyStd.len();
+              if len == 0
+                cppValues = eval([affectedPropertyStd.objectClassName, '.empty']);
+              else
+                cppValues = repmat(eval([affectedPropertyStd.objectClassName, '([])']), 1, affectedPropertyStd.len());
+                for i = 1:numel(cppValues)
+                  cppValues(i) = affectedPropertyStd.data(i);
+                end
+              end
+              affectedObject.(affectedPropertyName) = cppValues;
+            end
+          elseif ~isempty(affectedPropertyHwPtr)
+            affectedObject.(affectedPropertyName) = affectedPropertyHwPtr.fromCpp();
+          elseif ~isa(affectedProperty, 'urx.Object')
             % RawData.data is the only property that have an array of an
             % not urx.Object.
             if strncmp(class(affectedObject), 'urx.RawData', strlength('urx.RawData')) && strcmp(affectedPropertyName, 'data')
@@ -303,22 +350,26 @@ classdef Object < urx.ObjectField
             end
 
             affectedObject.(affectedPropertyName) = affectedCFieldPtr.Value;
-          elseif isempty(affectedPropertyStd) % urx.Object
-            % Ugly but to get data from a pointer, You need to know if you
-            % are manipulating shared_ptr, weak_ptr or raw pointer.
-            if any(strcmp({'rawData'}, affectedPropertyName))
-              ptrIsShared = urx.PtrType.SHARED;
-            elseif any(strcmp({'elementGeometry','impulseResponse','group','probe'},affectedPropertyName))
-              ptrIsShared = urx.PtrType.WEAK;
+          else % urx.Object
+            props = metaclass(affectedObject).PropertyList;
+            idxProperty = arrayfun(@(x) strcmp(x.Name, affectedPropertyName), props);
+            validatorFunc = props(idxProperty).Validation.ValidatorFunctions;
+
+            if any(cellfun(@(x) strcmp(func2str(x), 'urx.Validator.sharedPtrInCpp'), validatorFunc))
+              stdPtrType = urx.PtrType.SHARED;
+            elseif any(cellfun(@(x) strcmp(func2str(x), 'urx.Validator.weakPtrInCpp'), validatorFunc))
+              stdPtrType = urx.PtrType.WEAK;
+            elseif any(cellfun(@(x) strcmp(func2str(x), 'urx.Validator.rawInCpp'), validatorFunc))
+              stdPtrType = urx.PtrType.RAW;
             else
-              ptrIsShared = urx.PtrType.RAW;
+              assert(false);
             end
             if isempty(affectedObject.(affectedPropertyName))
-              affectedObject.(affectedPropertyName) = urx.(affectedPropertyClassName(5:end))(affectedCFieldPtr, ptrIsShared, affectedObject);
+              affectedObject.(affectedPropertyName) = urx.(affectedPropertyClassName(5:end))(affectedCFieldPtr, stdPtrType, affectedObject);
             else
               % Type may have changed when assigning WEAK from a SHARED.
-              if (ptrIsShared == urx.PtrType.WEAK && affectedObject.(affectedPropertyName).ptrType == urx.PtrType.SHARED)
-                newProperty = urx.(affectedPropertyClassName(5:end))(affectedCFieldPtr, ptrIsShared, affectedObject);
+              if (stdPtrType == urx.PtrType.WEAK && affectedObject.(affectedPropertyName).ptrType == urx.PtrType.SHARED)
+                newProperty = urx.(affectedPropertyClassName(5:end))(affectedCFieldPtr, stdPtrType, affectedObject);
                 props = properties(newProperty);
 
                 for i = 1:numel(props)
@@ -326,16 +377,20 @@ classdef Object < urx.ObjectField
                 end
 
                 affectedObject.(affectedPropertyName) = newProperty;
-
               else
                 % If object has already been cached, check if nothing has changed.
-                assert(affectedObject.showPtr(affectedObject.(affectedPropertyName).id) == affectedObject.showPtr(affectedCFieldPtr));
-                assert(affectedObject.(affectedPropertyName).ptrType == ptrIsShared);
+                assert(urx.Object.showPtr(affectedObject.(affectedPropertyName).id) == urx.Object.showPtr(affectedCFieldPtr));
+                assert(affectedObject.(affectedPropertyName).ptrType == stdPtrType);
               end
             end
           end
           disableSetRecursion = disableSetRecursion - 1;
       end
+    end
+
+    % May be useful to ease debug.
+    function res = showPtr(ptr)
+      res = uint64(urx.LibBinding.getInstance().call('get_pointer', ptr));
     end
   end
 

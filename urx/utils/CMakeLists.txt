@@ -14,11 +14,11 @@ if(WITH_HDF5)
 endif()
 
 # Setup compiler flags
-add_library(compiler_flags INTERFACE)
+add_library(urx_compiler_flags INTERFACE)
 set(gcc_like_cxx "$<COMPILE_LANG_AND_ID:CXX,ARMClang,AppleClang,Clang,GNU,LCC>")
 set(msvc_cxx "$<COMPILE_LANG_AND_ID:CXX,MSVC>")
 target_compile_options(
-  compiler_flags
+  urx_compiler_flags
   INTERFACE
     "$<${gcc_like_cxx}:$<BUILD_INTERFACE:-Wall;-Werror;-Wextra;-Wshadow;-Wformat=2;-Wunused>>"
     "$<${msvc_cxx}:$<BUILD_INTERFACE:/W3;/WX;/EHsc;/wd4251>>")
@@ -68,7 +68,7 @@ set_target_properties(
 target_link_libraries(
   ${URX_UTILS_LIBRARY}
   PUBLIC Urx::Urx
-  PRIVATE compiler_flags)
+  PRIVATE urx_compiler_flags)
 if(WITH_HDF5)
   target_link_libraries(
     ${URX_UTILS_LIBRARY}
@@ -83,7 +83,7 @@ endif()
 # Install library ###
 
 install(
-  TARGETS ${URX_UTILS_LIBRARY} compiler_flags
+  TARGETS ${URX_UTILS_LIBRARY} urx_compiler_flags
   EXPORT ${PROJECT_NAME}Targets
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   INCLUDES

@@ -8,7 +8,7 @@ classdef Wave < urx.Object
 
     timeZero(1,1) double
 
-    timeZeroReferencePoint urx.Vector3D {mustBeScalarOrEmpty}
+    timeZeroReferencePoint urx.Vector3D {mustBeScalarOrEmpty, urx.Validator.rawInCpp}
 
     parameters(1,:) double
   end
@@ -16,7 +16,6 @@ classdef Wave < urx.Object
   methods
     function this = Wave(varargin)
       this@urx.Object(varargin{:});
-      this.parametersStd = urx.StdVector('double', 1, urx.PtrType.RAW, this);
     end
   end
 end

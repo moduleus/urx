@@ -3,13 +3,12 @@ classdef ElementGeometry < urx.Object
     perimeterStd
   end
   properties (Access = public, SetObservable, GetObservable)
-    perimeter(1,:) urx.Vector3D
+    perimeter(1,:) urx.Vector3D {urx.Validator.rawInCpp}
   end
 
   methods
     function this = ElementGeometry(varargin)
       this@urx.Object(varargin{:});
-      this.perimeterStd = urx.StdVector('urx.Vector3D', 1, urx.PtrType.RAW, this);
     end
   end
 end

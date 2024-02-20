@@ -14,7 +14,6 @@ classdef ImpulseResponse < urx.Object
   methods
     function this = ImpulseResponse(varargin)
       this@urx.Object(varargin{:});
-      this.dataStd = urx.StdVector('double', 1, urx.PtrType.RAW, this);
     end
   end
 end

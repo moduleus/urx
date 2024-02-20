@@ -30,22 +30,12 @@ if cmake_build_type_arg != None:
 else:
     cmake_build_type_arg = "Release"
 
-init_py = inspect.cleandoc(
-    f"""
-    import cmake_build_extension
-
-    with cmake_build_extension.build_extension_env():
-        from .bindings import *
-    """
-)
-
 setuptools.setup(
     name="pyurx",
     ext_modules=[
         cmake_build_extension.CMakeExtension(
             name="pyurx",
             install_prefix="pyurx",
-            write_top_level_init=init_py,
             source_dir=str(Path(__file__).parent.absolute()),
             cmake_build_type=f"{cmake_build_type_arg}",
             cmake_configure_options=[
@@ -68,5 +58,9 @@ setuptools.setup(
     cmdclass=dict(
         build_ext=cmake_build_extension.BuildExtension
     ),
-    version="0.0.1"
+    version="0.0.1",
+    packages=["pyurx"],
+    package_dir={
+        "pyurx": "python/pyurx",
+    }
 )

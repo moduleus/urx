@@ -8,13 +8,12 @@ classdef Group < urx.Object
 
     description char
 
-    sequence(1,:) urx.Event
+    sequence(1,:) urx.Event {urx.Validator.rawInCpp}
   end
 
   methods
     function this = Group(varargin)
       this@urx.Object(varargin{:});
-      this.sequenceStd = urx.StdVector('urx.Event', 1, urx.PtrType.RAW, this);
     end
   end
 end

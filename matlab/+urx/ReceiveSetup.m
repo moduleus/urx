@@ -4,9 +4,9 @@ classdef ReceiveSetup < urx.Object
     tgcProfileStd
   end
   properties (Access = public, SetObservable, GetObservable)
-    probe urx.Probe {mustBeScalarOrEmpty}
+    probe urx.Probe {mustBeScalarOrEmpty, urx.Validator.weakPtrInCpp}
 
-    probeTransform urx.Transform {mustBeScalarOrEmpty}
+    probeTransform urx.Transform {mustBeScalarOrEmpty, urx.Validator.rawInCpp}
 
     samplingFrequency(1,1) double
 
@@ -25,7 +25,6 @@ classdef ReceiveSetup < urx.Object
     function this = ReceiveSetup(varargin)
       this@urx.Object(varargin{:});
       this.activeElementsStd = urx.StdVector('uint32', 2, urx.PtrType.RAW, this);
-      this.tgcProfileStd = urx.StdVector('double', 1, urx.PtrType.RAW, this);
     end
   end
 end

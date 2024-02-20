@@ -17,10 +17,12 @@
 #include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
-#include <pybind11/stl.h>  // IWYU pragma: keep
+#include <pybind11/stl.h>       // IWYU pragma: keep
+#include <pybind11/stl_bind.h>  // IWYU pragma: keep
 
 #include <urx/acquisition.h>
 #include <urx/dataset.h>
+#include <urx/detail/compare.h>
 #include <urx/detail/double_nan.h>
 #include <urx/detail/raw_data.h>
 #include <urx/element.h>
@@ -236,7 +238,7 @@ PYBIND11_MODULE(bindings, m) {
       .def(py::init())
       .def(py::init<const urx::Excitation &>())
       .def(py::init([](const std::string &pulse_shape, const urx::DoubleNan &transmit_frequency,
-                       const urx::DoubleNan &sampling_frequency, const std::vector<double> &vec) {
+                       const urx::DoubleNan &sampling_frequency, const VecFloat64 &vec) {
         return urx::Excitation{pulse_shape, transmit_frequency, sampling_frequency, vec};
       }))
       .def(pybind11::self == pybind11::self)

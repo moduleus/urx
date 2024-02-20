@@ -14,7 +14,7 @@ endif()
 
 target_link_libraries(
   UrxTestIo PRIVATE Urx::Urx Urx::UrxUtils ${HDF5_CXX_LIBRARIES}
-                    Catch2::Catch2WithMain compiler_flags)
+                    Catch2::Catch2WithMain urx_compiler_flags)
 
 if(MSVC)
   target_compile_options(UrxTestIo PRIVATE /utf-8)

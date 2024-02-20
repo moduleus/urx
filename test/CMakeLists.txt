@@ -1,7 +1,6 @@
 find_package(Catch2 REQUIRED)
 
 include(Catch)
-include(CTest)
 
 set(URX_TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
