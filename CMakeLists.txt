@@ -130,7 +130,7 @@ if(ENABLE_PCH)
       "<vector>"
       "<version>")
   if(WITH_HDF5)
-    set(URX_PCH_IO "<H5Cpp.h>" "<boost/pfr.hpp>" "<magic_enum.hpp>")
+    set(URX_PCH_IO "<H5Cpp.h>" "<boost/pfr.hpp>")
   endif()
   if(BUILD_TESTING)
     set(URX_PCH_TEST

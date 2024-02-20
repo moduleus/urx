@@ -14,21 +14,20 @@
 
 #include <H5Cpp.h>
 #include <boost/pfr.hpp>
-#include <magic_enum.hpp>
-
-#include "urx/enums.h"
 
 #include <urx/acquisition.h>
 #include <urx/dataset.h>
 #include <urx/detail/double_nan.h>
 #include <urx/detail/raw_data.h>
 #include <urx/element_geometry.h>
+#include <urx/enums.h>
 #include <urx/excitation.h>
 #include <urx/group.h>
 #include <urx/group_data.h>
 #include <urx/impulse_response.h>
 #include <urx/probe.h>
 #include <urx/utils/common.h>
+#include <urx/utils/io/enums.h>
 #include <urx/utils/io/serialize_helper.h>
 #include <urx/utils/io/writer.h>
 
@@ -65,9 +64,7 @@ void serializeHdf5(const std::string& name, const T& field, const H5::Group& gro
   else if constexpr (std::is_enum_v<T>) {
     const H5::StrType datatype(0, H5T_VARIABLE);
     const H5::DataSpace dataspace(H5S_SCALAR);
-    const std::string_view sv = magic_enum::enum_name(field);
-    const std::string value =
-        sv.empty() ? std::to_string(static_cast<int>(field)) : std::string{sv};
+    const std::string value = urx::utils::io::enums::enumToString(field);
     if constexpr (USE_ATTRIBUTE) {
       const H5::Attribute attribute = group.createAttribute(name, datatype, dataspace);
       attribute.write(datatype, value);

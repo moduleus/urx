@@ -10,8 +10,7 @@
                         "cpp"
                     ]
                 },
-                "boost-pfr",
-                "magic-enum"
+                "boost-pfr"
             ]
         },
         "python": {

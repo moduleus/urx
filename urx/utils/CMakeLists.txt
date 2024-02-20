@@ -1,6 +1,5 @@
 if(WITH_HDF5)
   find_file(BOOST_PFR_HPP "boost/pfr.hpp")
-  find_package(magic_enum REQUIRED)
 
   # Link ###
   if(BUILD_SHARED_LIBS)
@@ -40,6 +39,8 @@ if(WITH_HDF5)
   list(
     APPEND
     URX_UTILS_SRCS
+    ${CMAKE_CURRENT_SOURCE_DIR}/io/enums.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/io/enums.h
     ${CMAKE_CURRENT_SOURCE_DIR}/io/reader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/io/reader.h
     ${CMAKE_CURRENT_SOURCE_DIR}/io/serialize_helper.cpp
@@ -71,9 +72,8 @@ target_link_libraries(
   PRIVATE urx_compiler_flags)
 if(WITH_HDF5)
   target_link_libraries(
-    ${URX_UTILS_LIBRARY}
-    PRIVATE hdf5::hdf5-${SEARCH_TYPE} hdf5::hdf5_cpp-${SEARCH_TYPE}
-            magic_enum::magic_enum)
+    ${URX_UTILS_LIBRARY} PRIVATE hdf5::hdf5-${SEARCH_TYPE}
+                                 hdf5::hdf5_cpp-${SEARCH_TYPE})
   target_include_directories(${URX_UTILS_LIBRARY} PRIVATE ${Boost_INCLUDE_DIRS})
   if(ENABLE_PCH)
     target_precompile_headers(${URX_UTILS_LIBRARY} PRIVATE ${URX_PCH_IO})

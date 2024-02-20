@@ -12,7 +12,6 @@
 
 #include <H5Cpp.h>
 #include <boost/pfr.hpp>
-#include <magic_enum.hpp>
 
 #include <urx/acquisition.h>
 #include <urx/dataset.h>
@@ -25,6 +24,7 @@
 #include <urx/impulse_response.h>
 #include <urx/probe.h>
 #include <urx/utils/common.h>
+#include <urx/utils/io/enums.h>
 #include <urx/utils/io/reader.h>
 #include <urx/utils/io/serialize_helper.h>
 
@@ -76,12 +76,7 @@ void deserializeHdf5(const std::string& name, T& field, const H5::Group& group,
       attribute.read(datatype, value);
     }
 
-    std::optional<T> convert = magic_enum::enum_cast<T>(value);
-    if (convert) {
-      field = *convert;
-    } else {
-      field = static_cast<T>(stoi(value));
-    }
+    field = urx::utils::io::enums::stringToEnum<T>(value);
   }
   // Default
   else {
