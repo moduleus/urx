@@ -1,19 +1,16 @@
 #pragma once
 
-#include <cassert>
-#include <iosfwd>
 #include <memory>
-#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
 
+#include <urx/detail/compare.h>
 #include <urx/element.h>
 #include <urx/element_geometry.h>
 #include <urx/enums.h>
 #include <urx/impulse_response.h>
 #include <urx/transform.h>
-#include <urx/urx.h>
 
 namespace urx {
 

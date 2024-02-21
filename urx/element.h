@@ -6,7 +6,6 @@
 #include <urx/element_geometry.h>
 #include <urx/impulse_response.h>
 #include <urx/transform.h>
-#include <urx/urx.h>
 
 namespace urx {
 

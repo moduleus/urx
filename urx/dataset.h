@@ -1,6 +1,8 @@
 #pragma once
 
-#include <memory>
+#include <algorithm>
+#include <string>
+#include <vector>
 
 #include <urx/acquisition.h>
 #include <urx/version.h>

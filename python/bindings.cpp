@@ -40,12 +40,15 @@
 #include <urx/urx.h>
 #include <urx/utils/group_data_reader.h>
 #include <urx/utils/group_helper.h>
-#include <urx/utils/io/reader.h>
-#include <urx/utils/io/writer.h>
 #include <urx/utils/time_helper.h>
 #include <urx/vector.h>
 #include <urx/version.h>
 #include <urx/wave.h>
+
+#ifdef URX_WITH_HDF5
+#include <urx/utils/io/reader.h>
+#include <urx/utils/io/writer.h>
+#endif
 
 namespace py = pybind11;
 
@@ -536,9 +539,10 @@ PYBIND11_MODULE(bindings, m) {
       .def_readwrite("version", &urx::Dataset::version)
       .def_readwrite("acquisition", &urx::Dataset::acquisition);
 
-  // Util static methods
+#ifdef URX_WITH_HDF5
   m.def("loadFromFile", &urx::utils::io::reader::loadFromFile);
   m.def("saveToFile", &urx::utils::io::writer::saveToFile);
+#endif
 
   // group_data_reader.h
   py::class_<urx::utils::GroupDataReader>(m, "GroupDataReader")

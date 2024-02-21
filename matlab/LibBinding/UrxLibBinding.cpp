@@ -5,6 +5,7 @@
 #include <fstream>
 #include <ios>
 #include <iosfwd>
+#include <iostream>
 #include <memory>
 #include <ostream>
 #include <string>
@@ -29,7 +30,7 @@
 #include <urx/version.h>
 #include <urx/wave.h>
 
-#ifdef WITH_HDF5
+#ifdef URX_WITH_HDF5
 #include <urx/utils/io/reader.h>
 #include <urx/utils/io/writer.h>
 #endif
@@ -509,7 +510,7 @@ RAW_DATA_SHARED_NS_IMPL(urx, RawData, double);
 uint64_t get_pointer(void *ptr) { return reinterpret_cast<uint64_t>(ptr); }
 
 void *load_from_file(const char *filename) {
-#ifdef WITH_HDF5
+#ifdef URX_WITH_HDF5
   return new std::shared_ptr<urx::Dataset>(urx::utils::io::reader::loadFromFile(filename));
 #else
   return nullptr;
@@ -517,7 +518,7 @@ void *load_from_file(const char *filename) {
 }
 
 void save_to_file(const char *filename, void *dataset) {
-#ifdef WITH_HDF5
+#ifdef URX_WITH_HDF5
   urx::utils::io::writer::saveToFile(filename,
                                      **static_cast<std::shared_ptr<urx::Dataset> *>(dataset));
 #endif

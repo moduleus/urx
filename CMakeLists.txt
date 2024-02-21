@@ -149,8 +149,6 @@ if(ENABLE_PCH)
       "<pybind11/stl_bind.h>")
 endif()
 
-add_subdirectory("urx")
-
 if(WITH_PYTHON)
   find_package(
     Python3
@@ -158,6 +156,8 @@ if(WITH_PYTHON)
     REQUIRED)
   find_package(pybind11 CONFIG REQUIRED)
 endif()
+
+add_subdirectory("urx")
 
 if(WITH_MATLAB)
   add_subdirectory(matlab)

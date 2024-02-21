@@ -7,7 +7,7 @@ if(WITH_HDF5)
   endif()
   string(TOLOWER ${LIB_TYPE} SEARCH_TYPE)
 
-  find_package(HDF5 NAMES hdf5 COMPONENTS CXX ${SEARCH_TYPE})
+  find_package(HDF5 REQUIRED NAMES hdf5 COMPONENTS CXX ${SEARCH_TYPE})
 endif()
 
 # Setup compiler flags
@@ -39,10 +39,12 @@ if(WITH_HDF5)
     URX_UTILS_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/io/enums.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/io/enums.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/io/reader_impl.h
     ${CMAKE_CURRENT_SOURCE_DIR}/io/reader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/io/reader.h
     ${CMAKE_CURRENT_SOURCE_DIR}/io/serialize_helper.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/io/serialize_helper.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/io/writer_impl.h
     ${CMAKE_CURRENT_SOURCE_DIR}/io/writer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/io/writer.h)
 endif()
@@ -52,12 +54,7 @@ set(URX_UTILS_LIBRARY UrxUtils)
 add_library(${URX_UTILS_LIBRARY} ${URX_UTILS_SRCS})
 add_library(Urx::${URX_UTILS_LIBRARY} ALIAS ${URX_UTILS_LIBRARY})
 if(ENABLE_PCH)
-  if(WITH_PYTHON)
-    target_precompile_headers(${URX_UTILS_LIBRARY} PRIVATE ${URX_PCH}
-                              ${URX_PCH_PYTHON})
-  else()
-    target_precompile_headers(${URX_UTILS_LIBRARY} PRIVATE ${URX_PCH})
-  endif()
+  target_precompile_headers(${URX_UTILS_LIBRARY} PRIVATE ${URX_PCH})
 endif()
 
 set_target_properties(
@@ -72,6 +69,7 @@ if(WITH_HDF5)
   target_link_libraries(
     ${URX_UTILS_LIBRARY} PRIVATE hdf5::hdf5-${SEARCH_TYPE}
                                  hdf5::hdf5_cpp-${SEARCH_TYPE})
+  target_compile_definitions(${URX_UTILS_LIBRARY} PUBLIC URX_WITH_HDF5)
   if(ENABLE_PCH)
     target_precompile_headers(${URX_UTILS_LIBRARY} PRIVATE ${URX_PCH_IO})
   endif()

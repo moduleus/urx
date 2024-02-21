@@ -1,19 +1,17 @@
 #pragma once
 
-#include <limits>
+#include <algorithm>
 #include <memory>
-#include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 
+#include <urx/detail/compare.h>
 #include <urx/detail/double_nan.h>
-#include <urx/event.h>
 #include <urx/excitation.h>
 #include <urx/group.h>
 #include <urx/group_data.h>
 #include <urx/probe.h>
-#include <urx/receive_setup.h>
-#include <urx/transmit_setup.h>
 
 namespace urx {
 

@@ -4,11 +4,13 @@
 #include <cstdint>
 #include <memory>
 #include <string>
-#include <typeindex>
+#include <typeinfo>
 #include <unordered_map>
 #include <utility>
 #include <variant>
 #include <vector>
+
+#include <H5Cpp.h>
 
 #include <urx/acquisition.h>
 #include <urx/detail/double_nan.h>
@@ -31,9 +33,6 @@
 
 namespace urx::utils::io {
 
-#define DIFF_PTR(parent, child) \
-  (reinterpret_cast<size_t>(&(child)) - reinterpret_cast<size_t>(&(parent)))
-
 using AllTypeInVariant = std::variant<
     Acquisition*, DataType*, DoubleNan*, ProbeType*, ReceiveSetup*, SamplingType*, Transform*,
     TransmitSetup*, Vector3D<double>*, Version*, Wave*, WaveType*, double*, float*, int16_t*,
@@ -49,9 +48,54 @@ using AllTypeInVariant = std::variant<
     std::weak_ptr<Group>*, std::weak_ptr<ImpulseResponse>*, std::weak_ptr<Probe>*, uint16_t*,
     uint32_t*, uint64_t*, uint8_t*>;
 
-struct SerializeHelper {
-  static std::unordered_map<std::type_index, std::vector<std::pair<AllTypeInVariant, std::string>>>
-      member_name;
+extern std::unordered_map<std::type_index, std::vector<std::pair<AllTypeInVariant, std::string>>>
+    member_name;
+
+const std::unordered_map<std::type_index, const H5::PredType*>& getStdToHdf5();
+
+using MapToSharedPtr = std::unordered_map<std::type_index, const void*>;
+
+template <typename T>
+std::type_index nameTypeid() {
+  return typeid(T);
+}
+
+constexpr int ITER_LENGTH = 8;
+constexpr bool USE_ATTRIBUTE = false;
+
+template <class... Ts>
+struct Overloaded : Ts... {
+  using Ts::operator()...;
+};
+// explicit deduction guide (not needed as of C++20)
+template <class... Ts>
+Overloaded(Ts...) -> Overloaded<Ts...>;
+
+template <typename T>
+const std::vector<std::shared_ptr<T>>& getSharedPtr(MapToSharedPtr& map) {
+  return *reinterpret_cast<const std::vector<std::shared_ptr<T>>*>(map.at(nameTypeid<T>()));
+}
+
+enum class ContainerType { RAW, VECTOR, SHARED_PTR, WEAK_PTR };
+
+template <typename T>
+struct TypeContainer {
+  static constexpr ContainerType VALUE = ContainerType::RAW;
+};
+
+template <typename T>
+struct TypeContainer<std::vector<T>> {
+  static constexpr ContainerType VALUE = ContainerType::VECTOR;
+};
+
+template <typename T>
+struct TypeContainer<std::shared_ptr<T>> {
+  static constexpr ContainerType VALUE = ContainerType::SHARED_PTR;
+};
+
+template <typename T>
+struct TypeContainer<std::weak_ptr<T>> {
+  static constexpr ContainerType VALUE = ContainerType::WEAK_PTR;
 };
 
 }  // namespace urx::utils::io

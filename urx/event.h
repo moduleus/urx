@@ -1,12 +1,7 @@
 #pragma once
 
-#include <iosfwd>
-#include <memory>
-#include <utility>
-
 #include <urx/receive_setup.h>
 #include <urx/transmit_setup.h>
-#include <urx/urx.h>
 
 namespace urx {
 

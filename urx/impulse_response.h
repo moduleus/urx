@@ -1,11 +1,12 @@
 #pragma once
 
+#include <algorithm>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <urx/detail/double_nan.h>
-#include <urx/urx.h>
 
 namespace urx {
 
