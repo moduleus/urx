@@ -15,6 +15,8 @@
 
 namespace urx {
 
+namespace detail {
+template <class Group>
 struct GroupData {
   bool operator==(const GroupData& other) const {
     return group == other.group && raw_data->getSize() == other.raw_data->getSize() &&
@@ -33,5 +35,7 @@ struct GroupData {
   std::vector<double> sequence_timestamps;
   std::vector<std::vector<double>> event_timestamps;
 };
+}  // namespace detail
+using GroupData = detail::GroupData<Group>;
 
 }  // namespace urx

@@ -8,15 +8,6 @@
 namespace urx::utils::io::enums {
 
 namespace {
-template <typename T, typename U>
-std::unordered_map<U, T> invertMap(const std::unordered_map<T, U>& map) {
-  std::unordered_map<U, T> retval;
-  for (const auto& kv : map) {
-    retval[kv.second] = kv.first;
-  }
-  return retval;
-}
-
 std::unordered_map<urx::ProbeType, std::string> probe_to_string{
     {urx::ProbeType::LINEAR, "LINEAR"}, {urx::ProbeType::CURVILINEAR, "CURVILINEAR"},
     {urx::ProbeType::RCA, "RCA"},       {urx::ProbeType::MATRIX, "MATRIX"},
@@ -45,24 +36,6 @@ std::unordered_map<urx::DataType, std::string> data_to_string{
     {urx::DataType::DOUBLE, "DOUBLE"},
     {urx::DataType::UNDEFINED, "UNDEFINED"}};
 std::unordered_map<std::string, urx::DataType> string_to_data = invertMap(data_to_string);
-
-template <typename T>
-T stringToEnumImpl(const std::string& enumeration, const std::unordered_map<std::string, T>& map) {
-  auto search = map.find(enumeration);
-  if (search != map.end()) {
-    return map.at(enumeration);
-  }
-  return static_cast<T>(stoi(enumeration));
-}
-
-template <typename T>
-std::string enumToStringImpl(T enumeration, const std::unordered_map<T, std::string>& map) {
-  auto search = map.find(enumeration);
-  if (search != map.end()) {
-    return map.at(enumeration);
-  }
-  return std::to_string(static_cast<int>(enumeration));
-}
 
 }  // namespace
 

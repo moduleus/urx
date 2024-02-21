@@ -43,7 +43,7 @@ struct Acquisition {
   std::vector<std::shared_ptr<Probe>> probes;
   std::vector<std::shared_ptr<Excitation>> excitations;
   std::vector<std::shared_ptr<Group>> groups;
-  std::vector<GroupData> groups_data;
+  std::vector<GroupData<Group>> groups_data;
 };
 }  // namespace detail
 using Acquisition = detail::Acquisition<Excitation, Group>;

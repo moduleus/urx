@@ -2,6 +2,7 @@
 
 #include <urx/acquisition.h>
 #include <urx/dataset.h>
+#include <urx/detail/double_nan.h>
 #include <urx/element.h>
 #include <urx/element_geometry.h>
 #include <urx/event.h>
