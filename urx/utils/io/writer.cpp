@@ -4,16 +4,13 @@
 #include <iterator>
 #include <memory>
 #include <stdexcept>
-#include <string_view>
-#include <type_traits>
 #include <typeindex>
 #include <unordered_map>
 #include <utility>
+#include <variant>
 #include <vector>
-#include <version>
 
 #include <H5Cpp.h>
-#include <boost/pfr.hpp>
 
 #include <urx/acquisition.h>
 #include <urx/dataset.h>
@@ -34,6 +31,14 @@
 namespace urx::utils::io::writer {
 
 namespace {
+
+template <class... Ts>
+struct Overloaded : Ts... {
+  using Ts::operator()...;
+};
+// explicit deduction guide (not needed as of C++20)
+template <class... Ts>
+Overloaded(Ts...) -> Overloaded<Ts...>;
 
 using MapToSharedPtr = std::unordered_map<std::type_index, const void*>;
 
@@ -176,20 +181,8 @@ void serializeAll(const std::shared_ptr<Group>& gr, const std::shared_ptr<RawDat
 template <typename T>
 void serializeAll(const T& field, const H5::Group& group, MapToSharedPtr& map) {
   if (std_to_h5.empty()) {
-    std_to_h5 = {{typeid(char), &H5::PredType::NATIVE_CHAR},
-                 {typeid(signed char), &H5::PredType::NATIVE_SCHAR},
-                 {typeid(unsigned char), &H5::PredType::NATIVE_UCHAR},
-                 {typeid(short), &H5::PredType::NATIVE_SHORT},
-                 {typeid(unsigned short), &H5::PredType::NATIVE_USHORT},
-                 {typeid(int), &H5::PredType::NATIVE_INT},
-                 {typeid(unsigned int), &H5::PredType::NATIVE_UINT},
-                 {typeid(long), &H5::PredType::NATIVE_LONG},
-                 {typeid(unsigned long), &H5::PredType::NATIVE_ULONG},
-                 {typeid(long long), &H5::PredType::NATIVE_LLONG},
-                 {typeid(unsigned long long), &H5::PredType::NATIVE_ULLONG},
-                 {typeid(float), &H5::PredType::NATIVE_FLOAT},
+    std_to_h5 = {{typeid(float), &H5::PredType::NATIVE_FLOAT},
                  {typeid(double), &H5::PredType::NATIVE_DOUBLE},
-                 {typeid(long double), &H5::PredType::NATIVE_LDOUBLE},
                  {typeid(std::int8_t), &H5::PredType::NATIVE_INT8},
                  {typeid(std::uint8_t), &H5::PredType::NATIVE_UINT8},
                  {typeid(std::int16_t), &H5::PredType::NATIVE_INT16},
@@ -197,20 +190,27 @@ void serializeAll(const T& field, const H5::Group& group, MapToSharedPtr& map) {
                  {typeid(std::int32_t), &H5::PredType::NATIVE_INT32},
                  {typeid(std::uint32_t), &H5::PredType::NATIVE_UINT32},
                  {typeid(std::int64_t), &H5::PredType::NATIVE_INT64},
-                 {typeid(std::uint64_t), &H5::PredType::NATIVE_UINT64},
-                 {typeid(std::size_t), &H5::PredType::NATIVE_UINT64}};
+                 {typeid(std::uint64_t), &H5::PredType::NATIVE_UINT64}};
   }
 
-  boost::pfr::for_each_field(field, [&group, &map, &field](const auto& child) {
-    if constexpr (std::is_same_v<std::remove_cv_t<std::remove_reference_t<decltype(child)>>,
-                                 std::shared_ptr<RawData>> &&
-                  std::is_same_v<std::remove_cv_t<std::remove_reference_t<T>>, GroupData>) {
-      serializeAll(reinterpret_cast<const GroupData&>(field).group.lock(), child, group, map);
-    } else {
-      serializeHdf5(SerializeHelper::member_name.at(typeid(T)).at(DIFF_PTR(field, child)), child,
-                    group, map);
-    }
-  });
+  for (const auto& kv : SerializeHelper::member_name.at(typeid(T))) {
+    std::visit(
+        Overloaded{[name = kv.second, field_ptr = &field, &group, &map](const auto* var) {
+                     serializeHdf5(name,
+                                   *reinterpret_cast<decltype(var)>(
+                                       reinterpret_cast<std::uintptr_t>(field_ptr) +
+                                       reinterpret_cast<std::uintptr_t>(var)),
+                                   group, map);
+                   },
+                   [name = kv.second, &field, &group, &map](const std::shared_ptr<RawData>* var) {
+                     serializeAll(
+                         reinterpret_cast<const GroupData&>(field).group.lock(),
+                         *reinterpret_cast<decltype(var)>(reinterpret_cast<std::uintptr_t>(&field) +
+                                                          reinterpret_cast<std::uintptr_t>(var)),
+                         group, map);
+                   }},
+        std::get<0>(kv));
+  }
 }
 
 // Need to update map for Probe.
@@ -218,10 +218,19 @@ template <>
 void serializeAll(const Probe& field, const H5::Group& group, MapToSharedPtr& map) {
   map.insert({typeid(ElementGeometry), &field.element_geometries});
   map.insert({typeid(ImpulseResponse), &field.impulse_responses});
-  boost::pfr::for_each_field(field, [&group, &map, &field](const auto& child) {
-    serializeHdf5(SerializeHelper::member_name.at(typeid(Probe)).at(DIFF_PTR(field, child)), child,
-                  group, map);
-  });
+
+  for (const auto& kv : SerializeHelper::member_name.at(typeid(Probe))) {
+    std::visit(
+        [name = kv.second, field_ptr = &field, &group, &map](const auto* var) {
+          serializeHdf5(
+              name,
+              *reinterpret_cast<decltype(var)>(reinterpret_cast<std::uintptr_t>(field_ptr) +
+                                               reinterpret_cast<std::uintptr_t>(var)),
+              group, map);
+        },
+        std::get<0>(kv));
+  }
+
   map.erase(typeid(ElementGeometry));
   map.erase(typeid(ImpulseResponse));
 }

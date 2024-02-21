@@ -2,16 +2,15 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
-#include <optional>
 #include <stdexcept>
 #include <typeindex>
 #include <unordered_map>
 #include <utility>
+#include <variant>
 #include <vector>
 #include <version>
 
 #include <H5Cpp.h>
-#include <boost/pfr.hpp>
 
 #include <urx/acquisition.h>
 #include <urx/dataset.h>
@@ -183,20 +182,8 @@ void deserializeHdf5(const std::string& name, std::vector<T>& field, const H5::G
 template <typename T>
 void deserializeAll(T& field, const H5::Group& group, MapToSharedPtr& map) {
   if (std_to_h5.empty()) {
-    std_to_h5 = {{typeid(char), &H5::PredType::NATIVE_CHAR},
-                 {typeid(signed char), &H5::PredType::NATIVE_SCHAR},
-                 {typeid(unsigned char), &H5::PredType::NATIVE_UCHAR},
-                 {typeid(short), &H5::PredType::NATIVE_SHORT},
-                 {typeid(unsigned short), &H5::PredType::NATIVE_USHORT},
-                 {typeid(int), &H5::PredType::NATIVE_INT},
-                 {typeid(unsigned int), &H5::PredType::NATIVE_UINT},
-                 {typeid(long), &H5::PredType::NATIVE_LONG},
-                 {typeid(unsigned long), &H5::PredType::NATIVE_ULONG},
-                 {typeid(long long), &H5::PredType::NATIVE_LLONG},
-                 {typeid(unsigned long long), &H5::PredType::NATIVE_ULLONG},
-                 {typeid(float), &H5::PredType::NATIVE_FLOAT},
+    std_to_h5 = {{typeid(float), &H5::PredType::NATIVE_FLOAT},
                  {typeid(double), &H5::PredType::NATIVE_DOUBLE},
-                 {typeid(long double), &H5::PredType::NATIVE_LDOUBLE},
                  {typeid(std::int8_t), &H5::PredType::NATIVE_INT8},
                  {typeid(std::uint8_t), &H5::PredType::NATIVE_UINT8},
                  {typeid(std::int16_t), &H5::PredType::NATIVE_INT16},
@@ -204,14 +191,19 @@ void deserializeAll(T& field, const H5::Group& group, MapToSharedPtr& map) {
                  {typeid(std::int32_t), &H5::PredType::NATIVE_INT32},
                  {typeid(std::uint32_t), &H5::PredType::NATIVE_UINT32},
                  {typeid(std::int64_t), &H5::PredType::NATIVE_INT64},
-                 {typeid(std::uint64_t), &H5::PredType::NATIVE_UINT64},
-                 {typeid(std::size_t), &H5::PredType::NATIVE_UINT64}};
+                 {typeid(std::uint64_t), &H5::PredType::NATIVE_UINT64}};
   }
-
-  boost::pfr::for_each_field(field, [&group, &map, &field](auto& child) {
-    deserializeHdf5(SerializeHelper::member_name.at(typeid(T)).at(DIFF_PTR(field, child)), child,
-                    group, map);
-  });
+  for (const auto& kv : SerializeHelper::member_name.at(typeid(T))) {
+    std::visit(
+        [name = kv.second, field_ptr = &field, &group, &map](auto* var) {
+          deserializeHdf5(
+              name,
+              *reinterpret_cast<decltype(var)>(reinterpret_cast<std::uintptr_t>(field_ptr) +
+                                               reinterpret_cast<std::uintptr_t>(var)),
+              group, map);
+        },
+        std::get<0>(kv));
+  }
 }
 
 // Need to update map for Probe.
@@ -219,10 +211,19 @@ template <>
 void deserializeAll(Probe& field, const H5::Group& group, MapToSharedPtr& map) {
   map.insert({typeid(ElementGeometry), &field.element_geometries});
   map.insert({typeid(ImpulseResponse), &field.impulse_responses});
-  boost::pfr::for_each_field(field, [&group, &map, &field](auto& child) {
-    deserializeHdf5(SerializeHelper::member_name.at(typeid(Probe)).at(DIFF_PTR(field, child)),
-                    child, group, map);
-  });
+
+  for (const auto& kv : SerializeHelper::member_name.at(typeid(Probe))) {
+    std::visit(
+        [name = kv.second, field_ptr = &field, &group, &map](auto* var) {
+          deserializeHdf5(
+              name,
+              *reinterpret_cast<decltype(var)>(reinterpret_cast<std::uintptr_t>(field_ptr) +
+                                               reinterpret_cast<std::uintptr_t>(var)),
+              group, map);
+        },
+        std::get<0>(kv));
+  }
+
   map.erase(typeid(ElementGeometry));
   map.erase(typeid(ImpulseResponse));
 }

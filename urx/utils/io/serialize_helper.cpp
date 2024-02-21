@@ -23,12 +23,11 @@ namespace urx::utils::io {
 #define str(s) #s
 
 // NOLINTNEXTLINE(bugprone-macro-parentheses)
-#define INDEXOF(classe, member) reinterpret_cast<size_t>(&reinterpret_cast<classe*>(0)->member)
+#define INDEXOF(c, member) reinterpret_cast<decltype(c::member)*>(&reinterpret_cast<c*>(0)->member)
 
-#define MAP_ROW(classe, member) \
-  { INDEXOF(classe, member), str(member) }
+#define MAP_ROW(c, member) std::make_pair(INDEXOF(c, member), std::string{str(member)})
 
-std::unordered_map<std::type_index, std::unordered_map<size_t, std::string>>
+std::unordered_map<std::type_index, std::vector<std::pair<AllTypeInVariant, std::string>>>
     SerializeHelper::member_name{
         {typeid(Acquisition),
          {MAP_ROW(Acquisition, authors), MAP_ROW(Acquisition, description),

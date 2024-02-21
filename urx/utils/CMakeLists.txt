@@ -1,6 +1,4 @@
 if(WITH_HDF5)
-  find_file(BOOST_PFR_HPP "boost/pfr.hpp")
-
   # Link ###
   if(BUILD_SHARED_LIBS)
     set(LIB_TYPE SHARED)
@@ -74,7 +72,6 @@ if(WITH_HDF5)
   target_link_libraries(
     ${URX_UTILS_LIBRARY} PRIVATE hdf5::hdf5-${SEARCH_TYPE}
                                  hdf5::hdf5_cpp-${SEARCH_TYPE})
-  target_include_directories(${URX_UTILS_LIBRARY} PRIVATE ${Boost_INCLUDE_DIRS})
   if(ENABLE_PCH)
     target_precompile_headers(${URX_UTILS_LIBRARY} PRIVATE ${URX_PCH_IO})
   endif()
