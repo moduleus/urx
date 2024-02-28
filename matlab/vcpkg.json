@@ -9,9 +9,7 @@
                     "features": [
                         "cpp"
                     ]
-                },
-                "boost-pfr",
-                "magic-enum"
+                }
             ]
         },
         "python": {
@@ -36,5 +34,5 @@
             "version": "1.8.23"
         }
     ],
-    "builtin-baseline": "f31398b18d1c7cdf2360bebbe73010afdf8e6cb4"
+    "builtin-baseline": "ba0b2c4e3ccbe5236abc19a3169350b25bf249d8"
 }

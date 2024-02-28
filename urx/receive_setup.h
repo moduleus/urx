@@ -1,16 +1,14 @@
 #pragma once
 
-#include <iosfwd>
+#include <algorithm>
+#include <cstdint>
 #include <memory>
-#include <optional>
-#include <string>
-#include <utility>
 #include <vector>
 
 #include <urx/detail/compare.h>
 #include <urx/detail/double_nan.h>
 #include <urx/probe.h>
-#include <urx/urx.h>
+#include <urx/transform.h>
 
 namespace urx {
 

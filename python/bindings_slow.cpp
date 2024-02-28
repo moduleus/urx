@@ -1,13 +1,16 @@
 #include <algorithm>
 #include <memory>
+#include <ostream>
 #include <string>
 #include <utility>
 #include <vector>
 
 #include <pybind11/attr.h>
+#include <pybind11/cast.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
-#include <pybind11/stl_bind.h>
+#include <pybind11/stl.h>       // IWYU pragma: keep
+#include <pybind11/stl_bind.h>  // IWYU pragma: keep
 
 #include "bindings.h"
 
@@ -16,36 +19,7 @@
 namespace py = pybind11;
 
 namespace urx::python::detail {
-// void registerVector(pybind11::module_& m) {
-//   py::bindVector<VecFloat64>(m, "VecFloat64", py::buffer_protocol());
-//   py::implicitly_convertible<py::list, VecFloat64>();
-//   py::bindVector<VecVecFloat64>(m, "VecVecFloat64");
-//   py::implicitly_convertible<py::list, VecVecFloat64>();
-//   py::bindVector<VecUInt32>(m, "VecUInt32", py::buffer_protocol());
-//   py::implicitly_convertible<py::list, VecUInt32>();
-//   py::bindVector<VecVecUInt32>(m, "VecVecUInt32");
-//   py::implicitly_convertible<py::list, VecVecUInt32>();
 
-//   py::bindVector<VecGroupPtr>(m, "VecGroupPtr");
-//   py::implicitly_convertible<py::list, VecGroupPtr>();
-//   py::bindVector<VecVector3D>(m, "VecVector3D");
-//   py::implicitly_convertible<py::list, VecVector3D>();
-
-//   py::bindVector<VecElementGeometryPtr>(m, "VecElementGeometryPtr");
-//   py::implicitly_convertible<py::list, VecElementGeometryPtr>();
-//   py::bindVector<VecImpulseResponsePtr>(m, "VecImpulseResponsePtr");
-//   py::implicitly_convertible<py::list, VecImpulseResponsePtr>();
-//   py::bindVector<VecElement>(m, "VecElement");
-//   py::implicitly_convertible<py::list, VecElement>();
-//   py::bindVector<VecExcitationPtr>(m, "VecExcitationPtr");
-//   py::implicitly_convertible<py::list, VecExcitationPtr>();
-//   py::bindVector<VecEvent>(m, "VecEvent");
-//   py::implicitly_convertible<py::list, VecEvent>();
-//   py::bindVector<VecProbePtr>(m, "VecProbePtr");
-//   py::implicitly_convertible<py::list, VecProbePtr>();
-//   py::bindVector<VecGroupData>(m, "VecGroupData");
-//   py::implicitly_convertible<py::list, VecGroupData>();
-// }
 template <typename CppClass, const char* python_name>
 void bindVector(pybind11::module_& m) {
   py::bind_vector<CppClass>(m, python_name, py::buffer_protocol());

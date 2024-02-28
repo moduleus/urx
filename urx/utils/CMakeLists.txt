@@ -1,7 +1,4 @@
 if(WITH_HDF5)
-  find_file(BOOST_PFR_HPP "boost/pfr.hpp")
-  find_package(magic_enum REQUIRED)
-
   # Link ###
   if(BUILD_SHARED_LIBS)
     set(LIB_TYPE SHARED)
@@ -10,15 +7,15 @@ if(WITH_HDF5)
   endif()
   string(TOLOWER ${LIB_TYPE} SEARCH_TYPE)
 
-  find_package(HDF5 NAMES hdf5 COMPONENTS CXX ${SEARCH_TYPE})
+  find_package(HDF5 REQUIRED NAMES hdf5 COMPONENTS CXX ${SEARCH_TYPE})
 endif()
 
 # Setup compiler flags
-add_library(compiler_flags INTERFACE)
+add_library(urx_compiler_flags INTERFACE)
 set(gcc_like_cxx "$<COMPILE_LANG_AND_ID:CXX,ARMClang,AppleClang,Clang,GNU,LCC>")
 set(msvc_cxx "$<COMPILE_LANG_AND_ID:CXX,MSVC>")
 target_compile_options(
-  compiler_flags
+  urx_compiler_flags
   INTERFACE
     "$<${gcc_like_cxx}:$<BUILD_INTERFACE:-Wall;-Werror;-Wextra;-Wshadow;-Wformat=2;-Wunused>>"
     "$<${msvc_cxx}:$<BUILD_INTERFACE:/W3;/WX;/EHsc;/wd4251>>")
@@ -40,10 +37,14 @@ if(WITH_HDF5)
   list(
     APPEND
     URX_UTILS_SRCS
+    ${CMAKE_CURRENT_SOURCE_DIR}/io/enums.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/io/enums.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/io/reader_impl.h
     ${CMAKE_CURRENT_SOURCE_DIR}/io/reader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/io/reader.h
     ${CMAKE_CURRENT_SOURCE_DIR}/io/serialize_helper.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/io/serialize_helper.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/io/writer_impl.h
     ${CMAKE_CURRENT_SOURCE_DIR}/io/writer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/io/writer.h)
 endif()
@@ -53,12 +54,7 @@ set(URX_UTILS_LIBRARY UrxUtils)
 add_library(${URX_UTILS_LIBRARY} ${URX_UTILS_SRCS})
 add_library(Urx::${URX_UTILS_LIBRARY} ALIAS ${URX_UTILS_LIBRARY})
 if(ENABLE_PCH)
-  if(WITH_PYTHON)
-    target_precompile_headers(${URX_UTILS_LIBRARY} PRIVATE ${URX_PCH}
-                              ${URX_PCH_PYTHON})
-  else()
-    target_precompile_headers(${URX_UTILS_LIBRARY} PRIVATE ${URX_PCH})
-  endif()
+  target_precompile_headers(${URX_UTILS_LIBRARY} PRIVATE ${URX_PCH})
 endif()
 
 set_target_properties(
@@ -68,13 +64,12 @@ set_target_properties(
 target_link_libraries(
   ${URX_UTILS_LIBRARY}
   PUBLIC Urx::Urx
-  PRIVATE compiler_flags)
+  PRIVATE urx_compiler_flags)
 if(WITH_HDF5)
   target_link_libraries(
-    ${URX_UTILS_LIBRARY}
-    PRIVATE hdf5::hdf5-${SEARCH_TYPE} hdf5::hdf5_cpp-${SEARCH_TYPE}
-            magic_enum::magic_enum)
-  target_include_directories(${URX_UTILS_LIBRARY} PRIVATE ${Boost_INCLUDE_DIRS})
+    ${URX_UTILS_LIBRARY} PRIVATE hdf5::hdf5-${SEARCH_TYPE}
+                                 hdf5::hdf5_cpp-${SEARCH_TYPE})
+  target_compile_definitions(${URX_UTILS_LIBRARY} PUBLIC URX_WITH_HDF5)
   if(ENABLE_PCH)
     target_precompile_headers(${URX_UTILS_LIBRARY} PRIVATE ${URX_PCH_IO})
   endif()
@@ -83,7 +78,7 @@ endif()
 # Install library ###
 
 install(
-  TARGETS ${URX_UTILS_LIBRARY} compiler_flags
+  TARGETS ${URX_UTILS_LIBRARY} urx_compiler_flags
   EXPORT ${PROJECT_NAME}Targets
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   INCLUDES

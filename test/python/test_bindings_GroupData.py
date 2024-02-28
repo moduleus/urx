@@ -20,7 +20,7 @@ class TestBindingsGroupData(unittest.TestCase):
         print("\n--Test %s BEGIN--" % test_name)
 
         group_data = urx.GroupData()
-        tmp = np.array(range(data_size), dtype=np.float32)
+        tmp = np.arange(data_size, dtype=np.float32)
         group_data.raw_data = tmp
         tmp /= 20
         self.assertTrue(np.array_equal(group_data.raw_data, tmp))

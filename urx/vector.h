@@ -1,7 +1,5 @@
 #pragma once
 
-#include <urx/urx.h>
-
 namespace urx {
 
 template <typename T>

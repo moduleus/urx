@@ -1,16 +1,13 @@
 #pragma once
 
+#include <cstdint>
 #include <memory>
-#include <optional>
 #include <vector>
 
-#include <urx/detail/compare.h>
 #include <urx/detail/double_nan.h>
 #include <urx/excitation.h>
 #include <urx/probe.h>
 #include <urx/transform.h>
-#include <urx/urx.h>
-#include <urx/vector.h>
 #include <urx/wave.h>
 
 namespace urx {

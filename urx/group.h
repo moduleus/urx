@@ -1,10 +1,11 @@
 #pragma once
 
-#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include <urx/enums.h>
 #include <urx/event.h>
-#include <urx/urx.h>
 
 namespace urx {
 

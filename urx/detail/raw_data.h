@@ -1,13 +1,15 @@
 #pragma once
 
 #include <complex>
+#include <cstdint>
 #include <cstring>
 #include <memory>
+#include <type_traits>
 #include <typeindex>
 #include <unordered_map>
 #include <vector>
 
-#include <urx/group.h>
+#include <urx/enums.h>
 
 namespace urx {
 

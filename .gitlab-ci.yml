@@ -101,7 +101,7 @@ format:iwyu:
     - iwyu
   script:
     - sed -i "s/-Winvalid-pch.*cmake_pch.hxx //g" CI/compile_commands.json
-    - iwyu_tool.py -p CI -j $NUM_PARALLEL -- -Xiwyu --no_default_mappings -Xiwyu --mapping_file="$(pwd)/.iwyu-imp" -Xiwyu --no_fwd_decls > CI/iwyu_tool.log
+    - iwyu_tool.py -p CI -j $NUM_PARALLEL -- -Xiwyu --no_default_mappings -Xiwyu --mapping_file="$(pwd)/.iwyu-imp" -Xiwyu --no_fwd_decls -Xiwyu --check_also="*urx/matlab/*.h" -Xiwyu --check_also="*urx/python/*.h" -Xiwyu --check_also="*urx/test/*.h" -Xiwyu --check_also="*urx/urx/*.h" > CI/iwyu_tool.log
     - fix_includes.py --nosafe_headers < CI/iwyu_tool.log
     - git diff > CI/iwyu.patch
     - cat CI/iwyu.patch
@@ -385,8 +385,6 @@ build:ubuntu-python:
     - if [ ! -f "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag" ]; then wget -O "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag" "https://github.com/microsoft/vcpkg-tool/releases/download/$vcpkg_tag/vcpkg-glibc" || exit 1; chmod +x "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag"; fi
     - cp $VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag vcpkg/vcpkg || exit 1
     - pew in CI-urx pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=`pwd`/vcpkg/scripts/buildsystems/vcpkg.cmake"
-    - pew in CI-urx pybind11-stubgen pyurx --ignore-invalid-expressions="urx::.*" --output-dir=python/stubs
-    - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Run pybind11-stubgen before commit."; echo "$(git status --porcelain)"; git diff; exit 1; fi
 
 test:ubuntu-python:
   stage: test
@@ -397,6 +395,8 @@ test:ubuntu-python:
     - build
   script:
     - pew in CI-urx python -m unittest discover test/python
+    - pew in CI-urx pybind11-stubgen pyurx --output-dir=python
+    - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Run pybind11-stubgen before commit."; echo "$(git status --porcelain)"; git diff; exit 1; fi
   after_script:
     - pew rm CI-urx
 
@@ -428,7 +428,7 @@ test:windows-matlab-static:
     - win10
   script:
     - cd test/matlab
-    - C:/"Program Files"/MATLAB/R2023b/bin/matlab.exe -wait -batch windowsGitlabCi
+    - C:/"Program Files"/MATLAB/R2023b/bin/matlab.exe -wait -batch runTestsCi
 
 build:ubuntu-matlab-static:
   stage: build
@@ -456,6 +456,6 @@ test:ubuntu-matlab-static:
     - ubuntu
   script:
     - cd test/matlab
-    - ssh moduleus@localhost "cd $PWD && export HDF5_DISABLE_VERSION_CHECK=1 && /opt/matlab/R2022b/bin/matlab -batch ubuntuGitlabCi"
+    - ssh moduleus@localhost "cd $PWD && export HDF5_DISABLE_VERSION_CHECK=1 && /opt/matlab/R2022b/bin/matlab -batch runTestsCi"
   after_script:
     - ssh moduleus@localhost "rm -f $PWD/test/matlab/test.urx"

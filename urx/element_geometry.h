@@ -1,11 +1,9 @@
 #pragma once
 
-#include <iosfwd>
+#include <algorithm>
 #include <memory>
-#include <string>
 #include <vector>
 
-#include <urx/urx.h>
 #include <urx/vector.h>
 
 namespace urx {

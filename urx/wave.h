@@ -1,15 +1,11 @@
 #pragma once
 
+#include <algorithm>
 #include <memory>
-#include <optional>
 #include <vector>
 
 #include <urx/detail/double_nan.h>
 #include <urx/enums.h>
-#include <urx/excitation.h>
-#include <urx/probe.h>
-#include <urx/transform.h>
-#include <urx/urx.h>
 #include <urx/vector.h>
 
 namespace urx {

@@ -4,6 +4,9 @@
 #ifdef __cplusplus
 #include <cstddef>
 #include <cstdint>  // IWYU pragma: keep
+#include <ostream>
+
+std::ostream &urxGetLog();
 #else
 #include <stddef.h>  // IWYU pragma: keep
 #include <stdint.h>  // IWYU pragma: keep
@@ -111,8 +114,8 @@ extern "C" {
 uint64_t ptr2val(void *p);
 void *val2ptr(uint64_t v);
 
-void stdStringSet(void *this_ptr, const char *v);
-const char *stdStringGet(void *this_ptr);
+void std_string_set(void *this_ptr, const char *v);
+const char *std_string_get(void *this_ptr);
 
 OBJECT_NS_DECL(urx, Acquisition);
 OBJECT_ACCESSOR_NS_DECL(urx, Acquisition, authors);
@@ -253,10 +256,10 @@ RAW_DATA_SHARED_NS_DECL(urx, int32_t);
 RAW_DATA_SHARED_NS_DECL(urx, float);
 RAW_DATA_SHARED_NS_DECL(urx, double);
 
-uint64_t getPointer(void *ptr);
+uint64_t get_pointer(void *ptr);
 
-void *loadFromFile(const char *filename);
-void saveToFile(const char *filename, void *dataset);
+void *load_from_file(const char *filename);
+void save_to_file(const char *filename, void *dataset);
 
 #ifdef __cplusplus
 }

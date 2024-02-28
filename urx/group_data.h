@@ -1,20 +1,16 @@
 #pragma once
 
-#include <complex>
-#include <cstring>
-#include <iostream>
 #include <memory>
-#include <unordered_map>
-#include <utility>
 #include <vector>
 
-#include <urx/detail/compare.h>
 #include <urx/detail/double_nan.h>
 #include <urx/detail/raw_data.h>
 #include <urx/group.h>
 
 namespace urx {
 
+namespace detail {
+template <class Group>
 struct GroupData {
   bool operator==(const GroupData& other) const {
     return group == other.group && raw_data->getSize() == other.raw_data->getSize() &&
@@ -33,5 +29,7 @@ struct GroupData {
   std::vector<double> sequence_timestamps;
   std::vector<std::vector<double>> event_timestamps;
 };
+}  // namespace detail
+using GroupData = detail::GroupData<Group>;
 
 }  // namespace urx

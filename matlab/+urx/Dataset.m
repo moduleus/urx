@@ -1,7 +1,7 @@
 classdef Dataset < urx.Object
   properties (Access = public, SetObservable, GetObservable)
-    version urx.Version {mustBeScalarOrEmpty}
-    acquisition urx.Acquisition {mustBeScalarOrEmpty}
+    version urx.Version {mustBeScalarOrEmpty, urx.Validator.rawInCpp}
+    acquisition urx.Acquisition {mustBeScalarOrEmpty, urx.Validator.rawInCpp}
   end
 
   methods
@@ -15,7 +15,7 @@ classdef Dataset < urx.Object
         filename char
       end
 
-      this.libBindingRef.call('saveToFile', filename, this.id);
+      this.libBindingRef.call('save_to_file', filename, this.id);
     end
   end
 
@@ -25,7 +25,7 @@ classdef Dataset < urx.Object
         filename char
       end
 
-      this = urx.LibBinding.getInstance().call('loadFromFile', filename);
+      this = urx.LibBinding.getInstance().call('load_from_file', filename);
     end
   end
 end

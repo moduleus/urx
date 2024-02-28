@@ -1,7 +1,10 @@
 #pragma once
 
+#include <algorithm>
+#include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <string>
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -17,10 +20,7 @@
 #include <urx/group_data.h>
 #include <urx/impulse_response.h>
 #include <urx/probe.h>
-#include <urx/receive_setup.h>
-#include <urx/transmit_setup.h>
 #include <urx/vector.h>
-#include <urx/wave.h>
 
 using VecUInt8 = std::vector<uint8_t>;
 using VecUInt16 = std::vector<uint16_t>;
@@ -38,6 +38,7 @@ using VecString = std::vector<std::string>;
 
 using VecGroupPtr = std::vector<std::shared_ptr<urx::Group>>;
 using VecVector3D = std::vector<urx::Vector3D<double>>;
+
 using VecElementGeometryPtr = std::vector<std::shared_ptr<urx::ElementGeometry>>;
 using VecImpulseResponsePtr = std::vector<std::shared_ptr<urx::ImpulseResponse>>;
 using VecElement = std::vector<urx::Element>;
@@ -62,6 +63,7 @@ PYBIND11_MAKE_OPAQUE(VecString);
 
 PYBIND11_MAKE_OPAQUE(VecGroupPtr);
 PYBIND11_MAKE_OPAQUE(VecVector3D);
+
 PYBIND11_MAKE_OPAQUE(VecElementGeometryPtr);
 PYBIND11_MAKE_OPAQUE(VecImpulseResponsePtr);
 PYBIND11_MAKE_OPAQUE(VecElement);

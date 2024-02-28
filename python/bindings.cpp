@@ -17,10 +17,12 @@
 #include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
-#include <pybind11/stl.h>  // IWYU pragma: keep
+#include <pybind11/stl.h>       // IWYU pragma: keep
+#include <pybind11/stl_bind.h>  // IWYU pragma: keep
 
 #include <urx/acquisition.h>
 #include <urx/dataset.h>
+#include <urx/detail/compare.h>
 #include <urx/detail/double_nan.h>
 #include <urx/detail/raw_data.h>
 #include <urx/element.h>
@@ -38,12 +40,15 @@
 #include <urx/urx.h>
 #include <urx/utils/group_data_reader.h>
 #include <urx/utils/group_helper.h>
-#include <urx/utils/io/reader.h>
-#include <urx/utils/io/writer.h>
 #include <urx/utils/time_helper.h>
 #include <urx/vector.h>
 #include <urx/version.h>
 #include <urx/wave.h>
+
+#ifdef URX_WITH_HDF5
+#include <urx/utils/io/reader.h>
+#include <urx/utils/io/writer.h>
+#endif
 
 namespace py = pybind11;
 
@@ -236,7 +241,7 @@ PYBIND11_MODULE(bindings, m) {
       .def(py::init())
       .def(py::init<const urx::Excitation &>())
       .def(py::init([](const std::string &pulse_shape, const urx::DoubleNan &transmit_frequency,
-                       const urx::DoubleNan &sampling_frequency, const std::vector<double> &vec) {
+                       const urx::DoubleNan &sampling_frequency, const VecFloat64 &vec) {
         return urx::Excitation{pulse_shape, transmit_frequency, sampling_frequency, vec};
       }))
       .def(pybind11::self == pybind11::self)
@@ -534,9 +539,10 @@ PYBIND11_MODULE(bindings, m) {
       .def_readwrite("version", &urx::Dataset::version)
       .def_readwrite("acquisition", &urx::Dataset::acquisition);
 
-  // Util static methods
+#ifdef URX_WITH_HDF5
   m.def("loadFromFile", &urx::utils::io::reader::loadFromFile);
   m.def("saveToFile", &urx::utils::io::writer::saveToFile);
+#endif
 
   // group_data_reader.h
   py::class_<urx::utils::GroupDataReader>(m, "GroupDataReader")
