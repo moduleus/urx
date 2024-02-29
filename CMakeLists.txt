@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.9)
+cmake_minimum_required(VERSION 3.23)
 
 # With options
 option(WITH_HDF5 "Build with HDF5" OFF)
@@ -73,7 +73,7 @@ endif()
 
 set(INSTALL_NAME "${PROJECT_NAME}-${git_branch}")
 
-set(MATLAB_INSTALL_LIBDIR ${CMAKE_INSTALL_LIBDIR}/${INSTALL_NAME}/matlab/)
+set(MATLAB_INSTALL_LIBDIR ${CMAKE_INSTALL_LIBDIR}/${INSTALL_NAME}/matlab)
 
 if(CALL_FROM_SETUP_PY)
   set(PYTHON_INSTALL_LIBDIR ${CMAKE_INSTALL_PREFIX})

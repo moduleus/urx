@@ -23,36 +23,44 @@ target_compile_options(
 # Set URX sources
 set(URX_UTILS_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/common.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/common.h
     ${CMAKE_CURRENT_SOURCE_DIR}/group_data_reader.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/group_data_reader.h
     ${CMAKE_CURRENT_SOURCE_DIR}/group_helper.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/probe_helper.cpp)
+set(URX_UTILS_H
+    ${CMAKE_CURRENT_SOURCE_DIR}/common.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/group_data_reader.h
     ${CMAKE_CURRENT_SOURCE_DIR}/group_helper.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/probe_helper.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/probe_helper.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/time_helper.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt)
+    ${CMAKE_CURRENT_SOURCE_DIR}/time_helper.h)
 
 if(WITH_HDF5)
   list(
     APPEND
     URX_UTILS_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/io/enums.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/io/reader.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/io/serialize_helper.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/io/writer.cpp)
+  list(
+    APPEND
+    URX_UTILS_H
     ${CMAKE_CURRENT_SOURCE_DIR}/io/enums.h
     ${CMAKE_CURRENT_SOURCE_DIR}/io/reader_impl.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/io/reader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/io/reader.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/io/serialize_helper.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/io/serialize_helper.h
     ${CMAKE_CURRENT_SOURCE_DIR}/io/writer_impl.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/io/writer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/io/writer.h)
 endif()
 
 # Target library ### Create target
 set(URX_UTILS_LIBRARY UrxUtils)
-add_library(${URX_UTILS_LIBRARY} ${URX_UTILS_SRCS})
+add_library(${URX_UTILS_LIBRARY})
 add_library(Urx::${URX_UTILS_LIBRARY} ALIAS ${URX_UTILS_LIBRARY})
+target_sources(
+  ${URX_UTILS_LIBRARY}
+  INTERFACE FILE_SET HEADERS BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../.. FILES
+            ${URX_UTILS_H}
+  PRIVATE ${URX_UTILS_SRCS} ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt)
 if(ENABLE_PCH)
   target_precompile_headers(${URX_UTILS_LIBRARY} PRIVATE ${URX_PCH})
 endif()
@@ -60,6 +68,8 @@ endif()
 set_target_properties(
   ${URX_UTILS_LIBRARY} PROPERTIES OUTPUT_NAME
                                   "${URX_UTILS_LIBRARY}-${git_branch}")
+
+set(CMAKE_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR}/${INSTALL_NAME})
 
 target_link_libraries(
   ${URX_UTILS_LIBRARY}
@@ -80,6 +90,5 @@ endif()
 install(
   TARGETS ${URX_UTILS_LIBRARY} urx_compiler_flags
   EXPORT ${PROJECT_NAME}Targets
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  INCLUDES
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${INSTALL_NAME})
+  FILE_SET HEADERS
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
