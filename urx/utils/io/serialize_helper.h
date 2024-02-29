@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <memory>
 #include <string>
-#include <typeinfo>
+#include <typeindex>
 #include <unordered_map>
 #include <utility>
 #include <variant>

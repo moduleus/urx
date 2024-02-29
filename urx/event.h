@@ -1,5 +1,8 @@
 #pragma once
 
+#include <algorithm>
+#include <vector>
+
 #include <urx/receive_setup.h>
 #include <urx/transmit_setup.h>
 
