@@ -14,6 +14,7 @@
 #include <vector>
 
 #include <urx/acquisition.h>
+#include <urx/config.h>
 #include <urx/dataset.h>
 #include <urx/detail/raw_data.h>
 #include <urx/element.h>

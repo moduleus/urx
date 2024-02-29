@@ -1,5 +1,18 @@
+if(WITH_HDF5)
+  set(URX_WITH_HDF5 1)
+endif()
+# Do write config.h in ${CMAKE_CURRENT_BINARY_DIR}.
+# FILE_SET HEADERS BASE_DIRS will conflict if build directory is in the root
+# path. Ie :
+# (c:\urx)\urx\config.h
+# (c:\urx\build)\urx\config.h
+# c:\urx\build is a subdirectory of c:\urx.
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in
+               ${CMAKE_CURRENT_SOURCE_DIR}/config.h @ONLY)
+
 # Set URX sources
 set(URX_SRCS
+    ${CMAKE_CURRENT_SOURCE_DIR}/config.h
     ${CMAKE_CURRENT_SOURCE_DIR}/detail/compare.h
     ${CMAKE_CURRENT_SOURCE_DIR}/detail/double_nan.h
     ${CMAKE_CURRENT_SOURCE_DIR}/detail/raw_data.h
@@ -37,8 +50,7 @@ target_include_directories(
   INTERFACE $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
             $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
             $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${INSTALL_NAME}>)
-set_target_properties(${PROJECT_NAME}
-                      PROPERTIES OUTPUT_NAME "${PROJECT_NAME}-${git_branch}")
+set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "${INSTALL_NAME}")
 
 add_subdirectory("utils")
 
@@ -48,7 +60,7 @@ add_subdirectory("utils")
 configure_package_config_file(
   ${PROJECT_NAME}Config.cmake.in
   ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
-  INSTALL_DESTINATION ${CMAKE_INSTALL_DIR}/${PROJECT_NAME}-${git_branch})
+  INSTALL_DESTINATION ${CMAKE_INSTALL_DIR}/${INSTALL_NAME})
 
 write_basic_package_version_file(
   ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
@@ -70,4 +82,4 @@ install(
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
               ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}-${git_branch})
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${INSTALL_NAME})

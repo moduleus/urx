@@ -21,6 +21,7 @@
 #include <pybind11/stl_bind.h>  // IWYU pragma: keep
 
 #include <urx/acquisition.h>
+#include <urx/config.h>
 #include <urx/dataset.h>
 #include <urx/detail/compare.h>
 #include <urx/detail/double_nan.h>

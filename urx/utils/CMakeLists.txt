@@ -79,7 +79,6 @@ if(WITH_HDF5)
   target_link_libraries(
     ${URX_UTILS_LIBRARY} PRIVATE hdf5::hdf5-${SEARCH_TYPE}
                                  hdf5::hdf5_cpp-${SEARCH_TYPE})
-  target_compile_definitions(${URX_UTILS_LIBRARY} PUBLIC URX_WITH_HDF5)
   if(ENABLE_PCH)
     target_precompile_headers(${URX_UTILS_LIBRARY} PRIVATE ${URX_PCH_IO})
   endif()

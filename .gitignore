@@ -22,3 +22,5 @@ test/python/__pycache__/
 
 *.pyres
 *.res
+
+/urx/config.h
