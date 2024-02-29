@@ -1,5 +1,6 @@
 #include "UrxLibBinding.h"
 
+#include <algorithm>
 #include <complex>
 #include <cstdint>
 #include <fstream>

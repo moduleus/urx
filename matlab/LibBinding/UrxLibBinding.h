@@ -1,10 +1,12 @@
 #ifndef URX_LIB_BINDING
 #define URX_LIB_BINDING
 
+// NOLINTBEGIN(readability-identifier-naming)
+
 #ifdef __cplusplus
 #include <cstddef>
 #include <cstdint>  // IWYU pragma: keep
-#include <ostream>
+#include <iosfwd>
 
 std::ostream &urxGetLog();
 #else
@@ -264,5 +266,7 @@ void save_to_file(const char *filename, void *dataset);
 #ifdef __cplusplus
 }
 #endif
+
+// NOLINTEND(readability-identifier-naming)
 
 #endif  // #define URX_LIB_BINDING

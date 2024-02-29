@@ -1,4 +1,5 @@
-﻿#include <complex>
+﻿#include <algorithm>
+#include <complex>
 #include <limits>
 #include <memory>
 #include <string>

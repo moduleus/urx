@@ -1,4 +1,6 @@
+#include <algorithm>
 #include <memory>
+#include <typeindex>
 #include <utility>
 #include <vector>
 
