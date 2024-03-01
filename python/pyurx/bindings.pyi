@@ -5,7 +5,7 @@ from __future__ import annotations
 import numpy
 import typing
 import typing_extensions
-__all__ = ['Acquisition', 'DataType', 'Dataset', 'DoubleNan', 'Element', 'ElementGeometry', 'Event', 'Excitation', 'Group', 'GroupData', 'GroupDataReader', 'ImpulseResponse', 'Probe', 'ProbeType', 'ReceiveSetup', 'SamplingType', 'Transform', 'TransmitSetup', 'URX_VERSION_MAJOR', 'URX_VERSION_MINOR', 'URX_VERSION_PATCH', 'VecElement', 'VecElementGeometryPtr', 'VecEvent', 'VecExcitationPtr', 'VecFloat32', 'VecFloat64', 'VecGroupData', 'VecGroupPtr', 'VecImpulseResponsePtr', 'VecInt16', 'VecInt32', 'VecInt64', 'VecInt8', 'VecProbePtr', 'VecString', 'VecUInt16', 'VecUInt32', 'VecUInt64', 'VecUInt8', 'VecVecFloat64', 'VecVecUInt32', 'VecVector3D', 'Vector2D', 'Vector3D', 'Version', 'Wave', 'WaveType', 'isIso3166', 'isIso8601', 'loadFromFile', 'pyGetFormat', 'saveToFile', 'sizeofDataType', 'sizeofSample']
+__all__ = ['Acquisition', 'DataType', 'Dataset', 'DoubleNan', 'Element', 'ElementGeometry', 'Event', 'Excitation', 'Group', 'GroupData', 'GroupDataReader', 'ImpulseResponse', 'Probe', 'ProbeType', 'ReceiveSetup', 'SamplingType', 'Transform', 'TransmitSetup', 'URX_VERSION_MAJOR', 'URX_VERSION_MINOR', 'URX_VERSION_PATCH', 'VecElement', 'VecElementGeometryPtr', 'VecEvent', 'VecExcitationPtr', 'VecFloat32', 'VecFloat64', 'VecGroupData', 'VecGroupPtr', 'VecImpulseResponsePtr', 'VecInt16', 'VecInt32', 'VecInt64', 'VecInt8', 'VecProbePtr', 'VecString', 'VecUInt16', 'VecUInt32', 'VecUInt64', 'VecUInt8', 'VecVecFloat32', 'VecVecFloat64', 'VecVecInt16', 'VecVecInt32', 'VecVecInt64', 'VecVecInt8', 'VecVecString', 'VecVecUInt16', 'VecVecUInt32', 'VecVecUInt64', 'VecVecUInt8', 'VecVector2D', 'VecVector3D', 'Vector2D', 'Vector3D', 'Version', 'Wave', 'WaveType', 'isIso3166', 'isIso8601', 'loadFromFile', 'pyGetFormat', 'saveToFile', 'sizeofDataType', 'sizeofSample']
 class Acquisition:
     __hash__: typing.ClassVar[None] = None
     authors: str
@@ -26,6 +26,9 @@ class Acquisition:
         ...
     @typing.overload
     def __init__(self, arg0: Acquisition) -> None:
+        ...
+    @typing.overload
+    def __init__(self, arg0: str, arg1: str, arg2: str, arg3: str, arg4: str, arg5: DoubleNan, arg6: DoubleNan, arg7: VecProbePtr, arg8: VecExcitationPtr, arg9: VecGroupPtr, arg10: VecGroupData) -> None:
         ...
     def __ne__(self, arg0: Acquisition) -> bool:
         ...
@@ -200,13 +203,13 @@ class ElementGeometry:
     def __eq__(self, arg0: ElementGeometry) -> bool:
         ...
     @typing.overload
-    def __init__(self, arg0: VecVector3D) -> None:
+    def __init__(self) -> None:
         ...
     @typing.overload
     def __init__(self, arg0: ElementGeometry) -> None:
         ...
     @typing.overload
-    def __init__(self) -> None:
+    def __init__(self, arg0: VecVector3D) -> None:
         ...
     def __ne__(self, arg0: ElementGeometry) -> bool:
         ...
@@ -270,6 +273,7 @@ class GroupData:
     event_timestamps: VecVecFloat64
     group: Group
     group_timestamp: DoubleNan
+    raw_data: numpy.ndarray
     sequence_timestamps: VecFloat64
     def __eq__(self, arg0: GroupData) -> bool:
         ...
@@ -279,13 +283,10 @@ class GroupData:
     @typing.overload
     def __init__(self, arg0: GroupData) -> None:
         ...
+    @typing.overload
+    def __init__(self, arg0: Group, arg1: numpy.ndarray, arg2: DoubleNan, arg3: VecFloat64, arg4: VecVecFloat64) -> None:
+        ...
     def __ne__(self, arg0: GroupData) -> bool:
-        ...
-    @property
-    def raw_data(self) -> numpy.ndarray:
-        ...
-    @raw_data.setter
-    def raw_data(self, arg1: typing_extensions.Buffer) -> None:
         ...
 class GroupDataReader:
     def __init__(self, arg0: GroupData, arg1: int) -> None:
@@ -465,10 +466,10 @@ class Transform:
     def __init__(self) -> None:
         ...
     @typing.overload
-    def __init__(self, arg0: Vector3D, arg1: Vector3D) -> None:
+    def __init__(self, arg0: Transform) -> None:
         ...
     @typing.overload
-    def __init__(self, arg0: Transform) -> None:
+    def __init__(self, arg0: Vector3D, arg1: Vector3D) -> None:
         ...
     def __ne__(self, arg0: Transform) -> bool:
         ...
@@ -2393,6 +2394,101 @@ class VecUInt8:
         """
         Remove the first item from the list whose value is x. It is an error if there is no such item.
         """
+class VecVecFloat32:
+    __hash__: typing.ClassVar[None] = None
+    def __bool__(self) -> bool:
+        """
+        Check whether the list is nonempty
+        """
+    def __contains__(self, x: VecFloat32) -> bool:
+        """
+        Return true the container contains ``x``
+        """
+    @typing.overload
+    def __delitem__(self, arg0: int) -> None:
+        """
+        Delete the list elements at index ``i``
+        """
+    @typing.overload
+    def __delitem__(self, arg0: slice) -> None:
+        """
+        Delete list elements using a slice object
+        """
+    def __eq__(self, arg0: VecVecFloat32) -> bool:
+        ...
+    @typing.overload
+    def __getitem__(self, s: slice) -> VecVecFloat32:
+        """
+        Retrieve list elements using a slice object
+        """
+    @typing.overload
+    def __getitem__(self, arg0: int) -> VecFloat32:
+        ...
+    @typing.overload
+    def __init__(self) -> None:
+        ...
+    @typing.overload
+    def __init__(self, arg0: VecVecFloat32) -> None:
+        """
+        Copy constructor
+        """
+    @typing.overload
+    def __init__(self, arg0: typing.Iterable) -> None:
+        ...
+    def __iter__(self) -> typing.Iterator:
+        ...
+    def __len__(self) -> int:
+        ...
+    def __ne__(self, arg0: VecVecFloat32) -> bool:
+        ...
+    @typing.overload
+    def __setitem__(self, arg0: int, arg1: VecFloat32) -> None:
+        ...
+    @typing.overload
+    def __setitem__(self, arg0: slice, arg1: VecVecFloat32) -> None:
+        """
+        Assign list elements using a slice object
+        """
+    def append(self, x: VecFloat32) -> None:
+        """
+        Add an item to the end of the list
+        """
+    def clear(self) -> None:
+        """
+        Clear the contents
+        """
+    def count(self, x: VecFloat32) -> int:
+        """
+        Return the number of times ``x`` appears in the list
+        """
+    @typing.overload
+    def extend(self, L: VecVecFloat32) -> None:
+        """
+        Extend the list by appending all the items in the given list
+        """
+    @typing.overload
+    def extend(self, L: typing.Iterable) -> None:
+        """
+        Extend the list by appending all the items in the given list
+        """
+    def insert(self, i: int, x: VecFloat32) -> None:
+        """
+        Insert an item at a given position.
+        """
+    @typing.overload
+    def pop(self) -> VecFloat32:
+        """
+        Remove and return the last item
+        """
+    @typing.overload
+    def pop(self, i: int) -> VecFloat32:
+        """
+        Remove and return the item at index ``i``
+        """
+    def remove(self, x: VecFloat32) -> None:
+        """
+        Remove the first item from the list whose value is x. It is an error if there is no such item.
+        """
 class VecVecFloat64:
     __hash__: typing.ClassVar[None] = None
     def __bool__(self) -> bool:
@@ -2488,6 +2584,576 @@ class VecVecFloat64:
         """
         Remove the first item from the list whose value is x. It is an error if there is no such item.
         """
+class VecVecInt16:
+    __hash__: typing.ClassVar[None] = None
+    def __bool__(self) -> bool:
+        """
+        Check whether the list is nonempty
+        """
+    def __contains__(self, x: VecInt16) -> bool:
+        """
+        Return true the container contains ``x``
+        """
+    @typing.overload
+    def __delitem__(self, arg0: int) -> None:
+        """
+        Delete the list elements at index ``i``
+        """
+    @typing.overload
+    def __delitem__(self, arg0: slice) -> None:
+        """
+        Delete list elements using a slice object
+        """
+    def __eq__(self, arg0: VecVecInt16) -> bool:
+        ...
+    @typing.overload
+    def __getitem__(self, s: slice) -> VecVecInt16:
+        """
+        Retrieve list elements using a slice object
+        """
+    @typing.overload
+    def __getitem__(self, arg0: int) -> VecInt16:
+        ...
+    @typing.overload
+    def __init__(self) -> None:
+        ...
+    @typing.overload
+    def __init__(self, arg0: VecVecInt16) -> None:
+        """
+        Copy constructor
+        """
+    @typing.overload
+    def __init__(self, arg0: typing.Iterable) -> None:
+        ...
+    def __iter__(self) -> typing.Iterator:
+        ...
+    def __len__(self) -> int:
+        ...
+    def __ne__(self, arg0: VecVecInt16) -> bool:
+        ...
+    @typing.overload
+    def __setitem__(self, arg0: int, arg1: VecInt16) -> None:
+        ...
+    @typing.overload
+    def __setitem__(self, arg0: slice, arg1: VecVecInt16) -> None:
+        """
+        Assign list elements using a slice object
+        """
+    def append(self, x: VecInt16) -> None:
+        """
+        Add an item to the end of the list
+        """
+    def clear(self) -> None:
+        """
+        Clear the contents
+        """
+    def count(self, x: VecInt16) -> int:
+        """
+        Return the number of times ``x`` appears in the list
+        """
+    @typing.overload
+    def extend(self, L: VecVecInt16) -> None:
+        """
+        Extend the list by appending all the items in the given list
+        """
+    @typing.overload
+    def extend(self, L: typing.Iterable) -> None:
+        """
+        Extend the list by appending all the items in the given list
+        """
+    def insert(self, i: int, x: VecInt16) -> None:
+        """
+        Insert an item at a given position.
+        """
+    @typing.overload
+    def pop(self) -> VecInt16:
+        """
+        Remove and return the last item
+        """
+    @typing.overload
+    def pop(self, i: int) -> VecInt16:
+        """
+        Remove and return the item at index ``i``
+        """
+    def remove(self, x: VecInt16) -> None:
+        """
+        Remove the first item from the list whose value is x. It is an error if there is no such item.
+        """
+class VecVecInt32:
+    __hash__: typing.ClassVar[None] = None
+    def __bool__(self) -> bool:
+        """
+        Check whether the list is nonempty
+        """
+    def __contains__(self, x: VecInt32) -> bool:
+        """
+        Return true the container contains ``x``
+        """
+    @typing.overload
+    def __delitem__(self, arg0: int) -> None:
+        """
+        Delete the list elements at index ``i``
+        """
+    @typing.overload
+    def __delitem__(self, arg0: slice) -> None:
+        """
+        Delete list elements using a slice object
+        """
+    def __eq__(self, arg0: VecVecInt32) -> bool:
+        ...
+    @typing.overload
+    def __getitem__(self, s: slice) -> VecVecInt32:
+        """
+        Retrieve list elements using a slice object
+        """
+    @typing.overload
+    def __getitem__(self, arg0: int) -> VecInt32:
+        ...
+    @typing.overload
+    def __init__(self) -> None:
+        ...
+    @typing.overload
+    def __init__(self, arg0: VecVecInt32) -> None:
+        """
+        Copy constructor
+        """
+    @typing.overload
+    def __init__(self, arg0: typing.Iterable) -> None:
+        ...
+    def __iter__(self) -> typing.Iterator:
+        ...
+    def __len__(self) -> int:
+        ...
+    def __ne__(self, arg0: VecVecInt32) -> bool:
+        ...
+    @typing.overload
+    def __setitem__(self, arg0: int, arg1: VecInt32) -> None:
+        ...
+    @typing.overload
+    def __setitem__(self, arg0: slice, arg1: VecVecInt32) -> None:
+        """
+        Assign list elements using a slice object
+        """
+    def append(self, x: VecInt32) -> None:
+        """
+        Add an item to the end of the list
+        """
+    def clear(self) -> None:
+        """
+        Clear the contents
+        """
+    def count(self, x: VecInt32) -> int:
+        """
+        Return the number of times ``x`` appears in the list
+        """
+    @typing.overload
+    def extend(self, L: VecVecInt32) -> None:
+        """
+        Extend the list by appending all the items in the given list
+        """
+    @typing.overload
+    def extend(self, L: typing.Iterable) -> None:
+        """
+        Extend the list by appending all the items in the given list
+        """
+    def insert(self, i: int, x: VecInt32) -> None:
+        """
+        Insert an item at a given position.
+        """
+    @typing.overload
+    def pop(self) -> VecInt32:
+        """
+        Remove and return the last item
+        """
+    @typing.overload
+    def pop(self, i: int) -> VecInt32:
+        """
+        Remove and return the item at index ``i``
+        """
+    def remove(self, x: VecInt32) -> None:
+        """
+        Remove the first item from the list whose value is x. It is an error if there is no such item.
+        """
+class VecVecInt64:
+    __hash__: typing.ClassVar[None] = None
+    def __bool__(self) -> bool:
+        """
+        Check whether the list is nonempty
+        """
+    def __contains__(self, x: VecInt64) -> bool:
+        """
+        Return true the container contains ``x``
+        """
+    @typing.overload
+    def __delitem__(self, arg0: int) -> None:
+        """
+        Delete the list elements at index ``i``
+        """
+    @typing.overload
+    def __delitem__(self, arg0: slice) -> None:
+        """
+        Delete list elements using a slice object
+        """
+    def __eq__(self, arg0: VecVecInt64) -> bool:
+        ...
+    @typing.overload
+    def __getitem__(self, s: slice) -> VecVecInt64:
+        """
+        Retrieve list elements using a slice object
+        """
+    @typing.overload
+    def __getitem__(self, arg0: int) -> VecInt64:
+        ...
+    @typing.overload
+    def __init__(self) -> None:
+        ...
+    @typing.overload
+    def __init__(self, arg0: VecVecInt64) -> None:
+        """
+        Copy constructor
+        """
+    @typing.overload
+    def __init__(self, arg0: typing.Iterable) -> None:
+        ...
+    def __iter__(self) -> typing.Iterator:
+        ...
+    def __len__(self) -> int:
+        ...
+    def __ne__(self, arg0: VecVecInt64) -> bool:
+        ...
+    @typing.overload
+    def __setitem__(self, arg0: int, arg1: VecInt64) -> None:
+        ...
+    @typing.overload
+    def __setitem__(self, arg0: slice, arg1: VecVecInt64) -> None:
+        """
+        Assign list elements using a slice object
+        """
+    def append(self, x: VecInt64) -> None:
+        """
+        Add an item to the end of the list
+        """
+    def clear(self) -> None:
+        """
+        Clear the contents
+        """
+    def count(self, x: VecInt64) -> int:
+        """
+        Return the number of times ``x`` appears in the list
+        """
+    @typing.overload
+    def extend(self, L: VecVecInt64) -> None:
+        """
+        Extend the list by appending all the items in the given list
+        """
+    @typing.overload
+    def extend(self, L: typing.Iterable) -> None:
+        """
+        Extend the list by appending all the items in the given list
+        """
+    def insert(self, i: int, x: VecInt64) -> None:
+        """
+        Insert an item at a given position.
+        """
+    @typing.overload
+    def pop(self) -> VecInt64:
+        """
+        Remove and return the last item
+        """
+    @typing.overload
+    def pop(self, i: int) -> VecInt64:
+        """
+        Remove and return the item at index ``i``
+        """
+    def remove(self, x: VecInt64) -> None:
+        """
+        Remove the first item from the list whose value is x. It is an error if there is no such item.
+        """
+class VecVecInt8:
+    __hash__: typing.ClassVar[None] = None
+    def __bool__(self) -> bool:
+        """
+        Check whether the list is nonempty
+        """
+    def __contains__(self, x: VecInt8) -> bool:
+        """
+        Return true the container contains ``x``
+        """
+    @typing.overload
+    def __delitem__(self, arg0: int) -> None:
+        """
+        Delete the list elements at index ``i``
+        """
+    @typing.overload
+    def __delitem__(self, arg0: slice) -> None:
+        """
+        Delete list elements using a slice object
+        """
+    def __eq__(self, arg0: VecVecInt8) -> bool:
+        ...
+    @typing.overload
+    def __getitem__(self, s: slice) -> VecVecInt8:
+        """
+        Retrieve list elements using a slice object
+        """
+    @typing.overload
+    def __getitem__(self, arg0: int) -> VecInt8:
+        ...
+    @typing.overload
+    def __init__(self) -> None:
+        ...
+    @typing.overload
+    def __init__(self, arg0: VecVecInt8) -> None:
+        """
+        Copy constructor
+        """
+    @typing.overload
+    def __init__(self, arg0: typing.Iterable) -> None:
+        ...
+    def __iter__(self) -> typing.Iterator:
+        ...
+    def __len__(self) -> int:
+        ...
+    def __ne__(self, arg0: VecVecInt8) -> bool:
+        ...
+    @typing.overload
+    def __setitem__(self, arg0: int, arg1: VecInt8) -> None:
+        ...
+    @typing.overload
+    def __setitem__(self, arg0: slice, arg1: VecVecInt8) -> None:
+        """
+        Assign list elements using a slice object
+        """
+    def append(self, x: VecInt8) -> None:
+        """
+        Add an item to the end of the list
+        """
+    def clear(self) -> None:
+        """
+        Clear the contents
+        """
+    def count(self, x: VecInt8) -> int:
+        """
+        Return the number of times ``x`` appears in the list
+        """
+    @typing.overload
+    def extend(self, L: VecVecInt8) -> None:
+        """
+        Extend the list by appending all the items in the given list
+        """
+    @typing.overload
+    def extend(self, L: typing.Iterable) -> None:
+        """
+        Extend the list by appending all the items in the given list
+        """
+    def insert(self, i: int, x: VecInt8) -> None:
+        """
+        Insert an item at a given position.
+        """
+    @typing.overload
+    def pop(self) -> VecInt8:
+        """
+        Remove and return the last item
+        """
+    @typing.overload
+    def pop(self, i: int) -> VecInt8:
+        """
+        Remove and return the item at index ``i``
+        """
+    def remove(self, x: VecInt8) -> None:
+        """
+        Remove the first item from the list whose value is x. It is an error if there is no such item.
+        """
+class VecVecString:
+    __hash__: typing.ClassVar[None] = None
+    def __bool__(self) -> bool:
+        """
+        Check whether the list is nonempty
+        """
+    def __contains__(self, x: VecString) -> bool:
+        """
+        Return true the container contains ``x``
+        """
+    @typing.overload
+    def __delitem__(self, arg0: int) -> None:
+        """
+        Delete the list elements at index ``i``
+        """
+    @typing.overload
+    def __delitem__(self, arg0: slice) -> None:
+        """
+        Delete list elements using a slice object
+        """
+    def __eq__(self, arg0: VecVecString) -> bool:
+        ...
+    @typing.overload
+    def __getitem__(self, s: slice) -> VecVecString:
+        """
+        Retrieve list elements using a slice object
+        """
+    @typing.overload
+    def __getitem__(self, arg0: int) -> VecString:
+        ...
+    @typing.overload
+    def __init__(self) -> None:
+        ...
+    @typing.overload
+    def __init__(self, arg0: VecVecString) -> None:
+        """
+        Copy constructor
+        """
+    @typing.overload
+    def __init__(self, arg0: typing.Iterable) -> None:
+        ...
+    def __iter__(self) -> typing.Iterator:
+        ...
+    def __len__(self) -> int:
+        ...
+    def __ne__(self, arg0: VecVecString) -> bool:
+        ...
+    @typing.overload
+    def __setitem__(self, arg0: int, arg1: VecString) -> None:
+        ...
+    @typing.overload
+    def __setitem__(self, arg0: slice, arg1: VecVecString) -> None:
+        """
+        Assign list elements using a slice object
+        """
+    def append(self, x: VecString) -> None:
+        """
+        Add an item to the end of the list
+        """
+    def clear(self) -> None:
+        """
+        Clear the contents
+        """
+    def count(self, x: VecString) -> int:
+        """
+        Return the number of times ``x`` appears in the list
+        """
+    @typing.overload
+    def extend(self, L: VecVecString) -> None:
+        """
+        Extend the list by appending all the items in the given list
+        """
+    @typing.overload
+    def extend(self, L: typing.Iterable) -> None:
+        """
+        Extend the list by appending all the items in the given list
+        """
+    def insert(self, i: int, x: VecString) -> None:
+        """
+        Insert an item at a given position.
+        """
+    @typing.overload
+    def pop(self) -> VecString:
+        """
+        Remove and return the last item
+        """
+    @typing.overload
+    def pop(self, i: int) -> VecString:
+        """
+        Remove and return the item at index ``i``
+        """
+    def remove(self, x: VecString) -> None:
+        """
+        Remove the first item from the list whose value is x. It is an error if there is no such item.
+        """
+class VecVecUInt16:
+    __hash__: typing.ClassVar[None] = None
+    def __bool__(self) -> bool:
+        """
+        Check whether the list is nonempty
+        """
+    def __contains__(self, x: VecUInt16) -> bool:
+        """
+        Return true the container contains ``x``
+        """
+    @typing.overload
+    def __delitem__(self, arg0: int) -> None:
+        """
+        Delete the list elements at index ``i``
+        """
+    @typing.overload
+    def __delitem__(self, arg0: slice) -> None:
+        """
+        Delete list elements using a slice object
+        """
+    def __eq__(self, arg0: VecVecUInt16) -> bool:
+        ...
+    @typing.overload
+    def __getitem__(self, s: slice) -> VecVecUInt16:
+        """
+        Retrieve list elements using a slice object
+        """
+    @typing.overload
+    def __getitem__(self, arg0: int) -> VecUInt16:
+        ...
+    @typing.overload
+    def __init__(self) -> None:
+        ...
+    @typing.overload
+    def __init__(self, arg0: VecVecUInt16) -> None:
+        """
+        Copy constructor
+        """
+    @typing.overload
+    def __init__(self, arg0: typing.Iterable) -> None:
+        ...
+    def __iter__(self) -> typing.Iterator:
+        ...
+    def __len__(self) -> int:
+        ...
+    def __ne__(self, arg0: VecVecUInt16) -> bool:
+        ...
+    @typing.overload
+    def __setitem__(self, arg0: int, arg1: VecUInt16) -> None:
+        ...
+    @typing.overload
+    def __setitem__(self, arg0: slice, arg1: VecVecUInt16) -> None:
+        """
+        Assign list elements using a slice object
+        """
+    def append(self, x: VecUInt16) -> None:
+        """
+        Add an item to the end of the list
+        """
+    def clear(self) -> None:
+        """
+        Clear the contents
+        """
+    def count(self, x: VecUInt16) -> int:
+        """
+        Return the number of times ``x`` appears in the list
+        """
+    @typing.overload
+    def extend(self, L: VecVecUInt16) -> None:
+        """
+        Extend the list by appending all the items in the given list
+        """
+    @typing.overload
+    def extend(self, L: typing.Iterable) -> None:
+        """
+        Extend the list by appending all the items in the given list
+        """
+    def insert(self, i: int, x: VecUInt16) -> None:
+        """
+        Insert an item at a given position.
+        """
+    @typing.overload
+    def pop(self) -> VecUInt16:
+        """
+        Remove and return the last item
+        """
+    @typing.overload
+    def pop(self, i: int) -> VecUInt16:
+        """
+        Remove and return the item at index ``i``
+        """
+    def remove(self, x: VecUInt16) -> None:
+        """
+        Remove the first item from the list whose value is x. It is an error if there is no such item.
+        """
 class VecVecUInt32:
     __hash__: typing.ClassVar[None] = None
     def __bool__(self) -> bool:
@@ -2580,6 +3246,291 @@ class VecVecUInt32:
         Remove and return the item at index ``i``
         """
     def remove(self, x: VecUInt32) -> None:
+        """
+        Remove the first item from the list whose value is x. It is an error if there is no such item.
+        """
+class VecVecUInt64:
+    __hash__: typing.ClassVar[None] = None
+    def __bool__(self) -> bool:
+        """
+        Check whether the list is nonempty
+        """
+    def __contains__(self, x: VecUInt64) -> bool:
+        """
+        Return true the container contains ``x``
+        """
+    @typing.overload
+    def __delitem__(self, arg0: int) -> None:
+        """
+        Delete the list elements at index ``i``
+        """
+    @typing.overload
+    def __delitem__(self, arg0: slice) -> None:
+        """
+        Delete list elements using a slice object
+        """
+    def __eq__(self, arg0: VecVecUInt64) -> bool:
+        ...
+    @typing.overload
+    def __getitem__(self, s: slice) -> VecVecUInt64:
+        """
+        Retrieve list elements using a slice object
+        """
+    @typing.overload
+    def __getitem__(self, arg0: int) -> VecUInt64:
+        ...
+    @typing.overload
+    def __init__(self) -> None:
+        ...
+    @typing.overload
+    def __init__(self, arg0: VecVecUInt64) -> None:
+        """
+        Copy constructor
+        """
+    @typing.overload
+    def __init__(self, arg0: typing.Iterable) -> None:
+        ...
+    def __iter__(self) -> typing.Iterator:
+        ...
+    def __len__(self) -> int:
+        ...
+    def __ne__(self, arg0: VecVecUInt64) -> bool:
+        ...
+    @typing.overload
+    def __setitem__(self, arg0: int, arg1: VecUInt64) -> None:
+        ...
+    @typing.overload
+    def __setitem__(self, arg0: slice, arg1: VecVecUInt64) -> None:
+        """
+        Assign list elements using a slice object
+        """
+    def append(self, x: VecUInt64) -> None:
+        """
+        Add an item to the end of the list
+        """
+    def clear(self) -> None:
+        """
+        Clear the contents
+        """
+    def count(self, x: VecUInt64) -> int:
+        """
+        Return the number of times ``x`` appears in the list
+        """
+    @typing.overload
+    def extend(self, L: VecVecUInt64) -> None:
+        """
+        Extend the list by appending all the items in the given list
+        """
+    @typing.overload
+    def extend(self, L: typing.Iterable) -> None:
+        """
+        Extend the list by appending all the items in the given list
+        """
+    def insert(self, i: int, x: VecUInt64) -> None:
+        """
+        Insert an item at a given position.
+        """
+    @typing.overload
+    def pop(self) -> VecUInt64:
+        """
+        Remove and return the last item
+        """
+    @typing.overload
+    def pop(self, i: int) -> VecUInt64:
+        """
+        Remove and return the item at index ``i``
+        """
+    def remove(self, x: VecUInt64) -> None:
+        """
+        Remove the first item from the list whose value is x. It is an error if there is no such item.
+        """
+class VecVecUInt8:
+    __hash__: typing.ClassVar[None] = None
+    def __bool__(self) -> bool:
+        """
+        Check whether the list is nonempty
+        """
+    def __contains__(self, x: VecUInt8) -> bool:
+        """
+        Return true the container contains ``x``
+        """
+    @typing.overload
+    def __delitem__(self, arg0: int) -> None:
+        """
+        Delete the list elements at index ``i``
+        """
+    @typing.overload
+    def __delitem__(self, arg0: slice) -> None:
+        """
+        Delete list elements using a slice object
+        """
+    def __eq__(self, arg0: VecVecUInt8) -> bool:
+        ...
+    @typing.overload
+    def __getitem__(self, s: slice) -> VecVecUInt8:
+        """
+        Retrieve list elements using a slice object
+        """
+    @typing.overload
+    def __getitem__(self, arg0: int) -> VecUInt8:
+        ...
+    @typing.overload
+    def __init__(self) -> None:
+        ...
+    @typing.overload
+    def __init__(self, arg0: VecVecUInt8) -> None:
+        """
+        Copy constructor
+        """
+    @typing.overload
+    def __init__(self, arg0: typing.Iterable) -> None:
+        ...
+    def __iter__(self) -> typing.Iterator:
+        ...
+    def __len__(self) -> int:
+        ...
+    def __ne__(self, arg0: VecVecUInt8) -> bool:
+        ...
+    @typing.overload
+    def __setitem__(self, arg0: int, arg1: VecUInt8) -> None:
+        ...
+    @typing.overload
+    def __setitem__(self, arg0: slice, arg1: VecVecUInt8) -> None:
+        """
+        Assign list elements using a slice object
+        """
+    def append(self, x: VecUInt8) -> None:
+        """
+        Add an item to the end of the list
+        """
+    def clear(self) -> None:
+        """
+        Clear the contents
+        """
+    def count(self, x: VecUInt8) -> int:
+        """
+        Return the number of times ``x`` appears in the list
+        """
+    @typing.overload
+    def extend(self, L: VecVecUInt8) -> None:
+        """
+        Extend the list by appending all the items in the given list
+        """
+    @typing.overload
+    def extend(self, L: typing.Iterable) -> None:
+        """
+        Extend the list by appending all the items in the given list
+        """
+    def insert(self, i: int, x: VecUInt8) -> None:
+        """
+        Insert an item at a given position.
+        """
+    @typing.overload
+    def pop(self) -> VecUInt8:
+        """
+        Remove and return the last item
+        """
+    @typing.overload
+    def pop(self, i: int) -> VecUInt8:
+        """
+        Remove and return the item at index ``i``
+        """
+    def remove(self, x: VecUInt8) -> None:
+        """
+        Remove the first item from the list whose value is x. It is an error if there is no such item.
+        """
+class VecVector2D:
+    __hash__: typing.ClassVar[None] = None
+    def __bool__(self) -> bool:
+        """
+        Check whether the list is nonempty
+        """
+    def __contains__(self, x: Vector2D) -> bool:
+        """
+        Return true the container contains ``x``
+        """
+    @typing.overload
+    def __delitem__(self, arg0: int) -> None:
+        """
+        Delete the list elements at index ``i``
+        """
+    @typing.overload
+    def __delitem__(self, arg0: slice) -> None:
+        """
+        Delete list elements using a slice object
+        """
+    def __eq__(self, arg0: VecVector2D) -> bool:
+        ...
+    @typing.overload
+    def __getitem__(self, s: slice) -> VecVector2D:
+        """
+        Retrieve list elements using a slice object
+        """
+    @typing.overload
+    def __getitem__(self, arg0: int) -> Vector2D:
+        ...
+    @typing.overload
+    def __init__(self) -> None:
+        ...
+    @typing.overload
+    def __init__(self, arg0: VecVector2D) -> None:
+        """
+        Copy constructor
+        """
+    @typing.overload
+    def __init__(self, arg0: typing.Iterable) -> None:
+        ...
+    def __iter__(self) -> typing.Iterator:
+        ...
+    def __len__(self) -> int:
+        ...
+    def __ne__(self, arg0: VecVector2D) -> bool:
+        ...
+    @typing.overload
+    def __setitem__(self, arg0: int, arg1: Vector2D) -> None:
+        ...
+    @typing.overload
+    def __setitem__(self, arg0: slice, arg1: VecVector2D) -> None:
+        """
+        Assign list elements using a slice object
+        """
+    def append(self, x: Vector2D) -> None:
+        """
+        Add an item to the end of the list
+        """
+    def clear(self) -> None:
+        """
+        Clear the contents
+        """
+    def count(self, x: Vector2D) -> int:
+        """
+        Return the number of times ``x`` appears in the list
+        """
+    @typing.overload
+    def extend(self, L: VecVector2D) -> None:
+        """
+        Extend the list by appending all the items in the given list
+        """
+    @typing.overload
+    def extend(self, L: typing.Iterable) -> None:
+        """
+        Extend the list by appending all the items in the given list
+        """
+    def insert(self, i: int, x: Vector2D) -> None:
+        """
+        Insert an item at a given position.
+        """
+    @typing.overload
+    def pop(self) -> Vector2D:
+        """
+        Remove and return the last item
+        """
+    @typing.overload
+    def pop(self, i: int) -> Vector2D:
+        """
+        Remove and return the item at index ``i``
+        """
+    def remove(self, x: Vector2D) -> None:
         """
         Remove the first item from the list whose value is x. It is an error if there is no such item.
         """

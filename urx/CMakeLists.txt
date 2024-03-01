@@ -1,6 +1,9 @@
 if(WITH_HDF5)
   set(URX_WITH_HDF5 1)
 endif()
+if(WITH_PYTHON)
+  set(URX_WITH_PYTHON 1)
+endif()
 # Do write config.h in ${CMAKE_CURRENT_BINARY_DIR}.
 # FILE_SET HEADERS BASE_DIRS will conflict if build directory is in the root
 # path. Ie :
@@ -73,12 +76,6 @@ install(
   EXPORT ${PROJECT_NAME}Targets
   FILE_SET HEADERS
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
-
-install(
-  EXPORT ${PROJECT_NAME}Targets
-  FILE ${PROJECT_NAME}Targets.cmake
-  NAMESPACE ${PROJECT_NAME}::
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${INSTALL_NAME})
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
               ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
