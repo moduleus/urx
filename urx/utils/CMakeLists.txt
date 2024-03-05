@@ -58,8 +58,8 @@ add_library(${URX_UTILS_LIBRARY})
 add_library(Urx::${URX_UTILS_LIBRARY} ALIAS ${URX_UTILS_LIBRARY})
 target_sources(
   ${URX_UTILS_LIBRARY}
-  INTERFACE FILE_SET HEADERS BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../.. FILES
-            ${URX_UTILS_H}
+  PUBLIC FILE_SET HEADERS BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../.. FILES
+         ${URX_UTILS_H}
   PRIVATE ${URX_UTILS_SRCS} ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt)
 if(ENABLE_PCH)
   target_precompile_headers(${URX_UTILS_LIBRARY} PRIVATE ${URX_PCH})
@@ -79,7 +79,6 @@ if(WITH_HDF5)
   target_link_libraries(
     ${URX_UTILS_LIBRARY} PRIVATE hdf5::hdf5-${SEARCH_TYPE}
                                  hdf5::hdf5_cpp-${SEARCH_TYPE})
-  target_compile_definitions(${URX_UTILS_LIBRARY} PUBLIC URX_WITH_HDF5)
   if(ENABLE_PCH)
     target_precompile_headers(${URX_UTILS_LIBRARY} PRIVATE ${URX_PCH_IO})
   endif()

@@ -167,6 +167,12 @@ if(WITH_PYTHON)
   add_subdirectory(python)
 endif()
 
+install(
+  EXPORT ${PROJECT_NAME}Targets
+  FILE ${PROJECT_NAME}Targets.cmake
+  NAMESPACE ${PROJECT_NAME}::
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${INSTALL_NAME})
+
 if(BUILD_TESTING)
   find_package(Catch2 REQUIRED)
   add_subdirectory(test)

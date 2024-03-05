@@ -4,9 +4,10 @@
 #include <unordered_map>
 #include <utility>
 
+#include <urx/config.h>
 #include <urx/utils/group_helper.h>
 
-#ifdef WITH_PYTHON
+#ifdef URX_WITH_PYTHON
 #include <pybind11/pybind11.h>
 #else
 #include <stdexcept>
@@ -37,7 +38,7 @@ size_t sizeofSample(const SamplingType& sampling_type, const DataType& data_type
 }
 
 std::string pyGetFormat(const DataType& data_type) {
-#ifdef WITH_PYTHON
+#ifdef URX_WITH_PYTHON
   static std::unordered_map<DataType, std::string> group_dt_to_sizeof{
       {DataType::INT16, pybind11::format_descriptor<int16_t>::format()},
       {DataType::INT32, pybind11::format_descriptor<int32_t>::format()},

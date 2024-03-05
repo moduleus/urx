@@ -1,6 +1,3 @@
-variables:
-  GIT_SUBMODULE_STRATEGY: recursive
-
 workflow:
   rules:
     - if: $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE != "merge_request_event"
@@ -103,7 +100,7 @@ format:iwyu:
     - sed -i "s/-Winvalid-pch.*cmake_pch.hxx //g" CI/compile_commands.json
     - iwyu_tool.py -p CI -j $NUM_PARALLEL -- -Xiwyu --no_default_mappings -Xiwyu --mapping_file="$(pwd)/.iwyu-imp" -Xiwyu --no_fwd_decls -Xiwyu --check_also="*urx/matlab/*.h" -Xiwyu --check_also="*urx/python/*.h" -Xiwyu --check_also="*urx/test/*.h" -Xiwyu --check_also="*urx/urx/*.h" > CI/iwyu_tool.log
     - fix_includes.py --nosafe_headers < CI/iwyu_tool.log
-    - find . -type f -name "*.cpp" -or -name "*.cc" -or -name "*.hpp" -or -name "*.h" -exec clang-format-17 --style=file {} \;
+    - find . -type f -name "*.cpp" -or -name "*.cc" -or -name "*.hpp" -or -name "*.h" -exec clang-format-17 --style=file -i {} \;
     - git diff > CI/iwyu.patch
     - cat CI/iwyu.patch
     - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Please apply iwyu patch to fix your includes"; exit 1; fi
@@ -168,6 +165,7 @@ build:windows-with-HDF5-static:
   artifacts:
     paths:
       - CI
+      - urx/config.h
     expire_in: 1 day
 
 test:windows-with-HDF5-static:
@@ -210,6 +208,7 @@ build:windows-with-HDF5-shared:
   artifacts:
     paths:
       - CI
+      - urx/config.h
     expire_in: 1 day
 
 test:windows-with-HDF5-shared:
@@ -245,11 +244,12 @@ build:ubuntu-with-HDF5-static:
     - vcpkg_tag=$(sed -n 's/^VCPKG_TOOL_RELEASE_TAG=\(.*\)/\1/p' < vcpkg/scripts/vcpkg-tool-metadata.txt)
     - if [ ! -f "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag" ]; then wget -O "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag" "https://github.com/microsoft/vcpkg-tool/releases/download/$vcpkg_tag/vcpkg-glibc" || exit 1; chmod +x "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag"; fi
     - cp $VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag vcpkg/vcpkg || exit 1
-    - CFLAGS='-gdwarf-4' CXXFLAGS='-gdwarf-4' cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/usr/bin/clang-17 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-17 -DCMAKE_AR=/usr/bin/llvm-ar-17 -DCMAKE_AS=/usr/bin/llvm-as-17 -DCMAKE_RANLIB=/usr/bin/llvm-ranlib-17 -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_MANIFEST_DIR="matlab" -DVCPKG_TARGET_TRIPLET=x64-linux -DVCPKG_HOST_TRIPLET=x64-linux -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=ON -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+    - CFLAGS='-gdwarf-4' CXXFLAGS='-gdwarf-4' cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/usr/bin/clang-17 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-17 -DCMAKE_AR=/usr/bin/llvm-ar-17 -DCMAKE_AS=/usr/bin/llvm-as-17 -DCMAKE_RANLIB=/usr/bin/llvm-ranlib-17 -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-linux -DVCPKG_HOST_TRIPLET=x64-linux -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=ON -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
     - VERBOSE=1 cmake --build CI --config Release --parallel $NUM_PARALLEL
   artifacts:
     paths:
       - CI
+      - urx/config.h
     expire_in: 1 day
 
 test:ubuntu-with-HDF5-static:
@@ -290,6 +290,7 @@ build:ubuntu-with-HDF5-shared:
   artifacts:
     paths:
       - CI
+      - urx/config.h
     expire_in: 1 day
 
 test:ubuntu-with-HDF5-shared:
@@ -331,6 +332,7 @@ build:ubuntu-without-HDF5-static:
   artifacts:
     paths:
       - CI
+      - urx/config.h
     expire_in: 1 day
 
 test:ubuntu-without-HDF5-static:
@@ -419,6 +421,7 @@ build:windows-matlab-static:
   artifacts:
     paths:
       - CI
+      - urx/config.h
     expire_in: 1 day
 
 test:windows-matlab-static:
@@ -442,11 +445,12 @@ build:ubuntu-matlab-static:
     - vcpkg_tag=$(sed -n 's/^VCPKG_TOOL_RELEASE_TAG=\(.*\)/\1/p' < vcpkg/scripts/vcpkg-tool-metadata.txt)
     - if [ ! -f "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag" ]; then wget -O "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag" "https://github.com/microsoft/vcpkg-tool/releases/download/$vcpkg_tag/vcpkg-glibc" || exit 1; chmod +x "$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag"; fi
     - cp $VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag vcpkg/vcpkg || exit 1
-    - CFLAGS='-gdwarf-4' CXXFLAGS='-gdwarf-4' cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/usr/bin/clang-17 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-17 -DCMAKE_AR=/usr/bin/llvm-ar-17 -DCMAKE_AS=/usr/bin/llvm-as-17 -DCMAKE_RANLIB=/usr/bin/llvm-ranlib-17 -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_MANIFEST_DIR="matlab" -DVCPKG_TARGET_TRIPLET=x64-linux -DVCPKG_HOST_TRIPLET=x64-linux -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=OFF -DWITH_MATLAB:BOOL=ON -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+    - CFLAGS='-gdwarf-4' CXXFLAGS='-gdwarf-4' cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/usr/bin/clang-17 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-17 -DCMAKE_AR=/usr/bin/llvm-ar-17 -DCMAKE_AS=/usr/bin/llvm-as-17 -DCMAKE_RANLIB=/usr/bin/llvm-ranlib-17 -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-linux -DVCPKG_HOST_TRIPLET=x64-linux -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=OFF -DWITH_MATLAB:BOOL=ON -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
     - VERBOSE=1 cmake --build CI --config Release --parallel $NUM_PARALLEL
   artifacts:
     paths:
       - CI
+      - urx/config.h
     expire_in: 1 day
 
 test:ubuntu-matlab-static:
