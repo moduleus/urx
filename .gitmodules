@@ -1,0 +1,3 @@
+[submodule "vcpkg-registry"]
+	path = vcpkg-registry
+	url = https://git.moduleus.com/common/sw/vcpkg.git

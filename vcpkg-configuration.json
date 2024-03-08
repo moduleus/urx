@@ -1,0 +1,18 @@
+{
+    "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg-configuration.schema.json",
+    "default-registry": {
+        "kind": "git",
+        "baseline": "98f22593167d1d20a433d9ad09aa40ccd2552749",
+        "reference": "master",
+        "repository": "https://git.moduleus.com/common/sw/3rdparty/vcpkg.git"
+    },
+    "registries": [
+        {
+            "kind": "filesystem",
+            "path": "vcpkg-registry",
+            "packages": [
+                "hdf5"
+            ]
+        }
+    ]
+}

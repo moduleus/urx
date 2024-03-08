@@ -15,7 +15,7 @@ CMAKE_TOOLCHAIN_FILE_arg = next(
 if CMAKE_TOOLCHAIN_FILE_arg != None:
     sys.argv.remove(CMAKE_TOOLCHAIN_FILE_arg)
     if sys.platform == 'win32':
-        TRIPLET = "x64-windows-static-md"
+        TRIPLET = "x64-windows-static-md-env"
     else:
         TRIPLET = "x64-linux"
 else:
@@ -46,6 +46,7 @@ setuptools.setup(
                 "-DBUILD_TESTING:BOOL=OFF",
                 f"-DVCPKG_TARGET_TRIPLET={TRIPLET}",
                 f"-DVCPKG_HOST_TRIPLET={TRIPLET}",
+                f"-DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets",
                 f"-D{CMAKE_TOOLCHAIN_FILE_arg}",
                 "-DVCPKG_MANIFEST_MODE:BOOL=ON",
                 f"-DVCPKG_MANIFEST_DIR={str(Path(__file__).parent.absolute())}",

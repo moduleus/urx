@@ -59,8 +59,11 @@ execute_process(
   COMMAND ${GIT_EXECUTABLE} branch --remote --points-at HEAD
   OUTPUT_VARIABLE git_branch
   OUTPUT_STRIP_TRAILING_WHITESPACE
-  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-if("${git_branch}" MATCHES ".*origin\/main.*" OR "${git_branch}" STREQUAL "")
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  RESULT_VARIABLE GIT_RETVAL)
+if("${git_branch}" MATCHES ".*origin\/main.*"
+   OR "${git_branch}" STREQUAL ""
+   OR NOT GIT_RETVAL EQUAL "0")
   set(git_branch ${PROJECT_VERSION})
 else()
   string(REPLACE "origin/" "" git_branch "${git_branch}")
