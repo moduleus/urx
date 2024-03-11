@@ -1,6 +1,5 @@
 {
   "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
-  "builtin-baseline": "15db78b1163e61fe0eab5c5565c230596a75b755",
   "features": {
     "hdf5": {
       "description": "Enable read / write of urx files",
