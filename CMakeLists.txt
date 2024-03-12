@@ -20,7 +20,7 @@ endif()
 
 project(
   Urx
-  VERSION 0.6.15
+  VERSION 0.6.16
   LANGUAGES C CXX
   DESCRIPTION "Ultrasound Raw eXchange format C++ implementation")
 
@@ -153,6 +153,11 @@ if(ENABLE_PCH)
 endif()
 
 if(WITH_PYTHON)
+  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(Python3_FIND_ABI "ON" "ANY" "ANY")
+    # Find ABI doesn't work on Windows
+    # else() set(Python3_FIND_ABI "OFF" "ANY" "ANY")
+  endif()
   find_package(
     Python3
     COMPONENTS Interpreter Development
