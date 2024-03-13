@@ -11,7 +11,8 @@
             "kind": "filesystem",
             "path": "vcpkg-registry",
             "packages": [
-                "hdf5"
+                "hdf5",
+                "urx"
             ]
         }
     ]

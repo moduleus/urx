@@ -9,19 +9,6 @@ import setuptools
 from setuptools import setup, find_packages
 from pathlib import Path
 
-
-CMAKE_TOOLCHAIN_FILE_arg = next(
-    (arg for arg in sys.argv if arg.startswith("CMAKE_TOOLCHAIN_FILE")), None)
-if CMAKE_TOOLCHAIN_FILE_arg != None:
-    sys.argv.remove(CMAKE_TOOLCHAIN_FILE_arg)
-    if sys.platform == 'win32':
-        TRIPLET = "x64-windows-static-md-env"
-    else:
-        TRIPLET = "x64-linux"
-else:
-    raise Exception(
-        'Missing CMAKE_TOOLCHAIN_FILE for VCPKG in --global-option')
-
 cmake_build_type_arg = next(
     (arg for arg in sys.argv if arg.startswith("cmake_build_type=")), None)
 if cmake_build_type_arg != None:
@@ -29,6 +16,21 @@ if cmake_build_type_arg != None:
     cmake_build_type_arg = cmake_build_type_arg[len("cmake_build_type="):]
 else:
     cmake_build_type_arg = "Release"
+
+CMAKE_TOOLCHAIN_FILE_arg = next(
+    (arg for arg in sys.argv if arg.startswith("CMAKE_TOOLCHAIN_FILE")), None)
+if CMAKE_TOOLCHAIN_FILE_arg != None:
+    sys.argv.remove(CMAKE_TOOLCHAIN_FILE_arg)
+    if sys.platform == 'win32':
+        if cmake_build_type_arg == 'Debug':
+            TRIPLET = "x64-windows-static-md-env"
+        else:
+            TRIPLET = "x64-windows-static-md-release-env"
+    else:
+        TRIPLET = "x64-linux"
+else:
+    raise Exception(
+        'Missing CMAKE_TOOLCHAIN_FILE for VCPKG in --global-option')
 
 setuptools.setup(
     name="pyurx",
