@@ -5,6 +5,7 @@
 #include <memory>
 #include <vector>
 
+#include <urx/detail/compare.h>
 #include <urx/detail/double_nan.h>
 #include <urx/excitation.h>
 #include <urx/probe.h>

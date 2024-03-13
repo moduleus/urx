@@ -5,6 +5,7 @@
 #include <utility>
 
 #include <urx/config.h>
+#include <urx/enums.h>
 #include <urx/utils/group_helper.h>
 
 #ifdef URX_WITH_PYTHON

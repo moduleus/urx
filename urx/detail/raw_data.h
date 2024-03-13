@@ -9,6 +9,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include <urx/detail/compare.h>
 #include <urx/enums.h>
 
 namespace urx {

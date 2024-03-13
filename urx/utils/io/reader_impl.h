@@ -130,6 +130,41 @@ struct DeserializeHdf5<T, U, ContainerType::VECTOR> {
           attribute.read(datatype, field.data());
         }
       }
+    } else if constexpr (std::is_same_v<typename T::value_type, std::string>) {
+      const H5::StrType datatype(0, H5T_VARIABLE);
+      H5::DataSet dataset;
+      H5::Attribute attribute;
+      H5::DataSpace dataspace;
+
+      if (group.nameExists(name)) {
+        dataset = group.openDataSet(name);
+        dataspace = dataset.getSpace();
+      } else {
+        attribute = group.openAttribute(name);
+        dataspace = attribute.getSpace();
+      }
+
+      const int ndims = dataspace.getSimpleExtentNdims();
+      std::vector<hsize_t> dimension;
+      dimension.resize(ndims);
+      dataspace.getSimpleExtentDims(dimension.data());
+      field.reserve(dimension[0]);
+
+      std::vector<char*> field_char;
+      field_char.resize(dimension[0]);
+
+      if (dimension[0] != 0) {
+        if (group.nameExists(name)) {
+          dataset.read(field_char.data(), datatype, dataspace);
+        } else {
+          attribute.read(datatype, field_char.data());
+        }
+        for (char* str_i : field_char) {
+          field.push_back(str_i);
+          // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
+          delete[] str_i;
+        }
+      }
     } else {
       const H5::Group group_child(group.openGroup(name));
 

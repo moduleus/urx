@@ -6,6 +6,7 @@
 #include <utility>
 #include <vector>
 
+#include <urx/detail/compare.h>
 #include <urx/detail/double_nan.h>
 #include <urx/detail/raw_data.h>
 #include <urx/group.h>

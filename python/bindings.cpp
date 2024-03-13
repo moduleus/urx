@@ -1,16 +1,10 @@
 #include <algorithm>
-#include <complex>
 #include <cstddef>
 #include <cstdint>
-#include <iterator>
 #include <memory>
-#include <stdexcept>
 #include <string>
-#include <utility>
 #include <vector>
 
-#include <pybind11/buffer_info.h>
-#include <pybind11/cast.h>
 #include <pybind11/numpy.h>
 #include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
@@ -21,9 +15,7 @@
 #include <urx/acquisition.h>
 #include <urx/config.h>
 #include <urx/dataset.h>
-#include <urx/detail/compare.h>
 #include <urx/detail/double_nan.h>
-#include <urx/detail/raw_data.h>
 #include <urx/element.h>
 #include <urx/element_geometry.h>
 #include <urx/enums.h>

@@ -1,19 +1,26 @@
 #include <algorithm>
+#include <complex>
+#include <cstdint>
 #include <memory>
 #include <ostream>
+#include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
 
-#include <pybind11/attr.h>
+#include <pybind11/buffer_info.h>
 #include <pybind11/cast.h>
+#include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
 #include <pybind11/stl.h>       // IWYU pragma: keep
 #include <pybind11/stl_bind.h>  // IWYU pragma: keep
 
 #include <urx/detail/compare.h>
+#include <urx/detail/raw_data.h>
+#include <urx/enums.h>
 #include <urx/python/bindings.h>
+#include <urx/utils/group_helper.h>
 
 namespace urx::python::detail {
 

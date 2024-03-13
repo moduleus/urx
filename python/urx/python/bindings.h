@@ -3,16 +3,23 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <iterator>
 #include <memory>
+#include <stdexcept>
 #include <string>
 #include <type_traits>
 #include <utility>
 #include <vector>
 
+#include <pybind11/attr.h>
 #include <pybind11/cast.h>
 #include <pybind11/numpy.h>
+#include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
+#include <pybind11/pytypes.h>
+#include <pybind11/stl_bind.h>
 
+#include <urx/detail/raw_data.h>
 #include <urx/element.h>
 #include <urx/element_geometry.h>
 #include <urx/event.h>
@@ -21,7 +28,6 @@
 #include <urx/group_data.h>
 #include <urx/impulse_response.h>
 #include <urx/probe.h>
-#include <urx/utils/group_helper.h>
 #include <urx/vector.h>
 
 namespace urx::python {
