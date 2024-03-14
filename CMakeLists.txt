@@ -153,12 +153,12 @@ if(ENABLE_PCH)
 endif()
 
 if(WITH_PYTHON)
-  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set(Python3_FIND_ABI "ON" "ANY" "ANY")
-    # Find ABI doesn't work on Windows
-    # https://gitlab.kitware.com/cmake/cmake/-/issues/25764
-    # else()
-    # set(Python3_FIND_ABI "OFF" "ANY" "ANY")
+  if(NOT WIN32)
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+      set(Python3_FIND_ABI "ON" "ANY" "ANY")
+    else()
+      set(Python3_FIND_ABI "OFF" "ANY" "ANY")
+    endif()
   endif()
   find_package(
     Python3
