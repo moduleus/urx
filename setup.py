@@ -22,10 +22,7 @@ CMAKE_TOOLCHAIN_FILE_arg = next(
 if CMAKE_TOOLCHAIN_FILE_arg != None:
     sys.argv.remove(CMAKE_TOOLCHAIN_FILE_arg)
     if sys.platform == 'win32':
-        if cmake_build_type_arg == 'Debug':
-            TRIPLET = "x64-windows-static-md-env"
-        else:
-            TRIPLET = "x64-windows-static-md-release-env"
+        TRIPLET = "x64-windows-static-md-env"
     else:
         TRIPLET = "x64-linux"
 else:

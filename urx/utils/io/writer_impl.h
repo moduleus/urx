@@ -133,6 +133,32 @@ struct SerializeHdf5<T, U, ContainerType::VECTOR> {
         const H5::DataSet dataset = group.createDataSet(name, *datatype, dataspace, plist);
         dataset.write(field.data(), *datatype);
       }
+    } else if constexpr (std::is_same_v<typename T::value_type, std::string>) {
+      const size_t size = field.size();
+      const hsize_t dims[1] = {size};
+      const H5::DataSpace dataspace = H5::DataSpace(1, dims);
+      const H5::StrType datatype(0, H5T_VARIABLE);
+
+      std::vector<const char*> c_strings;
+      c_strings.reserve(size);
+      for (const auto& str : field) {
+        c_strings.push_back(str.c_str());
+      }
+
+      if constexpr (USE_ATTRIBUTE) {
+        const H5::Attribute attribute = group.createAttribute(name, datatype, dataspace);
+        if (size != 0) {
+          attribute.write(datatype, c_strings.data());
+        }
+      } else {
+        const H5::DSetCreatPropList plist;
+#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR >= 14
+        plist.setLayout(size < 8192 ? H5D_COMPACT : H5D_CONTIGUOUS);
+#endif
+        const H5::DataSet dataset = group.createDataSet(name, datatype, dataspace, plist);
+
+        dataset.write(c_strings.data(), datatype);
+      }
     } else {
       const H5::Group group_child(group.createGroup(name));
 

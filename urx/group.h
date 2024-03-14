@@ -6,6 +6,7 @@
 #include <utility>
 #include <vector>
 
+#include <urx/detail/compare.h>
 #include <urx/enums.h>
 #include <urx/event.h>
 

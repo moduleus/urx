@@ -5,6 +5,7 @@
 #include <utility>
 #include <vector>
 
+#include <urx/detail/compare.h>
 #include <urx/vector.h>
 
 namespace urx {
