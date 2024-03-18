@@ -361,7 +361,7 @@ build:windows-python:
     - *before-script-vcpkg-windows
     - pew new CI-urx -r requirements-gitlab.txt
   script:
-    - pew in CI-urx pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=$($PWD -replace '\\', '\\')\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake"
+    - pew in CI-urx pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=$($PWD -replace '\\', '\\')\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake cmake_build_type=Release"
 
 test:windows-python:
   stage: test
@@ -385,7 +385,7 @@ build:ubuntu-python:
     - *before-script-vcpkg-linux
     - pew new CI-urx -r requirements-gitlab.txt
   script:
-    - pew in CI-urx pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=`pwd`/vcpkg/scripts/buildsystems/vcpkg.cmake"
+    - pew in CI-urx pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=`pwd`/vcpkg/scripts/buildsystems/vcpkg.cmake cmake_build_type=Release"
 
 test:ubuntu-python:
   stage: test

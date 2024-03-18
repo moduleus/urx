@@ -35,11 +35,8 @@ inline std::enable_if_t<std::is_same_v<ElementGeometry, T> || std::is_same_v<Exc
                             std::is_same_v<ImpulseResponse, T> || std::is_same_v<Probe, T> ||
                             std::is_same_v<RawData, T> || std::is_same_v<Wave, T>,
                         bool>
-operator==(const std::weak_ptr<T>& lhs, const std::weak_ptr<T>& rhs) {
-  auto lhs_lock = lhs.lock();
-  auto rhs_lock = rhs.lock();
-
-  return (lhs_lock && rhs_lock) ? (*lhs_lock == *rhs_lock) : (!!lhs_lock == !!rhs_lock);
+operator==(const std::shared_ptr<T>& lhs, const std::shared_ptr<T>& rhs) {
+  return (lhs && rhs) ? (*lhs == *rhs) : (!!lhs == !!rhs);
 }
 
 template <typename T>
@@ -48,8 +45,11 @@ inline std::enable_if_t<std::is_same_v<ElementGeometry, T> || std::is_same_v<Exc
                             std::is_same_v<ImpulseResponse, T> || std::is_same_v<Probe, T> ||
                             std::is_same_v<RawData, T> || std::is_same_v<Wave, T>,
                         bool>
-operator==(const std::shared_ptr<T>& lhs, const std::shared_ptr<T>& rhs) {
-  return (lhs && rhs) ? (*lhs == *rhs) : (!!lhs == !!rhs);
+operator==(const std::weak_ptr<T>& lhs, const std::weak_ptr<T>& rhs) {
+  auto lhs_lock = lhs.lock();
+  auto rhs_lock = rhs.lock();
+
+  return (lhs_lock && rhs_lock) ? (lhs_lock == rhs_lock) : (!!lhs_lock == !!rhs_lock);
 }
 
 }  // namespace urx
