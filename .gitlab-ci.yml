@@ -182,6 +182,7 @@ build:windows-with-HDF5-static:
     paths:
       - CI
       - urx/config.h
+      - vcpkg/buildtrees/**/*.log
     expire_in: 1 day
 
 test:windows-with-HDF5-static:
@@ -222,6 +223,7 @@ build:windows-with-HDF5-shared:
     paths:
       - CI
       - urx/config.h
+      - vcpkg/buildtrees/**/*.log
     expire_in: 1 day
 
 test:windows-with-HDF5-shared:
@@ -262,6 +264,7 @@ build:ubuntu-with-HDF5-static:
     paths:
       - CI
       - urx/config.h
+      - vcpkg/buildtrees/**/*.log
     expire_in: 1 day
 
 test:ubuntu-with-HDF5-static:
@@ -302,6 +305,7 @@ build:ubuntu-with-HDF5-shared:
     paths:
       - CI
       - urx/config.h
+      - vcpkg/buildtrees/**/*.log
     expire_in: 1 day
 
 test:ubuntu-with-HDF5-shared:
@@ -343,6 +347,7 @@ build:ubuntu-without-HDF5-static:
     paths:
       - CI
       - urx/config.h
+      - vcpkg/buildtrees/**/*.log
     expire_in: 1 day
 
 test:ubuntu-without-HDF5-static:
@@ -366,7 +371,13 @@ build:windows-python:
     - *before-script-vcpkg-windows
     - pew new CI-urx -r requirements-gitlab.txt
   script:
-    - pew in CI-urx pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=$($PWD -replace '\\', '\\')\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake cmake_build_type=Release"
+    - pew in CI-urx pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=$($PWD -replace '\\', '\\')\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake cmake_build_type=Release" --no-clean -v
+  artifacts:
+    when: always
+    paths:
+      - build
+      - vcpkg/buildtrees/**/*.log
+    expire_in: 1 day
 
 test:windows-python:
   stage: test
@@ -390,7 +401,13 @@ build:ubuntu-python:
     - *before-script-vcpkg-linux
     - pew new CI-urx -r requirements-gitlab.txt
   script:
-    - pew in CI-urx pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=`pwd`/vcpkg/scripts/buildsystems/vcpkg.cmake cmake_build_type=Release"
+    - pew in CI-urx pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=`pwd`/vcpkg/scripts/buildsystems/vcpkg.cmake cmake_build_type=Release" --no-clean -v
+  artifacts:
+    when: always
+    paths:
+      - build
+      - vcpkg/buildtrees/**/*.log
+    expire_in: 1 day
 
 test:ubuntu-python:
   stage: test
@@ -421,6 +438,7 @@ build:windows-matlab-static:
     paths:
       - CI
       - urx/config.h
+      - vcpkg/buildtrees/**/*.log
     expire_in: 1 day
 
 test:windows-matlab-static:
@@ -449,6 +467,7 @@ build:ubuntu-matlab-static:
     paths:
       - CI
       - urx/config.h
+      - vcpkg/buildtrees/**/*.log
     expire_in: 1 day
 
 test:ubuntu-matlab-static:

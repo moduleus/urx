@@ -37,6 +37,8 @@ if(NOT "${WITH_PYTHON}" STREQUAL "")
     REQUIRED)
 endif()
 
+set(URX_PYTHON_TEST_PATH "@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_DATAROOTDIR@/@INSTALL_NAME@/python")
+
 include("${CMAKE_CURRENT_LIST_DIR}/UrxTargets.cmake")
 
 check_required_components(Urx UrxUtils)
