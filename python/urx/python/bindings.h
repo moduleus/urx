@@ -219,10 +219,9 @@ py::class_<Element, std::shared_ptr<Element>> registerElement(py::module_ &m) {
       .def_readwrite("transform", &Element::transform)
       .def_property(
           "element_geometry",
-          [](Element &self) {
+          [](Element &self) -> decltype(self.element_geometry.lock()) {
             if (self.element_geometry.expired()) {
-              throw std::runtime_error(
-                  "Current element_geometry doesn't reference any ElementGeometry.\n");
+              return {};
             }
             return self.element_geometry.lock();
           },
@@ -231,10 +230,9 @@ py::class_<Element, std::shared_ptr<Element>> registerElement(py::module_ &m) {
           })
       .def_property(
           "impulse_response",
-          [](Element &self) {
+          [](Element &self) -> decltype(self.impulse_response.lock()) {
             if (self.impulse_response.expired()) {
-              throw std::runtime_error(
-                  "Current impulse_response doesn't reference any ImpulseResponse.\n");
+              return {};
             }
             return self.impulse_response.lock();
           },
@@ -295,9 +293,9 @@ py::class_<TransmitSetup, std::shared_ptr<TransmitSetup>> registerTransmitSetup(
       .def(py::self != py::self)
       .def_property(
           "probe",
-          [](TransmitSetup &self) {
+          [](TransmitSetup &self) -> decltype(self.probe.lock()) {
             if (self.probe.expired()) {
-              throw std::runtime_error("Current probe doesn't reference any Probe.\n");
+              return {};
             }
             return self.probe.lock();
           },
@@ -338,9 +336,9 @@ py::class_<ReceiveSetup, std::shared_ptr<ReceiveSetup>> registerReceiveSetup(py:
       .def(py::self != py::self)
       .def_property(
           "probe",
-          [](ReceiveSetup &self) {
+          [](ReceiveSetup &self) -> decltype(self.probe.lock()) {
             if (self.probe.expired()) {
-              throw std::runtime_error("Current probe doesn't reference any Probe.\n");
+              return {};
             }
             return self.probe.lock();
           },
@@ -366,9 +364,9 @@ py::class_<Event, std::shared_ptr<Event>> registerEvent(py::module_ &m) {
       .def_readwrite("receive_setup", &Event::receive_setup);
 }
 
-template <typename Group>
-py::class_<Group, std::shared_ptr<Group>> registerGroup(py::module_ &m) {
-  return py::class_<Group, std::shared_ptr<Group>>(m, "Group")
+template <typename Group, typename... Options>
+py::class_<Group, std::shared_ptr<Group>, Options...> registerGroup(py::module_ &m) {
+  return py::class_<Group, std::shared_ptr<Group>, Options...>(m, "Group")
       .def(py::init())
       .def(py::init<const Group &>())
       .def(py::self == py::self)
@@ -389,9 +387,9 @@ py::class_<GroupData, std::shared_ptr<GroupData>> registerGroupData(py::module_ 
       .def(py::self != py::self)
       .def_property(
           "group",
-          [](GroupData &self) {
+          [](GroupData &self) -> decltype(self.group.lock()) {
             if (self.group.expired()) {
-              throw std::runtime_error("Current group is not referenced by the acquisition.\n");
+              return {};
             }
             return self.group.lock();
           },
