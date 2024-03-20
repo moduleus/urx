@@ -20,7 +20,7 @@ endif()
 
 project(
   Urx
-  VERSION 0.6.18
+  VERSION 0.6.19
   LANGUAGES C CXX
   DESCRIPTION "Ultrasound Raw eXchange format C++ implementation")
 
@@ -164,7 +164,7 @@ if(WITH_PYTHON)
     Python3
     COMPONENTS Interpreter Development
     REQUIRED)
-  find_package(pybind11 CONFIG REQUIRED)
+  find_package(pybind11 REQUIRED)
 endif()
 
 add_subdirectory("urx")
