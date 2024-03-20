@@ -152,7 +152,7 @@ format:autopep8-format:
 tag:version:
   stage: tag
   dependencies:
-    - build:ubuntu-with-HDF5-shared
+    - test:ubuntu-with-HDF5-shared
   rules:
     - if: $CI_COMMIT_TAG
       when: never
@@ -318,6 +318,10 @@ test:ubuntu-with-HDF5-shared:
   script:
     - cd CI
     - ctest --output-on-failure -C Release
+  artifacts:
+    paths:
+      - CI/version.txt
+    expire_in: 1 day
 
 install:ubuntu-with-HDF5-shared:
   stage: install

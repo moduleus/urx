@@ -17,7 +17,7 @@ if(NOT "${HDF5_DIR}" STREQUAL "")
 endif()
 
 set(WITH_PYTHON "@WITH_PYTHON@")
-if(NOT "${WITH_PYTHON}" STREQUAL "")
+if(WITH_PYTHON)
   if(NOT WIN32)
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
       set(Python3_FIND_ABI "ON" "ANY" "ANY")
