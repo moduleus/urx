@@ -1,6 +1,22 @@
 #pragma once
 
+#include <algorithm>
+#include <complex>
+#include <limits>
 #include <memory>
+#include <string>
+#include <utility>
+#include <vector>
+
+#include <urx/detail/double_nan.h>
+#include <urx/detail/raw_data.h>
+#include <urx/element.h>
+#include <urx/element_geometry.h>
+#include <urx/enums.h>
+#include <urx/impulse_response.h>
+#include <urx/probe.h>
+#include <urx/transform.h>
+#include <urx/vector.h>
 
 namespace urx::utils::io::test {
 

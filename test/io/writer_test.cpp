@@ -1,6 +1,4 @@
 ﻿#include <algorithm>
-#include <complex>
-#include <limits>
 #include <memory>
 #include <string>
 #include <utility>
@@ -11,26 +9,13 @@
 #include <urx/acquisition.h>
 #include <urx/dataset.h>
 #include <urx/detail/compare.h>
-#include <urx/detail/double_nan.h>
-#include <urx/detail/raw_data.h>
-#include <urx/element.h>
-#include <urx/element_geometry.h>
-#include <urx/enums.h>
-#include <urx/event.h>
 #include <urx/excitation.h>
 #include <urx/group.h>
 #include <urx/group_data.h>
-#include <urx/impulse_response.h>
 #include <urx/probe.h>
-#include <urx/receive_setup.h>
-#include <urx/transform.h>
-#include <urx/transmit_setup.h>
 #include <urx/utils/io/reader.h>
 #include <urx/utils/io/test/io.h>
 #include <urx/utils/io/writer.h>
-#include <urx/vector.h>
-#include <urx/version.h>
-#include <urx/wave.h>
 
 namespace urx::utils::io::test {
 
