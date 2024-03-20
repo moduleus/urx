@@ -19,15 +19,17 @@ void updateRcaElementsPositions(Probe& rca, const Vector2D<uint32_t>& nb_element
   const double xmin = -pitch.x * (nb_elements.x - 1.) / 2.;
   for (uint32_t i = 0; i < nb_elements.x; i++) {
     Element el;
-    el.transform = {{xmin + i * pitch.x, 0., 0.}, {0., 0., 0.}};
+    el.transform.translation = { xmin + i * pitch.x, 0., 0. };
+    el.transform.rotation = { 0., 0., 0. };
     rca.elements[i] = std::move(el);
   }
 
   const double ymin = -pitch.y * (nb_elements.y - 1.) / 2.;
   for (uint32_t i = nb_elements.y; i < rca.elements.size(); i++) {
-    Element el;
-    el.transform = {{0., ymin + (i - nb_elements.y) * pitch.y, 0.}, {0., 0., 0.}};
-    rca.elements[i] = std::move(el);
+      Element el;
+      el.transform.translation = { 0., ymin + (i - nb_elements.y) * pitch.y, 0. };
+      el.transform.rotation = { 0., 0., 0. };
+      rca.elements[i] = std::move(el);
   }
 }
 
@@ -40,7 +42,8 @@ void updateMatrixElementsPositions(Probe& matrix, const Vector2D<uint32_t>& nb_e
   for (uint32_t i = 0; i < nb_elements.y; i++) {
     for (uint32_t j = 0; j < nb_elements.x; j++) {
       Element el;
-      el.transform = {{xmin + j * pitch.x, ymin + i * pitch.y, 0.}, {}};
+      el.transform.translation = { xmin + j * pitch.x, ymin + i * pitch.y, 0. };
+      el.transform.rotation = {};
       matrix.elements[static_cast<size_t>(j) + static_cast<size_t>(i) * nb_elements.y] =
           std::move(el);
     }
@@ -53,7 +56,8 @@ void updateLinearElementsPositions(Probe& linear, uint32_t nb_elements, double p
     // element position
     const double xmin = -pitch * static_cast<double>(nb_elements - 1) / 2.;
     Element el;
-    el.transform = {{xmin + i * pitch, 0., 0.}, {0., 0., 0.}};
+    el.transform.translation = { xmin + i * pitch, 0., 0. };
+    el.transform.rotation = { 0., 0., 0. };
     linear.elements[i] = el;
   }
 }
