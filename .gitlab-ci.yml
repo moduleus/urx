@@ -162,7 +162,7 @@ tag:version:
   script:
     - git tag $(cat CI/version.txt)
     - git push --tags
-    - bash ./vcpkg-registry/update_vcpkg_registry.sh $(cat CI/version.txt) || exit 1
+    - bash ./vcpkg-registry/update_vcpkg_registry.sh urx $(cat CI/version.txt) || exit 1
   tags:
     - ubuntu
     - build
