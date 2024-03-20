@@ -10,12 +10,14 @@ endif()
 # (c:\urx)\urx\config.h
 # (c:\urx\build)\urx\config.h
 # c:\urx\build is a subdirectory of c:\urx.
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in
-               ${CMAKE_CURRENT_SOURCE_DIR}/config.h @ONLY)
+configure_file(config.h.in config.h @ONLY)
+set_property(
+  DIRECTORY
+  APPEND
+  PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/config.h")
 
 # Set URX sources
 set(URX_SRCS
-    ${CMAKE_CURRENT_SOURCE_DIR}/config.h
     ${CMAKE_CURRENT_SOURCE_DIR}/detail/compare.h
     ${CMAKE_CURRENT_SOURCE_DIR}/detail/double_nan.h
     ${CMAKE_CURRENT_SOURCE_DIR}/detail/raw_data.h
@@ -39,13 +41,15 @@ set(URX_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/wave.h)
 
 # Target library
-add_library(${PROJECT_NAME} INTERFACE
-            ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt)
+add_library(
+  ${PROJECT_NAME} INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt
+  ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 target_sources(
   ${PROJECT_NAME} INTERFACE FILE_SET HEADERS BASE_DIRS
                             ${CMAKE_CURRENT_SOURCE_DIR}/.. FILES ${URX_SRCS})
+target_sources(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/config.h")
 
 # Define include directories
 target_include_directories(
@@ -70,6 +74,9 @@ write_basic_package_version_file(
   COMPATIBILITY SameMajorVersion)
 
 set(CMAKE_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR}/${INSTALL_NAME})
+
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/config.h"
+        DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/urx")
 
 install(
   TARGETS ${PROJECT_NAME}
