@@ -9,25 +9,24 @@ import setuptools
 from setuptools import setup, find_packages
 from pathlib import Path
 
-cmake_build_type_arg = next(
-    (arg for arg in sys.argv if arg.startswith("cmake_build_type=")), None)
+cmake_build_type_arg = next((arg for arg in sys.argv if arg.startswith("cmake_build_type=")), None)
 if cmake_build_type_arg != None:
     sys.argv.remove(cmake_build_type_arg)
-    cmake_build_type_arg = cmake_build_type_arg[len("cmake_build_type="):]
+    cmake_build_type_arg = cmake_build_type_arg[len("cmake_build_type=") :]
 else:
     cmake_build_type_arg = "Release"
 
 CMAKE_TOOLCHAIN_FILE_arg = next(
-    (arg for arg in sys.argv if arg.startswith("CMAKE_TOOLCHAIN_FILE")), None)
+    (arg for arg in sys.argv if arg.startswith("CMAKE_TOOLCHAIN_FILE")), None
+)
 if CMAKE_TOOLCHAIN_FILE_arg != None:
     sys.argv.remove(CMAKE_TOOLCHAIN_FILE_arg)
-    if sys.platform == 'win32':
+    if sys.platform == "win32":
         TRIPLET = "x64-windows-static-md-env"
     else:
         TRIPLET = "x64-linux"
 else:
-    raise Exception(
-        'Missing CMAKE_TOOLCHAIN_FILE for VCPKG in --global-option')
+    raise Exception("Missing CMAKE_TOOLCHAIN_FILE for VCPKG in --global-option")
 
 setuptools.setup(
     name="pyurx",
@@ -49,18 +48,16 @@ setuptools.setup(
                 f"-D{CMAKE_TOOLCHAIN_FILE_arg}",
                 "-DVCPKG_MANIFEST_MODE:BOOL=ON",
                 f"-DVCPKG_MANIFEST_DIR={str(Path(__file__).parent.absolute())}",
-                f"-DPython3_EXECUTABLE={sys.executable}"
+                f"-DPython3_EXECUTABLE={sys.executable}",
             ],
             # Disable Ninja build generator
-            cmake_generator=None
+            cmake_generator=None,
         )
     ],
-    cmdclass=dict(
-        build_ext=cmake_build_extension.BuildExtension
-    ),
+    cmdclass=dict(build_ext=cmake_build_extension.BuildExtension),
     version="0.0.1",
     packages=["pyurx"],
     package_dir={
         "pyurx": "python/pyurx",
-    }
+    },
 )

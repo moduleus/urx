@@ -11,9 +11,7 @@ def test_vec_float64(
 
     self.assertEqual(vec_float64_constructor(), [])
     self.assertEqual(vec_float64_args([1.23, 2.34]), [1.23, 2.34])
-    self.assertTrue(
-        np.array_equal(vec_float64_args([1.23, 2.34]), np.array([1.23, 2.34]))
-    )
+    self.assertTrue(np.array_equal(vec_float64_args([1.23, 2.34]), np.array([1.23, 2.34])))
 
     v = [1.23, 2.34]
     toto = v[0]
@@ -378,9 +376,7 @@ def test_vec_event(
     testName = "VecEvent binding"
     print("\n--Test %s BEGIN--" % testName)
 
-    rs = receive_setup_args(
-        probe_constructor(), transform_constructor(), 1, 2, [[3]], [4], 5, 6, 7
-    )
+    rs = receive_setup_args(probe_constructor(), transform_constructor(), 1, 2, [[3]], [4], 5, 6, 7)
     ts = transmit_setup_args(
         probe_constructor(),
         wave_constructor(),

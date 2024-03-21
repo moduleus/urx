@@ -64,9 +64,7 @@ def test_raw_data_float_complex(
 
     ref = group_data.raw_data
     self.assertTrue(np.array_equal(np.array([[1, 2], [2, 3]], dtype=np_type), ref))
-    self.assertTrue(
-        np.array_equal(np.array([[1, 2], [2, 3]], dtype=np_type), group_data.raw_data)
-    )
+    self.assertTrue(np.array_equal(np.array([[1, 2], [2, 3]], dtype=np_type), group_data.raw_data))
 
     ref[0] = [45, 67]
     self.assertTrue(np.array_equal(np.array([[45, 67], [2, 3]], dtype=np_type), ref))
@@ -130,9 +128,7 @@ def test_raw_data_universal_complex(
 
     ref = group_data.raw_data
     self.assertTrue(np.array_equal(np.array([[1, 2], [2, 3]], dtype=np_type), ref))
-    self.assertTrue(
-        np.array_equal(np.array([[1, 2], [2, 3]], dtype=np_type), group_data.raw_data)
-    )
+    self.assertTrue(np.array_equal(np.array([[1, 2], [2, 3]], dtype=np_type), group_data.raw_data))
 
     ref[0] = [45, 67]
     self.assertTrue(np.array_equal(np.array([[45, 67], [2, 3]], dtype=np_type), ref))
@@ -185,15 +181,11 @@ def test_raw_data_universal_real(
 
     ref = group_data.raw_data
     self.assertTrue(np.array_equal(np.array([1, 2, 2, 3], dtype=np_type), ref))
-    self.assertTrue(
-        np.array_equal(np.array([1, 2, 2, 3], dtype=np_type), group_data.raw_data)
-    )
+    self.assertTrue(np.array_equal(np.array([1, 2, 2, 3], dtype=np_type), group_data.raw_data))
 
     ref[0] = 45
     self.assertTrue(np.array_equal(np.array([45, 2, 2, 3], dtype=np_type), ref))
-    self.assertTrue(
-        np.array_equal(np.array([45, 2, 2, 3], dtype=np_type), group_data.raw_data)
-    )
+    self.assertTrue(np.array_equal(np.array([45, 2, 2, 3], dtype=np_type), group_data.raw_data))
 
     ref += 1
     self.assertTrue(np.array_equal(ref, np.array([46, 3, 3, 4], dtype=np_type)))

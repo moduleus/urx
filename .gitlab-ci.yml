@@ -130,17 +130,17 @@ format:iwyu:
       - CI/iwyu.patch
     expire_in: 1 day
 
-format:autopep8-format:
+format:black-format:
   stage: format
-  image: $CI_REGISTRY/common/ci/dockerci/autopep8:latest
+  image: $CI_REGISTRY/common/ci/dockerci/black:latest
   tags:
     - docker
   script:
     - mkdir CI
-    - autopep8 -r -i .
+    - black .
     - git diff > CI/format.patch
     - cat CI/format.patch
-    - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Please, format your python code with autopep8."; exit 1; fi
+    - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Please, format your python code with black."; exit 1; fi
   allow_failure: true
   dependencies: []
   artifacts:
@@ -181,7 +181,6 @@ build:windows-with-HDF5-static:
     when: always
     paths:
       - CI
-      - urx/config.h
       - vcpkg/buildtrees/**/*.log
     expire_in: 1 day
 
@@ -222,7 +221,6 @@ build:windows-with-HDF5-shared:
     when: always
     paths:
       - CI
-      - urx/config.h
       - vcpkg/buildtrees/**/*.log
     expire_in: 1 day
 
@@ -263,7 +261,6 @@ build:ubuntu-with-HDF5-static:
     when: always
     paths:
       - CI
-      - urx/config.h
       - vcpkg/buildtrees/**/*.log
     expire_in: 1 day
 
@@ -304,7 +301,6 @@ build:ubuntu-with-HDF5-shared:
     when: always
     paths:
       - CI
-      - urx/config.h
       - vcpkg/buildtrees/**/*.log
     expire_in: 1 day
 
@@ -350,7 +346,6 @@ build:ubuntu-without-HDF5-static:
     when: always
     paths:
       - CI
-      - urx/config.h
       - vcpkg/buildtrees/**/*.log
     expire_in: 1 day
 
@@ -441,7 +436,6 @@ build:windows-matlab-static:
     when: always
     paths:
       - CI
-      - urx/config.h
       - vcpkg/buildtrees/**/*.log
     expire_in: 1 day
 
@@ -470,7 +464,6 @@ build:ubuntu-matlab-static:
     when: always
     paths:
       - CI
-      - urx/config.h
       - vcpkg/buildtrees/**/*.log
     expire_in: 1 day
 

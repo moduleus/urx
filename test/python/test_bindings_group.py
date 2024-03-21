@@ -33,9 +33,7 @@ def test_group(
     g_ref.description = "Hello"
     self.assertEqual(g, g_ref)
 
-    rs = receive_setup_args(
-        probe_constructor(), transform_constructor(), 1, 2, [[3]], [4], 5, 6, 7
-    )
+    rs = receive_setup_args(probe_constructor(), transform_constructor(), 1, 2, [[3]], [4], 5, 6, 7)
     ts = transmit_setup_args(
         probe_constructor(),
         wave_constructor(),

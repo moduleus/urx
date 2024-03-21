@@ -66,9 +66,7 @@ class TestBindings(unittest.TestCase):
             self,
             dataset_constructor=lambda: urx.Dataset(),
             dataset_copy=lambda copy: urx.Dataset(copy),
-            dataset_constructor_args=lambda acquisition, version: urx.Dataset(
-                acquisition, version
-            ),
+            dataset_constructor_args=lambda acquisition, version: urx.Dataset(acquisition, version),
             acq_constructor=lambda: urx.Acquisition(),
             version_copy=lambda: urx.Version(),
         )
@@ -102,9 +100,7 @@ class TestBindings(unittest.TestCase):
                 transform, element_geometry, impulse_response
             ),
             transform_constructor=lambda: urx.Transform(),
-            transform_args=lambda rotation, translation: urx.Transform(
-                rotation, translation
-            ),
+            transform_args=lambda rotation, translation: urx.Transform(rotation, translation),
             element_geometry_constructor=lambda: urx.ElementGeometry(),
             element_geometry_args=lambda perimeter: urx.ElementGeometry(perimeter),
             impulse_response_constructor=lambda: urx.ImpulseResponse(),
@@ -171,9 +167,7 @@ class TestBindings(unittest.TestCase):
         ]
     )
     def test_group_data_huge_transform_run(self, test_name, data_size):
-        test_group_data_huge_transform(
-            self, test_name, data_size, lambda: urx.GroupData()
-        )
+        test_group_data_huge_transform(self, test_name, data_size, lambda: urx.GroupData())
 
     @parameterized.expand(
         [
@@ -326,9 +320,7 @@ class TestBindings(unittest.TestCase):
                 elements,
             ),
             transform_constructor=lambda: urx.Transform(),
-            transform_args=lambda rotation, translation: urx.Transform(
-                rotation, translation
-            ),
+            transform_args=lambda rotation, translation: urx.Transform(rotation, translation),
             element_geometry_args=lambda perimeter: urx.ElementGeometry(perimeter),
             impulse_response_constructor=lambda: urx.ImpulseResponse(),
             impulse_response_args=lambda sampling_frequency, time_offset, units, data: urx.ImpulseResponse(
@@ -368,9 +360,7 @@ class TestBindings(unittest.TestCase):
             probe_constructor=lambda: urx.Probe(),
             probe_copy=lambda copy: urx.Probe(copy),
             transform_constructor=lambda: urx.Transform(),
-            transform_args=lambda rotation, translation: urx.Transform(
-                rotation, translation
-            ),
+            transform_args=lambda rotation, translation: urx.Transform(rotation, translation),
             double_nan_constructor=lambda: urx.DoubleNan(),
             double_nan_args=lambda data: urx.DoubleNan(data),
             vec_vec_uint32_constructor=lambda: urx.VecVecUInt32(),
@@ -459,9 +449,7 @@ class TestBindings(unittest.TestCase):
             vector3d_args=lambda x, y, z: urx.Vector3D(x, y, z),
             element_constructor=lambda: urx.Element(),
             element_copy=lambda copy: urx.Element(copy),
-            transform_args=lambda rotation, translation: urx.Transform(
-                rotation, translation
-            ),
+            transform_args=lambda rotation, translation: urx.Transform(rotation, translation),
             vec_element_args=lambda data: urx.VecElement(data),
         )
 
@@ -521,9 +509,7 @@ class TestBindings(unittest.TestCase):
             self,
             transform_constructor=lambda: urx.Transform(),
             transform_copy=lambda copy: urx.Transform(copy),
-            transform_args=lambda rotation, translation: urx.Transform(
-                rotation, translation
-            ),
+            transform_args=lambda rotation, translation: urx.Transform(rotation, translation),
             vector3d_constructor=lambda: urx.Vector3D(),
             vector3d_args=lambda x, y, z: urx.Vector3D(x, y, z),
         )
@@ -548,9 +534,7 @@ class TestBindings(unittest.TestCase):
             vec_excitation_ptr_constructor=lambda: urx.VecExcitationPtr(),
             vec_float64_constructor=lambda: urx.VecFloat64(),
             transform_constructor=lambda: urx.Transform(),
-            transform_args=lambda rotation, translation: urx.Transform(
-                rotation, translation
-            ),
+            transform_args=lambda rotation, translation: urx.Transform(rotation, translation),
             double_nan_args=lambda arg1: urx.DoubleNan(arg1),
             vector3d_constructor=lambda: urx.Vector3D(),
             vector3d_args=lambda x, y, z: urx.Vector3D(x, y, z),
