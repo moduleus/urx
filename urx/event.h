@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <vector>
 
-#include <urx/detail/compare.h>
 #include <urx/receive_setup.h>
 #include <urx/transmit_setup.h>
 

@@ -19,9 +19,7 @@ def test_event(
     self.assertEqual(evt.transmit_setup, transmit_setup_constructor())
     self.assertEqual(evt.receive_setup, receive_setup_constructor())
 
-    rs = receive_setup_args(
-        probe_constructor(), transform_constructor(), 1, 2, [[3]], [4], 5, 6, 7
-    )
+    rs = receive_setup_args(probe_constructor(), transform_constructor(), 1, 2, [[3]], [4], 5, 6, 7)
     ts = transmit_setup_args(
         probe_constructor(),
         wave_constructor(),

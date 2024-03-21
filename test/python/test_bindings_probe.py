@@ -72,9 +72,7 @@ def test_probe(
         vec_impulse_response_ptr_args([ir, ir_2]),
         vec_element_args([elt, elt_2]),
     )
-    p_rca = probe_args(
-        "rca probe", enum_probe().RCA, t, [eg, eg_2], [ir, ir_2], [elt, elt_2]
-    )
+    p_rca = probe_args("rca probe", enum_probe().RCA, t, [eg, eg_2], [ir, ir_2], [elt, elt_2])
 
     # Instantiate second object to test == assertion
     p_rca_bis = probe_copy(p_rca)

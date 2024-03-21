@@ -9,7 +9,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include <urx/detail/compare.h>
+#include <urx/detail/compare.h>  // IWYU pragma: keep
 #include <urx/enums.h>
 
 namespace urx {

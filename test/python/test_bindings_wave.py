@@ -29,9 +29,7 @@ def test_wave(
     self.assertEqual(w, p_ref)
 
     # Check CTOR with all parameters
-    w = wave_args(
-        enum_wave().CONVERGING_WAVE, 0, vector3d_constructor(), [12.34, 56.78]
-    )
+    w = wave_args(enum_wave().CONVERGING_WAVE, 0, vector3d_constructor(), [12.34, 56.78])
     self.assertEqual(w.type, enum_wave().CONVERGING_WAVE)
     self.assertEqual(w.time_zero, 0)
     self.assertEqual(w.time_zero_reference_point, vector3d_constructor())

@@ -2,7 +2,16 @@ cmake_policy(SET CMP0079 NEW)
 target_link_libraries(UrxUtils PUBLIC Python3::Python pybind11::headers)
 
 set(URX_PYTHON_LIBRARY UrxPython)
-set(URX_PYTHON_LIBRARY_SRC ${CMAKE_CURRENT_SOURCE_DIR}/bindings_public.cpp)
+set(URX_PYTHON_LIBRARY_SRC
+    ${CMAKE_CURRENT_SOURCE_DIR}/bindings_library.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/bindings_vector_el_geo_imp_resp_exc_probe.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/bindings_vector_float.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/bindings_vector_group_ele_evt_group_data.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/bindings_vector_int16.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/bindings_vector_int32.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/bindings_vector_int64.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/bindings_vector_int8.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/bindings_vector_string_urx_vector.cpp)
 set(URX_PYTHON_LIBRARY_H ${CMAKE_CURRENT_SOURCE_DIR}/urx/python/bindings.h)
 add_library(${URX_PYTHON_LIBRARY})
 add_library(Urx::${URX_PYTHON_LIBRARY} ALIAS ${URX_PYTHON_LIBRARY})
@@ -36,7 +45,12 @@ install(
   FILE_SET HEADERS
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
-pybind11_add_module(UrxBindingsPython bindings.cpp CMakeLists.txt)
+pybind11_add_module(
+  UrxBindingsPython
+  ${CMAKE_CURRENT_SOURCE_DIR}/bindings_module.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/bindings_module2.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/bindings_module.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt)
 target_link_libraries(UrxBindingsPython PUBLIC ${PROJECT_NAME} Urx::UrxUtils
                                                Urx::${URX_PYTHON_LIBRARY})
 

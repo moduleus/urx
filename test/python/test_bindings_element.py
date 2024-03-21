@@ -41,9 +41,7 @@ def test_element(
     t = transform_args(v_3, v_3)
 
     # Check CTOR with all parameters
-    elt = element_args(
-        t, element_geometry_constructor(), impulse_response_constructor()
-    )
+    elt = element_args(t, element_geometry_constructor(), impulse_response_constructor())
     self.assertEqual(elt.element_geometry, None)
     self.assertEqual(elt.impulse_response, None)
     self.assertEqual(elt.transform, transform_args(v_3, v_3))
@@ -80,13 +78,9 @@ def test_element(
     # Reference is possible for element_geometry since it's a weak_ptr
     # Check assignment
     elt.impulse_response = ir
-    self.assertEqual(
-        elt.impulse_response, impulse_response_args(42, np.nan, "sec", [3.14, -42])
-    )
+    self.assertEqual(elt.impulse_response, impulse_response_args(42, np.nan, "sec", [3.14, -42]))
     ir.sampling_frequency.value = 123
-    self.assertEqual(
-        elt.impulse_response, impulse_response_args(123, np.nan, "sec", [3.14, -42])
-    )
+    self.assertEqual(elt.impulse_response, impulse_response_args(123, np.nan, "sec", [3.14, -42]))
     ir_ref = elt.impulse_response
     ir_ref.sampling_frequency.value = np.nan
     self.assertEqual(elt.impulse_response, ir)

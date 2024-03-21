@@ -23,7 +23,6 @@ stages:
   - test
   - format
   - tag
-  - install
   - doc
 
 doc:doxygen:
@@ -130,17 +129,17 @@ format:iwyu:
       - CI/iwyu.patch
     expire_in: 1 day
 
-format:autopep8-format:
+format:black-format:
   stage: format
-  image: $CI_REGISTRY/common/ci/dockerci/autopep8:latest
+  image: $CI_REGISTRY/common/ci/dockerci/black:latest
   tags:
     - docker
   script:
     - mkdir CI
-    - autopep8 -r -i .
+    - black .
     - git diff > CI/format.patch
     - cat CI/format.patch
-    - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Please, format your python code with autopep8."; exit 1; fi
+    - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Please, format your python code with black."; exit 1; fi
   allow_failure: true
   dependencies: []
   artifacts:
@@ -175,13 +174,13 @@ build:windows-with-HDF5-static:
   before_script:
     - *before-script-vcpkg-windows
   script:
-    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows-static-md-env -DVCPKG_HOST_TRIPLET=x64-windows-static-md-env -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DENABLE_PCH:BOOL=OFF
+    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows-static-md-env -DVCPKG_HOST_TRIPLET=x64-windows-static-md-env -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="install" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DENABLE_PCH:BOOL=OFF
     - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
+    - cmake.exe --install CI --config Release
   artifacts:
     when: always
     paths:
       - CI
-      - urx/config.h
       - vcpkg/buildtrees/**/*.log
     expire_in: 1 day
 
@@ -196,18 +195,6 @@ test:windows-with-HDF5-static:
     - cd CI
     - ctest --output-on-failure -C Release
 
-install:windows-with-HDF5-static:
-  stage: install
-  dependencies:
-    - build:windows-with-HDF5-static
-  rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  tags:
-    - win10
-    - build
-  script:
-    - cmake.exe --install CI --config Release
-
 build:windows-with-HDF5-shared:
   stage: build
   tags:
@@ -216,13 +203,13 @@ build:windows-with-HDF5-shared:
   before_script:
     - *before-script-vcpkg-windows
   script:
-    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows-env -DVCPKG_HOST_TRIPLET=x64-windows-env -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=OFF
+    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows-env -DVCPKG_HOST_TRIPLET=x64-windows-env -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="install" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=OFF
     - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
+    - cmake.exe --install CI --config Release
   artifacts:
     when: always
     paths:
       - CI
-      - urx/config.h
       - vcpkg/buildtrees/**/*.log
     expire_in: 1 day
 
@@ -237,18 +224,6 @@ test:windows-with-HDF5-shared:
     - cd CI
     - ctest --output-on-failure -C Release
 
-install:windows-with-HDF5-shared:
-  stage: install
-  dependencies:
-    - build:windows-with-HDF5-shared
-  rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  tags:
-    - win10
-    - build
-  script:
-    - cmake.exe --install CI --config Release
-
 build:ubuntu-with-HDF5-static:
   stage: build
   tags:
@@ -257,13 +232,13 @@ build:ubuntu-with-HDF5-static:
   before_script:
     - *before-script-vcpkg-linux
   script:
-    - CFLAGS='-gdwarf-4' CXXFLAGS='-gdwarf-4' cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/usr/bin/clang-17 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-17 -DCMAKE_AR=/usr/bin/llvm-ar-17 -DCMAKE_AS=/usr/bin/llvm-as-17 -DCMAKE_RANLIB=/usr/bin/llvm-ranlib-17 -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-linux -DVCPKG_HOST_TRIPLET=x64-linux -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=ON -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-    - VERBOSE=1 cmake --build CI --config Release --parallel $NUM_PARALLEL
+    - CFLAGS='-gdwarf-4' CXXFLAGS='-gdwarf-4' cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/usr/bin/clang-17 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-17 -DCMAKE_AR=/usr/bin/llvm-ar-17 -DCMAKE_AS=/usr/bin/llvm-as-17 -DCMAKE_RANLIB=/usr/bin/llvm-ranlib-17 -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-linux -DVCPKG_HOST_TRIPLET=x64-linux -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="install" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=ON -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+    - cmake --build CI --config Release --parallel $NUM_PARALLEL
+    - cmake --install CI --config Release
   artifacts:
     when: always
     paths:
       - CI
-      - urx/config.h
       - vcpkg/buildtrees/**/*.log
     expire_in: 1 day
 
@@ -278,18 +253,6 @@ test:ubuntu-with-HDF5-static:
     - cd CI
     - ctest --output-on-failure -C Release
 
-install:ubuntu-with-HDF5-static:
-  stage: install
-  dependencies:
-    - build:ubuntu-with-HDF5-static
-  rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  tags:
-    - ubuntu
-    - build
-  script:
-    - cmake --install CI --config Release
-
 build:ubuntu-with-HDF5-shared:
   stage: build
   tags:
@@ -298,13 +261,13 @@ build:ubuntu-with-HDF5-shared:
   before_script:
     - *before-script-vcpkg-linux
   script:
-    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-linux-dynamic -DVCPKG_HOST_TRIPLET=x64-linux-dynamic -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-linux-dynamic -DVCPKG_HOST_TRIPLET=x64-linux-dynamic -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="install" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
     - cmake --build CI --config Release --parallel $NUM_PARALLEL
+    - cmake --install CI --config Release
   artifacts:
     when: always
     paths:
       - CI
-      - urx/config.h
       - vcpkg/buildtrees/**/*.log
     expire_in: 1 day
 
@@ -323,18 +286,6 @@ test:ubuntu-with-HDF5-shared:
       - CI/version.txt
     expire_in: 1 day
 
-install:ubuntu-with-HDF5-shared:
-  stage: install
-  dependencies:
-    - build:ubuntu-with-HDF5-shared
-  rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  tags:
-    - ubuntu
-    - build
-  script:
-    - cmake --install CI --config Release
-
 # Check only once WITH_HDF5=OFF
 build:ubuntu-without-HDF5-static:
   stage: build
@@ -344,13 +295,13 @@ build:ubuntu-without-HDF5-static:
   before_script:
     - *before-script-vcpkg-linux
   script:
-    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-linux -DVCPKG_HOST_TRIPLET=x64-linux -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=OFF -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-linux -DVCPKG_HOST_TRIPLET=x64-linux -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="install" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=OFF -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
     - cmake --build CI --config Release --parallel $NUM_PARALLEL
+    - cmake --install CI --config Release
   artifacts:
     when: always
     paths:
       - CI
-      - urx/config.h
       - vcpkg/buildtrees/**/*.log
     expire_in: 1 day
 
@@ -435,13 +386,13 @@ build:windows-matlab-static:
   before_script:
     - *before-script-vcpkg-windows
   script:
-    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows-static-md-env -DVCPKG_HOST_TRIPLET=x64-windows-static-md-env -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=OFF -DWITH_MATLAB:BOOL=ON -DENABLE_PCH:BOOL=OFF
+    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows-static-md-env -DVCPKG_HOST_TRIPLET=x64-windows-static-md-env -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="install" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=OFF -DWITH_MATLAB:BOOL=ON -DENABLE_PCH:BOOL=OFF
     - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
+    - cmake.exe --install CI --config Release
   artifacts:
     when: always
     paths:
       - CI
-      - urx/config.h
       - vcpkg/buildtrees/**/*.log
     expire_in: 1 day
 
@@ -464,13 +415,13 @@ build:ubuntu-matlab-static:
   before_script:
     - *before-script-vcpkg-linux
   script:
-    - CFLAGS='-gdwarf-4' CXXFLAGS='-gdwarf-4' cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/usr/bin/clang-17 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-17 -DCMAKE_AR=/usr/bin/llvm-ar-17 -DCMAKE_AS=/usr/bin/llvm-as-17 -DCMAKE_RANLIB=/usr/bin/llvm-ranlib-17 -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-linux -DVCPKG_HOST_TRIPLET=x64-linux -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=OFF -DWITH_MATLAB:BOOL=ON -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-    - VERBOSE=1 cmake --build CI --config Release --parallel $NUM_PARALLEL
+    - CFLAGS='-gdwarf-4' CXXFLAGS='-gdwarf-4' cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/usr/bin/clang-17 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-17 -DCMAKE_AR=/usr/bin/llvm-ar-17 -DCMAKE_AS=/usr/bin/llvm-as-17 -DCMAKE_RANLIB=/usr/bin/llvm-ranlib-17 -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-linux -DVCPKG_HOST_TRIPLET=x64-linux -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="install" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=OFF -DWITH_MATLAB:BOOL=ON -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+    - cmake --build CI --config Release --parallel $NUM_PARALLEL
+    - cmake --install CI --config Release
   artifacts:
     when: always
     paths:
       - CI
-      - urx/config.h
       - vcpkg/buildtrees/**/*.log
     expire_in: 1 day
 
