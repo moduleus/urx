@@ -1,6 +1,5 @@
 #include "bindings_module.h"
 
-#include <algorithm>
 #include <cstddef>
 #include <memory>
 #include <string>
