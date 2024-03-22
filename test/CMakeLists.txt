@@ -4,7 +4,9 @@ include(Catch)
 
 add_subdirectory(utils)
 
-add_subdirectory(python)
+if(WITH_PYTHON)
+  add_subdirectory(python)
+endif()
 
 add_subdirectory(urx)
 
