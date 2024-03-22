@@ -338,6 +338,7 @@ build:windows-python:
     - *before-script-vcpkg-windows
     - pew new CI-urx -r requirements-gitlab.txt
   script:
+    - $Env:CMAKE_BUILD_PARALLEL_LEVEL=$NUM_PARALLEL
     - pew in CI-urx pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=$Env:VCPKG_LOCAL_GIT\\scripts\\buildsystems\\vcpkg.cmake cmake_build_type=Release" --no-clean -v
   artifacts:
     when: always
@@ -368,6 +369,7 @@ build:ubuntu-python:
     - *before-script-vcpkg-linux
     - pew new CI-urx -r requirements-gitlab.txt
   script:
+    - export CMAKE_BUILD_PARALLEL_LEVEL=$NUM_PARALLEL
     - pew in CI-urx pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake cmake_build_type=Release" --no-clean -v
   artifacts:
     when: always
