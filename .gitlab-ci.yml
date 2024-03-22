@@ -114,7 +114,7 @@ format:clang-tidy:
     - clang-tidy
   script:
     - cd CI
-    - run-clang-tidy-17 || exit 1
+    - CLANG_TIDY_CACHE_BINARY=/usr/bin/clang-tidy-17 run-clang-tidy-17 -clang-tidy-binary /usr/local/bin/clang-tidy-cache || exit 1
   dependencies:
     - build:ubuntu-with-HDF5-static
 
