@@ -7,12 +7,14 @@
 
 #include <urx/detail/raw_data.h>
 #include <urx/group_data.h>
+#include <urx/utils/export.h>
 
 namespace urx::utils {
 
 class GroupDataReader {
  public:
-  explicit GroupDataReader(const GroupData& group_data, const size_t custom_sample_byte_size = 1);
+  URX_UTILS_EXPORT explicit GroupDataReader(const GroupData& group_data,
+                                            const size_t custom_sample_byte_size = 1);
 
   GroupDataReader(GroupDataReader&& other) noexcept = delete;
   GroupDataReader(GroupDataReader const& other) = delete;
@@ -38,18 +40,18 @@ class GroupDataReader {
     return *operator()<T>(sequence_idx, event_idx, channel_idx, sample_idx);
   }
 
-  size_t sequencesCount() const;
+  URX_UTILS_EXPORT size_t sequencesCount() const;
 
-  size_t eventsCount() const;
+  URX_UTILS_EXPORT size_t eventsCount() const;
 
-  size_t channelsCount(const size_t event_idx) const;
+  URX_UTILS_EXPORT size_t channelsCount(const size_t event_idx) const;
 
-  size_t samplesCount(const size_t event_idx) const;
+  URX_UTILS_EXPORT size_t samplesCount(const size_t event_idx) const;
 
-  size_t offset(const size_t sequence_idx, const size_t event_idx, const size_t channel_idx,
-                const size_t sample_idx) const;
+  URX_UTILS_EXPORT size_t offset(const size_t sequence_idx, const size_t event_idx,
+                                 const size_t channel_idx, const size_t sample_idx) const;
 
-  size_t sampleByteSize() const;
+  URX_UTILS_EXPORT size_t sampleByteSize() const;
 
  private:
   const GroupData& _group_data;

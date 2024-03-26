@@ -27,6 +27,7 @@
 #include <urx/receive_setup.h>
 #include <urx/transform.h>
 #include <urx/transmit_setup.h>
+#include <urx/utils/export.h>
 #include <urx/vector.h>
 #include <urx/version.h>
 #include <urx/wave.h>
@@ -51,7 +52,7 @@ using AllTypeInVariant = std::variant<
 extern std::unordered_map<std::type_index, std::vector<std::pair<AllTypeInVariant, std::string>>>
     member_name;
 
-const std::unordered_map<std::type_index, const H5::PredType*>& getStdToHdf5();
+URX_UTILS_EXPORT const std::unordered_map<std::type_index, const H5::PredType*>& getStdToHdf5();
 
 using MapToSharedPtr = std::unordered_map<std::type_index, const void*>;
 

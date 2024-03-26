@@ -228,6 +228,9 @@ build:ubuntu-with-HDF5-static:
       - CI/compile_commands.json
       - CI/vcpkg_installed/x64-linux/include
       - CI/urx/config.h
+      - CI/urx/utils/urx/utils/export.h
+      - CI/matlab/binding/urx/matlab/export.h
+      - CI/python/urx/python/export.h
     expire_in: 1 day
 
 build:ubuntu-with-HDF5-shared:

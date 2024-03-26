@@ -26,6 +26,7 @@
 #include <urx/group_data.h>
 #include <urx/impulse_response.h>
 #include <urx/probe.h>
+#include <urx/python/export.h>
 #include <urx/vector.h>
 
 namespace urx::python {
@@ -126,9 +127,9 @@ namespace detail {
 template <typename CppClass>
 void bindVector(py::module_ &m);
 
-py::array rawDataToPyArray(urx::RawData &raw_data);
+URX_PYTHON_EXPORT py::array rawDataToPyArray(urx::RawData &raw_data);
 
-std::shared_ptr<urx::RawData> pyArrayToRawData(const py::array &array);
+URX_PYTHON_EXPORT std::shared_ptr<urx::RawData> pyArrayToRawData(const py::array &array);
 
 }  // namespace detail
 

@@ -209,6 +209,10 @@ struct SerializeHdf5<std::shared_ptr<RawData>, U, ContainerType::SHARED_PTR> {
       const std::string& name, const std::shared_ptr<RawData>& field, const H5::Group& group,
       MapToSharedPtr&,
       const std::unordered_map<std::type_index, std::vector<std::pair<U, std::string>>>&) {
+    if (field->getSize() == 0) {
+      return;
+    }
+
     enum class Format { ARRAY_2D, COMPOUND };
     constexpr Format format = Format::ARRAY_2D;
 

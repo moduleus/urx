@@ -2,15 +2,15 @@ classdef CreateUff < matlab.unittest.TestCase
   properties (MethodSetupParameter)
     libraryPath = {''}
     headerPath = {''}
+    includepaths = {''}
+    envpaths = {''}
   end
 
   methods(TestMethodSetup)
-    function initTests(~, libraryPath, headerPath)
+    function initTests(~, libraryPath, headerPath, includepaths, envpaths)
       feature('DefaultCharacterSet','UTF-8');
 
-      if (nargin >= 3)
-        urx.LibBinding.getInstance(libraryPath, headerPath);
-      end
+      urx.LibBinding.getInstance(libraryPath, headerPath, includepaths, envpaths);
     end
   end
 

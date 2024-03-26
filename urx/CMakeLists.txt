@@ -4,19 +4,13 @@ endif()
 if(WITH_PYTHON)
   set(URX_WITH_PYTHON 1)
 endif()
-# Do write config.h in ${CMAKE_CURRENT_BINARY_DIR}.
-# FILE_SET HEADERS BASE_DIRS will conflict if build directory is in the root
-# path. Ie :
-# (c:\urx)\urx\config.h
-# (c:\urx\build)\urx\config.h
-# c:\urx\build is a subdirectory of c:\urx.
+
 configure_file(config.h.in config.h @ONLY)
 set_property(
   DIRECTORY
   APPEND
   PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/config.h")
 
-# Set URX sources
 set(URX_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/detail/compare.h
     ${CMAKE_CURRENT_SOURCE_DIR}/detail/double_nan.h
@@ -40,10 +34,8 @@ set(URX_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/version.h
     ${CMAKE_CURRENT_SOURCE_DIR}/wave.h)
 
-# Target library
-add_library(
-  ${PROJECT_NAME} INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt
-  ${CMAKE_CURRENT_BINARY_DIR}/config.h)
+add_library(${PROJECT_NAME} INTERFACE
+            ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt)
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 target_sources(
@@ -51,7 +43,6 @@ target_sources(
                             ${CMAKE_CURRENT_SOURCE_DIR}/.. FILES ${URX_SRCS})
 target_sources(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/config.h")
 
-# Define include directories
 target_include_directories(
   ${PROJECT_NAME}
   INTERFACE $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>

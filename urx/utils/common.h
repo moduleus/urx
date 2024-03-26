@@ -3,6 +3,8 @@
 #include <string>
 #include <version>
 
+#include <urx/utils/export.h>
+
 namespace urx::utils::common {
 
 ///
@@ -14,6 +16,6 @@ namespace urx::utils::common {
 ///\param length The string output length (minimum)
 ///\return The index value as a string with as many necessary leading zeros to fill length characters
 ///
-std::string formatIndexWithLeadingZeros(const std::size_t index, const int length);
+URX_UTILS_EXPORT std::string formatIndexWithLeadingZeros(const std::size_t index, const int length);
 
 }  // namespace urx::utils::common
