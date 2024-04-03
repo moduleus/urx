@@ -61,6 +61,7 @@ install(
 
 pybind11_add_module(
   UrxBindingsPython
+  THIN_LTO
   ${CMAKE_CURRENT_SOURCE_DIR}/bindings_module.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/bindings_module2.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/bindings_module.h

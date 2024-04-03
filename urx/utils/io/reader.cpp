@@ -28,7 +28,7 @@ std::shared_ptr<Dataset> loadFromFile(const std::string& filename) {
                                    {nameTypeid<GroupData>(), &dataset->acquisition.groups_data}};
 
   DeserializeHdf5<Dataset, AllTypeInVariant>::f("dataset", *dataset, file, map_to_shared_ptr,
-                                                member_name);
+                                                getMemberMap());
 
   return dataset;
 }

@@ -49,8 +49,8 @@ using AllTypeInVariant = std::variant<
     std::weak_ptr<Group>*, std::weak_ptr<ImpulseResponse>*, std::weak_ptr<Probe>*, uint16_t*,
     uint32_t*, uint64_t*, uint8_t*>;
 
-extern std::unordered_map<std::type_index, std::vector<std::pair<AllTypeInVariant, std::string>>>
-    member_name;
+const std::unordered_map<std::type_index, std::vector<std::pair<AllTypeInVariant, std::string>>>&
+getMemberMap();
 
 URX_UTILS_EXPORT const std::unordered_map<std::type_index, const H5::PredType*>& getStdToHdf5();
 
