@@ -320,7 +320,7 @@ build:ubuntu-matlab-static:
   before_script:
     - *before-script-vcpkg-linux
   script:
-    - CFLAGS='-gdwarf-4' CXXFLAGS='-gdwarf-4' cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/usr/bin/clang-17 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-17 -DCMAKE_AR=/usr/bin/llvm-ar-17 -DCMAKE_AS=/usr/bin/llvm-as-17 -DCMAKE_RANLIB=/usr/bin/llvm-ranlib-17 -DCMAKE_LINKER_TYPE=LLD -DCMAKE_TOOLCHAIN_FILE="$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-linux -DVCPKG_HOST_TRIPLET=x64-linux -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="install" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=OFF -DWITH_MATLAB:BOOL=ON -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/usr/bin/clang-17 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-17 -DCMAKE_AR=/usr/bin/llvm-ar-17 -DCMAKE_AS=/usr/bin/llvm-as-17 -DCMAKE_RANLIB=/usr/bin/llvm-ranlib-17 -DCMAKE_LINKER_TYPE=LLD -DCMAKE_TOOLCHAIN_FILE="$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-linux -DVCPKG_HOST_TRIPLET=x64-linux -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="install" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=OFF -DWITH_MATLAB:BOOL=ON -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
     - cmake --build CI --config Release --parallel $NUM_PARALLEL
     - cmake --install CI --config Release
     - cd test/matlab
