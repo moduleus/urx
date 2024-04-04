@@ -20,7 +20,7 @@ endif()
 
 project(
   Urx
-  VERSION 0.6.23
+  VERSION 0.6.24
   LANGUAGES C CXX
   DESCRIPTION "Ultrasound Raw eXchange format C++ implementation")
 
@@ -40,6 +40,13 @@ if(NOT CMAKE_BUILD_TYPE)
       CACHE STRING "Choose the type of build" FORCE)
 endif()
 
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  add_compile_options("$<$<CONFIG:RELEASE>:-ffat-lto-objects>")
+endif()
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN "YES")
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_LINK_WHAT_YOU_USE ON)
 
@@ -51,8 +58,6 @@ add_compile_definitions(_SILENCE_NONFLOATING_COMPLEX_DEPRECATION_WARNING)
 
 include(CTest)
 enable_testing()
-
-set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
 find_package(Git REQUIRED)
 execute_process(
@@ -76,7 +81,7 @@ endif()
 
 set(INSTALL_NAME "${PROJECT_NAME}-${git_branch}")
 
-set(MATLAB_INSTALL_LIBDIR ${CMAKE_INSTALL_LIBDIR}/${INSTALL_NAME}/matlab)
+set(MATLAB_INSTALL_DATADIR ${CMAKE_INSTALL_DATAROOTDIR}/${INSTALL_NAME}/matlab)
 
 if(CALL_FROM_SETUP_PY)
   set(PYTHON_INSTALL_LIBDIR ${CMAKE_INSTALL_PREFIX})

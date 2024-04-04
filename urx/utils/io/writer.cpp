@@ -25,7 +25,7 @@ void saveToFile(const std::string& filename, const Dataset& dataset) {
                                    {nameTypeid<GroupData>(), &dataset.acquisition.groups_data}};
 
   SerializeHdf5<Dataset, AllTypeInVariant>::f("dataset", dataset, file, map_to_shared_ptr,
-                                              member_name);
+                                              getMemberMap());
 }
 
 }  // namespace urx::utils::io::writer

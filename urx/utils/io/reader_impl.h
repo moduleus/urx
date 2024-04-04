@@ -252,6 +252,9 @@ struct DeserializeAll<std::shared_ptr<RawData>, U> {
   static void f(
       std::shared_ptr<RawData>& field, const H5::Group& group, MapToSharedPtr&,
       const std::unordered_map<std::type_index, std::vector<std::pair<U, std::string>>>&) {
+    if (!group.nameExists("raw_data")) {
+      return;
+    }
     const H5::DataSet dataset = group.openDataSet("raw_data");
     const H5::DataSpace dataspace = dataset.getSpace();
     const H5::DataType datatype_raw = dataset.getDataType();

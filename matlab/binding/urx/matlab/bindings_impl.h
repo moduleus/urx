@@ -1,12 +1,9 @@
-#include "UrxLibBinding.h"
+#ifndef URX_LIB_BINDING_IMPL
+#define URX_LIB_BINDING_IMPL
 
 #include <algorithm>
 #include <complex>
-#include <cstdint>
-#include <fstream>
-#include <ios>
-#include <iosfwd>
-#include <iostream>
+#include <cstddef>
 #include <memory>
 #include <ostream>
 #include <string>
@@ -14,7 +11,6 @@
 #include <vector>
 
 #include <urx/acquisition.h>
-#include <urx/config.h>
 #include <urx/dataset.h>
 #include <urx/detail/raw_data.h>
 #include <urx/element.h>
@@ -24,6 +20,7 @@
 #include <urx/group.h>
 #include <urx/group_data.h>
 #include <urx/impulse_response.h>
+#include <urx/matlab/bindings_decl.h>
 #include <urx/probe.h>
 #include <urx/receive_setup.h>
 #include <urx/transform.h>
@@ -32,74 +29,17 @@
 #include <urx/version.h>
 #include <urx/wave.h>
 
-#ifdef URX_WITH_HDF5
-#include <urx/utils/io/reader.h>
-#include <urx/utils/io/writer.h>
-#endif
-
-#define xstr(s) str(s)
-#define str(s) #s
-
-size_t urx_alloc_cout = 0;
-
-namespace {
-constexpr bool LOG_NEW_DELETE = false;
-}  // namespace
-
-std::ostream &urxGetLog() {
-  if constexpr (LOG_NEW_DELETE) {
-    static std::ofstream outfile("c:\\temp\\urx.log");
-    return outfile;
-  } else {
-    std::ostream &outfile(std::cout);
-    return outfile;
-  }
-}
-
-#if WIN32
-#include <windows.h>
-
-BOOL WINAPI DllMain(HINSTANCE /*hinstDLL*/,  // handle to DLL module
-                    DWORD fdwReason,         // reason for calling function
-                    LPVOID /*lpReserved*/)   // reserved
-{
-  // Perform actions based on the reason for calling.
-  switch (fdwReason) {
-    case DLL_PROCESS_ATTACH:
-      // Initialize once for each new process.
-      // Return FALSE to fail DLL load.
-      break;
-
-    case DLL_THREAD_ATTACH:
-      // Do thread-specific initialization.
-      break;
-
-    case DLL_THREAD_DETACH:
-      // Do thread-specific cleanup.
-      break;
-
-    case DLL_PROCESS_DETACH:
-      if (urx_alloc_cout != 0) {
-        urxGetLog() << "Urx Matlab wrapper: " << urx_alloc_cout << " memory leaks\n";
-      }
-      break;
-  }
-  return TRUE;  // Successful DLL_PROCESS_ATTACH.
-}
-#else
-#endif
-
-// NOLINTBEGIN(cppcoreguidelines-owning-memory,bugprone-macro-parentheses)
+// NOLINTBEGIN(bugprone-macro-parentheses)
 
 #define _VECTOR_RAW_IMPL(snake, type)                                                             \
   void *CONCAT3(vector, snake, new)() {                                                           \
-    urx_alloc_cout++;                                                                             \
+    urxIncAllocCount();                                                                           \
     auto retval = new std::vector<type>();                                                        \
     urxGetLog() << reinterpret_cast<size_t>(retval) << " " << __FUNCTION__ << "\n" << std::flush; \
     return retval;                                                                                \
   }                                                                                               \
   void CONCAT3(vector, snake, delete)(void *this_ptr) {                                           \
-    urx_alloc_cout--;                                                                             \
+    urxDecAllocCount();                                                                           \
     urxGetLog() << reinterpret_cast<size_t>(this_ptr) << " " << __FUNCTION__ << "\n"              \
                 << std::flush;                                                                    \
     delete static_cast<std::vector<type> *>(this_ptr);                                            \
@@ -131,13 +71,13 @@ BOOL WINAPI DllMain(HINSTANCE /*hinstDLL*/,  // handle to DLL module
 
 #define _VECTOR_2D_RAW_IMPL(snake, type)                                                          \
   void *CONCAT3(vector_2d, snake, new)() {                                                        \
-    urx_alloc_cout++;                                                                             \
+    urxIncAllocCount();                                                                           \
     auto retval = new std::vector<std::vector<type>>();                                           \
     urxGetLog() << reinterpret_cast<size_t>(retval) << " " << __FUNCTION__ << "\n" << std::flush; \
     return retval;                                                                                \
   }                                                                                               \
   void CONCAT3(vector_2d, snake, delete)(void *this_ptr) {                                        \
-    urx_alloc_cout--;                                                                             \
+    urxDecAllocCount();                                                                           \
     urxGetLog() << reinterpret_cast<size_t>(this_ptr) << " " << __FUNCTION__ << "\n"              \
                 << std::flush;                                                                    \
     delete static_cast<std::vector<std::vector<type>> *>(this_ptr);                               \
@@ -167,13 +107,13 @@ BOOL WINAPI DllMain(HINSTANCE /*hinstDLL*/,  // handle to DLL module
 
 #define _VECTOR_SHARED_IMPL(snake, type)                                                          \
   void *CONCAT3(vector_shared, snake, new)() {                                                    \
-    urx_alloc_cout++;                                                                             \
+    urxIncAllocCount();                                                                           \
     auto retval = new std::vector<std::shared_ptr<type>>();                                       \
     urxGetLog() << reinterpret_cast<size_t>(retval) << " " << __FUNCTION__ << "\n" << std::flush; \
     return retval;                                                                                \
   }                                                                                               \
   void CONCAT3(vector_shared, snake, delete)(void *this_ptr) {                                    \
-    urx_alloc_cout--;                                                                             \
+    urxDecAllocCount();                                                                           \
     urxGetLog() << reinterpret_cast<size_t>(this_ptr) << " " << __FUNCTION__ << "\n"              \
                 << std::flush;                                                                    \
     delete static_cast<std::vector<std::shared_ptr<type>> *>(this_ptr);                           \
@@ -207,13 +147,13 @@ BOOL WINAPI DllMain(HINSTANCE /*hinstDLL*/,  // handle to DLL module
 
 #define _VECTOR_WEAK_IMPL(snake, type)                                                            \
   void *CONCAT3(vector_weak, snake, new)() {                                                      \
-    urx_alloc_cout++;                                                                             \
+    urxIncAllocCount();                                                                           \
     auto retval = new std::vector<std::weak_ptr<type>>();                                         \
     urxGetLog() << reinterpret_cast<size_t>(retval) << " " << __FUNCTION__ << "\n" << std::flush; \
     return retval;                                                                                \
   }                                                                                               \
   void CONCAT3(vector_weak, snake, delete)(void *this_ptr) {                                      \
-    urx_alloc_cout--;                                                                             \
+    urxDecAllocCount();                                                                           \
     urxGetLog() << reinterpret_cast<size_t>(this_ptr) << " " << __FUNCTION__ << "\n"              \
                 << std::flush;                                                                    \
     delete static_cast<std::vector<std::weak_ptr<type>> *>(this_ptr);                             \
@@ -247,7 +187,7 @@ BOOL WINAPI DllMain(HINSTANCE /*hinstDLL*/,  // handle to DLL module
 
 #define _OBJECT_IMPL(snake, type)                                                                  \
   void *CONCAT2(snake, new)(void) {                                                                \
-    urx_alloc_cout++;                                                                              \
+    urxIncAllocCount();                                                                            \
     auto retval = new std::shared_ptr<type>(new type());                                           \
     urxGetLog() << reinterpret_cast<size_t>(retval) << " "                                         \
                 << reinterpret_cast<size_t>(retval->get()) << " " << __FUNCTION__ << "\n"          \
@@ -255,7 +195,7 @@ BOOL WINAPI DllMain(HINSTANCE /*hinstDLL*/,  // handle to DLL module
     return retval;                                                                                 \
   }                                                                                                \
   void CONCAT2(snake, delete)(void *this_ptr) {                                                    \
-    urx_alloc_cout--;                                                                              \
+    urxDecAllocCount();                                                                            \
     urxGetLog() << reinterpret_cast<size_t>(this_ptr) << " "                                       \
                 << reinterpret_cast<size_t>(static_cast<std::shared_ptr<type> *>(this_ptr)->get()) \
                 << " " << static_cast<std::shared_ptr<type> *>(this_ptr)->use_count() << " "       \
@@ -324,7 +264,7 @@ BOOL WINAPI DllMain(HINSTANCE /*hinstDLL*/,  // handle to DLL module
 
 #define _OBJECT_RAW_DATA_IMPL(snake, type, other_type)                                             \
   void *CONCAT2(snake, new)(uint64_t size) {                                                       \
-    urx_alloc_cout++;                                                                              \
+    urxIncAllocCount();                                                                            \
     auto retval = new std::shared_ptr<other_type>(new other_type(size));                           \
     urxGetLog() << reinterpret_cast<size_t>(retval) << " "                                         \
                 << reinterpret_cast<size_t>(retval->get()) << " " << __FUNCTION__ << "\n"          \
@@ -332,7 +272,7 @@ BOOL WINAPI DllMain(HINSTANCE /*hinstDLL*/,  // handle to DLL module
     return retval;                                                                                 \
   }                                                                                                \
   void CONCAT2(snake, delete)(void *this_ptr) {                                                    \
-    urx_alloc_cout--;                                                                              \
+    urxDecAllocCount();                                                                            \
     urxGetLog() << reinterpret_cast<size_t>(this_ptr) << " "                                       \
                 << reinterpret_cast<size_t>(                                                       \
                        static_cast<std::shared_ptr<other_type> *>(this_ptr)->get())                \
@@ -364,166 +304,129 @@ BOOL WINAPI DllMain(HINSTANCE /*hinstDLL*/,  // handle to DLL module
   _OBJECT_ACCESSOR_IMPL(CONCAT2(ns, name_snake), CONCAT_NS(ns, name_real), member)
 #define OBJECT_ACCESSOR_IMPL(name, member) _OBJECT_ACCESSOR_IMPL(name, name, member)
 
-uint64_t ptr2val(void *p) { return reinterpret_cast<uint64_t>(p); }
-void *val2ptr(uint64_t v) { return reinterpret_cast<void *>(v); }
+#define URX_MATLAB_ACQUISITION_IMPL(ns)                  \
+  OBJECT_NS_IMPL(ns, Acquisition)                        \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, authors)      \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, description)  \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, local_time)   \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, country_code) \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, system)       \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, sound_speed)  \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, timestamp)    \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, probes)       \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, excitations)  \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, groups)       \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, groups_data)
 
-void std_string_set(void *this_ptr, const char *v) { *static_cast<std::string *>(this_ptr) = v; }
-const char *std_string_get(void *this_ptr) { return static_cast<std::string *>(this_ptr)->c_str(); }
+#define URX_MATLAB_DATASET_IMPL(ns)             \
+  OBJECT_NS_IMPL(ns, Dataset)                   \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Dataset, version) \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Dataset, acquisition)
 
-OBJECT_NS_IMPL(urx, Acquisition)
-OBJECT_ACCESSOR_NS_IMPL(urx, Acquisition, authors)
-OBJECT_ACCESSOR_NS_IMPL(urx, Acquisition, description)
-OBJECT_ACCESSOR_NS_IMPL(urx, Acquisition, local_time)
-OBJECT_ACCESSOR_NS_IMPL(urx, Acquisition, country_code)
-OBJECT_ACCESSOR_NS_IMPL(urx, Acquisition, system)
-OBJECT_ACCESSOR_NS_IMPL(urx, Acquisition, sound_speed)
-OBJECT_ACCESSOR_NS_IMPL(urx, Acquisition, timestamp)
-OBJECT_ACCESSOR_NS_IMPL(urx, Acquisition, probes)
-OBJECT_ACCESSOR_NS_IMPL(urx, Acquisition, excitations)
-OBJECT_ACCESSOR_NS_IMPL(urx, Acquisition, groups)
-OBJECT_ACCESSOR_NS_IMPL(urx, Acquisition, groups_data)
+#define URX_MATLAB_ELEMENT_GEOMETRY_IMPL(ns) \
+  OBJECT_NS_IMPL(ns, ElementGeometry)        \
+  OBJECT_ACCESSOR_NS_IMPL(ns, ElementGeometry, perimeter)
 
-OBJECT_NS_IMPL(urx, Dataset)
-OBJECT_ACCESSOR_NS_IMPL(urx, Dataset, version)
-OBJECT_ACCESSOR_NS_IMPL(urx, Dataset, acquisition)
+#define URX_MATLAB_ELEMENT_IMPL(ns)                      \
+  OBJECT_NS_IMPL(ns, Element)                            \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Element, transform)        \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Element, element_geometry) \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Element, impulse_response)
 
-OBJECT_NS_IMPL(urx, ElementGeometry)
-OBJECT_ACCESSOR_NS_IMPL(urx, ElementGeometry, perimeter)
+#define URX_MATLAB_EVENT_IMPL(ns)                    \
+  OBJECT_NS_IMPL(ns, Event)                          \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Event, transmit_setup) \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Event, receive_setup)
 
-OBJECT_NS_IMPL(urx, Element)
-OBJECT_ACCESSOR_NS_IMPL(urx, Element, transform)
-OBJECT_ACCESSOR_NS_IMPL(urx, Element, element_geometry)
-OBJECT_ACCESSOR_NS_IMPL(urx, Element, impulse_response)
+#define URX_MATLAB_EXCITATION_IMPL(ns)                        \
+  OBJECT_NS_IMPL(ns, Excitation)                              \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Excitation, pulse_shape)        \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Excitation, transmit_frequency) \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Excitation, sampling_frequency) \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Excitation, waveform)
 
-OBJECT_NS_IMPL(urx, Event)
-OBJECT_ACCESSOR_NS_IMPL(urx, Event, transmit_setup)
-OBJECT_ACCESSOR_NS_IMPL(urx, Event, receive_setup)
+#define URX_MATLAB_GROUP_DATA_IMPL(ns)                        \
+  OBJECT_NS_IMPL(ns, GroupData)                               \
+  OBJECT_ACCESSOR_NS_IMPL(ns, GroupData, group)               \
+  OBJECT_ACCESSOR_NS_IMPL(ns, GroupData, raw_data)            \
+  OBJECT_ACCESSOR_NS_IMPL(ns, GroupData, group_timestamp)     \
+  OBJECT_ACCESSOR_NS_IMPL(ns, GroupData, sequence_timestamps) \
+  OBJECT_ACCESSOR_NS_IMPL(ns, GroupData, event_timestamps)
 
-OBJECT_NS_IMPL(urx, Excitation)
-OBJECT_ACCESSOR_NS_IMPL(urx, Excitation, pulse_shape)
-OBJECT_ACCESSOR_NS_IMPL(urx, Excitation, transmit_frequency)
-OBJECT_ACCESSOR_NS_IMPL(urx, Excitation, sampling_frequency)
-OBJECT_ACCESSOR_NS_IMPL(urx, Excitation, waveform)
+#define URX_MATLAB_GROUP_IMPL(ns)                   \
+  OBJECT_NS_IMPL(ns, Group)                         \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Group, sampling_type) \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Group, data_type)     \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Group, description)   \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Group, sequence)
 
-OBJECT_NS_IMPL(urx, GroupData)
-OBJECT_ACCESSOR_NS_IMPL(urx, GroupData, group)
-OBJECT_ACCESSOR_NS_IMPL(urx, GroupData, raw_data)
-OBJECT_ACCESSOR_NS_IMPL(urx, GroupData, group_timestamp)
-OBJECT_ACCESSOR_NS_IMPL(urx, GroupData, sequence_timestamps)
-OBJECT_ACCESSOR_NS_IMPL(urx, GroupData, event_timestamps)
+#define URX_MATLAB_IMPULSE_RESPONSE_IMPL(ns)                       \
+  OBJECT_NS_IMPL(ns, ImpulseResponse)                              \
+  OBJECT_ACCESSOR_NS_IMPL(ns, ImpulseResponse, sampling_frequency) \
+  OBJECT_ACCESSOR_NS_IMPL(ns, ImpulseResponse, time_offset)        \
+  OBJECT_ACCESSOR_NS_IMPL(ns, ImpulseResponse, units)              \
+  OBJECT_ACCESSOR_NS_IMPL(ns, ImpulseResponse, data)
 
-OBJECT_NS_IMPL(urx, Group)
-OBJECT_ACCESSOR_NS_IMPL(urx, Group, sampling_type)
-OBJECT_ACCESSOR_NS_IMPL(urx, Group, data_type)
-OBJECT_ACCESSOR_NS_IMPL(urx, Group, description)
-OBJECT_ACCESSOR_NS_IMPL(urx, Group, sequence)
+#define URX_MATLAB_PROBE_IMPL(ns)                        \
+  OBJECT_NS_IMPL(ns, Probe)                              \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Probe, description)        \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Probe, type)               \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Probe, transform)          \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Probe, element_geometries) \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Probe, impulse_responses)  \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Probe, elements)
 
-OBJECT_NS_IMPL(urx, ImpulseResponse)
-OBJECT_ACCESSOR_NS_IMPL(urx, ImpulseResponse, sampling_frequency)
-OBJECT_ACCESSOR_NS_IMPL(urx, ImpulseResponse, time_offset)
-OBJECT_ACCESSOR_NS_IMPL(urx, ImpulseResponse, units)
-OBJECT_ACCESSOR_NS_IMPL(urx, ImpulseResponse, data)
+#define URX_MATLAB_RECEIVE_SETUP_IMPL(ns)                           \
+  OBJECT_NS_IMPL(ns, ReceiveSetup)                                  \
+  OBJECT_ACCESSOR_NS_IMPL(ns, ReceiveSetup, probe)                  \
+  OBJECT_ACCESSOR_NS_IMPL(ns, ReceiveSetup, probe_transform)        \
+  OBJECT_ACCESSOR_NS_IMPL(ns, ReceiveSetup, sampling_frequency)     \
+  OBJECT_ACCESSOR_NS_IMPL(ns, ReceiveSetup, number_samples)         \
+  OBJECT_ACCESSOR_NS_IMPL(ns, ReceiveSetup, active_elements)        \
+  OBJECT_ACCESSOR_NS_IMPL(ns, ReceiveSetup, tgc_profile)            \
+  OBJECT_ACCESSOR_NS_IMPL(ns, ReceiveSetup, tgc_sampling_frequency) \
+  OBJECT_ACCESSOR_NS_IMPL(ns, ReceiveSetup, modulation_frequency)   \
+  OBJECT_ACCESSOR_NS_IMPL(ns, ReceiveSetup, time_offset)
 
-OBJECT_NS_IMPL(urx, Probe)
-OBJECT_ACCESSOR_NS_IMPL(urx, Probe, description)
-OBJECT_ACCESSOR_NS_IMPL(urx, Probe, type)
-OBJECT_ACCESSOR_NS_IMPL(urx, Probe, transform)
-OBJECT_ACCESSOR_NS_IMPL(urx, Probe, element_geometries)
-OBJECT_ACCESSOR_NS_IMPL(urx, Probe, impulse_responses)
-OBJECT_ACCESSOR_NS_IMPL(urx, Probe, elements)
+#define URX_MATLAB_TRANSFORM_IMPL(ns)              \
+  OBJECT_NS_IMPL(ns, Transform)                    \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Transform, rotation) \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Transform, translation)
 
-OBJECT_NS_RAW_DATA_IMPL(urx, RawData, int16_t, real, urx::RawDataNoInit<int16_t>);
-OBJECT_NS_RAW_DATA_IMPL(urx, RawData, int16_t, complex, urx::RawDataNoInit<std::complex<int16_t>>);
-OBJECT_NS_RAW_DATA_IMPL(urx, RawData, int32_t, real, urx::RawDataNoInit<int32_t>);
-OBJECT_NS_RAW_DATA_IMPL(urx, RawData, int32_t, complex, urx::RawDataNoInit<std::complex<int32_t>>);
-OBJECT_NS_RAW_DATA_IMPL(urx, RawData, float, real, urx::RawDataNoInit<float>);
-OBJECT_NS_RAW_DATA_IMPL(urx, RawData, float, complex, urx::RawDataNoInit<std::complex<float>>);
-OBJECT_NS_RAW_DATA_IMPL(urx, RawData, double, real, urx::RawDataNoInit<double>);
-OBJECT_NS_RAW_DATA_IMPL(urx, RawData, double, complex, urx::RawDataNoInit<std::complex<double>>);
+#define URX_MATLAB_TRANSMIT_SETUP_IMPL(ns)                    \
+  OBJECT_NS_IMPL(ns, TransmitSetup)                           \
+  OBJECT_ACCESSOR_NS_IMPL(ns, TransmitSetup, probe)           \
+  OBJECT_ACCESSOR_NS_IMPL(ns, TransmitSetup, wave)            \
+  OBJECT_ACCESSOR_NS_IMPL(ns, TransmitSetup, active_elements) \
+  OBJECT_ACCESSOR_NS_IMPL(ns, TransmitSetup, excitations)     \
+  OBJECT_ACCESSOR_NS_IMPL(ns, TransmitSetup, delays)          \
+  OBJECT_ACCESSOR_NS_IMPL(ns, TransmitSetup, probe_transform) \
+  OBJECT_ACCESSOR_NS_IMPL(ns, TransmitSetup, time_offset)
 
-OBJECT_NS_IMPL(urx, ReceiveSetup)
-OBJECT_ACCESSOR_NS_IMPL(urx, ReceiveSetup, probe)
-OBJECT_ACCESSOR_NS_IMPL(urx, ReceiveSetup, probe_transform)
-OBJECT_ACCESSOR_NS_IMPL(urx, ReceiveSetup, sampling_frequency)
-OBJECT_ACCESSOR_NS_IMPL(urx, ReceiveSetup, number_samples)
-OBJECT_ACCESSOR_NS_IMPL(urx, ReceiveSetup, active_elements)
-OBJECT_ACCESSOR_NS_IMPL(urx, ReceiveSetup, tgc_profile)
-OBJECT_ACCESSOR_NS_IMPL(urx, ReceiveSetup, tgc_sampling_frequency)
-OBJECT_ACCESSOR_NS_IMPL(urx, ReceiveSetup, modulation_frequency)
-OBJECT_ACCESSOR_NS_IMPL(urx, ReceiveSetup, time_offset)
+#define URX_MATLAB_VECTOR3D_IMPL(ns)                          \
+  OBJECT_NS2_IMPL(ns, Vector3D, Vector3D<double>)             \
+  OBJECT_ACCESSOR_NS2_IMPL(ns, Vector3D, Vector3D<double>, x) \
+  OBJECT_ACCESSOR_NS2_IMPL(ns, Vector3D, Vector3D<double>, y) \
+  OBJECT_ACCESSOR_NS2_IMPL(ns, Vector3D, Vector3D<double>, z)
 
-OBJECT_NS_IMPL(urx, Transform)
-OBJECT_ACCESSOR_NS_IMPL(urx, Transform, rotation)
-OBJECT_ACCESSOR_NS_IMPL(urx, Transform, translation)
+#define URX_MATLAB_VECTOR2D_IMPL(ns)                          \
+  OBJECT_NS2_IMPL(ns, Vector2D, Vector2D<double>)             \
+  OBJECT_ACCESSOR_NS2_IMPL(ns, Vector2D, Vector2D<double>, x) \
+  OBJECT_ACCESSOR_NS2_IMPL(ns, Vector2D, Vector2D<double>, y)
 
-OBJECT_NS_IMPL(urx, TransmitSetup)
-OBJECT_ACCESSOR_NS_IMPL(urx, TransmitSetup, probe)
-OBJECT_ACCESSOR_NS_IMPL(urx, TransmitSetup, wave)
-OBJECT_ACCESSOR_NS_IMPL(urx, TransmitSetup, active_elements)
-OBJECT_ACCESSOR_NS_IMPL(urx, TransmitSetup, excitations)
-OBJECT_ACCESSOR_NS_IMPL(urx, TransmitSetup, delays)
-OBJECT_ACCESSOR_NS_IMPL(urx, TransmitSetup, probe_transform)
-OBJECT_ACCESSOR_NS_IMPL(urx, TransmitSetup, time_offset)
+#define URX_MATLAB_VERSION_IMPL(ns)           \
+  OBJECT_NS_IMPL(ns, Version)                 \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Version, major) \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Version, minor) \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Version, patch)
 
-OBJECT_NS2_IMPL(urx, Vector3D, Vector3D<double>)
-OBJECT_ACCESSOR_NS2_IMPL(urx, Vector3D, Vector3D<double>, x)
-OBJECT_ACCESSOR_NS2_IMPL(urx, Vector3D, Vector3D<double>, y)
-OBJECT_ACCESSOR_NS2_IMPL(urx, Vector3D, Vector3D<double>, z)
+#define URX_MATLAB_WAVE_IMPL(ns)                               \
+  OBJECT_NS_IMPL(ns, Wave)                                     \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Wave, type)                      \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Wave, time_zero)                 \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Wave, time_zero_reference_point) \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Wave, parameters)
 
-OBJECT_NS2_IMPL(urx, Vector2D, Vector2D<double>)
-OBJECT_ACCESSOR_NS2_IMPL(urx, Vector2D, Vector2D<double>, x)
-OBJECT_ACCESSOR_NS2_IMPL(urx, Vector2D, Vector2D<double>, y)
+// NOLINTEND(bugprone-macro-parentheses)
 
-OBJECT_NS_IMPL(urx, Version)
-OBJECT_ACCESSOR_NS_IMPL(urx, Version, major)
-OBJECT_ACCESSOR_NS_IMPL(urx, Version, minor)
-OBJECT_ACCESSOR_NS_IMPL(urx, Version, patch)
-
-OBJECT_NS_IMPL(urx, Wave)
-OBJECT_ACCESSOR_NS_IMPL(urx, Wave, type)
-OBJECT_ACCESSOR_NS_IMPL(urx, Wave, time_zero)
-OBJECT_ACCESSOR_NS_IMPL(urx, Wave, time_zero_reference_point)
-OBJECT_ACCESSOR_NS_IMPL(urx, Wave, parameters)
-
-VECTOR_RAW_IMPL(double);
-VECTOR_RAW_IMPL(uint32_t);
-
-VECTOR_RAW_NS_IMPL(urx, Element)
-VECTOR_RAW_NS_IMPL(urx, Event)
-VECTOR_RAW_NS_IMPL(urx, GroupData)
-VECTOR_RAW_NS2_IMPL(urx, Vector3D, Vector3D<double>)
-
-VECTOR_2D_RAW_IMPL(double)
-VECTOR_2D_RAW_IMPL(uint32_t)
-
-VECTOR_SHARED_NS_IMPL(urx, Probe)
-VECTOR_SHARED_NS_IMPL(urx, Excitation)
-VECTOR_SHARED_NS_IMPL(urx, Wave)
-VECTOR_SHARED_NS_IMPL(urx, Group)
-VECTOR_SHARED_NS_IMPL(urx, ElementGeometry)
-VECTOR_SHARED_NS_IMPL(urx, ImpulseResponse)
-VECTOR_WEAK_NS_IMPL(urx, Excitation)
-
-RAW_DATA_SHARED_NS_IMPL(urx, RawData, int16_t);
-RAW_DATA_SHARED_NS_IMPL(urx, RawData, int32_t);
-RAW_DATA_SHARED_NS_IMPL(urx, RawData, float);
-RAW_DATA_SHARED_NS_IMPL(urx, RawData, double);
-
-uint64_t get_pointer(void *ptr) { return reinterpret_cast<uint64_t>(ptr); }
-
-void *load_from_file(const char *filename) {
-#ifdef URX_WITH_HDF5
-  return new std::shared_ptr<urx::Dataset>(urx::utils::io::reader::loadFromFile(filename));
-#else
-  return nullptr;
-#endif
-}
-
-void save_to_file(const char *filename, void *dataset) {
-#ifdef URX_WITH_HDF5
-  urx::utils::io::writer::saveToFile(filename,
-                                     **static_cast<std::shared_ptr<urx::Dataset> *>(dataset));
-#endif
-}
-
-// NOLINTEND(cppcoreguidelines-owning-memory,bugprone-macro-parentheses)
+#endif  // #define URX_LIB_BINDING_IMPL

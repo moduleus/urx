@@ -14,6 +14,7 @@
 #include <urx/detail/raw_data.h>
 #include <urx/enums.h>
 #include <urx/python/bindings.h>
+#include <urx/python/export.h>
 #include <urx/utils/group_helper.h>
 
 namespace urx::python::detail {
@@ -26,19 +27,19 @@ constexpr const char VEC_VEC_FLOAT64[] = "VecVecFloat64";
 }  // namespace
 
 template <>
-void bindVector<VecFloat32>(pybind11::module_& m) {
+URX_PYTHON_EXPORT void bindVector<VecFloat32>(pybind11::module_& m) {
   bindVector<VecFloat32, VEC_FLOAT32>(m);
 }
 template <>
-void bindVector<VecVecFloat32>(pybind11::module_& m) {
+URX_PYTHON_EXPORT void bindVector<VecVecFloat32>(pybind11::module_& m) {
   bindVectorNoBufferProtocol<VecVecFloat32, VEC_VEC_FLOAT32>(m);
 }
 template <>
-void bindVector<VecFloat64>(pybind11::module_& m) {
+URX_PYTHON_EXPORT void bindVector<VecFloat64>(pybind11::module_& m) {
   bindVector<VecFloat64, VEC_FLOAT64>(m);
 }
 template <>
-void bindVector<VecVecFloat64>(pybind11::module_& m) {
+URX_PYTHON_EXPORT void bindVector<VecVecFloat64>(pybind11::module_& m) {
   bindVectorNoBufferProtocol<VecVecFloat64, VEC_VEC_FLOAT64>(m);
 }
 

@@ -14,6 +14,7 @@
 #include <urx/detail/raw_data.h>
 #include <urx/enums.h>
 #include <urx/python/bindings.h>
+#include <urx/python/export.h>
 #include <urx/utils/group_helper.h>
 
 namespace urx::python::detail {
@@ -26,19 +27,19 @@ constexpr const char VEC_ELEMENT[] = "VecElement";
 }  // namespace
 
 template <>
-void bindVector<VecEvent>(pybind11::module_& m) {
+URX_PYTHON_EXPORT void bindVector<VecEvent>(pybind11::module_& m) {
   bindVectorNoBufferProtocol<VecEvent, VEC_EVENT>(m);
 }
 template <>
-void bindVector<VecGroupData>(pybind11::module_& m) {
+URX_PYTHON_EXPORT void bindVector<VecGroupData>(pybind11::module_& m) {
   bindVectorNoBufferProtocol<VecGroupData, VEC_GROUP_DATA>(m);
 }
 template <>
-void bindVector<VecGroupPtr>(pybind11::module_& m) {
+URX_PYTHON_EXPORT void bindVector<VecGroupPtr>(pybind11::module_& m) {
   bindVectorNoBufferProtocol<VecGroupPtr, VEC_GROUP_PTR>(m);
 }
 template <>
-void bindVector<VecElement>(pybind11::module_& m) {
+URX_PYTHON_EXPORT void bindVector<VecElement>(pybind11::module_& m) {
   bindVectorNoBufferProtocol<VecElement, VEC_ELEMENT>(m);
 }
 

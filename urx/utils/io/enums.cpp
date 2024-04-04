@@ -3,6 +3,7 @@
 #include <utility>
 
 #include <urx/enums.h>
+#include <urx/utils/export.h>
 #include <urx/utils/io/enums.h>
 
 namespace urx::utils::io::enums {
@@ -40,36 +41,36 @@ std::unordered_map<std::string, urx::DataType> string_to_data = invertMap(data_t
 }  // namespace
 
 template <>
-urx::ProbeType stringToEnum(const std::string& enumeration) {
+URX_UTILS_EXPORT urx::ProbeType stringToEnum(const std::string& enumeration) {
   return stringToEnumImpl(enumeration, string_to_probe);
 }
 template <>
-urx::WaveType stringToEnum(const std::string& enumeration) {
+URX_UTILS_EXPORT urx::WaveType stringToEnum(const std::string& enumeration) {
   return stringToEnumImpl(enumeration, string_to_wave);
 }
 template <>
-urx::SamplingType stringToEnum(const std::string& enumeration) {
+URX_UTILS_EXPORT urx::SamplingType stringToEnum(const std::string& enumeration) {
   return stringToEnumImpl(enumeration, string_to_sampling);
 }
 template <>
-urx::DataType stringToEnum(const std::string& enumeration) {
+URX_UTILS_EXPORT urx::DataType stringToEnum(const std::string& enumeration) {
   return stringToEnumImpl(enumeration, string_to_data);
 }
 
 template <>
-std::string enumToString(urx::ProbeType enumeration) {
+URX_UTILS_EXPORT std::string enumToString(urx::ProbeType enumeration) {
   return enumToStringImpl(enumeration, probe_to_string);
 }
 template <>
-std::string enumToString(urx::WaveType enumeration) {
+URX_UTILS_EXPORT std::string enumToString(urx::WaveType enumeration) {
   return enumToStringImpl(enumeration, wave_to_string);
 }
 template <>
-std::string enumToString(urx::SamplingType enumeration) {
+URX_UTILS_EXPORT std::string enumToString(urx::SamplingType enumeration) {
   return enumToStringImpl(enumeration, sampling_to_string);
 }
 template <>
-std::string enumToString(urx::DataType enumeration) {
+URX_UTILS_EXPORT std::string enumToString(urx::DataType enumeration) {
   return enumToStringImpl(enumeration, data_to_string);
 }
 

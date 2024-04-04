@@ -1,4 +1,4 @@
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/+urx
-        DESTINATION ${MATLAB_INSTALL_LIBDIR})
+        DESTINATION ${MATLAB_INSTALL_DATADIR})
 
-add_subdirectory("LibBinding")
+add_subdirectory("binding")

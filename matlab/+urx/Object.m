@@ -195,7 +195,7 @@ classdef Object < urx.ObjectField
       libBindingRef = urx.LibBinding.getInstance();
       affectedCFieldPtr = libBindingRef.call(functionCFieldAccessor, affectedObject.id);
 
-      if strcmp(affectedPropertyName, "hwconfig")
+      if strcmp(affectedPropertyName, "hwConfig")
         affectedPropertyHwPtr = affectedObject.([affectedPropertyName 'Ptr']);
         if isempty(affectedPropertyHwPtr)
           affectedPropertyHwPtr = uac.HwConfig(affectedCFieldPtr, urx.PtrType.RAW, affectedObject);
@@ -365,11 +365,11 @@ classdef Object < urx.ObjectField
               assert(false);
             end
             if isempty(affectedObject.(affectedPropertyName))
-              affectedObject.(affectedPropertyName) = urx.(affectedPropertyClassName(5:end))(affectedCFieldPtr, stdPtrType, affectedObject);
+              affectedObject.(affectedPropertyName) = feval(affectedPropertyClassName, affectedCFieldPtr, stdPtrType, affectedObject);
             else
               % Type may have changed when assigning WEAK from a SHARED.
               if (stdPtrType == urx.PtrType.WEAK && affectedObject.(affectedPropertyName).ptrType == urx.PtrType.SHARED)
-                newProperty = urx.(affectedPropertyClassName(5:end))(affectedCFieldPtr, stdPtrType, affectedObject);
+                newProperty = feval(affectedPropertyClassName, affectedCFieldPtr, stdPtrType, affectedObject);
                 props = properties(newProperty);
 
                 for i = 1:numel(props)

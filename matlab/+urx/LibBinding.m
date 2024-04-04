@@ -6,26 +6,24 @@ classdef LibBinding < handle
   end
   
   methods (Access = private)
-    function this = LibBinding(libraryPath, headerPath)
-      currentPath = [fileparts(mfilename('fullpath')) '/'];
-      if nargin >= 1
-        splitPath = split(libraryPath, ["\" "/"]);
-        splitName = split(splitPath(end), ".");
-        finaleName = join(splitName(1:end-1), ".");
-        this.libName = finaleName{1};
-      else
-        if isunix()
-          this.libName = 'libUrxLibBinding';
-          libraryPath = [currentPath '../../../urx-build/matlab/LibBinding/' this.libName '.so'];
-        else
-            this.libName = 'UrxLibBinding';
-            libraryPath = [currentPath '../../../urx_build/Matlab/LibBinding/Release/' this.libName '.dll'];
-        end
-      end
-      if nargin < 2 || isempty(headerPath)
-        headerPath = [currentPath '../LibBinding/UrxLibBinding.h'];
-      end
-      [this.notfound, this.warnings] = loadlibrary(libraryPath, headerPath);
+    function this = LibBinding(libraryPath, headerPath, includepaths, envpaths)
+      splitPath = split(libraryPath, ["\" "/"]);
+      splitName = split(splitPath(end), ".");
+      finaleName = join(splitName(1:end-1), ".");
+      this.libName = finaleName{1};
+
+      args = {libraryPath, headerPath};
+
+      for i = numel(includepaths):-1:1
+        args{1+i*2+1} = includepaths{i};
+        args{1+i*2} = 'includepath';
+      end 
+
+      for i = 1:numel(envpaths)
+        addpath(envpaths{i});
+      end 
+
+      [this.notfound, this.warnings] = loadlibrary(args{:});
     end
 
     function delete(this)
@@ -45,13 +43,13 @@ classdef LibBinding < handle
   end
   
   methods (Static)
-    function this = getInstance(libraryPath, headerPath)
+    function this = getInstance(libraryPath, headerPath, includepaths, envpaths)
       persistent instance
       if isempty(instance)
-        if nargin < 2
+        if nargin < 3
           instance = urx.LibBinding();
         else
-          instance = urx.LibBinding(libraryPath, headerPath);
+          instance = urx.LibBinding(libraryPath, headerPath, includepaths, envpaths);
         end
       end
       this = instance;
