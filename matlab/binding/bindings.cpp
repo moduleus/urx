@@ -97,6 +97,8 @@ const char *std_string_get(void *this_ptr) { return static_cast<std::string *>(t
 
 // NOLINTBEGIN(cppcoreguidelines-owning-memory,bugprone-macro-parentheses)
 
+// NOLINTBEGIN(bugprone-unchecked-optional-access)
+
 URX_MATLAB_ACQUISITION_IMPL(urx)
 URX_MATLAB_DATASET_IMPL(urx)
 URX_MATLAB_ELEMENT_GEOMETRY_IMPL(urx)
@@ -114,6 +116,8 @@ URX_MATLAB_VECTOR3D_IMPL(urx)
 URX_MATLAB_VECTOR2D_IMPL(urx)
 URX_MATLAB_VERSION_IMPL(urx)
 URX_MATLAB_WAVE_IMPL(urx)
+
+// NOLINTEND(bugprone-unchecked-optional-access)
 
 OBJECT_NS_RAW_DATA_IMPL(urx, RawData, int16_t, real, urx::RawDataNoInit<int16_t>);
 OBJECT_NS_RAW_DATA_IMPL(urx, RawData, int16_t, complex, urx::RawDataNoInit<std::complex<int16_t>>);

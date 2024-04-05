@@ -82,13 +82,14 @@
   _RAW_DATA_SHARED_NS_DECL(RawData, type_data, real) \
   _RAW_DATA_SHARED_NS_DECL(RawData, type_data, complex)
 
-#define _OBJECT_DECL(name)                                                                     \
-  URX_MATLAB_EXPORT void *CONCAT2(name, new)(void);                                            \
-  URX_MATLAB_EXPORT void CONCAT2(name, delete)(void *this_ptr);                                \
-  URX_MATLAB_EXPORT void CONCAT4(name, assign, raw, raw)(void *this_ptr, void *other_ptr);     \
-  URX_MATLAB_EXPORT void CONCAT4(name, assign, raw, shared)(void *this_ptr, void *other_ptr);  \
-  URX_MATLAB_EXPORT void CONCAT4(name, assign, weak, shared)(void *this_ptr, void *other_ptr); \
-  URX_MATLAB_EXPORT void CONCAT4(name, assign, shared, shared)(void *this_ptr, void *other_ptr)
+#define _OBJECT_DECL(name)                                                                       \
+  URX_MATLAB_EXPORT void *CONCAT2(name, new)(void);                                              \
+  URX_MATLAB_EXPORT void CONCAT2(name, delete)(void *this_ptr);                                  \
+  URX_MATLAB_EXPORT void CONCAT4(name, assign, raw, raw)(void *this_ptr, void *other_ptr);       \
+  URX_MATLAB_EXPORT void CONCAT4(name, assign, raw, shared)(void *this_ptr, void *other_ptr);    \
+  URX_MATLAB_EXPORT void CONCAT4(name, assign, weak, shared)(void *this_ptr, void *other_ptr);   \
+  URX_MATLAB_EXPORT void CONCAT4(name, assign, shared, shared)(void *this_ptr, void *other_ptr); \
+  URX_MATLAB_EXPORT void CONCAT4(name, assign, optional, shared)(void *this_ptr, void *other_ptr)
 
 #define OBJECT_NS_DECL(ns, type) _OBJECT_DECL(CONCAT2(ns, type))
 #define OBJECT_DECL(type) _OBJECT_DECL(type)
@@ -101,10 +102,15 @@
 #define OBJECT_NS_RAW_DATA_DECL(ns, type, t1, t2) _OBJECT_RAW_DATA_DECL(CONCAT4(ns, type, t1, t2))
 #define OBJECT_RAW_DATA_DECL(type, t2, t3) _OBJECT_RAW_DATA_DECL(CONCAT3(type, t1, t2))
 
-#define _OBJECT_ACCESSOR_DECL(name, member)                            \
-  URX_MATLAB_EXPORT void *CONCAT2(name, member)(void *this_ptr);       \
-  URX_MATLAB_EXPORT void *CONCAT3(name, weak, member)(void *this_ptr); \
-  URX_MATLAB_EXPORT void *CONCAT3(name, shared, member)(void *this_ptr)
+#define _OBJECT_ACCESSOR_DECL(name, member)                                       \
+  URX_MATLAB_EXPORT void *CONCAT2(name, member)(void *this_ptr);                  \
+  URX_MATLAB_EXPORT void *CONCAT3(name, weak, member)(void *this_ptr);            \
+  URX_MATLAB_EXPORT void *CONCAT3(name, shared, member)(void *this_ptr);          \
+  URX_MATLAB_EXPORT void *CONCAT3(name, optional, member)(void *this_ptr);        \
+  URX_MATLAB_EXPORT bool CONCAT3(name, member, has_data)(void *this_ptr);         \
+  URX_MATLAB_EXPORT bool CONCAT4(name, weak, member, has_data)(void *this_ptr);   \
+  URX_MATLAB_EXPORT bool CONCAT4(name, shared, member, has_data)(void *this_ptr); \
+  URX_MATLAB_EXPORT bool CONCAT4(name, optional, member, has_data)(void *this_ptr)
 
 #define OBJECT_ACCESSOR_NS_DECL(ns, type, member) _OBJECT_ACCESSOR_DECL(CONCAT2(ns, type), member)
 #define OBJECT_ACCESSOR_DECL(type, member) _OBJECT_ACCESSOR_DECL(type, member)

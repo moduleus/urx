@@ -53,6 +53,8 @@ classdef Object < urx.ObjectField
         if any(arrayfun(@(x) strcmp(x.Name, [props(i).Name 'Std']), props)) && ~iscell(this.(props(i).Name))
           if any(cellfun(@(x) strcmp(func2str(x), 'urx.Validator.sharedPtrInCpp'), props(i).Validation.ValidatorFunctions))
             stdPtrType = urx.PtrType.SHARED;
+          elseif any(cellfun(@(x) strcmp(func2str(x), 'urx.Validator.optionalInCpp'), props(i).Validation.ValidatorFunctions))
+            stdPtrType = urx.PtrType.OPTIONAL;
           elseif any(cellfun(@(x) strcmp(func2str(x), 'urx.Validator.weakPtrInCpp'), props(i).Validation.ValidatorFunctions))
             stdPtrType = urx.PtrType.WEAK;
           elseif any(cellfun(@(x) strcmp(func2str(x), 'urx.Validator.rawInCpp'), props(i).Validation.ValidatorFunctions))
@@ -89,6 +91,8 @@ classdef Object < urx.ObjectField
         res = [res '_shared'];
       elseif typeDest == urx.PtrType.WEAK
         res = [res '_weak'];
+      elseif typeDest == urx.PtrType.OPTIONAL
+        res = [res '_optional'];
       else
         res = [res '_raw'];
       end
@@ -105,6 +109,8 @@ classdef Object < urx.ObjectField
         res = [res '_shared'];
       elseif type == urx.PtrType.WEAK
         res = [res '_weak'];
+      elseif type == urx.PtrType.OPTIONAL
+        res = [res '_optional'];
       end
       if nbDims == 2
         res = [res '_2d'];
@@ -190,6 +196,8 @@ classdef Object < urx.ObjectField
         functionCFieldAccessor = [functionCFieldAccessor '_shared'];
       elseif affectedObject.ptrType == urx.PtrType.WEAK
         functionCFieldAccessor = [functionCFieldAccessor '_weak'];
+      elseif affectedObject.ptrType == urx.PtrType.OPTIONAL
+        functionCFieldAccessor = [functionCFieldAccessor '_optional'];
       end
       functionCFieldAccessor = [functionCFieldAccessor '_' urx.Object.camelToSnakeCase(affectedPropertyName)];
       libBindingRef = urx.LibBinding.getInstance();
@@ -357,6 +365,8 @@ classdef Object < urx.ObjectField
 
             if any(cellfun(@(x) strcmp(func2str(x), 'urx.Validator.sharedPtrInCpp'), validatorFunc))
               stdPtrType = urx.PtrType.SHARED;
+            elseif any(cellfun(@(x) strcmp(func2str(x), 'urx.Validator.optionalInCpp'), validatorFunc))
+              stdPtrType = urx.PtrType.OPTIONAL;
             elseif any(cellfun(@(x) strcmp(func2str(x), 'urx.Validator.weakPtrInCpp'), validatorFunc))
               stdPtrType = urx.PtrType.WEAK;
             elseif any(cellfun(@(x) strcmp(func2str(x), 'urx.Validator.rawInCpp'), validatorFunc))
@@ -365,23 +375,27 @@ classdef Object < urx.ObjectField
               assert(false);
             end
             if isempty(affectedObject.(affectedPropertyName))
-              affectedObject.(affectedPropertyName) = feval(affectedPropertyClassName, affectedCFieldPtr, stdPtrType, affectedObject);
-            else
-              % Type may have changed when assigning WEAK from a SHARED.
-              if (stdPtrType == urx.PtrType.WEAK && affectedObject.(affectedPropertyName).ptrType == urx.PtrType.SHARED)
-                newProperty = feval(affectedPropertyClassName, affectedCFieldPtr, stdPtrType, affectedObject);
-                props = properties(newProperty);
-
-                for i = 1:numel(props)
-                  newProperty.(cell2mat(props(i))) = affectedObject.(affectedPropertyName).(cell2mat(props(i)));
-                end
-
-                affectedObject.(affectedPropertyName) = newProperty;
+              has_data = libBindingRef.call([functionCFieldAccessor '_has_data'], affectedObject.id);
+              % Force value if PreGet is called from a PreSet.
+              if (has_data || (disableGetRecursion == 0 && disableSetRecursion == 1 && strcmp(s(2).name, 'Object.handlePropEvents')))
+                affectedObject.(affectedPropertyName) = feval(affectedPropertyClassName, affectedCFieldPtr, stdPtrType, affectedObject);
               else
-                % If object has already been cached, check if nothing has changed.
-                assert(urx.Object.showPtr(affectedObject.(affectedPropertyName).id) == urx.Object.showPtr(affectedCFieldPtr));
-                assert(affectedObject.(affectedPropertyName).ptrType == stdPtrType);
+                affectedObject.(affectedPropertyName) = feval(affectedPropertyClassName, []).empty;
               end
+            elseif (stdPtrType == urx.PtrType.WEAK && affectedObject.(affectedPropertyName).ptrType == urx.PtrType.SHARED)
+              % Type may have changed when assigning WEAK from a SHARED.
+              newProperty = feval(affectedPropertyClassName, affectedCFieldPtr, stdPtrType, affectedObject);
+              props = properties(newProperty);
+
+              for i = 1:numel(props)
+                newProperty.(cell2mat(props(i))) = affectedObject.(affectedPropertyName).(cell2mat(props(i)));
+              end
+
+              affectedObject.(affectedPropertyName) = newProperty;
+            else
+              % If object has already been cached, check if nothing has changed.
+              assert(urx.Object.showPtr(affectedObject.(affectedPropertyName).id) == urx.Object.showPtr(affectedCFieldPtr));
+              assert(affectedObject.(affectedPropertyName).ptrType == stdPtrType);
             end
           end
           disableSetRecursion = disableSetRecursion - 1;

@@ -20,7 +20,7 @@ endif()
 
 project(
   Urx
-  VERSION 0.6.24.1
+  VERSION 0.6.24.2
   LANGUAGES C CXX
   DESCRIPTION "Ultrasound Raw eXchange format C++ implementation")
 
@@ -81,7 +81,8 @@ endif()
 
 set(INSTALL_NAME "${PROJECT_NAME}-${git_branch}")
 
-set(MATLAB_INSTALL_DATADIR ${CMAKE_INSTALL_DATAROOTDIR}/${INSTALL_NAME}/matlab)
+set(URX_MATLAB_INSTALL_DATADIR
+    ${CMAKE_INSTALL_DATAROOTDIR}/${INSTALL_NAME}/matlab)
 
 if(CALL_FROM_SETUP_PY)
   set(PYTHON_INSTALL_LIBDIR ${CMAKE_INSTALL_PREFIX})

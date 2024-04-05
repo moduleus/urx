@@ -5,6 +5,7 @@
 #include <complex>
 #include <cstddef>
 #include <memory>
+#include <optional>
 #include <ostream>
 #include <string>
 #include <utility>
@@ -28,6 +29,28 @@
 #include <urx/vector.h>
 #include <urx/version.h>
 #include <urx/wave.h>
+
+namespace urx {
+
+template <typename T>
+struct IsOptional : std::false_type {};
+
+template <typename T>
+struct IsOptional<std::optional<T>> : std::true_type {};
+
+template <typename T>
+struct IsWeakPtr : std::false_type {};
+
+template <typename T>
+struct IsWeakPtr<std::weak_ptr<T>> : std::true_type {};
+
+template <typename T>
+struct IsSharedPtr : std::false_type {};
+
+template <typename T>
+struct IsSharedPtr<std::shared_ptr<T>> : std::true_type {};
+
+}  // namespace urx
 
 // NOLINTBEGIN(bugprone-macro-parentheses)
 
@@ -216,6 +239,10 @@
   void CONCAT4(snake, assign, shared, shared)(void *this_ptr, void *other_ptr) {                   \
     *static_cast<std::shared_ptr<type> *>(this_ptr) =                                              \
         *static_cast<std::shared_ptr<type> *>(other_ptr);                                          \
+  }                                                                                                \
+  void CONCAT4(snake, assign, optional, shared)(void *this_ptr, void *other_ptr) {                 \
+    *static_cast<std::optional<type> *>(this_ptr) =                                                \
+        **static_cast<std::shared_ptr<type> *>(other_ptr);                                         \
   }
 
 #define _RAW_DATA_SHARED_NS_IMPL_real_shared_size(name, type_data)                             \
@@ -286,6 +313,23 @@
         std::dynamic_pointer_cast<type>(*static_cast<std::shared_ptr<other_type> *>(other_ptr));   \
   }
 
+namespace urx::matlab::detail {
+
+template <typename T>
+bool checkHasValue(const T &argument) {
+  if constexpr (urx::IsOptional<T>::value) {
+    return argument.has_value();
+  } else if constexpr (urx::IsWeakPtr<T>::value) {
+    return argument.owner_before(T{}) || T{}.owner_before(argument);
+  } else if constexpr (urx::IsSharedPtr<T>::value) {
+    return !!argument;
+  } else {
+    return true;
+  }
+}
+
+}  // namespace urx::matlab::detail
+
 #define OBJECT_NS_RAW_DATA_IMPL(ns, name, t1, t2, other_name) \
   _OBJECT_RAW_DATA_IMPL(CONCAT4(ns, name, t1, t2), CONCAT_NS(ns, name), other_name)
 
@@ -296,6 +340,24 @@
   }                                                                                               \
   void *CONCAT3(snake, shared, member)(void *this_ptr) {                                          \
     return &static_cast<std::shared_ptr<type> *>(this_ptr)->get()->member;                        \
+  }                                                                                               \
+  void *CONCAT3(snake, optional, member)(void *this_ptr) {                                        \
+    return &(*static_cast<std::optional<type> *>(this_ptr))->member;                              \
+  }                                                                                               \
+  bool CONCAT3(snake, member, has_data)(void *this_ptr) {                                         \
+    return urx::matlab::detail::checkHasValue(static_cast<type *>(this_ptr)->member);             \
+  }                                                                                               \
+  bool CONCAT4(snake, weak, member, has_data)(void *this_ptr) {                                   \
+    return urx::matlab::detail::checkHasValue(                                                    \
+        static_cast<std::weak_ptr<type> *>(this_ptr)->lock()->member);                            \
+  }                                                                                               \
+  bool CONCAT4(snake, shared, member, has_data)(void *this_ptr) {                                 \
+    return urx::matlab::detail::checkHasValue(                                                    \
+        static_cast<std::shared_ptr<type> *>(this_ptr)->get()->member);                           \
+  }                                                                                               \
+  bool CONCAT4(snake, optional, member, has_data)(void *this_ptr) {                               \
+    return urx::matlab::detail::checkHasValue(                                                    \
+        (*static_cast<std::optional<type> *>(this_ptr))->member);                                 \
   }
 
 #define OBJECT_ACCESSOR_NS_IMPL(ns, name, member) \
