@@ -4,11 +4,14 @@
 #ifdef __cplusplus
 #include <cstddef>
 #else
+#include <assert.h>
 #include <stddef.h>
 #include <stdint.h>
 #endif
 
 #include <urx/matlab/export.h>
+
+#define FORCE_SEMICOLON static_assert(true)
 
 // NOLINTBEGIN(readability-identifier-naming)
 
@@ -73,13 +76,13 @@
 
 #define _RAW_DATA_SHARED_NS_DECL(name, type_data, type_number)                                 \
   URX_MATLAB_EXPORT void *CONCAT5(name, type_data, type_number, shared, size)(void *this_ptr); \
-  URX_MATLAB_EXPORT void *CONCAT5(name, type_data, type_number, shared, data)(void *this_ptr);
+  URX_MATLAB_EXPORT void *CONCAT5(name, type_data, type_number, shared, data)(void *this_ptr)
 
-#define RAW_DATA_SHARED_NS_DECL(ns, type_data)                    \
-  _RAW_DATA_SHARED_NS_DECL(CONCAT2(ns, RawData), type_data, real) \
+#define RAW_DATA_SHARED_NS_DECL(ns, type_data)                     \
+  _RAW_DATA_SHARED_NS_DECL(CONCAT2(ns, RawData), type_data, real); \
   _RAW_DATA_SHARED_NS_DECL(CONCAT2(ns, RawData), type_data, complex)
-#define RAW_DATA_SHARED_DECL(type_data)              \
-  _RAW_DATA_SHARED_NS_DECL(RawData, type_data, real) \
+#define RAW_DATA_SHARED_DECL(type_data)               \
+  _RAW_DATA_SHARED_NS_DECL(RawData, type_data, real); \
   _RAW_DATA_SHARED_NS_DECL(RawData, type_data, complex)
 
 #define _OBJECT_DECL(name)                                                                       \

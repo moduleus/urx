@@ -8,6 +8,7 @@
 #include <optional>
 #include <ostream>
 #include <string>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -85,7 +86,8 @@ struct IsSharedPtr<std::shared_ptr<T>> : std::true_type {};
   }                                                                                               \
   void CONCAT3(vector, snake, assign)(void *this_ptr, void *other_ptr) {                          \
     *static_cast<std::vector<type> *>(this_ptr) = *static_cast<std::vector<type> *>(other_ptr);   \
-  }
+  }                                                                                               \
+  FORCE_SEMICOLON
 
 #define VECTOR_RAW_NS_IMPL(ns, name) _VECTOR_RAW_IMPL(CONCAT2(ns, name), CONCAT_NS(ns, name))
 #define VECTOR_RAW_NS2_IMPL(ns, name_snake, name_real) \
@@ -121,7 +123,8 @@ struct IsSharedPtr<std::shared_ptr<T>> : std::true_type {};
   void CONCAT3(vector_2d, snake, assign)(void *this_ptr, void *other_ptr) {                       \
     *static_cast<std::vector<std::vector<type>> *>(this_ptr) =                                    \
         *static_cast<std::vector<std::vector<type>> *>(other_ptr);                                \
-  }
+  }                                                                                               \
+  FORCE_SEMICOLON
 
 #define VECTOR_2D_RAW_NS_IMPL(ns, name) _VECTOR_2D_RAW_IMPL(CONCAT2(ns, name), CONCAT_NS(ns, name))
 #define VECTOR_2D_RAW_NS2_IMPL(ns, name_snake, name_real) \
@@ -161,7 +164,8 @@ struct IsSharedPtr<std::shared_ptr<T>> : std::true_type {};
   void CONCAT3(vector_shared, snake, assign)(void *this_ptr, void *other_ptr) {                   \
     *static_cast<std::vector<std::shared_ptr<type>> *>(this_ptr) =                                \
         *static_cast<std::vector<std::shared_ptr<type>> *>(other_ptr);                            \
-  }
+  }                                                                                               \
+  FORCE_SEMICOLON
 
 #define VECTOR_SHARED_NS_IMPL(ns, name) _VECTOR_SHARED_IMPL(CONCAT2(ns, name), CONCAT_NS(ns, name))
 #define VECTOR_SHARED_NS2_IMPL(ns, name_snake, name_real) \
@@ -201,7 +205,8 @@ struct IsSharedPtr<std::shared_ptr<T>> : std::true_type {};
   void CONCAT3(vector_weak, snake, assign)(void *this_ptr, void *other_ptr) {                     \
     *static_cast<std::vector<std::weak_ptr<type>> *>(this_ptr) =                                  \
         *static_cast<std::vector<std::weak_ptr<type>> *>(other_ptr);                              \
-  }
+  }                                                                                               \
+  FORCE_SEMICOLON
 
 #define VECTOR_WEAK_NS_IMPL(ns, name) _VECTOR_WEAK_IMPL(CONCAT2(ns, name), CONCAT_NS(ns, name))
 #define VECTOR_WEAK_NS2_IMPL(ns, name_snake, name_real) \
@@ -243,7 +248,8 @@ struct IsSharedPtr<std::shared_ptr<T>> : std::true_type {};
   void CONCAT4(snake, assign, optional, shared)(void *this_ptr, void *other_ptr) {                 \
     *static_cast<std::optional<type> *>(this_ptr) =                                                \
         **static_cast<std::shared_ptr<type> *>(other_ptr);                                         \
-  }
+  }                                                                                                \
+  FORCE_SEMICOLON
 
 #define _RAW_DATA_SHARED_NS_IMPL_real_shared_size(name, type_data)                             \
   void *CONCAT5(name, type_data, real, shared, size)(void *this_ptr) {                         \
@@ -251,7 +257,8 @@ struct IsSharedPtr<std::shared_ptr<T>> : std::true_type {};
     retval =                                                                                   \
         (*static_cast<std::shared_ptr<urx::RawDataNoInit<type_data>> *>(this_ptr))->getSize(); \
     return &retval;                                                                            \
-  }
+  }                                                                                            \
+  FORCE_SEMICOLON
 #define _RAW_DATA_SHARED_NS_IMPL_complex_shared_size(name, type_data)                            \
   void *CONCAT5(name, type_data, complex, shared, size)(void *this_ptr) {                        \
     static uint64_t retval;                                                                      \
@@ -265,23 +272,25 @@ struct IsSharedPtr<std::shared_ptr<T>> : std::true_type {};
   void *CONCAT5(name, type_data, real, shared, data)(void *this_ptr) {                \
     return (*static_cast<std::shared_ptr<urx::RawDataNoInit<type_data>> *>(this_ptr)) \
         ->getBuffer();                                                                \
-  }
+  }                                                                                   \
+  FORCE_SEMICOLON
 #define _RAW_DATA_SHARED_NS_IMPL_complex_shared_data(name, type_data)                     \
   void *CONCAT5(name, type_data, complex, shared, data)(void *this_ptr) {                 \
     return (*static_cast<std::shared_ptr<urx::RawDataNoInit<std::complex<type_data>>> *>( \
                 this_ptr))                                                                \
         ->getBuffer();                                                                    \
-  }
+  }                                                                                       \
+  FORCE_SEMICOLON
 
 #define _RAW_DATA_SHARED_NS_IMPL(name, type_data, type_number)           \
   _RAW_DATA_SHARED_NS_IMPL_##type_number##_shared_size(name, type_data); \
-  _RAW_DATA_SHARED_NS_IMPL_##type_number##_shared_data(name, type_data);
+  _RAW_DATA_SHARED_NS_IMPL_##type_number##_shared_data(name, type_data)
 
-#define RAW_DATA_SHARED_NS_IMPL(ns, name, type_data)           \
-  _RAW_DATA_SHARED_NS_IMPL(CONCAT2(ns, name), type_data, real) \
+#define RAW_DATA_SHARED_NS_IMPL(ns, name, type_data)            \
+  _RAW_DATA_SHARED_NS_IMPL(CONCAT2(ns, name), type_data, real); \
   _RAW_DATA_SHARED_NS_IMPL(CONCAT2(ns, name), type_data, complex)
-#define RAW_DATA_SHARED_IMPL(name, type_data)     \
-  _RAW_DATA_SHARED_NS_IMPL(name, type_data, real) \
+#define RAW_DATA_SHARED_IMPL(name, type_data)      \
+  _RAW_DATA_SHARED_NS_IMPL(name, type_data, real); \
   _RAW_DATA_SHARED_NS_IMPL(name, type_data, complex)
 
 #define OBJECT_NS_IMPL(ns, name) _OBJECT_IMPL(CONCAT2(ns, name), CONCAT_NS(ns, name))
@@ -311,7 +320,8 @@ struct IsSharedPtr<std::shared_ptr<T>> : std::true_type {};
   void CONCAT4(snake, assign, shared, shared)(void *this_ptr, void *other_ptr) {                   \
     *static_cast<std::shared_ptr<type> *>(this_ptr) =                                              \
         std::dynamic_pointer_cast<type>(*static_cast<std::shared_ptr<other_type> *>(other_ptr));   \
-  }
+  }                                                                                                \
+  FORCE_SEMICOLON
 
 namespace urx::matlab::detail {
 
@@ -358,7 +368,8 @@ bool checkHasValue(const T &argument) {
   bool CONCAT4(snake, optional, member, has_data)(void *this_ptr) {                               \
     return urx::matlab::detail::checkHasValue(                                                    \
         (*static_cast<std::optional<type> *>(this_ptr))->member);                                 \
-  }
+  }                                                                                               \
+  FORCE_SEMICOLON
 
 #define OBJECT_ACCESSOR_NS_IMPL(ns, name, member) \
   _OBJECT_ACCESSOR_IMPL(CONCAT2(ns, name), CONCAT_NS(ns, name), member)
@@ -366,127 +377,127 @@ bool checkHasValue(const T &argument) {
   _OBJECT_ACCESSOR_IMPL(CONCAT2(ns, name_snake), CONCAT_NS(ns, name_real), member)
 #define OBJECT_ACCESSOR_IMPL(name, member) _OBJECT_ACCESSOR_IMPL(name, name, member)
 
-#define URX_MATLAB_ACQUISITION_IMPL(ns)                  \
-  OBJECT_NS_IMPL(ns, Acquisition)                        \
-  OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, authors)      \
-  OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, description)  \
-  OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, local_time)   \
-  OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, country_code) \
-  OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, system)       \
-  OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, sound_speed)  \
-  OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, timestamp)    \
-  OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, probes)       \
-  OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, excitations)  \
-  OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, groups)       \
+#define URX_MATLAB_ACQUISITION_IMPL(ns)                   \
+  OBJECT_NS_IMPL(ns, Acquisition);                        \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, authors);      \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, description);  \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, local_time);   \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, country_code); \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, system);       \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, sound_speed);  \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, timestamp);    \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, probes);       \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, excitations);  \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, groups);       \
   OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, groups_data)
 
-#define URX_MATLAB_DATASET_IMPL(ns)             \
-  OBJECT_NS_IMPL(ns, Dataset)                   \
-  OBJECT_ACCESSOR_NS_IMPL(ns, Dataset, version) \
+#define URX_MATLAB_DATASET_IMPL(ns)              \
+  OBJECT_NS_IMPL(ns, Dataset);                   \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Dataset, version); \
   OBJECT_ACCESSOR_NS_IMPL(ns, Dataset, acquisition)
 
 #define URX_MATLAB_ELEMENT_GEOMETRY_IMPL(ns) \
-  OBJECT_NS_IMPL(ns, ElementGeometry)        \
+  OBJECT_NS_IMPL(ns, ElementGeometry);       \
   OBJECT_ACCESSOR_NS_IMPL(ns, ElementGeometry, perimeter)
 
-#define URX_MATLAB_ELEMENT_IMPL(ns)                      \
-  OBJECT_NS_IMPL(ns, Element)                            \
-  OBJECT_ACCESSOR_NS_IMPL(ns, Element, transform)        \
-  OBJECT_ACCESSOR_NS_IMPL(ns, Element, element_geometry) \
+#define URX_MATLAB_ELEMENT_IMPL(ns)                       \
+  OBJECT_NS_IMPL(ns, Element);                            \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Element, transform);        \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Element, element_geometry); \
   OBJECT_ACCESSOR_NS_IMPL(ns, Element, impulse_response)
 
-#define URX_MATLAB_EVENT_IMPL(ns)                    \
-  OBJECT_NS_IMPL(ns, Event)                          \
-  OBJECT_ACCESSOR_NS_IMPL(ns, Event, transmit_setup) \
+#define URX_MATLAB_EVENT_IMPL(ns)                     \
+  OBJECT_NS_IMPL(ns, Event);                          \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Event, transmit_setup); \
   OBJECT_ACCESSOR_NS_IMPL(ns, Event, receive_setup)
 
-#define URX_MATLAB_EXCITATION_IMPL(ns)                        \
-  OBJECT_NS_IMPL(ns, Excitation)                              \
-  OBJECT_ACCESSOR_NS_IMPL(ns, Excitation, pulse_shape)        \
-  OBJECT_ACCESSOR_NS_IMPL(ns, Excitation, transmit_frequency) \
-  OBJECT_ACCESSOR_NS_IMPL(ns, Excitation, sampling_frequency) \
+#define URX_MATLAB_EXCITATION_IMPL(ns)                         \
+  OBJECT_NS_IMPL(ns, Excitation);                              \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Excitation, pulse_shape);        \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Excitation, transmit_frequency); \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Excitation, sampling_frequency); \
   OBJECT_ACCESSOR_NS_IMPL(ns, Excitation, waveform)
 
-#define URX_MATLAB_GROUP_DATA_IMPL(ns)                        \
-  OBJECT_NS_IMPL(ns, GroupData)                               \
-  OBJECT_ACCESSOR_NS_IMPL(ns, GroupData, group)               \
-  OBJECT_ACCESSOR_NS_IMPL(ns, GroupData, raw_data)            \
-  OBJECT_ACCESSOR_NS_IMPL(ns, GroupData, group_timestamp)     \
-  OBJECT_ACCESSOR_NS_IMPL(ns, GroupData, sequence_timestamps) \
+#define URX_MATLAB_GROUP_DATA_IMPL(ns)                         \
+  OBJECT_NS_IMPL(ns, GroupData);                               \
+  OBJECT_ACCESSOR_NS_IMPL(ns, GroupData, group);               \
+  OBJECT_ACCESSOR_NS_IMPL(ns, GroupData, raw_data);            \
+  OBJECT_ACCESSOR_NS_IMPL(ns, GroupData, group_timestamp);     \
+  OBJECT_ACCESSOR_NS_IMPL(ns, GroupData, sequence_timestamps); \
   OBJECT_ACCESSOR_NS_IMPL(ns, GroupData, event_timestamps)
 
-#define URX_MATLAB_GROUP_IMPL(ns)                   \
-  OBJECT_NS_IMPL(ns, Group)                         \
-  OBJECT_ACCESSOR_NS_IMPL(ns, Group, sampling_type) \
-  OBJECT_ACCESSOR_NS_IMPL(ns, Group, data_type)     \
-  OBJECT_ACCESSOR_NS_IMPL(ns, Group, description)   \
+#define URX_MATLAB_GROUP_IMPL(ns)                    \
+  OBJECT_NS_IMPL(ns, Group);                         \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Group, sampling_type); \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Group, data_type);     \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Group, description);   \
   OBJECT_ACCESSOR_NS_IMPL(ns, Group, sequence)
 
-#define URX_MATLAB_IMPULSE_RESPONSE_IMPL(ns)                       \
-  OBJECT_NS_IMPL(ns, ImpulseResponse)                              \
-  OBJECT_ACCESSOR_NS_IMPL(ns, ImpulseResponse, sampling_frequency) \
-  OBJECT_ACCESSOR_NS_IMPL(ns, ImpulseResponse, time_offset)        \
-  OBJECT_ACCESSOR_NS_IMPL(ns, ImpulseResponse, units)              \
+#define URX_MATLAB_IMPULSE_RESPONSE_IMPL(ns)                        \
+  OBJECT_NS_IMPL(ns, ImpulseResponse);                              \
+  OBJECT_ACCESSOR_NS_IMPL(ns, ImpulseResponse, sampling_frequency); \
+  OBJECT_ACCESSOR_NS_IMPL(ns, ImpulseResponse, time_offset);        \
+  OBJECT_ACCESSOR_NS_IMPL(ns, ImpulseResponse, units);              \
   OBJECT_ACCESSOR_NS_IMPL(ns, ImpulseResponse, data)
 
-#define URX_MATLAB_PROBE_IMPL(ns)                        \
-  OBJECT_NS_IMPL(ns, Probe)                              \
-  OBJECT_ACCESSOR_NS_IMPL(ns, Probe, description)        \
-  OBJECT_ACCESSOR_NS_IMPL(ns, Probe, type)               \
-  OBJECT_ACCESSOR_NS_IMPL(ns, Probe, transform)          \
-  OBJECT_ACCESSOR_NS_IMPL(ns, Probe, element_geometries) \
-  OBJECT_ACCESSOR_NS_IMPL(ns, Probe, impulse_responses)  \
+#define URX_MATLAB_PROBE_IMPL(ns)                         \
+  OBJECT_NS_IMPL(ns, Probe);                              \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Probe, description);        \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Probe, type);               \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Probe, transform);          \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Probe, element_geometries); \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Probe, impulse_responses);  \
   OBJECT_ACCESSOR_NS_IMPL(ns, Probe, elements)
 
-#define URX_MATLAB_RECEIVE_SETUP_IMPL(ns)                           \
-  OBJECT_NS_IMPL(ns, ReceiveSetup)                                  \
-  OBJECT_ACCESSOR_NS_IMPL(ns, ReceiveSetup, probe)                  \
-  OBJECT_ACCESSOR_NS_IMPL(ns, ReceiveSetup, probe_transform)        \
-  OBJECT_ACCESSOR_NS_IMPL(ns, ReceiveSetup, sampling_frequency)     \
-  OBJECT_ACCESSOR_NS_IMPL(ns, ReceiveSetup, number_samples)         \
-  OBJECT_ACCESSOR_NS_IMPL(ns, ReceiveSetup, active_elements)        \
-  OBJECT_ACCESSOR_NS_IMPL(ns, ReceiveSetup, tgc_profile)            \
-  OBJECT_ACCESSOR_NS_IMPL(ns, ReceiveSetup, tgc_sampling_frequency) \
-  OBJECT_ACCESSOR_NS_IMPL(ns, ReceiveSetup, modulation_frequency)   \
+#define URX_MATLAB_RECEIVE_SETUP_IMPL(ns)                            \
+  OBJECT_NS_IMPL(ns, ReceiveSetup);                                  \
+  OBJECT_ACCESSOR_NS_IMPL(ns, ReceiveSetup, probe);                  \
+  OBJECT_ACCESSOR_NS_IMPL(ns, ReceiveSetup, probe_transform);        \
+  OBJECT_ACCESSOR_NS_IMPL(ns, ReceiveSetup, sampling_frequency);     \
+  OBJECT_ACCESSOR_NS_IMPL(ns, ReceiveSetup, number_samples);         \
+  OBJECT_ACCESSOR_NS_IMPL(ns, ReceiveSetup, active_elements);        \
+  OBJECT_ACCESSOR_NS_IMPL(ns, ReceiveSetup, tgc_profile);            \
+  OBJECT_ACCESSOR_NS_IMPL(ns, ReceiveSetup, tgc_sampling_frequency); \
+  OBJECT_ACCESSOR_NS_IMPL(ns, ReceiveSetup, modulation_frequency);   \
   OBJECT_ACCESSOR_NS_IMPL(ns, ReceiveSetup, time_offset)
 
-#define URX_MATLAB_TRANSFORM_IMPL(ns)              \
-  OBJECT_NS_IMPL(ns, Transform)                    \
-  OBJECT_ACCESSOR_NS_IMPL(ns, Transform, rotation) \
+#define URX_MATLAB_TRANSFORM_IMPL(ns)               \
+  OBJECT_NS_IMPL(ns, Transform);                    \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Transform, rotation); \
   OBJECT_ACCESSOR_NS_IMPL(ns, Transform, translation)
 
-#define URX_MATLAB_TRANSMIT_SETUP_IMPL(ns)                    \
-  OBJECT_NS_IMPL(ns, TransmitSetup)                           \
-  OBJECT_ACCESSOR_NS_IMPL(ns, TransmitSetup, probe)           \
-  OBJECT_ACCESSOR_NS_IMPL(ns, TransmitSetup, wave)            \
-  OBJECT_ACCESSOR_NS_IMPL(ns, TransmitSetup, active_elements) \
-  OBJECT_ACCESSOR_NS_IMPL(ns, TransmitSetup, excitations)     \
-  OBJECT_ACCESSOR_NS_IMPL(ns, TransmitSetup, delays)          \
-  OBJECT_ACCESSOR_NS_IMPL(ns, TransmitSetup, probe_transform) \
+#define URX_MATLAB_TRANSMIT_SETUP_IMPL(ns)                     \
+  OBJECT_NS_IMPL(ns, TransmitSetup);                           \
+  OBJECT_ACCESSOR_NS_IMPL(ns, TransmitSetup, probe);           \
+  OBJECT_ACCESSOR_NS_IMPL(ns, TransmitSetup, wave);            \
+  OBJECT_ACCESSOR_NS_IMPL(ns, TransmitSetup, active_elements); \
+  OBJECT_ACCESSOR_NS_IMPL(ns, TransmitSetup, excitations);     \
+  OBJECT_ACCESSOR_NS_IMPL(ns, TransmitSetup, delays);          \
+  OBJECT_ACCESSOR_NS_IMPL(ns, TransmitSetup, probe_transform); \
   OBJECT_ACCESSOR_NS_IMPL(ns, TransmitSetup, time_offset)
 
-#define URX_MATLAB_VECTOR3D_IMPL(ns)                          \
-  OBJECT_NS2_IMPL(ns, Vector3D, Vector3D<double>)             \
-  OBJECT_ACCESSOR_NS2_IMPL(ns, Vector3D, Vector3D<double>, x) \
-  OBJECT_ACCESSOR_NS2_IMPL(ns, Vector3D, Vector3D<double>, y) \
+#define URX_MATLAB_VECTOR3D_IMPL(ns)                           \
+  OBJECT_NS2_IMPL(ns, Vector3D, Vector3D<double>);             \
+  OBJECT_ACCESSOR_NS2_IMPL(ns, Vector3D, Vector3D<double>, x); \
+  OBJECT_ACCESSOR_NS2_IMPL(ns, Vector3D, Vector3D<double>, y); \
   OBJECT_ACCESSOR_NS2_IMPL(ns, Vector3D, Vector3D<double>, z)
 
-#define URX_MATLAB_VECTOR2D_IMPL(ns)                          \
-  OBJECT_NS2_IMPL(ns, Vector2D, Vector2D<double>)             \
-  OBJECT_ACCESSOR_NS2_IMPL(ns, Vector2D, Vector2D<double>, x) \
+#define URX_MATLAB_VECTOR2D_IMPL(ns)                           \
+  OBJECT_NS2_IMPL(ns, Vector2D, Vector2D<double>);             \
+  OBJECT_ACCESSOR_NS2_IMPL(ns, Vector2D, Vector2D<double>, x); \
   OBJECT_ACCESSOR_NS2_IMPL(ns, Vector2D, Vector2D<double>, y)
 
-#define URX_MATLAB_VERSION_IMPL(ns)           \
-  OBJECT_NS_IMPL(ns, Version)                 \
-  OBJECT_ACCESSOR_NS_IMPL(ns, Version, major) \
-  OBJECT_ACCESSOR_NS_IMPL(ns, Version, minor) \
+#define URX_MATLAB_VERSION_IMPL(ns)            \
+  OBJECT_NS_IMPL(ns, Version);                 \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Version, major); \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Version, minor); \
   OBJECT_ACCESSOR_NS_IMPL(ns, Version, patch)
 
-#define URX_MATLAB_WAVE_IMPL(ns)                               \
-  OBJECT_NS_IMPL(ns, Wave)                                     \
-  OBJECT_ACCESSOR_NS_IMPL(ns, Wave, type)                      \
-  OBJECT_ACCESSOR_NS_IMPL(ns, Wave, time_zero)                 \
-  OBJECT_ACCESSOR_NS_IMPL(ns, Wave, time_zero_reference_point) \
+#define URX_MATLAB_WAVE_IMPL(ns)                                \
+  OBJECT_NS_IMPL(ns, Wave);                                     \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Wave, type);                      \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Wave, time_zero);                 \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Wave, time_zero_reference_point); \
   OBJECT_ACCESSOR_NS_IMPL(ns, Wave, parameters)
 
 // NOLINTEND(bugprone-macro-parentheses)
