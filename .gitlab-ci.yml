@@ -1,5 +1,5 @@
 variables:
-  GIT_CLONE_PATH: $CI_BUILDS_DIR/$CI_PROJECT_PATH
+  CI_PROJECT_DIR: $CI_BUILDS_DIR/$CI_PROJECT_PATH
 
 .before-script-vcpkg-windows: &before-script-vcpkg-windows
   - Push-Location
