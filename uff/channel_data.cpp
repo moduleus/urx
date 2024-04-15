@@ -8,6 +8,7 @@
 
 #include <iomanip>
 #include <ostream>
+#include <string>
 #include <utility>
 
 #include "uff/log.h"
@@ -20,20 +21,20 @@ namespace uff {
 template <typename DataType>
 void ChannelData<DataType>::printSelf(std::ostream& os, const std::string& indent) const {
   superclass::printSelf(os, indent);
-  os << indent << "Authors: " << '"' << authors() << '"' << std::endl;
-  os << indent << "Description: " << '"' << description() << '"' << std::endl;
-  os << indent << "LocalTime: " << '"' << localTime() << '"' << std::endl;
-  os << indent << "CountryCode: " << '"' << countryCode() << '"' << std::endl;
-  os << indent << "System: " << '"' << system() << '"' << std::endl;
-  os << indent << "SoundSpeed: " << m_soundSpeed << std::endl;
+  os << indent << "Authors: " << '"' << authors() << '"' << '\n';
+  os << indent << "Description: " << '"' << description() << '"' << '\n';
+  os << indent << "LocalTime: " << '"' << localTime() << '"' << '\n';
+  os << indent << "CountryCode: " << '"' << countryCode() << '"' << '\n';
+  os << indent << "System: " << '"' << system() << '"' << '\n';
+  os << indent << "SoundSpeed: " << m_soundSpeed << '\n';
 
   if (m_repetitionRate.has_value()) {
-    os << indent << "RepetitionRate: " << m_repetitionRate.value() << std::endl;
+    os << indent << "RepetitionRate: " << m_repetitionRate.value() << '\n';
   } else {
-    os << indent << "RepetitionRate: " << UNDEFINED << std::endl;
+    os << indent << "RepetitionRate: " << UNDEFINED << '\n';
   }
 
-  os << indent << "Probes: (size=" << probes().size() << ")" << std::endl;
+  os << indent << "Probes: (size=" << probes().size() << ")" << '\n';
 
   for (uint32_t i = 0; i < m_probes.size(); i++) {
     const auto& sptr = probes()[i];
@@ -41,28 +42,28 @@ void ChannelData<DataType>::printSelf(std::ostream& os, const std::string& inden
     (*sptr).printSelf(os, indent + UFF_STD_INDENT + UFF_STD_INDENT);
   }
 
-  os << indent << "UniqueWaves: (size=" << m_uniqueWaves.size() << ")" << std::endl;
+  os << indent << "UniqueWaves: (size=" << m_uniqueWaves.size() << ")" << '\n';
   for (uint32_t i = 0; i < uniqueWaves().size(); i++) {
     os << indent + UFF_STD_INDENT << "#" << std::setfill('0') << std::setw(8) << i + 1 << ": ";
     const auto& sptr = uniqueWaves()[i];
     (*sptr).printSelf(os, indent + UFF_STD_INDENT + UFF_STD_INDENT);
   }
 
-  os << indent << "UniqueEvents: (size=" << m_uniqueEvents.size() << ")" << std::endl;
+  os << indent << "UniqueEvents: (size=" << m_uniqueEvents.size() << ")" << '\n';
   for (uint32_t i = 0; i < uniqueEvents().size(); i++) {
     os << indent + UFF_STD_INDENT << "#" << std::setfill('0') << std::setw(8) << i + 1 << ": ";
     const auto& sptr = uniqueEvents()[i];
     (*sptr).printSelf(os, indent + UFF_STD_INDENT + UFF_STD_INDENT);
   }
 
-  os << indent << "Sequence: (size=" << m_sequence.size() << ")" << std::endl;
+  os << indent << "Sequence: (size=" << m_sequence.size() << ")" << '\n';
   for (uint32_t i = 0; i < sequence().size(); i++) {
     os << indent + UFF_STD_INDENT << "#" << std::setfill('0') << std::setw(8) << i + 1 << ": ";
     const auto& timedEvent = sequence()[i];
     timedEvent.printSelf(os, indent + UFF_STD_INDENT + UFF_STD_INDENT);
   }
 
-  os << indent << "Data: (size=" << m_data.size() << ")\n" << std::endl;
+  os << indent << "Data: (size=" << m_data.size() << ")\n" << '\n';
 }
 
 template <typename DataType>

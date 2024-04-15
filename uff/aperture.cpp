@@ -7,25 +7,26 @@
 #include "uff/aperture.h"
 
 #include <ostream>
+#include <string>
 
 namespace uff {
 
 void Aperture::printSelf(std::ostream& os, const std::string& indent) const {
   superclass::printSelf(os, indent);
   if (m_window.has_value())
-    os << indent << "Window: \"" << m_window.value() << "\"" << std::endl;
+    os << indent << "Window: \"" << m_window.value() << "\"" << '\n';
   else
-    os << indent << "Window: \"" << UNDEFINED << "\"" << std::endl;
+    os << indent << "Window: \"" << UNDEFINED << "\"" << '\n';
 
   if (m_fNumber.has_value())
-    os << indent << "F-Number: " << m_fNumber.value() << std::endl;
+    os << indent << "F-Number: " << m_fNumber.value() << '\n';
   else
-    os << indent << "F-Number: " << UNDEFINED << std::endl;
+    os << indent << "F-Number: " << UNDEFINED << '\n';
 
   if (m_fixedSize.has_value())
-    os << indent << "FixedSize: " << m_fNumber.value() << std::endl;
+    os << indent << "FixedSize: " << m_fNumber.value() << '\n';
   else
-    os << indent << "FixedSize: " << UNDEFINED << std::endl;
+    os << indent << "FixedSize: " << UNDEFINED << '\n';
 }
 
 }  // namespace uff

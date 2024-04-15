@@ -11,6 +11,7 @@
 #include <cmath>
 #include <cstdio>
 #include <ostream>
+#include <string>
 #include <utility>
 
 #include "uff/channel_data.h"
@@ -91,7 +92,7 @@ void Reader<DataType>::readChannelData(const H5::Group& group) {
   channelData.setSoundSpeed(readMetadataTypeDataset(group, "sound_speed"));
   channelData.setRepetitionRate(readOptionalMetadataTypeDataset(group, "repetition_rate"));
 
-  if (!m_skipChannelDataData && group.openDataSet("data").getDataType() != H5DataType) {
+  if (!m_skipChannelDataData && !(group.openDataSet("data").getDataType() == H5DataType)) {
     LOG_THIS(ERROR) << "Invalid format of data.\n";
     return;
   }
@@ -246,13 +247,13 @@ void Reader<DataType>::readDataTypeArrayDataset(const H5::Group& group, const st
   // find dataset dimensions
   H5::DataSpace dataspace = dataset.getSpace();
   int ndims = dataspace.getSimpleExtentNdims();
-  //std::cout << "ndims:" << ndims << std::endl;
+  //std::cout << "ndims:" << ndims << '\n';
   dimensions.resize(ndims);
   dataspace.getSimpleExtentDims(reinterpret_cast<hsize_t*>(dimensions.data()));  // Poor casting
   size_t numel = 1;
   for (auto sz : dimensions) {
     numel *= sz;
-    //std::cout << "sz:" << sz << std::endl;
+    //std::cout << "sz:" << sz << '\n';
   }
 
   if (!m_skipChannelDataData) {
@@ -275,13 +276,13 @@ void Reader<DataType>::readMetadataTypeArrayDataset(const H5::Group& group, cons
   // find dataset dimensions
   H5::DataSpace dataspace = dataset.getSpace();
   int ndims = dataspace.getSimpleExtentNdims();
-  //std::cout << "ndims:" << ndims << std::endl;
+  //std::cout << "ndims:" << ndims << '\n';
   dimensions.resize(ndims);
   dataspace.getSimpleExtentDims(reinterpret_cast<hsize_t*>(dimensions.data()));  // Poor casting
   size_t numel = 1;
   for (auto sz : dimensions) {
     numel *= sz;
-    //std::cout << "sz:" << sz << std::endl;
+    //std::cout << "sz:" << sz << '\n';
   }
 
   // reserve space in the output buffer
@@ -302,7 +303,7 @@ void Reader<DataType>::readIntegerArrayDataset(const H5::Group& group, const std
   // find dataset dimensions
   H5::DataSpace dataspace = dataset.getSpace();
   int ndims = dataspace.getSimpleExtentNdims();
-  //std::cout << "ndims:" << ndims << std::endl;
+  //std::cout << "ndims:" << ndims << '\n';
   dimensions.resize(ndims);
   dataspace.getSimpleExtentDims(reinterpret_cast<hsize_t*>(
       dimensions
@@ -312,7 +313,7 @@ void Reader<DataType>::readIntegerArrayDataset(const H5::Group& group, const std
   size_t numel = 1;
   for (auto sz : dimensions) {
     numel *= sz;
-    //std::cout << "sz:" << sz << std::endl;
+    //std::cout << "sz:" << sz << '\n';
   }
 
   // reserve space in the output buffer

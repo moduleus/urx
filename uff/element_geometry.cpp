@@ -7,6 +7,7 @@
 #include "uff/element_geometry.h"
 
 #include <ostream>
+#include <string>
 #include <utility>
 
 namespace uff {

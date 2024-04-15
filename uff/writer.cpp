@@ -11,6 +11,7 @@
 #include <cstdio>
 #include <limits>
 #include <ostream>
+#include <string>
 
 #define H5DataType \
   (std::is_same<DataType, float>::value ? H5::PredType::NATIVE_FLOAT : H5::PredType::NATIVE_SHORT)
@@ -53,11 +54,11 @@ template <typename DataType>
 void Writer<DataType>::printSelf(std::ostream& os, const std::string& indent) const {
   superclass::printSelf(os, indent);
   os << indent << "HDF5 Version: "
-     << "TODO" << std::endl
+     << "TODO" << '\n'
      << indent << "UFF Version: "
-     << "TODO" << std::endl
-     << indent << "FileName: " << this->m_fileName << std::endl
-     << indent << "Dataset: " << *this->m_dataset << std::endl;
+     << "TODO" << '\n'
+     << indent << "FileName: " << this->m_fileName << '\n'
+     << indent << "Dataset: " << *this->m_dataset << '\n';
 }
 
 template <typename DataType>

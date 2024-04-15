@@ -1,5 +1,6 @@
 #include "types.h"
 
+#include <ostream>
 #include <string>
 
 namespace uff {

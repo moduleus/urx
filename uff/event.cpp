@@ -7,6 +7,7 @@
 #include "uff/event.h"
 
 #include <ostream>
+#include <string>
 #include <utility>
 
 namespace uff {

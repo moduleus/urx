@@ -7,6 +7,7 @@
 #include "uff/element.h"
 
 #include <ostream>
+#include <string>
 
 namespace uff {
 
@@ -29,7 +30,7 @@ void Element::printSelf(std::ostream& os, const std::string& indent) const {
     os << m_z.value();
   else
     os << UNDEFINED;
-  os << std::endl;
+  os << '\n';
 }
 
 }  // namespace uff

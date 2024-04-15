@@ -7,6 +7,7 @@
 #include "uff/transform.h"
 
 #include <ostream>
+#include <string>
 #include <utility>
 
 namespace uff {

@@ -16,7 +16,16 @@
 #include <map>
 #include <memory>
 #include <optional>
+// For gcc 12
+// https://lists.nongnu.org/archive/html/linphone-developers/2022-08/msg00011.html
+#if defined(__GNUC__) && !defined(__clang__) && !defined(__INTEL_COMPILER)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
 #include <regex>
+#if defined(__GNUC__) && !defined(__clang__) && !defined(__INTEL_COMPILER)
+#pragma GCC diagnostic pop
+#endif
 #include <sstream>
 #include <stdexcept>
 #include <streambuf>

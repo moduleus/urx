@@ -1,10 +1,17 @@
-# Copyright Moduleus 2019
-
 cmake_minimum_required(VERSION 3.9)
+
+option(WITH_HDF5 "Build with HDF5" OFF)
+if(WITH_HDF5)
+  list(APPEND VCPKG_MANIFEST_FEATURES "hdf5")
+endif()
+option(BUILD_TESTING "Build the testing tree." ON)
+if(BUILD_TESTING)
+  list(APPEND VCPKG_MANIFEST_FEATURES "tests")
+endif()
 
 project(
   Uff
-  VERSION 0.5.9
+  VERSION 0.5.10
   LANGUAGES C CXX
   DESCRIPTION "Ultrasound File Format C++ implementation")
 
@@ -33,7 +40,7 @@ endif()
 add_subdirectory("uff")
 
 # Set the tree view in IDE
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${UFF_SRCS})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${UFF_SRCS} ${UFF_H})
 
 find_package(Git REQUIRED)
 execute_process(
@@ -55,8 +62,13 @@ if(NOT BUILD_SHARED_LIBS)
 endif()
 
 # Target library ###
-add_library(${PROJECT_NAME} ${UFF_SRCS})
+add_library(${PROJECT_NAME})
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+target_sources(
+  ${PROJECT_NAME}
+  PRIVATE ${UFF_SRCS}
+  PUBLIC FILE_SET HEADERS BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR} FILES ${UFF_H})
+
 if(ANDROID)
   target_link_libraries(${PROJECT_NAME} PUBLIC log)
 endif()
@@ -142,27 +154,19 @@ write_basic_package_version_file(
 # Install library ###
 
 install(
-  TARGETS ${PROJECT_NAME}
-  EXPORT ${PROJECT_NAME}Targets
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  INCLUDES
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}-${git_branch})
-
-install(
   EXPORT ${PROJECT_NAME}Targets
   FILE ${PROJECT_NAME}Targets.cmake
   NAMESPACE ${PROJECT_NAME}::
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}-${git_branch})
 
+set(CMAKE_INSTALL_INCLUDEDIR
+    ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}-${git_branch})
+
 install(
-  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}-${git_branch}
-  FILES_MATCHING
-  PATTERN "*.hpp"
-  PATTERN "*.h"
-  PATTERN ".git" EXCLUDE
-  PATTERN "CI" EXCLUDE
-  PATTERN "log.h" EXCLUDE)
+  TARGETS ${PROJECT_NAME}
+  EXPORT ${PROJECT_NAME}Targets
+  FILE_SET HEADERS
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
               ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake

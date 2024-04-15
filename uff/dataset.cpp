@@ -7,6 +7,7 @@
 #include "uff/dataset.h"
 
 #include <ostream>
+#include <string>
 
 namespace uff {
 

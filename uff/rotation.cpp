@@ -7,6 +7,7 @@
 #include "uff/rotation.h"
 
 #include <ostream>
+#include <string>
 
 namespace uff {
 
@@ -14,7 +15,7 @@ void Rotation::printSelf(std::ostream& os, const std::string& indent) const {
   superclass::printSelf(os, indent);
   os << indent << "X: " << this->x() << ", "
      << "Y: " << this->y() << ", "
-     << "Z: " << this->z() << std::endl;
+     << "Z: " << this->z() << '\n';
 }
 
 }  // namespace uff

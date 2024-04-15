@@ -4,6 +4,9 @@
  * \brief
  */
 
+#include <ostream>
+#include <string>
+
 #include "uff/position.h"
 
 namespace uff {
