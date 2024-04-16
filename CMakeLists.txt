@@ -20,12 +20,13 @@ endif()
 
 project(
   Urx
-  VERSION 0.6.24.2
+  VERSION 0.6.24.3
   LANGUAGES C CXX
   DESCRIPTION "Ultrasound Raw eXchange format C++ implementation")
 
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
+include(CheckIPOSupported)
 
 # Configure compiler ###
 
@@ -40,7 +41,10 @@ if(NOT CMAKE_BUILD_TYPE)
       CACHE STRING "Choose the type of build" FORCE)
 endif()
 
-set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
+check_ipo_supported(RESULT result_ipo)
+if(result_ipo)
+  set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
+endif()
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   add_compile_options("$<$<CONFIG:RELEASE>:-ffat-lto-objects>")
 endif()
