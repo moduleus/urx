@@ -54,6 +54,23 @@ doc:doxygen:
     expire_in: 1 day
   dependencies: []
 
+.plantuml-all-cleanup:
+  &plantuml-all-cleanup # Remove every function (operator!= and operator==)
+  - perl -0777 -i -pe "s/.+\(.*\).*\n//gm" doc/plantuml/architecture.puml
+  # Remove template
+  - sed -i 's/<template<[^>]*>>//' doc/plantuml/architecture.puml
+  # Vector3D and Transform has too many relation
+  - sed -i 's/.* \*-- urx\.Vector3D//' doc/plantuml/architecture.puml
+  - sed -i 's/.* \*-- urx\.Transform//' doc/plantuml/architecture.puml
+  # Vector3D is always double
+  - sed -i 's/Vector3D<double>/Vector3D/' doc/plantuml/architecture.puml
+  # Type for Vector2D and Vector3D are always double
+  - sed -i 's/\( :\s\)T$/\1double/' doc/plantuml/architecture.puml
+  # Replace hardcoded template
+  - sed -i 's/GroupData<Group>/GroupData/' doc/plantuml/architecture.puml
+  # Remove number of connections
+  - sed -i -E 's/ "[0-9]+" \*--/ *--/' doc/plantuml/architecture.puml
+
 doc:plantuml:
   stage: doc
   tags:
@@ -62,27 +79,39 @@ doc:plantuml:
   script:
     - mkdir -p doc/plantuml
     - hpp2plantuml -i "urx/*.h" -o doc/plantuml/architecture.puml
-    - sed -r -i "/.+\(.*\).*/d" doc/plantuml/architecture.puml
-    - perl -0777 -i -pe "s/^.*urx\.Acquisition.*\*-- urx.Excitation\n\n\n//gm" doc/plantuml/architecture.puml
-    - perl -0777 -i -pe "s/^.*urx\.Acquisition.*\*-- urx.Group\n\n\n//gm" doc/plantuml/architecture.puml
-    - perl -0777 -i -pe "s/^.*urx\.Acquisition.*\*-- urx.Probe\n\n\n//gm" doc/plantuml/architecture.puml
-    - perl -0777 -i -pe "s/^.*urx\.Acquisition.*\*-- urx.ReceiveSetup\n\n\n//gm" doc/plantuml/architecture.puml
-    - perl -0777 -i -pe "s/^.*urx\.Acquisition.*\*-- urx.Wave\n\n\n//gm" doc/plantuml/architecture.puml
-    - perl -0777 -i -pe "s/^.*\*-- urx.Transform\n\n\n//gm" doc/plantuml/architecture.puml
-    - perl -0777 -i -pe "s/^.*\*-- urx.Vector.*D\n\n\n//gm" doc/plantuml/architecture.puml
-    - perl -0777 -i -pe "s/^.*urx\.Element.*\*-- .*\n\n\n//gm" doc/plantuml/architecture.puml
-    - perl -0777 -i -pe "s/^.*urx\.Element.*\*-- .*\n\n\n//gm" doc/plantuml/architecture.puml
-    - sed -i 's/std:://g' doc/plantuml/architecture.puml
-    - sed -i 's/weak_ptr<\([^>]*\)>/\1*/g' doc/plantuml/architecture.puml
-    - sed -i 's/shared_ptr<\([^>]*\)>/\1/g' doc/plantuml/architecture.puml
-    - sed -i 's/vector<\(.*\)>/\1[ ]/g' doc/plantuml/architecture.puml
-    - sed -i 's/vector<\(.*\)>/\1[ ]/g' doc/plantuml/architecture.puml
-    - sed -i 's/DoubleNan/double/g' doc/plantuml/architecture.puml
-    # - sed -r -i "/\+--\ urx\.GroupData::VecDataType.*/d" doc/plantuml/architecture.puml
-    # - perl -0777 -i -pe "s/^.*class\ GroupData::VecDataType.*\n.*}\n\n//gm" doc/plantuml/architecture.puml
+    - *plantuml-all-cleanup
+    - cp doc/plantuml/architecture.puml doc/plantuml/architecture_user.puml
+    # Replace weak_ptr / shared_ptr by raw (user only)
+    - sed -i 's/std::weak_ptr<\([^>]*\)>/\1/' doc/plantuml/architecture_user.puml
+    - sed -i 's/std::shared_ptr<\([^>]*\)>/\1/' doc/plantuml/architecture_user.puml
+    # Replace vector by [] (user only)
+    - sed -i 's/std::vector<\([^<>]*\)>/\1[]/' doc/plantuml/architecture_user.puml
+    - sed -i 's/std::vector<\([^<>]*\)>/\1[]/' doc/plantuml/architecture_user.puml
+    # Remove std::
+    - sed -i 's/std:://' doc/plantuml/architecture_user.puml
+    # Remove detail namespace
+    - sed -i 's/detail\.//g' doc/plantuml/architecture_user.puml
+    - sed -i 's/namespace detail {//' doc/plantuml/architecture_user.puml
+    - sed -i -z 's/\t\t\}\n\t\}/\t\}/g' doc/plantuml/architecture_user.puml
+    # Don't show C type.
+    - sed -i -E 's/(int[0-9]+)_t/\1/' doc/plantuml/architecture_user.puml
+    # Don't show relation between shared_ptr and class if the field is used
+    # only to store data:
+    # Acquisition -> Excitation
+    - sed -i -E 's/^urx\.Acquisition \*-- urx\.Excitation$//' doc/plantuml/architecture_user.puml
+    # Acquisition -> Group
+    - sed -i -E 's/^urx\.Acquisition \*-- urx\.Group$//' doc/plantuml/architecture_user.puml
+    # Acquisition -> Probe
+    - sed -i -E 's/^urx\.Acquisition \*-- urx\.Probe$//' doc/plantuml/architecture_user.puml
+    # Probe -> ElementGeometry
+    - sed -i -E 's/^urx\.Probe \*-- urx\.ElementGeometry$//' doc/plantuml/architecture_user.puml
+    # Probe -> ImpulseResponse
+    - sed -i -E 's/^urx\.Probe \*-- urx\.ImpulseResponse$//' doc/plantuml/architecture_user.puml
+    # Generate image
     - mkdir -p public/plantuml
-    - plantuml doc/plantuml/architecture.puml
-    - mv doc/plantuml/architecture.* public/plantuml/
+    - plantuml doc/plantuml/architecture_user.puml
+    - plantuml -tsvg doc/plantuml/architecture_user.puml
+    - mv doc/plantuml/architecture_user.* public/plantuml/
   allow_failure: true
   artifacts:
     paths:
