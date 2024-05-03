@@ -15,6 +15,7 @@ variables:
   - $destination="$Env:VCPKG_CACHE_PATH\vcpkg-$vcpkg_tag.exe"
   - if(-not(Test-Path $destination)){Invoke-WebRequest -Uri $url -OutFile $destination}
   - Copy-Item $destination "$Env:VCPKG_LOCAL_GIT\vcpkg.exe"
+  - $Env:LOCALAPPDATA = $Env:GITLAB_LOCALAPPDATA
 
 .before-script-vcpkg-linux: &before-script-vcpkg-linux
   - git submodule update --init vcpkg-registry

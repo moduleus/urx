@@ -4,3 +4,4 @@ wheel
 setuptools>69.0.0
 cmake
 pybind11-stubgen
+typing-extensions

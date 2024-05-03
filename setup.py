@@ -14,7 +14,10 @@ if cmake_build_type_arg != None:
     sys.argv.remove(cmake_build_type_arg)
     cmake_build_type_arg = cmake_build_type_arg[len("cmake_build_type=") :]
 else:
-    cmake_build_type_arg = "Release"
+    if sys.platform == "win32":
+        cmake_build_type_arg = "RelWithDebInfo"
+    else:
+        cmake_build_type_arg = "Release"
 
 CMAKE_TOOLCHAIN_FILE_arg = next(
     (arg for arg in sys.argv if arg.startswith("CMAKE_TOOLCHAIN_FILE")), None
