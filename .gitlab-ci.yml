@@ -41,6 +41,7 @@ stages:
 
 doc:doxygen:
   stage: doc
+  needs: []
   tags:
     - docker
   image: $CI_REGISTRY/common/ci/dockerci/doxygen:latest
@@ -52,7 +53,6 @@ doc:doxygen:
     paths:
       - public
     expire_in: 1 day
-  dependencies: []
 
 .plantuml-all-cleanup:
   &plantuml-all-cleanup # Remove every function (operator!= and operator==)
@@ -73,6 +73,7 @@ doc:doxygen:
 
 doc:plantuml:
   stage: doc
+  needs: []
   tags:
     - docker
   image: $CI_REGISTRY/common/ci/dockerci/hpp2plantuml:latest
@@ -117,29 +118,30 @@ doc:plantuml:
     paths:
       - public
     expire_in: 1 day
-  dependencies: []
 
 format:clang-format:
   stage: format
+  needs: []
   tags:
     - ubuntu
     - clang-format
   script:
     - find . -type f -name "*.cpp" -or -name "*.cc" -or -name "*.hpp" -or -name "*.h" |xargs clang-format-17 --style=file --dry-run --Werror
-  dependencies: []
 
 format:cmake-format:
   stage: format
+  needs: []
   tags:
     - ubuntu
     - cmake-format
   script:
     - find . -name "CMakeLists.txt" | xargs cmake-format -i
     - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Please, format your CMake files."; echo "$(git status --porcelain)"; exit 1; fi
-  dependencies: []
 
 format:clang-tidy:
   stage: format
+  needs:
+    - build:ubuntu-with-HDF5-static
   tags:
     - ubuntu
     - clang-tidy
@@ -147,11 +149,11 @@ format:clang-tidy:
     - cd CI
     - mkdir -p $(grep -Po '"directory":\s"\K[^"]+' compile_commands.json | sort -u)
     - CLANG_TIDY_CACHE_BINARY=/usr/bin/clang-tidy-17 run-clang-tidy-17 -clang-tidy-binary /usr/local/bin/clang-tidy-cache || exit 1
-  dependencies:
-    - build:ubuntu-with-HDF5-static
 
 format:iwyu:
   stage: format
+  needs:
+    - build:ubuntu-with-HDF5-static
   tags:
     - ubuntu
     - iwyu
@@ -166,8 +168,6 @@ format:iwyu:
     - git diff > CI/iwyu.patch
     - cat CI/iwyu.patch
     - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Please apply iwyu patch to fix your includes"; exit 1; fi
-  dependencies:
-    - build:ubuntu-with-HDF5-static
   allow_failure: true
   artifacts:
     when: on_failure
@@ -178,6 +178,7 @@ format:iwyu:
 
 format:black-format:
   stage: format
+  needs: []
   image: $CI_REGISTRY/common/ci/dockerci/black:latest
   tags:
     - docker
@@ -188,7 +189,6 @@ format:black-format:
     - cat CI/format.patch
     - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Please, format your python code with black."; exit 1; fi
   allow_failure: true
-  dependencies: []
   artifacts:
     when: on_failure
     paths:
@@ -215,6 +215,7 @@ tag:version:
 
 build:windows-with-HDF5-static:
   stage: build
+  needs: []
   tags:
     - win10
     - build
@@ -229,6 +230,7 @@ build:windows-with-HDF5-static:
 
 build:windows-with-HDF5-shared:
   stage: build
+  needs: []
   tags:
     - win10
     - build
@@ -243,6 +245,7 @@ build:windows-with-HDF5-shared:
 
 build:ubuntu-with-HDF5-static:
   stage: build
+  needs: []
   tags:
     - ubuntu
     - build
@@ -269,6 +272,7 @@ build:ubuntu-with-HDF5-static:
 
 build:ubuntu-with-HDF5-shared:
   stage: build
+  needs: []
   tags:
     - ubuntu
     - build
@@ -284,6 +288,7 @@ build:ubuntu-with-HDF5-shared:
 # Check only once WITH_HDF5=OFF
 build:ubuntu-without-HDF5-static:
   stage: build
+  needs: []
   tags:
     - ubuntu
     - build
@@ -298,7 +303,7 @@ build:ubuntu-without-HDF5-static:
 
 build:windows-python:
   stage: build
-  dependencies: []
+  needs: []
   tags:
     - win10
     - python
@@ -314,7 +319,7 @@ build:windows-python:
 
 build:ubuntu-python:
   stage: build
-  dependencies: []
+  needs: []
   tags:
     - ubuntu
     - python
@@ -332,6 +337,7 @@ build:ubuntu-python:
 
 build:windows-matlab-static:
   stage: build
+  needs: []
   tags:
     - matlab
     - win10
@@ -346,6 +352,7 @@ build:windows-matlab-static:
 
 build:ubuntu-matlab-static:
   stage: build
+  needs: []
   tags:
     - matlab
     - ubuntu
