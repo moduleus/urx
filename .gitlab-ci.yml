@@ -29,6 +29,18 @@ variables:
   - if [ ! -f "$destination" ]; then wget -O "$destination" "https://github.com/microsoft/vcpkg-tool/releases/download/$vcpkg_tag/vcpkg-glibc" || exit 1; chmod +x "$destination"; fi
   - cp $destination "$VCPKG_LOCAL_GIT/vcpkg" || exit 1
 
+.before-script-python-windows: &before-script-python-windows
+  - python -m venv .venv
+  - .venv/Scripts/Activate.ps1
+  - pip install --upgrade pip
+  - pip install -r requirements-gitlab.txt
+
+.before-script-python-linux: &before-script-python-linux
+  - python -m venv .venv
+  - source .venv/bin/activate
+  - pip install --upgrade pip
+  - pip install -r requirements-gitlab.txt
+
 workflow:
   rules:
     - if: $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE != "merge_request_event"
@@ -309,13 +321,11 @@ build:windows-python:
     - python
   before_script:
     - *before-script-vcpkg-windows
-    - pew new CI-urx -r requirements-gitlab.txt
+    - *before-script-python-windows
   script:
     - $Env:CMAKE_BUILD_PARALLEL_LEVEL=$NUM_PARALLEL
-    - pew in CI-urx pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=$Env:VCPKG_LOCAL_GIT\\scripts\\buildsystems\\vcpkg.cmake cmake_build_type=Release" --no-clean -v
-    - pew in CI-urx python -m unittest discover test/python
-  after_script:
-    - pew rm CI-urx
+    - pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=$Env:VCPKG_LOCAL_GIT\\scripts\\buildsystems\\vcpkg.cmake cmake_build_type=Release" --no-clean -v
+    - python -m unittest discover test/python
 
 build:ubuntu-python:
   stage: build
@@ -325,15 +335,13 @@ build:ubuntu-python:
     - python
   before_script:
     - *before-script-vcpkg-linux
-    - pew new CI-urx -r requirements-gitlab.txt
+    - *before-script-python-linux
   script:
     - export CMAKE_BUILD_PARALLEL_LEVEL=$NUM_PARALLEL
-    - pew in CI-urx pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake cmake_build_type=Release" --no-clean -v
-    - pew in CI-urx python -m unittest discover test/python
-    - pew in CI-urx pybind11-stubgen pyurx --output-dir=python
+    - pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake cmake_build_type=Release" --no-clean -v
+    - python -m unittest discover test/python
+    - pybind11-stubgen pyurx --output-dir=python
     - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Run pybind11-stubgen before commit."; echo "$(git status --porcelain)"; git diff; exit 1; fi
-  after_script:
-    - pew rm CI-urx
 
 build:windows-matlab-static:
   stage: build
