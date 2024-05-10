@@ -41,6 +41,14 @@ variables:
   - pip install --upgrade pip
   - pip install -r requirements-gitlab.txt
 
+.after-script-clean-vcpkg-windows: &after-script-clean-vcpkg-windows
+  - Remove-Item -LiteralPath "$Env:VCPKG_LOCAL_GIT/buildtrees" -Force -Recurse
+  - Remove-Item -LiteralPath "$Env:VCPKG_LOCAL_GIT/packages" -Force -Recurse
+
+.after-script-clean-vcpkg-linux: &after-script-clean-vcpkg-linux
+  - rm -Rf "$VCPKG_LOCAL_GIT/buildtrees"
+  - rm -Rf "$VCPKG_LOCAL_GIT/packages"
+
 workflow:
   rules:
     - if: $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE != "merge_request_event"
@@ -239,6 +247,8 @@ build:windows-with-HDF5-static:
     - cmake.exe --install CI --config Release
     - cd CI
     - ctest.exe --output-on-failure -C Release
+  after_script:
+    - *after-script-clean-vcpkg-windows
 
 build:windows-with-HDF5-shared:
   stage: build
@@ -254,6 +264,8 @@ build:windows-with-HDF5-shared:
     - cmake.exe --install CI --config Release
     - cd CI
     - ctest.exe --output-on-failure -C Release
+  after_script:
+    - *after-script-clean-vcpkg-windows
 
 build:ubuntu-with-HDF5-static:
   stage: build
@@ -271,6 +283,8 @@ build:ubuntu-with-HDF5-static:
     - cmake --install CI --config Release
     - cd CI
     - ctest --output-on-failure -C Release
+  after_script:
+    - *after-script-clean-vcpkg-linux
   artifacts:
     paths:
       - CI/version.txt
@@ -296,6 +310,8 @@ build:ubuntu-with-HDF5-shared:
     - cmake --install CI --config Release
     - cd CI
     - ctest --output-on-failure -C Release
+  after_script:
+    - *after-script-clean-vcpkg-linux
 
 # Check only once WITH_HDF5=OFF
 build:ubuntu-without-HDF5-static:
@@ -312,6 +328,8 @@ build:ubuntu-without-HDF5-static:
     - cmake --install CI --config Release
     - cd CI
     - ctest --output-on-failure -C Release
+  after_script:
+    - *after-script-clean-vcpkg-linux
 
 build:windows-python:
   stage: build
@@ -326,6 +344,8 @@ build:windows-python:
     - $Env:CMAKE_BUILD_PARALLEL_LEVEL=$NUM_PARALLEL
     - pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=$Env:VCPKG_LOCAL_GIT\\scripts\\buildsystems\\vcpkg.cmake cmake_build_type=Release" --no-clean -v
     - python -m unittest discover test/python
+  after_script:
+    - *after-script-clean-vcpkg-windows
 
 build:ubuntu-python:
   stage: build
@@ -342,6 +362,8 @@ build:ubuntu-python:
     - python -m unittest discover test/python
     - pybind11-stubgen pyurx --output-dir=python
     - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Run pybind11-stubgen before commit."; echo "$(git status --porcelain)"; git diff; exit 1; fi
+  after_script:
+    - *after-script-clean-vcpkg-linux
 
 build:windows-matlab-static:
   stage: build
@@ -357,6 +379,8 @@ build:windows-matlab-static:
     - cmake.exe --install CI --config Release
     - cd test/matlab
     - C:/"Program Files"/MATLAB/R2023b/bin/matlab.exe -wait -batch runTestsCi
+  after_script:
+    - *after-script-clean-vcpkg-windows
 
 build:ubuntu-matlab-static:
   stage: build
@@ -374,3 +398,4 @@ build:ubuntu-matlab-static:
     - ssh moduleus@localhost "cd $PWD && export HDF5_DISABLE_VERSION_CHECK=1 && /opt/matlab/R2022b/bin/matlab -batch runTestsCi"
   after_script:
     - ssh moduleus@localhost "rm -f $PWD/test/matlab/test.urx"
+    - *after-script-clean-vcpkg-linux
