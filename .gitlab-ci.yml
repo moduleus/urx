@@ -75,10 +75,7 @@ doc:doxygen:
       - public
     expire_in: 1 day
 
-.plantuml-all-cleanup:
-  &plantuml-all-cleanup # Remove every function (operator!= and operator==)
-  - perl -0777 -i -pe "s/.+\(.*\).*\n//gm" doc/plantuml/architecture.puml
-  # Remove template
+.plantuml-all-cleanup: &plantuml-all-cleanup # Remove template
   - sed -i 's/<template<[^>]*>>//' doc/plantuml/architecture.puml
   # Vector3D and Transform has too many relation
   - sed -i 's/.* \*-- urx\.Vector3D//' doc/plantuml/architecture.puml
@@ -91,6 +88,21 @@ doc:doxygen:
   - sed -i 's/GroupData<Group>/GroupData/' doc/plantuml/architecture.puml
   # Remove number of connections
   - sed -i -E 's/ "[0-9]+" \*--/ *--/' doc/plantuml/architecture.puml
+  # Only show relation between shared_ptr and class. Remove weak_ptr relations.
+  - sed -i -E 's/^urx\..*TransmitSetup \*-- urx\.Excitation$//' doc/plantuml/architecture.puml
+  - sed -i -E 's/^urx\..*GroupData \*-- urx\..*Group$//' doc/plantuml/architecture.puml
+  - sed -i -E 's/^urx\..*ReceiveSetup \*-- urx\.Probe$//' doc/plantuml/architecture.puml
+  - sed -i -E 's/^urx\..*TransmitSetup \*-- urx\.Probe$//' doc/plantuml/architecture.puml
+  - sed -i -E 's/^urx\.Element \*-- urx\.ElementGeometry$//' doc/plantuml/architecture.puml
+  - sed -i -E 's/^urx\.Element \*-- urx\.ImpulseResponse$//' doc/plantuml/architecture.puml
+  - sed -i -E 's/^urx\.RawDataNoInit \*-- urx\.DataType$//' doc/plantuml/architecture.puml
+  - sed -i -E 's/^urx\.RawDataVector \*-- urx\.DataType$//' doc/plantuml/architecture.puml
+  # Remove detail namespace
+  - sed -i 's/detail\.//g' doc/plantuml/architecture.puml
+  - sed -i 's/namespace detail {//' doc/plantuml/architecture.puml
+  - sed -i -z 's/\t\t\}\n\t\}/\t\}/g' doc/plantuml/architecture.puml
+  # Remove destructor
+  - sed -i -z "s/\n[^~\n]*~[^\n]*\n/\n/g" doc/plantuml/architecture.puml
 
 doc:plantuml:
   stage: doc
@@ -103,37 +115,35 @@ doc:plantuml:
     - hpp2plantuml -i "urx/*.h" -o doc/plantuml/architecture.puml
     - *plantuml-all-cleanup
     - cp doc/plantuml/architecture.puml doc/plantuml/architecture_user.puml
-    # Replace weak_ptr / shared_ptr by raw (user only)
+    # Remove every function (operator!= and operator==)
+    - sed -i -E -z "s/\n[^\n]+\([^\n]*\)[^\n]*//g" doc/plantuml/architecture_user.puml
+    # Replace weak_ptr / shared_ptr by raw
     - sed -i 's/std::weak_ptr<\([^>]*\)>/\1/' doc/plantuml/architecture_user.puml
     - sed -i 's/std::shared_ptr<\([^>]*\)>/\1/' doc/plantuml/architecture_user.puml
-    # Replace vector by [] (user only)
+    # Replace vector by []
     - sed -i 's/std::vector<\([^<>]*\)>/\1[]/' doc/plantuml/architecture_user.puml
     - sed -i 's/std::vector<\([^<>]*\)>/\1[]/' doc/plantuml/architecture_user.puml
     # Remove std::
     - sed -i 's/std:://' doc/plantuml/architecture_user.puml
-    # Remove detail namespace
-    - sed -i 's/detail\.//g' doc/plantuml/architecture_user.puml
-    - sed -i 's/namespace detail {//' doc/plantuml/architecture_user.puml
-    - sed -i -z 's/\t\t\}\n\t\}/\t\}/g' doc/plantuml/architecture_user.puml
-    # Don't show C type.
+    # Don't show C type
     - sed -i -E 's/(int[0-9]+)_t/\1/' doc/plantuml/architecture_user.puml
-    # Don't show relation between shared_ptr and class if the field is used
-    # only to store data:
-    # Acquisition -> Excitation
-    - sed -i -E 's/^urx\.Acquisition \*-- urx\.Excitation$//' doc/plantuml/architecture_user.puml
-    # Acquisition -> Group
-    - sed -i -E 's/^urx\.Acquisition \*-- urx\.Group$//' doc/plantuml/architecture_user.puml
-    # Acquisition -> Probe
-    - sed -i -E 's/^urx\.Acquisition \*-- urx\.Probe$//' doc/plantuml/architecture_user.puml
-    # Probe -> ElementGeometry
-    - sed -i -E 's/^urx\.Probe \*-- urx\.ElementGeometry$//' doc/plantuml/architecture_user.puml
-    # Probe -> ImpulseResponse
-    - sed -i -E 's/^urx\.Probe \*-- urx\.ImpulseResponse$//' doc/plantuml/architecture_user.puml
     # Generate image
     - mkdir -p public/plantuml
     - plantuml doc/plantuml/architecture_user.puml
     - plantuml -tsvg doc/plantuml/architecture_user.puml
     - mv doc/plantuml/architecture_user.* public/plantuml/
+    # Generate C++ documentation
+    - hpp2plantuml -i "urx/*.h" -i urx/detail/raw_data.h -o doc/plantuml/architecture.puml
+    - *plantuml-all-cleanup
+    - cp doc/plantuml/architecture.puml doc/plantuml/architecture_cpp.puml
+    # Remove only comparison operator
+    - sed -i -E -z 's/\n[^\n]*operator[^\n]*//g' doc/plantuml/architecture_cpp.puml
+    # Remove metaprogramming struct
+    - sed -i -E -z 's/\n[^\n]*IsComplex[^}]*}//g' doc/plantuml/architecture_cpp.puml
+    # Generate image
+    - plantuml doc/plantuml/architecture_cpp.puml
+    - plantuml -tsvg doc/plantuml/architecture_cpp.puml
+    - mv doc/plantuml/architecture_cpp.* public/plantuml/
   allow_failure: true
   artifacts:
     paths:
