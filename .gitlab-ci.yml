@@ -1,3 +1,6 @@
+variables:
+  GIT_CLONE_PATH: $CI_BUILDS_DIR/$CI_PROJECT_PATH
+
 .before-script-vcpkg-windows: &before-script-vcpkg-windows
   - Push-Location
   - git submodule update --init vcpkg-registry
@@ -12,6 +15,7 @@
   - $destination="$Env:VCPKG_CACHE_PATH\vcpkg-$vcpkg_tag.exe"
   - if(-not(Test-Path $destination)){Invoke-WebRequest -Uri $url -OutFile $destination}
   - Copy-Item $destination "$Env:VCPKG_LOCAL_GIT\vcpkg.exe"
+  - $Env:LOCALAPPDATA = $Env:GITLAB_LOCALAPPDATA
 
 .before-script-vcpkg-linux: &before-script-vcpkg-linux
   - git submodule update --init vcpkg-registry
@@ -26,6 +30,26 @@
   - if [ ! -f "$destination" ]; then wget -O "$destination" "https://github.com/microsoft/vcpkg-tool/releases/download/$vcpkg_tag/vcpkg-glibc" || exit 1; chmod +x "$destination"; fi
   - cp $destination "$VCPKG_LOCAL_GIT/vcpkg" || exit 1
 
+.before-script-python-windows: &before-script-python-windows
+  - python -m venv .venv
+  - .venv/Scripts/Activate.ps1
+  - pip install --upgrade pip
+  - pip install -r requirements-gitlab.txt
+
+.before-script-python-linux: &before-script-python-linux
+  - python -m venv .venv
+  - source .venv/bin/activate
+  - pip install --upgrade pip
+  - pip install -r requirements-gitlab.txt
+
+.after-script-clean-vcpkg-windows: &after-script-clean-vcpkg-windows
+  - Remove-Item -LiteralPath "$Env:VCPKG_BUILDTREE" -Force -Recurse
+  - Remove-Item -LiteralPath "$Env:VCPKG_LOCAL_GIT/packages" -Force -Recurse
+
+.after-script-clean-vcpkg-linux: &after-script-clean-vcpkg-linux
+  - rm -Rf "$VCPKG_LOCAL_GIT/buildtrees"
+  - rm -Rf "$VCPKG_LOCAL_GIT/packages"
+
 workflow:
   rules:
     - if: $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE != "merge_request_event"
@@ -33,11 +57,12 @@ workflow:
 stages:
   - build
   - format
-  - tag
   - doc
+  - tag
 
 doc:doxygen:
   stage: doc
+  needs: []
   tags:
     - docker
   image: $CI_REGISTRY/common/ci/dockerci/doxygen:latest
@@ -49,65 +74,105 @@ doc:doxygen:
     paths:
       - public
     expire_in: 1 day
-  dependencies: []
+
+.plantuml-all-cleanup: &plantuml-all-cleanup # Remove template
+  - sed -i 's/<template<[^>]*>>//' doc/plantuml/architecture.puml
+  # Vector3D and Transform has too many relation
+  - sed -i 's/.* \*-- urx\.Vector3D//' doc/plantuml/architecture.puml
+  - sed -i 's/.* \*-- urx\.Transform//' doc/plantuml/architecture.puml
+  # Vector3D is always double
+  - sed -i 's/Vector3D<double>/Vector3D/' doc/plantuml/architecture.puml
+  # Type for Vector2D and Vector3D are always double
+  - sed -i 's/\( :\s\)T$/\1double/' doc/plantuml/architecture.puml
+  # Replace hardcoded template
+  - sed -i 's/GroupData<Group>/GroupData/' doc/plantuml/architecture.puml
+  # Remove number of connections
+  - sed -i -E 's/ "[0-9]+" \*--/ *--/' doc/plantuml/architecture.puml
+  # Only show relation between shared_ptr and class. Remove weak_ptr relations.
+  - sed -i -E 's/^urx\..*TransmitSetup \*-- urx\.Excitation$//' doc/plantuml/architecture.puml
+  - sed -i -E 's/^urx\..*GroupData \*-- urx\..*Group$//' doc/plantuml/architecture.puml
+  - sed -i -E 's/^urx\..*ReceiveSetup \*-- urx\.Probe$//' doc/plantuml/architecture.puml
+  - sed -i -E 's/^urx\..*TransmitSetup \*-- urx\.Probe$//' doc/plantuml/architecture.puml
+  - sed -i -E 's/^urx\.Element \*-- urx\.ElementGeometry$//' doc/plantuml/architecture.puml
+  - sed -i -E 's/^urx\.Element \*-- urx\.ImpulseResponse$//' doc/plantuml/architecture.puml
+  - sed -i -E 's/^urx\.RawDataNoInit \*-- urx\.DataType$//' doc/plantuml/architecture.puml
+  - sed -i -E 's/^urx\.RawDataVector \*-- urx\.DataType$//' doc/plantuml/architecture.puml
+  # Remove detail namespace
+  - sed -i 's/detail\.//g' doc/plantuml/architecture.puml
+  - sed -i 's/namespace detail {//' doc/plantuml/architecture.puml
+  - sed -i -z 's/\t\t\}\n\t\}/\t\}/g' doc/plantuml/architecture.puml
+  # Remove destructor
+  - sed -i -z "s/\n[^~\n]*~[^\n]*\n/\n/g" doc/plantuml/architecture.puml
 
 doc:plantuml:
   stage: doc
+  needs: []
   tags:
     - docker
   image: $CI_REGISTRY/common/ci/dockerci/hpp2plantuml:latest
   script:
     - mkdir -p doc/plantuml
     - hpp2plantuml -i "urx/*.h" -o doc/plantuml/architecture.puml
-    - sed -r -i "/.+\(.*\).*/d" doc/plantuml/architecture.puml
-    - perl -0777 -i -pe "s/^.*urx\.Acquisition.*\*-- urx.Excitation\n\n\n//gm" doc/plantuml/architecture.puml
-    - perl -0777 -i -pe "s/^.*urx\.Acquisition.*\*-- urx.Group\n\n\n//gm" doc/plantuml/architecture.puml
-    - perl -0777 -i -pe "s/^.*urx\.Acquisition.*\*-- urx.Probe\n\n\n//gm" doc/plantuml/architecture.puml
-    - perl -0777 -i -pe "s/^.*urx\.Acquisition.*\*-- urx.ReceiveSetup\n\n\n//gm" doc/plantuml/architecture.puml
-    - perl -0777 -i -pe "s/^.*urx\.Acquisition.*\*-- urx.Wave\n\n\n//gm" doc/plantuml/architecture.puml
-    - perl -0777 -i -pe "s/^.*\*-- urx.Transform\n\n\n//gm" doc/plantuml/architecture.puml
-    - perl -0777 -i -pe "s/^.*\*-- urx.Vector.*D\n\n\n//gm" doc/plantuml/architecture.puml
-    - perl -0777 -i -pe "s/^.*urx\.Element.*\*-- .*\n\n\n//gm" doc/plantuml/architecture.puml
-    - perl -0777 -i -pe "s/^.*urx\.Element.*\*-- .*\n\n\n//gm" doc/plantuml/architecture.puml
-    - sed -i 's/std:://g' doc/plantuml/architecture.puml
-    - sed -i 's/weak_ptr<\([^>]*\)>/\1*/g' doc/plantuml/architecture.puml
-    - sed -i 's/shared_ptr<\([^>]*\)>/\1/g' doc/plantuml/architecture.puml
-    - sed -i 's/vector<\(.*\)>/\1[ ]/g' doc/plantuml/architecture.puml
-    - sed -i 's/vector<\(.*\)>/\1[ ]/g' doc/plantuml/architecture.puml
-    - sed -i 's/DoubleNan/double/g' doc/plantuml/architecture.puml
-    # - sed -r -i "/\+--\ urx\.GroupData::VecDataType.*/d" doc/plantuml/architecture.puml
-    # - perl -0777 -i -pe "s/^.*class\ GroupData::VecDataType.*\n.*}\n\n//gm" doc/plantuml/architecture.puml
+    - *plantuml-all-cleanup
+    - cp doc/plantuml/architecture.puml doc/plantuml/architecture_user.puml
+    # Remove every function (operator!= and operator==)
+    - sed -i -E -z "s/\n[^\n]+\([^\n]*\)[^\n]*//g" doc/plantuml/architecture_user.puml
+    # Replace weak_ptr / shared_ptr by raw
+    - sed -i 's/std::weak_ptr<\([^>]*\)>/\1/' doc/plantuml/architecture_user.puml
+    - sed -i 's/std::shared_ptr<\([^>]*\)>/\1/' doc/plantuml/architecture_user.puml
+    # Replace vector by []
+    - sed -i 's/std::vector<\([^<>]*\)>/\1[]/' doc/plantuml/architecture_user.puml
+    - sed -i 's/std::vector<\([^<>]*\)>/\1[]/' doc/plantuml/architecture_user.puml
+    # Remove std::
+    - sed -i 's/std:://' doc/plantuml/architecture_user.puml
+    # Don't show C type
+    - sed -i -E 's/(int[0-9]+)_t/\1/' doc/plantuml/architecture_user.puml
+    # Generate image
     - mkdir -p public/plantuml
-    - plantuml doc/plantuml/architecture.puml
-    - mv doc/plantuml/architecture.* public/plantuml/
+    - plantuml doc/plantuml/architecture_user.puml
+    - plantuml -tsvg doc/plantuml/architecture_user.puml
+    - mv doc/plantuml/architecture_user.* public/plantuml/
+    # Generate C++ documentation
+    - hpp2plantuml -i "urx/*.h" -i urx/detail/raw_data.h -o doc/plantuml/architecture.puml
+    - *plantuml-all-cleanup
+    - cp doc/plantuml/architecture.puml doc/plantuml/architecture_cpp.puml
+    # Remove only comparison operator
+    - sed -i -E -z 's/\n[^\n]*operator[^\n]*//g' doc/plantuml/architecture_cpp.puml
+    # Remove metaprogramming struct
+    - sed -i -E -z 's/\n[^\n]*IsComplex[^}]*}//g' doc/plantuml/architecture_cpp.puml
+    # Generate image
+    - plantuml doc/plantuml/architecture_cpp.puml
+    - plantuml -tsvg doc/plantuml/architecture_cpp.puml
+    - mv doc/plantuml/architecture_cpp.* public/plantuml/
   allow_failure: true
   artifacts:
     paths:
       - public
     expire_in: 1 day
-  dependencies: []
 
 format:clang-format:
   stage: format
+  needs: []
   tags:
     - ubuntu
     - clang-format
   script:
     - find . -type f -name "*.cpp" -or -name "*.cc" -or -name "*.hpp" -or -name "*.h" |xargs clang-format-17 --style=file --dry-run --Werror
-  dependencies: []
 
 format:cmake-format:
   stage: format
+  needs: []
   tags:
     - ubuntu
     - cmake-format
   script:
     - find . -name "CMakeLists.txt" | xargs cmake-format -i
     - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Please, format your CMake files."; echo "$(git status --porcelain)"; exit 1; fi
-  dependencies: []
 
 format:clang-tidy:
   stage: format
+  needs:
+    - build:ubuntu-with-HDF5-static
   tags:
     - ubuntu
     - clang-tidy
@@ -115,11 +180,11 @@ format:clang-tidy:
     - cd CI
     - mkdir -p $(grep -Po '"directory":\s"\K[^"]+' compile_commands.json | sort -u)
     - CLANG_TIDY_CACHE_BINARY=/usr/bin/clang-tidy-17 run-clang-tidy-17 -clang-tidy-binary /usr/local/bin/clang-tidy-cache || exit 1
-  dependencies:
-    - build:ubuntu-with-HDF5-static
 
 format:iwyu:
   stage: format
+  needs:
+    - build:ubuntu-with-HDF5-static
   tags:
     - ubuntu
     - iwyu
@@ -134,8 +199,6 @@ format:iwyu:
     - git diff > CI/iwyu.patch
     - cat CI/iwyu.patch
     - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Please apply iwyu patch to fix your includes"; exit 1; fi
-  dependencies:
-    - build:ubuntu-with-HDF5-static
   allow_failure: true
   artifacts:
     when: on_failure
@@ -146,6 +209,7 @@ format:iwyu:
 
 format:black-format:
   stage: format
+  needs: []
   image: $CI_REGISTRY/common/ci/dockerci/black:latest
   tags:
     - docker
@@ -156,7 +220,6 @@ format:black-format:
     - cat CI/format.patch
     - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Please, format your python code with black."; exit 1; fi
   allow_failure: true
-  dependencies: []
   artifacts:
     when: on_failure
     paths:
@@ -183,52 +246,61 @@ tag:version:
 
 build:windows-with-HDF5-static:
   stage: build
+  needs: []
   tags:
     - win10
     - build
   before_script:
     - *before-script-vcpkg-windows
   script:
-    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$Env:VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows-static-md-env -DVCPKG_HOST_TRIPLET=x64-windows-static-md-env -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="install" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DENABLE_PCH:BOOL=OFF
+    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$Env:VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows-static-md-release-env -DVCPKG_HOST_TRIPLET=x64-windows-static-md-release-env -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="install" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DENABLE_PCH:BOOL=OFF -DVCPKG_INSTALL_OPTIONS=--x-buildtrees-root=$(Write-Host "$Env:VCPKG_BUILDTREE")
     - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
     - cmake.exe --install CI --config Release
     - cd CI
     - ctest.exe --output-on-failure -C Release
+  after_script:
+    - *after-script-clean-vcpkg-windows
 
 build:windows-with-HDF5-shared:
   stage: build
+  needs: []
   tags:
     - win10
     - build
   before_script:
     - *before-script-vcpkg-windows
   script:
-    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$Env:VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows-env -DVCPKG_HOST_TRIPLET=x64-windows-env -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="install" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=OFF
+    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$Env:VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows-release-env -DVCPKG_HOST_TRIPLET=x64-windows-release-env -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="install" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DVCPKG_INSTALL_OPTIONS=--x-buildtrees-root=$(Write-Host "$Env:VCPKG_BUILDTREE")
     - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
     - cmake.exe --install CI --config Release
     - cd CI
     - ctest.exe --output-on-failure -C Release
+  after_script:
+    - *after-script-clean-vcpkg-windows
 
 build:ubuntu-with-HDF5-static:
   stage: build
+  needs: []
   tags:
     - ubuntu
     - build
   before_script:
     - *before-script-vcpkg-linux
   script:
-    - CFLAGS='-fsanitize=undefined,address' CXXFLAGS='-fsanitize=undefined,address' cmake -S . -B CI -DCMAKE_C_COMPILER=/usr/bin/clang-17 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-17 -DCMAKE_AR=/usr/bin/llvm-ar-17 -DCMAKE_AS=/usr/bin/llvm-as-17 -DCMAKE_RANLIB=/usr/bin/llvm-ranlib-17 -DCMAKE_LINKER_TYPE=LLD -DCMAKE_TOOLCHAIN_FILE="$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-linux -DVCPKG_HOST_TRIPLET=x64-linux -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=ON -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+    - cmake -S . -B CI -DCMAKE_C_COMPILER=/usr/bin/clang-17 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-17 -DCMAKE_AR=/usr/bin/llvm-ar-17 -DCMAKE_AS=/usr/bin/llvm-as-17 -DCMAKE_RANLIB=/usr/bin/llvm-ranlib-17 -DCMAKE_LINKER_TYPE=LLD -DCMAKE_TOOLCHAIN_FILE="$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-linux-release -DVCPKG_HOST_TRIPLET=x64-linux-release -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=ON -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
     - rm -Rf CI/CMakeCache.txt CI/CMakeFiles
-    - CFLAGS='-fsanitize=undefined,address' CXXFLAGS='-fsanitize=undefined,address' cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/usr/bin/clang-17 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-17 -DCMAKE_AR=/usr/bin/llvm-ar-17 -DCMAKE_AS=/usr/bin/llvm-as-17 -DCMAKE_RANLIB=/usr/bin/llvm-ranlib-17 -DCMAKE_LINKER_TYPE=LLD -DCMAKE_TOOLCHAIN_FILE="$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-linux -DVCPKG_HOST_TRIPLET=x64-linux -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="install" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=ON -DENABLE_PCH:BOOL=OFF -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+    - CFLAGS='-fsanitize=undefined,address' CXXFLAGS='-fsanitize=undefined,address' cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/usr/bin/clang-17 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-17 -DCMAKE_AR=/usr/bin/llvm-ar-17 -DCMAKE_AS=/usr/bin/llvm-as-17 -DCMAKE_RANLIB=/usr/bin/llvm-ranlib-17 -DCMAKE_LINKER_TYPE=LLD -DCMAKE_TOOLCHAIN_FILE="$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-linux-release -DVCPKG_HOST_TRIPLET=x64-linux-release -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="install" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=ON -DENABLE_PCH:BOOL=OFF -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
     - cmake --build CI --config Release --parallel $NUM_PARALLEL
     - cmake --install CI --config Release
     - cd CI
     - ctest --output-on-failure -C Release
+  after_script:
+    - *after-script-clean-vcpkg-linux
   artifacts:
     paths:
       - CI/version.txt
       - CI/compile_commands.json
-      - CI/vcpkg_installed/x64-linux/include
+      - CI/vcpkg_installed/x64-linux-release/include
       - CI/urx/config.h
       - CI/urx/utils/urx/utils/export.h
       - CI/matlab/binding/urx/matlab/export.h
@@ -237,93 +309,104 @@ build:ubuntu-with-HDF5-static:
 
 build:ubuntu-with-HDF5-shared:
   stage: build
+  needs: []
   tags:
     - ubuntu
     - build
   before_script:
     - *before-script-vcpkg-linux
   script:
-    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-linux-dynamic -DVCPKG_HOST_TRIPLET=x64-linux-dynamic -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="install" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-linux-dynamic-release -DVCPKG_HOST_TRIPLET=x64-linux-dynamic-release -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="install" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
     - cmake --build CI --config Release --parallel $NUM_PARALLEL
     - cmake --install CI --config Release
     - cd CI
     - ctest --output-on-failure -C Release
+  after_script:
+    - *after-script-clean-vcpkg-linux
 
 # Check only once WITH_HDF5=OFF
 build:ubuntu-without-HDF5-static:
   stage: build
+  needs: []
   tags:
     - ubuntu
     - build
   before_script:
     - *before-script-vcpkg-linux
   script:
-    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-linux -DVCPKG_HOST_TRIPLET=x64-linux -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="install" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=OFF -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-linux-release -DVCPKG_HOST_TRIPLET=x64-linux-release -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="install" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=OFF -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
     - cmake --build CI --config Release --parallel $NUM_PARALLEL
     - cmake --install CI --config Release
     - cd CI
     - ctest --output-on-failure -C Release
+  after_script:
+    - *after-script-clean-vcpkg-linux
 
 build:windows-python:
   stage: build
-  dependencies: []
+  needs: []
   tags:
     - win10
     - python
   before_script:
     - *before-script-vcpkg-windows
-    - pew new CI-urx -r requirements-gitlab.txt
+    - *before-script-python-windows
   script:
     - $Env:CMAKE_BUILD_PARALLEL_LEVEL=$NUM_PARALLEL
-    - pew in CI-urx pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=$Env:VCPKG_LOCAL_GIT\\scripts\\buildsystems\\vcpkg.cmake cmake_build_type=Release" --no-clean -v
-    - pew in CI-urx python -m unittest discover test/python
+    - pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=$Env:VCPKG_LOCAL_GIT\\scripts\\buildsystems\\vcpkg.cmake cmake_build_type=Release" --no-clean -v
+    - python -m unittest discover test/python
   after_script:
-    - pew rm CI-urx
+    - *after-script-clean-vcpkg-windows
 
 build:ubuntu-python:
   stage: build
-  dependencies: []
+  needs: []
   tags:
     - ubuntu
     - python
   before_script:
     - *before-script-vcpkg-linux
-    - pew new CI-urx -r requirements-gitlab.txt
+    - *before-script-python-linux
   script:
     - export CMAKE_BUILD_PARALLEL_LEVEL=$NUM_PARALLEL
-    - pew in CI-urx pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake cmake_build_type=Release" --no-clean -v
-    - pew in CI-urx python -m unittest discover test/python
-    - pew in CI-urx pybind11-stubgen pyurx --output-dir=python
+    - pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake cmake_build_type=Release" --no-clean -v
+    - python -m unittest discover test/python
+    - pybind11-stubgen pyurx --output-dir=python
     - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Run pybind11-stubgen before commit."; echo "$(git status --porcelain)"; git diff; exit 1; fi
   after_script:
-    - pew rm CI-urx
+    - *after-script-clean-vcpkg-linux
 
 build:windows-matlab-static:
   stage: build
+  needs: []
   tags:
     - matlab
     - win10
   before_script:
     - *before-script-vcpkg-windows
   script:
-    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$Env:VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows-static-md-env -DVCPKG_HOST_TRIPLET=x64-windows-static-md-env -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="install" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=OFF -DWITH_MATLAB:BOOL=ON -DENABLE_PCH:BOOL=OFF
+    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$Env:VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows-static-md-release-env -DVCPKG_HOST_TRIPLET=x64-windows-static-md-release-env -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="install" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=OFF -DWITH_MATLAB:BOOL=ON -DENABLE_PCH:BOOL=OFF -DVCPKG_INSTALL_OPTIONS=--x-buildtrees-root=$(Write-Host "$Env:VCPKG_BUILDTREE")
     - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
     - cmake.exe --install CI --config Release
     - cd test/matlab
     - C:/"Program Files"/MATLAB/R2023b/bin/matlab.exe -wait -batch runTestsCi
+  after_script:
+    - *after-script-clean-vcpkg-windows
 
 build:ubuntu-matlab-static:
   stage: build
+  needs: []
   tags:
     - matlab
     - ubuntu
   before_script:
     - *before-script-vcpkg-linux
   script:
-    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/usr/bin/clang-17 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-17 -DCMAKE_AR=/usr/bin/llvm-ar-17 -DCMAKE_AS=/usr/bin/llvm-as-17 -DCMAKE_RANLIB=/usr/bin/llvm-ranlib-17 -DCMAKE_LINKER_TYPE=LLD -DCMAKE_TOOLCHAIN_FILE="$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-linux -DVCPKG_HOST_TRIPLET=x64-linux -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="install" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=OFF -DWITH_MATLAB:BOOL=ON -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/usr/bin/clang-17 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-17 -DCMAKE_AR=/usr/bin/llvm-ar-17 -DCMAKE_AS=/usr/bin/llvm-as-17 -DCMAKE_RANLIB=/usr/bin/llvm-ranlib-17 -DCMAKE_LINKER_TYPE=LLD -DCMAKE_TOOLCHAIN_FILE="$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-linux-release -DVCPKG_HOST_TRIPLET=x64-linux-release -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="install" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=OFF -DWITH_MATLAB:BOOL=ON -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
     - cmake --build CI --config Release --parallel $NUM_PARALLEL
     - cmake --install CI --config Release
     - cd test/matlab
     - ssh moduleus@localhost "cd $PWD && export HDF5_DISABLE_VERSION_CHECK=1 && /opt/matlab/R2022b/bin/matlab -batch runTestsCi"
   after_script:
     - ssh moduleus@localhost "rm -f $PWD/test/matlab/test.urx"
+    - *after-script-clean-vcpkg-linux
