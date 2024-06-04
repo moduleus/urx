@@ -403,6 +403,10 @@ classdef FileFromScratch < matlab.unittest.TestCase
       dataset.acquisition.groupsData = [groupData1, groupData2];
       
       dataset.saveToFile('test.urx');
+
+      dataset2 = urx.Dataset.loadFromFile('test.urx');
+
+      % testcase.verifyTrue(isequal(dataset, dataset2));
       
       delete 'test.urx'
     end
