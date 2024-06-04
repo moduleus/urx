@@ -1,4 +1,4 @@
-classdef CreateUff < matlab.unittest.TestCase
+classdef FileFromScratch < matlab.unittest.TestCase
   properties (MethodSetupParameter)
     libraryPath = {''}
     headerPath = {''}
@@ -15,7 +15,7 @@ classdef CreateUff < matlab.unittest.TestCase
   end
 
   methods(Test)
-    function createUff(testcase)
+    function createFileFromScratch(testcase)
       dataset = urx.Dataset();
       
       dataset.version.minor = 123;
