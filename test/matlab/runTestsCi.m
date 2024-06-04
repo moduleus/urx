@@ -1,5 +1,6 @@
 function runTestsCi
   addpath([pwd '/../../matlab']);
+  setenv("HDF5_DISABLE_VERSION_CHECK", "1");
   if ispc()
     P = matlab.unittest.parameters.Parameter.fromData(...
       'libraryPath', {[pwd '/../../CI/matlab/binding/Release/UrxMatlabBinding.dll']},...
