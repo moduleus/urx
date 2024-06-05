@@ -244,8 +244,10 @@ classdef Object < urx.ObjectField
               for i = 1:numel(affectedProperty)
                 affectedPropertyStd.pushBack(affectedProperty(i));
                 % Update id and ptrType
-                affectedProperty(i) = affectedPropertyStd.data(i);
+                realAffectedDataI = affectedPropertyStd.data(i);
                 if isa(affectedProperty(i), 'urx.Object')
+                  affectedProperty(i).id = realAffectedDataI.id;
+                  affectedProperty(i).ptrType = realAffectedDataI.ptrType;
                   affectedProperty(i).parent = affectedObject;
                 end
               end
