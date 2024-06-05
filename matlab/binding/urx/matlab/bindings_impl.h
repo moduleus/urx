@@ -319,7 +319,7 @@ struct IsSharedPtr<std::shared_ptr<T>> : std::true_type {};
   }                                                                                                \
   void CONCAT4(snake, assign, shared, shared)(void *this_ptr, void *other_ptr) {                   \
     *static_cast<std::shared_ptr<type> *>(this_ptr) =                                              \
-        std::dynamic_pointer_cast<type>(*static_cast<std::shared_ptr<other_type> *>(other_ptr));   \
+        *static_cast<std::shared_ptr<other_type> *>(other_ptr);                                    \
   }                                                                                                \
   FORCE_SEMICOLON
 
