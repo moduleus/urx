@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <complex>
 #include <cstddef>
+#include <cstdint>
 #include <memory>
 #include <optional>
 #include <ostream>
@@ -337,14 +338,14 @@ struct IsSharedPtr<std::shared_ptr<T>> : std::true_type {};
   _RAW_DATA_SHARED_IMPL_##type_number##_shared_sampling_type(name, type_data); \
   _RAW_DATA_SHARED_IMPL_##type_number##_shared_data_type(name, type_data)
 
-#define _RAW_DATA_SHARED_NS_IMPL_TYPED(ns, name, type_data)     \
+#define _RAW_DATA_SHARED_NS_IMPL_TYPED(ns, name, type_data)  \
   _RAW_DATA_SHARED_IMPL(CONCAT2(ns, name), type_data, real); \
   _RAW_DATA_SHARED_IMPL(CONCAT2(ns, name), type_data, complex)
 #define _RAW_DATA_SHARED_IMPL_TYPED(name, type_data) \
   _RAW_DATA_SHARED_IMPL(name, type_data, real);      \
   _RAW_DATA_SHARED_IMPL(name, type_data, complex)
 
-#define RAW_DATA_SHARED_NS_IMPL(ns, name)         \
+#define RAW_DATA_SHARED_NS_IMPL(ns, name)            \
   _RAW_DATA_SHARED_NS_IMPL_TYPED(ns, name, int16_t); \
   _RAW_DATA_SHARED_NS_IMPL_TYPED(ns, name, int32_t); \
   _RAW_DATA_SHARED_NS_IMPL_TYPED(ns, name, float);   \
