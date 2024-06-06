@@ -231,6 +231,7 @@ classdef FileFromScratch < matlab.unittest.TestCase
       event1.transmitSetup.wave.parameters = [7, 53, .2, 1, .3, 5.6, 7];
       event1.transmitSetup.activeElements = {[0, 1], [0]};
       event1.transmitSetup.excitations = [dataset.acquisition.excitations(2), dataset.acquisition.excitations(1)];
+      testcase.verifyEqual(excitation1.waveform, dataset.acquisition.excitations(1).waveform);
       event1.transmitSetup.delays = [1.2, .3];
       
       event1.receiveSetup.probe = dataset.acquisition.probes(2);
