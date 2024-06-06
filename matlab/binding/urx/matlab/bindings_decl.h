@@ -81,18 +81,26 @@
                                     sampling_type)(void *this_ptr);                            \
   URX_MATLAB_EXPORT uint8_t CONCAT5(name, type_data, type_number, shared, data_type)(void *this_ptr)
 
+#define _RAW_DATA_SHARED_NOT_TYPED_DECL(name)                                     \
+  URX_MATLAB_EXPORT void *CONCAT3(name, shared, size)(void *this_ptr);            \
+  URX_MATLAB_EXPORT void *CONCAT3(name, shared, data)(void *this_ptr);            \
+  URX_MATLAB_EXPORT uint8_t CONCAT3(name, shared, sampling_type)(void *this_ptr); \
+  URX_MATLAB_EXPORT uint8_t CONCAT3(name, shared, data_type)(void *this_ptr)
+
 #define _RAW_DATA_SHARED_DECL_TYPED(name, type_data) \
   _RAW_DATA_SHARED_DECL(name, int16_t, type_data);   \
   _RAW_DATA_SHARED_DECL(name, int32_t, type_data);   \
   _RAW_DATA_SHARED_DECL(name, float, type_data);     \
   _RAW_DATA_SHARED_DECL(name, double, type_data)
 
-#define RAW_DATA_SHARED_NS_DECL(ns, name)               \
-  _RAW_DATA_SHARED_DECL_TYPED(CONCAT2(ns, name), real); \
-  _RAW_DATA_SHARED_DECL_TYPED(CONCAT2(ns, name), complex)
-#define RAW_DATA_SHARED_DECL(name)         \
-  _RAW_DATA_SHARED_DECL_TYPED(name, real); \
-  _RAW_DATA_SHARED_DECL_TYPED(name, complex)
+#define RAW_DATA_SHARED_NS_DECL(ns, name)                  \
+  _RAW_DATA_SHARED_DECL_TYPED(CONCAT2(ns, name), real);    \
+  _RAW_DATA_SHARED_DECL_TYPED(CONCAT2(ns, name), complex); \
+  _RAW_DATA_SHARED_NOT_TYPED_DECL(CONCAT2(ns, name))
+#define RAW_DATA_SHARED_DECL(name)            \
+  _RAW_DATA_SHARED_DECL_TYPED(name, real);    \
+  _RAW_DATA_SHARED_DECL_TYPED(name, complex); \
+  _RAW_DATA_SHARED_NOT_TYPED_DECL(name)
 
 #define _OBJECT_DECL(name)                                                                       \
   URX_MATLAB_EXPORT void *CONCAT2(name, new)(void);                                              \

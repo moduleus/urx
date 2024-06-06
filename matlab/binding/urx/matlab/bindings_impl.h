@@ -253,7 +253,7 @@ struct IsSharedPtr<std::shared_ptr<T>> : std::true_type {};
 
 // All method are virtual, it also could be
 // (*static_cast<std::shared_ptr<urx::RawData> *>(this_ptr))->
-#define _RAW_DATA_SHARED_NS_IMPL_real_shared_size(name, type_data)                             \
+#define _RAW_DATA_SHARED_IMPL_real_shared_size(name, type_data)                                \
   void *CONCAT5(name, type_data, real, shared, size)(void *this_ptr) {                         \
     static uint64_t retval;                                                                    \
     retval =                                                                                   \
@@ -261,7 +261,7 @@ struct IsSharedPtr<std::shared_ptr<T>> : std::true_type {};
     return &retval;                                                                            \
   }                                                                                            \
   FORCE_SEMICOLON
-#define _RAW_DATA_SHARED_NS_IMPL_complex_shared_size(name, type_data)                            \
+#define _RAW_DATA_SHARED_IMPL_complex_shared_size(name, type_data)                               \
   void *CONCAT5(name, type_data, complex, shared, size)(void *this_ptr) {                        \
     static uint64_t retval;                                                                      \
     retval =                                                                                     \
@@ -270,41 +270,41 @@ struct IsSharedPtr<std::shared_ptr<T>> : std::true_type {};
     return &retval;                                                                              \
   }                                                                                              \
   FORCE_SEMICOLON
-#define _RAW_DATA_SHARED_NS_IMPL_real_shared_data(name, type_data)                    \
+#define _RAW_DATA_SHARED_IMPL_real_shared_data(name, type_data)                       \
   void *CONCAT5(name, type_data, real, shared, data)(void *this_ptr) {                \
     return (*static_cast<std::shared_ptr<urx::RawDataNoInit<type_data>> *>(this_ptr)) \
         ->getBuffer();                                                                \
   }                                                                                   \
   FORCE_SEMICOLON
-#define _RAW_DATA_SHARED_NS_IMPL_complex_shared_data(name, type_data)                     \
+#define _RAW_DATA_SHARED_IMPL_complex_shared_data(name, type_data)                        \
   void *CONCAT5(name, type_data, complex, shared, data)(void *this_ptr) {                 \
     return (*static_cast<std::shared_ptr<urx::RawDataNoInit<std::complex<type_data>>> *>( \
                 this_ptr))                                                                \
         ->getBuffer();                                                                    \
   }                                                                                       \
   FORCE_SEMICOLON
-#define _RAW_DATA_SHARED_NS_IMPL_real_shared_sampling_type(name, type_data)        \
+#define _RAW_DATA_SHARED_IMPL_real_shared_sampling_type(name, type_data)           \
   uint8_t CONCAT5(name, type_data, real, shared, sampling_type)(void *this_ptr) {  \
     return static_cast<uint8_t>(                                                   \
         (*static_cast<std::shared_ptr<urx::RawDataNoInit<type_data>> *>(this_ptr)) \
             ->getSamplingType());                                                  \
   }                                                                                \
   FORCE_SEMICOLON
-#define _RAW_DATA_SHARED_NS_IMPL_complex_shared_sampling_type(name, type_data)                   \
+#define _RAW_DATA_SHARED_IMPL_complex_shared_sampling_type(name, type_data)                      \
   uint8_t CONCAT5(name, type_data, complex, shared, sampling_type)(void *this_ptr) {             \
     return static_cast<uint8_t>(                                                                 \
         (*static_cast<std::shared_ptr<urx::RawDataNoInit<std::complex<type_data>>> *>(this_ptr)) \
             ->getSamplingType());                                                                \
   }                                                                                              \
   FORCE_SEMICOLON
-#define _RAW_DATA_SHARED_NS_IMPL_real_shared_data_type(name, type_data)            \
+#define _RAW_DATA_SHARED_IMPL_real_shared_data_type(name, type_data)               \
   uint8_t CONCAT5(name, type_data, real, shared, data_type)(void *this_ptr) {      \
     return static_cast<uint8_t>(                                                   \
         (*static_cast<std::shared_ptr<urx::RawDataNoInit<type_data>> *>(this_ptr)) \
             ->getDataType());                                                      \
   }                                                                                \
   FORCE_SEMICOLON
-#define _RAW_DATA_SHARED_NS_IMPL_complex_shared_data_type(name, type_data)                       \
+#define _RAW_DATA_SHARED_IMPL_complex_shared_data_type(name, type_data)                          \
   uint8_t CONCAT5(name, type_data, complex, shared, data_type)(void *this_ptr) {                 \
     return static_cast<uint8_t>(                                                                 \
         (*static_cast<std::shared_ptr<urx::RawDataNoInit<std::complex<type_data>>> *>(this_ptr)) \
@@ -312,29 +312,50 @@ struct IsSharedPtr<std::shared_ptr<T>> : std::true_type {};
   }                                                                                              \
   FORCE_SEMICOLON
 
-#define _RAW_DATA_SHARED_NS_IMPL(name, type_data, type_number)                    \
-  _RAW_DATA_SHARED_NS_IMPL_##type_number##_shared_size(name, type_data);          \
-  _RAW_DATA_SHARED_NS_IMPL_##type_number##_shared_data(name, type_data);          \
-  _RAW_DATA_SHARED_NS_IMPL_##type_number##_shared_sampling_type(name, type_data); \
-  _RAW_DATA_SHARED_NS_IMPL_##type_number##_shared_data_type(name, type_data)
+#define _RAW_DATA_SHARED_IMPL_NOT_TYPED(name)                                          \
+  void *CONCAT3(name, shared, size)(void *this_ptr) {                                  \
+    static uint64_t retval;                                                            \
+    retval = (*static_cast<std::shared_ptr<urx::RawData> *>(this_ptr))->getSize();     \
+    return &retval;                                                                    \
+  }                                                                                    \
+  void *CONCAT3(name, shared, data)(void *this_ptr) {                                  \
+    return (*static_cast<std::shared_ptr<urx::RawData> *>(this_ptr))->getBuffer();     \
+  }                                                                                    \
+  uint8_t CONCAT3(name, shared, sampling_type)(void *this_ptr) {                       \
+    return static_cast<uint8_t>(                                                       \
+        (*static_cast<std::shared_ptr<urx::RawData> *>(this_ptr))->getSamplingType()); \
+  }                                                                                    \
+  uint8_t CONCAT3(name, shared, data_type)(void *this_ptr) {                           \
+    return static_cast<uint8_t>(                                                       \
+        (*static_cast<std::shared_ptr<urx::RawData> *>(this_ptr))->getDataType());     \
+  }                                                                                    \
+  FORCE_SEMICOLON
+
+#define _RAW_DATA_SHARED_IMPL(name, type_data, type_number)                    \
+  _RAW_DATA_SHARED_IMPL_##type_number##_shared_size(name, type_data);          \
+  _RAW_DATA_SHARED_IMPL_##type_number##_shared_data(name, type_data);          \
+  _RAW_DATA_SHARED_IMPL_##type_number##_shared_sampling_type(name, type_data); \
+  _RAW_DATA_SHARED_IMPL_##type_number##_shared_data_type(name, type_data)
 
 #define _RAW_DATA_SHARED_NS_IMPL_TYPED(ns, name, type_data)     \
-  _RAW_DATA_SHARED_NS_IMPL(CONCAT2(ns, name), type_data, real); \
-  _RAW_DATA_SHARED_NS_IMPL(CONCAT2(ns, name), type_data, complex)
+  _RAW_DATA_SHARED_IMPL(CONCAT2(ns, name), type_data, real); \
+  _RAW_DATA_SHARED_IMPL(CONCAT2(ns, name), type_data, complex)
 #define _RAW_DATA_SHARED_IMPL_TYPED(name, type_data) \
-  _RAW_DATA_SHARED_NS_IMPL(name, type_data, real);   \
-  _RAW_DATA_SHARED_NS_IMPL(name, type_data, complex)
+  _RAW_DATA_SHARED_IMPL(name, type_data, real);      \
+  _RAW_DATA_SHARED_IMPL(name, type_data, complex)
 
-#define RAW_DATA_SHARED_NS_IMPL(ns, name)            \
+#define RAW_DATA_SHARED_NS_IMPL(ns, name)         \
   _RAW_DATA_SHARED_NS_IMPL_TYPED(ns, name, int16_t); \
   _RAW_DATA_SHARED_NS_IMPL_TYPED(ns, name, int32_t); \
   _RAW_DATA_SHARED_NS_IMPL_TYPED(ns, name, float);   \
-  _RAW_DATA_SHARED_NS_IMPL_TYPED(ns, name, double)
+  _RAW_DATA_SHARED_NS_IMPL_TYPED(ns, name, double);  \
+  _RAW_DATA_SHARED_IMPL_NOT_TYPED(CONCAT2(ns, name))
 #define RAW_DATA_SHARED_IMPL(name)            \
   _RAW_DATA_SHARED_IMPL_TYPED(name, int16_t); \
   _RAW_DATA_SHARED_IMPL_TYPED(name, int32_t); \
   _RAW_DATA_SHARED_IMPL_TYPED(name, float);   \
-  _RAW_DATA_SHARED_IMPL_TYPED(name, double)
+  _RAW_DATA_SHARED_IMPL_TYPED(name, double);  \
+  _RAW_DATA_SHARED_IMPL_NOT_TYPED(name)
 
 #define OBJECT_NS_IMPL(ns, name) _OBJECT_IMPL(CONCAT2(ns, name), CONCAT_NS(ns, name))
 #define OBJECT_NS2_IMPL(ns, name_snake, name_real) \

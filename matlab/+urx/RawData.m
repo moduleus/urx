@@ -11,4 +11,13 @@ classdef RawData < urx.Object
       this@urx.Object(varargin{:});
     end
   end
+
+  methods (Access = public)
+    function res = samplingType(this)
+      res = this.libBindingRef.call([strrep(class(this), '.', '_') urx.Object.functionPtrType(this.ptrType) '_sampling_type'], this.id);
+    end
+    function res = dataType(this)
+      res = this.libBindingRef.call([strrep(class(this), '.', '_') urx.Object.functionPtrType(this.ptrType) '_data_type'], this.id);
+    end
+  end
 end
