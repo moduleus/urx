@@ -200,7 +200,7 @@ struct IsSharedPtr<std::shared_ptr<T>> : std::true_type {};
     return static_cast<std::vector<std::weak_ptr<type>> *>(this_ptr)->size();                     \
   }                                                                                               \
   void *CONCAT3(vector_weak, snake, data)(void *this_ptr, uint64_t i) {                           \
-    return (*static_cast<std::vector<std::weak_ptr<type>> *>(this_ptr))[i].lock().get();          \
+    return &(*static_cast<std::vector<std::weak_ptr<type>> *>(this_ptr))[i];                      \
   }                                                                                               \
   void CONCAT3(vector_weak, snake, assign)(void *this_ptr, void *other_ptr) {                     \
     *static_cast<std::vector<std::weak_ptr<type>> *>(this_ptr) =                                  \
