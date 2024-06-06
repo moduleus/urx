@@ -266,8 +266,8 @@ struct IsSharedPtr<std::shared_ptr<T>> : std::true_type {};
         (*static_cast<std::shared_ptr<urx::RawDataNoInit<std::complex<type_data>>> *>(this_ptr)) \
             ->getSize();                                                                         \
     return &retval;                                                                              \
-  }
-
+  }                                                                                              \
+  FORCE_SEMICOLON
 #define _RAW_DATA_SHARED_NS_IMPL_real_shared_data(name, type_data)                    \
   void *CONCAT5(name, type_data, real, shared, data)(void *this_ptr) {                \
     return (*static_cast<std::shared_ptr<urx::RawDataNoInit<type_data>> *>(this_ptr)) \
