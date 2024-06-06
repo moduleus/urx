@@ -130,11 +130,11 @@
   _OBJECT_RAW_DATA_DECL_TYPED(name, double)
 
 #define _OBJECT_ACCESSOR_DECL(name, member)                                       \
-  URX_MATLAB_EXPORT void *CONCAT2(name, member)(void *this_ptr);                  \
+  URX_MATLAB_EXPORT void *CONCAT3(name, raw, member)(void *this_ptr);             \
   URX_MATLAB_EXPORT void *CONCAT3(name, weak, member)(void *this_ptr);            \
   URX_MATLAB_EXPORT void *CONCAT3(name, shared, member)(void *this_ptr);          \
   URX_MATLAB_EXPORT void *CONCAT3(name, optional, member)(void *this_ptr);        \
-  URX_MATLAB_EXPORT bool CONCAT3(name, member, has_data)(void *this_ptr);         \
+  URX_MATLAB_EXPORT bool CONCAT4(name, raw, member, has_data)(void *this_ptr);    \
   URX_MATLAB_EXPORT bool CONCAT4(name, weak, member, has_data)(void *this_ptr);   \
   URX_MATLAB_EXPORT bool CONCAT4(name, shared, member, has_data)(void *this_ptr); \
   URX_MATLAB_EXPORT bool CONCAT4(name, optional, member, has_data)(void *this_ptr)

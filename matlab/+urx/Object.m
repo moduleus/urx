@@ -85,17 +85,20 @@ classdef Object < urx.ObjectField
   end
 
   methods (Static)
-    function res = functionAssign(className, typeDest, typeSrc)
-      res = [className '_assign'];
-      if typeDest == urx.PtrType.SHARED
-        res = [res '_shared'];
-      elseif typeDest == urx.PtrType.WEAK
-        res = [res '_weak'];
-      elseif typeDest == urx.PtrType.OPTIONAL
-        res = [res '_optional'];
+    function res = functionPtrType(ptrType)
+      if ptrType == urx.PtrType.SHARED
+        res = '_shared';
+      elseif ptrType == urx.PtrType.WEAK
+        res = '_weak';
+      elseif ptrType == urx.PtrType.OPTIONAL
+        res = '_optional';
       else
-        res = [res '_raw'];
+        res = '_raw';
       end
+    end
+
+    function res = functionAssign(className, typeDest, typeSrc)
+      res = [className '_assign' urx.Object.functionPtrType(typeDest)];
       if typeSrc
         res = [res '_shared'];
       else
@@ -104,14 +107,7 @@ classdef Object < urx.ObjectField
     end
 
     function res = functionVector(className, func, type, nbDims)
-      res = 'vector';
-      if type == urx.PtrType.SHARED
-        res = [res '_shared'];
-      elseif type == urx.PtrType.WEAK
-        res = [res '_weak'];
-      elseif type == urx.PtrType.OPTIONAL
-        res = [res '_optional'];
-      end
+      res = ['vector' urx.Object.functionPtrType(type)];
       if nbDims == 2
         res = [res '_2d'];
       end
@@ -191,15 +187,7 @@ classdef Object < urx.ObjectField
       % For update of the C pointer at every call to be sure that value is
       % up to date.
       % Maybe only isempty(affectedProperty)
-      functionCFieldAccessor = strrep(class(affectedObject), '.', '_');
-      if affectedObject.ptrType == urx.PtrType.SHARED
-        functionCFieldAccessor = [functionCFieldAccessor '_shared'];
-      elseif affectedObject.ptrType == urx.PtrType.WEAK
-        functionCFieldAccessor = [functionCFieldAccessor '_weak'];
-      elseif affectedObject.ptrType == urx.PtrType.OPTIONAL
-        functionCFieldAccessor = [functionCFieldAccessor '_optional'];
-      end
-      functionCFieldAccessor = [functionCFieldAccessor '_' urx.Object.camelToSnakeCase(affectedPropertyName)];
+      functionCFieldAccessor = [strrep(class(affectedObject), '.', '_')  urx.Object.functionPtrType(affectedObject.ptrType) '_' urx.Object.camelToSnakeCase(affectedPropertyName)];
       libBindingRef = urx.LibBinding.getInstance();
       affectedCFieldPtr = libBindingRef.call(functionCFieldAccessor, affectedObject.id);
 

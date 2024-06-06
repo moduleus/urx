@@ -386,32 +386,34 @@ bool checkHasValue(const T &argument) {
 #define OBJECT_NS_RAW_DATA_IMPL(ns, name, t1, t2, other_name) \
   _OBJECT_RAW_DATA_IMPL(CONCAT4(ns, name, t1, t2), CONCAT_NS(ns, name), other_name)
 
-#define _OBJECT_ACCESSOR_IMPL(snake, type, member)                                                \
-  void *CONCAT2(snake, member)(void *this_ptr) { return &static_cast<type *>(this_ptr)->member; } \
-  void *CONCAT3(snake, weak, member)(void *this_ptr) {                                            \
-    return &static_cast<std::weak_ptr<type> *>(this_ptr)->lock()->member;                         \
-  }                                                                                               \
-  void *CONCAT3(snake, shared, member)(void *this_ptr) {                                          \
-    return &static_cast<std::shared_ptr<type> *>(this_ptr)->get()->member;                        \
-  }                                                                                               \
-  void *CONCAT3(snake, optional, member)(void *this_ptr) {                                        \
-    return &(*static_cast<std::optional<type> *>(this_ptr))->member;                              \
-  }                                                                                               \
-  bool CONCAT3(snake, member, has_data)(void *this_ptr) {                                         \
-    return urx::matlab::detail::checkHasValue(static_cast<type *>(this_ptr)->member);             \
-  }                                                                                               \
-  bool CONCAT4(snake, weak, member, has_data)(void *this_ptr) {                                   \
-    return urx::matlab::detail::checkHasValue(                                                    \
-        static_cast<std::weak_ptr<type> *>(this_ptr)->lock()->member);                            \
-  }                                                                                               \
-  bool CONCAT4(snake, shared, member, has_data)(void *this_ptr) {                                 \
-    return urx::matlab::detail::checkHasValue(                                                    \
-        static_cast<std::shared_ptr<type> *>(this_ptr)->get()->member);                           \
-  }                                                                                               \
-  bool CONCAT4(snake, optional, member, has_data)(void *this_ptr) {                               \
-    return urx::matlab::detail::checkHasValue(                                                    \
-        (*static_cast<std::optional<type> *>(this_ptr))->member);                                 \
-  }                                                                                               \
+#define _OBJECT_ACCESSOR_IMPL(snake, type, member)                                    \
+  void *CONCAT3(snake, raw, member)(void *this_ptr) {                                 \
+    return &static_cast<type *>(this_ptr)->member;                                    \
+  }                                                                                   \
+  void *CONCAT3(snake, weak, member)(void *this_ptr) {                                \
+    return &static_cast<std::weak_ptr<type> *>(this_ptr)->lock()->member;             \
+  }                                                                                   \
+  void *CONCAT3(snake, shared, member)(void *this_ptr) {                              \
+    return &static_cast<std::shared_ptr<type> *>(this_ptr)->get()->member;            \
+  }                                                                                   \
+  void *CONCAT3(snake, optional, member)(void *this_ptr) {                            \
+    return &(*static_cast<std::optional<type> *>(this_ptr))->member;                  \
+  }                                                                                   \
+  bool CONCAT4(snake, raw, member, has_data)(void *this_ptr) {                        \
+    return urx::matlab::detail::checkHasValue(static_cast<type *>(this_ptr)->member); \
+  }                                                                                   \
+  bool CONCAT4(snake, weak, member, has_data)(void *this_ptr) {                       \
+    return urx::matlab::detail::checkHasValue(                                        \
+        static_cast<std::weak_ptr<type> *>(this_ptr)->lock()->member);                \
+  }                                                                                   \
+  bool CONCAT4(snake, shared, member, has_data)(void *this_ptr) {                     \
+    return urx::matlab::detail::checkHasValue(                                        \
+        static_cast<std::shared_ptr<type> *>(this_ptr)->get()->member);               \
+  }                                                                                   \
+  bool CONCAT4(snake, optional, member, has_data)(void *this_ptr) {                   \
+    return urx::matlab::detail::checkHasValue(                                        \
+        (*static_cast<std::optional<type> *>(this_ptr))->member);                     \
+  }                                                                                   \
   FORCE_SEMICOLON
 
 #define OBJECT_ACCESSOR_NS_IMPL(ns, name, member) \
