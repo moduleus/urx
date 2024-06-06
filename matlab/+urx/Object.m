@@ -243,7 +243,11 @@ classdef Object < urx.ObjectField
               assert(strcmp(class(affectedProperty), affectedPropertyStd.objectClassName));
               for i = 1:numel(affectedProperty)
                 affectedPropertyStd.pushBack(affectedProperty(i));
-                % Update id and ptrType
+              end
+              % Update id and ptrType
+              % Do it after all pushBack. std::vector::pushBack may realloc
+              % and change all pointer adresses.
+              for i = 1:numel(affectedProperty)
                 realAffectedDataI = affectedPropertyStd.data(i);
                 if isa(affectedProperty(i), 'urx.Object')
                   affectedProperty(i).id = realAffectedDataI.id;
