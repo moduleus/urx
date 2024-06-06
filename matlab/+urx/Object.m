@@ -372,10 +372,35 @@ classdef Object < urx.ObjectField
               has_data = libBindingRef.call([functionCFieldAccessor '_has_data'], affectedObject.id);
               % Force value if PreGet is called from a PreSet.
               if (has_data || (disableGetRecursion == 0 && disableSetRecursion == 1 && strcmp(s(2).name, 'Object.handlePropEvents')))
-                affectedObject.(affectedPropertyName) = feval(affectedPropertyClassName, affectedCFieldPtr, stdPtrType, affectedObject);
+                newObject = feval(affectedPropertyClassName, affectedCFieldPtr, stdPtrType, affectedObject);
+                if isa(affectedProperty, 'urx.RawData')
+                  sampling = newObject.samplingType();
+                  data = newObject.dataType();
+                  realAffectedPropertyClassName = affectedPropertyClassName;
+                  if data == 0
+                    realAffectedPropertyClassName = [realAffectedPropertyClassName '_int16_t'];
+                  elseif data == 1
+                    realAffectedPropertyClassName = [realAffectedPropertyClassName '_int32_t'];
+                  elseif data == 2
+                    realAffectedPropertyClassName = [realAffectedPropertyClassName '_float'];
+                  elseif data == 3
+                    realAffectedPropertyClassName = [realAffectedPropertyClassName '_double'];
+                  else
+                    assert(false);
+                  end
+                  if sampling == 0
+                    realAffectedPropertyClassName = [realAffectedPropertyClassName '_real'];
+                  elseif sampling == 1
+                    realAffectedPropertyClassName = [realAffectedPropertyClassName '_complex'];
+                  else
+                    assert(false);
+                  end
+                  newObject = feval(realAffectedPropertyClassName, affectedCFieldPtr, stdPtrType, affectedObject);
+                end
               else
-                affectedObject.(affectedPropertyName) = feval(affectedPropertyClassName, []).empty;
+                newObject = feval(affectedPropertyClassName, []).empty;
               end
+              affectedObject.(affectedPropertyName) = newObject;
             elseif (stdPtrType == urx.PtrType.WEAK && affectedObject.(affectedPropertyName).ptrType == urx.PtrType.SHARED)
               % Type may have changed when assigning WEAK from a SHARED.
               newProperty = feval(affectedPropertyClassName, affectedCFieldPtr, stdPtrType, affectedObject);

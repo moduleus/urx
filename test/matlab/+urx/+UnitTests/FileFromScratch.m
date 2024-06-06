@@ -411,5 +411,25 @@ classdef FileFromScratch < matlab.unittest.TestCase
       
       delete 'test.urx'
     end
+
+
+    function tt(testcase)
+      Nelements = 5;
+      dataset = urx.Dataset();
+      acq = dataset.acquisition;
+      acq.groupsData = urx.GroupData();
+      acq.groupsData.rawData = urx.RawData_double_real(Nelements);
+  
+      for i = 1:Nelements
+        acq.groupsData.rawData.data(i) = i;
+      end
+  
+      dataset.saveToFile('out.urx');
+
+      dataset2 = urx.Dataset.loadFromFile('out.urx');
+
+      testcase.verifyEqual(dataset.acquisition.groupsData.rawData.size, dataset2.acquisition.groupsData.rawData.size)
+      testcase.verifyEqual(dataset.acquisition.groupsData.rawData.data, dataset2.acquisition.groupsData.rawData.data)
+    end
   end
 end
