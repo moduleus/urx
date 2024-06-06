@@ -47,14 +47,7 @@ URX_MATLAB_VECTOR2D_DECL(urx);
 URX_MATLAB_VERSION_DECL(urx);
 URX_MATLAB_WAVE_DECL(urx);
 
-OBJECT_NS_RAW_DATA_DECL(urx, RawData, int16_t, real);
-OBJECT_NS_RAW_DATA_DECL(urx, RawData, int16_t, complex);
-OBJECT_NS_RAW_DATA_DECL(urx, RawData, int32_t, real);
-OBJECT_NS_RAW_DATA_DECL(urx, RawData, int32_t, complex);
-OBJECT_NS_RAW_DATA_DECL(urx, RawData, float, real);
-OBJECT_NS_RAW_DATA_DECL(urx, RawData, float, complex);
-OBJECT_NS_RAW_DATA_DECL(urx, RawData, double, real);
-OBJECT_NS_RAW_DATA_DECL(urx, RawData, double, complex);
+OBJECT_NS_RAW_DATA_DECL(urx, RawData);
 
 VECTOR_RAW_DECL(uint8_t);
 VECTOR_RAW_DECL(uint16_t);
@@ -92,10 +85,7 @@ VECTOR_SHARED_NS_DECL(urx, ElementGeometry);
 VECTOR_SHARED_NS_DECL(urx, ImpulseResponse);
 VECTOR_WEAK_NS_DECL(urx, Excitation);
 
-RAW_DATA_SHARED_NS_DECL(urx, int16_t);
-RAW_DATA_SHARED_NS_DECL(urx, int32_t);
-RAW_DATA_SHARED_NS_DECL(urx, float);
-RAW_DATA_SHARED_NS_DECL(urx, double);
+RAW_DATA_SHARED_NS_DECL(urx, RawData);
 
 URX_MATLAB_EXPORT void *urx_load_from_file(const char *filename);
 URX_MATLAB_EXPORT void urx_save_to_file(const char *filename, void *dataset);

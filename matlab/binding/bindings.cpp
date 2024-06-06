@@ -165,10 +165,7 @@ VECTOR_SHARED_NS_IMPL(urx, Probe);
 
 VECTOR_WEAK_NS_IMPL(urx, Excitation);
 
-RAW_DATA_SHARED_NS_IMPL(urx, RawData, int16_t);
-RAW_DATA_SHARED_NS_IMPL(urx, RawData, int32_t);
-RAW_DATA_SHARED_NS_IMPL(urx, RawData, float);
-RAW_DATA_SHARED_NS_IMPL(urx, RawData, double);
+RAW_DATA_SHARED_NS_IMPL(urx, RawData);
 
 uint64_t get_pointer(void *ptr) { return reinterpret_cast<uint64_t>(ptr); }
 

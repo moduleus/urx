@@ -286,12 +286,23 @@ struct IsSharedPtr<std::shared_ptr<T>> : std::true_type {};
   _RAW_DATA_SHARED_NS_IMPL_##type_number##_shared_size(name, type_data); \
   _RAW_DATA_SHARED_NS_IMPL_##type_number##_shared_data(name, type_data)
 
-#define RAW_DATA_SHARED_NS_IMPL(ns, name, type_data)            \
+#define _RAW_DATA_SHARED_NS_IMPL_TYPED(ns, name, type_data)     \
   _RAW_DATA_SHARED_NS_IMPL(CONCAT2(ns, name), type_data, real); \
   _RAW_DATA_SHARED_NS_IMPL(CONCAT2(ns, name), type_data, complex)
-#define RAW_DATA_SHARED_IMPL(name, type_data)      \
-  _RAW_DATA_SHARED_NS_IMPL(name, type_data, real); \
+#define _RAW_DATA_SHARED_IMPL_TYPED(name, type_data) \
+  _RAW_DATA_SHARED_NS_IMPL(name, type_data, real);   \
   _RAW_DATA_SHARED_NS_IMPL(name, type_data, complex)
+
+#define RAW_DATA_SHARED_NS_IMPL(ns, name)            \
+  _RAW_DATA_SHARED_NS_IMPL_TYPED(ns, name, int16_t); \
+  _RAW_DATA_SHARED_NS_IMPL_TYPED(ns, name, int32_t); \
+  _RAW_DATA_SHARED_NS_IMPL_TYPED(ns, name, float);   \
+  _RAW_DATA_SHARED_NS_IMPL_TYPED(ns, name, double)
+#define RAW_DATA_SHARED_IMPL(name)            \
+  _RAW_DATA_SHARED_IMPL_TYPED(name, int16_t); \
+  _RAW_DATA_SHARED_IMPL_TYPED(name, int32_t); \
+  _RAW_DATA_SHARED_IMPL_TYPED(name, float);   \
+  _RAW_DATA_SHARED_IMPL_TYPED(name, double)
 
 #define OBJECT_NS_IMPL(ns, name) _OBJECT_IMPL(CONCAT2(ns, name), CONCAT_NS(ns, name))
 #define OBJECT_NS2_IMPL(ns, name_snake, name_real) \
