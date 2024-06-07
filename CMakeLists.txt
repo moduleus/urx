@@ -174,7 +174,7 @@ if(WITH_PYTHON)
     Python3
     COMPONENTS Interpreter Development
     REQUIRED)
-  find_package(pybind11 REQUIRED)
+  find_package(pybind11 2.11 REQUIRED)
 endif()
 
 add_subdirectory("urx")
