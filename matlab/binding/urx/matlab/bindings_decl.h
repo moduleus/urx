@@ -22,18 +22,28 @@
 #define CONCAT_NS(a, b) a::b
 #define CONCAT_NS3(a, b, c) a::b::c
 
-#define _VECTOR_RAW_DECL(name)                                                                \
-  URX_MATLAB_EXPORT void *CONCAT3(vector, name, new)(void);                                   \
-  URX_MATLAB_EXPORT void CONCAT3(vector, name, delete)(void *this_ptr);                       \
-  URX_MATLAB_EXPORT void CONCAT3(vector, name, clear)(void *this_ptr);                        \
-  URX_MATLAB_EXPORT void CONCAT3(vector, name, push_back)(void *this_ptr, void *val);         \
-  URX_MATLAB_EXPORT void CONCAT4(vector, name, push_back, shared)(void *this_ptr, void *val); \
-  URX_MATLAB_EXPORT uint64_t CONCAT3(vector, name, size)(void *this_ptr);                     \
-  URX_MATLAB_EXPORT void *CONCAT3(vector, name, data)(void *this_ptr, uint64_t i);            \
-  URX_MATLAB_EXPORT void CONCAT3(vector, name, assign)(void *this_ptr, void *other_ptr)
+#define _VECTOR_RAW_DECL(snake, type)                                                          \
+  URX_MATLAB_EXPORT void *CONCAT3(vector, snake, new)(void);                                   \
+  URX_MATLAB_EXPORT void CONCAT3(vector, snake, delete)(void *this_ptr);                       \
+  URX_MATLAB_EXPORT void CONCAT3(vector, snake, clear)(void *this_ptr);                        \
+  URX_MATLAB_EXPORT void CONCAT3(vector, snake, push_back)(void *this_ptr, void *val);         \
+  URX_MATLAB_EXPORT void CONCAT4(vector, snake, push_back, shared)(void *this_ptr, void *val); \
+  URX_MATLAB_EXPORT uint64_t CONCAT3(vector, snake, size)(void *this_ptr);                     \
+  URX_MATLAB_EXPORT void *CONCAT3(vector, snake, data)(void *this_ptr, uint64_t i);            \
+  URX_MATLAB_EXPORT void CONCAT3(vector, snake, assign)(void *this_ptr, void *other_ptr)
 
-#define VECTOR_RAW_NS_DECL(ns, type) _VECTOR_RAW_DECL(CONCAT2(ns, type))
-#define VECTOR_RAW_DECL(type) _VECTOR_RAW_DECL(type)
+#define _VECTOR_RAW_DECL_RAW(snake, type) \
+  URX_MATLAB_EXPORT void CONCAT4(vector, snake, push_back, raw)(void *this_ptr, type val)
+
+#define VECTOR_RAW_NS_DECL(ns, type) _VECTOR_RAW_DECL(CONCAT2(ns, type), CONCAT_NS(ns, type))
+#define VECTOR_RAW_DECL(type) _VECTOR_RAW_DECL(type, type)
+
+#define VECTOR_RAW_NS_DECL_RAW(ns, type)                    \
+  _VECTOR_RAW_DECL(CONCAT2(ns, type), CONCAT_NS(ns, type)); \
+  _VECTOR_RAW_DECL_RAW(CONCAT2(ns, type), CONCAT_NS(ns, type))
+#define VECTOR_RAW_DECL_RAW(type) \
+  _VECTOR_RAW_DECL(type, type);   \
+  _VECTOR_RAW_DECL_RAW(type, type)
 
 #define _VECTOR_2D_RAW_DECL(name)                                                        \
   URX_MATLAB_EXPORT void *CONCAT3(vector_2d, name, new)(void);                           \

@@ -62,7 +62,11 @@ classdef StdVector < urx.ObjectField
       elseif isa(val, 'urx.Object') || this.nbDims > 1
         this.libBindingRef.call(this.functionName('push_back', val.ptrType == urx.PtrType.SHARED), this, val);
       else
-        this.libBindingRef.call(this.functionName('push_back'), this, val);
+        if isnumeric(val)
+          this.libBindingRef.call(this.functionName('push_back_raw'), this, val);
+        else
+          this.libBindingRef.call(this.functionName('push_back'), this, val);
+        end
       end
     end
     

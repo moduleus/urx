@@ -90,10 +90,23 @@ struct IsSharedPtr<std::shared_ptr<T>> : std::true_type {};
   }                                                                                               \
   FORCE_SEMICOLON
 
+#define _VECTOR_RAW_IMPL_RAW(snake, type)                                 \
+  void CONCAT4(vector, snake, push_back, raw)(void *this_ptr, type val) { \
+    static_cast<std::vector<type> *>(this_ptr)->push_back(val);           \
+  }                                                                       \
+  FORCE_SEMICOLON
+
 #define VECTOR_RAW_NS_IMPL(ns, name) _VECTOR_RAW_IMPL(CONCAT2(ns, name), CONCAT_NS(ns, name))
 #define VECTOR_RAW_NS2_IMPL(ns, name_snake, name_real) \
   _VECTOR_RAW_IMPL(CONCAT2(ns, name_snake), CONCAT_NS(ns, name_real))
 #define VECTOR_RAW_IMPL(name) _VECTOR_RAW_IMPL(name, name)
+
+#define VECTOR_RAW_NS_IMPL_RAW(ns, name)                    \
+  _VECTOR_RAW_IMPL(CONCAT2(ns, name), CONCAT_NS(ns, name)); \
+  _VECTOR_RAW_IMPL_RAW(CONCAT2(ns, name), CONCAT_NS(ns, name))
+#define VECTOR_RAW_IMPL_RAW(name) \
+  _VECTOR_RAW_IMPL(name, name);   \
+  _VECTOR_RAW_IMPL_RAW(name, name)
 
 #define _VECTOR_2D_RAW_IMPL(snake, type)                                                          \
   void *CONCAT3(vector_2d, snake, new)() {                                                        \
