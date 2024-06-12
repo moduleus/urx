@@ -413,7 +413,7 @@ classdef FileFromScratch < matlab.unittest.TestCase
     end
 
 
-    function tt(testcase)
+    function readRawData(testcase)
       Nelements = 5;
       dataset = urx.Dataset();
       acq = dataset.acquisition;
@@ -427,11 +427,27 @@ classdef FileFromScratch < matlab.unittest.TestCase
       dataset.saveToFile('test.urx');
 
       dataset2 = urx.Dataset.loadFromFile('test.urx');
-      
-      delete 'test.urx'
 
       testcase.verifyEqual(dataset.acquisition.groupsData.rawData.size, dataset2.acquisition.groupsData.rawData.size)
       testcase.verifyEqual(dataset.acquisition.groupsData.rawData.data, dataset2.acquisition.groupsData.rawData.data)
+    end
+
+    function readVectorVector(testcase)
+      dataset = urx.Dataset();
+      acq = dataset.acquisition;
+      acq.groupsData = urx.GroupData();
+      acq.groups = urx.Group();
+      acq.groups.sequence = urx.Event();
+      actives = cell(1,1);
+      actives{1} = 42;
+      rs = acq.groups(1).sequence(1).receiveSetup;
+      rs.activeElements = actives;
+      dataset.saveToFile('test.urx');
+
+      dataset2 = urx.Dataset.loadFromFile('test.urx');
+
+      rs2 = dataset2.acquisition.groups(1).sequence(1).receiveSetup;
+      testcase.verifyEqual(actives, rs2.activeElements);
     end
   end
 end

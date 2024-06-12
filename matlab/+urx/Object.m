@@ -320,19 +320,27 @@ classdef Object < urx.ObjectField
             affectedCFieldPtr.setdatatype('int32Ptr', 1);
             affectedCFieldPtr.Value = int32(affectedProperty);
           elseif ~isempty(affectedPropertyStd)
-            if urx.Object.showPtr(affectedPropertyStd.id) ~= urx.Object.showPtr(affectedCFieldPtr)
-              affectedPropertyStd.id = affectedCFieldPtr;
-              len = affectedPropertyStd.len();
-              if len == 0
-                cppValues = eval([affectedPropertyStd.objectClassName, '.empty']);
-              else
-                cppValues = repmat(eval([affectedPropertyStd.objectClassName, '([])']), 1, affectedPropertyStd.len());
-                for i = 1:numel(cppValues)
-                  cppValues(i) = affectedPropertyStd.data(i);
+            affectedPropertyStd.id = affectedCFieldPtr;
+            len = affectedPropertyStd.len();
+            if len == 0
+              cppValues = eval([affectedPropertyStd.objectClassName, '.empty']);
+            elseif affectedPropertyStd.nbDims == 1
+              cppValues = repmat(eval([affectedPropertyStd.objectClassName, '([])']), 1, len);
+              for i = 1:len
+                cppValues(i) = affectedPropertyStd.data(i);
+              end
+            else
+              cppValues = cell(1, len);
+              for i = 1:len
+                vectori = affectedPropertyStd.data(i);
+                leni = vectori.len();
+                cppValues(i) = {[]};
+                for j = 1:leni
+                  cppValues{i}(end+1) = vectori.data(j);
                 end
               end
-              affectedObject.(affectedPropertyName) = cppValues;
             end
+            affectedObject.(affectedPropertyName) = cppValues;
           elseif ~isempty(affectedPropertyHwPtr)
             affectedObject.(affectedPropertyName) = affectedPropertyHwPtr.fromCpp();
           elseif ~isa(affectedProperty, 'urx.Object')
