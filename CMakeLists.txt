@@ -163,13 +163,6 @@ if(ENABLE_PCH)
 endif()
 
 if(WITH_PYTHON)
-  if(NOT WIN32)
-    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-      set(Python3_FIND_ABI "ON" "ANY" "ANY")
-    else()
-      set(Python3_FIND_ABI "OFF" "ANY" "ANY")
-    endif()
-  endif()
   find_package(
     Python3
     COMPONENTS Interpreter Development

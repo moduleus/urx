@@ -33,18 +33,18 @@ variables:
 .before-script-python-windows: &before-script-python-windows
   - python -m venv .venv
   - .venv/Scripts/Activate.ps1
-  - pip install --upgrade pip
+  - python -m pip install --upgrade pip
   - pip install -r requirements-gitlab.txt
 
 .before-script-python-linux: &before-script-python-linux
   - python -m venv .venv
   - source .venv/bin/activate
-  - pip install --upgrade pip
+  - python -m pip install --upgrade pip
   - pip install -r requirements-gitlab.txt
 
 .after-script-clean-vcpkg-windows: &after-script-clean-vcpkg-windows
-  - Remove-Item -LiteralPath "$Env:VCPKG_BUILDTREE" -Force -Recurse
-  - Remove-Item -LiteralPath "$Env:VCPKG_LOCAL_GIT/packages" -Force -Recurse
+  - Remove-Item -LiteralPath "$Env:VCPKG_BUILDTREE" -Force -Recurse -ErrorAction Ignore
+  - Remove-Item -LiteralPath "$Env:VCPKG_LOCAL_GIT/packages" -Force -Recurse -ErrorAction Ignore
 
 .after-script-clean-vcpkg-linux: &after-script-clean-vcpkg-linux
   - rm -Rf "$VCPKG_LOCAL_GIT/buildtrees"
