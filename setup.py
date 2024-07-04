@@ -25,7 +25,7 @@ CMAKE_TOOLCHAIN_FILE_arg = next(
 if CMAKE_TOOLCHAIN_FILE_arg != None:
     sys.argv.remove(CMAKE_TOOLCHAIN_FILE_arg)
     if sys.platform == "win32":
-        TRIPLET = "x64-windows-static-md-env"
+        TRIPLET = "x64-wsmrep"
     else:
         TRIPLET = "x64-linux"
 else:

@@ -30,18 +30,6 @@ variables:
   - if [ ! -f "$destination" ]; then wget -O "$destination" "https://github.com/microsoft/vcpkg-tool/releases/download/$vcpkg_tag/vcpkg-glibc" || exit 1; chmod +x "$destination"; fi
   - cp $destination "$VCPKG_LOCAL_GIT/vcpkg" || exit 1
 
-.before-script-python-windows: &before-script-python-windows
-  - python -m venv .venv
-  - .venv/Scripts/Activate.ps1
-  - python -m pip install --upgrade pip
-  - pip install -r requirements-gitlab.txt
-
-.before-script-python-linux: &before-script-python-linux
-  - python -m venv .venv
-  - source .venv/bin/activate
-  - python -m pip install --upgrade pip
-  - pip install -r requirements-gitlab.txt
-
 .after-script-clean-vcpkg-windows: &after-script-clean-vcpkg-windows
   - Remove-Item -LiteralPath "$Env:VCPKG_BUILDTREE" -Force -Recurse -ErrorAction Ignore
   - Remove-Item -LiteralPath "$Env:VCPKG_LOCAL_GIT/packages" -Force -Recurse -ErrorAction Ignore
@@ -345,12 +333,16 @@ build:windows-python:
     - python
   before_script:
     - *before-script-vcpkg-windows
-    - *before-script-python-windows
   script:
     - $Env:CMAKE_BUILD_PARALLEL_LEVEL=$NUM_PARALLEL
-    - pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=$Env:VCPKG_LOCAL_GIT\\scripts\\buildsystems\\vcpkg.cmake cmake_build_type=Release" --no-clean -v
+    - |
+      & $Env:VCPKG_LOCAL_GIT/vcpkg.exe install --triplet x64-wsmrep --host-triplet x64-wsmrep --x-feature=python --overlay-triplets=vcpkg-registry/triplets
+    - vcpkg_installed/x64-wsmrep/tools/python3/python.exe -m ensurepip
+    - vcpkg_installed/x64-wsmrep/tools/python3/python.exe -m pip install --upgrade pip
+    - vcpkg_installed/x64-wsmrep/tools/python3/python.exe -m pip install -r requirements-gitlab.txt
+    - vcpkg_installed/x64-wsmrep/tools/python3/python.exe -m pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=$Env:VCPKG_LOCAL_GIT\\scripts\\buildsystems\\vcpkg.cmake cmake_build_type=Release" --no-clean -v
+    - vcpkg_installed/x64-wsmrep/tools/python3/python.exe -m unittest discover test/python
     - *after-script-clean-vcpkg-windows
-    - python -m unittest discover test/python
 
 build:ubuntu-python:
   stage: build
@@ -360,11 +352,14 @@ build:ubuntu-python:
     - python
   before_script:
     - *before-script-vcpkg-linux
-    - *before-script-python-linux
   script:
     - export CMAKE_BUILD_PARALLEL_LEVEL=$NUM_PARALLEL
+    - $VCPKG_LOCAL_GIT/vcpkg install --triplet x64-linux --host-triplet x64-linux --x-feature=python
+    - vcpkg_installed/x64-linux/tools/python3/python3 -m venv .venv
+    - source .venv/bin/activate
+    - python -m pip install --upgrade pip
+    - pip install -r requirements-gitlab.txt
     - pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake cmake_build_type=Release" --no-clean -v
-    - *after-script-clean-vcpkg-linux
     - python -m unittest discover test/python
     - pybind11-stubgen pyurx --output-dir=python
     - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Run pybind11-stubgen before commit."; echo "$(git status --porcelain)"; git diff; exit 1; fi
