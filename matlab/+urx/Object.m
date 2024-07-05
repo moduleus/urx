@@ -82,6 +82,10 @@ classdef Object < urx.ObjectField
     function delete(this)
       this.freeMem();
     end
+
+    function res = getRawPtr(this)
+      res = this.libBindingRef.call([strrep(class(this), '.', '_') '_raw_ptr' urx.Object.functionPtrType(this.ptrType)], this.id);
+    end
   end
 
   methods (Static)

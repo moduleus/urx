@@ -112,14 +112,18 @@
   _RAW_DATA_SHARED_DECL_TYPED(name, complex); \
   _RAW_DATA_SHARED_NOT_TYPED_DECL(name)
 
-#define _OBJECT_DECL(name)                                                                       \
-  URX_MATLAB_EXPORT void *CONCAT2(name, new)(void);                                              \
-  URX_MATLAB_EXPORT void CONCAT2(name, delete)(void *this_ptr);                                  \
-  URX_MATLAB_EXPORT void CONCAT4(name, assign, raw, raw)(void *this_ptr, void *other_ptr);       \
-  URX_MATLAB_EXPORT void CONCAT4(name, assign, raw, shared)(void *this_ptr, void *other_ptr);    \
-  URX_MATLAB_EXPORT void CONCAT4(name, assign, weak, shared)(void *this_ptr, void *other_ptr);   \
-  URX_MATLAB_EXPORT void CONCAT4(name, assign, shared, shared)(void *this_ptr, void *other_ptr); \
-  URX_MATLAB_EXPORT void CONCAT4(name, assign, optional, shared)(void *this_ptr, void *other_ptr)
+#define _OBJECT_DECL(name)                                                                         \
+  URX_MATLAB_EXPORT void *CONCAT2(name, new)(void);                                                \
+  URX_MATLAB_EXPORT void CONCAT2(name, delete)(void *this_ptr);                                    \
+  URX_MATLAB_EXPORT void CONCAT4(name, assign, raw, raw)(void *this_ptr, void *other_ptr);         \
+  URX_MATLAB_EXPORT void CONCAT4(name, assign, raw, shared)(void *this_ptr, void *other_ptr);      \
+  URX_MATLAB_EXPORT void CONCAT4(name, assign, weak, shared)(void *this_ptr, void *other_ptr);     \
+  URX_MATLAB_EXPORT void CONCAT4(name, assign, shared, shared)(void *this_ptr, void *other_ptr);   \
+  URX_MATLAB_EXPORT void CONCAT4(name, assign, optional, shared)(void *this_ptr, void *other_ptr); \
+  URX_MATLAB_EXPORT uint64_t CONCAT3(name, raw_ptr, raw)(void *this_ptr);                          \
+  URX_MATLAB_EXPORT uint64_t CONCAT3(name, raw_ptr, weak)(void *this_ptr);                         \
+  URX_MATLAB_EXPORT uint64_t CONCAT3(name, raw_ptr, shared)(void *this_ptr);                       \
+  URX_MATLAB_EXPORT uint64_t CONCAT3(name, raw_ptr, optional)(void *this_ptr)
 
 #define OBJECT_NS_DECL(ns, type) _OBJECT_DECL(CONCAT2(ns, type))
 #define OBJECT_DECL(type) _OBJECT_DECL(type)

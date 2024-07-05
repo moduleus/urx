@@ -263,6 +263,22 @@ struct IsSharedPtr<std::shared_ptr<T>> : std::true_type {};
     *static_cast<std::optional<type> *>(this_ptr) =                                                \
         **static_cast<std::shared_ptr<type> *>(other_ptr);                                         \
   }                                                                                                \
+  uint64_t CONCAT3(snake, raw_ptr, raw)(void *this_ptr) {                                          \
+    return reinterpret_cast<uint64_t>(this_ptr);                                                   \
+  }                                                                                                \
+  uint64_t CONCAT3(snake, raw_ptr, weak)(void *this_ptr) {                                         \
+    return reinterpret_cast<uint64_t>(static_cast<std::weak_ptr<type> *>(this_ptr)->lock().get()); \
+  }                                                                                                \
+  uint64_t CONCAT3(snake, raw_ptr, shared)(void *this_ptr) {                                       \
+    return reinterpret_cast<uint64_t>(static_cast<std::shared_ptr<type> *>(this_ptr)->get());      \
+  }                                                                                                \
+  uint64_t CONCAT3(snake, raw_ptr, optional)(void *this_ptr) {                                     \
+    auto *opt_ptr = static_cast<std::optional<type> *>(this_ptr);                                  \
+    if (!*opt_ptr) {                                                                               \
+      return 0;                                                                                    \
+    }                                                                                              \
+    return reinterpret_cast<uint64_t>(&opt_ptr->value());                                          \
+  }                                                                                                \
   FORCE_SEMICOLON
 
 // All method are virtual, it also could be
