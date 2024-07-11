@@ -342,7 +342,8 @@ build:windows-python:
     - vcpkg_installed/x64-wsmrep/tools/python3/python.exe -m pip install -r requirements-gitlab.txt
     - vcpkg_installed/x64-wsmrep/tools/python3/python.exe -m pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=$Env:VCPKG_LOCAL_GIT\\scripts\\buildsystems\\vcpkg.cmake cmake_build_type=Release" --no-clean -v
     - vcpkg_installed/x64-wsmrep/tools/python3/python.exe -m unittest discover test/python
-    - *after-script-clean-vcpkg-windows
+# Don't clean for windows-python. It always fails and make CI fails.
+#    - *after-script-clean-vcpkg-windows
 
 build:ubuntu-python:
   stage: build
