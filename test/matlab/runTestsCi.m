@@ -20,5 +20,6 @@ function runTestsCi
   
   for i=1:numel(results)
     assert( results(i).Failed == 0, 'Unit tests failed' )
+    assert( results(i).Incomplete == 0, 'Unit tests failed' )
   end
 end
