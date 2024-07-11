@@ -16,10 +16,13 @@ function runTestsCi
   end
   suite = matlab.unittest.TestSuite.fromFolder("+urx/+UnitTests", ...
     'ExternalParameters', P);
+  lastwarn('');
   results = run(suite);
   
   for i=1:numel(results)
     assert( results(i).Failed == 0, 'Unit tests failed' )
     assert( results(i).Incomplete == 0, 'Unit tests failed' )
   end
+
+  assert(isempty(lastwarn));
 end
