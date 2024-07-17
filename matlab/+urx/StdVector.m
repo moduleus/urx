@@ -7,7 +7,7 @@ classdef StdVector < urx.ObjectField
   
   methods
     function this = StdVector(objectClassName, nbDims, ptrType, parent)
-      this.libBindingRef = urx.LibBinding.getInstance();
+      this.libBindingRef = this.getInstance();
       this.objectClassName = objectClassName;
       if nargin < 2
         nbDims = 1;
@@ -21,6 +21,10 @@ classdef StdVector < urx.ObjectField
       end
     end
     
+    function res = getInstance(this)
+      res = urx.LibBinding.getInstance();
+    end
+
     function delete(this)
       if isempty(this.parent)
         this.libBindingRef.call(this.functionName('delete'), this);

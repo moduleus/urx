@@ -22,7 +22,10 @@ classdef Object < urx.ObjectField
       if nargin == 1 && isempty(id)
         return;
       end
-      this.libBindingRef = urx.LibBinding.getInstance();
+      this.libBindingRef = this.getInstance();
+
+      namespace = class(this);
+      namespace = namespace(1:3);
 
       if nargin == 0
         this.id = this.libBindingRef.call([strrep(class(this), '.', '_') '_new']);
@@ -64,9 +67,13 @@ classdef Object < urx.ObjectField
           else
             assert(false);
           end
-          this.([props(i).Name 'Std']) = urx.StdVector(class(this.(props(i).Name)), 1, stdPtrType, this);
+          this.([props(i).Name 'Std']) = feval([namespace '.StdVector'], class(this.(props(i).Name)), 1, stdPtrType, this);
         end
       end
+    end
+
+    function res = getInstance(this)
+      res = urx.LibBinding.getInstance();
     end
 
     function freeMem(this)
@@ -192,7 +199,7 @@ classdef Object < urx.ObjectField
       % up to date.
       % Maybe only isempty(affectedProperty)
       functionCFieldAccessor = [strrep(class(affectedObject), '.', '_')  urx.Object.functionPtrType(affectedObject.ptrType) '_' urx.Object.camelToSnakeCase(affectedPropertyName)];
-      libBindingRef = urx.LibBinding.getInstance();
+      libBindingRef = affectedObject.getInstance();
       affectedCFieldPtr = libBindingRef.call(functionCFieldAccessor, affectedObject.id);
 
       if strcmp(affectedPropertyName, "hwConfig")
@@ -201,7 +208,7 @@ classdef Object < urx.ObjectField
           affectedPropertyHwPtr = uac.HwConfig(affectedCFieldPtr, urx.PtrType.RAW, affectedObject);
           affectedObject.([affectedPropertyName 'Ptr']) = affectedPropertyHwPtr;
         else
-          assert(urx.Object.showPtr(affectedPropertyHwPtr.id) == urx.Object.showPtr(affectedCFieldPtr));
+          assert(libBindingRef.showPtr(affectedPropertyHwPtr.id) == libBindingRef.showPtr(affectedCFieldPtr));
         end
       else
         affectedPropertyHwPtr = [];
@@ -250,8 +257,12 @@ classdef Object < urx.ObjectField
             else
               assert(affectedPropertyStd.nbDims == 2);
               assert(iscell(affectedProperty));
+
+              namespace = class(affectedObject);
+              namespace = namespace(1:3);
+
               for i = 1:numel(affectedProperty)
-                vectori = urx.StdVector(affectedPropertyStd.objectClassName, affectedPropertyStd.nbDims-1, affectedPropertyStd.ptrType);
+                vectori = feval([namespace '.StdVector'], affectedPropertyStd.objectClassName, affectedPropertyStd.nbDims-1, affectedPropertyStd.ptrType);
                 for j = 1:numel(affectedProperty{i})
                   vectori.pushBack(affectedProperty{i}(j));
                 end
@@ -425,17 +436,12 @@ classdef Object < urx.ObjectField
               affectedObject.(affectedPropertyName) = newProperty;
             else
               % If object has already been cached, check if nothing has changed.
-              assert(urx.Object.showPtr(affectedObject.(affectedPropertyName).id) == urx.Object.showPtr(affectedCFieldPtr));
+              assert(libBindingRef.showPtr(affectedObject.(affectedPropertyName).id) == libBindingRef.showPtr(affectedCFieldPtr));
               assert(affectedObject.(affectedPropertyName).ptrType == stdPtrType);
             end
           end
           disableSetRecursion = disableSetRecursion - 1;
       end
-    end
-
-    % May be useful to ease debug.
-    function res = showPtr(ptr)
-      res = uint64(urx.LibBinding.getInstance().call('get_pointer', ptr));
     end
   end
 

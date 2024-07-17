@@ -5,7 +5,7 @@ classdef LibBinding < handle
     libName
   end
   
-  methods (Access = private)
+  methods (Access = protected)
     function this = LibBinding(libraryPath, headerPath, includepaths, envpaths)
       splitPath = split(libraryPath, ["\" "/"]);
       splitName = split(splitPath(end), ".");
@@ -39,6 +39,11 @@ classdef LibBinding < handle
         end
       end
       varargout{:} = calllib(this.libName, varargin{:});
+    end
+
+    % May be useful to ease debug.
+    function res = showPtr(this, ptr)
+      res = uint64(this.call('get_pointer', ptr));
     end
   end
   
