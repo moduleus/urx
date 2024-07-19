@@ -51,6 +51,7 @@ setuptools.setup(
                 f"-D{CMAKE_TOOLCHAIN_FILE_arg}",
                 "-DVCPKG_MANIFEST_MODE:BOOL=ON",
                 f"-DVCPKG_MANIFEST_DIR={str(Path(__file__).parent.absolute())}",
+                f"-DPython3_EXECUTABLE={sys.executable}",
             ],
             # Disable Ninja build generator
             cmake_generator=None,
