@@ -25,7 +25,8 @@ classdef Dataset < urx.Object
         filename char
       end
 
-      this = urx.LibBinding.getInstance().call('urx_load_from_file', filename);
+      dataset_ptr = urx.LibBinding.getInstance().call('urx_load_from_file', filename);
+      this = urx.Dataset(dataset_ptr, urx.PtrType.SHARED, []);
     end
   end
 end

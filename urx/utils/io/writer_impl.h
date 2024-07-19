@@ -127,16 +127,17 @@ struct SerializeHdf5<T, U, ContainerType::VECTOR> {
   static void
   f(const std::string& name, const T& field, const H5::Group& group, MapToSharedPtr& map,
     const std::unordered_map<std::type_index, std::vector<std::pair<U, std::string>>>& data_field) {
+    const size_t size = field.size();
+    if (size == 0) {
+      return;
+    }
     if constexpr (std::is_arithmetic_v<typename T::value_type>) {
-      const size_t size = field.size();
       const hsize_t dims[1] = {size};
       const H5::DataSpace dataspace = H5::DataSpace(1, dims);
       const H5::PredType* datatype = getStdToHdf5().at(nameTypeid<typename T::value_type>());
       if constexpr (USE_ATTRIBUTE) {
         const H5::Attribute attribute = group.createAttribute(name, *datatype, dataspace);
-        if (size != 0) {
-          attribute.write(*datatype, field.data());
-        }
+        attribute.write(*datatype, field.data());
       } else {
         const H5::DSetCreatPropList plist;
 #if H5_VERS_MAJOR == 1 && H5_VERS_MINOR >= 14
@@ -146,7 +147,6 @@ struct SerializeHdf5<T, U, ContainerType::VECTOR> {
         dataset.write(field.data(), *datatype);
       }
     } else if constexpr (std::is_same_v<typename T::value_type, std::string>) {
-      const size_t size = field.size();
       const hsize_t dims[1] = {size};
       const H5::DataSpace dataspace = H5::DataSpace(1, dims);
       const H5::StrType datatype(0, H5T_VARIABLE);
@@ -159,9 +159,7 @@ struct SerializeHdf5<T, U, ContainerType::VECTOR> {
 
       if constexpr (USE_ATTRIBUTE) {
         const H5::Attribute attribute = group.createAttribute(name, datatype, dataspace);
-        if (size != 0) {
-          attribute.write(datatype, c_strings.data());
-        }
+        attribute.write(datatype, c_strings.data());
       } else {
         const H5::DSetCreatPropList plist;
 #if H5_VERS_MAJOR == 1 && H5_VERS_MINOR >= 14

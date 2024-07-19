@@ -30,21 +30,9 @@ variables:
   - if [ ! -f "$destination" ]; then wget -O "$destination" "https://github.com/microsoft/vcpkg-tool/releases/download/$vcpkg_tag/vcpkg-glibc" || exit 1; chmod +x "$destination"; fi
   - cp $destination "$VCPKG_LOCAL_GIT/vcpkg" || exit 1
 
-.before-script-python-windows: &before-script-python-windows
-  - python -m venv .venv
-  - .venv/Scripts/Activate.ps1
-  - pip install --upgrade pip
-  - pip install -r requirements-gitlab.txt
-
-.before-script-python-linux: &before-script-python-linux
-  - python -m venv .venv
-  - source .venv/bin/activate
-  - pip install --upgrade pip
-  - pip install -r requirements-gitlab.txt
-
 .after-script-clean-vcpkg-windows: &after-script-clean-vcpkg-windows
-  - Remove-Item -LiteralPath "$Env:VCPKG_BUILDTREE" -Force -Recurse
-  - Remove-Item -LiteralPath "$Env:VCPKG_LOCAL_GIT/packages" -Force -Recurse
+  - Remove-Item -LiteralPath "$Env:VCPKG_BUILDTREE" -Force -Recurse -ErrorAction SilentlyContinue
+  - Remove-Item -LiteralPath "$Env:VCPKG_LOCAL_GIT/packages" -Force -Recurse -ErrorAction SilentlyContinue
 
 .after-script-clean-vcpkg-linux: &after-script-clean-vcpkg-linux
   - rm -Rf "$VCPKG_LOCAL_GIT/buildtrees"
@@ -253,13 +241,12 @@ build:windows-with-HDF5-static:
   before_script:
     - *before-script-vcpkg-windows
   script:
-    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$Env:VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows-static-md-release-env -DVCPKG_HOST_TRIPLET=x64-windows-static-md-release-env -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="install" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DENABLE_PCH:BOOL=OFF -DVCPKG_INSTALL_OPTIONS=--x-buildtrees-root=$(Write-Host "$Env:VCPKG_BUILDTREE")
+    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$Env:VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-wsmrep -DVCPKG_HOST_TRIPLET=x64-wsmrep -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="install" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DENABLE_PCH:BOOL=OFF -DVCPKG_INSTALL_OPTIONS=--x-buildtrees-root="$Env:VCPKG_BUILDTREE"
+    - *after-script-clean-vcpkg-windows
     - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
     - cmake.exe --install CI --config Release
     - cd CI
     - ctest.exe --output-on-failure -C Release
-  after_script:
-    - *after-script-clean-vcpkg-windows
 
 build:windows-with-HDF5-shared:
   stage: build
@@ -270,13 +257,12 @@ build:windows-with-HDF5-shared:
   before_script:
     - *before-script-vcpkg-windows
   script:
-    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$Env:VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows-release-env -DVCPKG_HOST_TRIPLET=x64-windows-release-env -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="install" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DVCPKG_INSTALL_OPTIONS=--x-buildtrees-root=$(Write-Host "$Env:VCPKG_BUILDTREE")
+    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$Env:VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows-release-env -DVCPKG_HOST_TRIPLET=x64-windows-release-env -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="install" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DVCPKG_INSTALL_OPTIONS=--x-buildtrees-root="$Env:VCPKG_BUILDTREE"
+    - *after-script-clean-vcpkg-windows
     - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
     - cmake.exe --install CI --config Release
     - cd CI
     - ctest.exe --output-on-failure -C Release
-  after_script:
-    - *after-script-clean-vcpkg-windows
 
 build:ubuntu-with-HDF5-static:
   stage: build
@@ -290,12 +276,11 @@ build:ubuntu-with-HDF5-static:
     - cmake -S . -B CI -DCMAKE_C_COMPILER=/usr/bin/clang-17 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-17 -DCMAKE_AR=/usr/bin/llvm-ar-17 -DCMAKE_AS=/usr/bin/llvm-as-17 -DCMAKE_RANLIB=/usr/bin/llvm-ranlib-17 -DCMAKE_LINKER_TYPE=LLD -DCMAKE_TOOLCHAIN_FILE="$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-linux-release -DVCPKG_HOST_TRIPLET=x64-linux-release -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=ON -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
     - rm -Rf CI/CMakeCache.txt CI/CMakeFiles
     - CFLAGS='-fsanitize=undefined,address' CXXFLAGS='-fsanitize=undefined,address' cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/usr/bin/clang-17 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-17 -DCMAKE_AR=/usr/bin/llvm-ar-17 -DCMAKE_AS=/usr/bin/llvm-as-17 -DCMAKE_RANLIB=/usr/bin/llvm-ranlib-17 -DCMAKE_LINKER_TYPE=LLD -DCMAKE_TOOLCHAIN_FILE="$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-linux-release -DVCPKG_HOST_TRIPLET=x64-linux-release -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="install" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=ON -DENABLE_PCH:BOOL=OFF -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+    - *after-script-clean-vcpkg-linux
     - cmake --build CI --config Release --parallel $NUM_PARALLEL
     - cmake --install CI --config Release
     - cd CI
     - ctest --output-on-failure -C Release
-  after_script:
-    - *after-script-clean-vcpkg-linux
   artifacts:
     paths:
       - CI/version.txt
@@ -317,12 +302,11 @@ build:ubuntu-with-HDF5-shared:
     - *before-script-vcpkg-linux
   script:
     - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-linux-dynamic-release -DVCPKG_HOST_TRIPLET=x64-linux-dynamic-release -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="install" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+    - *after-script-clean-vcpkg-linux
     - cmake --build CI --config Release --parallel $NUM_PARALLEL
     - cmake --install CI --config Release
     - cd CI
     - ctest --output-on-failure -C Release
-  after_script:
-    - *after-script-clean-vcpkg-linux
 
 # Check only once WITH_HDF5=OFF
 build:ubuntu-without-HDF5-static:
@@ -335,12 +319,11 @@ build:ubuntu-without-HDF5-static:
     - *before-script-vcpkg-linux
   script:
     - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-linux-release -DVCPKG_HOST_TRIPLET=x64-linux-release -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="install" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=OFF -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+    - *after-script-clean-vcpkg-linux
     - cmake --build CI --config Release --parallel $NUM_PARALLEL
     - cmake --install CI --config Release
     - cd CI
     - ctest --output-on-failure -C Release
-  after_script:
-    - *after-script-clean-vcpkg-linux
 
 build:windows-python:
   stage: build
@@ -350,13 +333,17 @@ build:windows-python:
     - python
   before_script:
     - *before-script-vcpkg-windows
-    - *before-script-python-windows
   script:
     - $Env:CMAKE_BUILD_PARALLEL_LEVEL=$NUM_PARALLEL
-    - pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=$Env:VCPKG_LOCAL_GIT\\scripts\\buildsystems\\vcpkg.cmake cmake_build_type=Release" --no-clean -v
-    - python -m unittest discover test/python
-  after_script:
-    - *after-script-clean-vcpkg-windows
+    - |
+      & $Env:VCPKG_LOCAL_GIT/vcpkg.exe install --triplet x64-wsmrep --host-triplet x64-wsmrep --x-feature=python --overlay-triplets=vcpkg-registry/triplets
+    - vcpkg_installed/x64-wsmrep/tools/python3/python.exe -m ensurepip
+    - vcpkg_installed/x64-wsmrep/tools/python3/python.exe -m pip install --upgrade pip
+    - vcpkg_installed/x64-wsmrep/tools/python3/python.exe -m pip install -r requirements-gitlab.txt
+    - vcpkg_installed/x64-wsmrep/tools/python3/python.exe -m pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=$Env:VCPKG_LOCAL_GIT\\scripts\\buildsystems\\vcpkg.cmake cmake_build_type=Release" --no-clean -v
+    - vcpkg_installed/x64-wsmrep/tools/python3/python.exe -m unittest discover test/python
+# Don't clean for windows-python. It always fails and make CI fails.
+#    - *after-script-clean-vcpkg-windows
 
 build:ubuntu-python:
   stage: build
@@ -366,15 +353,17 @@ build:ubuntu-python:
     - python
   before_script:
     - *before-script-vcpkg-linux
-    - *before-script-python-linux
   script:
     - export CMAKE_BUILD_PARALLEL_LEVEL=$NUM_PARALLEL
+    - $VCPKG_LOCAL_GIT/vcpkg install --triplet x64-linux --host-triplet x64-linux --x-feature=python
+    - vcpkg_installed/x64-linux/tools/python3/python3 -m venv .venv
+    - source .venv/bin/activate
+    - python -m pip install --upgrade pip
+    - pip install -r requirements-gitlab.txt
     - pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake cmake_build_type=Release" --no-clean -v
     - python -m unittest discover test/python
     - pybind11-stubgen pyurx --output-dir=python
     - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Run pybind11-stubgen before commit."; echo "$(git status --porcelain)"; git diff; exit 1; fi
-  after_script:
-    - *after-script-clean-vcpkg-linux
 
 build:windows-matlab-static:
   stage: build
@@ -385,13 +374,12 @@ build:windows-matlab-static:
   before_script:
     - *before-script-vcpkg-windows
   script:
-    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$Env:VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows-static-md-release-env -DVCPKG_HOST_TRIPLET=x64-windows-static-md-release-env -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="install" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=OFF -DWITH_MATLAB:BOOL=ON -DENABLE_PCH:BOOL=OFF -DVCPKG_INSTALL_OPTIONS=--x-buildtrees-root=$(Write-Host "$Env:VCPKG_BUILDTREE")
+    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$Env:VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-wsmrep -DVCPKG_HOST_TRIPLET=x64-wsmrep -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="install" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=OFF -DWITH_MATLAB:BOOL=ON -DENABLE_PCH:BOOL=OFF -DVCPKG_INSTALL_OPTIONS=--x-buildtrees-root="$Env:VCPKG_BUILDTREE"
+    - *after-script-clean-vcpkg-windows
     - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
     - cmake.exe --install CI --config Release
     - cd test/matlab
     - C:/"Program Files"/MATLAB/R2023b/bin/matlab.exe -wait -batch runTestsCi
-  after_script:
-    - *after-script-clean-vcpkg-windows
 
 build:ubuntu-matlab-static:
   stage: build
@@ -403,10 +391,10 @@ build:ubuntu-matlab-static:
     - *before-script-vcpkg-linux
   script:
     - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/usr/bin/clang-17 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-17 -DCMAKE_AR=/usr/bin/llvm-ar-17 -DCMAKE_AS=/usr/bin/llvm-as-17 -DCMAKE_RANLIB=/usr/bin/llvm-ranlib-17 -DCMAKE_LINKER_TYPE=LLD -DCMAKE_TOOLCHAIN_FILE="$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-linux-release -DVCPKG_HOST_TRIPLET=x64-linux-release -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="install" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=OFF -DWITH_MATLAB:BOOL=ON -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+    - *after-script-clean-vcpkg-linux
     - cmake --build CI --config Release --parallel $NUM_PARALLEL
     - cmake --install CI --config Release
     - cd test/matlab
-    - ssh moduleus@localhost "cd $PWD && export HDF5_DISABLE_VERSION_CHECK=1 && /opt/matlab/R2022b/bin/matlab -batch runTestsCi"
+    - ssh moduleus@localhost "cd $PWD && /opt/matlab/R2022b/bin/matlab -batch runTestsCi"
   after_script:
     - ssh moduleus@localhost "rm -f $PWD/test/matlab/test.urx"
-    - *after-script-clean-vcpkg-linux

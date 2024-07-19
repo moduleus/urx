@@ -1,5 +1,6 @@
 function runTestsCi
   addpath([pwd '/../../matlab']);
+  setenv("HDF5_DISABLE_VERSION_CHECK", "1");
   if ispc()
     P = matlab.unittest.parameters.Parameter.fromData(...
       'libraryPath', {[pwd '/../../CI/matlab/binding/Release/UrxMatlabBinding.dll']},...
@@ -15,9 +16,13 @@ function runTestsCi
   end
   suite = matlab.unittest.TestSuite.fromFolder("+urx/+UnitTests", ...
     'ExternalParameters', P);
+  lastwarn('');
   results = run(suite);
   
   for i=1:numel(results)
     assert( results(i).Failed == 0, 'Unit tests failed' )
+    assert( results(i).Incomplete == 0, 'Unit tests failed' )
   end
+
+  assert(isempty(lastwarn));
 end

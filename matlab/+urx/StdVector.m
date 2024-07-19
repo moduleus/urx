@@ -7,7 +7,7 @@ classdef StdVector < urx.ObjectField
   
   methods
     function this = StdVector(objectClassName, nbDims, ptrType, parent)
-      this.libBindingRef = urx.LibBinding.getInstance();
+      this.libBindingRef = this.getInstance();
       this.objectClassName = objectClassName;
       if nargin < 2
         nbDims = 1;
@@ -21,6 +21,10 @@ classdef StdVector < urx.ObjectField
       end
     end
     
+    function res = getInstance(this)
+      res = urx.LibBinding.getInstance();
+    end
+
     function delete(this)
       if isempty(this.parent)
         this.libBindingRef.call(this.functionName('delete'), this);
@@ -62,7 +66,11 @@ classdef StdVector < urx.ObjectField
       elseif isa(val, 'urx.Object') || this.nbDims > 1
         this.libBindingRef.call(this.functionName('push_back', val.ptrType == urx.PtrType.SHARED), this, val);
       else
-        this.libBindingRef.call(this.functionName('push_back'), this, val);
+        if isnumeric(val)
+          this.libBindingRef.call(this.functionName('push_back_raw'), this, val);
+        else
+          this.libBindingRef.call(this.functionName('push_back'), this, val);
+        end
       end
     end
     

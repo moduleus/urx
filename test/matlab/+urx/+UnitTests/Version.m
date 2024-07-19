@@ -72,11 +72,11 @@ classdef Version < matlab.unittest.TestCase
       testcase.verifyEqual(dataset.version.patch, uint16(963));
 
       % Modify data without using urx.Object.
-      ptrMajor = libBinding.call('urx_Version_major', dataset.version);
+      ptrMajor = libBinding.call('urx_Version_raw_major', dataset.version);
       ptrMajor.setdatatype('uint16Ptr', 1, 1);
-      ptrMinor = libBinding.call('urx_Version_minor', dataset.version);
+      ptrMinor = libBinding.call('urx_Version_raw_minor', dataset.version);
       ptrMinor.setdatatype('uint16Ptr', 1, 1);
-      ptrPatch = libBinding.call('urx_Version_patch', dataset.version);
+      ptrPatch = libBinding.call('urx_Version_raw_patch', dataset.version);
       ptrPatch.setdatatype('uint16Ptr', 1, 1);
 
       % Check that pointer is valid.

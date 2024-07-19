@@ -125,9 +125,11 @@ struct DeserializeHdf5<T, U, ContainerType::VECTOR> {
       if (group.nameExists(name)) {
         dataset = group.openDataSet(name);
         dataspace = dataset.getSpace();
-      } else {
+      } else if (group.attrExists(name)) {
         attribute = group.openAttribute(name);
         dataspace = attribute.getSpace();
+      } else {
+        return;
       }
 
       const int ndims = dataspace.getSimpleExtentNdims();
@@ -151,9 +153,11 @@ struct DeserializeHdf5<T, U, ContainerType::VECTOR> {
       if (group.nameExists(name)) {
         dataset = group.openDataSet(name);
         dataspace = dataset.getSpace();
-      } else {
+      } else if (group.attrExists(name)) {
         attribute = group.openAttribute(name);
         dataspace = attribute.getSpace();
+      } else {
+        return;
       }
 
       const int ndims = dataspace.getSimpleExtentNdims();
@@ -178,6 +182,10 @@ struct DeserializeHdf5<T, U, ContainerType::VECTOR> {
         }
       }
     } else {
+      if (!group.nameExists(name)) {
+        return;
+      }
+
       const H5::Group group_child(group.openGroup(name));
 
       size_t i = 0;

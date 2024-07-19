@@ -22,7 +22,10 @@ classdef Object < urx.ObjectField
       if nargin == 1 && isempty(id)
         return;
       end
-      this.libBindingRef = urx.LibBinding.getInstance();
+      this.libBindingRef = this.getInstance();
+
+      namespace = class(this);
+      namespace = namespace(1:3);
 
       if nargin == 0
         this.id = this.libBindingRef.call([strrep(class(this), '.', '_') '_new']);
@@ -64,9 +67,13 @@ classdef Object < urx.ObjectField
           else
             assert(false);
           end
-          this.([props(i).Name 'Std']) = urx.StdVector(class(this.(props(i).Name)), 1, stdPtrType, this);
+          this.([props(i).Name 'Std']) = feval([namespace '.StdVector'], class(this.(props(i).Name)), 1, stdPtrType, this);
         end
       end
+    end
+
+    function res = getInstance(this)
+      res = urx.LibBinding.getInstance();
     end
 
     function freeMem(this)
@@ -82,20 +89,27 @@ classdef Object < urx.ObjectField
     function delete(this)
       this.freeMem();
     end
+
+    function res = getRawPtr(this)
+      res = this.libBindingRef.call([strrep(class(this), '.', '_') '_raw_ptr' urx.Object.functionPtrType(this.ptrType)], this.id);
+    end
   end
 
   methods (Static)
-    function res = functionAssign(className, typeDest, typeSrc)
-      res = [className '_assign'];
-      if typeDest == urx.PtrType.SHARED
-        res = [res '_shared'];
-      elseif typeDest == urx.PtrType.WEAK
-        res = [res '_weak'];
-      elseif typeDest == urx.PtrType.OPTIONAL
-        res = [res '_optional'];
+    function res = functionPtrType(ptrType)
+      if ptrType == urx.PtrType.SHARED
+        res = '_shared';
+      elseif ptrType == urx.PtrType.WEAK
+        res = '_weak';
+      elseif ptrType == urx.PtrType.OPTIONAL
+        res = '_optional';
       else
-        res = [res '_raw'];
+        res = '_raw';
       end
+    end
+
+    function res = functionAssign(className, typeDest, typeSrc)
+      res = [className '_assign' urx.Object.functionPtrType(typeDest)];
       if typeSrc
         res = [res '_shared'];
       else
@@ -104,14 +118,7 @@ classdef Object < urx.ObjectField
     end
 
     function res = functionVector(className, func, type, nbDims)
-      res = 'vector';
-      if type == urx.PtrType.SHARED
-        res = [res '_shared'];
-      elseif type == urx.PtrType.WEAK
-        res = [res '_weak'];
-      elseif type == urx.PtrType.OPTIONAL
-        res = [res '_optional'];
-      end
+      res = ['vector' urx.Object.functionPtrType(type)];
       if nbDims == 2
         res = [res '_2d'];
       end
@@ -191,16 +198,8 @@ classdef Object < urx.ObjectField
       % For update of the C pointer at every call to be sure that value is
       % up to date.
       % Maybe only isempty(affectedProperty)
-      functionCFieldAccessor = strrep(class(affectedObject), '.', '_');
-      if affectedObject.ptrType == urx.PtrType.SHARED
-        functionCFieldAccessor = [functionCFieldAccessor '_shared'];
-      elseif affectedObject.ptrType == urx.PtrType.WEAK
-        functionCFieldAccessor = [functionCFieldAccessor '_weak'];
-      elseif affectedObject.ptrType == urx.PtrType.OPTIONAL
-        functionCFieldAccessor = [functionCFieldAccessor '_optional'];
-      end
-      functionCFieldAccessor = [functionCFieldAccessor '_' urx.Object.camelToSnakeCase(affectedPropertyName)];
-      libBindingRef = urx.LibBinding.getInstance();
+      functionCFieldAccessor = [strrep(class(affectedObject), '.', '_')  urx.Object.functionPtrType(affectedObject.ptrType) '_' urx.Object.camelToSnakeCase(affectedPropertyName)];
+      libBindingRef = affectedObject.getInstance();
       affectedCFieldPtr = libBindingRef.call(functionCFieldAccessor, affectedObject.id);
 
       if strcmp(affectedPropertyName, "hwConfig")
@@ -209,7 +208,7 @@ classdef Object < urx.ObjectField
           affectedPropertyHwPtr = uac.HwConfig(affectedCFieldPtr, urx.PtrType.RAW, affectedObject);
           affectedObject.([affectedPropertyName 'Ptr']) = affectedPropertyHwPtr;
         else
-          assert(urx.Object.showPtr(affectedPropertyHwPtr.id) == urx.Object.showPtr(affectedCFieldPtr));
+          assert(libBindingRef.showPtr(affectedPropertyHwPtr.id) == libBindingRef.showPtr(affectedCFieldPtr));
         end
       else
         affectedPropertyHwPtr = [];
@@ -243,17 +242,27 @@ classdef Object < urx.ObjectField
               assert(strcmp(class(affectedProperty), affectedPropertyStd.objectClassName));
               for i = 1:numel(affectedProperty)
                 affectedPropertyStd.pushBack(affectedProperty(i));
-                % Update id and ptrType
-                affectedProperty(i) = affectedPropertyStd.data(i);
+              end
+              % Update id and ptrType
+              % Do it after all pushBack. std::vector::pushBack may realloc
+              % and change all pointer adresses.
+              for i = 1:numel(affectedProperty)
+                realAffectedDataI = affectedPropertyStd.data(i);
                 if isa(affectedProperty(i), 'urx.Object')
+                  affectedProperty(i).id = realAffectedDataI.id;
+                  affectedProperty(i).ptrType = realAffectedDataI.ptrType;
                   affectedProperty(i).parent = affectedObject;
                 end
               end
             else
               assert(affectedPropertyStd.nbDims == 2);
               assert(iscell(affectedProperty));
+
+              namespace = class(affectedObject);
+              namespace = namespace(1:3);
+
               for i = 1:numel(affectedProperty)
-                vectori = urx.StdVector(affectedPropertyStd.objectClassName, affectedPropertyStd.nbDims-1, affectedPropertyStd.ptrType);
+                vectori = feval([namespace '.StdVector'], affectedPropertyStd.objectClassName, affectedPropertyStd.nbDims-1, affectedPropertyStd.ptrType);
                 for j = 1:numel(affectedProperty{i})
                   vectori.pushBack(affectedProperty{i}(j));
                 end
@@ -326,19 +335,27 @@ classdef Object < urx.ObjectField
             affectedCFieldPtr.setdatatype('int32Ptr', 1);
             affectedCFieldPtr.Value = int32(affectedProperty);
           elseif ~isempty(affectedPropertyStd)
-            if urx.Object.showPtr(affectedPropertyStd.id) ~= urx.Object.showPtr(affectedCFieldPtr)
-              affectedPropertyStd.id = affectedCFieldPtr;
-              len = affectedPropertyStd.len();
-              if len == 0
-                cppValues = eval([affectedPropertyStd.objectClassName, '.empty']);
-              else
-                cppValues = repmat(eval([affectedPropertyStd.objectClassName, '([])']), 1, affectedPropertyStd.len());
-                for i = 1:numel(cppValues)
-                  cppValues(i) = affectedPropertyStd.data(i);
+            affectedPropertyStd.id = affectedCFieldPtr;
+            len = affectedPropertyStd.len();
+            if len == 0
+              cppValues = eval([affectedPropertyStd.objectClassName, '.empty']);
+            elseif affectedPropertyStd.nbDims == 1
+              cppValues = repmat(eval([affectedPropertyStd.objectClassName, '([])']), 1, len);
+              for i = 1:len
+                cppValues(i) = affectedPropertyStd.data(i);
+              end
+            else
+              cppValues = cell(1, len);
+              for i = 1:len
+                vectori = affectedPropertyStd.data(i);
+                leni = vectori.len();
+                cppValues(i) = {[]};
+                for j = 1:leni
+                  cppValues{i}(end+1) = vectori.data(j);
                 end
               end
-              affectedObject.(affectedPropertyName) = cppValues;
             end
+            affectedObject.(affectedPropertyName) = cppValues;
           elseif ~isempty(affectedPropertyHwPtr)
             affectedObject.(affectedPropertyName) = affectedPropertyHwPtr.fromCpp();
           elseif ~isa(affectedProperty, 'urx.Object')
@@ -378,10 +395,35 @@ classdef Object < urx.ObjectField
               has_data = libBindingRef.call([functionCFieldAccessor '_has_data'], affectedObject.id);
               % Force value if PreGet is called from a PreSet.
               if (has_data || (disableGetRecursion == 0 && disableSetRecursion == 1 && strcmp(s(2).name, 'Object.handlePropEvents')))
-                affectedObject.(affectedPropertyName) = feval(affectedPropertyClassName, affectedCFieldPtr, stdPtrType, affectedObject);
+                newObject = feval(affectedPropertyClassName, affectedCFieldPtr, stdPtrType, affectedObject);
+                if isa(affectedProperty, 'urx.RawData')
+                  sampling = newObject.samplingType();
+                  data = newObject.dataType();
+                  realAffectedPropertyClassName = affectedPropertyClassName;
+                  if data == 0
+                    realAffectedPropertyClassName = [realAffectedPropertyClassName '_int16_t'];
+                  elseif data == 1
+                    realAffectedPropertyClassName = [realAffectedPropertyClassName '_int32_t'];
+                  elseif data == 2
+                    realAffectedPropertyClassName = [realAffectedPropertyClassName '_float'];
+                  elseif data == 3
+                    realAffectedPropertyClassName = [realAffectedPropertyClassName '_double'];
+                  else
+                    assert(false);
+                  end
+                  if sampling == 0
+                    realAffectedPropertyClassName = [realAffectedPropertyClassName '_real'];
+                  elseif sampling == 1
+                    realAffectedPropertyClassName = [realAffectedPropertyClassName '_complex'];
+                  else
+                    assert(false);
+                  end
+                  newObject = feval(realAffectedPropertyClassName, affectedCFieldPtr, stdPtrType, affectedObject);
+                end
               else
-                affectedObject.(affectedPropertyName) = feval(affectedPropertyClassName, []).empty;
+                newObject = feval(affectedPropertyClassName, []).empty;
               end
+              affectedObject.(affectedPropertyName) = newObject;
             elseif (stdPtrType == urx.PtrType.WEAK && affectedObject.(affectedPropertyName).ptrType == urx.PtrType.SHARED)
               % Type may have changed when assigning WEAK from a SHARED.
               newProperty = feval(affectedPropertyClassName, affectedCFieldPtr, stdPtrType, affectedObject);
@@ -394,17 +436,12 @@ classdef Object < urx.ObjectField
               affectedObject.(affectedPropertyName) = newProperty;
             else
               % If object has already been cached, check if nothing has changed.
-              assert(urx.Object.showPtr(affectedObject.(affectedPropertyName).id) == urx.Object.showPtr(affectedCFieldPtr));
+              assert(libBindingRef.showPtr(affectedObject.(affectedPropertyName).id) == libBindingRef.showPtr(affectedCFieldPtr));
               assert(affectedObject.(affectedPropertyName).ptrType == stdPtrType);
             end
           end
           disableSetRecursion = disableSetRecursion - 1;
       end
-    end
-
-    % May be useful to ease debug.
-    function res = showPtr(ptr)
-      res = uint64(urx.LibBinding.getInstance().call('get_pointer', ptr));
     end
   end
 

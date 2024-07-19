@@ -1,4 +1,4 @@
-classdef CreateUff < matlab.unittest.TestCase
+classdef FileFromScratch < matlab.unittest.TestCase
   properties (MethodSetupParameter)
     libraryPath = {''}
     headerPath = {''}
@@ -15,7 +15,7 @@ classdef CreateUff < matlab.unittest.TestCase
   end
 
   methods(Test)
-    function createUff(testcase)
+    function createFileFromScratch(testcase)
       dataset = urx.Dataset();
       
       dataset.version.minor = 123;
@@ -231,6 +231,7 @@ classdef CreateUff < matlab.unittest.TestCase
       event1.transmitSetup.wave.parameters = [7, 53, .2, 1, .3, 5.6, 7];
       event1.transmitSetup.activeElements = {[0, 1], [0]};
       event1.transmitSetup.excitations = [dataset.acquisition.excitations(2), dataset.acquisition.excitations(1)];
+      testcase.verifyEqual(excitation1.waveform, dataset.acquisition.excitations(1).waveform);
       event1.transmitSetup.delays = [1.2, .3];
       
       event1.receiveSetup.probe = dataset.acquisition.probes(2);
@@ -403,8 +404,50 @@ classdef CreateUff < matlab.unittest.TestCase
       dataset.acquisition.groupsData = [groupData1, groupData2];
       
       dataset.saveToFile('test.urx');
+
+      dataset2 = urx.Dataset.loadFromFile('test.urx');
+
+      % testcase.verifyTrue(isequal(dataset, dataset2));
       
       delete 'test.urx'
+    end
+
+
+    function readRawData(testcase)
+      Nelements = 5;
+      dataset = urx.Dataset();
+      acq = dataset.acquisition;
+      acq.groupsData = urx.GroupData();
+      acq.groupsData.rawData = urx.RawData_double_real(Nelements);
+  
+      for i = 1:Nelements
+        acq.groupsData.rawData.data(i) = i;
+      end
+  
+      dataset.saveToFile('test.urx');
+
+      dataset2 = urx.Dataset.loadFromFile('test.urx');
+
+      testcase.verifyEqual(dataset.acquisition.groupsData.rawData.size, dataset2.acquisition.groupsData.rawData.size)
+      testcase.verifyEqual(dataset.acquisition.groupsData.rawData.data, dataset2.acquisition.groupsData.rawData.data)
+    end
+
+    function readVectorVector(testcase)
+      dataset = urx.Dataset();
+      acq = dataset.acquisition;
+      acq.groupsData = urx.GroupData();
+      acq.groups = urx.Group();
+      acq.groups.sequence = urx.Event();
+      actives = cell(1,1);
+      actives{1} = 42;
+      rs = acq.groups(1).sequence(1).receiveSetup;
+      rs.activeElements = actives;
+      dataset.saveToFile('test.urx');
+
+      dataset2 = urx.Dataset.loadFromFile('test.urx');
+
+      rs2 = dataset2.acquisition.groups(1).sequence(1).receiveSetup;
+      testcase.verifyEqual(actives, rs2.activeElements);
     end
   end
 end
