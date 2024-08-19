@@ -189,7 +189,7 @@ PYBIND11_MODULE(bindings, m) {
   urx::python::detail::bindVector<urx::python::VecEvent>(m);
 
   urx::python::registerGroup<urx::Group>(m).def(
-      py::init<urx::SamplingType, urx::DataType, const std::string &,
+      py::init<urx::SamplingType, urx::DataType, const std::string &, const urx::DoubleNan &,
                const urx::python::VecEvent &>());
   urx::python::detail::bindVector<urx::python::VecGroupPtr>(m);
 

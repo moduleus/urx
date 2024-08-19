@@ -50,7 +50,7 @@ void registerGroupData(py::module_ &m) {
 void registerAcquisition(py::module_ &m) {
   urx::python::registerAcquisition<urx::Acquisition>(m).def(
       py::init<const std::string &, const std::string &, const std::string &, const std::string &,
-               const std::string &, const urx::DoubleNan &, const urx::DoubleNan &,
+               const std::string &, const urx::DoubleNan &,
                const std::vector<std::shared_ptr<urx::Probe>> &,
                const std::vector<std::shared_ptr<urx::Excitation>> &,
                const std::vector<std::shared_ptr<urx::Group>> &,

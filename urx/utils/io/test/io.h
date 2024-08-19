@@ -38,7 +38,6 @@ std::shared_ptr<T> generateFakeDataset() {
   dataset->acquisition.local_time = "2019-06-15T15:53:00";
   dataset->acquisition.country_code = "FR";
   dataset->acquisition.system = "???";
-  dataset->acquisition.sound_speed = 1500.;
 
   {
     auto probe = std::make_shared<Probe>();
@@ -182,6 +181,7 @@ std::shared_ptr<T> generateFakeDataset() {
     auto group = std::make_shared<GroupT>();
     group->sampling_type = SamplingType::IQ;
     group->data_type = DataType::INT16;
+    group->sound_speed = 1500.;
     {
       EventT event;
       event.transmit_setup.probe = dataset->acquisition.probes[0];
@@ -262,6 +262,7 @@ std::shared_ptr<T> generateFakeDataset() {
     group = std::make_shared<GroupT>();
     group->sampling_type = SamplingType::RF;
     group->data_type = DataType::DOUBLE;
+    group->sound_speed = 1550.;
     {
       EventT event;
       event.transmit_setup.probe = dataset->acquisition.probes[1];

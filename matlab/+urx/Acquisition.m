@@ -12,7 +12,6 @@ classdef Acquisition < urx.Object
     countryCode char
     system char
     
-    soundSpeed(1,1) double
     timestamp(1,1) double
     
     probes(1,:) urx.Probe {urx.Validator.sharedPtrInCpp}

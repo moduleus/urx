@@ -259,8 +259,8 @@ class TestBindings(unittest.TestCase):
             enum_data=lambda: urx.DataType,
             group_constructor=lambda: urx.Group(),
             group_copy=lambda copy: urx.Group(copy),
-            group_args=lambda sampling_type, data_type, description, sequence: urx.Group(
-                sampling_type, data_type, description, sequence
+            group_args=lambda sampling_type, data_type, description, sound_speed, sequence: urx.Group(
+                sampling_type, data_type, description, sound_speed, sequence
             ),
             receive_setup_args=lambda probe, probe_transform, sampling_frequency, number_samples, active_elements, tgc_profile, tgc_sampling_frequency, modulation_frequency, time_offset: urx.ReceiveSetup(
                 probe,
@@ -285,6 +285,8 @@ class TestBindings(unittest.TestCase):
             probe_constructor=lambda: urx.Probe(),
             wave_constructor=lambda: urx.Wave(),
             transform_constructor=lambda: urx.Transform(),
+            double_nan_constructor=lambda: urx.DoubleNan(),
+            double_nan_copy=lambda copy: urx.DoubleNan(copy),
         )
 
     def test_impulse_response_run(

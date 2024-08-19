@@ -7,6 +7,7 @@
 #include <vector>
 
 #include <urx/detail/compare.h>  // IWYU pragma: keep
+#include <urx/detail/double_nan.h>
 #include <urx/enums.h>
 #include <urx/event.h>
 
@@ -17,7 +18,8 @@ template <class Event>
 struct Group {
   bool operator==(const Group& other) const {
     return sampling_type == other.sampling_type && data_type == other.data_type &&
-           description == other.description && sequence == other.sequence;
+           description == other.description && sound_speed == other.sound_speed &&
+           sequence == other.sequence;
   }
 
   bool operator!=(const Group& other) const { return !operator==(other); }
@@ -26,6 +28,8 @@ struct Group {
   DataType data_type = DataType::UNDEFINED;
 
   std::string description;
+
+  DoubleNan sound_speed;
 
   std::vector<Event> sequence;
 };

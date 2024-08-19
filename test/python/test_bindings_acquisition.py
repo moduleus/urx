@@ -29,8 +29,6 @@ def test_acquisition(
     self.assertEqual(acq.local_time, "")
     self.assertEqual(acq.country_code, "")
     self.assertEqual(acq.system, "")
-    self.assertTrue(np.isnan(acq.sound_speed.value))
-    self.assertEqual(acq.sound_speed, double_nan_constructor())
     self.assertTrue(np.isnan(acq.timestamp.value))
     self.assertEqual(acq.timestamp, double_nan_constructor())
     self.assertEqual(acq.probes, [])
@@ -97,29 +95,6 @@ def test_acquisition(
     # Check assignment
     acq.system = "Hello"
     self.assertNotEqual(system, acq.system)
-    self.assertNotEqual(acq, acq_2)
-    acq_2 = acq_copy(acq)
-
-    # Reference is possible for sound_speed (DoubleNan)
-    self.assertEqual(acq, acq_2)
-    self.assertEqual(acq.sound_speed, double_nan_constructor())
-    sound_speed_ref = acq.sound_speed
-    self.assertEqual(sound_speed_ref, acq.sound_speed)
-    self.assertEqual(sound_speed_ref, double_nan_constructor())
-    self.assertNotEqual(sound_speed_ref.value, np.nan)
-    # Check assignment
-    acq.sound_speed = double_nan_copy(10)
-    self.assertEqual(sound_speed_ref, acq.sound_speed)
-    sound_speed_ref += 12
-    self.assertEqual(sound_speed_ref, acq.sound_speed)
-    sound_speed_ref -= 12
-    self.assertEqual(sound_speed_ref, acq.sound_speed)
-    sound_speed_ref *= 12
-    self.assertEqual(sound_speed_ref, acq.sound_speed)
-    sound_speed_ref /= 12
-    self.assertEqual(sound_speed_ref, acq.sound_speed)
-    sound_speed_ref = 123
-    self.assertNotEqual(sound_speed_ref, acq.sound_speed)
     self.assertNotEqual(acq, acq_2)
     acq_2 = acq_copy(acq)
 
