@@ -8,7 +8,9 @@ if(WITH_HDF5)
   endif()
   string(TOLOWER ${LIB_TYPE} SEARCH_TYPE)
 
-  find_package(HDF5 REQUIRED NAMES hdf5 COMPONENTS CXX ${SEARCH_TYPE})
+  if(NOT TARGET hdf5::hdf5-${SEARCH_TYPE})
+    find_package(HDF5 REQUIRED NAMES hdf5 COMPONENTS CXX ${SEARCH_TYPE})
+  endif()
 endif()
 
 add_library(UrxCompilerFlags INTERFACE)
