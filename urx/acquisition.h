@@ -21,8 +21,7 @@ struct Acquisition {
   bool operator==(const Acquisition& other) const {
     return authors == other.authors && description == other.description &&
            local_time == other.local_time && country_code == other.country_code &&
-           system == other.system && sound_speed == other.sound_speed &&
-           timestamp == other.timestamp && probes == other.probes &&
+           system == other.system && timestamp == other.timestamp && probes == other.probes &&
            excitations == other.excitations && groups == other.groups &&
            groups_data == other.groups_data;
   }
@@ -35,7 +34,6 @@ struct Acquisition {
   std::string country_code;
   std::string system;
 
-  DoubleNan sound_speed;
   DoubleNan timestamp;
 
   std::vector<std::shared_ptr<Probe>> probes;

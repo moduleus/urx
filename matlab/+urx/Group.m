@@ -8,6 +8,8 @@ classdef Group < urx.Object
 
     description char
 
+    soundSpeed(1,1) double
+
     sequence(1,:) urx.Event {urx.Validator.rawInCpp}
   end
 

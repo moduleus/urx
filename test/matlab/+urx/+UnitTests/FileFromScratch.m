@@ -52,8 +52,6 @@ classdef FileFromScratch < matlab.unittest.TestCase
       dataset.acquisition.localTime = '2019-06-15T15:53:00';
       dataset.acquisition.countryCode = 'FR';
       dataset.acquisition.system = '???';
-      dataset.acquisition.soundSpeed = 1500.;
-      testcase.verifyEqual(dataset.acquisition.soundSpeed, 1500);
       
       probe1 = urx.Probe();
       probe1.description = 'Probe 1';
@@ -213,6 +211,8 @@ classdef FileFromScratch < matlab.unittest.TestCase
       group1 = urx.Group();
       group1.samplingType = urx.Group.SamplingType.IQ;
       group1.dataType = urx.Group.DataType.INT16;
+      group1.soundSpeed = 1500.;
+      testcase.verifyEqual(group1.soundSpeed, 1500);
       
       event1 = urx.Event();
       event1.transmitSetup.probe = dataset.acquisition.probes(1);
@@ -290,6 +290,7 @@ classdef FileFromScratch < matlab.unittest.TestCase
       group2 = urx.Group();
       group2.samplingType = urx.Group.SamplingType.RF;
       group2.dataType = urx.Group.DataType.DOUBLE;
+      group2.soundSpeed = 1550.;
       
       event1 = urx.Event();
       event1.transmitSetup.probe = dataset.acquisition.probes(2);

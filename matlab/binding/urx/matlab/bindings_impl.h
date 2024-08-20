@@ -480,7 +480,6 @@ bool checkHasValue(const T &argument) {
   OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, local_time);   \
   OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, country_code); \
   OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, system);       \
-  OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, sound_speed);  \
   OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, timestamp);    \
   OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, probes);       \
   OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, excitations);  \
@@ -527,6 +526,7 @@ bool checkHasValue(const T &argument) {
   OBJECT_ACCESSOR_NS_IMPL(ns, Group, sampling_type); \
   OBJECT_ACCESSOR_NS_IMPL(ns, Group, data_type);     \
   OBJECT_ACCESSOR_NS_IMPL(ns, Group, description);   \
+  OBJECT_ACCESSOR_NS_IMPL(ns, Group, sound_speed);   \
   OBJECT_ACCESSOR_NS_IMPL(ns, Group, sequence)
 
 #define URX_MATLAB_IMPULSE_RESPONSE_IMPL(ns)                        \

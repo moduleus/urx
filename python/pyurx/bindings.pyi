@@ -16,7 +16,6 @@ class Acquisition:
     groups_data: VecGroupData
     local_time: str
     probes: VecProbePtr
-    sound_speed: DoubleNan
     system: str
     timestamp: DoubleNan
     def __eq__(self, arg0: Acquisition) -> bool:
@@ -28,7 +27,7 @@ class Acquisition:
     def __init__(self, arg0: Acquisition) -> None:
         ...
     @typing.overload
-    def __init__(self, arg0: str, arg1: str, arg2: str, arg3: str, arg4: str, arg5: DoubleNan, arg6: DoubleNan, arg7: VecProbePtr, arg8: VecExcitationPtr, arg9: VecGroupPtr, arg10: VecGroupData) -> None:
+    def __init__(self, arg0: str, arg1: str, arg2: str, arg3: str, arg4: str, arg5: DoubleNan, arg6: VecProbePtr, arg7: VecExcitationPtr, arg8: VecGroupPtr, arg9: VecGroupData) -> None:
         ...
     def __ne__(self, arg0: Acquisition) -> bool:
         ...
@@ -255,6 +254,7 @@ class Group:
     description: str
     sampling_type: SamplingType
     sequence: VecEvent
+    sound_speed: DoubleNan
     def __eq__(self, arg0: Group) -> bool:
         ...
     @typing.overload
@@ -264,7 +264,7 @@ class Group:
     def __init__(self, arg0: Group) -> None:
         ...
     @typing.overload
-    def __init__(self, arg0: SamplingType, arg1: DataType, arg2: str, arg3: VecEvent) -> None:
+    def __init__(self, arg0: SamplingType, arg1: DataType, arg2: str, arg3: DoubleNan, arg4: VecEvent) -> None:
         ...
     def __ne__(self, arg0: Group) -> bool:
         ...

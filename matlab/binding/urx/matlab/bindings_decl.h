@@ -171,7 +171,6 @@
   OBJECT_ACCESSOR_NS_DECL(ns, Acquisition, local_time);   \
   OBJECT_ACCESSOR_NS_DECL(ns, Acquisition, country_code); \
   OBJECT_ACCESSOR_NS_DECL(ns, Acquisition, system);       \
-  OBJECT_ACCESSOR_NS_DECL(ns, Acquisition, sound_speed);  \
   OBJECT_ACCESSOR_NS_DECL(ns, Acquisition, timestamp);    \
   OBJECT_ACCESSOR_NS_DECL(ns, Acquisition, probes);       \
   OBJECT_ACCESSOR_NS_DECL(ns, Acquisition, excitations);  \
@@ -218,6 +217,7 @@
   OBJECT_ACCESSOR_NS_DECL(ns, Group, sampling_type); \
   OBJECT_ACCESSOR_NS_DECL(ns, Group, data_type);     \
   OBJECT_ACCESSOR_NS_DECL(ns, Group, description);   \
+  OBJECT_ACCESSOR_NS_DECL(ns, Group, sound_speed);   \
   OBJECT_ACCESSOR_NS_DECL(ns, Group, sequence)
 
 #define URX_MATLAB_IMPULSE_RESPONSE_DECL(ns)                        \

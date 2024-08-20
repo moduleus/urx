@@ -373,6 +373,7 @@ py::class_<Group, std::shared_ptr<Group>, Options...> registerGroup(py::module_ 
       .def_readwrite("sampling_type", &Group::sampling_type)
       .def_readwrite("data_type", &Group::data_type)
       .def_readwrite("description", &Group::description)
+      .def_readwrite("sound_speed", &Group::sound_speed)
       .def_readwrite("sequence", &Group::sequence);
 }
 
@@ -415,7 +416,6 @@ py::class_<Acquisition> registerAcquisition(py::module_ &m) {
       .def_readwrite("local_time", &Acquisition::local_time)
       .def_readwrite("country_code", &Acquisition::country_code)
       .def_readwrite("system", &Acquisition::system)
-      .def_readwrite("sound_speed", &Acquisition::sound_speed)
       .def_readwrite("timestamp", &Acquisition::timestamp)
       .def_readwrite("probes", &Acquisition::probes)
       .def_readwrite("excitations", &Acquisition::excitations)

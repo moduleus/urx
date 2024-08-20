@@ -2,11 +2,10 @@
 build-backend = "setuptools.build_meta"
 requires = [
     "wheel",
-    "setuptools",
+    "setuptools>69.0.0,<73",
     "cmake",
-    # Version 0.5.1 is only using Ninja generator which doesn't work well to compile libs for x64 archs 
-    "cmake_build_extension @ git+https://git.moduleus.com/common/sw/3rdparty/cmake-build-extension.git",
-    "importlib_metadata",
+    "cmake-build-extension",
+    "importlib-metadata",
     "numpy",
     "parameterized"
 ]
@@ -15,7 +14,7 @@ requires = [
 name = "pyurx"
 version = "0.0.1"
 dependencies = [
-    "cmake_build_extension",
+    "cmake-build-extension",
     "numpy",
     "parameterized",
     "cmake"
