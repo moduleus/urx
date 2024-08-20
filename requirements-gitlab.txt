@@ -1,7 +1,7 @@
 build
 twine
 wheel
-setuptools>69.0.0
+setuptools>69.0.0,<73
 cmake
 pybind11-stubgen
 typing-extensions
