@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 
+#include <pybind11/attr.h>
 #include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
@@ -68,19 +69,19 @@ PYBIND11_MODULE(bindings, m) {
   urx::python::detail::bindVector<urx::python::VecString>(m);
   urx::python::detail::bindVector<urx::python::VecVecString>(m);
 
-  py::enum_<urx::SamplingType>(m, "SamplingType")
+  py::enum_<urx::SamplingType>(m, "SamplingType", py::module_local())
       .value("RF", urx::SamplingType::RF)
       .value("IQ", urx::SamplingType::IQ)
       .value("UNDEFINED", urx::SamplingType::UNDEFINED);
 
-  py::enum_<urx::DataType>(m, "DataType")
+  py::enum_<urx::DataType>(m, "DataType", py::module_local())
       .value("INT16", urx::DataType::INT16)
       .value("INT32", urx::DataType::INT32)
       .value("FLOAT", urx::DataType::FLOAT)
       .value("DOUBLE", urx::DataType::DOUBLE)
       .value("UNDEFINED", urx::DataType::UNDEFINED);
 
-  py::enum_<urx::ProbeType>(m, "ProbeType")
+  py::enum_<urx::ProbeType>(m, "ProbeType", py::module_local())
       .value("LINEAR", urx::ProbeType::LINEAR)
       .value("CURVILINEAR", urx::ProbeType::CURVILINEAR)
       .value("RCA", urx::ProbeType::RCA)
@@ -88,14 +89,14 @@ PYBIND11_MODULE(bindings, m) {
       .value("SPARSE", urx::ProbeType::SPARSE)
       .value("UNDEFINED", urx::ProbeType::UNDEFINED);
 
-  py::enum_<urx::WaveType>(m, "WaveType")
+  py::enum_<urx::WaveType>(m, "WaveType", py::module_local())
       .value("CONVERGING_WAVE", urx::WaveType::CONVERGING_WAVE)
       .value("DIVERGING_WAVE", urx::WaveType::DIVERGING_WAVE)
       .value("PLANE_WAVE", urx::WaveType::PLANE_WAVE)
       .value("CYLINDRICAL_WAVE", urx::WaveType::CYLINDRICAL_WAVE)
       .value("UNDEFINED", urx::WaveType::UNDEFINED);
 
-  py::class_<urx::DoubleNan>(m, "DoubleNan")
+  py::class_<urx::DoubleNan>(m, "DoubleNan", py::module_local())
       .def(py::init<double>())
       .def(py::init<const urx::DoubleNan &>())
       .def(py::init())
@@ -207,7 +208,7 @@ PYBIND11_MODULE(bindings, m) {
 #endif
 
   // group_data_reader.h
-  py::class_<urx::utils::GroupDataReader>(m, "GroupDataReader")
+  py::class_<urx::utils::GroupDataReader>(m, "GroupDataReader", py::module_local())
       .def(py::init<urx::GroupData &, size_t>())
       .def("sequencesCount", &urx::utils::GroupDataReader::sequencesCount)
       .def("eventsCount", &urx::utils::GroupDataReader::eventsCount)
