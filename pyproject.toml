@@ -12,7 +12,7 @@ requires = [
 
 [project]
 name = "pyurx"
-version = "0.6.26"
+version = "0.6.26.1"
 dependencies = [
     "cmake-build-extension",
     "numpy",
