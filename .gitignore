@@ -25,3 +25,5 @@ test/python/__pycache__/
 *.res
 
 /urx/config.h
+
+*.whl

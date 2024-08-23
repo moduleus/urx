@@ -12,11 +12,12 @@ requires = [
 
 [project]
 name = "pyurx"
-version = "0.0.1"
+version = "0.6.26"
 dependencies = [
     "cmake-build-extension",
     "numpy",
     "parameterized",
+    "setuptools>69.0.0,<73",
     "cmake"
 ]
 description = "URX python binding"

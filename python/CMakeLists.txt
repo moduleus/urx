@@ -53,6 +53,32 @@ set_target_properties(
 
 set(CMAKE_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR}/${INSTALL_NAME})
 
+# Build python binary distribuable.
+if(WITH_PYTHON_WHL)
+  #.cp311-win_amd64.pyd
+  string(REPLACE "." ";" PYTHON_MODULE_EXTENSION_SPLIT
+                 ${PYTHON_MODULE_EXTENSION})
+  list(GET PYTHON_MODULE_EXTENSION_SPLIT 1 PYTHON_MODULE_LAST_POSTFIX)
+  # Generate pyurx-0.6.26-cp311-cp311-win_amd64.whl
+  set(PYTHON_MODULE_PYURX_OUTPUT
+      "pyurx-${CMAKE_PROJECT_VERSION}-cp${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}-${PYTHON_MODULE_LAST_POSTFIX}.whl"
+  )
+
+  add_custom_target(
+    UrxPythonWheel
+    COMMAND ${Python3_EXECUTABLE} -m ensurepip
+    COMMAND ${Python3_EXECUTABLE} -m pip install --upgrade pip
+    COMMAND ${Python3_EXECUTABLE} -m pip install -r requirements-gitlab.txt
+    COMMAND
+      ${Python3_EXECUTABLE} -m pip wheel .
+      --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} cmake_build_type=Release"
+      --no-clean -v
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
+    BYPRODUCTS ${PYTHON_MODULE_PYURX_OUTPUT})
+
+  add_dependencies(${URX_PYTHON_LIBRARY} UrxPythonWheel)
+endif()
+
 install(
   TARGETS ${URX_PYTHON_LIBRARY}
   EXPORT ${PROJECT_NAME}Targets

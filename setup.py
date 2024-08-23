@@ -58,7 +58,7 @@ setuptools.setup(
         )
     ],
     cmdclass=dict(build_ext=cmake_build_extension.BuildExtension),
-    version="0.0.1",
+    version="0.6.26",
     packages=["pyurx"],
     package_dir={
         "pyurx": "python/pyurx",

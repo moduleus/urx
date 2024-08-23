@@ -41,6 +41,8 @@ if(NOT CMAKE_BUILD_TYPE)
       CACHE STRING "Choose the type of build" FORCE)
 endif()
 
+option(WITH_PYTHON_WHL "Generate Python module with pip wheel" OFF)
+
 check_ipo_supported(RESULT result_ipo)
 if(result_ipo)
   set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
