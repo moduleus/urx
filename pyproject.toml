@@ -7,6 +7,7 @@ requires = [
     "cmake-build-extension",
     "importlib-metadata",
     "numpy",
+    "toml",
     "parameterized"
 ]
 
@@ -18,6 +19,7 @@ dependencies = [
     "numpy",
     "parameterized",
     "setuptools>69.0.0,<73",
+    "toml",
     "cmake"
 ]
 description = "URX python binding"

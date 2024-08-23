@@ -241,7 +241,7 @@ build:windows-with-HDF5-static:
   before_script:
     - *before-script-vcpkg-windows
   script:
-    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$Env:VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-wsmrep -DVCPKG_HOST_TRIPLET=x64-wsmrep -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="install" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DENABLE_PCH:BOOL=OFF -DVCPKG_INSTALL_OPTIONS=--x-buildtrees-root="$Env:VCPKG_BUILDTREE"
+    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$Env:VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-wsmrep -DVCPKG_HOST_TRIPLET=x64-wsmrep -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="install" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_PYTHON_WHL:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DENABLE_PCH:BOOL=OFF -DVCPKG_INSTALL_OPTIONS=--x-buildtrees-root="$Env:VCPKG_BUILDTREE"
     - *after-script-clean-vcpkg-windows
     - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
     - cmake.exe --install CI --config Release
@@ -257,7 +257,7 @@ build:windows-with-HDF5-shared:
   before_script:
     - *before-script-vcpkg-windows
   script:
-    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$Env:VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows-release-env -DVCPKG_HOST_TRIPLET=x64-windows-release-env -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="install" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_PYTHON_WHL:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DVCPKG_INSTALL_OPTIONS=--x-buildtrees-root="$Env:VCPKG_BUILDTREE"
+    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$Env:VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows-release-env -DVCPKG_HOST_TRIPLET=x64-windows-release-env -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="install" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DVCPKG_INSTALL_OPTIONS=--x-buildtrees-root="$Env:VCPKG_BUILDTREE"
     - *after-script-clean-vcpkg-windows
     - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
     - cmake.exe --install CI --config Release
@@ -340,7 +340,7 @@ build:windows-python:
     - vcpkg_installed/x64-wsmrep/tools/python3/python.exe -m ensurepip
     - vcpkg_installed/x64-wsmrep/tools/python3/python.exe -m pip install --upgrade pip
     - vcpkg_installed/x64-wsmrep/tools/python3/python.exe -m pip install -r requirements-gitlab.txt
-    - vcpkg_installed/x64-wsmrep/tools/python3/python.exe -m pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=$Env:VCPKG_LOCAL_GIT\\scripts\\buildsystems\\vcpkg.cmake cmake_build_type=Release" --no-clean -v
+    - vcpkg_installed/x64-wsmrep/tools/python3/python.exe -m pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=$Env:VCPKG_LOCAL_GIT\\scripts\\buildsystems\\vcpkg.cmake" --no-clean -v
     - vcpkg_installed/x64-wsmrep/tools/python3/python.exe -m unittest discover test/python
 # Don't clean for windows-python. It always fails and make CI fails.
 #    - *after-script-clean-vcpkg-windows
@@ -360,7 +360,7 @@ build:ubuntu-python:
     - source .venv/bin/activate
     - python -m pip install --upgrade pip
     - pip install -r requirements-gitlab.txt
-    - pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake cmake_build_type=Release" --no-clean -v
+    - pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" --no-clean -v
     - python -m unittest discover test/python
     - pybind11-stubgen pyurx --output-dir=python
     - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Run pybind11-stubgen before commit."; echo "$(git status --porcelain)"; git diff; exit 1; fi

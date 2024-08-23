@@ -61,8 +61,25 @@ if(WITH_PYTHON_WHL)
   list(GET PYTHON_MODULE_EXTENSION_SPLIT 1 PYTHON_MODULE_LAST_POSTFIX)
   # Generate pyurx-0.6.26-cp311-cp311-win_amd64.whl
   set(PYTHON_MODULE_PYURX_OUTPUT
-      "pyurx-${CMAKE_PROJECT_VERSION}-cp${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}-${PYTHON_MODULE_LAST_POSTFIX}.whl"
+      "pyurx-${CMAKE_PROJECT_VERSION}-cp${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}-cp${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}"
   )
+  if(WIN32)
+    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+      set(PYTHON_MODULE_PYURX_OUTPUT
+          "${PYTHON_MODULE_PYURX_OUTPUT}-win_amd64.whl")
+    else()
+      set(PYTHON_MODULE_PYURX_OUTPUT "${PYTHON_MODULE_PYURX_OUTPUT}-win32.whl")
+    endif()
+  elseif(UNIX AND NOT APPLE)
+    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+      set(PYTHON_MODULE_PYURX_OUTPUT
+          "${PYTHON_MODULE_PYURX_OUTPUT}-linux_x86_64.whl")
+    else()
+      message(FATAL_ERROR "Unsupported architecture for python output.")
+    endif()
+  else()
+    message(FATAL_ERROR "Unsupported architecture for python output.")
+  endif()
 
   add_custom_target(
     UrxPythonWheel
@@ -71,12 +88,15 @@ if(WITH_PYTHON_WHL)
     COMMAND ${Python3_EXECUTABLE} -m pip install -r requirements-gitlab.txt
     COMMAND
       ${Python3_EXECUTABLE} -m pip wheel .
-      --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} cmake_build_type=Release"
-      --no-clean -v
+      --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}"
+      --wheel-dir ${CMAKE_CURRENT_BINARY_DIR} --no-clean -v
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
     BYPRODUCTS ${PYTHON_MODULE_PYURX_OUTPUT})
 
   add_dependencies(${URX_PYTHON_LIBRARY} UrxPythonWheel)
+
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PYTHON_MODULE_PYURX_OUTPUT}
+          DESTINATION "share/${INSTALL_NAME}")
 endif()
 
 install(
