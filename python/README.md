@@ -15,7 +15,7 @@ source ./.venv/bin/activate
 
 ```bash
 python -m pip install -r requirements-gitlab.txt
-python -m pip install . -vvv --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=D:\\repos\\urx\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake" --no-clean
+python -m pip install . -v --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=D:\\repos\\urx\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake" --config-settings="--global-option=cmake_build_type=RelWithDebInfo" --config-settings="--global-option=vcpkg_triplet=x64-wsmrep" --no-clean
 ```
 
 In `setup.py`, set:

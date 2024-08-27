@@ -340,7 +340,7 @@ build:windows-python:
     - vcpkg_installed/x64-wsmrep/tools/python3/python.exe -m ensurepip
     - vcpkg_installed/x64-wsmrep/tools/python3/python.exe -m pip install --upgrade pip
     - vcpkg_installed/x64-wsmrep/tools/python3/python.exe -m pip install -r requirements-gitlab.txt
-    - vcpkg_installed/x64-wsmrep/tools/python3/python.exe -m pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=$Env:VCPKG_LOCAL_GIT\\scripts\\buildsystems\\vcpkg.cmake" --no-clean -v
+    - vcpkg_installed/x64-wsmrep/tools/python3/python.exe -m pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=$Env:VCPKG_LOCAL_GIT\\scripts\\buildsystems\\vcpkg.cmake" --config-settings="--global-option=cmake_build_type=RelWithDebInfo" --config-settings="--global-option=vcpkg_triplet=x64-wsmrep" --no-clean -v
     - vcpkg_installed/x64-wsmrep/tools/python3/python.exe -m unittest discover test/python
 # Don't clean for windows-python. It always fails and make CI fails.
 #    - *after-script-clean-vcpkg-windows
@@ -360,7 +360,7 @@ build:ubuntu-python:
     - source .venv/bin/activate
     - python -m pip install --upgrade pip
     - pip install -r requirements-gitlab.txt
-    - pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" --no-clean -v
+    - pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" --config-settings="--global-option=cmake_build_type=Release" --config-settings="--global-option=vcpkg_triplet=x64-linux-release" --no-clean -v
     - python -m unittest discover test/python
     - pybind11-stubgen pyurx --output-dir=python
     - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Run pybind11-stubgen before commit."; echo "$(git status --porcelain)"; git diff; exit 1; fi

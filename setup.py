@@ -13,20 +13,35 @@ from pathlib import Path
 pyproject = toml.load("pyproject.toml")
 name_project = pyproject["project"]["name"]
 
-if sys.platform == "win32":
-    cmake_build_type_arg = "RelWithDebInfo"
+cmake_build_type_arg = next((arg for arg in sys.argv if arg.startswith("cmake_build_type=")), None)
+if cmake_build_type_arg != None:
+    sys.argv.remove(cmake_build_type_arg)
+    cmake_build_type_arg = cmake_build_type_arg[len("cmake_build_type=") :]
 else:
-    cmake_build_type_arg = "Release"
+    if sys.platform == "win32":
+        cmake_build_type_arg = "RelWithDebInfo"
+    else:
+        cmake_build_type_arg = "Release"
 
 CMAKE_TOOLCHAIN_FILE_arg = next(
     (arg for arg in sys.argv if arg.startswith("CMAKE_TOOLCHAIN_FILE")), None
 )
 if CMAKE_TOOLCHAIN_FILE_arg != None:
     sys.argv.remove(CMAKE_TOOLCHAIN_FILE_arg)
-    if sys.platform == "win32":
-        TRIPLET = "x64-wsmrep"
+
+vcpkg_triplet_arg = next((arg for arg in sys.argv if arg.startswith("vcpkg_triplet")), None)
+if vcpkg_triplet_arg != None:
+    sys.argv.remove(vcpkg_triplet_arg)
+
+if CMAKE_TOOLCHAIN_FILE_arg != None:
+    sys.argv.remove(CMAKE_TOOLCHAIN_FILE_arg)
+    if vcpkg_triplet_arg != None:
+        TRIPLET = vcpkg_triplet_arg
     else:
-        TRIPLET = "x64-linux"
+        if sys.platform == "win32":
+            TRIPLET = "x64-wsmrep"
+        else:
+            TRIPLET = "x64-linux"
 else:
     raise Exception("Missing CMAKE_TOOLCHAIN_FILE for VCPKG in --global-option")
 
