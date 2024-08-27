@@ -7,16 +7,19 @@ requires = [
     "cmake-build-extension",
     "importlib-metadata",
     "numpy",
+    "toml",
     "parameterized"
 ]
 
 [project]
 name = "pyurx"
-version = "0.0.1"
+version = "0.6.26.1"
 dependencies = [
     "cmake-build-extension",
     "numpy",
     "parameterized",
+    "setuptools>69.0.0,<73",
+    "toml",
     "cmake"
 ]
 description = "URX python binding"

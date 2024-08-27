@@ -137,7 +137,8 @@ URX_PYTHON_EXPORT std::shared_ptr<urx::RawData> pyArrayToRawData(const py::array
 template <typename ImpulseResponse>
 py::class_<ImpulseResponse, std::shared_ptr<ImpulseResponse>> registerImpulseResponse(
     py::module_ &m) {
-  return py::class_<ImpulseResponse, std::shared_ptr<ImpulseResponse>>(m, "ImpulseResponse")
+  return py::class_<ImpulseResponse, std::shared_ptr<ImpulseResponse>>(m, "ImpulseResponse",
+                                                                       py::module_local())
       .def(py::init())
       .def(py::init<const ImpulseResponse &>())
       .def(py::self == py::self)
@@ -150,7 +151,7 @@ py::class_<ImpulseResponse, std::shared_ptr<ImpulseResponse>> registerImpulseRes
 
 template <typename Container>
 py::class_<Container> registerVector3D(py::module_ &m) {
-  return py::class_<Container>(m, "Vector3D")
+  return py::class_<Container>(m, "Vector3D", py::module_local())
       .def(py::init<typename Container::Type, typename Container::Type, typename Container::Type>())
       .def(py::init<const Container &>())
       .def(py::init())
@@ -163,7 +164,7 @@ py::class_<Container> registerVector3D(py::module_ &m) {
 
 template <typename Container>
 py::class_<Container> registerVector2D(py::module_ &m) {
-  return py::class_<Container>(m, "Vector2D")
+  return py::class_<Container>(m, "Vector2D", py::module_local())
       .def(py::init<typename Container::Type, typename Container::Type>())
       .def(py::init<const Container &>())
       .def(py::init())
@@ -175,7 +176,7 @@ py::class_<Container> registerVector2D(py::module_ &m) {
 
 template <typename Version>
 py::class_<Version> registerVersion(py::module_ &m) {
-  return py::class_<Version>(m, "Version")
+  return py::class_<Version>(m, "Version", py::module_local())
       .def(py::init<uint16_t, uint16_t, uint16_t>())
       .def(py::init<const Version &>())
       .def(py::init())
@@ -189,7 +190,8 @@ py::class_<Version> registerVersion(py::module_ &m) {
 template <typename ElementGeometry>
 py::class_<ElementGeometry, std::shared_ptr<ElementGeometry>> registerElementGeometry(
     py::module_ &m) {
-  return py::class_<ElementGeometry, std::shared_ptr<ElementGeometry>>(m, "ElementGeometry")
+  return py::class_<ElementGeometry, std::shared_ptr<ElementGeometry>>(m, "ElementGeometry",
+                                                                       py::module_local())
       .def(py::init())
       .def(py::init<const ElementGeometry &>())
       .def(py::self == py::self)
@@ -199,7 +201,7 @@ py::class_<ElementGeometry, std::shared_ptr<ElementGeometry>> registerElementGeo
 
 template <typename Transform>
 py::class_<Transform> registerTransform(py::module_ &m) {
-  return py::class_<Transform>(m, "Transform")
+  return py::class_<Transform>(m, "Transform", py::module_local())
       .def(py::init())
       .def(py::init<const Transform &>())
       .def(py::self == py::self)
@@ -210,7 +212,7 @@ py::class_<Transform> registerTransform(py::module_ &m) {
 
 template <typename Element>
 py::class_<Element, std::shared_ptr<Element>> registerElement(py::module_ &m) {
-  return py::class_<Element, std::shared_ptr<Element>>(m, "Element")
+  return py::class_<Element, std::shared_ptr<Element>>(m, "Element", py::module_local())
       .def(py::init())
       .def(py::init<const Element &>())
       .def(py::self == py::self)
@@ -242,7 +244,7 @@ py::class_<Element, std::shared_ptr<Element>> registerElement(py::module_ &m) {
 
 template <typename Excitation>
 py::class_<Excitation, std::shared_ptr<Excitation>> registerExcitation(py::module_ &m) {
-  return py::class_<Excitation, std::shared_ptr<Excitation>>(m, "Excitation")
+  return py::class_<Excitation, std::shared_ptr<Excitation>>(m, "Excitation", py::module_local())
       .def(py::init())
       .def(py::init<const Excitation &>())
       .def(py::self == py::self)
@@ -255,7 +257,7 @@ py::class_<Excitation, std::shared_ptr<Excitation>> registerExcitation(py::modul
 
 template <typename Probe>
 py::class_<Probe, std::shared_ptr<Probe>> registerProbe(py::module_ &m) {
-  return py::class_<Probe, std::shared_ptr<Probe>>(m, "Probe")
+  return py::class_<Probe, std::shared_ptr<Probe>>(m, "Probe", py::module_local())
       .def(py::init())
       .def(py::init<const Probe &>())
       .def(py::self == py::self)
@@ -270,7 +272,7 @@ py::class_<Probe, std::shared_ptr<Probe>> registerProbe(py::module_ &m) {
 
 template <typename Wave>
 py::class_<Wave, std::shared_ptr<Wave>> registerWave(py::module_ &m) {
-  return py::class_<Wave, std::shared_ptr<Wave>>(m, "Wave")
+  return py::class_<Wave, std::shared_ptr<Wave>>(m, "Wave", py::module_local())
       .def(py::init())
       .def(py::init<const Wave &>())
       .def(py::self == py::self)
@@ -285,7 +287,8 @@ template <typename TransmitSetup>
 py::class_<TransmitSetup, std::shared_ptr<TransmitSetup>> registerTransmitSetup(py::module_ &m) {
   using Excitation = typename decltype(TransmitSetup::excitations)::value_type::element_type;
 
-  return py::class_<TransmitSetup, std::shared_ptr<TransmitSetup>>(m, "TransmitSetup")
+  return py::class_<TransmitSetup, std::shared_ptr<TransmitSetup>>(m, "TransmitSetup",
+                                                                   py::module_local())
       .def(py::init())
       .def(py::init<const TransmitSetup &>())
       .def(py::self == py::self)
@@ -328,7 +331,8 @@ py::class_<TransmitSetup, std::shared_ptr<TransmitSetup>> registerTransmitSetup(
 
 template <typename ReceiveSetup>
 py::class_<ReceiveSetup, std::shared_ptr<ReceiveSetup>> registerReceiveSetup(py::module_ &m) {
-  return py::class_<ReceiveSetup, std::shared_ptr<ReceiveSetup>>(m, "ReceiveSetup")
+  return py::class_<ReceiveSetup, std::shared_ptr<ReceiveSetup>>(m, "ReceiveSetup",
+                                                                 py::module_local())
       .def(py::init())
       .def(py::init<const ReceiveSetup &>())
       .def(py::self == py::self)
@@ -354,7 +358,7 @@ py::class_<ReceiveSetup, std::shared_ptr<ReceiveSetup>> registerReceiveSetup(py:
 
 template <typename Event>
 py::class_<Event, std::shared_ptr<Event>> registerEvent(py::module_ &m) {
-  return py::class_<Event, std::shared_ptr<Event>>(m, "Event")
+  return py::class_<Event, std::shared_ptr<Event>>(m, "Event", py::module_local())
       .def(py::init())
       .def(py::init<const Event &>())
       .def(py::self == py::self)
@@ -365,7 +369,7 @@ py::class_<Event, std::shared_ptr<Event>> registerEvent(py::module_ &m) {
 
 template <typename Group, typename... Options>
 py::class_<Group, std::shared_ptr<Group>, Options...> registerGroup(py::module_ &m) {
-  return py::class_<Group, std::shared_ptr<Group>, Options...>(m, "Group")
+  return py::class_<Group, std::shared_ptr<Group>, Options...>(m, "Group", py::module_local())
       .def(py::init())
       .def(py::init<const Group &>())
       .def(py::self == py::self)
@@ -380,7 +384,7 @@ py::class_<Group, std::shared_ptr<Group>, Options...> registerGroup(py::module_ 
 template <typename GroupData>
 py::class_<GroupData, std::shared_ptr<GroupData>> registerGroupData(py::module_ &m) {
   using Group = typename decltype(GroupData::group)::element_type;
-  return py::class_<GroupData, std::shared_ptr<GroupData>>(m, "GroupData")
+  return py::class_<GroupData, std::shared_ptr<GroupData>>(m, "GroupData", py::module_local())
       .def(py::init())
       .def(py::init<const GroupData &>())
       .def(py::self == py::self)
@@ -406,7 +410,7 @@ py::class_<GroupData, std::shared_ptr<GroupData>> registerGroupData(py::module_ 
 
 template <typename Acquisition>
 py::class_<Acquisition> registerAcquisition(py::module_ &m) {
-  return py::class_<Acquisition>(m, "Acquisition")
+  return py::class_<Acquisition>(m, "Acquisition", py::module_local())
       .def(py::init())
       .def(py::init<const Acquisition &>())
       .def(py::self == py::self)

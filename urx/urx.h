@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <cstdint>  // IWYU pragma: keep
 
 namespace urx {
 

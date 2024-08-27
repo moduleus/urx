@@ -15,8 +15,14 @@ source ./.venv/bin/activate
 
 ```bash
 python -m pip install -r requirements-gitlab.txt
-python -m pip install . -vvv --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=D:\\repos\\urx\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake cmake_build_type=RelWithDebInfo" --no-clean
+python -m pip install . -vvv --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=D:\\repos\\urx\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake" --no-clean
 ```
+
+In `setup.py`, set:
+
+-`cmake_build_type_arg` if you want to customize build type.
+
+-`TRIPLET` if you want to select a specific vcpkg triplet.
 
 If you do minor changes to the C++ code, you may open project in `urx/build/temp.win-amd64-cpython-310/Release_pyurx`, select `RelWithDebInfo`, build, and run `cp ./urx/build/temp.win-amd64-cpython-310/Release_pyurx/python/RelWithDebInfo/bindings.cp310-win_amd64.pyd ./urx/.venv/Lib/site-packages/pyurx/bindings.cp310-win_amd64.pyd`.
 

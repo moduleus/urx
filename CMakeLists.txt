@@ -20,7 +20,7 @@ endif()
 
 project(
   Urx
-  VERSION 0.6.26
+  VERSION 0.6.26.1
   LANGUAGES C CXX
   DESCRIPTION "Ultrasound Raw eXchange format C++ implementation")
 
@@ -40,6 +40,8 @@ if(NOT CMAKE_BUILD_TYPE)
       "Release"
       CACHE STRING "Choose the type of build" FORCE)
 endif()
+
+option(WITH_PYTHON_WHL "Generate Python module with pip wheel" OFF)
 
 check_ipo_supported(RESULT result_ipo)
 if(result_ipo)
