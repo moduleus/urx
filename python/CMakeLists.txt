@@ -89,6 +89,8 @@ if(WITH_PYTHON_WHL)
     COMMAND
       ${Python3_EXECUTABLE} -m pip wheel .
       --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}"
+      --config-settings="--global-option=cmake_build_type=${CMAKE_BUILD_TYPE}"
+      --config-settings="--global-option=vcpkg_triplet=${VCPKG_TARGET_TRIPLET}"
       --wheel-dir ${CMAKE_CURRENT_BINARY_DIR} --no-clean -v
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
     BYPRODUCTS ${PYTHON_MODULE_PYURX_OUTPUT})

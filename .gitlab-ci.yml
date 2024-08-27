@@ -355,8 +355,8 @@ build:ubuntu-python:
     - *before-script-vcpkg-linux
   script:
     - export CMAKE_BUILD_PARALLEL_LEVEL=$NUM_PARALLEL
-    - $VCPKG_LOCAL_GIT/vcpkg install --triplet x64-linux --host-triplet x64-linux --x-feature=python
-    - vcpkg_installed/x64-linux/tools/python3/python3 -m venv .venv
+    - $VCPKG_LOCAL_GIT/vcpkg install --triplet x64-linux-release --host-triplet x64-linux-release --x-feature=python
+    - vcpkg_installed/x64-linux-release/tools/python3/python3 -m venv .venv
     - source .venv/bin/activate
     - python -m pip install --upgrade pip
     - pip install -r requirements-gitlab.txt

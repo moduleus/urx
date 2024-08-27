@@ -29,12 +29,12 @@ CMAKE_TOOLCHAIN_FILE_arg = next(
 if CMAKE_TOOLCHAIN_FILE_arg != None:
     sys.argv.remove(CMAKE_TOOLCHAIN_FILE_arg)
 
-vcpkg_triplet_arg = next((arg for arg in sys.argv if arg.startswith("vcpkg_triplet")), None)
+vcpkg_triplet_arg = next((arg for arg in sys.argv if arg.startswith("vcpkg_triplet=")), None)
 if vcpkg_triplet_arg != None:
     sys.argv.remove(vcpkg_triplet_arg)
+    vcpkg_triplet_arg = vcpkg_triplet_arg[len("vcpkg_triplet=") :]
 
 if CMAKE_TOOLCHAIN_FILE_arg != None:
-    sys.argv.remove(CMAKE_TOOLCHAIN_FILE_arg)
     if vcpkg_triplet_arg != None:
         TRIPLET = vcpkg_triplet_arg
     else:
