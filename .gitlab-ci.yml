@@ -31,8 +31,8 @@ variables:
   - cp $destination "$VCPKG_LOCAL_GIT/vcpkg" || exit 1
 
 .after-script-clean-vcpkg-windows: &after-script-clean-vcpkg-windows
-  - Remove-Item -LiteralPath "$Env:VCPKG_BUILDTREE" -Force -Recurse -ErrorAction SilentlyContinue
-  - Remove-Item -LiteralPath "$Env:VCPKG_LOCAL_GIT/packages" -Force -Recurse -ErrorAction SilentlyContinue
+  - (Remove-Item -LiteralPath "$Env:VCPKG_BUILDTREE" -Force -Recurse -ErrorAction SilentlyContinue)
+  - (Remove-Item -LiteralPath "$Env:VCPKG_LOCAL_GIT/packages" -Force -Recurse -ErrorAction SilentlyContinue)
 
 .after-script-clean-vcpkg-linux: &after-script-clean-vcpkg-linux
   - rm -Rf "$VCPKG_LOCAL_GIT/buildtrees"
@@ -341,9 +341,8 @@ build:windows-python:
     - vcpkg_installed/x64-wsmrep/tools/python3/python.exe -m pip install --upgrade pip
     - vcpkg_installed/x64-wsmrep/tools/python3/python.exe -m pip install -r requirements-gitlab.txt
     - vcpkg_installed/x64-wsmrep/tools/python3/python.exe -m pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=$Env:VCPKG_LOCAL_GIT\\scripts\\buildsystems\\vcpkg.cmake" --config-settings="--global-option=cmake_build_type=RelWithDebInfo" --config-settings="--global-option=vcpkg_triplet=x64-wsmrep" --no-clean -v
+    - *after-script-clean-vcpkg-windows
     - vcpkg_installed/x64-wsmrep/tools/python3/python.exe -m unittest discover test/python
-# Don't clean for windows-python. It always fails and make CI fails.
-#    - *after-script-clean-vcpkg-windows
 
 build:ubuntu-python:
   stage: build
