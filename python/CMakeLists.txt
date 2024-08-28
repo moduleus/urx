@@ -55,10 +55,6 @@ set(CMAKE_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR}/${INSTALL_NAME})
 
 # Build python binary distribuable.
 if(WITH_PYTHON_WHL)
-  #.cp311-win_amd64.pyd
-  string(REPLACE "." ";" PYTHON_MODULE_EXTENSION_SPLIT
-                 ${PYTHON_MODULE_EXTENSION})
-  list(GET PYTHON_MODULE_EXTENSION_SPLIT 1 PYTHON_MODULE_LAST_POSTFIX)
   # Generate pyurx-0.6.26-cp311-cp311-win_amd64.whl
   set(PYTHON_MODULE_PYURX_OUTPUT
       "pyurx-${CMAKE_PROJECT_VERSION}-cp${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}-cp${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}"
@@ -89,7 +85,11 @@ if(WITH_PYTHON_WHL)
     COMMAND
       ${Python3_EXECUTABLE} -m pip wheel .
       --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}"
-      --wheel-dir ${CMAKE_CURRENT_BINARY_DIR} --no-clean -v
+      --config-settings="--global-option=cmake_build_type=${CMAKE_BUILD_TYPE}"
+      --config-settings="--global-option=vcpkg_triplet=${VCPKG_TARGET_TRIPLET}"
+      --config-settings="--global-option=build_shared_libs=${BUILD_SHARED_LIBS}"
+      --config-settings="--global-option=hdf5=${WITH_HDF5}" --wheel-dir
+      ${CMAKE_CURRENT_BINARY_DIR} --no-clean -v
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
     BYPRODUCTS ${PYTHON_MODULE_PYURX_OUTPUT})
 
