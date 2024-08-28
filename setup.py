@@ -54,6 +54,13 @@ if build_shared_libs_arg != None:
 else:
     build_shared_libs_arg = "OFF"
 
+hdf5_arg = next((arg for arg in sys.argv if arg.startswith("hdf5=")), None)
+if hdf5_arg != None:
+    sys.argv.remove(hdf5_arg)
+    hdf5_arg = hdf5_arg[len("hdf5=") :]
+else:
+    hdf5_arg = "ON"
+
 setuptools.setup(
     ext_modules=[
         cmake_build_extension.CMakeExtension(
@@ -63,7 +70,7 @@ setuptools.setup(
             cmake_build_type=f"{cmake_build_type_arg}",
             cmake_configure_options=[
                 "-DWITH_PYTHON:BOOL=ON",
-                "-DWITH_HDF5:BOOL=ON",
+                f"-DWITH_HDF5:BOOL={hdf5_arg}",
                 f"-DBUILD_SHARED_LIBS:BOOL={build_shared_libs_arg}",
                 "-DCALL_FROM_SETUP_PY:BOOL=ON",
                 "-DBUILD_TESTING:BOOL=OFF",

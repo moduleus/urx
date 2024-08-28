@@ -88,7 +88,8 @@ if(WITH_PYTHON_WHL)
       --config-settings="--global-option=cmake_build_type=${CMAKE_BUILD_TYPE}"
       --config-settings="--global-option=vcpkg_triplet=${VCPKG_TARGET_TRIPLET}"
       --config-settings="--global-option=build_shared_libs=${BUILD_SHARED_LIBS}"
-      --wheel-dir ${CMAKE_CURRENT_BINARY_DIR} --no-clean -v
+      --config-settings="--global-option=hdf5=${WITH_HDF5}" --wheel-dir
+      ${CMAKE_CURRENT_BINARY_DIR} --no-clean -v
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
     BYPRODUCTS ${PYTHON_MODULE_PYURX_OUTPUT})
 
