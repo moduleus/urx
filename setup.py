@@ -36,14 +36,23 @@ if vcpkg_triplet_arg != None:
 
 if CMAKE_TOOLCHAIN_FILE_arg != None:
     if vcpkg_triplet_arg != None:
-        TRIPLET = vcpkg_triplet_arg
+        VCPKG_TRIPLET = vcpkg_triplet_arg
     else:
         if sys.platform == "win32":
-            TRIPLET = "x64-wsmrep"
+            VCPKG_TRIPLET = "x64-wsmrep"
         else:
-            TRIPLET = "x64-linux"
+            VCPKG_TRIPLET = "x64-linux"
 else:
     raise Exception("Missing CMAKE_TOOLCHAIN_FILE for VCPKG in --global-option")
+
+build_shared_libs_arg = next(
+    (arg for arg in sys.argv if arg.startswith("build_shared_libs=")), None
+)
+if build_shared_libs_arg != None:
+    sys.argv.remove(build_shared_libs_arg)
+    build_shared_libs_arg = build_shared_libs_arg[len("build_shared_libs=") :]
+else:
+    build_shared_libs_arg = "OFF"
 
 setuptools.setup(
     ext_modules=[
@@ -55,11 +64,11 @@ setuptools.setup(
             cmake_configure_options=[
                 "-DWITH_PYTHON:BOOL=ON",
                 "-DWITH_HDF5:BOOL=ON",
-                "-DBUILD_SHARED_LIBS:BOOL=OFF",
+                f"-DBUILD_SHARED_LIBS:BOOL={build_shared_libs_arg}",
                 "-DCALL_FROM_SETUP_PY:BOOL=ON",
                 "-DBUILD_TESTING:BOOL=OFF",
-                f"-DVCPKG_TARGET_TRIPLET={TRIPLET}",
-                f"-DVCPKG_HOST_TRIPLET={TRIPLET}",
+                f"-DVCPKG_TARGET_TRIPLET={VCPKG_TRIPLET}",
+                f"-DVCPKG_HOST_TRIPLET={VCPKG_TRIPLET}",
                 f"-DVCPKG_OVERLAY_TRIPLETS={str(Path(__file__).parent.absolute())}/vcpkg-registry/triplets",
                 f"-D{CMAKE_TOOLCHAIN_FILE_arg}",
                 "-DVCPKG_MANIFEST_MODE:BOOL=ON",
