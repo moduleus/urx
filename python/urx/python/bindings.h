@@ -429,7 +429,7 @@ py::class_<Acquisition> registerAcquisition(py::module_ &m) {
 
 template <typename Dataset>
 py::class_<Dataset, std::shared_ptr<Dataset>> registerDataset(py::module_ &m) {
-  return py::class_<Dataset, std::shared_ptr<Dataset>>(m, "Dataset")
+  return py::class_<Dataset, std::shared_ptr<Dataset>>(m, "Dataset", py::module_local())
       .def(py::init())
       .def(py::init<const Dataset &>())
       .def(py::self == py::self)
