@@ -3,6 +3,6 @@ twine
 wheel
 setuptools>69.0.0,<73
 cmake
-pybind11-stubgen
+mypy
 typing-extensions
 toml

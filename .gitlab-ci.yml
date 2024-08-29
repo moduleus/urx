@@ -361,8 +361,8 @@ build:ubuntu-python:
     - pip install -r requirements-gitlab.txt
     - pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" --config-settings="--global-option=cmake_build_type=Release" --config-settings="--global-option=vcpkg_triplet=x64-linux-release" --no-clean -v
     - python -m unittest discover test/python
-    - pybind11-stubgen pyurx --output-dir=python
-    - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Run pybind11-stubgen before commit."; echo "$(git status --porcelain)"; git diff; exit 1; fi
+    - stubgen -p pyurx -o python
+    - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Run `stubgen -p pyurx -o python` before commit."; echo "$(git status --porcelain)"; git diff; exit 1; fi
 
 build:windows-matlab-static:
   stage: build
