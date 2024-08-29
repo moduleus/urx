@@ -6,17 +6,17 @@ requires = [
     "cmake",
     "cmake-build-extension",
     "importlib-metadata",
-    "numpy",
+    "numpy<2",
     "toml",
     "parameterized"
 ]
 
 [project]
 name = "pyurx"
-version = "0.6.26.2"
+version = "0.6.26.3"
 dependencies = [
     "cmake-build-extension",
-    "numpy",
+    "numpy<2",
     "parameterized",
     "setuptools>69.0.0,<73",
     "toml",
