@@ -69,34 +69,38 @@ PYBIND11_MODULE(bindings, m) {
   urx::python::detail::bindVector<urx::python::VecString>(m);
   urx::python::detail::bindVector<urx::python::VecVecString>(m);
 
-  py::enum_<urx::SamplingType>(m, "SamplingType")
+  py::enum_<urx::SamplingType>(m, "UrxSamplingType")
       .value("RF", urx::SamplingType::RF)
       .value("IQ", urx::SamplingType::IQ)
       .value("UNDEFINED", urx::SamplingType::UNDEFINED);
+  m.attr("SamplingType") = m.attr("UrxSamplingType");
 
-  py::enum_<urx::DataType>(m, "DataType")
+  py::enum_<urx::DataType>(m, "UrxDataType")
       .value("INT16", urx::DataType::INT16)
       .value("INT32", urx::DataType::INT32)
       .value("FLOAT", urx::DataType::FLOAT)
       .value("DOUBLE", urx::DataType::DOUBLE)
       .value("UNDEFINED", urx::DataType::UNDEFINED);
+  m.attr("DataType") = m.attr("UrxDataType");
 
-  py::enum_<urx::ProbeType>(m, "ProbeType")
+  py::enum_<urx::ProbeType>(m, "UrxProbeType")
       .value("LINEAR", urx::ProbeType::LINEAR)
       .value("CURVILINEAR", urx::ProbeType::CURVILINEAR)
       .value("RCA", urx::ProbeType::RCA)
       .value("MATRIX", urx::ProbeType::MATRIX)
       .value("SPARSE", urx::ProbeType::SPARSE)
       .value("UNDEFINED", urx::ProbeType::UNDEFINED);
+  m.attr("ProbeType") = m.attr("UrxProbeType");
 
-  py::enum_<urx::WaveType>(m, "WaveType")
+  py::enum_<urx::WaveType>(m, "UrxWaveType")
       .value("CONVERGING_WAVE", urx::WaveType::CONVERGING_WAVE)
       .value("DIVERGING_WAVE", urx::WaveType::DIVERGING_WAVE)
       .value("PLANE_WAVE", urx::WaveType::PLANE_WAVE)
       .value("CYLINDRICAL_WAVE", urx::WaveType::CYLINDRICAL_WAVE)
       .value("UNDEFINED", urx::WaveType::UNDEFINED);
+  m.attr("WaveType") = m.attr("UrxWaveType");
 
-  py::class_<urx::DoubleNan>(m, "DoubleNan")
+  py::class_<urx::DoubleNan>(m, "UrxDoubleNan")
       .def(py::init<double>())
       .def(py::init<const urx::DoubleNan &>())
       .def(py::init())
@@ -138,18 +142,19 @@ PYBIND11_MODULE(bindings, m) {
       .def(-py::self);
   py::implicitly_convertible<double, urx::DoubleNan>();
   py::implicitly_convertible<int, urx::DoubleNan>();
+  m.attr("DoubleNan") = m.attr("UrxDoubleNan");
 
-  urx::python::registerImpulseResponse<urx::ImpulseResponse>(m).def(
+  urx::python::registerImpulseResponse<urx::ImpulseResponse>(m, "Urx").def(
       py::init([](const urx::DoubleNan &sampling_frequency, const urx::DoubleNan &time_offset,
                   const std::string &units, const urx::python::VecFloat64 &vec) {
         return urx::ImpulseResponse{sampling_frequency, time_offset, units, vec};
       }));
   urx::python::detail::bindVector<urx::python::VecImpulseResponsePtr>(m);
 
-  urx::python::registerVector3D<urx::Vector3D<double>>(m);
+  urx::python::registerVector3D<urx::Vector3D<double>>(m, "Urx");
   urx::python::detail::bindVector<urx::python::VecVector3D>(m);
 
-  urx::python::registerVector2D<urx::Vector2D<double>>(m);
+  urx::python::registerVector2D<urx::Vector2D<double>>(m, "Urx");
   urx::python::detail::bindVector<urx::python::VecVector2D>(m);
 
   // Version constants
@@ -157,21 +162,21 @@ PYBIND11_MODULE(bindings, m) {
   m.attr("URX_VERSION_MINOR") = urx::URX_VERSION_MINOR;
   m.attr("URX_VERSION_PATCH") = urx::URX_VERSION_PATCH;
 
-  urx::python::registerVersion<urx::Version>(m);
+  urx::python::registerVersion<urx::Version>(m, "Urx");
 
-  urx::python::registerElementGeometry<urx::ElementGeometry>(m).def(
+  urx::python::registerElementGeometry<urx::ElementGeometry>(m, "Urx").def(
       py::init<const urx::python::VecVector3D &>());
   urx::python::detail::bindVector<urx::python::VecElementGeometryPtr>(m);
 
-  urx::python::registerTransform<urx::Transform>(m).def(
+  urx::python::registerTransform<urx::Transform>(m, "Urx").def(
       py::init<const urx::Vector3D<double> &, const urx::Vector3D<double> &>());
 
-  urx::python::registerElement<urx::Element>(m).def(
+  urx::python::registerElement<urx::Element>(m, "Urx").def(
       py::init<const urx::Transform &, const std::shared_ptr<urx::ElementGeometry> &,
                const std::shared_ptr<urx::ImpulseResponse> &>());
   urx::python::detail::bindVector<urx::python::VecElement>(m);
 
-  urx::python::registerExcitation<urx::Excitation>(m).def(
+  urx::python::registerExcitation<urx::Excitation>(m, "Urx").def(
       py::init<const std::string &, const urx::DoubleNan &, const urx::DoubleNan &,
                const urx::python::VecFloat64 &>());
   urx::python::detail::bindVector<urx::python::VecExcitationPtr>(m);
@@ -185,11 +190,11 @@ PYBIND11_MODULE(bindings, m) {
 
   urx::python::registerReceiveSetup(m);
 
-  urx::python::registerEvent<urx::Event>(m).def(
+  urx::python::registerEvent<urx::Event>(m, "Urx").def(
       py::init<const urx::TransmitSetup &, const urx::ReceiveSetup &>());
   urx::python::detail::bindVector<urx::python::VecEvent>(m);
 
-  urx::python::registerGroup<urx::Group>(m).def(
+  urx::python::registerGroup<urx::Group>(m, "Urx").def(
       py::init<urx::SamplingType, urx::DataType, const std::string &, const urx::DoubleNan &,
                const urx::python::VecEvent &>());
   urx::python::detail::bindVector<urx::python::VecGroupPtr>(m);
@@ -199,7 +204,7 @@ PYBIND11_MODULE(bindings, m) {
 
   urx::python::registerAcquisition(m);
 
-  urx::python::registerDataset<urx::Dataset>(m).def(
+  urx::python::registerDataset<urx::Dataset>(m, "Urx").def(
       py::init<const urx::Acquisition &, const urx::Version &>());
 
 #ifdef URX_WITH_HDF5

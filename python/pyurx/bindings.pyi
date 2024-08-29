@@ -5,8 +5,23 @@ from __future__ import annotations
 import numpy
 import typing
 import typing_extensions
-__all__ = ['Acquisition', 'DataType', 'Dataset', 'DoubleNan', 'Element', 'ElementGeometry', 'Event', 'Excitation', 'Group', 'GroupData', 'GroupDataReader', 'ImpulseResponse', 'Probe', 'ProbeType', 'ReceiveSetup', 'SamplingType', 'Transform', 'TransmitSetup', 'URX_VERSION_MAJOR', 'URX_VERSION_MINOR', 'URX_VERSION_PATCH', 'VecElement', 'VecElementGeometryPtr', 'VecEvent', 'VecExcitationPtr', 'VecFloat32', 'VecFloat64', 'VecGroupData', 'VecGroupPtr', 'VecImpulseResponsePtr', 'VecInt16', 'VecInt32', 'VecInt64', 'VecInt8', 'VecProbePtr', 'VecString', 'VecUInt16', 'VecUInt32', 'VecUInt64', 'VecUInt8', 'VecVecFloat32', 'VecVecFloat64', 'VecVecInt16', 'VecVecInt32', 'VecVecInt64', 'VecVecInt8', 'VecVecString', 'VecVecUInt16', 'VecVecUInt32', 'VecVecUInt64', 'VecVecUInt8', 'VecVector2D', 'VecVector3D', 'Vector2D', 'Vector3D', 'Version', 'Wave', 'WaveType', 'isIso3166', 'isIso8601', 'loadFromFile', 'pyGetFormat', 'saveToFile', 'sizeofDataType', 'sizeofSample']
-class Acquisition:
+__all__ = ['Acquisition', 'DataType', 'Dataset', 'DoubleNan', 'Element', 'ElementGeometry', 'Event', 'Excitation', 'Group', 'GroupData', 'GroupDataReader', 'ImpulseResponse', 'Probe', 'ProbeType', 'ReceiveSetup', 'SamplingType', 'Transform', 'TransmitSetup', 'URX_VERSION_MAJOR', 'URX_VERSION_MINOR', 'URX_VERSION_PATCH', 'UrxAcquisition', 'UrxDataType', 'UrxDataset', 'UrxDoubleNan', 'UrxElement', 'UrxElementGeometry', 'UrxEvent', 'UrxExcitation', 'UrxGroup', 'UrxGroupData', 'UrxImpulseResponse', 'UrxProbe', 'UrxProbeType', 'UrxReceiveSetup', 'UrxSamplingType', 'UrxTransform', 'UrxTransmitSetup', 'UrxVector2D', 'UrxVector3D', 'UrxVersion', 'UrxWave', 'UrxWaveType', 'VecElement', 'VecElementGeometryPtr', 'VecEvent', 'VecExcitationPtr', 'VecFloat32', 'VecFloat64', 'VecGroupData', 'VecGroupPtr', 'VecImpulseResponsePtr', 'VecInt16', 'VecInt32', 'VecInt64', 'VecInt8', 'VecProbePtr', 'VecString', 'VecUInt16', 'VecUInt32', 'VecUInt64', 'VecUInt8', 'VecVecFloat32', 'VecVecFloat64', 'VecVecInt16', 'VecVecInt32', 'VecVecInt64', 'VecVecInt8', 'VecVecString', 'VecVecUInt16', 'VecVecUInt32', 'VecVecUInt64', 'VecVecUInt8', 'VecVector2D', 'VecVector3D', 'Vector2D', 'Vector3D', 'Version', 'Wave', 'WaveType', 'isIso3166', 'isIso8601', 'loadFromFile', 'pyGetFormat', 'saveToFile', 'sizeofDataType', 'sizeofSample']
+class GroupDataReader:
+    def __init__(self, arg0: UrxGroupData, arg1: int) -> None:
+        ...
+    def channelsCount(self, arg0: int) -> int:
+        ...
+    def eventsCount(self) -> int:
+        ...
+    def offset(self, arg0: int, arg1: int, arg2: int, arg3: int) -> int:
+        ...
+    def sampleByteSize(self) -> int:
+        ...
+    def samplesCount(self, arg0: int) -> int:
+        ...
+    def sequencesCount(self) -> int:
+        ...
+class UrxAcquisition:
     __hash__: typing.ClassVar[None] = None
     authors: str
     country_code: str
@@ -17,21 +32,21 @@ class Acquisition:
     local_time: str
     probes: VecProbePtr
     system: str
-    timestamp: DoubleNan
-    def __eq__(self, arg0: Acquisition) -> bool:
+    timestamp: UrxDoubleNan
+    def __eq__(self, arg0: UrxAcquisition) -> bool:
         ...
     @typing.overload
     def __init__(self) -> None:
         ...
     @typing.overload
-    def __init__(self, arg0: Acquisition) -> None:
+    def __init__(self, arg0: UrxAcquisition) -> None:
         ...
     @typing.overload
-    def __init__(self, arg0: str, arg1: str, arg2: str, arg3: str, arg4: str, arg5: DoubleNan, arg6: VecProbePtr, arg7: VecExcitationPtr, arg8: VecGroupPtr, arg9: VecGroupData) -> None:
+    def __init__(self, arg0: str, arg1: str, arg2: str, arg3: str, arg4: str, arg5: UrxDoubleNan, arg6: VecProbePtr, arg7: VecExcitationPtr, arg8: VecGroupPtr, arg9: VecGroupData) -> None:
         ...
-    def __ne__(self, arg0: Acquisition) -> bool:
+    def __ne__(self, arg0: UrxAcquisition) -> bool:
         ...
-class DataType:
+class UrxDataType:
     """
     Members:
     
@@ -45,12 +60,12 @@ class DataType:
     
       UNDEFINED
     """
-    DOUBLE: typing.ClassVar[DataType]  # value = <DataType.DOUBLE: 3>
-    FLOAT: typing.ClassVar[DataType]  # value = <DataType.FLOAT: 2>
-    INT16: typing.ClassVar[DataType]  # value = <DataType.INT16: 0>
-    INT32: typing.ClassVar[DataType]  # value = <DataType.INT32: 1>
-    UNDEFINED: typing.ClassVar[DataType]  # value = <DataType.UNDEFINED: -1>
-    __members__: typing.ClassVar[dict[str, DataType]]  # value = {'INT16': <DataType.INT16: 0>, 'INT32': <DataType.INT32: 1>, 'FLOAT': <DataType.FLOAT: 2>, 'DOUBLE': <DataType.DOUBLE: 3>, 'UNDEFINED': <DataType.UNDEFINED: -1>}
+    DOUBLE: typing.ClassVar[UrxDataType]  # value = <UrxDataType.DOUBLE: 3>
+    FLOAT: typing.ClassVar[UrxDataType]  # value = <UrxDataType.FLOAT: 2>
+    INT16: typing.ClassVar[UrxDataType]  # value = <UrxDataType.INT16: 0>
+    INT32: typing.ClassVar[UrxDataType]  # value = <UrxDataType.INT32: 1>
+    UNDEFINED: typing.ClassVar[UrxDataType]  # value = <UrxDataType.UNDEFINED: -1>
+    __members__: typing.ClassVar[dict[str, UrxDataType]]  # value = {'INT16': <UrxDataType.INT16: 0>, 'INT32': <UrxDataType.INT32: 1>, 'FLOAT': <UrxDataType.FLOAT: 2>, 'DOUBLE': <UrxDataType.DOUBLE: 3>, 'UNDEFINED': <UrxDataType.UNDEFINED: -1>}
     def __eq__(self, other: typing.Any) -> bool:
         ...
     def __getstate__(self) -> int:
@@ -77,79 +92,79 @@ class DataType:
     @property
     def value(self) -> int:
         ...
-class Dataset:
+class UrxDataset:
     __hash__: typing.ClassVar[None] = None
-    acquisition: Acquisition
-    version: Version
-    def __eq__(self, arg0: Dataset) -> bool:
+    acquisition: UrxAcquisition
+    version: UrxVersion
+    def __eq__(self, arg0: UrxDataset) -> bool:
         ...
     @typing.overload
     def __init__(self) -> None:
         ...
     @typing.overload
-    def __init__(self, arg0: Dataset) -> None:
+    def __init__(self, arg0: UrxDataset) -> None:
         ...
     @typing.overload
-    def __init__(self, arg0: Acquisition, arg1: Version) -> None:
+    def __init__(self, arg0: UrxAcquisition, arg1: UrxVersion) -> None:
         ...
-    def __ne__(self, arg0: Dataset) -> bool:
+    def __ne__(self, arg0: UrxDataset) -> bool:
         ...
-class DoubleNan:
+class UrxDoubleNan:
     __hash__: typing.ClassVar[None] = None
     value: float
     @typing.overload
-    def __add__(self, arg0: DoubleNan) -> DoubleNan:
+    def __add__(self, arg0: UrxDoubleNan) -> UrxDoubleNan:
         ...
     @typing.overload
-    def __add__(self, arg0: float) -> DoubleNan:
+    def __add__(self, arg0: float) -> UrxDoubleNan:
         ...
     @typing.overload
-    def __eq__(self, arg0: DoubleNan) -> bool:
+    def __eq__(self, arg0: UrxDoubleNan) -> bool:
         ...
     @typing.overload
     def __eq__(self, arg0: float) -> bool:
         ...
     @typing.overload
-    def __iadd__(self, arg0: DoubleNan) -> DoubleNan:
+    def __iadd__(self, arg0: UrxDoubleNan) -> UrxDoubleNan:
         ...
     @typing.overload
-    def __iadd__(self, arg0: float) -> DoubleNan:
+    def __iadd__(self, arg0: float) -> UrxDoubleNan:
         ...
     @typing.overload
-    def __imul__(self, arg0: DoubleNan) -> DoubleNan:
+    def __imul__(self, arg0: UrxDoubleNan) -> UrxDoubleNan:
         ...
     @typing.overload
-    def __imul__(self, arg0: float) -> DoubleNan:
+    def __imul__(self, arg0: float) -> UrxDoubleNan:
         ...
     @typing.overload
     def __init__(self, arg0: float) -> None:
         ...
     @typing.overload
-    def __init__(self, arg0: DoubleNan) -> None:
+    def __init__(self, arg0: UrxDoubleNan) -> None:
         ...
     @typing.overload
     def __init__(self) -> None:
         ...
     @typing.overload
-    def __isub__(self, arg0: DoubleNan) -> DoubleNan:
+    def __isub__(self, arg0: UrxDoubleNan) -> UrxDoubleNan:
         ...
     @typing.overload
-    def __isub__(self, arg0: float) -> DoubleNan:
+    def __isub__(self, arg0: float) -> UrxDoubleNan:
         ...
     @typing.overload
-    def __itruediv__(self, arg0: DoubleNan) -> DoubleNan:
+    def __itruediv__(self, arg0: UrxDoubleNan) -> UrxDoubleNan:
         ...
     @typing.overload
-    def __itruediv__(self, arg0: float) -> DoubleNan:
+    def __itruediv__(self, arg0: float) -> UrxDoubleNan:
         ...
     @typing.overload
-    def __mul__(self, arg0: DoubleNan) -> DoubleNan:
+    def __mul__(self, arg0: UrxDoubleNan) -> UrxDoubleNan:
         ...
     @typing.overload
-    def __mul__(self, arg0: float) -> DoubleNan:
+    def __mul__(self, arg0: float) -> UrxDoubleNan:
         ...
     @typing.overload
-    def __ne__(self, arg0: DoubleNan) -> bool:
+    def __ne__(self, arg0: UrxDoubleNan) -> bool:
         ...
     @typing.overload
     def __ne__(self, arg0: float) -> bool:
@@ -158,192 +173,177 @@ class DoubleNan:
         ...
     def __pos__(self) -> float:
         ...
-    def __radd__(self, arg0: float) -> DoubleNan:
+    def __radd__(self, arg0: float) -> UrxDoubleNan:
         ...
-    def __rmul__(self, arg0: float) -> DoubleNan:
+    def __rmul__(self, arg0: float) -> UrxDoubleNan:
         ...
-    def __rsub__(self, arg0: float) -> DoubleNan:
+    def __rsub__(self, arg0: float) -> UrxDoubleNan:
         ...
-    def __rtruediv__(self, arg0: float) -> DoubleNan:
-        ...
-    @typing.overload
-    def __sub__(self, arg0: DoubleNan) -> DoubleNan:
+    def __rtruediv__(self, arg0: float) -> UrxDoubleNan:
         ...
     @typing.overload
-    def __sub__(self, arg0: float) -> DoubleNan:
+    def __sub__(self, arg0: UrxDoubleNan) -> UrxDoubleNan:
         ...
     @typing.overload
-    def __truediv__(self, arg0: DoubleNan) -> DoubleNan:
+    def __sub__(self, arg0: float) -> UrxDoubleNan:
         ...
     @typing.overload
-    def __truediv__(self, arg0: float) -> DoubleNan:
+    def __truediv__(self, arg0: UrxDoubleNan) -> UrxDoubleNan:
         ...
-class Element:
+    @typing.overload
+    def __truediv__(self, arg0: float) -> UrxDoubleNan:
+        ...
+class UrxElement:
     __hash__: typing.ClassVar[None] = None
-    element_geometry: ElementGeometry
-    impulse_response: ImpulseResponse
-    transform: Transform
-    def __eq__(self, arg0: Element) -> bool:
+    element_geometry: UrxElementGeometry
+    impulse_response: UrxImpulseResponse
+    transform: UrxTransform
+    def __eq__(self, arg0: UrxElement) -> bool:
         ...
     @typing.overload
     def __init__(self) -> None:
         ...
     @typing.overload
-    def __init__(self, arg0: Element) -> None:
+    def __init__(self, arg0: UrxElement) -> None:
         ...
     @typing.overload
-    def __init__(self, arg0: Transform, arg1: ElementGeometry, arg2: ImpulseResponse) -> None:
+    def __init__(self, arg0: UrxTransform, arg1: UrxElementGeometry, arg2: UrxImpulseResponse) -> None:
         ...
-    def __ne__(self, arg0: Element) -> bool:
+    def __ne__(self, arg0: UrxElement) -> bool:
         ...
-class ElementGeometry:
+class UrxElementGeometry:
     __hash__: typing.ClassVar[None] = None
     perimeter: VecVector3D
-    def __eq__(self, arg0: ElementGeometry) -> bool:
+    def __eq__(self, arg0: UrxElementGeometry) -> bool:
         ...
     @typing.overload
     def __init__(self) -> None:
         ...
     @typing.overload
-    def __init__(self, arg0: ElementGeometry) -> None:
+    def __init__(self, arg0: UrxElementGeometry) -> None:
         ...
     @typing.overload
     def __init__(self, arg0: VecVector3D) -> None:
         ...
-    def __ne__(self, arg0: ElementGeometry) -> bool:
+    def __ne__(self, arg0: UrxElementGeometry) -> bool:
         ...
-class Event:
+class UrxEvent:
     __hash__: typing.ClassVar[None] = None
-    receive_setup: ReceiveSetup
-    transmit_setup: TransmitSetup
-    def __eq__(self, arg0: Event) -> bool:
+    receive_setup: UrxReceiveSetup
+    transmit_setup: UrxTransmitSetup
+    def __eq__(self, arg0: UrxEvent) -> bool:
         ...
     @typing.overload
     def __init__(self) -> None:
         ...
     @typing.overload
-    def __init__(self, arg0: Event) -> None:
+    def __init__(self, arg0: UrxEvent) -> None:
         ...
     @typing.overload
-    def __init__(self, arg0: TransmitSetup, arg1: ReceiveSetup) -> None:
+    def __init__(self, arg0: UrxTransmitSetup, arg1: UrxReceiveSetup) -> None:
         ...
-    def __ne__(self, arg0: Event) -> bool:
+    def __ne__(self, arg0: UrxEvent) -> bool:
         ...
-class Excitation:
+class UrxExcitation:
     __hash__: typing.ClassVar[None] = None
     pulse_shape: str
-    sampling_frequency: DoubleNan
-    transmit_frequency: DoubleNan
+    sampling_frequency: UrxDoubleNan
+    transmit_frequency: UrxDoubleNan
     waveform: VecFloat64
-    def __eq__(self, arg0: Excitation) -> bool:
+    def __eq__(self, arg0: UrxExcitation) -> bool:
         ...
     @typing.overload
     def __init__(self) -> None:
         ...
     @typing.overload
-    def __init__(self, arg0: Excitation) -> None:
+    def __init__(self, arg0: UrxExcitation) -> None:
         ...
     @typing.overload
-    def __init__(self, arg0: str, arg1: DoubleNan, arg2: DoubleNan, arg3: VecFloat64) -> None:
+    def __init__(self, arg0: str, arg1: UrxDoubleNan, arg2: UrxDoubleNan, arg3: VecFloat64) -> None:
         ...
-    def __ne__(self, arg0: Excitation) -> bool:
+    def __ne__(self, arg0: UrxExcitation) -> bool:
         ...
-class Group:
+class UrxGroup:
     __hash__: typing.ClassVar[None] = None
-    data_type: DataType
+    data_type: UrxDataType
     description: str
-    sampling_type: SamplingType
+    sampling_type: UrxSamplingType
     sequence: VecEvent
-    sound_speed: DoubleNan
-    def __eq__(self, arg0: Group) -> bool:
+    sound_speed: UrxDoubleNan
+    def __eq__(self, arg0: UrxGroup) -> bool:
         ...
     @typing.overload
     def __init__(self) -> None:
         ...
     @typing.overload
-    def __init__(self, arg0: Group) -> None:
+    def __init__(self, arg0: UrxGroup) -> None:
         ...
     @typing.overload
-    def __init__(self, arg0: SamplingType, arg1: DataType, arg2: str, arg3: DoubleNan, arg4: VecEvent) -> None:
+    def __init__(self, arg0: UrxSamplingType, arg1: UrxDataType, arg2: str, arg3: UrxDoubleNan, arg4: VecEvent) -> None:
         ...
-    def __ne__(self, arg0: Group) -> bool:
+    def __ne__(self, arg0: UrxGroup) -> bool:
         ...
-class GroupData:
+class UrxGroupData:
     __hash__: typing.ClassVar[None] = None
     event_timestamps: VecVecFloat64
-    group: Group
-    group_timestamp: DoubleNan
+    group: UrxGroup
+    group_timestamp: UrxDoubleNan
     raw_data: numpy.ndarray
     sequence_timestamps: VecFloat64
-    def __eq__(self, arg0: GroupData) -> bool:
+    def __eq__(self, arg0: UrxGroupData) -> bool:
         ...
     @typing.overload
     def __init__(self) -> None:
         ...
     @typing.overload
-    def __init__(self, arg0: GroupData) -> None:
+    def __init__(self, arg0: UrxGroupData) -> None:
         ...
     @typing.overload
-    def __init__(self, arg0: Group, arg1: numpy.ndarray, arg2: DoubleNan, arg3: VecFloat64, arg4: VecVecFloat64) -> None:
+    def __init__(self, arg0: UrxGroup, arg1: numpy.ndarray, arg2: UrxDoubleNan, arg3: VecFloat64, arg4: VecVecFloat64) -> None:
         ...
-    def __ne__(self, arg0: GroupData) -> bool:
+    def __ne__(self, arg0: UrxGroupData) -> bool:
         ...
-class GroupDataReader:
-    def __init__(self, arg0: GroupData, arg1: int) -> None:
-        ...
-    def channelsCount(self, arg0: int) -> int:
-        ...
-    def eventsCount(self) -> int:
-        ...
-    def offset(self, arg0: int, arg1: int, arg2: int, arg3: int) -> int:
-        ...
-    def sampleByteSize(self) -> int:
-        ...
-    def samplesCount(self, arg0: int) -> int:
-        ...
-    def sequencesCount(self) -> int:
-        ...
-class ImpulseResponse:
+class UrxImpulseResponse:
     __hash__: typing.ClassVar[None] = None
     data: VecFloat64
-    sampling_frequency: DoubleNan
-    time_offset: DoubleNan
+    sampling_frequency: UrxDoubleNan
+    time_offset: UrxDoubleNan
     units: str
-    def __eq__(self, arg0: ImpulseResponse) -> bool:
+    def __eq__(self, arg0: UrxImpulseResponse) -> bool:
         ...
     @typing.overload
     def __init__(self) -> None:
         ...
     @typing.overload
-    def __init__(self, arg0: ImpulseResponse) -> None:
+    def __init__(self, arg0: UrxImpulseResponse) -> None:
         ...
     @typing.overload
-    def __init__(self, arg0: DoubleNan, arg1: DoubleNan, arg2: str, arg3: VecFloat64) -> None:
+    def __init__(self, arg0: UrxDoubleNan, arg1: UrxDoubleNan, arg2: str, arg3: VecFloat64) -> None:
         ...
-    def __ne__(self, arg0: ImpulseResponse) -> bool:
+    def __ne__(self, arg0: UrxImpulseResponse) -> bool:
         ...
-class Probe:
+class UrxProbe:
     __hash__: typing.ClassVar[None] = None
     description: str
     element_geometries: VecElementGeometryPtr
     elements: VecElement
     impulse_responses: VecImpulseResponsePtr
-    transform: Transform
-    type: ProbeType
-    def __eq__(self, arg0: Probe) -> bool:
+    transform: UrxTransform
+    type: UrxProbeType
+    def __eq__(self, arg0: UrxProbe) -> bool:
         ...
     @typing.overload
     def __init__(self) -> None:
         ...
     @typing.overload
-    def __init__(self, arg0: Probe) -> None:
+    def __init__(self, arg0: UrxProbe) -> None:
         ...
     @typing.overload
-    def __init__(self, arg0: str, arg1: ProbeType, arg2: Transform, arg3: VecElementGeometryPtr, arg4: VecImpulseResponsePtr, arg5: VecElement) -> None:
+    def __init__(self, arg0: str, arg1: UrxProbeType, arg2: UrxTransform, arg3: VecElementGeometryPtr, arg4: VecImpulseResponsePtr, arg5: VecElement) -> None:
         ...
-    def __ne__(self, arg0: Probe) -> bool:
+    def __ne__(self, arg0: UrxProbe) -> bool:
         ...
-class ProbeType:
+class UrxProbeType:
     """
     Members:
     
@@ -359,13 +359,13 @@ class ProbeType:
     
       UNDEFINED
     """
-    CURVILINEAR: typing.ClassVar[ProbeType]  # value = <ProbeType.CURVILINEAR: 1>
-    LINEAR: typing.ClassVar[ProbeType]  # value = <ProbeType.LINEAR: 0>
-    MATRIX: typing.ClassVar[ProbeType]  # value = <ProbeType.MATRIX: 3>
-    RCA: typing.ClassVar[ProbeType]  # value = <ProbeType.RCA: 2>
-    SPARSE: typing.ClassVar[ProbeType]  # value = <ProbeType.SPARSE: 4>
-    UNDEFINED: typing.ClassVar[ProbeType]  # value = <ProbeType.UNDEFINED: -1>
-    __members__: typing.ClassVar[dict[str, ProbeType]]  # value = {'LINEAR': <ProbeType.LINEAR: 0>, 'CURVILINEAR': <ProbeType.CURVILINEAR: 1>, 'RCA': <ProbeType.RCA: 2>, 'MATRIX': <ProbeType.MATRIX: 3>, 'SPARSE': <ProbeType.SPARSE: 4>, 'UNDEFINED': <ProbeType.UNDEFINED: -1>}
+    CURVILINEAR: typing.ClassVar[UrxProbeType]  # value = <UrxProbeType.CURVILINEAR: 1>
+    LINEAR: typing.ClassVar[UrxProbeType]  # value = <UrxProbeType.LINEAR: 0>
+    MATRIX: typing.ClassVar[UrxProbeType]  # value = <UrxProbeType.MATRIX: 3>
+    RCA: typing.ClassVar[UrxProbeType]  # value = <UrxProbeType.RCA: 2>
+    SPARSE: typing.ClassVar[UrxProbeType]  # value = <UrxProbeType.SPARSE: 4>
+    UNDEFINED: typing.ClassVar[UrxProbeType]  # value = <UrxProbeType.UNDEFINED: -1>
+    __members__: typing.ClassVar[dict[str, UrxProbeType]]  # value = {'LINEAR': <UrxProbeType.LINEAR: 0>, 'CURVILINEAR': <UrxProbeType.CURVILINEAR: 1>, 'RCA': <UrxProbeType.RCA: 2>, 'MATRIX': <UrxProbeType.MATRIX: 3>, 'SPARSE': <UrxProbeType.SPARSE: 4>, 'UNDEFINED': <UrxProbeType.UNDEFINED: -1>}
     def __eq__(self, other: typing.Any) -> bool:
         ...
     def __getstate__(self) -> int:
@@ -392,31 +392,31 @@ class ProbeType:
     @property
     def value(self) -> int:
         ...
-class ReceiveSetup:
+class UrxReceiveSetup:
     __hash__: typing.ClassVar[None] = None
     active_elements: VecVecUInt32
-    modulation_frequency: DoubleNan
+    modulation_frequency: UrxDoubleNan
     number_samples: int
-    probe: Probe
-    probe_transform: Transform
-    sampling_frequency: DoubleNan
+    probe: UrxProbe
+    probe_transform: UrxTransform
+    sampling_frequency: UrxDoubleNan
     tgc_profile: VecFloat64
-    tgc_sampling_frequency: DoubleNan
-    time_offset: DoubleNan
-    def __eq__(self, arg0: ReceiveSetup) -> bool:
+    tgc_sampling_frequency: UrxDoubleNan
+    time_offset: UrxDoubleNan
+    def __eq__(self, arg0: UrxReceiveSetup) -> bool:
         ...
     @typing.overload
     def __init__(self) -> None:
         ...
     @typing.overload
-    def __init__(self, arg0: ReceiveSetup) -> None:
+    def __init__(self, arg0: UrxReceiveSetup) -> None:
         ...
     @typing.overload
-    def __init__(self, arg0: Probe, arg1: Transform, arg2: DoubleNan, arg3: int, arg4: VecVecUInt32, arg5: VecFloat64, arg6: DoubleNan, arg7: DoubleNan, arg8: DoubleNan) -> None:
+    def __init__(self, arg0: UrxProbe, arg1: UrxTransform, arg2: UrxDoubleNan, arg3: int, arg4: VecVecUInt32, arg5: VecFloat64, arg6: UrxDoubleNan, arg7: UrxDoubleNan, arg8: UrxDoubleNan) -> None:
         ...
-    def __ne__(self, arg0: ReceiveSetup) -> bool:
+    def __ne__(self, arg0: UrxReceiveSetup) -> bool:
         ...
-class SamplingType:
+class UrxSamplingType:
     """
     Members:
     
@@ -426,10 +426,10 @@ class SamplingType:
     
       UNDEFINED
     """
-    IQ: typing.ClassVar[SamplingType]  # value = <SamplingType.IQ: 1>
-    RF: typing.ClassVar[SamplingType]  # value = <SamplingType.RF: 0>
-    UNDEFINED: typing.ClassVar[SamplingType]  # value = <SamplingType.UNDEFINED: -1>
-    __members__: typing.ClassVar[dict[str, SamplingType]]  # value = {'RF': <SamplingType.RF: 0>, 'IQ': <SamplingType.IQ: 1>, 'UNDEFINED': <SamplingType.UNDEFINED: -1>}
+    IQ: typing.ClassVar[UrxSamplingType]  # value = <UrxSamplingType.IQ: 1>
+    RF: typing.ClassVar[UrxSamplingType]  # value = <UrxSamplingType.RF: 0>
+    UNDEFINED: typing.ClassVar[UrxSamplingType]  # value = <UrxSamplingType.UNDEFINED: -1>
+    __members__: typing.ClassVar[dict[str, UrxSamplingType]]  # value = {'RF': <UrxSamplingType.RF: 0>, 'IQ': <UrxSamplingType.IQ: 1>, 'UNDEFINED': <UrxSamplingType.UNDEFINED: -1>}
     def __eq__(self, other: typing.Any) -> bool:
         ...
     def __getstate__(self) -> int:
@@ -456,44 +456,162 @@ class SamplingType:
     @property
     def value(self) -> int:
         ...
-class Transform:
+class UrxTransform:
     __hash__: typing.ClassVar[None] = None
-    rotation: Vector3D
-    translation: Vector3D
-    def __eq__(self, arg0: Transform) -> bool:
+    rotation: UrxVector3D
+    translation: UrxVector3D
+    def __eq__(self, arg0: UrxTransform) -> bool:
         ...
     @typing.overload
     def __init__(self) -> None:
         ...
     @typing.overload
-    def __init__(self, arg0: Transform) -> None:
+    def __init__(self, arg0: UrxTransform) -> None:
         ...
     @typing.overload
-    def __init__(self, arg0: Vector3D, arg1: Vector3D) -> None:
+    def __init__(self, arg0: UrxVector3D, arg1: UrxVector3D) -> None:
         ...
-    def __ne__(self, arg0: Transform) -> bool:
+    def __ne__(self, arg0: UrxTransform) -> bool:
         ...
-class TransmitSetup:
+class UrxTransmitSetup:
     __hash__: typing.ClassVar[None] = None
     active_elements: VecVecUInt32
     delays: VecFloat64
     excitations: VecExcitationPtr
-    probe: Probe
-    probe_transform: Transform
-    time_offset: DoubleNan
-    wave: Wave
-    def __eq__(self, arg0: TransmitSetup) -> bool:
+    probe: UrxProbe
+    probe_transform: UrxTransform
+    time_offset: UrxDoubleNan
+    wave: UrxWave
+    def __eq__(self, arg0: UrxTransmitSetup) -> bool:
         ...
     @typing.overload
     def __init__(self) -> None:
         ...
     @typing.overload
-    def __init__(self, arg0: TransmitSetup) -> None:
+    def __init__(self, arg0: UrxTransmitSetup) -> None:
         ...
     @typing.overload
-    def __init__(self, arg0: Probe, arg1: Wave, arg2: VecVecUInt32, arg3: VecExcitationPtr, arg4: VecFloat64, arg5: Transform, arg6: DoubleNan) -> None:
+    def __init__(self, arg0: UrxProbe, arg1: UrxWave, arg2: VecVecUInt32, arg3: VecExcitationPtr, arg4: VecFloat64, arg5: UrxTransform, arg6: UrxDoubleNan) -> None:
         ...
-    def __ne__(self, arg0: TransmitSetup) -> bool:
+    def __ne__(self, arg0: UrxTransmitSetup) -> bool:
+        ...
+class UrxVector2D:
+    __hash__: typing.ClassVar[None] = None
+    x: float
+    y: float
+    def __eq__(self, arg0: UrxVector2D) -> bool:
+        ...
+    @typing.overload
+    def __init__(self, arg0: float, arg1: float) -> None:
+        ...
+    @typing.overload
+    def __init__(self, arg0: UrxVector2D) -> None:
+        ...
+    @typing.overload
+    def __init__(self) -> None:
+        ...
+    def __ne__(self, arg0: UrxVector2D) -> bool:
+        ...
+class UrxVector3D:
+    __hash__: typing.ClassVar[None] = None
+    x: float
+    y: float
+    z: float
+    def __eq__(self, arg0: UrxVector3D) -> bool:
+        ...
+    @typing.overload
+    def __init__(self, arg0: float, arg1: float, arg2: float) -> None:
+        ...
+    @typing.overload
+    def __init__(self, arg0: UrxVector3D) -> None:
+        ...
+    @typing.overload
+    def __init__(self) -> None:
+        ...
+    def __ne__(self, arg0: UrxVector3D) -> bool:
+        ...
+class UrxVersion:
+    __hash__: typing.ClassVar[None] = None
+    major: int
+    minor: int
+    patch: int
+    def __eq__(self, arg0: UrxVersion) -> bool:
+        ...
+    @typing.overload
+    def __init__(self, arg0: int, arg1: int, arg2: int) -> None:
+        ...
+    @typing.overload
+    def __init__(self, arg0: UrxVersion) -> None:
+        ...
+    @typing.overload
+    def __init__(self) -> None:
+        ...
+    def __ne__(self, arg0: UrxVersion) -> bool:
+        ...
+class UrxWave:
+    __hash__: typing.ClassVar[None] = None
+    parameters: VecFloat64
+    time_zero: UrxDoubleNan
+    time_zero_reference_point: UrxVector3D
+    type: UrxWaveType
+    def __eq__(self, arg0: UrxWave) -> bool:
+        ...
+    @typing.overload
+    def __init__(self) -> None:
+        ...
+    @typing.overload
+    def __init__(self, arg0: UrxWave) -> None:
+        ...
+    @typing.overload
+    def __init__(self, arg0: UrxWaveType, arg1: UrxDoubleNan, arg2: UrxVector3D, arg3: VecFloat64) -> None:
+        ...
+    def __ne__(self, arg0: UrxWave) -> bool:
+        ...
+class UrxWaveType:
+    """
+    Members:
+    
+      CONVERGING_WAVE
+    
+      DIVERGING_WAVE
+    
+      PLANE_WAVE
+    
+      CYLINDRICAL_WAVE
+    
+      UNDEFINED
+    """
+    CONVERGING_WAVE: typing.ClassVar[UrxWaveType]  # value = <UrxWaveType.CONVERGING_WAVE: 0>
+    CYLINDRICAL_WAVE: typing.ClassVar[UrxWaveType]  # value = <UrxWaveType.CYLINDRICAL_WAVE: 3>
+    DIVERGING_WAVE: typing.ClassVar[UrxWaveType]  # value = <UrxWaveType.DIVERGING_WAVE: 1>
+    PLANE_WAVE: typing.ClassVar[UrxWaveType]  # value = <UrxWaveType.PLANE_WAVE: 2>
+    UNDEFINED: typing.ClassVar[UrxWaveType]  # value = <UrxWaveType.UNDEFINED: -1>
+    __members__: typing.ClassVar[dict[str, UrxWaveType]]  # value = {'CONVERGING_WAVE': <UrxWaveType.CONVERGING_WAVE: 0>, 'DIVERGING_WAVE': <UrxWaveType.DIVERGING_WAVE: 1>, 'PLANE_WAVE': <UrxWaveType.PLANE_WAVE: 2>, 'CYLINDRICAL_WAVE': <UrxWaveType.CYLINDRICAL_WAVE: 3>, 'UNDEFINED': <UrxWaveType.UNDEFINED: -1>}
+    def __eq__(self, other: typing.Any) -> bool:
+        ...
+    def __getstate__(self) -> int:
+        ...
+    def __hash__(self) -> int:
+        ...
+    def __index__(self) -> int:
+        ...
+    def __init__(self, value: int) -> None:
+        ...
+    def __int__(self) -> int:
+        ...
+    def __ne__(self, other: typing.Any) -> bool:
+        ...
+    def __repr__(self) -> str:
+        ...
+    def __setstate__(self, state: int) -> None:
+        ...
+    def __str__(self) -> str:
+        ...
+    @property
+    def name(self) -> str:
+        ...
+    @property
+    def value(self) -> int:
         ...
 class VecElement:
     __hash__: typing.ClassVar[None] = None
@@ -501,7 +619,7 @@ class VecElement:
         """
         Check whether the list is nonempty
         """
-    def __contains__(self, x: Element) -> bool:
+    def __contains__(self, x: UrxElement) -> bool:
         """
         Return true the container contains ``x``
         """
@@ -523,7 +641,7 @@ class VecElement:
         Retrieve list elements using a slice object
         """
     @typing.overload
-    def __getitem__(self, arg0: int) -> Element:
+    def __getitem__(self, arg0: int) -> UrxElement:
         ...
     @typing.overload
     def __init__(self) -> None:
@@ -536,21 +654,21 @@ class VecElement:
     @typing.overload
     def __init__(self, arg0: typing.Iterable) -> None:
         ...
-    def __iter__(self) -> typing.Iterator[Element]:
+    def __iter__(self) -> typing.Iterator[UrxElement]:
         ...
     def __len__(self) -> int:
         ...
     def __ne__(self, arg0: VecElement) -> bool:
         ...
     @typing.overload
-    def __setitem__(self, arg0: int, arg1: Element) -> None:
+    def __setitem__(self, arg0: int, arg1: UrxElement) -> None:
         ...
     @typing.overload
     def __setitem__(self, arg0: slice, arg1: VecElement) -> None:
         """
         Assign list elements using a slice object
         """
-    def append(self, x: Element) -> None:
+    def append(self, x: UrxElement) -> None:
         """
         Add an item to the end of the list
         """
@@ -558,7 +676,7 @@ class VecElement:
         """
         Clear the contents
         """
-    def count(self, x: Element) -> int:
+    def count(self, x: UrxElement) -> int:
         """
         Return the number of times ``x`` appears in the list
         """
@@ -572,21 +690,21 @@ class VecElement:
         """
         Extend the list by appending all the items in the given list
         """
-    def insert(self, i: int, x: Element) -> None:
+    def insert(self, i: int, x: UrxElement) -> None:
         """
         Insert an item at a given position.
         """
     @typing.overload
-    def pop(self) -> Element:
+    def pop(self) -> UrxElement:
         """
         Remove and return the last item
         """
     @typing.overload
-    def pop(self, i: int) -> Element:
+    def pop(self, i: int) -> UrxElement:
         """
         Remove and return the item at index ``i``
         """
-    def remove(self, x: Element) -> None:
+    def remove(self, x: UrxElement) -> None:
         """
         Remove the first item from the list whose value is x. It is an error if there is no such item.
         """
@@ -596,7 +714,7 @@ class VecElementGeometryPtr:
         """
         Check whether the list is nonempty
         """
-    def __contains__(self, x: ElementGeometry) -> bool:
+    def __contains__(self, x: UrxElementGeometry) -> bool:
         """
         Return true the container contains ``x``
         """
@@ -618,7 +736,7 @@ class VecElementGeometryPtr:
         Retrieve list elements using a slice object
         """
     @typing.overload
-    def __getitem__(self, arg0: int) -> ElementGeometry:
+    def __getitem__(self, arg0: int) -> UrxElementGeometry:
         ...
     @typing.overload
     def __init__(self) -> None:
@@ -631,7 +749,7 @@ class VecElementGeometryPtr:
     @typing.overload
     def __init__(self, arg0: typing.Iterable) -> None:
         ...
-    def __iter__(self) -> typing.Iterator[ElementGeometry]:
+    def __iter__(self) -> typing.Iterator[UrxElementGeometry]:
         ...
     def __len__(self) -> int:
         ...
@@ -642,14 +760,14 @@ class VecElementGeometryPtr:
         Return the canonical string representation of this list.
         """
     @typing.overload
-    def __setitem__(self, arg0: int, arg1: ElementGeometry) -> None:
+    def __setitem__(self, arg0: int, arg1: UrxElementGeometry) -> None:
         ...
     @typing.overload
     def __setitem__(self, arg0: slice, arg1: VecElementGeometryPtr) -> None:
         """
         Assign list elements using a slice object
         """
-    def append(self, x: ElementGeometry) -> None:
+    def append(self, x: UrxElementGeometry) -> None:
         """
         Add an item to the end of the list
         """
@@ -657,7 +775,7 @@ class VecElementGeometryPtr:
         """
         Clear the contents
         """
-    def count(self, x: ElementGeometry) -> int:
+    def count(self, x: UrxElementGeometry) -> int:
         """
         Return the number of times ``x`` appears in the list
         """
@@ -671,21 +789,21 @@ class VecElementGeometryPtr:
         """
         Extend the list by appending all the items in the given list
         """
-    def insert(self, i: int, x: ElementGeometry) -> None:
+    def insert(self, i: int, x: UrxElementGeometry) -> None:
         """
         Insert an item at a given position.
         """
     @typing.overload
-    def pop(self) -> ElementGeometry:
+    def pop(self) -> UrxElementGeometry:
         """
         Remove and return the last item
         """
     @typing.overload
-    def pop(self, i: int) -> ElementGeometry:
+    def pop(self, i: int) -> UrxElementGeometry:
         """
         Remove and return the item at index ``i``
         """
-    def remove(self, x: ElementGeometry) -> None:
+    def remove(self, x: UrxElementGeometry) -> None:
         """
         Remove the first item from the list whose value is x. It is an error if there is no such item.
         """
@@ -695,7 +813,7 @@ class VecEvent:
         """
         Check whether the list is nonempty
         """
-    def __contains__(self, x: Event) -> bool:
+    def __contains__(self, x: UrxEvent) -> bool:
         """
         Return true the container contains ``x``
         """
@@ -717,7 +835,7 @@ class VecEvent:
         Retrieve list elements using a slice object
         """
     @typing.overload
-    def __getitem__(self, arg0: int) -> Event:
+    def __getitem__(self, arg0: int) -> UrxEvent:
         ...
     @typing.overload
     def __init__(self) -> None:
@@ -730,21 +848,21 @@ class VecEvent:
     @typing.overload
     def __init__(self, arg0: typing.Iterable) -> None:
         ...
-    def __iter__(self) -> typing.Iterator[Event]:
+    def __iter__(self) -> typing.Iterator[UrxEvent]:
         ...
     def __len__(self) -> int:
         ...
     def __ne__(self, arg0: VecEvent) -> bool:
         ...
     @typing.overload
-    def __setitem__(self, arg0: int, arg1: Event) -> None:
+    def __setitem__(self, arg0: int, arg1: UrxEvent) -> None:
         ...
     @typing.overload
     def __setitem__(self, arg0: slice, arg1: VecEvent) -> None:
         """
         Assign list elements using a slice object
         """
-    def append(self, x: Event) -> None:
+    def append(self, x: UrxEvent) -> None:
         """
         Add an item to the end of the list
         """
@@ -752,7 +870,7 @@ class VecEvent:
         """
         Clear the contents
         """
-    def count(self, x: Event) -> int:
+    def count(self, x: UrxEvent) -> int:
         """
         Return the number of times ``x`` appears in the list
         """
@@ -766,21 +884,21 @@ class VecEvent:
         """
         Extend the list by appending all the items in the given list
         """
-    def insert(self, i: int, x: Event) -> None:
+    def insert(self, i: int, x: UrxEvent) -> None:
         """
         Insert an item at a given position.
         """
     @typing.overload
-    def pop(self) -> Event:
+    def pop(self) -> UrxEvent:
         """
         Remove and return the last item
         """
     @typing.overload
-    def pop(self, i: int) -> Event:
+    def pop(self, i: int) -> UrxEvent:
         """
         Remove and return the item at index ``i``
         """
-    def remove(self, x: Event) -> None:
+    def remove(self, x: UrxEvent) -> None:
         """
         Remove the first item from the list whose value is x. It is an error if there is no such item.
         """
@@ -790,7 +908,7 @@ class VecExcitationPtr:
         """
         Check whether the list is nonempty
         """
-    def __contains__(self, x: Excitation) -> bool:
+    def __contains__(self, x: UrxExcitation) -> bool:
         """
         Return true the container contains ``x``
         """
@@ -812,7 +930,7 @@ class VecExcitationPtr:
         Retrieve list elements using a slice object
         """
     @typing.overload
-    def __getitem__(self, arg0: int) -> Excitation:
+    def __getitem__(self, arg0: int) -> UrxExcitation:
         ...
     @typing.overload
     def __init__(self) -> None:
@@ -825,7 +943,7 @@ class VecExcitationPtr:
     @typing.overload
     def __init__(self, arg0: typing.Iterable) -> None:
         ...
-    def __iter__(self) -> typing.Iterator[Excitation]:
+    def __iter__(self) -> typing.Iterator[UrxExcitation]:
         ...
     def __len__(self) -> int:
         ...
@@ -836,14 +954,14 @@ class VecExcitationPtr:
         Return the canonical string representation of this list.
         """
     @typing.overload
-    def __setitem__(self, arg0: int, arg1: Excitation) -> None:
+    def __setitem__(self, arg0: int, arg1: UrxExcitation) -> None:
         ...
     @typing.overload
     def __setitem__(self, arg0: slice, arg1: VecExcitationPtr) -> None:
         """
         Assign list elements using a slice object
         """
-    def append(self, x: Excitation) -> None:
+    def append(self, x: UrxExcitation) -> None:
         """
         Add an item to the end of the list
         """
@@ -851,7 +969,7 @@ class VecExcitationPtr:
         """
         Clear the contents
         """
-    def count(self, x: Excitation) -> int:
+    def count(self, x: UrxExcitation) -> int:
         """
         Return the number of times ``x`` appears in the list
         """
@@ -865,21 +983,21 @@ class VecExcitationPtr:
         """
         Extend the list by appending all the items in the given list
         """
-    def insert(self, i: int, x: Excitation) -> None:
+    def insert(self, i: int, x: UrxExcitation) -> None:
         """
         Insert an item at a given position.
         """
     @typing.overload
-    def pop(self) -> Excitation:
+    def pop(self) -> UrxExcitation:
         """
         Remove and return the last item
         """
     @typing.overload
-    def pop(self, i: int) -> Excitation:
+    def pop(self, i: int) -> UrxExcitation:
         """
         Remove and return the item at index ``i``
         """
-    def remove(self, x: Excitation) -> None:
+    def remove(self, x: UrxExcitation) -> None:
         """
         Remove the first item from the list whose value is x. It is an error if there is no such item.
         """
@@ -1093,7 +1211,7 @@ class VecGroupData:
         """
         Check whether the list is nonempty
         """
-    def __contains__(self, x: GroupData) -> bool:
+    def __contains__(self, x: UrxGroupData) -> bool:
         """
         Return true the container contains ``x``
         """
@@ -1115,7 +1233,7 @@ class VecGroupData:
         Retrieve list elements using a slice object
         """
     @typing.overload
-    def __getitem__(self, arg0: int) -> GroupData:
+    def __getitem__(self, arg0: int) -> UrxGroupData:
         ...
     @typing.overload
     def __init__(self) -> None:
@@ -1128,21 +1246,21 @@ class VecGroupData:
     @typing.overload
     def __init__(self, arg0: typing.Iterable) -> None:
         ...
-    def __iter__(self) -> typing.Iterator[GroupData]:
+    def __iter__(self) -> typing.Iterator[UrxGroupData]:
         ...
     def __len__(self) -> int:
         ...
     def __ne__(self, arg0: VecGroupData) -> bool:
         ...
     @typing.overload
-    def __setitem__(self, arg0: int, arg1: GroupData) -> None:
+    def __setitem__(self, arg0: int, arg1: UrxGroupData) -> None:
         ...
     @typing.overload
     def __setitem__(self, arg0: slice, arg1: VecGroupData) -> None:
         """
         Assign list elements using a slice object
         """
-    def append(self, x: GroupData) -> None:
+    def append(self, x: UrxGroupData) -> None:
         """
         Add an item to the end of the list
         """
@@ -1150,7 +1268,7 @@ class VecGroupData:
         """
         Clear the contents
         """
-    def count(self, x: GroupData) -> int:
+    def count(self, x: UrxGroupData) -> int:
         """
         Return the number of times ``x`` appears in the list
         """
@@ -1164,21 +1282,21 @@ class VecGroupData:
         """
         Extend the list by appending all the items in the given list
         """
-    def insert(self, i: int, x: GroupData) -> None:
+    def insert(self, i: int, x: UrxGroupData) -> None:
         """
         Insert an item at a given position.
         """
     @typing.overload
-    def pop(self) -> GroupData:
+    def pop(self) -> UrxGroupData:
         """
         Remove and return the last item
         """
     @typing.overload
-    def pop(self, i: int) -> GroupData:
+    def pop(self, i: int) -> UrxGroupData:
         """
         Remove and return the item at index ``i``
         """
-    def remove(self, x: GroupData) -> None:
+    def remove(self, x: UrxGroupData) -> None:
         """
         Remove the first item from the list whose value is x. It is an error if there is no such item.
         """
@@ -1188,7 +1306,7 @@ class VecGroupPtr:
         """
         Check whether the list is nonempty
         """
-    def __contains__(self, x: Group) -> bool:
+    def __contains__(self, x: UrxGroup) -> bool:
         """
         Return true the container contains ``x``
         """
@@ -1210,7 +1328,7 @@ class VecGroupPtr:
         Retrieve list elements using a slice object
         """
     @typing.overload
-    def __getitem__(self, arg0: int) -> Group:
+    def __getitem__(self, arg0: int) -> UrxGroup:
         ...
     @typing.overload
     def __init__(self) -> None:
@@ -1223,7 +1341,7 @@ class VecGroupPtr:
     @typing.overload
     def __init__(self, arg0: typing.Iterable) -> None:
         ...
-    def __iter__(self) -> typing.Iterator[Group]:
+    def __iter__(self) -> typing.Iterator[UrxGroup]:
         ...
     def __len__(self) -> int:
         ...
@@ -1234,14 +1352,14 @@ class VecGroupPtr:
         Return the canonical string representation of this list.
         """
     @typing.overload
-    def __setitem__(self, arg0: int, arg1: Group) -> None:
+    def __setitem__(self, arg0: int, arg1: UrxGroup) -> None:
         ...
     @typing.overload
     def __setitem__(self, arg0: slice, arg1: VecGroupPtr) -> None:
         """
         Assign list elements using a slice object
         """
-    def append(self, x: Group) -> None:
+    def append(self, x: UrxGroup) -> None:
         """
         Add an item to the end of the list
         """
@@ -1249,7 +1367,7 @@ class VecGroupPtr:
         """
         Clear the contents
         """
-    def count(self, x: Group) -> int:
+    def count(self, x: UrxGroup) -> int:
         """
         Return the number of times ``x`` appears in the list
         """
@@ -1263,21 +1381,21 @@ class VecGroupPtr:
         """
         Extend the list by appending all the items in the given list
         """
-    def insert(self, i: int, x: Group) -> None:
+    def insert(self, i: int, x: UrxGroup) -> None:
         """
         Insert an item at a given position.
         """
     @typing.overload
-    def pop(self) -> Group:
+    def pop(self) -> UrxGroup:
         """
         Remove and return the last item
         """
     @typing.overload
-    def pop(self, i: int) -> Group:
+    def pop(self, i: int) -> UrxGroup:
         """
         Remove and return the item at index ``i``
         """
-    def remove(self, x: Group) -> None:
+    def remove(self, x: UrxGroup) -> None:
         """
         Remove the first item from the list whose value is x. It is an error if there is no such item.
         """
@@ -1287,7 +1405,7 @@ class VecImpulseResponsePtr:
         """
         Check whether the list is nonempty
         """
-    def __contains__(self, x: ImpulseResponse) -> bool:
+    def __contains__(self, x: UrxImpulseResponse) -> bool:
         """
         Return true the container contains ``x``
         """
@@ -1309,7 +1427,7 @@ class VecImpulseResponsePtr:
         Retrieve list elements using a slice object
         """
     @typing.overload
-    def __getitem__(self, arg0: int) -> ImpulseResponse:
+    def __getitem__(self, arg0: int) -> UrxImpulseResponse:
         ...
     @typing.overload
     def __init__(self) -> None:
@@ -1322,7 +1440,7 @@ class VecImpulseResponsePtr:
     @typing.overload
     def __init__(self, arg0: typing.Iterable) -> None:
         ...
-    def __iter__(self) -> typing.Iterator[ImpulseResponse]:
+    def __iter__(self) -> typing.Iterator[UrxImpulseResponse]:
         ...
     def __len__(self) -> int:
         ...
@@ -1333,14 +1451,14 @@ class VecImpulseResponsePtr:
         Return the canonical string representation of this list.
         """
     @typing.overload
-    def __setitem__(self, arg0: int, arg1: ImpulseResponse) -> None:
+    def __setitem__(self, arg0: int, arg1: UrxImpulseResponse) -> None:
         ...
     @typing.overload
     def __setitem__(self, arg0: slice, arg1: VecImpulseResponsePtr) -> None:
         """
         Assign list elements using a slice object
         """
-    def append(self, x: ImpulseResponse) -> None:
+    def append(self, x: UrxImpulseResponse) -> None:
         """
         Add an item to the end of the list
         """
@@ -1348,7 +1466,7 @@ class VecImpulseResponsePtr:
         """
         Clear the contents
         """
-    def count(self, x: ImpulseResponse) -> int:
+    def count(self, x: UrxImpulseResponse) -> int:
         """
         Return the number of times ``x`` appears in the list
         """
@@ -1362,21 +1480,21 @@ class VecImpulseResponsePtr:
         """
         Extend the list by appending all the items in the given list
         """
-    def insert(self, i: int, x: ImpulseResponse) -> None:
+    def insert(self, i: int, x: UrxImpulseResponse) -> None:
         """
         Insert an item at a given position.
         """
     @typing.overload
-    def pop(self) -> ImpulseResponse:
+    def pop(self) -> UrxImpulseResponse:
         """
         Remove and return the last item
         """
     @typing.overload
-    def pop(self, i: int) -> ImpulseResponse:
+    def pop(self, i: int) -> UrxImpulseResponse:
         """
         Remove and return the item at index ``i``
         """
-    def remove(self, x: ImpulseResponse) -> None:
+    def remove(self, x: UrxImpulseResponse) -> None:
         """
         Remove the first item from the list whose value is x. It is an error if there is no such item.
         """
@@ -1794,7 +1912,7 @@ class VecProbePtr:
         """
         Check whether the list is nonempty
         """
-    def __contains__(self, x: Probe) -> bool:
+    def __contains__(self, x: UrxProbe) -> bool:
         """
         Return true the container contains ``x``
         """
@@ -1816,7 +1934,7 @@ class VecProbePtr:
         Retrieve list elements using a slice object
         """
     @typing.overload
-    def __getitem__(self, arg0: int) -> Probe:
+    def __getitem__(self, arg0: int) -> UrxProbe:
         ...
     @typing.overload
     def __init__(self) -> None:
@@ -1829,7 +1947,7 @@ class VecProbePtr:
     @typing.overload
     def __init__(self, arg0: typing.Iterable) -> None:
         ...
-    def __iter__(self) -> typing.Iterator[Probe]:
+    def __iter__(self) -> typing.Iterator[UrxProbe]:
         ...
     def __len__(self) -> int:
         ...
@@ -1840,14 +1958,14 @@ class VecProbePtr:
         Return the canonical string representation of this list.
         """
     @typing.overload
-    def __setitem__(self, arg0: int, arg1: Probe) -> None:
+    def __setitem__(self, arg0: int, arg1: UrxProbe) -> None:
         ...
     @typing.overload
     def __setitem__(self, arg0: slice, arg1: VecProbePtr) -> None:
         """
         Assign list elements using a slice object
         """
-    def append(self, x: Probe) -> None:
+    def append(self, x: UrxProbe) -> None:
         """
         Add an item to the end of the list
         """
@@ -1855,7 +1973,7 @@ class VecProbePtr:
         """
         Clear the contents
         """
-    def count(self, x: Probe) -> int:
+    def count(self, x: UrxProbe) -> int:
         """
         Return the number of times ``x`` appears in the list
         """
@@ -1869,21 +1987,21 @@ class VecProbePtr:
         """
         Extend the list by appending all the items in the given list
         """
-    def insert(self, i: int, x: Probe) -> None:
+    def insert(self, i: int, x: UrxProbe) -> None:
         """
         Insert an item at a given position.
         """
     @typing.overload
-    def pop(self) -> Probe:
+    def pop(self) -> UrxProbe:
         """
         Remove and return the last item
         """
     @typing.overload
-    def pop(self, i: int) -> Probe:
+    def pop(self, i: int) -> UrxProbe:
         """
         Remove and return the item at index ``i``
         """
-    def remove(self, x: Probe) -> None:
+    def remove(self, x: UrxProbe) -> None:
         """
         Remove the first item from the list whose value is x. It is an error if there is no such item.
         """
@@ -3445,7 +3563,7 @@ class VecVector2D:
         """
         Check whether the list is nonempty
         """
-    def __contains__(self, x: Vector2D) -> bool:
+    def __contains__(self, x: UrxVector2D) -> bool:
         """
         Return true the container contains ``x``
         """
@@ -3467,7 +3585,7 @@ class VecVector2D:
         Retrieve list elements using a slice object
         """
     @typing.overload
-    def __getitem__(self, arg0: int) -> Vector2D:
+    def __getitem__(self, arg0: int) -> UrxVector2D:
         ...
     @typing.overload
     def __init__(self) -> None:
@@ -3480,21 +3598,21 @@ class VecVector2D:
     @typing.overload
     def __init__(self, arg0: typing.Iterable) -> None:
         ...
-    def __iter__(self) -> typing.Iterator[Vector2D]:
+    def __iter__(self) -> typing.Iterator[UrxVector2D]:
         ...
     def __len__(self) -> int:
         ...
     def __ne__(self, arg0: VecVector2D) -> bool:
         ...
     @typing.overload
-    def __setitem__(self, arg0: int, arg1: Vector2D) -> None:
+    def __setitem__(self, arg0: int, arg1: UrxVector2D) -> None:
         ...
     @typing.overload
     def __setitem__(self, arg0: slice, arg1: VecVector2D) -> None:
         """
         Assign list elements using a slice object
         """
-    def append(self, x: Vector2D) -> None:
+    def append(self, x: UrxVector2D) -> None:
         """
         Add an item to the end of the list
         """
@@ -3502,7 +3620,7 @@ class VecVector2D:
         """
         Clear the contents
         """
-    def count(self, x: Vector2D) -> int:
+    def count(self, x: UrxVector2D) -> int:
         """
         Return the number of times ``x`` appears in the list
         """
@@ -3516,21 +3634,21 @@ class VecVector2D:
         """
         Extend the list by appending all the items in the given list
         """
-    def insert(self, i: int, x: Vector2D) -> None:
+    def insert(self, i: int, x: UrxVector2D) -> None:
         """
         Insert an item at a given position.
         """
     @typing.overload
-    def pop(self) -> Vector2D:
+    def pop(self) -> UrxVector2D:
         """
         Remove and return the last item
         """
     @typing.overload
-    def pop(self, i: int) -> Vector2D:
+    def pop(self, i: int) -> UrxVector2D:
         """
         Remove and return the item at index ``i``
         """
-    def remove(self, x: Vector2D) -> None:
+    def remove(self, x: UrxVector2D) -> None:
         """
         Remove the first item from the list whose value is x. It is an error if there is no such item.
         """
@@ -3540,7 +3658,7 @@ class VecVector3D:
         """
         Check whether the list is nonempty
         """
-    def __contains__(self, x: Vector3D) -> bool:
+    def __contains__(self, x: UrxVector3D) -> bool:
         """
         Return true the container contains ``x``
         """
@@ -3562,7 +3680,7 @@ class VecVector3D:
         Retrieve list elements using a slice object
         """
     @typing.overload
-    def __getitem__(self, arg0: int) -> Vector3D:
+    def __getitem__(self, arg0: int) -> UrxVector3D:
         ...
     @typing.overload
     def __init__(self) -> None:
@@ -3575,21 +3693,21 @@ class VecVector3D:
     @typing.overload
     def __init__(self, arg0: typing.Iterable) -> None:
         ...
-    def __iter__(self) -> typing.Iterator[Vector3D]:
+    def __iter__(self) -> typing.Iterator[UrxVector3D]:
         ...
     def __len__(self) -> int:
         ...
     def __ne__(self, arg0: VecVector3D) -> bool:
         ...
     @typing.overload
-    def __setitem__(self, arg0: int, arg1: Vector3D) -> None:
+    def __setitem__(self, arg0: int, arg1: UrxVector3D) -> None:
         ...
     @typing.overload
     def __setitem__(self, arg0: slice, arg1: VecVector3D) -> None:
         """
         Assign list elements using a slice object
         """
-    def append(self, x: Vector3D) -> None:
+    def append(self, x: UrxVector3D) -> None:
         """
         Add an item to the end of the list
         """
@@ -3597,7 +3715,7 @@ class VecVector3D:
         """
         Clear the contents
         """
-    def count(self, x: Vector3D) -> int:
+    def count(self, x: UrxVector3D) -> int:
         """
         Return the number of times ``x`` appears in the list
         """
@@ -3611,156 +3729,60 @@ class VecVector3D:
         """
         Extend the list by appending all the items in the given list
         """
-    def insert(self, i: int, x: Vector3D) -> None:
+    def insert(self, i: int, x: UrxVector3D) -> None:
         """
         Insert an item at a given position.
         """
     @typing.overload
-    def pop(self) -> Vector3D:
+    def pop(self) -> UrxVector3D:
         """
         Remove and return the last item
         """
     @typing.overload
-    def pop(self, i: int) -> Vector3D:
+    def pop(self, i: int) -> UrxVector3D:
         """
         Remove and return the item at index ``i``
         """
-    def remove(self, x: Vector3D) -> None:
+    def remove(self, x: UrxVector3D) -> None:
         """
         Remove the first item from the list whose value is x. It is an error if there is no such item.
         """
-class Vector2D:
-    __hash__: typing.ClassVar[None] = None
-    x: float
-    y: float
-    def __eq__(self, arg0: Vector2D) -> bool:
-        ...
-    @typing.overload
-    def __init__(self, arg0: float, arg1: float) -> None:
-        ...
-    @typing.overload
-    def __init__(self, arg0: Vector2D) -> None:
-        ...
-    @typing.overload
-    def __init__(self) -> None:
-        ...
-    def __ne__(self, arg0: Vector2D) -> bool:
-        ...
-class Vector3D:
-    __hash__: typing.ClassVar[None] = None
-    x: float
-    y: float
-    z: float
-    def __eq__(self, arg0: Vector3D) -> bool:
-        ...
-    @typing.overload
-    def __init__(self, arg0: float, arg1: float, arg2: float) -> None:
-        ...
-    @typing.overload
-    def __init__(self, arg0: Vector3D) -> None:
-        ...
-    @typing.overload
-    def __init__(self) -> None:
-        ...
-    def __ne__(self, arg0: Vector3D) -> bool:
-        ...
-class Version:
-    __hash__: typing.ClassVar[None] = None
-    major: int
-    minor: int
-    patch: int
-    def __eq__(self, arg0: Version) -> bool:
-        ...
-    @typing.overload
-    def __init__(self, arg0: int, arg1: int, arg2: int) -> None:
-        ...
-    @typing.overload
-    def __init__(self, arg0: Version) -> None:
-        ...
-    @typing.overload
-    def __init__(self) -> None:
-        ...
-    def __ne__(self, arg0: Version) -> bool:
-        ...
-class Wave:
-    __hash__: typing.ClassVar[None] = None
-    parameters: VecFloat64
-    time_zero: DoubleNan
-    time_zero_reference_point: Vector3D
-    type: WaveType
-    def __eq__(self, arg0: Wave) -> bool:
-        ...
-    @typing.overload
-    def __init__(self) -> None:
-        ...
-    @typing.overload
-    def __init__(self, arg0: Wave) -> None:
-        ...
-    @typing.overload
-    def __init__(self, arg0: WaveType, arg1: DoubleNan, arg2: Vector3D, arg3: VecFloat64) -> None:
-        ...
-    def __ne__(self, arg0: Wave) -> bool:
-        ...
-class WaveType:
-    """
-    Members:
-    
-      CONVERGING_WAVE
-    
-      DIVERGING_WAVE
-    
-      PLANE_WAVE
-    
-      CYLINDRICAL_WAVE
-    
-      UNDEFINED
-    """
-    CONVERGING_WAVE: typing.ClassVar[WaveType]  # value = <WaveType.CONVERGING_WAVE: 0>
-    CYLINDRICAL_WAVE: typing.ClassVar[WaveType]  # value = <WaveType.CYLINDRICAL_WAVE: 3>
-    DIVERGING_WAVE: typing.ClassVar[WaveType]  # value = <WaveType.DIVERGING_WAVE: 1>
-    PLANE_WAVE: typing.ClassVar[WaveType]  # value = <WaveType.PLANE_WAVE: 2>
-    UNDEFINED: typing.ClassVar[WaveType]  # value = <WaveType.UNDEFINED: -1>
-    __members__: typing.ClassVar[dict[str, WaveType]]  # value = {'CONVERGING_WAVE': <WaveType.CONVERGING_WAVE: 0>, 'DIVERGING_WAVE': <WaveType.DIVERGING_WAVE: 1>, 'PLANE_WAVE': <WaveType.PLANE_WAVE: 2>, 'CYLINDRICAL_WAVE': <WaveType.CYLINDRICAL_WAVE: 3>, 'UNDEFINED': <WaveType.UNDEFINED: -1>}
-    def __eq__(self, other: typing.Any) -> bool:
-        ...
-    def __getstate__(self) -> int:
-        ...
-    def __hash__(self) -> int:
-        ...
-    def __index__(self) -> int:
-        ...
-    def __init__(self, value: int) -> None:
-        ...
-    def __int__(self) -> int:
-        ...
-    def __ne__(self, other: typing.Any) -> bool:
-        ...
-    def __repr__(self) -> str:
-        ...
-    def __setstate__(self, state: int) -> None:
-        ...
-    def __str__(self) -> str:
-        ...
-    @property
-    def name(self) -> str:
-        ...
-    @property
-    def value(self) -> int:
-        ...
 def isIso3166(arg0: str) -> bool:
     ...
 def isIso8601(arg0: str) -> bool:
     ...
-def loadFromFile(arg0: str) -> Dataset:
+def loadFromFile(arg0: str) -> UrxDataset:
     ...
-def pyGetFormat(arg0: DataType) -> str:
+def pyGetFormat(arg0: UrxDataType) -> str:
     ...
-def saveToFile(arg0: str, arg1: Dataset) -> None:
+def saveToFile(arg0: str, arg1: UrxDataset) -> None:
     ...
-def sizeofDataType(arg0: DataType) -> int:
+def sizeofDataType(arg0: UrxDataType) -> int:
     ...
-def sizeofSample(arg0: SamplingType, arg1: DataType) -> int:
+def sizeofSample(arg0: UrxSamplingType, arg1: UrxDataType) -> int:
     ...
 URX_VERSION_MAJOR: int = 1
 URX_VERSION_MINOR: int = 0
 URX_VERSION_PATCH: int = 0
+Acquisition = UrxAcquisition
+DataType = UrxDataType
+Dataset = UrxDataset
+DoubleNan = UrxDoubleNan
+Element = UrxElement
+ElementGeometry = UrxElementGeometry
+Event = UrxEvent
+Excitation = UrxExcitation
+Group = UrxGroup
+GroupData = UrxGroupData
+ImpulseResponse = UrxImpulseResponse
+Probe = UrxProbe
+ProbeType = UrxProbeType
+ReceiveSetup = UrxReceiveSetup
+SamplingType = UrxSamplingType
+Transform = UrxTransform
+TransmitSetup = UrxTransmitSetup
+Vector2D = UrxVector2D
+Vector3D = UrxVector3D
+Version = UrxVersion
+Wave = UrxWave
+WaveType = UrxWaveType
