@@ -174,8 +174,7 @@
   OBJECT_ACCESSOR_NS_DECL(ns, Acquisition, timestamp);    \
   OBJECT_ACCESSOR_NS_DECL(ns, Acquisition, probes);       \
   OBJECT_ACCESSOR_NS_DECL(ns, Acquisition, excitations);  \
-  OBJECT_ACCESSOR_NS_DECL(ns, Acquisition, groups);       \
-  OBJECT_ACCESSOR_NS_DECL(ns, Acquisition, groups_data)
+  OBJECT_ACCESSOR_NS_DECL(ns, Acquisition, groups)
 
 #define URX_MATLAB_DATASET_DECL(ns)              \
   OBJECT_NS_DECL(ns, Dataset);                   \

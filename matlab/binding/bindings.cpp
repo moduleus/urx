@@ -100,6 +100,8 @@ const char *std_string_get(void *this_ptr) { return static_cast<std::string *>(t
 // NOLINTBEGIN(bugprone-unchecked-optional-access)
 
 URX_MATLAB_ACQUISITION_IMPL(urx);
+OBJECT_ACCESSOR_NS_IMPL(urx, Acquisition, groups_data);
+
 URX_MATLAB_DATASET_IMPL(urx);
 URX_MATLAB_ELEMENT_GEOMETRY_IMPL(urx);
 URX_MATLAB_ELEMENT_IMPL(urx);

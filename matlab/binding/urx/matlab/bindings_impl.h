@@ -483,8 +483,7 @@ bool checkHasValue(const T &argument) {
   OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, timestamp);    \
   OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, probes);       \
   OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, excitations);  \
-  OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, groups);       \
-  OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, groups_data)
+  OBJECT_ACCESSOR_NS_IMPL(ns, Acquisition, groups)
 
 #define URX_MATLAB_DATASET_IMPL(ns)              \
   OBJECT_NS_IMPL(ns, Dataset);                   \

@@ -115,6 +115,11 @@ doc:plantuml:
     - sed -i 's/std:://' doc/plantuml/architecture_user.puml
     # Don't show C type
     - sed -i -E 's/(int[0-9]+)_t/\1/' doc/plantuml/architecture_user.puml
+    # Merge AcquisitionBase and Acquisition
+    - sed -i -E -z "s/\s+class Acquisition\s+\{\s+([^\}]*)}\s+class AcquisitionBase\s+\{([^\}]*)}/\nclass Acquisition{\2\1}/g" doc/plantuml/architecture_user.puml
+    - sed -i 's/^urx\.AcquisitionBase.*-- .*urx\.Acquisition$//g' doc/plantuml/architecture_user.puml
+    - sed -i 's/^urx\.AcquisitionBase.*-- .*urx\.Group$//g' doc/plantuml/architecture_user.puml
+    - sed -i 's/AcquisitionBase/Acquisition/g' doc/plantuml/architecture_user.puml
     # Generate image
     - mkdir -p public/plantuml
     - plantuml doc/plantuml/architecture_user.puml
@@ -128,6 +133,8 @@ doc:plantuml:
     - sed -i -E -z 's/\n[^\n]*operator[^\n]*//g' doc/plantuml/architecture_cpp.puml
     # Remove metaprogramming struct
     - sed -i -E -z 's/\n[^\n]*IsComplex[^}]*}//g' doc/plantuml/architecture_cpp.puml
+    # Only show relation between shared_ptr and class. Remove weak_ptr relations.
+    - sed -i -E 's/^urx\..*Acquisition \*-- urx\..*Group$//' doc/plantuml/architecture_cpp.puml
     # Generate image
     - plantuml doc/plantuml/architecture_cpp.puml
     - plantuml -tsvg doc/plantuml/architecture_cpp.puml
@@ -362,7 +369,7 @@ build:ubuntu-python:
     - pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" --config-settings="--global-option=cmake_build_type=Release" --config-settings="--global-option=vcpkg_triplet=x64-linux-release" --no-clean -v
     - python -m unittest discover test/python
     - stubgen -p pyurx -o python
-    - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Run `stubgen -p pyurx -o python` before commit."; echo "$(git status --porcelain)"; git diff; exit 1; fi
+    - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Run stubgen -p pyurx -o python before commit."; echo "$(git status --porcelain)"; git diff; exit 1; fi
 
 build:windows-matlab-static:
   stage: build

@@ -8,6 +8,7 @@
 #include <utility>
 #include <vector>
 
+#include <urx/acquisition.h>
 #include <urx/detail/double_nan.h>
 #include <urx/detail/raw_data.h>
 #include <urx/element.h>
@@ -25,7 +26,6 @@ std::shared_ptr<T> generateFakeDataset() {
   using ExcitationT = typename decltype(T::acquisition.excitations)::value_type::element_type;
   using GroupT = typename decltype(T::acquisition.groups)::value_type::element_type;
   using EventT = typename decltype(GroupT::sequence)::value_type;
-  using GroupDataT = typename decltype(T::acquisition.groups_data)::value_type;
 
   auto dataset = std::make_shared<T>();
 
@@ -342,41 +342,44 @@ std::shared_ptr<T> generateFakeDataset() {
 
   dataset->acquisition.timestamp = 1242;
 
-  {
+  if constexpr (std::is_same_v<T, urx::Acquisition>) {
+    using GroupDataT = typename decltype(T::acquisition.groups_data)::value_type;
     {
-      GroupDataT group_data;
-      group_data.group = dataset->acquisition.groups[1];
+      {
+        GroupDataT group_data;
+        group_data.group = dataset->acquisition.groups[1];
 
-      group_data.raw_data = std::make_shared<RawDataNoInit<double>>(6);
-      double* buf = static_cast<double*>(group_data.raw_data->getBuffer());
-      buf[0] = 1.2;
-      buf[1] = 2.3;
-      buf[2] = 3.4;
-      buf[3] = 4.5;
-      buf[4] = 5.6;
-      buf[5] = 6.7;
+        group_data.raw_data = std::make_shared<RawDataNoInit<double>>(6);
+        double* buf = static_cast<double*>(group_data.raw_data->getBuffer());
+        buf[0] = 1.2;
+        buf[1] = 2.3;
+        buf[2] = 3.4;
+        buf[3] = 4.5;
+        buf[4] = 5.6;
+        buf[5] = 6.7;
 
-      group_data.group_timestamp = 283954.334;
-      group_data.sequence_timestamps = {1, 2, 4.2, 1, .5, 5.6};
-      group_data.event_timestamps = {{1, .24, 1., 5.2, 4.5, 7, .964, .5},
-                                     {1, 2, 4, 85, .15, -4.5, -7, .45, .6, 4}};
-      dataset->acquisition.groups_data.push_back(std::move(group_data));
-    }
-    {
-      GroupDataT group_data;
-      group_data.group = dataset->acquisition.groups[0];
+        group_data.group_timestamp = 283954.334;
+        group_data.sequence_timestamps = {1, 2, 4.2, 1, .5, 5.6};
+        group_data.event_timestamps = {{1, .24, 1., 5.2, 4.5, 7, .964, .5},
+                                       {1, 2, 4, 85, .15, -4.5, -7, .45, .6, 4}};
+        dataset->acquisition.groups_data.push_back(std::move(group_data));
+      }
+      {
+        GroupDataT group_data;
+        group_data.group = dataset->acquisition.groups[0];
 
-      group_data.raw_data = std::make_shared<RawDataNoInit<std::complex<short>>>(4);
-      std::complex<short>* buf =
-          static_cast<std::complex<short>*>(group_data.raw_data->getBuffer());
-      buf[0] = {123, 456};
-      buf[1] = {159, 753};
-      buf[2] = {789, 456};
-      buf[3] = {123, 753};
-      group_data.group_timestamp = 123;
-      group_data.sequence_timestamps = {1, 2, 34};
-      group_data.event_timestamps = {{4, 5, 7}, {8, 7, 6}};
-      dataset->acquisition.groups_data.push_back(std::move(group_data));
+        group_data.raw_data = std::make_shared<RawDataNoInit<std::complex<short>>>(4);
+        std::complex<short>* buf =
+            static_cast<std::complex<short>*>(group_data.raw_data->getBuffer());
+        buf[0] = {123, 456};
+        buf[1] = {159, 753};
+        buf[2] = {789, 456};
+        buf[3] = {123, 753};
+        group_data.group_timestamp = 123;
+        group_data.sequence_timestamps = {1, 2, 34};
+        group_data.event_timestamps = {{4, 5, 7}, {8, 7, 6}};
+        dataset->acquisition.groups_data.push_back(std::move(group_data));
+      }
     }
   }
 
