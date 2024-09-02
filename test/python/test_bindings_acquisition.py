@@ -34,7 +34,6 @@ def test_acquisition(
     self.assertEqual(acq.probes, [])
     self.assertEqual(acq.excitations, [])
     self.assertEqual(acq.groups, [])
-    self.assertEqual(acq.groups_data, [])
 
     # Check copy CTOR and referencing object
     acq_2 = acq_copy(acq)
@@ -250,48 +249,49 @@ def test_acquisition(
     self.assertEqual(acq.groups[0].sampling_type, enum_sampling().RF)
 
     # groups_data is a pointer vector, thus all modifications are shared
-    gd = group_data_constructor()
-    gd_2 = group_data_constructor()
-    gd_2.group_timestamp = double_nan_copy(42)
-    gd_3 = group_data_copy(gd_2)
-    gd_3.group_timestamp = double_nan_copy(24)
-    acq.groups_data = [gd, gd_2]
-    acq_2 = acq_copy(acq)
-    self.assertEqual(acq.groups_data[1], gd_2)
-    self.assertEqual(acq, acq_2)
+    if group_data_constructor is not None and group_data_copy is not None:
+        gd = group_data_constructor()
+        gd_2 = group_data_constructor()
+        gd_2.group_timestamp = double_nan_copy(42)
+        gd_3 = group_data_copy(gd_2)
+        gd_3.group_timestamp = double_nan_copy(24)
+        acq.groups_data = [gd, gd_2]
+        acq_2 = acq_copy(acq)
+        self.assertEqual(acq.groups_data[1], gd_2)
+        self.assertEqual(acq, acq_2)
 
-    # gd_2 is a copy. Not a shared_ptr.
-    # gd_2.group_timestamp = double_nan_copy(99)
-    # self.assertEqual(acq.groups_data[1], gd_2)
-    # self.assertEqual(acq_2.groups_data[1], gd_2)
-    # gd_2.group_timestamp = double_nan_copy(42)
+        # gd_2 is a copy. Not a shared_ptr.
+        # gd_2.group_timestamp = double_nan_copy(99)
+        # self.assertEqual(acq.groups_data[1], gd_2)
+        # self.assertEqual(acq_2.groups_data[1], gd_2)
+        # gd_2.group_timestamp = double_nan_copy(42)
 
-    # Reference is possible for GroupData vector
-    self.assertEqual(acq.groups_data, [gd, gd_2])
-    groups_data_ref = acq.groups_data
-    groups_data_ref[0] = gd_3
-    self.assertEqual(acq.groups_data, groups_data_ref)
-    self.assertNotEqual(acq, acq_2)
-    # Check assignment
-    acq.groups_data = [gd, gd_2]
-    self.assertEqual(acq.groups_data, groups_data_ref)
-    self.assertEqual(acq.groups_data, [gd, gd_2])
-    self.assertEqual(acq, acq_2)
+        # Reference is possible for GroupData vector
+        self.assertEqual(acq.groups_data, [gd, gd_2])
+        groups_data_ref = acq.groups_data
+        groups_data_ref[0] = gd_3
+        self.assertEqual(acq.groups_data, groups_data_ref)
+        self.assertNotEqual(acq, acq_2)
+        # Check assignment
+        acq.groups_data = [gd, gd_2]
+        self.assertEqual(acq.groups_data, groups_data_ref)
+        self.assertEqual(acq.groups_data, [gd, gd_2])
+        self.assertEqual(acq, acq_2)
 
-    # deleting the local variable does not impact the shared pointers vectors
-    del gd
-    del gd_2
-    gc.collect()
-    self.assertEqual(len(acq.groups_data), 2)
-    self.assertEqual(len(acq_2.groups_data), 2)
+        # deleting the local variable does not impact the shared pointers vectors
+        del gd
+        del gd_2
+        gc.collect()
+        self.assertEqual(len(acq.groups_data), 2)
+        self.assertEqual(len(acq_2.groups_data), 2)
 
-    # deleting the pointers inside the vectors to check resize
-    del acq.groups_data[0]
-    del acq_2.groups_data[0]
-    gc.collect()
-    self.assertEqual(len(acq.groups_data), 1)
-    self.assertEqual(len(acq_2.groups_data), 1)
-    self.assertRaises(IndexError, lambda acq: acq.groups_data[1], acq)
-    self.assertEqual(acq.groups_data[0].group_timestamp, double_nan_copy(42))
+        # deleting the pointers inside the vectors to check resize
+        del acq.groups_data[0]
+        del acq_2.groups_data[0]
+        gc.collect()
+        self.assertEqual(len(acq.groups_data), 1)
+        self.assertEqual(len(acq_2.groups_data), 1)
+        self.assertRaises(IndexError, lambda acq: acq.groups_data[1], acq)
+        self.assertEqual(acq.groups_data[0].group_timestamp, double_nan_copy(42))
 
     print("--Test %s END--" % testName)

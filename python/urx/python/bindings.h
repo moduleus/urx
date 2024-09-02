@@ -469,8 +469,7 @@ py::class_<Acquisition> registerAcquisition(py::module_ &m, const std::string &p
                     .def_readwrite("timestamp", &Acquisition::timestamp)
                     .def_readwrite("probes", &Acquisition::probes)
                     .def_readwrite("excitations", &Acquisition::excitations)
-                    .def_readwrite("groups", &Acquisition::groups)
-                    .def_readwrite("groups_data", &Acquisition::groups_data);
+                    .def_readwrite("groups", &Acquisition::groups);
   m.attr("Acquisition") = m.attr((prefix + "Acquisition").c_str());
   return retval;
 }

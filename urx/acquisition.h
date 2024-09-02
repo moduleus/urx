@@ -17,16 +17,15 @@ namespace urx {
 
 namespace detail {
 template <class Excitation, class Group>
-struct Acquisition {
-  bool operator==(const Acquisition& other) const {
+struct AcquisitionBase {
+  bool operator==(const AcquisitionBase& other) const {
     return authors == other.authors && description == other.description &&
            local_time == other.local_time && country_code == other.country_code &&
            system == other.system && timestamp == other.timestamp && probes == other.probes &&
-           excitations == other.excitations && groups == other.groups &&
-           groups_data == other.groups_data;
+           excitations == other.excitations && groups == other.groups;
   }
 
-  bool operator!=(const Acquisition& other) const { return !operator==(other); }
+  bool operator!=(const AcquisitionBase& other) const { return !operator==(other); }
 
   std::string authors;
   std::string description;
@@ -39,8 +38,20 @@ struct Acquisition {
   std::vector<std::shared_ptr<Probe>> probes;
   std::vector<std::shared_ptr<Excitation>> excitations;
   std::vector<std::shared_ptr<Group>> groups;
+};
+
+template <class Excitation, class Group>
+struct Acquisition : public AcquisitionBase<Excitation, Group> {
+  bool operator==(const Acquisition& other) const {
+    return AcquisitionBase<Excitation, Group>::operator==(other) &&
+           groups_data == other.groups_data;
+  }
+
+  bool operator!=(const Acquisition& other) const { return !operator==(other); }
+
   std::vector<GroupData<Group>> groups_data;
 };
+
 }  // namespace detail
 using Acquisition = detail::Acquisition<Excitation, Group>;
 

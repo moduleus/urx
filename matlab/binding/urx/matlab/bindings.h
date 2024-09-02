@@ -30,6 +30,8 @@ URX_MATLAB_EXPORT const char *std_string_get(void *this_ptr);
 URX_MATLAB_EXPORT uint64_t get_pointer(void *ptr);
 
 URX_MATLAB_ACQUISITION_DECL(urx);
+OBJECT_ACCESSOR_NS_DECL(urx, Acquisition, groups_data);
+
 URX_MATLAB_DATASET_DECL(urx);
 URX_MATLAB_ELEMENT_GEOMETRY_DECL(urx);
 URX_MATLAB_ELEMENT_DECL(urx);

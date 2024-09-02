@@ -77,9 +77,15 @@ if(WITH_PYTHON_WHL)
     message(FATAL_ERROR "Unsupported architecture for python output.")
   endif()
 
+  if(CMAKE_GENERATOR MATCHES "Visual Studio")
+    set(IGNORE_ERROR_IN_LOG ">" "NUL" "2>&1")
+  else()
+    set(IGNORE_ERROR_IN_LOG "")
+  endif()
+
   add_custom_target(
     UrxPythonWheel
-    COMMAND ${Python3_EXECUTABLE} -m ensurepip
+    COMMAND ${Python3_EXECUTABLE} -m ensurepip ${IGNORE_ERROR_IN_LOG}
     COMMAND ${Python3_EXECUTABLE} -m pip install --upgrade pip
     COMMAND ${Python3_EXECUTABLE} -m pip install -r requirements-gitlab.txt
     COMMAND
