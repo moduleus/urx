@@ -1,11 +1,10 @@
-import inspect
-import os
 import sys
 
-import importlib.metadata as imp
 import cmake_build_extension
 import setuptools
 import toml
+import subprocess
+import os
 
 from setuptools import setup, find_packages
 from pathlib import Path
@@ -34,16 +33,26 @@ if vcpkg_triplet_arg != None:
     sys.argv.remove(vcpkg_triplet_arg)
     vcpkg_triplet_arg = vcpkg_triplet_arg[len("vcpkg_triplet=") :]
 
-if CMAKE_TOOLCHAIN_FILE_arg != None:
-    if vcpkg_triplet_arg != None:
-        VCPKG_TRIPLET = vcpkg_triplet_arg
-    else:
-        if sys.platform == "win32":
-            VCPKG_TRIPLET = "x64-wsmrep"
+if CMAKE_TOOLCHAIN_FILE_arg is None:
+    if not (Path(__file__).parent.absolute() / "vcpkg").is_dir():
+        subprocess.run(
+            [
+                "git",
+                "clone",
+                "https://github.com/microsoft/vcpkg",
+                str(Path(__file__).parent.absolute() / "vcpkg"),
+            ]
+        )
+        if os.name == "nt":
+            subprocess.run(
+                [str(Path(__file__).parent.absolute() / "vcpkg" / "bootstrap-vcpkg.bat")]
+            )
         else:
-            VCPKG_TRIPLET = "x64-linux"
-else:
-    raise Exception("Missing CMAKE_TOOLCHAIN_FILE for VCPKG in --global-option")
+            subprocess.run([str(Path(__file__).parent.absolute() / "vcpkg" / "bootstrap-vcpkg.sh")])
+
+    CMAKE_TOOLCHAIN_FILE_arg = "CMAKE_TOOLCHAIN_FILE=" + str(
+        Path(__file__).parent.absolute() / "vcpkg" / "scripts" / "buildsystems" / "vcpkg.cmake"
+    )
 
 build_shared_libs_arg = next(
     (arg for arg in sys.argv if arg.startswith("build_shared_libs=")), None
@@ -53,6 +62,48 @@ if build_shared_libs_arg != None:
     build_shared_libs_arg = build_shared_libs_arg[len("build_shared_libs=") :]
 else:
     build_shared_libs_arg = "OFF"
+
+if vcpkg_triplet_arg != None:
+    VCPKG_TRIPLET = vcpkg_triplet_arg
+else:
+    if sys.platform == "win32":
+        VCPKG_TRIPLET = "x64-w"
+
+        if build_shared_libs_arg == "OFF":
+            # static-md
+            VCPKG_TRIPLET += "sm"
+        else:
+            # dynamic
+            VCPKG_TRIPLET += "d"
+
+        if cmake_build_type_arg != "Debug":
+            # Release
+            VCPKG_TRIPLET += "r"
+
+        # Environment
+        VCPKG_TRIPLET += "e"
+
+        if build_shared_libs_arg == "OFF":
+            # python dynamic
+            VCPKG_TRIPLET += "p"
+
+    else:
+        VCPKG_TRIPLET = "x64-l"
+
+        if build_shared_libs_arg == "OFF":
+            # static
+            VCPKG_TRIPLET += "s"
+        else:
+            # dynamic
+            VCPKG_TRIPLET += "d"
+
+        if cmake_build_type_arg != "Debug":
+            # Release
+            VCPKG_TRIPLET += "r"
+
+        if build_shared_libs_arg == "OFF":
+            # python dynamic
+            VCPKG_TRIPLET += "p"
 
 hdf5_arg = next((arg for arg in sys.argv if arg.startswith("hdf5=")), None)
 if hdf5_arg != None:

@@ -3,7 +3,6 @@ build-backend = "setuptools.build_meta"
 requires = [
     "wheel",
     "setuptools>69.0.0,<73",
-    "cmake",
     "cmake-build-extension",
     "importlib-metadata",
     "numpy<2",
@@ -19,8 +18,7 @@ dependencies = [
     "numpy<2",
     "parameterized",
     "setuptools>69.0.0,<73",
-    "toml",
-    "cmake"
+    "toml"
 ]
 description = "URX python binding"
 classifiers = [

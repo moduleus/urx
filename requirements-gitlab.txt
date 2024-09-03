@@ -2,7 +2,6 @@ build
 twine
 wheel
 setuptools>69.0.0,<73
-cmake
 mypy
 typing-extensions
 toml

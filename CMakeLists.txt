@@ -165,6 +165,12 @@ if(ENABLE_PCH)
 endif()
 
 if(WITH_PYTHON)
+  if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+    set(_PYTHON_IS_DEBUG "ON")
+  else()
+    set(_PYTHON_IS_DEBUG "OFF")
+  endif()
+  set(PYTHON_IS_DEBUG "${_PYTHON_IS_DEBUG}")
   find_package(
     Python3
     COMPONENTS Interpreter Development

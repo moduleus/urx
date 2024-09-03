@@ -1,7 +1,7 @@
 include(GenerateExportHeader)
 
 cmake_policy(SET CMP0079 NEW)
-target_link_libraries(UrxUtils PUBLIC Python3::Python pybind11::headers)
+target_link_libraries(UrxUtils PUBLIC Python3::Python pybind11::pybind11)
 
 set(URX_PYTHON_LIBRARY UrxPython)
 set(URX_PYTHON_LIBRARY_SRC
@@ -27,7 +27,7 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/urx/python/export.h
 
 target_link_libraries(
   ${URX_PYTHON_LIBRARY}
-  PUBLIC Python3::Python pybind11::headers Urx::UrxUtils
+  PUBLIC Python3::Python pybind11::pybind11 Urx::UrxUtils
   PRIVATE Urx::UrxCompilerFlags)
 if(MSVC)
   target_compile_options(${URX_PYTHON_LIBRARY} PRIVATE /bigobj)
@@ -77,15 +77,8 @@ if(WITH_PYTHON_WHL)
     message(FATAL_ERROR "Unsupported architecture for python output.")
   endif()
 
-  if(CMAKE_GENERATOR MATCHES "Visual Studio")
-    set(IGNORE_ERROR_IN_LOG ">" "NUL" "2>&1")
-  else()
-    set(IGNORE_ERROR_IN_LOG "")
-  endif()
-
   add_custom_target(
     UrxPythonWheel
-    COMMAND ${Python3_EXECUTABLE} -m ensurepip ${IGNORE_ERROR_IN_LOG}
     COMMAND ${Python3_EXECUTABLE} -m pip install --upgrade pip
     COMMAND ${Python3_EXECUTABLE} -m pip install -r requirements-gitlab.txt
     COMMAND
@@ -118,8 +111,9 @@ pybind11_add_module(
   ${CMAKE_CURRENT_SOURCE_DIR}/bindings_module2.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/bindings_module.h
   ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt)
-target_link_libraries(UrxBindingsPython PUBLIC ${PROJECT_NAME} Urx::UrxUtils
-                                               Urx::${URX_PYTHON_LIBRARY})
+target_link_libraries(
+  UrxBindingsPython PUBLIC ${PROJECT_NAME} Urx::UrxUtils
+                           Urx::${URX_PYTHON_LIBRARY} pybind11::pybind11)
 
 set_target_properties(UrxBindingsPython PROPERTIES OUTPUT_NAME "bindings")
 
