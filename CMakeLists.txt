@@ -171,6 +171,13 @@ if(WITH_PYTHON)
     set(_PYTHON_IS_DEBUG "OFF")
   endif()
   set(PYTHON_IS_DEBUG "${_PYTHON_IS_DEBUG}")
+  if(NOT WIN32)
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+      set(Python3_FIND_ABI "ON" "ANY" "ANY")
+    else()
+      set(Python3_FIND_ABI "OFF" "ANY" "ANY")
+    endif()
+  endif()
   find_package(
     Python3
     COMPONENTS Interpreter Development
