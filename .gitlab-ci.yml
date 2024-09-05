@@ -343,8 +343,6 @@ build:windows-python:
     - *before-script-vcpkg-windows
   script:
     - $Env:CMAKE_BUILD_PARALLEL_LEVEL=$NUM_PARALLEL
-    - |
-      & $Env:VCPKG_LOCAL_GIT/vcpkg.exe install --triplet x64-wsmrep --host-triplet x64-wsmrep --x-feature=python --overlay-triplets=vcpkg-registry/triplets
     - python.exe -m venv .venv
     - ./.venv/Scripts/Activate.ps1
     - python.exe -m pip install --upgrade pip
@@ -363,7 +361,6 @@ build:ubuntu-python:
     - *before-script-vcpkg-linux
   script:
     - export CMAKE_BUILD_PARALLEL_LEVEL=$NUM_PARALLEL
-    - $VCPKG_LOCAL_GIT/vcpkg install --triplet x64-linux-release --host-triplet x64-linux-release --x-feature=python
     - python -m venv .venv
     - source .venv/bin/activate
     - python -m pip install --upgrade pip

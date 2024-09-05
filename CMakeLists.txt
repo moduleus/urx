@@ -183,6 +183,11 @@ if(WITH_PYTHON)
     COMPONENTS Interpreter Development
     REQUIRED)
   find_package(pybind11 2.11 REQUIRED)
+  if(WIN32 AND PYTHON_IS_DEBUG)
+    if(NOT "${Python3_EXECUTABLE}" MATCHES ".*d\.exe$")
+      set(Python3_EXECUTABLE "${Python3_EXECUTABLE}_d.exe")
+    endif()
+  endif()
 endif()
 
 add_subdirectory("urx")

@@ -59,6 +59,9 @@ if(WITH_PYTHON_WHL)
   set(PYTHON_MODULE_PYURX_OUTPUT
       "pyurx-${CMAKE_PROJECT_VERSION}-cp${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}-cp${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}"
   )
+  if(PYTHON_IS_DEBUG)
+    set(PYTHON_MODULE_PYURX_OUTPUT "${PYTHON_MODULE_PYURX_OUTPUT}d")
+  endif()
   if(WIN32)
     if(CMAKE_SIZEOF_VOID_P EQUAL 8)
       set(PYTHON_MODULE_PYURX_OUTPUT
@@ -79,8 +82,15 @@ if(WITH_PYTHON_WHL)
 
   add_custom_target(
     UrxPythonWheel
-    COMMAND ${Python3_EXECUTABLE} -m pip install --upgrade pip
-    COMMAND ${Python3_EXECUTABLE} -m pip install -r requirements-gitlab.txt
+    COMMAND
+      ${CMAKE_COMMAND} -E echo
+      "${Python3_EXECUTABLE} -m pip wheel . \
+--config-settings=\"--global-option=CMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}\" \
+--config-settings=\"--global-option=cmake_build_type=${CMAKE_BUILD_TYPE}\" \
+--config-settings=\"--global-option=vcpkg_triplet=${VCPKG_TARGET_TRIPLET}\" \
+--config-settings=\"--global-option=build_shared_libs=${BUILD_SHARED_LIBS}\" \
+--config-settings=\"--global-option=hdf5=${WITH_HDF5}\" \
+--wheel-dir ${CMAKE_CURRENT_BINARY_DIR} --no-clean -v"
     COMMAND
       ${Python3_EXECUTABLE} -m pip wheel .
       --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}"
