@@ -72,8 +72,6 @@ doc:doxygen:
   - sed -i 's/Vector3D<double>/Vector3D/' doc/plantuml/architecture.puml
   # Type for Vector2D and Vector3D are always double
   - sed -i 's/\( :\s\)T$/\1double/' doc/plantuml/architecture.puml
-  # Replace hardcoded template
-  - sed -i 's/GroupData<Group>/GroupData/' doc/plantuml/architecture.puml
   # Remove number of connections
   - sed -i -E 's/ "[0-9]+" \*--/ *--/' doc/plantuml/architecture.puml
   # Only show relation between shared_ptr and class. Remove weak_ptr relations.
