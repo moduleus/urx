@@ -80,11 +80,21 @@ if(WITH_PYTHON_WHL)
     message(FATAL_ERROR "Unsupported architecture for python output.")
   endif()
 
+  set(ENV{CMAKE_BUILD_PARALLEL_LEVEL} "3")
+  if(DEFINED ENV{CMAKE_BUILD_PARALLEL_LEVEL})
+    set(ENV_COMMAND env
+                    CMAKE_BUILD_PARALLEL_LEVEL=$ENV{CMAKE_BUILD_PARALLEL_LEVEL})
+  else()
+    set(ENV_COMMAND "")
+  endif()
+
+  string(REPLACE ";" " " ENV_COMMAND_ECHO "${ENV_COMMAND}")
   add_custom_target(
     UrxPythonWheel
     COMMAND
       ${CMAKE_COMMAND} -E echo
-      "${Python3_EXECUTABLE} -m pip wheel . \
+      "${ENV_COMMAND_ECHO} \
+${Python3_EXECUTABLE} -m pip wheel . \
 --config-settings=\"--global-option=CMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}\" \
 --config-settings=\"--global-option=cmake_build_type=${CMAKE_BUILD_TYPE}\" \
 --config-settings=\"--global-option=vcpkg_triplet=${VCPKG_TARGET_TRIPLET}\" \
@@ -92,7 +102,7 @@ if(WITH_PYTHON_WHL)
 --config-settings=\"--global-option=hdf5=${WITH_HDF5}\" \
 --wheel-dir ${CMAKE_CURRENT_BINARY_DIR} --no-clean -v"
     COMMAND
-      ${Python3_EXECUTABLE} -m pip wheel .
+      ${CMAKE_COMMAND} -E ${ENV_COMMAND} ${Python3_EXECUTABLE} -m pip wheel .
       --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}"
       --config-settings="--global-option=cmake_build_type=${CMAKE_BUILD_TYPE}"
       --config-settings="--global-option=vcpkg_triplet=${VCPKG_TARGET_TRIPLET}"
