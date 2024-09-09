@@ -46,6 +46,14 @@ variables:
   - python.exe -m pip install --upgrade pip
   - python.exe -m pip install -r requirements-gitlab.txt
 
+.python-venv-windows-d: &python-venv-windows-d
+  - $Env:CMAKE_BUILD_PARALLEL_LEVEL=$NUM_PARALLEL
+  - python_d.exe -m venv .venv
+  - ./.venv/Scripts/Activate.ps1
+  - python_d.exe -m ensurepip
+  - python_d.exe -m pip install --upgrade pip
+  - python_d.exe -m pip install -r requirements-gitlab.txt
+
 .python-venv-linux: &python-venv-linux
   - export CMAKE_BUILD_PARALLEL_LEVEL=$NUM_PARALLEL
   - python -m venv .venv
@@ -53,6 +61,14 @@ variables:
   - python -m ensurepip
   - python -m pip install --upgrade pip
   - python -m pip install -r requirements-gitlab.txt
+
+.python-venv-linux-d: &python-venv-linux-d
+  - export CMAKE_BUILD_PARALLEL_LEVEL=$NUM_PARALLEL
+  - python3d -m venv .venv
+  - source .venv/bin/activate
+  - python3d -m ensurepip
+  - python3d -m pip install --upgrade pip
+  - python3d -m pip install -r requirements-gitlab.txt
 
 workflow:
   rules:
@@ -262,13 +278,13 @@ build:windows-with-HDF5-static:
   before_script:
     - *before-script-vcpkg-windows
   script:
-    - *python-venv-windows
-    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$Env:VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-wsmrep -DVCPKG_HOST_TRIPLET=x64-wsmrep -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="install" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_PYTHON_WHL:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DENABLE_PCH:BOOL=OFF -DVCPKG_INSTALL_OPTIONS=--x-buildtrees-root="$Env:VCPKG_BUILDTREE"
+    - *python-venv-windows-d
+    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE="$Env:VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-wsmep -DVCPKG_HOST_TRIPLET=x64-wsmep -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="install" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_PYTHON_WHL:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DENABLE_PCH:BOOL=OFF -DVCPKG_INSTALL_OPTIONS=--x-buildtrees-root="$Env:VCPKG_BUILDTREE"
     - *after-script-clean-vcpkg-windows
-    - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
-    - cmake.exe --install CI --config Release
+    - cmake.exe --build CI --config Debug -- /p:CL_MPcount=$NUM_PARALLEL
+    - cmake.exe --install CI --config Debug
     - cd CI
-    - ctest.exe --output-on-failure -C Release
+    - ctest.exe --output-on-failure -C Debug
 
 build:windows-with-HDF5-shared:
   stage: build
@@ -279,12 +295,12 @@ build:windows-with-HDF5-shared:
   before_script:
     - *before-script-vcpkg-windows
   script:
-    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE="$Env:VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-wde -DVCPKG_HOST_TRIPLET=x64-wde -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="install" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DVCPKG_INSTALL_OPTIONS=--x-buildtrees-root="$Env:VCPKG_BUILDTREE"
+    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$Env:VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-wdre -DVCPKG_HOST_TRIPLET=x64-wdre -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DCMAKE_INSTALL_PREFIX="install" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DVCPKG_INSTALL_OPTIONS=--x-buildtrees-root="$Env:VCPKG_BUILDTREE"
     - *after-script-clean-vcpkg-windows
-    - cmake.exe --build CI --config Debug -- /p:CL_MPcount=$NUM_PARALLEL
-    - cmake.exe --install CI --config Debug
+    - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
+    - cmake.exe --install CI --config Release
     - cd CI
-    - ctest.exe --output-on-failure -C Debug
+    - ctest.exe --output-on-failure -C Release
 
 build:ubuntu-with-HDF5-static:
   stage: build
@@ -369,9 +385,9 @@ build:ubuntu-python:
   before_script:
     - *before-script-vcpkg-linux
   script:
-    - *python-venv-linux
-    - pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" --config-settings="--global-option=cmake_build_type=Release" --config-settings="--global-option=vcpkg_triplet=x64-linux-release" --no-clean -v
-    - python -m unittest discover test/python
+    - *python-venv-linux-d
+    - python3d -m pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" --config-settings="--global-option=cmake_build_type=Debug" --config-settings="--global-option=vcpkg_triplet=x64-linux" --no-clean -v
+    - python3d -m unittest discover test/python
     - stubgen -p pyurx -o python
     - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Run stubgen -p pyurx -o python before commit."; echo "$(git status --porcelain)"; git diff; exit 1; fi
 

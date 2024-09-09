@@ -165,27 +165,50 @@ if(ENABLE_PCH)
 endif()
 
 if(WITH_PYTHON)
-  if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
-    set(_PYTHON_IS_DEBUG "ON")
-  else()
-    set(_PYTHON_IS_DEBUG "OFF")
-  endif()
-  set(PYTHON_IS_DEBUG "${_PYTHON_IS_DEBUG}")
-  if(NOT WIN32)
-    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-      set(Python3_FIND_ABI "ON" "ANY" "ANY")
-    else()
-      set(Python3_FIND_ABI "OFF" "ANY" "ANY")
-    endif()
-  endif()
   find_package(
     Python3
-    COMPONENTS Interpreter Development
+    COMPONENTS Interpreter Development.Module
     REQUIRED)
   find_package(pybind11 2.11 REQUIRED)
-  if(WIN32 AND PYTHON_IS_DEBUG)
-    if(NOT "${Python3_EXECUTABLE}" MATCHES ".*_d\.exe$")
-      string(REPLACE ".exe" "_d.exe" Python3_EXECUTABLE "${Python3_EXECUTABLE}")
+
+  # Check if Python3_EXECUTABLE is debug and modify Python3_EXECUTABLE according to.
+  execute_process(
+    COMMAND "${Python3_EXECUTABLE}" "-c"
+            "import sys; sys.exit(hasattr(sys, 'gettotalrefcount'))"
+    RESULT_VARIABLE Python3_EXECUTABLE_IS_DEBUG)
+
+  if(Python3_EXECUTABLE_IS_DEBUG)
+    set(Python3_EXECUTABLE_DEBUG ${Python3_EXECUTABLE})
+    set(Python3_EXECUTABLE_DEBUG_IS_DEBUG ON)
+
+    # If Python3_EXECUTABLE_IS_DEBUG, it's user's choice.
+  else()
+    set(Python3_EXECUTABLE_IS_DEBUG OFF)
+
+    unset(Python3_EXECUTABLE_DEBUG_IS_DEBUG)
+
+    if(WIN32)
+      if(NOT "${Python3_EXECUTABLE}" MATCHES ".*_d\.exe$")
+        string(REPLACE ".exe" "_d.exe" Python3_EXECUTABLE_DEBUG_TMP
+                       "${Python3_EXECUTABLE}")
+      endif()
+    else()
+      if(NOT "${Python3_EXECUTABLE}" MATCHES ".*d$")
+        set(Python3_EXECUTABLE_DEBUG_TMP "${Python3_EXECUTABLE}d")
+      endif()
+    endif()
+
+    find_program(Python3_EXECUTABLE_DEBUG_NEW_REAL
+                 ${Python3_EXECUTABLE_DEBUG_TMP} NO_DEFAULT_PATH)
+    if(Python3_EXECUTABLE_DEBUG_NEW_REAL)
+      execute_process(
+        COMMAND "${Python3_EXECUTABLE_DEBUG_NEW_REAL}" "-c"
+                "import sys; sys.exit(hasattr(sys, 'gettotalrefcount'))"
+        RESULT_VARIABLE _Python3_EXECUTABLE_DEBUG_NEW_REAL_IS_DEBUG)
+      if(_Python3_EXECUTABLE_DEBUG_NEW_REAL_IS_DEBUG)
+        set(Python3_EXECUTABLE_DEBUG_IS_DEBUG ON)
+        set(Python3_EXECUTABLE_DEBUG ${Python3_EXECUTABLE_DEBUG_NEW_REAL})
+      endif()
     endif()
   endif()
 endif()

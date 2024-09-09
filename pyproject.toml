@@ -7,6 +7,7 @@ requires = [
     "importlib-metadata",
     "numpy<2",
     "toml",
+    "pip",
     "parameterized"
 ]
 
@@ -18,6 +19,7 @@ dependencies = [
     "numpy<2",
     "parameterized",
     "setuptools>69.0.0,<73",
+    "pip",
     "toml"
 ]
 description = "URX python binding"

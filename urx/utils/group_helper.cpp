@@ -1,23 +1,9 @@
 #include <cstdint>
 #include <memory>
-#include <string>
 #include <unordered_map>
-#include <utility>
 
-#include <urx/config.h>
 #include <urx/enums.h>
 #include <urx/utils/group_helper.h>
-
-#ifdef URX_WITH_PYTHON
-#include <pybind11/pybind11.h>
-#else
-#include <stdexcept>
-#endif
-
-#define UNUSED(expr) \
-  if (false) {       \
-    (void)(expr);    \
-  }
 
 namespace urx::utils::group_helper {
 
@@ -36,21 +22,6 @@ size_t sizeofSample(const SamplingType& sampling_type, const DataType& data_type
                                                                    {SamplingType::IQ, 2}};
 
   return group_st_to_nels.at(sampling_type) * sizeofDataType(data_type);
-}
-
-std::string pyGetFormat(const DataType& data_type) {
-#ifdef URX_WITH_PYTHON
-  static std::unordered_map<DataType, std::string> group_dt_to_sizeof{
-      {DataType::INT16, pybind11::format_descriptor<int16_t>::format()},
-      {DataType::INT32, pybind11::format_descriptor<int32_t>::format()},
-      {DataType::FLOAT, pybind11::format_descriptor<float>::format()},
-      {DataType::DOUBLE, pybind11::format_descriptor<double>::format()}};
-
-  return group_dt_to_sizeof.at(data_type);
-#else
-  UNUSED(data_type);
-  throw std::runtime_error("Python not supported.");
-#endif
 }
 
 }  // namespace urx::utils::group_helper

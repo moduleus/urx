@@ -112,6 +112,13 @@ if hdf5_arg != None:
 else:
     hdf5_arg = "ON"
 
+all_d = []
+d_arg = next((arg for arg in sys.argv if arg.startswith("-D")), None)
+while d_arg:
+    sys.argv.remove(d_arg)
+    all_d += [d_arg]
+    d_arg = next((arg for arg in sys.argv if arg.startswith("-D")), None)
+
 setuptools.setup(
     ext_modules=[
         cmake_build_extension.CMakeExtension(
@@ -132,6 +139,7 @@ setuptools.setup(
                 "-DVCPKG_MANIFEST_MODE:BOOL=ON",
                 f"-DVCPKG_MANIFEST_DIR={str(Path(__file__).parent.absolute())}",
                 f"-DPython3_EXECUTABLE={sys.executable}",
+                *all_d,
             ],
             # Disable Ninja build generator
             cmake_generator=None,

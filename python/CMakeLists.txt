@@ -1,8 +1,5 @@
 include(GenerateExportHeader)
 
-cmake_policy(SET CMP0079 NEW)
-target_link_libraries(UrxUtils PUBLIC Python3::Python pybind11::pybind11)
-
 set(URX_PYTHON_LIBRARY UrxPython)
 set(URX_PYTHON_LIBRARY_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/bindings_library.cpp
@@ -13,8 +10,11 @@ set(URX_PYTHON_LIBRARY_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/bindings_vector_int32.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/bindings_vector_int64.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/bindings_vector_int8.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/bindings_vector_string_urx_vector.cpp)
-set(URX_PYTHON_LIBRARY_H ${CMAKE_CURRENT_SOURCE_DIR}/urx/python/bindings.h)
+    ${CMAKE_CURRENT_SOURCE_DIR}/bindings_vector_string_urx_vector.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/urx/python/utils/group_helper.cpp)
+set(URX_PYTHON_LIBRARY_H
+    ${CMAKE_CURRENT_SOURCE_DIR}/urx/python/bindings.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/urx/python/utils/group_helper.h)
 
 add_library(${URX_PYTHON_LIBRARY})
 add_library(Urx::${URX_PYTHON_LIBRARY} ALIAS ${URX_PYTHON_LIBRARY})
@@ -27,7 +27,7 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/urx/python/export.h
 
 target_link_libraries(
   ${URX_PYTHON_LIBRARY}
-  PUBLIC Python3::Python pybind11::pybind11 Urx::UrxUtils
+  PUBLIC Python3::Module pybind11::pybind11 Urx::UrxUtils
   PRIVATE Urx::UrxCompilerFlags)
 if(MSVC)
   target_compile_options(${URX_PYTHON_LIBRARY} PRIVATE /bigobj)
@@ -57,11 +57,8 @@ set(CMAKE_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR}/${INSTALL_NAME})
 if(WITH_PYTHON_WHL)
   # Generate pyurx-0.6.26-cp311-cp311-win_amd64.whl
   set(PYTHON_MODULE_PYURX_OUTPUT
-      "pyurx-${CMAKE_PROJECT_VERSION}-cp${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}-cp${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}"
+      "pyurx-${CMAKE_PROJECT_VERSION}-cp${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}-cp${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}$<$<CONFIG:Debug>:d>"
   )
-  if(PYTHON_IS_DEBUG)
-    set(PYTHON_MODULE_PYURX_OUTPUT "${PYTHON_MODULE_PYURX_OUTPUT}d")
-  endif()
   if(WIN32)
     if(CMAKE_SIZEOF_VOID_P EQUAL 8)
       set(PYTHON_MODULE_PYURX_OUTPUT
@@ -80,42 +77,74 @@ if(WITH_PYTHON_WHL)
     message(FATAL_ERROR "Unsupported architecture for python output.")
   endif()
 
-  set(ENV{CMAKE_BUILD_PARALLEL_LEVEL} "3")
   if(DEFINED ENV{CMAKE_BUILD_PARALLEL_LEVEL})
-    set(ENV_COMMAND env
+    set(ENV_COMMAND ${CMAKE_COMMAND} -E env
                     CMAKE_BUILD_PARALLEL_LEVEL=$ENV{CMAKE_BUILD_PARALLEL_LEVEL})
   else()
     set(ENV_COMMAND "")
   endif()
 
   string(REPLACE ";" " " ENV_COMMAND_ECHO "${ENV_COMMAND}")
+
+  set(OPTIONAL_COMMAND "")
+  #  if(condition)
+  #    set(OPTIONAL_COMMAND
+  #        ${OPTIONAL_COMMAND}
+  #        --config-settings="--global-option=-DCMAKE_VARIABLE=${CMAKE_VARIABLE_VALUE}"
+  #    )
+  #  endif()
+  string(REPLACE ";" " " OPTIONAL_COMMAND_ECHO "${OPTIONAL_COMMAND}")
+
+  if(Python3_EXECUTABLE_IS_DEBUG)
+    set(Python3_EXECUTABLE_EXEC false)
+  else()
+    set(Python3_EXECUTABLE_EXEC ${Python3_EXECUTABLE})
+  endif()
+  if(NOT Python3_EXECUTABLE_DEBUG_IS_DEBUG)
+    set(Python3_EXECUTABLE_DEBUG_EXEC false)
+  else()
+    set(Python3_EXECUTABLE_DEBUG_EXEC ${Python3_EXECUTABLE_DEBUG})
+  endif()
+
   add_custom_target(
     UrxPythonWheel
     COMMAND
       ${CMAKE_COMMAND} -E echo
       "${ENV_COMMAND_ECHO} \
-${Python3_EXECUTABLE} -m pip wheel . \
+$<IF:$<CONFIG:Debug>,${Python3_EXECUTABLE_DEBUG_EXEC},${Python3_EXECUTABLE_EXEC}> -m pip wheel . \
 --config-settings=\"--global-option=CMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}\" \
---config-settings=\"--global-option=cmake_build_type=${CMAKE_BUILD_TYPE}\" \
+--config-settings=\"--global-option=cmake_build_type=$<CONFIG>\" \
 --config-settings=\"--global-option=vcpkg_triplet=${VCPKG_TARGET_TRIPLET}\" \
 --config-settings=\"--global-option=build_shared_libs=${BUILD_SHARED_LIBS}\" \
 --config-settings=\"--global-option=hdf5=${WITH_HDF5}\" \
+${OPTIONAL_COMMAND_ECHO} \
 --wheel-dir ${CMAKE_CURRENT_BINARY_DIR} --no-clean -v"
     COMMAND
-      ${CMAKE_COMMAND} -E ${ENV_COMMAND} ${Python3_EXECUTABLE} -m pip wheel .
+      ${ENV_COMMAND}
+      $<IF:$<CONFIG:Debug>,${Python3_EXECUTABLE_DEBUG_EXEC},${Python3_EXECUTABLE_EXEC}>
+      -m pip wheel .
       --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}"
-      --config-settings="--global-option=cmake_build_type=${CMAKE_BUILD_TYPE}"
+      --config-settings="--global-option=cmake_build_type=$<CONFIG>"
       --config-settings="--global-option=vcpkg_triplet=${VCPKG_TARGET_TRIPLET}"
       --config-settings="--global-option=build_shared_libs=${BUILD_SHARED_LIBS}"
-      --config-settings="--global-option=hdf5=${WITH_HDF5}" --wheel-dir
-      ${CMAKE_CURRENT_BINARY_DIR} --no-clean -v
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
-    BYPRODUCTS ${PYTHON_MODULE_PYURX_OUTPUT})
+      --config-settings="--global-option=hdf5=${WITH_HDF5}" ${OPTIONAL_COMMAND}
+      --wheel-dir ${CMAKE_CURRENT_BINARY_DIR} --no-clean -v
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..)
 
   add_dependencies(${URX_PYTHON_LIBRARY} UrxPythonWheel)
 
-  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PYTHON_MODULE_PYURX_OUTPUT}
-          DESTINATION "share/${INSTALL_NAME}")
+  if(Python3_EXECUTABLE_EXEC)
+    install(
+      FILES
+        "$<$<NOT:$<CONFIG:Debug>>:${CMAKE_CURRENT_BINARY_DIR}/${PYTHON_MODULE_PYURX_OUTPUT}>"
+      DESTINATION "share/${INSTALL_NAME}")
+  endif()
+  if(Python3_EXECUTABLE_DEBUG_EXEC)
+    install(
+      FILES
+        "$<$<CONFIG:Debug>:${CMAKE_CURRENT_BINARY_DIR}/${PYTHON_MODULE_PYURX_OUTPUT}>"
+      DESTINATION "share/${INSTALL_NAME}")
+  endif()
 endif()
 
 install(
