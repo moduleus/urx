@@ -164,7 +164,10 @@ if(ENABLE_PCH)
       "<pybind11/stl_bind.h>")
 endif()
 
-if(WITH_PYTHON)
+if(WITH_PYTHON AND (NOT TARGET pybind11::pybind11 OR NOT TARGET Python3::Module
+                   ))
+  set(PYTHON_IS_DEBUG OFF)
+
   find_package(
     Python3
     COMPONENTS Interpreter Development.Module
@@ -210,6 +213,32 @@ if(WITH_PYTHON)
         set(Python3_EXECUTABLE_DEBUG ${Python3_EXECUTABLE_DEBUG_NEW_REAL})
       endif()
     endif()
+  endif()
+
+  message(
+    STATUS
+      "Python3_EXECUTABLE: ${Python3_EXECUTABLE} is debug ? ${Python3_EXECUTABLE_IS_DEBUG}"
+  )
+  message(
+    STATUS
+      "Python3_EXECUTABLE_DEBUG: ${Python3_EXECUTABLE_DEBUG} is debug ? ${Python3_EXECUTABLE_DEBUG_IS_DEBUG}"
+  )
+
+  if(Python3_EXECUTABLE_DEBUG_IS_DEBUG)
+    set(Python3_EXECUTABLE
+        $<IF:$<CONFIG:Debug>,${Python3_EXECUTABLE_DEBUG},${Python3_EXECUTABLE}>)
+    if(Python3_EXECUTABLE_IS_DEBUG)
+      set_property(
+        TARGET pybind11::pybind11
+        APPEND
+        PROPERTY INTERFACE_COMPILE_DEFINITIONS Py_DEBUG)
+    else()
+      set_property(
+        TARGET pybind11::pybind11
+        APPEND
+        PROPERTY INTERFACE_COMPILE_DEFINITIONS $<$<CONFIG:Debug>:Py_DEBUG>)
+    endif()
+
   endif()
 endif()
 

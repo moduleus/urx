@@ -96,22 +96,23 @@ if(WITH_PYTHON_WHL)
   string(REPLACE ";" " " OPTIONAL_COMMAND_ECHO "${OPTIONAL_COMMAND}")
 
   if(Python3_EXECUTABLE_IS_DEBUG)
-    set(Python3_EXECUTABLE_EXEC false)
+    set(Python3_EXECUTABLE_EXEC true)
   else()
     set(Python3_EXECUTABLE_EXEC ${Python3_EXECUTABLE})
   endif()
   if(NOT Python3_EXECUTABLE_DEBUG_IS_DEBUG)
-    set(Python3_EXECUTABLE_DEBUG_EXEC false)
+    set(Python3_EXECUTABLE_DEBUG_EXEC true)
   else()
     set(Python3_EXECUTABLE_DEBUG_EXEC ${Python3_EXECUTABLE_DEBUG})
   endif()
 
   add_custom_target(
-    UrxPythonWheel
+    UrxPythonWheel ALL
     COMMAND
       ${CMAKE_COMMAND} -E echo
       "${ENV_COMMAND_ECHO} \
-$<IF:$<CONFIG:Debug>,${Python3_EXECUTABLE_DEBUG_EXEC},${Python3_EXECUTABLE_EXEC}> -m pip wheel . \
+$<IF:$<CONFIG:Debug>,${Python3_EXECUTABLE_DEBUG_EXEC},${Python3_EXECUTABLE_EXEC}> \
+-m pip wheel . \
 --config-settings=\"--global-option=CMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}\" \
 --config-settings=\"--global-option=cmake_build_type=$<CONFIG>\" \
 --config-settings=\"--global-option=vcpkg_triplet=${VCPKG_TARGET_TRIPLET}\" \
@@ -130,8 +131,6 @@ ${OPTIONAL_COMMAND_ECHO} \
       --config-settings="--global-option=hdf5=${WITH_HDF5}" ${OPTIONAL_COMMAND}
       --wheel-dir ${CMAKE_CURRENT_BINARY_DIR} --no-clean -v
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..)
-
-  add_dependencies(${URX_PYTHON_LIBRARY} UrxPythonWheel)
 
   if(Python3_EXECUTABLE_EXEC)
     install(
