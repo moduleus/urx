@@ -424,3 +424,19 @@ build:ubuntu-matlab-static:
     - ssh moduleus@localhost "cd $PWD && /opt/matlab/R2022b/bin/matlab -batch runTestsCi"
   after_script:
     - ssh moduleus@localhost "rm -f $PWD/test/matlab/test.urx"
+
+build:manylinux:
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+  stage: build
+  needs: []
+  when: manual
+  tags:
+    - docker
+  image: $CI_REGISTRY/common/ci/dockerci/manylinux:latest
+  script:
+    - PLAT=manylinux_2_27_x86_64 sh /CI/manylinux_vcpkg.sh
+  artifacts:
+    paths:
+      - pyurx*manylinux*.whl
+    expire_in: 1 day
