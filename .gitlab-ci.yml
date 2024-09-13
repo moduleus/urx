@@ -425,7 +425,7 @@ build:ubuntu-matlab-static:
   after_script:
     - ssh moduleus@localhost "rm -f $PWD/test/matlab/test.urx"
 
-build:manylinux:
+build:all-python-linux:
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
   stage: build
@@ -439,4 +439,23 @@ build:manylinux:
   artifacts:
     paths:
       - pyurx*manylinux*.whl
+    expire_in: 1 day
+
+build:all-python-windows:
+  stage: build
+  needs: []
+  when: manual
+  tags:
+    - win10
+    - python
+  before_script:
+    - *before-script-vcpkg-windows
+  script:
+    - *python-venv-windows
+    - python.exe -m pip install cibuildwheel
+    - python.exe -m cibuildwheel --output-dir wheelhouse --platform windows
+    - *after-script-clean-vcpkg-windows
+  artifacts:
+    paths:
+      - wheelhouse
     expire_in: 1 day
