@@ -41,6 +41,10 @@ py-modules = []
 line-length = 100
 extend-exclude = '\.pyi$'
 
+[tool.cibuildwheel]
+build-verbosity = 1
+build-frontend = { name="pip", args=["--no-clean"] }
+
 [tool.cibuildwheel.windows]
 build = ["cp38-win_amd64", "cp39-win_amd64", "cp310-win_amd64", "cp311-win_amd64", "cp312-win_amd64", "cp313-win_amd64"]
 # Should be build-system.requires but doesn't work.

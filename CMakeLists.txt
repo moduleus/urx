@@ -167,6 +167,9 @@ endif()
 if(WITH_PYTHON AND (NOT TARGET pybind11::pybind11 OR NOT TARGET Python3::Module
                    ))
   set(PYTHON_IS_DEBUG OFF)
+  if(DEFINED ENV{VCPKG_Python3_EXECUTABLE} AND NOT DEFINED Python3_EXECUTABLE)
+    set(Python3_EXECUTABLE $ENV{VCPKG_Python3_EXECUTABLE})
+  endif()
 
   find_package(
     Python3
