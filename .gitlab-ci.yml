@@ -4,7 +4,7 @@ variables:
 .before-script-vcpkg-windows: &before-script-vcpkg-windows
   - Push-Location
   - git submodule update --init vcpkg-registry
-  - if (-not (Test-Path -Path "$Env:VCPKG_LOCAL_GIT")) { git clone https://git.moduleus.com/common/sw/3rdparty/vcpkg.git $Env:VCPKG_LOCAL_GIT }
+  - if (-not (Test-Path -Path "$Env:VCPKG_LOCAL_GIT")) { git clone https://github.com/microsoft/vcpkg.git $Env:VCPKG_LOCAL_GIT }
   - $baseline=Select-String -Path "vcpkg-configuration.json" -Pattern '"baseline":\s"(.+?)"' | ForEach-Object { $_.Matches.Groups[1].Value }
   - cd "$Env:VCPKG_LOCAL_GIT"
   - git fetch
@@ -19,7 +19,7 @@ variables:
 
 .before-script-vcpkg-linux: &before-script-vcpkg-linux
   - git submodule update --init vcpkg-registry
-  - if [ ! -d $VCPKG_LOCAL_GIT ]; then git clone https://git.moduleus.com/common/sw/3rdparty/vcpkg.git $VCPKG_LOCAL_GIT || exit 1; fi
+  - if [ ! -d $VCPKG_LOCAL_GIT ]; then git clone https://github.com/microsoft/vcpkg.git $VCPKG_LOCAL_GIT || exit 1; fi
   - baseline=$(grep -Po '"baseline":\s"\K[^"]+' vcpkg-configuration.json)
   - cd "$VCPKG_LOCAL_GIT"
   - git fetch
