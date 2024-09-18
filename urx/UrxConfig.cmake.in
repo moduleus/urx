@@ -18,7 +18,7 @@ endif()
 
 set(WITH_PYTHON "@WITH_PYTHON@")
 if(WITH_PYTHON)
-  find_dependency(Python3 COMPONENTS Interpreter Development REQUIRED)
+  find_dependency(Python3 COMPONENTS Interpreter Development.Module REQUIRED)
   find_dependency(pybind11 2.11 CONFIG REQUIRED)
 endif()
 

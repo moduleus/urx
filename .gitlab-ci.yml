@@ -436,7 +436,7 @@ build:all-python-linux:
     - docker
   image: $CI_REGISTRY/common/ci/dockerci/manylinux:latest
   script:
-    - PLAT=manylinux_2_27_x86_64 sh /CI/manylinux_vcpkg.sh
+    - PLAT=manylinux_2_27_x86_64 sh /CI/manylinux_vcpkg.sh pyurx
   artifacts:
     paths:
       - pyurx*manylinux*.whl
