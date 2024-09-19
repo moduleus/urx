@@ -252,16 +252,24 @@ struct IsSharedPtr<std::shared_ptr<T>> : std::true_type {};
     *static_cast<type *>(this_ptr) = **static_cast<std::shared_ptr<type> *>(other_ptr);            \
   }                                                                                                \
   void CONCAT4(snake, assign, weak, shared)(void *this_ptr, void *other_ptr) {                     \
-    *static_cast<std::weak_ptr<type> *>(this_ptr) =                                                \
-        *static_cast<std::shared_ptr<type> *>(other_ptr);                                          \
+    if (other_ptr) {                                                                               \
+      *static_cast<std::weak_ptr<type> *>(this_ptr) =                                              \
+          *static_cast<std::shared_ptr<type> *>(other_ptr);                                        \
+    } else {                                                                                       \
+      static_cast<std::weak_ptr<type> *>(this_ptr)->reset();                                       \
+    }                                                                                              \
   }                                                                                                \
   void CONCAT4(snake, assign, shared, shared)(void *this_ptr, void *other_ptr) {                   \
     *static_cast<std::shared_ptr<type> *>(this_ptr) =                                              \
         *static_cast<std::shared_ptr<type> *>(other_ptr);                                          \
   }                                                                                                \
   void CONCAT4(snake, assign, optional, shared)(void *this_ptr, void *other_ptr) {                 \
-    *static_cast<std::optional<type> *>(this_ptr) =                                                \
-        **static_cast<std::shared_ptr<type> *>(other_ptr);                                         \
+    if (other_ptr) {                                                                               \
+      *static_cast<std::optional<type> *>(this_ptr) =                                              \
+          **static_cast<std::shared_ptr<type> *>(other_ptr);                                       \
+    } else {                                                                                       \
+      static_cast<std::optional<type> *>(this_ptr)->reset();                                       \
+    }                                                                                              \
   }                                                                                                \
   uint64_t CONCAT3(snake, raw_ptr, raw)(void *this_ptr) {                                          \
     return reinterpret_cast<uint64_t>(this_ptr);                                                   \
