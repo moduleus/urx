@@ -72,6 +72,9 @@ def test_element(
     gc.collect()
     # Check the weak_ptr does not reference anymore the deleted object
     self.assertEqual(elt.element_geometry, None)
+    # Check None assign to weak_ptr
+    elt.element_geometry = element_geometry_args([v, v_2])
+    elt.element_geometry = None
 
     ir = impulse_response_args(42, np.nan, "sec", [3.14, -42])
 
