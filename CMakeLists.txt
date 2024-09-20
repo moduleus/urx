@@ -227,21 +227,19 @@ if(WITH_PYTHON AND (NOT TARGET pybind11::pybind11 OR NOT TARGET Python3::Module
       "Python3_EXECUTABLE_DEBUG: ${Python3_EXECUTABLE_DEBUG} is debug ? ${Python3_EXECUTABLE_DEBUG_IS_DEBUG}"
   )
 
-  if(Python3_EXECUTABLE_DEBUG_IS_DEBUG)
+  # All compilation is debug.
+  if(Python3_EXECUTABLE_IS_DEBUG)
+    set_property(
+      TARGET pybind11::pybind11
+      APPEND
+      PROPERTY INTERFACE_COMPILE_DEFINITIONS Py_DEBUG)
+  elseif(Python3_EXECUTABLE_DEBUG_IS_DEBUG)
     set(Python3_EXECUTABLE
         $<IF:$<CONFIG:Debug>,${Python3_EXECUTABLE_DEBUG},${Python3_EXECUTABLE}>)
-    if(Python3_EXECUTABLE_IS_DEBUG)
-      set_property(
-        TARGET pybind11::pybind11
-        APPEND
-        PROPERTY INTERFACE_COMPILE_DEFINITIONS Py_DEBUG)
-    else()
-      set_property(
-        TARGET pybind11::pybind11
-        APPEND
-        PROPERTY INTERFACE_COMPILE_DEFINITIONS $<$<CONFIG:Debug>:Py_DEBUG>)
-    endif()
-
+    set_property(
+      TARGET pybind11::pybind11
+      APPEND
+      PROPERTY INTERFACE_COMPILE_DEFINITIONS $<$<CONFIG:Debug>:Py_DEBUG>)
   endif()
 endif()
 

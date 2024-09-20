@@ -84,52 +84,48 @@ if(WITH_PYTHON_WHL)
     set(ENV_COMMAND "")
   endif()
 
-  string(REPLACE ";" " " ENV_COMMAND_ECHO "${ENV_COMMAND}")
-
-  set(OPTIONAL_COMMAND "")
-  #  if(condition)
-  #    set(OPTIONAL_COMMAND
-  #        ${OPTIONAL_COMMAND}
-  #        --config-settings="--global-option=-DCMAKE_VARIABLE=${CMAKE_VARIABLE_VALUE}"
-  #    )
-  #  endif()
-  string(REPLACE ";" " " OPTIONAL_COMMAND_ECHO "${OPTIONAL_COMMAND}")
+  set(PIP_WHEEL_OPTIONS
+      -m
+      pip
+      wheel
+      .
+      --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}"
+      --config-settings="--global-option=cmake_build_type=$<CONFIG>"
+      --config-settings="--global-option=vcpkg_triplet=${VCPKG_TARGET_TRIPLET}"
+      --config-settings="--global-option=build_shared_libs=${BUILD_SHARED_LIBS}"
+      --config-settings="--global-option=hdf5=${WITH_HDF5}"
+      --wheel-dir
+      ${CMAKE_CURRENT_BINARY_DIR}
+      --no-clean
+      -v)
+  string(REPLACE ";" " " PIP_WHEEL_OPTIONS_ECHO "${PIP_WHEEL_OPTIONS}")
 
   if(Python3_EXECUTABLE_IS_DEBUG)
-    set(Python3_EXECUTABLE_EXEC true)
+    set(Python3_EXECUTABLE_EXEC ${CMAKE_COMMAND} -E true)
   else()
-    set(Python3_EXECUTABLE_EXEC ${Python3_EXECUTABLE})
+    set(Python3_EXECUTABLE_EXEC ${ENV_COMMAND} ${Python3_EXECUTABLE})
   endif()
   if(NOT Python3_EXECUTABLE_DEBUG_IS_DEBUG)
-    set(Python3_EXECUTABLE_DEBUG_EXEC true)
+    set(Python3_EXECUTABLE_DEBUG_EXEC ${CMAKE_COMMAND} -E true)
   else()
-    set(Python3_EXECUTABLE_DEBUG_EXEC ${Python3_EXECUTABLE_DEBUG})
+    set(Python3_EXECUTABLE_DEBUG_EXEC ${ENV_COMMAND}
+                                      ${Python3_EXECUTABLE_DEBUG})
   endif()
+
+  string(REPLACE ";" " " Python3_EXECUTABLE_EXEC_ECHO
+                 "${Python3_EXECUTABLE_EXEC}")
+  string(REPLACE ";" " " Python3_EXECUTABLE_DEBUG_EXEC_ECHO
+                 "${Python3_EXECUTABLE_DEBUG_EXEC}")
 
   add_custom_target(
     UrxPythonWheel ALL
     COMMAND
       ${CMAKE_COMMAND} -E echo
-      "${ENV_COMMAND_ECHO} \
-$<IF:$<CONFIG:Debug>,${Python3_EXECUTABLE_DEBUG_EXEC},${Python3_EXECUTABLE_EXEC}> \
--m pip wheel . \
---config-settings=\"--global-option=CMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}\" \
---config-settings=\"--global-option=cmake_build_type=$<CONFIG>\" \
---config-settings=\"--global-option=vcpkg_triplet=${VCPKG_TARGET_TRIPLET}\" \
---config-settings=\"--global-option=build_shared_libs=${BUILD_SHARED_LIBS}\" \
---config-settings=\"--global-option=hdf5=${WITH_HDF5}\" \
-${OPTIONAL_COMMAND_ECHO} \
---wheel-dir ${CMAKE_CURRENT_BINARY_DIR} --no-clean -v"
+      "$<IF:$<CONFIG:Debug>,${Python3_EXECUTABLE_DEBUG_EXEC_ECHO},${Python3_EXECUTABLE_EXEC_ECHO}> ${PIP_WHEEL_OPTIONS_ECHO}"
     COMMAND
-      ${ENV_COMMAND}
-      $<IF:$<CONFIG:Debug>,${Python3_EXECUTABLE_DEBUG_EXEC},${Python3_EXECUTABLE_EXEC}>
-      -m pip wheel .
-      --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}"
-      --config-settings="--global-option=cmake_build_type=$<CONFIG>"
-      --config-settings="--global-option=vcpkg_triplet=${VCPKG_TARGET_TRIPLET}"
-      --config-settings="--global-option=build_shared_libs=${BUILD_SHARED_LIBS}"
-      --config-settings="--global-option=hdf5=${WITH_HDF5}" ${OPTIONAL_COMMAND}
-      --wheel-dir ${CMAKE_CURRENT_BINARY_DIR} --no-clean -v
+      "$<IF:$<CONFIG:Debug>,${Python3_EXECUTABLE_DEBUG_EXEC},${Python3_EXECUTABLE_EXEC}>"
+      ${PIP_WHEEL_OPTIONS}
+    COMMAND_EXPAND_LISTS
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..)
 
   if(NOT Python3_EXECUTABLE_IS_DEBUG)

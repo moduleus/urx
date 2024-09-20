@@ -5,3 +5,4 @@ setuptools>69.0.0,<73
 mypy
 typing-extensions
 toml
+cmake
