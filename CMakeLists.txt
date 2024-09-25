@@ -228,19 +228,14 @@ if(WITH_PYTHON AND (NOT TARGET pybind11::pybind11 OR NOT TARGET Python3::Module
   )
 
   # All compilation is debug.
-  if(Python3_EXECUTABLE_IS_DEBUG)
-    set_property(
-      TARGET pybind11::pybind11
-      APPEND
-      PROPERTY INTERFACE_COMPILE_DEFINITIONS Py_DEBUG)
-  elseif(Python3_EXECUTABLE_DEBUG_IS_DEBUG)
+  if(Python3_EXECUTABLE_DEBUG_IS_DEBUG)
     set(Python3_EXECUTABLE
         $<IF:$<CONFIG:Debug>,${Python3_EXECUTABLE_DEBUG},${Python3_EXECUTABLE}>)
-    set_property(
-      TARGET pybind11::pybind11
-      APPEND
-      PROPERTY INTERFACE_COMPILE_DEFINITIONS $<$<CONFIG:Debug>:Py_DEBUG>)
   endif()
+  set_property(
+    TARGET pybind11::pybind11
+    APPEND
+    PROPERTY INTERFACE_COMPILE_DEFINITIONS $<$<CONFIG:Debug>:Py_DEBUG>)
 endif()
 
 add_subdirectory("urx")
