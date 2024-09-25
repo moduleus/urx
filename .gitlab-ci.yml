@@ -4,14 +4,17 @@ variables:
 .before-script-vcpkg-windows: &before-script-vcpkg-windows
   - Push-Location
   - git submodule update --init vcpkg-registry
-  - if (-not (Test-Path -Path "$Env:VCPKG_LOCAL_GIT")) { git clone https://github.com/microsoft/vcpkg.git $Env:VCPKG_LOCAL_GIT }
+  - $vcpkg_repository=Select-String -Path "vcpkg-configuration.json" -Pattern '"repository":\s"(.+?)"' | ForEach-Object { $_.Matches.Groups[1].Value }
+  - if (-not (Test-Path -Path "$Env:VCPKG_LOCAL_GIT")) { git clone $vcpkg_repository $Env:VCPKG_LOCAL_GIT }
   - $baseline=Select-String -Path "vcpkg-configuration.json" -Pattern '"baseline":\s"(.+?)"' | ForEach-Object { $_.Matches.Groups[1].Value }
   - cd "$Env:VCPKG_LOCAL_GIT"
+  - git remote set-url origin $vcpkg_repository
   - git fetch
   - git checkout $baseline
   - Pop-Location
   - $vcpkg_tag = (Get-Content $Env:VCPKG_LOCAL_GIT\scripts\vcpkg-tool-metadata.txt) | Select-String -Pattern '^VCPKG_TOOL_RELEASE_TAG=(.*)'  | %{$_.Matches.Groups[1].value}
   - $url="https://github.com/microsoft/vcpkg-tool/releases/download/$vcpkg_tag/vcpkg.exe"
+  - mkdir $Env:VCPKG_CACHE_PATH -Force
   - $destination="$Env:VCPKG_CACHE_PATH\vcpkg-$vcpkg_tag.exe"
   - if(-not(Test-Path $destination)){Invoke-WebRequest -Uri $url -OutFile $destination}
   - Copy-Item $destination "$Env:VCPKG_LOCAL_GIT\vcpkg.exe"
@@ -19,20 +22,23 @@ variables:
 
 .before-script-vcpkg-linux: &before-script-vcpkg-linux
   - git submodule update --init vcpkg-registry
-  - if [ ! -d $VCPKG_LOCAL_GIT ]; then git clone https://github.com/microsoft/vcpkg.git $VCPKG_LOCAL_GIT || exit 1; fi
+  - vcpkg_repository=$(grep -Po '"repository":\s"\K[^"]+' vcpkg-configuration.json)
+  - if [ ! -d $VCPKG_LOCAL_GIT ]; then git clone $vcpkg_repository $VCPKG_LOCAL_GIT || exit 1; fi
   - baseline=$(grep -Po '"baseline":\s"\K[^"]+' vcpkg-configuration.json)
   - cd "$VCPKG_LOCAL_GIT"
+  - git remote set-url origin $vcpkg_repository
   - git fetch
   - git checkout $baseline
   - cd -
   - vcpkg_tag=$(sed -n 's/^VCPKG_TOOL_RELEASE_TAG=\(.*\)/\1/p' < "$VCPKG_LOCAL_GIT/scripts/vcpkg-tool-metadata.txt")
+  - mkdir -p $VCPKG_CACHE_PATH
   - destination="$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag"
   - if [ ! -f "$destination" ]; then wget -O "$destination" "https://github.com/microsoft/vcpkg-tool/releases/download/$vcpkg_tag/vcpkg-glibc" || exit 1; chmod +x "$destination"; fi
   - cp $destination "$VCPKG_LOCAL_GIT/vcpkg" || exit 1
 
 .after-script-clean-vcpkg-windows: &after-script-clean-vcpkg-windows
-  - (Remove-Item -LiteralPath "$Env:VCPKG_BUILDTREE" -Force -Recurse -ErrorAction SilentlyContinue)
-  - (Remove-Item -LiteralPath "$Env:VCPKG_LOCAL_GIT/packages" -Force -Recurse -ErrorAction SilentlyContinue)
+  - (Remove-Item -LiteralPath "$Env:VCPKG_BUILDTREE" -Force -Recurse -ErrorAction SilentlyContinue) || ($LASTEXITCODE=0)
+  - (Remove-Item -LiteralPath "$Env:VCPKG_LOCAL_GIT/packages" -Force -Recurse -ErrorAction SilentlyContinue) || ($LASTEXITCODE=0)
 
 .after-script-clean-vcpkg-linux: &after-script-clean-vcpkg-linux
   - rm -Rf "$VCPKG_LOCAL_GIT/buildtrees"
@@ -429,14 +435,22 @@ build:ubuntu-matlab-static:
 build:all-python-linux:
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
+    PLAT: manylinux_2_27_x86_64
+    # cp313-cp313t: failed to build numpy. Wait official release.
+    # cp36-cp36m;cp37-cp37m: not maintained anymore
+    SKIP_PYTHON: ;cp313-cp313t;cp36-cp36m;cp37-cp37m;
   stage: build
   needs: []
   when: manual
   tags:
     - docker
   image: $CI_REGISTRY/common/ci/dockerci/manylinux:latest
+  before_script:
+    - git config --global credential.helper store
+    - echo "https://gitlab-ci-token:${CI_JOB_TOKEN}@git.moduleus.com" > ~/.git-credentials
+    - *before-script-vcpkg-linux
   script:
-    - PLAT=manylinux_2_27_x86_64 sh /CI/manylinux_vcpkg.sh pyurx
+    - sh /CI/manylinux_vcpkg.sh pyurx
   artifacts:
     paths:
       - pyurx*manylinux*.whl
@@ -458,6 +472,7 @@ build:all-python-windows:
     - Enter-VsDevShell -VsInstallPath "C:\Program Files\Microsoft Visual Studio\2022\Community" -DevCmdArguments '-arch=x64'
     - Pop-Location
     - *python-venv-windows
+    - $Env:CIBW_CONFIG_SETTINGS = "--global-option=CMAKE_TOOLCHAIN_FILE=$Env:VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake"
     - python.exe -m pip install cibuildwheel
     - python.exe -m cibuildwheel --output-dir wheelhouse --platform windows
     - *after-script-clean-vcpkg-windows

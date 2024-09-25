@@ -48,6 +48,10 @@ build-verbosity = 1
 build-frontend = { name="pip", args=["--no-clean"] }
 
 [tool.cibuildwheel.windows]
-build = ["cp38-win_amd64", "cp39-win_amd64", "cp310-win_amd64", "cp311-win_amd64", "cp312-win_amd64", "cp313-win_amd64"]
+# "cp38-win_amd64", "cp39-win_amd64", "cp310-win_amd64" : python error:
+#  Fatal Python error: _Py_HashRandomization_Init: failed to get random numbers to initialize Python
+#  Python runtime state: preinitialized
+# "cp313-win_amd64" : Not officialy release.
+build = ["cp311-win_amd64", "cp312-win_amd64"]
 # Should be build-system.requires but doesn't work.
 before-build = "pip install cmake"
