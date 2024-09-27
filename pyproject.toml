@@ -1,30 +1,43 @@
 [build-system]
 build-backend = "setuptools.build_meta"
 requires = [
-    "wheel",
-    "setuptools>69.0.0,<73",
-    "cmake-build-extension",
-    "importlib-metadata",
-    "numpy<1.25; python_version == '3.8'",
-    "numpy<2; python_version >= '3.9'",
-    "toml",
+    "wheel==0.44.0",
+    "setuptools==72.2.0",
+    "cmake-build-extension==0.6.1",
+    "importlib_metadata==8.5.0",
+    "numpy==1.24.4",
+    "toml==0.10.2",
     "pip",
-    "cmake",
-    "parameterized"
+    "cmake==3.30.3",
+    "parameterized==0.9.0",
+    #"## The following requirements were added by pip freeze:",
+    "gitdb==4.0.11",
+    "GitPython==3.1.43",
+    "ninja==1.11.1.1",
+    "packaging==24.1",
+    "setuptools-scm==8.1.0",
+    "smmap==5.0.1",
+    "zipp==3.20.2"
 ]
 
 [project]
 name = "pyurx"
 version = "0.6.26.4"
 dependencies = [
-    "cmake-build-extension",
-    "numpy<1.25; python_version == '3.8'",
-    "numpy<2; python_version >= '3.9'",
-    "parameterized",
-    "setuptools>69.0.0,<73",
+    "cmake-build-extension==0.6.1",
+    "numpy==1.24.4",
+    "parameterized==0.9.0",
+    "setuptools==72.2.0",
     "pip",
-    "cmake",
-    "toml"
+    "cmake==3.30.3",
+    "toml==0.10.2",
+    #"## The following requirements were added by pip freeze:",
+    "gitdb==4.0.11",
+    "GitPython==3.1.43",
+    "ninja==1.11.1.1",
+    "packaging==24.1",
+    "setuptools-scm==8.1.0",
+    "smmap==5.0.1"
 ]
 description = "URX python binding"
 classifiers = [
