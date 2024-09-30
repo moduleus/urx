@@ -5,7 +5,8 @@ requires = [
     "setuptools==72.2.0",
     "cmake-build-extension==0.6.1",
     "importlib_metadata==8.5.0",
-    "numpy==1.24.4",
+    "numpy==1.24.4; python_version == '3.8'",
+    "numpy==1.26.4; python_version >= '3.9'",
     "toml==0.10.2",
     "pip",
     "cmake==3.30.3",
@@ -25,7 +26,8 @@ name = "pyurx"
 version = "0.6.26.4"
 dependencies = [
     "cmake-build-extension==0.6.1",
-    "numpy==1.24.4",
+    "numpy==1.24.4; python_version == '3.8'",
+    "numpy==1.26.4; python_version >= '3.9'",
     "parameterized==0.9.0",
     "setuptools==72.2.0",
     "pip",
@@ -61,10 +63,7 @@ build-verbosity = 1
 build-frontend = { name="pip", args=["--no-clean"] }
 
 [tool.cibuildwheel.windows]
-# "cp38-win_amd64", "cp39-win_amd64", "cp310-win_amd64" : python error:
-#  Fatal Python error: _Py_HashRandomization_Init: failed to get random numbers to initialize Python
-#  Python runtime state: preinitialized
 # "cp313-win_amd64" : Not officialy release.
-build = ["cp311-win_amd64", "cp312-win_amd64"]
+build = ["cp38-win_amd64", "cp39-win_amd64", "cp310-win_amd64", "cp311-win_amd64", "cp312-win_amd64"]
 # Should be build-system.requires but doesn't work.
 before-build = "pip install cmake"
