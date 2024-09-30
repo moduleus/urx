@@ -453,6 +453,8 @@ build:all-python-linux:
     expire_in: 1 day
 
 build:all-python-windows:
+  variables:
+    CIBW_BUILD: cp311-win_amd64 cp312-win_amd64
   stage: build
   needs: []
   when: manual
