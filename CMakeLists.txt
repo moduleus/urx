@@ -244,6 +244,10 @@ if(WITH_MATLAB)
   add_subdirectory(matlab)
 endif()
 
+if(BUILD_TESTING)
+  find_package(Catch2 REQUIRED)
+endif()
+
 if(WITH_PYTHON)
   add_subdirectory(python)
 endif()
@@ -255,7 +259,6 @@ install(
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${INSTALL_NAME})
 
 if(BUILD_TESTING)
-  find_package(Catch2 REQUIRED)
   add_subdirectory(test)
 endif()
 

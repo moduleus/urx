@@ -375,7 +375,7 @@ build:windows-python:
     - *before-script-vcpkg-windows
   script:
     - *python-venv-windows
-    - python.exe -m pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=$Env:VCPKG_LOCAL_GIT\\scripts\\buildsystems\\vcpkg.cmake" --config-settings="--global-option=cmake_build_type=RelWithDebInfo" --config-settings="--global-option=vcpkg_triplet=x64-wsmrep" --no-clean -v
+    - python.exe -m pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=$Env:VCPKG_LOCAL_GIT\\scripts\\buildsystems\\vcpkg.cmake" --config-settings="--global-option=cmake_build_type=Release" --config-settings="--global-option=vcpkg_triplet=x64-wsmrep" --no-clean -v
     - *after-script-clean-vcpkg-windows
     - python.exe -m unittest discover test/python
 

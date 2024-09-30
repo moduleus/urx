@@ -6,7 +6,6 @@ import toml
 import subprocess
 import os
 
-from setuptools import setup, find_packages
 from pathlib import Path
 
 pyproject = toml.load("pyproject.toml")
@@ -28,12 +27,16 @@ CMAKE_TOOLCHAIN_FILE_arg = next(
 if CMAKE_TOOLCHAIN_FILE_arg != None:
     sys.argv.remove(CMAKE_TOOLCHAIN_FILE_arg)
 
+DISABLE_VCPKG_arg = next((arg for arg in sys.argv if arg.startswith("DISABLE_VCPKG")), None)
+if DISABLE_VCPKG_arg != None:
+    sys.argv.remove(DISABLE_VCPKG_arg)
+
 vcpkg_triplet_arg = next((arg for arg in sys.argv if arg.startswith("vcpkg_triplet=")), None)
 if vcpkg_triplet_arg != None:
     sys.argv.remove(vcpkg_triplet_arg)
     vcpkg_triplet_arg = vcpkg_triplet_arg[len("vcpkg_triplet=") :]
 
-if CMAKE_TOOLCHAIN_FILE_arg is None:
+if DISABLE_VCPKG_arg is None and CMAKE_TOOLCHAIN_FILE_arg is None:
     if not (Path(__file__).parent.absolute() / "vcpkg").is_dir():
         subprocess.run(
             [
@@ -112,11 +115,29 @@ if hdf5_arg != None:
 else:
     hdf5_arg = "ON"
 
-all_d = []
+cmake_configure_options = [
+    "-DWITH_PYTHON:BOOL=ON",
+    "-DWITH_HDF5:BOOL=ON",
+    f"-DBUILD_SHARED_LIBS:BOOL={build_shared_libs_arg}",
+    "-DCALL_FROM_SETUP_PY:BOOL=ON",
+    "-DBUILD_TESTING:BOOL=ON",
+    f"-DPython3_EXECUTABLE={sys.executable}",
+]
+
+if CMAKE_TOOLCHAIN_FILE_arg is not None:
+    cmake_configure_options += [
+        f"-DVCPKG_TARGET_TRIPLET={VCPKG_TRIPLET}",
+        f"-DVCPKG_HOST_TRIPLET={VCPKG_TRIPLET}",
+        f"-DVCPKG_OVERLAY_TRIPLETS={str(Path(__file__).parent.absolute())}/vcpkg-registry/triplets",
+        f"-D{CMAKE_TOOLCHAIN_FILE_arg}",
+        "-DVCPKG_MANIFEST_MODE:BOOL=ON",
+        f"-DVCPKG_MANIFEST_DIR={str(Path(__file__).parent.absolute())}",
+    ]
+
 d_arg = next((arg for arg in sys.argv if arg.startswith("-D")), None)
 while d_arg:
     sys.argv.remove(d_arg)
-    all_d += [d_arg]
+    cmake_configure_options += [d_arg]
     d_arg = next((arg for arg in sys.argv if arg.startswith("-D")), None)
 
 setuptools.setup(
@@ -126,21 +147,7 @@ setuptools.setup(
             install_prefix=f"{name_project}",
             source_dir=str(Path(__file__).parent.absolute()),
             cmake_build_type=f"{cmake_build_type_arg}",
-            cmake_configure_options=[
-                "-DWITH_PYTHON:BOOL=ON",
-                f"-DWITH_HDF5:BOOL={hdf5_arg}",
-                f"-DBUILD_SHARED_LIBS:BOOL={build_shared_libs_arg}",
-                "-DCALL_FROM_SETUP_PY:BOOL=ON",
-                "-DBUILD_TESTING:BOOL=OFF",
-                f"-DVCPKG_TARGET_TRIPLET={VCPKG_TRIPLET}",
-                f"-DVCPKG_HOST_TRIPLET={VCPKG_TRIPLET}",
-                f"-DVCPKG_OVERLAY_TRIPLETS={str(Path(__file__).parent.absolute())}/vcpkg-registry/triplets",
-                f"-D{CMAKE_TOOLCHAIN_FILE_arg}",
-                "-DVCPKG_MANIFEST_MODE:BOOL=ON",
-                f"-DVCPKG_MANIFEST_DIR={str(Path(__file__).parent.absolute())}",
-                f"-DPython3_EXECUTABLE={sys.executable}",
-                *all_d,
-            ],
+            cmake_configure_options=cmake_configure_options,
             # Disable Ninja build generator
             cmake_generator=None,
         )

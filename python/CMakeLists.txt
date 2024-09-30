@@ -89,11 +89,15 @@ if(WITH_PYTHON_WHL)
       pip
       wheel
       .
-      --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}"
+      --config-settings="--global-option=DISABLE_VCPKG=ON"
       --config-settings="--global-option=cmake_build_type=$<CONFIG>"
-      --config-settings="--global-option=vcpkg_triplet=${VCPKG_TARGET_TRIPLET}"
       --config-settings="--global-option=build_shared_libs=${BUILD_SHARED_LIBS}"
       --config-settings="--global-option=hdf5=${WITH_HDF5}"
+      --config-settings="--global-option=-DCatch2_DIR=${Catch2_DIR}"
+      --config-settings="--global-option=-DHDF5_DIR=${HDF5_DIR}"
+      --config-settings="--global-option=-Dpybind11_DIR=${pybind11_DIR}"
+      --config-settings="--global-option=-DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}"
+      --config-settings="--global-option=-DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}"
       --wheel-dir
       ${CMAKE_CURRENT_BINARY_DIR}
       --no-clean

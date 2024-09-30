@@ -324,6 +324,8 @@ You may found various command to build Urx in file `.gitlab-ci.yml`.
 
 ## Build it with pip wheel
 
+### Using vcpkg
+
 You may generate wheel archive by launching `pip wheel .` from the root directory of the project.
 
 The `setup.py` file support the following options:
@@ -347,3 +349,9 @@ python.exe -m pip install .
 ```
 
 See `build:windows-python` and `build:ubuntu-python` in `.gitlab-ci.yml` file for real examples.
+
+### Without vcpkg
+
+If you want to disable vcpkg and use you own 3rd party library (that you already built), you can set `DISABLE_VCPKG` to `ON` and set all `XXX_DIR` CMake variable (path of the CMake files of the 3rd party).
+
+See CMake target `UrxPythonWheel` in `python/CMakeLists.txt` file for real example.
