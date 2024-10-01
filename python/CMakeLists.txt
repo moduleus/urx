@@ -77,8 +77,8 @@ if(WITH_PYTHON_WHL)
     message(FATAL_ERROR "Unsupported architecture for python output.")
   endif()
 
-  set(ENV_COMMAND ${CMAKE_COMMAND} -E env CFLAGS="$ENV{CFLAGS}"
-                  CXXFLAGS="$ENV{CXXFLAGS}")
+  set(ENV_COMMAND ${CMAKE_COMMAND} -E env CFLAGS=$ENV{CFLAGS}
+                  CXXFLAGS=$ENV{CXXFLAGS})
 
   if(DEFINED ENV{CMAKE_BUILD_PARALLEL_LEVEL})
     set(ENV_COMMAND ${ENV_COMMAND}
