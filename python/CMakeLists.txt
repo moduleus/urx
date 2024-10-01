@@ -77,11 +77,12 @@ if(WITH_PYTHON_WHL)
     message(FATAL_ERROR "Unsupported architecture for python output.")
   endif()
 
+  set(ENV_COMMAND ${CMAKE_COMMAND} -E env CFLAGS="$ENV{CFLAGS}"
+                  CXXFLAGS="$ENV{CXXFLAGS}")
+
   if(DEFINED ENV{CMAKE_BUILD_PARALLEL_LEVEL})
-    set(ENV_COMMAND ${CMAKE_COMMAND} -E env
+    set(ENV_COMMAND ${ENV_COMMAND}
                     CMAKE_BUILD_PARALLEL_LEVEL=$ENV{CMAKE_BUILD_PARALLEL_LEVEL})
-  else()
-    set(ENV_COMMAND "")
   endif()
 
   set(PIP_WHEEL_OPTIONS
@@ -89,15 +90,13 @@ if(WITH_PYTHON_WHL)
       pip
       wheel
       .
-      --config-settings="--global-option=DISABLE_VCPKG=ON"
-      --config-settings="--global-option=cmake_build_type=$<CONFIG>"
-      --config-settings="--global-option=build_shared_libs=${BUILD_SHARED_LIBS}"
-      --config-settings="--global-option=hdf5=${WITH_HDF5}"
-      --config-settings="--global-option=-DCatch2_DIR=${Catch2_DIR}"
-      --config-settings="--global-option=-DHDF5_DIR=${HDF5_DIR}"
-      --config-settings="--global-option=-Dpybind11_DIR=${pybind11_DIR}"
-      --config-settings="--global-option=-DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}"
-      --config-settings="--global-option=-DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}"
+      --config-settings=--global-option=DISABLE_VCPKG=ON
+      --config-settings=--global-option=cmake_build_type=$<CONFIG>
+      --config-settings=--global-option=build_shared_libs=${BUILD_SHARED_LIBS}
+      --config-settings=--global-option=hdf5=${WITH_HDF5}
+      --config-settings=--global-option=-DCatch2_DIR=${Catch2_DIR}
+      --config-settings=--global-option=-DHDF5_DIR=${HDF5_DIR}
+      --config-settings=--global-option=-Dpybind11_DIR=${pybind11_DIR}
       --wheel-dir
       ${CMAKE_CURRENT_BINARY_DIR}
       --no-clean
@@ -107,13 +106,13 @@ if(WITH_PYTHON_WHL)
   if(Python3_EXECUTABLE_IS_DEBUG)
     set(Python3_EXECUTABLE_EXEC ${CMAKE_COMMAND} -E true)
   else()
-    set(Python3_EXECUTABLE_EXEC ${ENV_COMMAND} ${Python3_EXECUTABLE})
+    set(Python3_EXECUTABLE_EXEC ${ENV_COMMAND} "${Python3_EXECUTABLE}")
   endif()
   if(NOT Python3_EXECUTABLE_DEBUG_IS_DEBUG)
     set(Python3_EXECUTABLE_DEBUG_EXEC ${CMAKE_COMMAND} -E true)
   else()
     set(Python3_EXECUTABLE_DEBUG_EXEC ${ENV_COMMAND}
-                                      ${Python3_EXECUTABLE_DEBUG})
+                                      "${Python3_EXECUTABLE_DEBUG}")
   endif()
 
   string(REPLACE ";" " " Python3_EXECUTABLE_EXEC_ECHO
@@ -129,7 +128,7 @@ if(WITH_PYTHON_WHL)
     COMMAND
       "$<IF:$<CONFIG:Debug>,${Python3_EXECUTABLE_DEBUG_EXEC},${Python3_EXECUTABLE_EXEC}>"
       ${PIP_WHEEL_OPTIONS}
-    COMMAND_EXPAND_LISTS
+    COMMAND_EXPAND_LISTS VERBATIM
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..)
 
   if(NOT Python3_EXECUTABLE_IS_DEBUG)
