@@ -261,6 +261,26 @@ format:black-format:
       - CI/format.patch
     expire_in: 1 day
 
+format:wiki:
+  stage: format
+  needs: []
+  when: manual
+  image: $CI_REGISTRY/common/ci/dockerci/plantuml:latest
+  tags:
+    - docker
+  script:
+    - git clone https://write_wiki:${VCPKG_WIKI_ACCESS_TOKEN}@git.moduleus.com/common/sw/urx.wiki.git
+    - cd urx.wiki
+    - java -jar /opt/app/plantuml.jar -tsvg *.puml.md
+    - rename -f "s/puml.svg/svg/" *.puml.svg
+    - if [[ ! -z "$(git status --porcelain)" ]]; then git config user.email "gitlab-ci@moduleus.com"; git config user.name "Gitlab CI"; git add .; git commit -m "Update plantuml"; git push; fi
+  allow_failure: true
+  artifacts:
+    when: on_failure
+    paths:
+      - CI/format.patch
+    expire_in: 1 day
+
 tag:version:
   stage: tag
   dependencies:
