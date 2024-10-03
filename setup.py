@@ -8,7 +8,7 @@ import os
 
 from pathlib import Path
 
-import platform
+import sysconfig
 
 pyproject = toml.load("pyproject.toml")
 name_project = pyproject["project"]["name"]
@@ -71,7 +71,10 @@ if vcpkg_triplet_arg != None:
     VCPKG_TRIPLET = vcpkg_triplet_arg
 else:
     if sys.maxsize > 2**32:
-        if "ARM" in platform.uname().machine.upper():
+        if (
+            os.environ.get("PYTHON_ARCH") is not None
+            and os.environ.get("PYTHON_ARCH").upper() == "ARM64"
+        ) or sysconfig.get_platform().endswith("arm64"):
             VCPKG_TRIPLET = "arm64-"
         else:
             VCPKG_TRIPLET = "x64-"
@@ -79,8 +82,9 @@ else:
         VCPKG_TRIPLET = "x86-"
 
     if sys.platform == "win32":
-
-        if sys.maxsize > 2**32:
+        if VCPKG_TRIPLET == "arm64-":
+            cmake_configure_options += ["-A", "arm64"]
+        elif VCPKG_TRIPLET == "x64-":
             cmake_configure_options += ["-A", "x64"]
         else:
             cmake_configure_options += ["-A", "Win32"]
