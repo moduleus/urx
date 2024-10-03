@@ -136,7 +136,7 @@ struct DeserializeHdf5<T, U, ContainerType::VECTOR> {
       std::vector<hsize_t> dimension;
       dimension.resize(ndims);
       dataspace.getSimpleExtentDims(dimension.data());
-      field.resize(dimension[0]);
+      field.resize(static_cast<size_t>(dimension[0]));
       if (dimension[0] != 0) {
         if (group.nameExists(name)) {
           dataset.read(field.data(), datatype);
@@ -164,10 +164,10 @@ struct DeserializeHdf5<T, U, ContainerType::VECTOR> {
       std::vector<hsize_t> dimension;
       dimension.resize(ndims);
       dataspace.getSimpleExtentDims(dimension.data());
-      field.reserve(dimension[0]);
+      field.reserve(static_cast<size_t>(dimension[0]));
 
       std::vector<char*> field_char;
-      field_char.resize(dimension[0]);
+      field_char.resize(static_cast<size_t>(dimension[0]));
 
       if (dimension[0] != 0) {
         if (group.nameExists(name)) {
@@ -299,27 +299,31 @@ struct DeserializeAll<std::shared_ptr<RawData>, U> {
 
     if (datatype == H5::PredType::NATIVE_INT16) {
       if (dimension[1] == 1) {
-        field = std::make_shared<RawDataNoInit<int16_t>>(dimension[0]);
+        field = std::make_shared<RawDataNoInit<int16_t>>(static_cast<size_t>(dimension[0]));
       } else {
-        field = std::make_shared<RawDataNoInit<std::complex<int16_t>>>(dimension[0]);
+        field = std::make_shared<RawDataNoInit<std::complex<int16_t>>>(
+            static_cast<size_t>(dimension[0]));
       }
     } else if (datatype == H5::PredType::NATIVE_INT32) {
       if (dimension[1] == 1) {
-        field = std::make_shared<RawDataNoInit<int32_t>>(dimension[0]);
+        field = std::make_shared<RawDataNoInit<int32_t>>(static_cast<size_t>(dimension[0]));
       } else {
-        field = std::make_shared<RawDataNoInit<std::complex<int32_t>>>(dimension[0]);
+        field = std::make_shared<RawDataNoInit<std::complex<int32_t>>>(
+            static_cast<size_t>(dimension[0]));
       }
     } else if (datatype == H5::PredType::NATIVE_FLOAT) {
       if (dimension[1] == 1) {
-        field = std::make_shared<RawDataNoInit<float>>(dimension[0]);
+        field = std::make_shared<RawDataNoInit<float>>(static_cast<size_t>(dimension[0]));
       } else {
-        field = std::make_shared<RawDataNoInit<std::complex<float>>>(dimension[0]);
+        field =
+            std::make_shared<RawDataNoInit<std::complex<float>>>(static_cast<size_t>(dimension[0]));
       }
     } else if (datatype == H5::PredType::NATIVE_DOUBLE) {
       if (dimension[1] == 1) {
-        field = std::make_shared<RawDataNoInit<double>>(dimension[0]);
+        field = std::make_shared<RawDataNoInit<double>>(static_cast<size_t>(dimension[0]));
       } else {
-        field = std::make_shared<RawDataNoInit<std::complex<double>>>(dimension[0]);
+        field = std::make_shared<RawDataNoInit<std::complex<double>>>(
+            static_cast<size_t>(dimension[0]));
       }
     } else
       throw std::runtime_error("Invalid format of raw_data");
