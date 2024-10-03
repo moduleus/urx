@@ -269,17 +269,28 @@ format:wiki:
   tags:
     - docker
   script:
-    - git clone https://write_wiki:${VCPKG_WIKI_ACCESS_TOKEN}@git.moduleus.com/common/sw/urx.wiki.git
+    - CI_PROJECT_URL_SLASH=${CI_PROJECT_URL/:/\/}
+    - CI_PROJECT_URL_HTTPS=${CI_PROJECT_URL_SLASH/.git/.wiki.git}
+    - git clone https://write_wiki:${VCPKG_WIKI_ACCESS_TOKEN}@$CI_PROJECT_URL_HTTPS
     - cd urx.wiki
     - java -jar /opt/app/plantuml.jar -tsvg *.puml.md
     - rename -f "s/puml.svg/svg/" *.puml.svg
     - if [[ ! -z "$(git status --porcelain)" ]]; then git config user.email "gitlab-ci@moduleus.com"; git config user.name "Gitlab CI"; git add .; git commit -m "Update plantuml"; git push; fi
-  allow_failure: true
-  artifacts:
-    when: on_failure
-    paths:
-      - CI/format.patch
-    expire_in: 1 day
+
+format:upload-to-github:
+  stage: format
+  needs: []
+  when: manual
+  tags:
+    - build
+    - ubuntu
+  script:
+    - CI_PROJECT_URL_SLASH=${CI_PROJECT_URL/:/\/}
+    - CI_PROJECT_URL_HTTPS=${CI_PROJECT_URL_SLASH/.git/.wiki.git}
+    - git clone https://write_wiki:${VCPKG_WIKI_ACCESS_TOKEN}@$CI_PROJECT_URL_HTTPS
+    - cd urx.wiki
+    - git remote add github https://access:${GITHUB_CI_ACCESS_TOKEN}@github.com/moduleus/urx.wiki.git
+    - git push --force github main:master
 
 tag:version:
   stage: tag
@@ -469,7 +480,7 @@ build:all-python-linux:
   image: $CI_REGISTRY/common/ci/dockerci/manylinux:latest
   before_script:
     - git config --global credential.helper store
-    - echo "https://gitlab-ci-token:${CI_JOB_TOKEN}@git.moduleus.com" > ~/.git-credentials
+    - echo "https://gitlab-ci-token:${CI_JOB_TOKEN}@$CI_SERVER_HOST" > ~/.git-credentials
     - *before-script-vcpkg-linux
   script:
     - sh /CI/manylinux_vcpkg.sh pyurx
