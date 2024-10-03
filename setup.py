@@ -8,6 +8,8 @@ import os
 
 from pathlib import Path
 
+import platform
+
 pyproject = toml.load("pyproject.toml")
 name_project = pyproject["project"]["name"]
 
@@ -16,10 +18,7 @@ if cmake_build_type_arg != None:
     sys.argv.remove(cmake_build_type_arg)
     cmake_build_type_arg = cmake_build_type_arg[len("cmake_build_type=") :]
 else:
-    if sys.platform == "win32":
-        cmake_build_type_arg = "RelWithDebInfo"
-    else:
-        cmake_build_type_arg = "Release"
+    cmake_build_type_arg = "Release"
 
 CMAKE_TOOLCHAIN_FILE_arg = next(
     (arg for arg in sys.argv if arg.startswith("CMAKE_TOOLCHAIN_FILE")), None
@@ -66,11 +65,27 @@ if build_shared_libs_arg != None:
 else:
     build_shared_libs_arg = "OFF"
 
+cmake_configure_options = []
+
 if vcpkg_triplet_arg != None:
     VCPKG_TRIPLET = vcpkg_triplet_arg
 else:
+    if sys.maxsize > 2**32:
+        if "ARM" in platform.uname().machine.upper():
+            VCPKG_TRIPLET = "arm64-"
+        else:
+            VCPKG_TRIPLET = "x64-"
+    else:
+        VCPKG_TRIPLET = "x86-"
+
     if sys.platform == "win32":
-        VCPKG_TRIPLET = "x64-w"
+
+        if sys.maxsize > 2**32:
+            cmake_configure_options += ["-A", "x64"]
+        else:
+            cmake_configure_options += ["-A", "Win32"]
+
+        VCPKG_TRIPLET += "w"
 
         if build_shared_libs_arg == "OFF":
             # static-md
@@ -91,7 +106,7 @@ else:
             VCPKG_TRIPLET += "p"
 
     else:
-        VCPKG_TRIPLET = "x64-l"
+        VCPKG_TRIPLET += "l"
 
         if build_shared_libs_arg == "OFF":
             # static
@@ -115,7 +130,7 @@ if hdf5_arg != None:
 else:
     hdf5_arg = "ON"
 
-cmake_configure_options = [
+cmake_configure_options += [
     "-DWITH_PYTHON:BOOL=ON",
     "-DWITH_HDF5:BOOL=ON",
     f"-DBUILD_SHARED_LIBS:BOOL={build_shared_libs_arg}",
