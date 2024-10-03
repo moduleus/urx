@@ -145,11 +145,13 @@ if(WITH_PYTHON_WHL)
   endif()
 endif()
 
-install(
-  TARGETS ${URX_PYTHON_LIBRARY}
-  EXPORT ${PROJECT_NAME}Targets
-  FILE_SET HEADERS
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+if(NOT CALL_FROM_SETUP_PY)
+  install(
+    TARGETS ${URX_PYTHON_LIBRARY}
+    EXPORT ${PROJECT_NAME}Targets
+    FILE_SET HEADERS
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+endif()
 
 pybind11_add_module(
   UrxBindingsPython
@@ -159,8 +161,8 @@ pybind11_add_module(
   ${CMAKE_CURRENT_SOURCE_DIR}/bindings_module.h
   ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt)
 target_link_libraries(
-  UrxBindingsPython PUBLIC ${PROJECT_NAME} Urx::UrxUtils
-                           Urx::${URX_PYTHON_LIBRARY} pybind11::pybind11)
+  UrxBindingsPython PRIVATE ${PROJECT_NAME} Urx::UrxUtils
+                            Urx::${URX_PYTHON_LIBRARY} pybind11::pybind11)
 
 set_target_properties(UrxBindingsPython PROPERTIES OUTPUT_NAME "bindings")
 
