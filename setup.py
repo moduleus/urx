@@ -12,6 +12,7 @@ import sysconfig
 
 pyproject = toml.load("pyproject.toml")
 name_project = pyproject["project"]["name"]
+name_project_underscore = name_project.replace("-", "_")
 
 cmake_build_type_arg = next((arg for arg in sys.argv if arg.startswith("cmake_build_type=")), None)
 if cmake_build_type_arg != None:
@@ -163,7 +164,7 @@ setuptools.setup(
     ext_modules=[
         cmake_build_extension.CMakeExtension(
             name=f"{name_project}",
-            install_prefix=f"{name_project}",
+            install_prefix=f"{name_project_underscore}",
             source_dir=str(Path(__file__).parent.absolute()),
             cmake_build_type=f"{cmake_build_type_arg}",
             cmake_configure_options=cmake_configure_options,
@@ -172,8 +173,8 @@ setuptools.setup(
         )
     ],
     cmdclass=dict(build_ext=cmake_build_extension.BuildExtension),
-    packages=[f"{name_project}"],
+    packages=[f"{name_project_underscore}"],
     package_dir={
-        f"{name_project}": f"python/{name_project}",
+        f"{name_project_underscore}": f"python/{name_project_underscore}",
     },
 )

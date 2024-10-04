@@ -23,7 +23,7 @@ python -m pip install . -v --no-clean \
   --config-settings="--global-option=hdf5=ON"
 ```
 
-If you do minor changes to the C++ code, you may open project in `urx/build/temp.win-amd64-cpython-310/Release_pyurx`, select `RelWithDebInfo`, build, and run `cp ./urx/build/temp.win-amd64-cpython-310/Release_pyurx/python/RelWithDebInfo/bindings.cp310-win_amd64.pyd ./urx/.venv/Lib/site-packages/pyurx/bindings.cp310-win_amd64.pyd`.
+If you do minor changes to the C++ code, you may open project in `urx/build/temp.win-amd64-cpython-310/Release_urx`, select `RelWithDebInfo`, build, and run `cp ./urx/build/temp.win-amd64-cpython-310/Release_urx/python/RelWithDebInfo/bindings.cp310-win_amd64.pyd ./urx/.venv/Lib/site-packages/urx/bindings.cp310-win_amd64.pyd`.
 
   * Launch tests
 

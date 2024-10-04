@@ -211,7 +211,7 @@ Some field are optional or can be empty (see C++ UML diagram). If you want to un
 ### Usage
 
 ```python
-import pyurx as urx;
+import ultrasound_rawdata_exchange as urx;
 
 dataset = urx.Dataset()
 

@@ -428,8 +428,8 @@ build:ubuntu-python:
     - *python-venv-linux-d
     - python3d -m pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" --config-settings="--global-option=cmake_build_type=Debug" --config-settings="--global-option=vcpkg_triplet=x64-linux" --no-clean -v
     - python3d -m unittest discover test/python
-    - stubgen -p pyurx -o python
-    - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Run stubgen -p pyurx -o python before commit."; echo "$(git status --porcelain)"; git diff; exit 1; fi
+    - stubgen -p ultrasound_rawdata_exchange -o python
+    - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Run stubgen -p ultrasound_rawdata_exchange -o python before commit."; echo "$(git status --porcelain)"; git diff; exit 1; fi
 
 build:windows-matlab-static:
   stage: build
@@ -465,7 +465,7 @@ build:ubuntu-matlab-static:
   after_script:
     - ssh moduleus@localhost "rm -f $PWD/test/matlab/test.urx"
 
-build:all-python-linux:
+build:all-python-linux-x64:
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
     PLAT: manylinux_2_27_x86_64
@@ -483,10 +483,10 @@ build:all-python-linux:
     - echo "https://gitlab-ci-token:${CI_JOB_TOKEN}@$CI_SERVER_HOST" > ~/.git-credentials
     - *before-script-vcpkg-linux
   script:
-    - sh /CI/manylinux_vcpkg.sh pyurx
+    - sh /CI/manylinux_vcpkg.sh ultrasound_rawdata_exchange
   artifacts:
     paths:
-      - pyurx*manylinux*.whl
+      - ultrasound_rawdata_exchange*manylinux*.whl
     expire_in: 1 day
 
 build:all-python-windows-x64:

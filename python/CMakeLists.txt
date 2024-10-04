@@ -1,5 +1,7 @@
 include(GenerateExportHeader)
 
+set(PYPI_URX_PACKAGE "ultrasound_rawdata_exchange")
+
 set(URX_PYTHON_LIBRARY UrxPython)
 set(URX_PYTHON_LIBRARY_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/bindings_library.cpp
@@ -55,21 +57,20 @@ set(CMAKE_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR}/${INSTALL_NAME})
 
 # Build python binary distribuable.
 if(WITH_PYTHON_WHL)
-  # Generate pyurx-0.6.26-cp311-cp311-win_amd64.whl
-  set(PYTHON_MODULE_PYURX_OUTPUT
-      "pyurx-${CMAKE_PROJECT_VERSION}-cp${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}-cp${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}$<$<CONFIG:Debug>:d>"
+  # Generate urx-0.6.26-cp311-cp311-win_amd64.whl
+  set(PYTHON_MODULE_URX_OUTPUT
+      "${PYPI_URX_PACKAGE}-${CMAKE_PROJECT_VERSION}-cp${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}-cp${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}$<$<CONFIG:Debug>:d>"
   )
   if(WIN32)
     if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-      set(PYTHON_MODULE_PYURX_OUTPUT
-          "${PYTHON_MODULE_PYURX_OUTPUT}-win_amd64.whl")
+      set(PYTHON_MODULE_URX_OUTPUT "${PYTHON_MODULE_URX_OUTPUT}-win_amd64.whl")
     else()
-      set(PYTHON_MODULE_PYURX_OUTPUT "${PYTHON_MODULE_PYURX_OUTPUT}-win32.whl")
+      set(PYTHON_MODULE_URX_OUTPUT "${PYTHON_MODULE_URX_OUTPUT}-win32.whl")
     endif()
   elseif(UNIX AND NOT APPLE)
     if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-      set(PYTHON_MODULE_PYURX_OUTPUT
-          "${PYTHON_MODULE_PYURX_OUTPUT}-linux_x86_64.whl")
+      set(PYTHON_MODULE_URX_OUTPUT
+          "${PYTHON_MODULE_URX_OUTPUT}-linux_x86_64.whl")
     else()
       message(FATAL_ERROR "Unsupported architecture for python output.")
     endif()
@@ -134,13 +135,13 @@ if(WITH_PYTHON_WHL)
   if(NOT Python3_EXECUTABLE_IS_DEBUG)
     install(
       FILES
-        "$<$<NOT:$<CONFIG:Debug>>:${CMAKE_CURRENT_BINARY_DIR}/${PYTHON_MODULE_PYURX_OUTPUT}>"
+        "$<$<NOT:$<CONFIG:Debug>>:${CMAKE_CURRENT_BINARY_DIR}/${PYTHON_MODULE_URX_OUTPUT}>"
       DESTINATION "share/${INSTALL_NAME}")
   endif()
   if(Python3_EXECUTABLE_DEBUG_IS_DEBUG)
     install(
       FILES
-        "$<$<CONFIG:Debug>:${CMAKE_CURRENT_BINARY_DIR}/${PYTHON_MODULE_PYURX_OUTPUT}>"
+        "$<$<CONFIG:Debug>:${CMAKE_CURRENT_BINARY_DIR}/${PYTHON_MODULE_URX_OUTPUT}>"
       DESTINATION "share/${INSTALL_NAME}")
   endif()
 endif()

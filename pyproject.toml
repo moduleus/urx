@@ -22,7 +22,7 @@ requires = [
 ]
 
 [project]
-name = "pyurx"
+name = "ultrasound-rawdata-exchange"
 version = "0.6.26.4"
 dependencies = [
     "cmake-build-extension==0.6.1",
