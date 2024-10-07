@@ -20,7 +20,7 @@ python -m pip install . -v --no-clean \
   --config-settings="--global-option=cmake_build_type=RelWithDebInfo" \
   --config-settings="--global-option=vcpkg_triplet=x64-wsmrep" \
   --config-settings="--global-option=build_shared_libs=OFF" \
-  --config-settings="--global-option=hdf5=ON"
+  --config-settings="--global-option=-DWITH_HDF5=ON"
 ```
 
 If you do minor changes to the C++ code, you may open project in `urx/build/temp.win-amd64-cpython-310/Release_urx`, select `RelWithDebInfo`, build, and run `cp ./urx/build/temp.win-amd64-cpython-310/Release_urx/python/RelWithDebInfo/bindings.cp310-win_amd64.pyd ./urx/.venv/Lib/site-packages/urx/bindings.cp310-win_amd64.pyd`.

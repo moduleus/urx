@@ -94,7 +94,7 @@ if(WITH_PYTHON_WHL)
       --config-settings=--global-option=DISABLE_VCPKG=ON
       --config-settings=--global-option=cmake_build_type=$<CONFIG>
       --config-settings=--global-option=build_shared_libs=${BUILD_SHARED_LIBS}
-      --config-settings=--global-option=hdf5=${WITH_HDF5}
+      --config-settings=--global-option=-DWITH_HDF5=${WITH_HDF5}
       --config-settings=--global-option=-DCatch2_DIR=${Catch2_DIR}
       --config-settings=--global-option=-DHDF5_DIR=${HDF5_DIR}
       --config-settings=--global-option=-Dpybind11_DIR=${pybind11_DIR}

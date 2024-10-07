@@ -128,16 +128,15 @@ else:
             # python dynamic
             VCPKG_TRIPLET += "p"
 
-hdf5_arg = next((arg for arg in sys.argv if arg.startswith("hdf5=")), None)
+hdf5_arg = next((arg for arg in sys.argv if arg.startswith("-DWITH_HDF5")), None)
 if hdf5_arg != None:
     sys.argv.remove(hdf5_arg)
-    hdf5_arg = hdf5_arg[len("hdf5=") :]
 else:
-    hdf5_arg = "ON"
+    hdf5_arg = "-DWITH_HDF5=ON"
 
 cmake_configure_options += [
     "-DWITH_PYTHON:BOOL=ON",
-    "-DWITH_HDF5:BOOL=ON",
+    hdf5_arg,
     f"-DBUILD_SHARED_LIBS:BOOL={build_shared_libs_arg}",
     "-DCALL_FROM_SETUP_PY:BOOL=ON",
     "-DBUILD_TESTING:BOOL=ON",
