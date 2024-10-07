@@ -56,7 +56,7 @@ set_target_properties(
 set(CMAKE_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR}/${INSTALL_NAME})
 
 # Build python binary distribuable.
-if(WITH_PYTHON_WHL)
+if(NOT CALL_FROM_SETUP_PY AND WITH_PYTHON_WHL)
   # Generate urx-0.6.26-cp311-cp311-win_amd64.whl
   set(PYTHON_MODULE_URX_OUTPUT
       "${PYPI_URX_PACKAGE}-${CMAKE_PROJECT_VERSION}-cp${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}-cp${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}$<$<CONFIG:Debug>:d>"
