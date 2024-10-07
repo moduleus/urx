@@ -102,6 +102,12 @@ if(WITH_PYTHON_WHL)
       ${CMAKE_CURRENT_BINARY_DIR}
       --no-clean
       -v)
+  if(VCPKG_INSTALL_OPTIONS)
+    set(PIP_WHEEL_OPTIONS
+        ${PIP_WHEEL_OPTIONS}
+        --config-settings=--global-option=-DVCPKG_INSTALL_OPTIONS=${VCPKG_INSTALL_OPTIONS}
+    )
+  endif()
   string(REPLACE ";" " " PIP_WHEEL_OPTIONS_ECHO "${PIP_WHEEL_OPTIONS}")
 
   if(Python3_EXECUTABLE_IS_DEBUG)
