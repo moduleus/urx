@@ -261,7 +261,7 @@ format:black-format:
       - CI/format.patch
     expire_in: 1 day
 
-format:wiki:
+format:update-images-of-wiki:
   stage: format
   needs: []
   when: manual
@@ -277,9 +277,10 @@ format:wiki:
     - rename -f "s/puml.svg/svg/" *.puml.svg
     - if [[ ! -z "$(git status --porcelain)" ]]; then git config user.email "gitlab-ci@moduleus.com"; git config user.name "Gitlab CI"; git add .; git commit -m "Update plantuml"; git push; fi
 
-format:upload-to-github:
+format:upload-wiki-to-github:
   stage: format
-  needs: []
+  needs:
+    - format:update-images-of-wiki
   when: manual
   tags:
     - build
