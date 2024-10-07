@@ -13,6 +13,15 @@ option(WITH_PYTHON "Build Python module" OFF)
 if(WITH_PYTHON)
   list(APPEND VCPKG_MANIFEST_FEATURES "python")
 endif()
+option(WITH_PYTHON_WHL "Generate Python module with pip wheel" OFF)
+if(WITH_PYTHON_WHL)
+  list(APPEND VCPKG_MANIFEST_FEATURES "python-wheel")
+  if(NOT WITH_PYTHON)
+    message(
+      FATAL_ERROR
+        "WITH_PYTHON must be set to true if WITH_PYTHON_WHL is enabled")
+  endif()
+endif()
 option(BUILD_TESTING "Build the testing tree." ON)
 if(BUILD_TESTING)
   list(APPEND VCPKG_MANIFEST_FEATURES "tests")
@@ -40,8 +49,6 @@ if(NOT CMAKE_BUILD_TYPE)
       "Release"
       CACHE STRING "Choose the type of build" FORCE)
 endif()
-
-option(WITH_PYTHON_WHL "Generate Python module with pip wheel" OFF)
 
 check_ipo_supported(RESULT result_ipo)
 if(result_ipo)
