@@ -573,3 +573,17 @@ build:all-python-windows-arm64:
     paths:
       - wheelhouse
     expire_in: 1 day
+
+build:upload-to-pypi:
+  stage: build
+  needs:
+    - build:all-python-linux-x64
+    - build:all-python-windows-x64
+    - build:all-python-windows-x86
+  when: manual
+  tags:
+    - ubuntu
+    - python
+  script:
+    - *python-venv-linux
+    - python -m twine upload `find . -name "*.whl"`
