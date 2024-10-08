@@ -170,6 +170,10 @@ pybind11_add_module(
 target_link_libraries(
   UrxBindingsPython PRIVATE ${PROJECT_NAME} Urx::UrxUtils
                             Urx::${URX_PYTHON_LIBRARY} pybind11::pybind11)
+if(UNIX)
+  target_link_options(UrxBindingsPython PRIVATE "-static-libgcc"
+                      "-static-libstdc++")
+endif(UNIX)
 
 set_target_properties(UrxBindingsPython PROPERTIES OUTPUT_NAME "bindings")
 

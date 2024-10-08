@@ -32,6 +32,11 @@ add_library(
   export_symbol_from_static.cpp)
 add_library(Urx::UrxMatlabBinding ALIAS UrxMatlabBinding)
 
+if(UNIX)
+  target_link_options(UrxMatlabBinding PRIVATE "-static-libgcc"
+                      "-static-libstdc++")
+endif(UNIX)
+
 generate_export_header(UrxMatlabBinding BASE_NAME URX_MATLAB EXPORT_FILE_NAME
                        ${CMAKE_CURRENT_BINARY_DIR}/urx/matlab/export.h)
 
