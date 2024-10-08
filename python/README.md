@@ -16,10 +16,10 @@ source ./.venv/bin/activate
 ```bash
 python -m pip install -r requirements-gitlab.txt
 python -m pip install . -v --no-clean \
-  --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=D:\\repos\\urx\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake" \
+  --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=vcpkg_path/scripts/buildsystems/vcpkg.cmake" \
   --config-settings="--global-option=cmake_build_type=RelWithDebInfo" \
   --config-settings="--global-option=vcpkg_triplet=x64-wsmrep" \
-  --config-settings="--global-option=build_shared_libs=OFF" \
+  --config-settings="--global-option=-DBUILD_SHARED_LIBS=OFF" \
   --config-settings="--global-option=-DWITH_HDF5=ON"
 ```
 

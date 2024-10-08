@@ -333,17 +333,17 @@ The `setup.py` file support the following options:
   - `CMAKE_TOOLCHAIN_FILE` to set vcpkg path (repository cloned if option is not given),
   - `cmake_build_type` to set CMAKE_BUILD_TYPE in CMake (Release by default),
   - `vcpkg_triplet` to set vcpkg triplet (guessed if omited),
-  - `build_shared_libs` to build with shared library (OFF is only supported / tested for Python binding),
-  - `hdf5` to build with file support (ON by default).
+
+You can also set CMake variable with `-DVARIABLE=VALUE`.
 
 Example:
 
 ```sh
 python.exe -m pip install .
---config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=vcpkg_path\\scripts\\buildsystems\\vcpkg.cmake"
+--config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=vcpkg_path/scripts/buildsystems/vcpkg.cmake"
 --config-settings="--global-option=cmake_build_type=RelWithDebInfo"
 --config-settings="--global-option=vcpkg_triplet=x64-wsmrep"
---config-settings="--global-option=build_shared_libs=OFF"
+--config-settings="--global-option=-DBUILD_SHARED_LIBS=OFF"
 --config-settings="--global-option=-DWITH_HDF5=ON"
 -v
 ```

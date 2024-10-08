@@ -57,15 +57,6 @@ if DISABLE_VCPKG_arg is None and CMAKE_TOOLCHAIN_FILE_arg is None:
         Path(__file__).parent.absolute() / "vcpkg" / "scripts" / "buildsystems" / "vcpkg.cmake"
     )
 
-build_shared_libs_arg = next(
-    (arg for arg in sys.argv if arg.startswith("build_shared_libs=")), None
-)
-if build_shared_libs_arg != None:
-    sys.argv.remove(build_shared_libs_arg)
-    build_shared_libs_arg = build_shared_libs_arg[len("build_shared_libs=") :]
-else:
-    build_shared_libs_arg = "OFF"
-
 cmake_configure_options = []
 
 if vcpkg_triplet_arg != None:
