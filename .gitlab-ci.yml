@@ -464,9 +464,13 @@ build:windows-matlab-static:
     - cmake.exe --install CI --config Release
     - cd test/matlab
     - C:/"Program Files"/MATLAB/R2023b/bin/matlab.exe -wait -batch runTestsCi
+    - cd ../../CI/matlab/binding/Release
+    - C:/"Program Files"/MATLAB/R2023b/bin/matlab.exe -wait -batch "matlab.addons.toolbox.packageToolbox('windows-Release.prj')"
+    - mv urx.mltbx urx-windows-Release.mltbx
   artifacts:
     paths:
       - install
+      - CI/matlab/binding/Release/urx-windows-Release.mltbx
     expire_in: 1 day
 
 build:ubuntu-matlab-static:
@@ -484,11 +488,16 @@ build:ubuntu-matlab-static:
     - cmake --install CI --config Release
     - cd test/matlab
     - ssh moduleus@localhost "cd $PWD && /opt/matlab/R2022b/bin/matlab -batch runTestsCi"
+    - cd ../../CI/matlab/binding
+    - ssh moduleus@localhost 'cd '`pwd`' && /opt/matlab/R2022b/bin/matlab -batch "matlab.addons.toolbox.packageToolbox(\"linux-Release.prj\")"'
+    - mv urx.mltbx urx-linux-Release.mltbx
+    - cd ../../..
   after_script:
-    - ssh moduleus@localhost "rm -f $PWD/test/matlab/test.urx"
+    - ssh moduleus@localhost "chmod o+w $PWD/test/matlab/test.urx $PWD/CI/matlab/binding/urx-linux-Release.mltbx"
   artifacts:
     paths:
       - install
+      - CI/matlab/binding/urx-linux-Release.mltbx
     expire_in: 1 day
 
 build:all-python-linux-x64:
