@@ -493,7 +493,7 @@ build:ubuntu-matlab-static:
     - mv urx.mltbx urx-linux-Release.mltbx
     - cd ../../..
   after_script:
-    - ssh moduleus@localhost "chmod o+w $PWD/test/matlab/test.urx $PWD/CI/matlab/binding/urx-linux-Release.mltbx"
+    - ssh moduleus@localhost "chmod 777 $PWD/test/matlab/test.urx $PWD/CI/matlab/binding/urx-linux-Release.mltbx"
   artifacts:
     paths:
       - install
