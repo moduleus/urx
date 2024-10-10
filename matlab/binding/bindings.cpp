@@ -1,6 +1,8 @@
 #include <complex>
 #include <cstddef>
 #include <cstdint>
+#include <cstdlib>
+#include <cstring>
 #include <fstream>
 #include <ios>
 #include <iosfwd>
@@ -40,19 +42,31 @@
 #define str(s) #s
 
 namespace {
-constexpr bool LOG_NEW_DELETE = false;
-
 size_t urx_alloc_count = 0;
 }  // namespace
 
 std::ostream &urxGetLog() {
-  if constexpr (LOG_NEW_DELETE) {
-    static std::ofstream outfile("c:\\temp\\urx.log");
-    return outfile;
-  } else {
-    std::ostream &outfile(std::cout);
-    return outfile;
+  static std::ostream fake_stream(nullptr);
+  static std::ostream &cout_file(std::cout);
+
+#ifdef _WIN32
+  char *c_value;
+  size_t len;
+  errno_t err = _dupenv_s(&c_value, &len, "URX_DEBUG");
+  std::unique_ptr<char[], decltype(&free)> env_value(c_value, &free);
+  if (err || c_value == nullptr || len == 0) return fake_stream;
+  if (strncmp(c_value, "COUT", len) == 0) {
+    return cout_file;
   }
+#else
+  const char *c_value = getenv("URX_DEBUG");
+  if (c_value == nullptr) return fake_stream;
+  if (strcmp(c_value, "COUT") == 0) {
+    return cout_file;
+  }
+#endif
+  static std::ofstream outfile(c_value);
+  return outfile;
 }
 
 void urxIncAllocCount() { urx_alloc_count++; }
