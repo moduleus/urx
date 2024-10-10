@@ -489,8 +489,7 @@ build:ubuntu-matlab-static:
     - cmake --build CI --config Release --parallel $NUM_PARALLEL
     - cmake --install CI --config Release
     - cd test/matlab
-    - export URX_DEBUG=/tmp/urx-matlab.log
-    - ssh moduleus@localhost "cd $PWD && /opt/matlab/R2022b/bin/matlab -batch runTestsCi"
+    - ssh moduleus@localhost "export URX_DEBUG=/tmp/urx-matlab.log; cd $PWD && /opt/matlab/R2022b/bin/matlab -batch runTestsCi"
     - cat /tmp/urx-matlab.log
     - cd ../../CI/matlab/binding
     - ssh moduleus@localhost 'cd '`pwd`' && /opt/matlab/R2022b/bin/matlab -batch "matlab.addons.toolbox.packageToolbox(\"linux-Release.prj\")"'

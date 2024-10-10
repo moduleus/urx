@@ -91,19 +91,20 @@ All MATLAB files will be installed in :
 
 ### Configuration
 
-Before using `Urx` in MATLAB, you first need to:
+If you are using Urx from MATLAB toolkit, you just have to enable Unicode if you need it (`feature('DefaultCharacterSet','UTF-8');`).
+
+If you built Urx from source, before using `Urx` in MATLAB, you first need to:
 
   - allow utf-8 caracters,
   - load the urx library.
 
 ```MATLAB
 addpath([pwd 'INSTALL_PATH/share/Urx-XXXYYY/matlab']);
-setenv("HDF5_DISABLE_VERSION_CHECK", "1");
 feature('DefaultCharacterSet','UTF-8');
 urx.LibBinding.getInstance([path to libUrxMatlabBinding.so], [path to INSTALL_PATH/include/Urx-XXXYYY/urx/matlab/bindings.h], {[path to INSTALL_PATH/include/Urx-XXXYYY]}, {});
 ```
 
-⚠ Setting `HDF5_DISABLE_VERSION_CHECK` is tricky. MATLAB have it's own version of HDF5 library. Under Linux it will conflict with the one from Urx.
+⚠ When invoking `urx.LibBinding.getInstance` the first time, environment variable `HDF5_DISABLE_VERSION_CHECK` is set. MATLAB have it's own version of HDF5 library. Under Linux it will conflict with the one from Urx.
 
 If you try to use `dataset.saveToFile(...)` or `urx.Dataset.loadFromFile(...)` without setting `HDF5_DISABLE_VERSION_CHECK`, MATLAB will crash with error: `Headers are 1.8.23, library is 1.8.12`.
 
