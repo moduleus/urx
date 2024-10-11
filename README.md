@@ -6,9 +6,7 @@ The Ultrasound Raw data eXchange file format is a structure of data to store ult
 
 You may use it with various languages (C++, Python and MATLAB).
 
-TODO BIG IMAGE OF THE URX PLANTUML FROM WIKI.
-
-[Get more informations in the Wiki](http://google.fr).
+[Get more informations in the Wiki](./wiki) about class diagram.
 
 ## C++
 
