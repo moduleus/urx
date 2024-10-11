@@ -41,15 +41,38 @@ dependencies = [
     "setuptools-scm==8.1.0",
     "smmap==5.0.1"
 ]
-description = "URX python binding"
+description = "Ultrasound Raw data eXchange file format C++ implementation and wrapping in Python and Matlab"
+readme = "README.md"
+license = {text = "MIT License"}
 classifiers = [
-    "Development Status :: 4 - Beta",
-    "Operating System :: Unix",
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Healthcare Industry",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
     "Operating System :: Microsoft",
+    "Operating System :: Unix",
     "Programming Language :: C++",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
     "Programming Language :: Python",
+    "Topic :: File Formats",
+    "Topic :: Scientific/Engineering",
     ]
 requires-python = ">=3.8"
+
+[project.urls]
+Homepage = "https://moduleus.com"
+Documentation = "https://github.com/moduleus/urx/wiki"
+Repository = "https://github.com/moduleus/urx.git"
+Issues = "https://github.com/moduleus/urx/issues"
+Changelog = "https://github.com/moduleus/urx/wiki/changelog"
 
 [tool.setuptools]
 py-modules = []
