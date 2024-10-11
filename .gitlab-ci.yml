@@ -89,6 +89,7 @@ stages:
   - format
   - doc
   - tag
+  - release
 
 doc:doxygen:
   stage: doc
@@ -261,8 +262,8 @@ format:black-format:
       - CI/format.patch
     expire_in: 1 day
 
-format:update-images-of-wiki:
-  stage: format
+release:update-images-of-wiki:
+  stage: release
   needs: []
   when: manual
   image: $CI_REGISTRY/common/ci/dockerci/plantuml:latest
@@ -277,10 +278,10 @@ format:update-images-of-wiki:
     - rename -f "s/puml.svg/svg/" *.puml.svg
     - if [[ ! -z "$(git status --porcelain)" ]]; then git config user.email "gitlab-ci@moduleus.com"; git config user.name "Gitlab CI"; git add .; git commit -m "Update plantuml"; git push; fi
 
-format:upload-wiki-to-github:
-  stage: format
+release:upload-wiki-to-github:
+  stage: release
   needs:
-    - format:update-images-of-wiki
+    - release:update-images-of-wiki
   when: manual
   tags:
     - build
@@ -503,14 +504,14 @@ build:ubuntu-matlab-static:
       - CI/matlab/binding/urx-linux-Release.mltbx
     expire_in: 1 day
 
-build:all-python-linux-x64:
+release:all-python-linux-x64:
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
     PLAT: manylinux_2_27_x86_64
     # cp313-cp313t: failed to build numpy. Wait official release.
     # cp36-cp36m;cp37-cp37m: not maintained anymore
     SKIP_PYTHON: ;cp313-cp313t;cp36-cp36m;cp37-cp37m;
-  stage: build
+  stage: release
   needs: []
   when: manual
   tags:
@@ -527,10 +528,10 @@ build:all-python-linux-x64:
       - ultrasound_rawdata_exchange*manylinux*.whl
     expire_in: 1 day
 
-build:all-python-windows-x64:
+release:all-python-windows-x64:
   variables:
     CIBW_BUILD: cp38-win_amd64 cp39-win_amd64 cp310-win_amd64 cp311-win_amd64 cp312-win_amd64 pp38-win_amd64 pp39-win_amd64 pp310-win_amd64
-  stage: build
+  stage: release
   needs: []
   when: manual
   tags:
@@ -554,10 +555,10 @@ build:all-python-windows-x64:
       - wheelhouse
     expire_in: 1 day
 
-build:all-python-windows-x86:
+release:all-python-windows-x86:
   variables:
     CIBW_BUILD: cp38-win32 cp39-win32 cp310-win32 cp311-win32 cp312-win32
-  stage: build
+  stage: release
   needs: []
   when: manual
   tags:
@@ -584,11 +585,11 @@ build:all-python-windows-x86:
 # Need to use latest hdf5 to cross-compilation
 # Need to add -DVCPKG_INSTALL_OPTIONS=--allow-unsupported in setup.py for pybind11.
 # Can't cross-compile. pybind11 and python/CMakeLists.txt launch python.exe.
-build:all-python-windows-arm64:
+release:all-python-windows-arm64:
   variables:
     CIBW_BUILD: cp39-win_arm64 cp310-win_arm64 cp311-win_arm64 cp312-win_arm64
     CIBW_ARCHS: ARM64
-  stage: build
+  stage: release
   needs: []
   when: manual
   tags:
@@ -612,12 +613,12 @@ build:all-python-windows-arm64:
       - wheelhouse
     expire_in: 1 day
 
-build:upload-to-pypi:
-  stage: build
+release:upload-to-pypi:
+  stage: release
   needs:
-    - build:all-python-linux-x64
-    - build:all-python-windows-x64
-    - build:all-python-windows-x86
+    - release:all-python-linux-x64
+    - release:all-python-windows-x64
+    - release:all-python-windows-x86
   when: manual
   tags:
     - ubuntu
