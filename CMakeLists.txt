@@ -13,6 +13,15 @@ option(WITH_PYTHON "Build Python module" OFF)
 if(WITH_PYTHON)
   list(APPEND VCPKG_MANIFEST_FEATURES "python")
 endif()
+option(WITH_PYTHON_WHL "Generate Python module with pip wheel" OFF)
+if(WITH_PYTHON_WHL)
+  list(APPEND VCPKG_MANIFEST_FEATURES "python-wheel")
+  if(NOT WITH_PYTHON)
+    message(
+      FATAL_ERROR
+        "WITH_PYTHON must be set to true if WITH_PYTHON_WHL is enabled")
+  endif()
+endif()
 option(BUILD_TESTING "Build the testing tree." ON)
 if(BUILD_TESTING)
   list(APPEND VCPKG_MANIFEST_FEATURES "tests")
@@ -20,7 +29,7 @@ endif()
 
 project(
   Urx
-  VERSION 0.6.26.4
+  VERSION 1.0.0
   LANGUAGES C CXX
   DESCRIPTION "Ultrasound Raw eXchange format C++ implementation")
 
@@ -40,8 +49,6 @@ if(NOT CMAKE_BUILD_TYPE)
       "Release"
       CACHE STRING "Choose the type of build" FORCE)
 endif()
-
-option(WITH_PYTHON_WHL "Generate Python module with pip wheel" OFF)
 
 check_ipo_supported(RESULT result_ipo)
 if(result_ipo)
@@ -164,18 +171,88 @@ if(ENABLE_PCH)
       "<pybind11/stl_bind.h>")
 endif()
 
-if(WITH_PYTHON)
+if(WITH_PYTHON AND (NOT TARGET pybind11::pybind11 OR NOT TARGET Python3::Module
+                   ))
+  set(PYTHON_IS_DEBUG OFF)
+  if(DEFINED ENV{VCPKG_Python3_EXECUTABLE} AND NOT DEFINED Python3_EXECUTABLE)
+    set(Python3_EXECUTABLE $ENV{VCPKG_Python3_EXECUTABLE})
+  endif()
+
   find_package(
     Python3
-    COMPONENTS Interpreter Development
+    COMPONENTS Interpreter Development.Module
     REQUIRED)
   find_package(pybind11 2.11 REQUIRED)
+
+  # Check if Python3_EXECUTABLE is debug and modify Python3_EXECUTABLE according to.
+  execute_process(
+    COMMAND "${Python3_EXECUTABLE}" "-c"
+            "import sys; sys.exit(hasattr(sys, 'gettotalrefcount'))"
+    RESULT_VARIABLE Python3_EXECUTABLE_IS_DEBUG)
+
+  if(Python3_EXECUTABLE_IS_DEBUG)
+    set(Python3_EXECUTABLE_DEBUG ${Python3_EXECUTABLE})
+    set(Python3_EXECUTABLE_DEBUG_IS_DEBUG ON)
+
+    # If Python3_EXECUTABLE_IS_DEBUG, it's user's choice.
+  else()
+    set(Python3_EXECUTABLE_IS_DEBUG OFF)
+
+    unset(Python3_EXECUTABLE_DEBUG_IS_DEBUG)
+
+    if(WIN32)
+      if(NOT "${Python3_EXECUTABLE}" MATCHES ".*_d\.exe$")
+        string(REPLACE ".exe" "_d.exe" Python3_EXECUTABLE_DEBUG_TMP
+                       "${Python3_EXECUTABLE}")
+      endif()
+    else()
+      if(NOT "${Python3_EXECUTABLE}" MATCHES ".*d$")
+        set(Python3_EXECUTABLE_DEBUG_TMP "${Python3_EXECUTABLE}d")
+      endif()
+    endif()
+
+    find_program(Python3_EXECUTABLE_DEBUG_NEW_REAL
+                 ${Python3_EXECUTABLE_DEBUG_TMP} NO_DEFAULT_PATH)
+    if(Python3_EXECUTABLE_DEBUG_NEW_REAL)
+      execute_process(
+        COMMAND "${Python3_EXECUTABLE_DEBUG_NEW_REAL}" "-c"
+                "import sys; sys.exit(hasattr(sys, 'gettotalrefcount'))"
+        RESULT_VARIABLE _Python3_EXECUTABLE_DEBUG_NEW_REAL_IS_DEBUG)
+      if(_Python3_EXECUTABLE_DEBUG_NEW_REAL_IS_DEBUG)
+        set(Python3_EXECUTABLE_DEBUG_IS_DEBUG ON)
+        set(Python3_EXECUTABLE_DEBUG ${Python3_EXECUTABLE_DEBUG_NEW_REAL})
+      endif()
+    endif()
+  endif()
+
+  message(
+    STATUS
+      "Python3_EXECUTABLE: ${Python3_EXECUTABLE} is debug ? ${Python3_EXECUTABLE_IS_DEBUG}"
+  )
+  message(
+    STATUS
+      "Python3_EXECUTABLE_DEBUG: ${Python3_EXECUTABLE_DEBUG} is debug ? ${Python3_EXECUTABLE_DEBUG_IS_DEBUG}"
+  )
+
+  # All compilation is debug.
+  if(Python3_EXECUTABLE_DEBUG_IS_DEBUG)
+    set(Python3_EXECUTABLE
+        $<IF:$<CONFIG:Debug>,${Python3_EXECUTABLE_DEBUG},${Python3_EXECUTABLE}>)
+  endif()
+  set_property(
+    TARGET pybind11::pybind11
+    APPEND
+    PROPERTY INTERFACE_COMPILE_DEFINITIONS $<$<CONFIG:Debug>:Py_DEBUG>)
 endif()
 
 add_subdirectory("urx")
 
 if(WITH_MATLAB)
   add_subdirectory(matlab)
+endif()
+
+if(BUILD_TESTING)
+  find_package(Catch2 REQUIRED)
 endif()
 
 if(WITH_PYTHON)
@@ -189,7 +266,6 @@ install(
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${INSTALL_NAME})
 
 if(BUILD_TESTING)
-  find_package(Catch2 REQUIRED)
   add_subdirectory(test)
 endif()
 

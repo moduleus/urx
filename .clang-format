@@ -1,7 +1,7 @@
 ---
 Language: Cpp
-BasedOnStyle:  Google
-ColumnLimit: 100 
+BasedOnStyle: Google
+ColumnLimit: 100
 ReflowComments: false
 PointerAlignment: Left
 IncludeBlocks: Regroup
@@ -22,15 +22,11 @@ IncludeCategories:
     Priority: 2
     SortPriority: 0
     CaseSensitive: true
-  - Regex: '<restbed>'
-    Priority: 2
-    SortPriority: 0
-    CaseSensitive: true
-  - Regex: '^<.*'
+  - Regex: "^<.*"
     Priority: 1
     SortPriority: 0
     CaseSensitive: true
-  - Regex: '.*'
+  - Regex: ".*"
     Priority: 3
     SortPriority: 0
     CaseSensitive: true

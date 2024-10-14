@@ -69,8 +69,9 @@ target_include_directories(
   ${URX_UTILS_LIBRARY}
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
          $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${INSTALL_NAME}>)
-set_target_properties(${URX_UTILS_LIBRARY} PROPERTIES OUTPUT_NAME
-                                                      "${INSTALL_NAME}")
+set_target_properties(
+  ${URX_UTILS_LIBRARY} PROPERTIES OUTPUT_NAME "${INSTALL_NAME}" DEBUG_POSTFIX
+                                                                "d")
 
 target_sources(
   ${URX_UTILS_LIBRARY}
@@ -101,8 +102,10 @@ if(WITH_HDF5)
   endif()
 endif()
 
-install(
-  TARGETS ${URX_UTILS_LIBRARY} UrxCompilerFlags
-  EXPORT ${PROJECT_NAME}Targets
-  FILE_SET HEADERS
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+if(NOT CALL_FROM_SETUP_PY)
+  install(
+    TARGETS ${URX_UTILS_LIBRARY} UrxCompilerFlags
+    EXPORT ${PROJECT_NAME}Targets
+    FILE_SET HEADERS
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+endif()

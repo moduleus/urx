@@ -3,6 +3,7 @@
 #include <cmath>
 #include <functional>
 #include <limits>
+#include <type_traits>
 
 namespace urx {
 
@@ -12,7 +13,8 @@ struct DoubleNan {
   double value = URX_NAN;
 
   DoubleNan() = default;
-  explicit DoubleNan(double v) : value(v) {}
+  template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
+  explicit DoubleNan(T v) : value(static_cast<double>(v)) {}
   DoubleNan(const DoubleNan&) = default;
 
   bool operator<(const DoubleNan& other) const { return value < other.value; }
@@ -35,14 +37,27 @@ struct DoubleNan {
   // NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)
   operator double() const { return value; }
 
-  DoubleNan& operator=(double n) {
-    value = n;
+  template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
+  DoubleNan& operator=(T n) {
+    value = static_cast<double>(n);
     return *this;
   }
-  DoubleNan operator+(double n) const { return DoubleNan(value + n); }
-  DoubleNan operator-(double n) const { return DoubleNan(value - n); }
-  DoubleNan operator/(double n) const { return DoubleNan(value / n); }
-  DoubleNan operator*(double n) const { return DoubleNan(value * n); }
+  template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
+  DoubleNan operator+(T n) const {
+    return DoubleNan(value + n);
+  }
+  template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
+  DoubleNan operator-(T n) const {
+    return DoubleNan(value - n);
+  }
+  template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
+  DoubleNan operator/(T n) const {
+    return DoubleNan(value / n);
+  }
+  template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
+  DoubleNan operator*(T n) const {
+    return DoubleNan(value * n);
+  }
   DoubleNan& operator=(const DoubleNan& n) = default;
   DoubleNan& operator+=(const DoubleNan& n) {
     value += n.value;
@@ -60,31 +75,47 @@ struct DoubleNan {
     value *= n.value;
     return *this;
   }
-  DoubleNan& operator+=(double n) {
+  template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
+  DoubleNan& operator+=(T n) {
     value += n;
     return *this;
   }
-  DoubleNan& operator-=(double n) {
+  template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
+  DoubleNan& operator-=(T n) {
     value -= n;
     return *this;
   }
-  DoubleNan& operator/=(double n) {
+  template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
+  DoubleNan& operator/=(T n) {
     value /= n;
     return *this;
   }
-  DoubleNan& operator*=(double n) {
+  template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
+  DoubleNan& operator*=(T n) {
     value *= n;
     return *this;
   }
-  DoubleNan operator+(const DoubleNan& n) const { return DoubleNan(value + n.value); }
-  DoubleNan operator-(const DoubleNan& n) const { return DoubleNan(value - n.value); }
-  DoubleNan operator/(const DoubleNan& n) const { return DoubleNan(value / n.value); }
-  DoubleNan operator*(const DoubleNan& n) const { return DoubleNan(value * n.value); }
+  DoubleNan operator+(const DoubleNan& n) const { return DoubleNan{value + n.value}; }
+  DoubleNan operator-(const DoubleNan& n) const { return DoubleNan{value - n.value}; }
+  DoubleNan operator/(const DoubleNan& n) const { return DoubleNan{value / n.value}; }
+  DoubleNan operator*(const DoubleNan& n) const { return DoubleNan{value * n.value}; }
 };
 
-inline DoubleNan operator+(double n1, const DoubleNan& n2) { return DoubleNan(n1 + n2.value); }
-inline DoubleNan operator-(double n1, const DoubleNan& n2) { return DoubleNan(n1 - n2.value); }
-inline DoubleNan operator/(double n1, const DoubleNan& n2) { return DoubleNan(n1 / n2.value); }
-inline DoubleNan operator*(double n1, const DoubleNan& n2) { return DoubleNan(n1 * n2.value); }
+template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
+inline DoubleNan operator+(T n1, const DoubleNan& n2) {
+  return DoubleNan{static_cast<double>(n1) + n2.value};
+}
+template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
+inline DoubleNan operator-(T n1, const DoubleNan& n2) {
+  return DoubleNan{static_cast<double>(n1) - n2.value};
+}
+template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
+inline DoubleNan operator/(T n1, const DoubleNan& n2) {
+  return DoubleNan{static_cast<double>(n1) / n2.value};
+}
+template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
+inline DoubleNan operator*(T n1, const DoubleNan& n2) {
+  return DoubleNan{static_cast<double>(n1) * n2.value};
+}
 
 }  // namespace urx

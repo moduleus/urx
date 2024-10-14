@@ -6,7 +6,7 @@ CI_Android/
 install/
 Temporary/
 doc/
-pyurx.egg-info/
+/*.egg-info/
 test/python/__pycache__/
 
 # IDE dir

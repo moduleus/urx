@@ -49,7 +49,7 @@ struct Acquisition : public AcquisitionBase<Excitation, Group> {
 
   bool operator!=(const Acquisition& other) const { return !operator==(other); }
 
-  std::vector<GroupData<Group>> groups_data;
+  std::vector<GroupData> groups_data;
 };
 
 }  // namespace detail

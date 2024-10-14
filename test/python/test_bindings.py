@@ -1,4 +1,4 @@
-import pyurx as urx
+import ultrasound_rawdata_exchange as urx
 import unittest
 from test_bindings_acquisition import test_acquisition
 from test_bindings_dataset import test_dataset

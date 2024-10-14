@@ -1,6 +1,11 @@
 #ifndef URX_LIB_BINDING
 #define URX_LIB_BINDING
 
+// MATLAB parser doesn't support __attribute__((visibility("default"))).
+#ifndef UrxMatlabBinding_EXPORTS
+#define URX_MATLAB_STATIC_DEFINE
+#endif
+
 #include <urx/matlab/bindings_decl.h>
 #include <urx/matlab/export.h>
 

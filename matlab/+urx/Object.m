@@ -2,7 +2,6 @@ classdef Object < urx.ObjectField
   properties (Access = private)
     parent {mustBeScalarOrEmpty} = urx.Object.empty(1,0)
     saveId
-    savePtrType urx.PtrType
   end
 
   methods
@@ -125,6 +124,25 @@ classdef Object < urx.ObjectField
       res = [res '_' className '_' func];
     end
 
+    function res = getPtrTypeFromValidator(object, propertyName)
+      props = metaclass(object).PropertyList;
+      idxProperty = arrayfun(@(x) strcmp(x.Name, propertyName), props);
+      validatorFunc = props(idxProperty).Validation.ValidatorFunctions;
+      validatorStr = cellfun(@func2str, validatorFunc, 'UniformOutput', false);
+
+      if any(strcmp(validatorStr, 'urx.Validator.sharedPtrInCpp'))
+        res = urx.PtrType.SHARED;
+      elseif any(strcmp(validatorStr, 'urx.Validator.optionalInCpp'))
+        res = urx.PtrType.OPTIONAL;
+      elseif any(strcmp(validatorStr, 'urx.Validator.weakPtrInCpp'))
+        res = urx.PtrType.WEAK;
+      elseif any(strcmp(validatorStr, 'urx.Validator.rawInCpp'))
+        res = urx.PtrType.RAW;
+      else
+        assert(false);
+      end
+    end
+
     function handlePropEvents(src,evnt)
       % Since this function read properties from urx object, it may be
       % needed to disable Get/Set Recution.
@@ -224,7 +242,6 @@ classdef Object < urx.ObjectField
         case 'PreSet'
           if isa(affectedProperty, 'urx.Object') && isempty(affectedPropertyStd)
             affectedObject.saveId = affectedProperty.id;
-            affectedObject.savePtrType = affectedProperty.ptrType;
           end
 
         case 'PostSet'
@@ -282,39 +299,46 @@ classdef Object < urx.ObjectField
               affectedCFieldPtr.Value = affectedProperty;
               % urx.Object
             else
+              affectedPropertyPtrType = urx.Object.getPtrTypeFromValidator(affectedObject, affectedPropertyName);
 
-              % When you assign an urx object to another one, you don't
-              % assign pointer, you copy data from a pointer to another
-              % pointer.
-              % So after assigning new data to old data, you need to free new
-              % data (that has been copied to old data).
-              assignFunction = urx.Object.functionAssign(strrep(affectedPropertyClassName, '.', '_'), affectedObject.savePtrType, affectedProperty.ptrType);
-              libBindingRef.call(assignFunction, affectedCFieldPtr, affectedProperty.id);
-
-              % New value has never been affected.
-              if isempty(affectedProperty.parent)
-                affectedProperty.freeMem();
-
-                % Restore pointer and ptrType of the property.
-                affectedProperty.id = affectedObject.saveId;
-                affectedProperty.ptrType = affectedObject.savePtrType;
-
-                % The property must remember the parent. You may want to delete
-                % the parent object and want to use the object property. I.e.
-                % dataset = urx.Dataset();
-                % version = urx.Version();
-                % version.minor = 111;
-                % dataset.version = version;
-                % clear dataset
-                % Here, version variable must be usable even if dataset
-                % (and dataset.version) is cleared.
-                affectedProperty.parent = affectedObject;
-
-                % shared stored in weak ptr.
-              elseif affectedObject.savePtrType == urx.PtrType.WEAK && affectedProperty.ptrType == urx.PtrType.SHARED
-              elseif affectedObject.savePtrType == urx.PtrType.WEAK && affectedProperty.ptrType == urx.PtrType.WEAK
+              % empty urx.Object (weak_ptr / optional)
+              if isempty(affectedProperty)
+                assignFunction = urx.Object.functionAssign(strrep(affectedPropertyClassName, '.', '_'), affectedPropertyPtrType, urx.PtrType.SHARED);
+                libBindingRef.call(assignFunction, affectedCFieldPtr, libpointer());
               else
-                assert(false);
+                % When you assign an urx object to another one, you don't
+                % assign pointer, you copy data from a pointer to another
+                % pointer.
+                % So after assigning new data to old data, you need to free new
+                % data (that has been copied to old data).
+                assignFunction = urx.Object.functionAssign(strrep(affectedPropertyClassName, '.', '_'), affectedPropertyPtrType, affectedProperty.ptrType);
+                libBindingRef.call(assignFunction, affectedCFieldPtr, affectedProperty.id);
+
+                % New value has never been affected.
+                if isempty(affectedProperty.parent)
+                  affectedProperty.freeMem();
+
+                  % Restore pointer and ptrType of the property.
+                  affectedProperty.id = affectedObject.saveId;
+                  affectedProperty.ptrType = affectedPropertyPtrType;
+
+                  % The property must remember the parent. You may want to delete
+                  % the parent object and want to use the object property. I.e.
+                  % dataset = urx.Dataset();
+                  % version = urx.Version();
+                  % version.minor = 111;
+                  % dataset.version = version;
+                  % clear dataset
+                  % Here, version variable must be usable even if dataset
+                  % (and dataset.version) is cleared.
+                  affectedProperty.parent = affectedObject;
+
+                  % shared stored in weak ptr.
+                elseif affectedPropertyPtrType == urx.PtrType.WEAK && affectedProperty.ptrType == urx.PtrType.SHARED
+                elseif affectedPropertyPtrType == urx.PtrType.WEAK && affectedProperty.ptrType == urx.PtrType.WEAK
+                else
+                  assert(false);
+                end
               end
             end
           end
@@ -376,26 +400,13 @@ classdef Object < urx.ObjectField
 
             affectedObject.(affectedPropertyName) = affectedCFieldPtr.Value;
           else % urx.Object
-            props = metaclass(affectedObject).PropertyList;
-            idxProperty = arrayfun(@(x) strcmp(x.Name, affectedPropertyName), props);
-            validatorFunc = props(idxProperty).Validation.ValidatorFunctions;
-
-            if any(cellfun(@(x) strcmp(func2str(x), 'urx.Validator.sharedPtrInCpp'), validatorFunc))
-              stdPtrType = urx.PtrType.SHARED;
-            elseif any(cellfun(@(x) strcmp(func2str(x), 'urx.Validator.optionalInCpp'), validatorFunc))
-              stdPtrType = urx.PtrType.OPTIONAL;
-            elseif any(cellfun(@(x) strcmp(func2str(x), 'urx.Validator.weakPtrInCpp'), validatorFunc))
-              stdPtrType = urx.PtrType.WEAK;
-            elseif any(cellfun(@(x) strcmp(func2str(x), 'urx.Validator.rawInCpp'), validatorFunc))
-              stdPtrType = urx.PtrType.RAW;
-            else
-              assert(false);
-            end
+            affectedPropertyPtrType = urx.Object.getPtrTypeFromValidator(affectedObject, affectedPropertyName);
             if isempty(affectedObject.(affectedPropertyName))
+              % Field may be empty (i.e. weak_ptr without data).
               has_data = libBindingRef.call([functionCFieldAccessor '_has_data'], affectedObject.id);
               % Force value if PreGet is called from a PreSet.
               if (has_data || (disableGetRecursion == 0 && disableSetRecursion == 1 && strcmp(s(2).name, 'Object.handlePropEvents')))
-                newObject = feval(affectedPropertyClassName, affectedCFieldPtr, stdPtrType, affectedObject);
+                newObject = feval(affectedPropertyClassName, affectedCFieldPtr, affectedPropertyPtrType, affectedObject);
                 if isa(affectedProperty, 'urx.RawData')
                   sampling = newObject.samplingType();
                   data = newObject.dataType();
@@ -418,15 +429,15 @@ classdef Object < urx.ObjectField
                   else
                     assert(false);
                   end
-                  newObject = feval(realAffectedPropertyClassName, affectedCFieldPtr, stdPtrType, affectedObject);
+                  newObject = feval(realAffectedPropertyClassName, affectedCFieldPtr, affectedPropertyPtrType, affectedObject);
                 end
               else
                 newObject = feval(affectedPropertyClassName, []).empty;
               end
               affectedObject.(affectedPropertyName) = newObject;
-            elseif (stdPtrType == urx.PtrType.WEAK && affectedObject.(affectedPropertyName).ptrType == urx.PtrType.SHARED)
+            elseif (affectedPropertyPtrType == urx.PtrType.WEAK && affectedObject.(affectedPropertyName).ptrType == urx.PtrType.SHARED)
               % Type may have changed when assigning WEAK from a SHARED.
-              newProperty = feval(affectedPropertyClassName, affectedCFieldPtr, stdPtrType, affectedObject);
+              newProperty = feval(affectedPropertyClassName, affectedCFieldPtr, affectedPropertyPtrType, affectedObject);
               props = properties(newProperty);
 
               for i = 1:numel(props)
@@ -437,7 +448,7 @@ classdef Object < urx.ObjectField
             else
               % If object has already been cached, check if nothing has changed.
               assert(libBindingRef.showPtr(affectedObject.(affectedPropertyName).id) == libBindingRef.showPtr(affectedCFieldPtr));
-              assert(affectedObject.(affectedPropertyName).ptrType == stdPtrType);
+              assert(affectedObject.(affectedPropertyName).ptrType == affectedPropertyPtrType);
             end
           end
           disableSetRecursion = disableSetRecursion - 1;

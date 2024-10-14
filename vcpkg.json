@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
   "name": "urx",
-  "version": "0.6.26.4",
+  "version": "1.0.0",
   "description": "Ultrasound Raw eXchange format",
   "homepage": "https://www.moduleus.com/",
   "license": "LGPL-3.0-or-later",
@@ -35,6 +35,18 @@
       "description": "Enable python binding",
       "dependencies": [
         "pybind11"
+      ]
+    },
+    "python-wheel": {
+      "description": "Build python wheel package",
+      "dependencies": [
+        {
+          "name": "urx",
+          "default-features": false,
+          "features": [
+            "python"
+          ]
+        }
       ]
     },
     "tests": {
