@@ -1,6 +1,8 @@
 #include <complex>
 #include <cstddef>
 #include <cstdint>
+#include <cstdlib>
+#include <cstring>
 #include <fstream>
 #include <ios>
 #include <iosfwd>
@@ -40,19 +42,31 @@
 #define str(s) #s
 
 namespace {
-constexpr bool LOG_NEW_DELETE = false;
-
 size_t urx_alloc_count = 0;
 }  // namespace
 
 std::ostream &urxGetLog() {
-  if constexpr (LOG_NEW_DELETE) {
-    static std::ofstream outfile("c:\\temp\\urx.log");
-    return outfile;
-  } else {
-    std::ostream &outfile(std::cout);
-    return outfile;
+  static std::ostream fake_stream(nullptr);
+  static std::ostream &cout_file(std::cout);
+
+#ifdef _WIN32
+  char *c_value;
+  size_t len;
+  errno_t err = _dupenv_s(&c_value, &len, "URX_DEBUG");
+  std::unique_ptr<char[], decltype(&free)> env_value(c_value, &free);
+  if (err || c_value == nullptr || len == 0) return fake_stream;
+  if (strncmp(c_value, "COUT", len) == 0) {
+    return cout_file;
   }
+#else
+  const char *c_value = getenv("URX_DEBUG");
+  if (c_value == nullptr) return fake_stream;
+  if (strcmp(c_value, "COUT") == 0) {
+    return cout_file;
+  }
+#endif
+  static std::ofstream outfile(c_value);
+  return outfile;
 }
 
 void urxIncAllocCount() { urx_alloc_count++; }
@@ -171,7 +185,7 @@ RAW_DATA_SHARED_NS_IMPL(urx, RawData);
 
 uint64_t get_pointer(void *ptr) { return reinterpret_cast<uint64_t>(ptr); }
 
-void *urx_load_from_file(const char *filename) {
+void *urx_load_from_file([[maybe_unused]] const char *filename) {
 #ifdef URX_WITH_HDF5
   return new std::shared_ptr<urx::Dataset>(urx::utils::io::reader::loadFromFile(filename));
 #else
@@ -179,7 +193,7 @@ void *urx_load_from_file(const char *filename) {
 #endif
 }
 
-void urx_save_to_file(const char *filename, void *dataset) {
+void urx_save_to_file([[maybe_unused]] const char *filename, [[maybe_unused]] void *dataset) {
 #ifdef URX_WITH_HDF5
   urx::utils::io::writer::saveToFile(filename,
                                      **static_cast<std::shared_ptr<urx::Dataset> *>(dataset));

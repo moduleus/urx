@@ -1,36 +1,78 @@
 [build-system]
 build-backend = "setuptools.build_meta"
 requires = [
-    "wheel",
-    "setuptools>69.0.0,<73",
-    "cmake",
-    "cmake-build-extension",
-    "importlib-metadata",
-    "numpy<2",
-    "toml",
-    "parameterized"
+    "wheel==0.44.0",
+    "setuptools==72.2.0",
+    "cmake-build-extension==0.6.1",
+    "importlib_metadata==8.5.0",
+    "numpy==1.24.4; python_version == '3.8'",
+    "numpy==1.26.4; python_version >= '3.9'",
+    "toml==0.10.2",
+    "pip",
+    "cmake==3.30.3",
+    "parameterized==0.9.0",
+    #"## The following requirements were added by pip freeze:",
+    "gitdb==4.0.11",
+    "GitPython==3.1.43",
+    "ninja==1.11.1.1",
+    "packaging==24.1",
+    "setuptools-scm==8.1.0",
+    "smmap==5.0.1",
+    "zipp==3.20.2"
 ]
 
 [project]
-name = "pyurx"
-version = "0.6.26.4"
+name = "ultrasound-rawdata-exchange"
+version = "0.6.26.5"
 dependencies = [
-    "cmake-build-extension",
-    "numpy<2",
-    "parameterized",
-    "setuptools>69.0.0,<73",
-    "toml",
-    "cmake"
+    "cmake-build-extension==0.6.1",
+    "numpy==1.24.4; python_version == '3.8'",
+    "numpy==1.26.4; python_version >= '3.9'",
+    "parameterized==0.9.0",
+    "setuptools==72.2.0",
+    "pip",
+    "cmake==3.30.3",
+    "toml==0.10.2",
+    #"## The following requirements were added by pip freeze:",
+    "gitdb==4.0.11",
+    "GitPython==3.1.43",
+    "ninja==1.11.1.1",
+    "packaging==24.1",
+    "setuptools-scm==8.1.0",
+    "smmap==5.0.1"
 ]
-description = "URX python binding"
+description = "Ultrasound Raw data eXchange file format C++ implementation and wrapping in Python and Matlab"
+readme = "README.md"
+license = {text = "MIT License"}
 classifiers = [
-    "Development Status :: 4 - Beta",
-    "Operating System :: Unix",
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Healthcare Industry",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
     "Operating System :: Microsoft",
+    "Operating System :: Unix",
     "Programming Language :: C++",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
     "Programming Language :: Python",
+    "Topic :: File Formats",
+    "Topic :: Scientific/Engineering",
     ]
-requires-python = ">=3.9"
+requires-python = ">=3.8"
+
+[project.urls]
+Homepage = "https://moduleus.com"
+Documentation = "https://github.com/moduleus/urx/wiki"
+Repository = "https://github.com/moduleus/urx.git"
+Issues = "https://github.com/moduleus/urx/issues"
+Changelog = "https://github.com/moduleus/urx/wiki/changelog"
 
 [tool.setuptools]
 py-modules = []
@@ -38,3 +80,13 @@ py-modules = []
 [tool.black]
 line-length = 100
 extend-exclude = '\.pyi$'
+
+[tool.cibuildwheel]
+build-verbosity = 1
+build-frontend = { name="pip", args=["--no-clean"] }
+
+[tool.cibuildwheel.windows]
+# "cp313-win_amd64" : Not officialy release.
+build = ["cp38-win_amd64", "cp39-win_amd64", "cp310-win_amd64", "cp311-win_amd64", "cp312-win_amd64"]
+# Should be build-system.requires but doesn't work.
+before-build = "pip install cmake"

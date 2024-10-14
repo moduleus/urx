@@ -1,21 +1,10 @@
-#include <algorithm>
-#include <complex>
-#include <cstdint>
-#include <memory>
-#include <ostream>
-#include <stdexcept>
 #include <string>
-#include <utility>
 #include <vector>
 
 #include <pybind11/pybind11.h>
 
-#include <urx/detail/compare.h>
-#include <urx/detail/raw_data.h>
-#include <urx/enums.h>
 #include <urx/python/bindings.h>
 #include <urx/python/export.h>
-#include <urx/utils/group_helper.h>
 
 namespace urx::python::detail {
 

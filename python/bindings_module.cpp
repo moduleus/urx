@@ -25,6 +25,7 @@
 #include <urx/group_data.h>
 #include <urx/impulse_response.h>
 #include <urx/python/bindings.h>
+#include <urx/python/utils/group_helper.h>
 #include <urx/receive_setup.h>
 #include <urx/transform.h>
 #include <urx/transmit_setup.h>
@@ -224,7 +225,7 @@ PYBIND11_MODULE(bindings, m) {
 
   // group_helper
   m.def("sizeofDataType", &urx::utils::group_helper::sizeofDataType);
-  m.def("pyGetFormat", &urx::utils::group_helper::pyGetFormat);
+  m.def("pyGetFormat", &urx::python::utils::pyGetFormat);
   m.def("sizeofSample", &urx::utils::group_helper::sizeofSample);
 
   // time_helper.h

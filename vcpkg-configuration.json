@@ -2,9 +2,9 @@
     "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg-configuration.schema.json",
     "default-registry": {
         "kind": "git",
-        "baseline": "0eba43530b11f9ab9016f11eb463a68517febc3c",
-        "reference": "fix2",
-        "repository": "https://git.moduleus.com/common/sw/3rdparty/vcpkg.git"
+        "baseline": "2f210a9c13fcf2b0c36b1f2187366feec37e3390",
+        "reference": "master",
+        "repository": "https://github.com/microsoft/vcpkg"
     },
     "registries": [
         {
@@ -12,7 +12,8 @@
             "path": "vcpkg-registry",
             "packages": [
                 "hdf5",
-                "urx"
+                "urx",
+                "python3"
             ]
         }
     ]

@@ -20,6 +20,7 @@
 #include <urx/detail/raw_data.h>
 #include <urx/enums.h>
 #include <urx/python/bindings.h>
+#include <urx/python/utils/group_helper.h>
 #include <urx/utils/group_helper.h>
 
 namespace urx::python::detail {
@@ -30,7 +31,7 @@ py::array rawDataToPyArray(urx::RawData& raw_data) {
   void* data_ptr = raw_data.getBuffer();
   const py::ssize_t sizeof_data_type_var =
       urx::utils::group_helper::sizeofDataType(raw_data.getDataType());
-  const std::string data_format = urx::utils::group_helper::pyGetFormat(raw_data.getDataType());
+  const std::string data_format = urx::python::utils::pyGetFormat(raw_data.getDataType());
 
   auto buffer = py::buffer_info(
       data_ptr, sizeof_data_type_var, data_format, are_data_complex ? 2 : 1,

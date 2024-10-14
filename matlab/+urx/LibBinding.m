@@ -51,8 +51,19 @@ classdef LibBinding < handle
     function this = getInstance(libraryPath, headerPath, includepaths, envpaths)
       persistent instance
       if isempty(instance)
-        if nargin < 3
-          instance = urx.LibBinding();
+        setenv("HDF5_DISABLE_VERSION_CHECK", "1");
+        if nargin < 4
+          scriptPath = fileparts(mfilename('fullpath'));
+          % Default path for toolbox
+          if ispc()
+            instance = urx.LibBinding([scriptPath '/../UrxMatlabBinding.dll'], ...
+              [scriptPath '/../include/urx/matlab/bindings.h'], ...
+              {[scriptPath '/../include']}, {});
+          else
+            instance = urx.LibBinding([scriptPath '/../libUrxMatlabBinding.so'], ...
+              [scriptPath '/../include/urx/matlab/bindings.h'], ...
+              {[scriptPath '/../include']}, {});
+          end
         else
           instance = urx.LibBinding(libraryPath, headerPath, includepaths, envpaths);
         end

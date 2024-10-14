@@ -32,6 +32,11 @@ add_library(
   export_symbol_from_static.cpp)
 add_library(Urx::UrxMatlabBinding ALIAS UrxMatlabBinding)
 
+if(UNIX)
+  target_link_options(UrxMatlabBinding PRIVATE "-static-libgcc"
+                      "-static-libstdc++")
+endif(UNIX)
+
 generate_export_header(UrxMatlabBinding BASE_NAME URX_MATLAB EXPORT_FILE_NAME
                        ${CMAKE_CURRENT_BINARY_DIR}/urx/matlab/export.h)
 
@@ -64,3 +69,44 @@ install(
   EXPORT ${PROJECT_NAME}Targets
   FILE_SET HEADERS
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
+# Generate the MATLAB toolbox
+configure_file(windows.prj.in windows.prj @ONLY)
+file(
+  GENERATE
+  OUTPUT "$<TARGET_FILE_DIR:UrxMatlabBinding>/windows-$<CONFIG>.prj"
+  INPUT "${CMAKE_CURRENT_BINARY_DIR}/windows.prj")
+set_property(
+  DIRECTORY
+  APPEND
+  PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/windows.prj")
+
+configure_file(linux.prj.in linux.prj @ONLY)
+file(
+  GENERATE
+  OUTPUT "$<TARGET_FILE_DIR:UrxMatlabBinding>/linux-$<CONFIG>.prj"
+  INPUT "${CMAKE_CURRENT_BINARY_DIR}/linux.prj")
+set_property(
+  DIRECTORY
+  APPEND
+  PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/linux.prj")
+
+add_custom_command(
+  TARGET UrxMatlabBinding
+  POST_BUILD
+  COMMAND
+    ${CMAKE_COMMAND} -E copy_directory_if_different
+    ${CMAKE_CURRENT_SOURCE_DIR}/../+urx $<TARGET_FILE_DIR:UrxMatlabBinding>/+urx
+  COMMAND
+    ${CMAKE_COMMAND} -E copy_directory_if_different
+    ${CMAKE_CURRENT_SOURCE_DIR}/urx
+    $<TARGET_FILE_DIR:UrxMatlabBinding>/include/urx
+  COMMAND
+    ${CMAKE_COMMAND} -E copy_directory_if_different
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../urx
+    $<TARGET_FILE_DIR:UrxMatlabBinding>/include/urx
+  COMMAND
+    ${CMAKE_COMMAND} -E copy_directory_if_different
+    ${CMAKE_CURRENT_BINARY_DIR}/urx
+    $<TARGET_FILE_DIR:UrxMatlabBinding>/include/urx
+  COMMAND_EXPAND_LISTS)

@@ -178,7 +178,11 @@ classdef FileFromScratch < matlab.unittest.TestCase
       element1.transform.translation.x = 741;
       element1.transform.translation.y = 852;
       element1.transform.translation.z = 963;
+      % Test empty weak_ptr field
       element1.elementGeometry = probe2.elementGeometries(1);
+      testcase.verifyTrue(urx.LibBinding.getInstance().call('urx_Element_shared_element_geometry_has_data', element1));
+      element1.elementGeometry = urx.ElementGeometry.empty;
+      testcase.verifyFalse(urx.LibBinding.getInstance().call('urx_Element_shared_element_geometry_has_data', element1));
       element1.impulseResponse = probe2.impulseResponses(2);
       
       element2 = urx.Element();
