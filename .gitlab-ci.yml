@@ -159,7 +159,6 @@ doc:plantuml:
     # Merge AcquisitionBase and Acquisition
     - sed -i -E -z "s/\s+class Acquisition\s+\{\s+([^\}]*)}\s+class AcquisitionBase\s+\{([^\}]*)}/\nclass Acquisition{\2\1}/g" doc/plantuml/architecture_user.puml
     - sed -i 's/^urx\.AcquisitionBase.*-- .*urx\.Acquisition$//g' doc/plantuml/architecture_user.puml
-    - sed -i 's/^urx\.AcquisitionBase.*-- .*urx\.Group$//g' doc/plantuml/architecture_user.puml
     - sed -i 's/AcquisitionBase/Acquisition/g' doc/plantuml/architecture_user.puml
     # Generate image
     - mkdir -p public/plantuml
