@@ -12,6 +12,7 @@ struct ImpulseResponse;
 struct Probe;
 struct Wave;
 class RawData;
+struct GroupData;
 
 namespace detail {
 template <class T>
@@ -25,7 +26,6 @@ struct Group;
 using TransmitSetup = detail::TransmitSetup<Excitation>;
 using Event = detail::Event<TransmitSetup, ReceiveSetup>;
 using Group = detail::Group<Event>;
-struct GroupData;
 
 template <typename T>
 inline std::enable_if_t<std::is_same_v<ElementGeometry, T> || std::is_same_v<Excitation, T> ||
