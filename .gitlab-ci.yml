@@ -494,14 +494,14 @@ build:ubuntu-matlab-static:
     - cat /tmp/urx-matlab.log
     - cd ../../CI/matlab/binding
     - ssh moduleus@localhost 'cd '`pwd`' && /opt/matlab/R2022b/bin/matlab -batch "matlab.addons.toolbox.packageToolbox(\"linux-Release.prj\")"'
-    - mv urx.mltbx urx-linux-Release.mltbx
     - cd ../../..
+    - cp CI/matlab/binding/urx.mltbx urx-linux-Release.mltbx
   after_script:
-    - ssh moduleus@localhost "chmod 777 $PWD/test/matlab/test.urx $PWD/CI/matlab/binding/urx-linux-Release.mltbx"
+    - rm -Rf test/matlab/test.urx CI/matlab/binding/urx.mltbx
   artifacts:
     paths:
       - install
-      - CI/matlab/binding/urx-linux-Release.mltbx
+      - urx-linux-Release.mltbx
     expire_in: 1 day
 
 release:all-python-linux-x64:
