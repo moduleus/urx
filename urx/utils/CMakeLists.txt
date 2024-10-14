@@ -57,6 +57,10 @@ endif()
 
 set(URX_UTILS_LIBRARY UrxUtils)
 add_library(${URX_UTILS_LIBRARY})
+set_target_properties(${URX_UTILS_LIBRARY} PROPERTIES
+    OUTPUT_NAME ${URX_UTILS_LIBRARY}
+    DEBUG_POSTFIX "d"
+)
 add_library(Urx::${URX_UTILS_LIBRARY} ALIAS ${URX_UTILS_LIBRARY})
 
 generate_export_header(
