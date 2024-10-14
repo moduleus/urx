@@ -97,6 +97,7 @@ if(NOT CALL_FROM_SETUP_PY AND WITH_PYTHON_WHL)
       --config-settings=--global-option=-DWITH_HDF5=${WITH_HDF5}
       --config-settings=--global-option=-DCatch2_DIR=${Catch2_DIR}
       --config-settings=--global-option=-DHDF5_DIR=${HDF5_DIR}
+      --config-settings=--global-option=-DBUILD_TESTING=${BUILD_TESTING}
       --config-settings=--global-option=-Dpybind11_DIR=${pybind11_DIR}
       --wheel-dir
       ${CMAKE_CURRENT_BINARY_DIR}
