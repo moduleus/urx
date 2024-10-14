@@ -57,10 +57,6 @@ endif()
 
 set(URX_UTILS_LIBRARY UrxUtils)
 add_library(${URX_UTILS_LIBRARY})
-set_target_properties(${URX_UTILS_LIBRARY} PROPERTIES
-    OUTPUT_NAME ${URX_UTILS_LIBRARY}
-    DEBUG_POSTFIX "d"
-)
 add_library(Urx::${URX_UTILS_LIBRARY} ALIAS ${URX_UTILS_LIBRARY})
 
 generate_export_header(
@@ -73,8 +69,9 @@ target_include_directories(
   ${URX_UTILS_LIBRARY}
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
          $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${INSTALL_NAME}>)
-set_target_properties(${URX_UTILS_LIBRARY} PROPERTIES OUTPUT_NAME
-                                                      "${INSTALL_NAME}")
+set_target_properties(
+  ${URX_UTILS_LIBRARY} PROPERTIES OUTPUT_NAME "${INSTALL_NAME}" DEBUG_POSTFIX
+                                                                "d")
 
 target_sources(
   ${URX_UTILS_LIBRARY}
