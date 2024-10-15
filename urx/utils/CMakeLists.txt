@@ -70,8 +70,8 @@ target_include_directories(
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
          $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${INSTALL_NAME}>)
 set_target_properties(
-  ${URX_UTILS_LIBRARY} PROPERTIES OUTPUT_NAME "${INSTALL_NAME}" DEBUG_POSTFIX
-                                                                "d")
+  ${URX_UTILS_LIBRARY}
+  PROPERTIES OUTPUT_NAME "${URX_UTILS_LIBRARY}-${git_branch}" DEBUG_POSTFIX "d")
 
 target_sources(
   ${URX_UTILS_LIBRARY}
@@ -82,10 +82,6 @@ target_sources(
 if(ENABLE_PCH)
   target_precompile_headers(${URX_UTILS_LIBRARY} PRIVATE ${URX_PCH})
 endif()
-
-set_target_properties(
-  ${URX_UTILS_LIBRARY} PROPERTIES OUTPUT_NAME
-                                  "${URX_UTILS_LIBRARY}-${git_branch}")
 
 set(CMAKE_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR}/${INSTALL_NAME})
 
