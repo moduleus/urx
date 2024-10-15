@@ -2,7 +2,9 @@
 
 include(CMakeFindDependencyMacro)
 
-set(HDF5_DIR "@HDF5_DIR@")
+if(NOT HDF5_DIR)
+  set(HDF5_DIR "@HDF5_DIR@")
+endif()
 if(NOT "${HDF5_DIR}" STREQUAL "")
   find_dependency(
     HDF5

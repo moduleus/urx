@@ -290,7 +290,7 @@ release:upload-wiki-to-github:
     - CI_PROJECT_URL_HTTPS=${CI_PROJECT_URL_SLASH/.git/.wiki.git}
     - git clone https://write_wiki:${VCPKG_WIKI_ACCESS_TOKEN}@$CI_PROJECT_URL_HTTPS
     - cd urx.wiki
-    - git remote add github https://access:${GITHUB_CI_ACCESS_TOKEN}@github.com/moduleus/urx.wiki.git
+    - git remote add github https://access:${GITHUB_TOKEN}@github.com/moduleus/urx.wiki.git
     - git push --force github main:master
 
 tag:version:
@@ -468,11 +468,12 @@ build:windows-matlab-static:
     - cat $Env:TMP/urx-matlab.log
     - cd ../../CI/matlab/binding/Release
     - C:/"Program Files"/MATLAB/R2023b/bin/matlab.exe -wait -batch "matlab.addons.toolbox.packageToolbox('windows-Release.prj')"
-    - mv urx.mltbx urx-windows-Release.mltbx
+    - cd ../../../..
+    - Move-Item CI/matlab/binding/Release/urx.mltbx ("urx-" + (Get-Content CI/version.txt) + "-win-amd64.mltbx")
   artifacts:
     paths:
       - install
-      - CI/matlab/binding/Release/urx-windows-Release.mltbx
+      - urx-*-win-amd64.mltbx
     expire_in: 1 day
 
 build:ubuntu-matlab-static:
@@ -494,13 +495,14 @@ build:ubuntu-matlab-static:
     - cd ../../CI/matlab/binding
     - ssh moduleus@localhost 'cd '`pwd`' && /opt/matlab/R2022b/bin/matlab -batch "matlab.addons.toolbox.packageToolbox(\"linux-Release.prj\")"'
     - cd ../../..
-    - cp CI/matlab/binding/urx.mltbx urx-linux-Release.mltbx
+    - cp CI/matlab/binding/urx.mltbx urx-$(cat CI/version.txt)-linux-amd64.mltbx
   after_script:
-    - rm -Rf test/matlab/test.urx CI/matlab/binding/urx.mltbx
+    - rm -Rf test/matlab/test.urx CI/matlab/binding/urx-*-linux-amd64.mltbx
   artifacts:
     paths:
+      - CI/version.txt
       - install
-      - urx-linux-Release.mltbx
+      - urx-*-linux-amd64.mltbx
     expire_in: 1 day
 
 release:all-python-linux-x64:
@@ -509,7 +511,8 @@ release:all-python-linux-x64:
     PLAT: manylinux_2_27_x86_64
     # cp313-cp313t: failed to build numpy. Wait official release.
     # cp36-cp36m;cp37-cp37m: not maintained anymore
-    SKIP_PYTHON: ;cp313-cp313t;cp36-cp36m;cp37-cp37m;
+    SKIP_PYTHON: cp313-cp313t;cp36-cp36m;cp37-cp37m
+    # ONLY_PYTHON: cp312-cp312
   stage: release
   needs: []
   when: manual
@@ -625,3 +628,17 @@ release:upload-to-pypi:
   script:
     - *python-venv-linux
     - python -m twine upload `find . -name "*.whl"`
+
+release:upload-to-github:
+  stage: release
+  needs:
+    - release:all-python-linux-x64
+    - release:all-python-windows-x64
+    - release:all-python-windows-x86
+    - build:windows-matlab-static
+    - build:ubuntu-matlab-static
+  when: manual
+  tags:
+    - ubuntu
+  script:
+    - gh release create -R moduleus/urx -t "v$(cat CI/version.txt)" --notes "" $(cat CI/version.txt) *.mltbx ultrasound_rawdata_exchange*.whl wheelhouse/ultrasound_rawdata_exchange*.whl
