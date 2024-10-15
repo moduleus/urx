@@ -290,7 +290,7 @@ release:upload-wiki-to-github:
     - CI_PROJECT_URL_HTTPS=${CI_PROJECT_URL_SLASH/.git/.wiki.git}
     - git clone https://write_wiki:${VCPKG_WIKI_ACCESS_TOKEN}@$CI_PROJECT_URL_HTTPS
     - cd urx.wiki
-    - git remote add github https://access:${GITHUB_CI_ACCESS_TOKEN}@github.com/moduleus/urx.wiki.git
+    - git remote add github https://access:${GITHUB_TOKEN}@github.com/moduleus/urx.wiki.git
     - git push --force github main:master
 
 tag:version:
@@ -468,11 +468,11 @@ build:windows-matlab-static:
     - cat $Env:TMP/urx-matlab.log
     - cd ../../CI/matlab/binding/Release
     - C:/"Program Files"/MATLAB/R2023b/bin/matlab.exe -wait -batch "matlab.addons.toolbox.packageToolbox('windows-Release.prj')"
-    - mv urx.mltbx urx-windows-Release.mltbx
+    - mv urx.mltbx ../../../../urx-win_amd64.mltbx
   artifacts:
     paths:
       - install
-      - CI/matlab/binding/Release/urx-windows-Release.mltbx
+      - urx-win_amd64.mltbx
     expire_in: 1 day
 
 build:ubuntu-matlab-static:
@@ -625,3 +625,17 @@ release:upload-to-pypi:
   script:
     - *python-venv-linux
     - python -m twine upload `find . -name "*.whl"`
+
+release:upload-to-github:
+  stage: release
+  needs:
+    - release:all-python-linux-x64
+    - release:all-python-windows-x64
+    - release:all-python-windows-x86
+    - build:windows-matlab-static
+    - build:ubuntu-matlab-static
+  when: manual
+  tags:
+    - ubuntu
+  script:
+    - echo toutou
