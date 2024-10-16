@@ -110,6 +110,7 @@ struct DeserializeHdf5<T, U, ContainerType::WEAK_PTR> {
       if (map_i.size() > idx) {
         field = map_i[idx];
       } else {
+        // NOLINTNEXTLINE
         const_cast<std::vector<std::function<void()>>*>(
             static_cast<const std::vector<std::function<void()>>*>(
                 map.at(nameTypeid<std::function<void()>>())))
