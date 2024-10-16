@@ -29,7 +29,7 @@ endif()
 
 project(
   Urx
-  VERSION 1.0.0
+  VERSION 1.0.1
   LANGUAGES C CXX
   DESCRIPTION "Ultrasound Raw eXchange format C++ implementation")
 
