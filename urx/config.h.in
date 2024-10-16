@@ -1,0 +1,5 @@
+#pragma once
+
+#cmakedefine URX_WITH_HDF5
+
+#cmakedefine URX_WITH_PYTHON

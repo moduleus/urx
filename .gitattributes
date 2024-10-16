@@ -1,0 +1,2 @@
+*.urx filter=lfs diff=lfs merge=lfs -text
+*.uff filter=lfs diff=lfs merge=lfs -text
