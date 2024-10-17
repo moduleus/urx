@@ -1,4 +1,4 @@
-#include <algorithm>
+#include <functional>
 #include <memory>
 #include <typeindex>
 #include <utility>
