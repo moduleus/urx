@@ -497,7 +497,7 @@ build:ubuntu-matlab-static:
     - cd ../../..
     - cp CI/matlab/binding/urx.mltbx urx-$(cat CI/version.txt)-linux-amd64.mltbx
   after_script:
-    - rm -Rf test/matlab/test.urx CI/matlab/binding/urx-*-linux-amd64.mltbx
+    - rm -Rf test/matlab/test.urx CI/matlab/binding/urx.mltbx
   artifacts:
     paths:
       - CI/version.txt
