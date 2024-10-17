@@ -1,0 +1,34 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+if(NOT HDF5_DIR)
+  set(HDF5_DIR "@HDF5_DIR@")
+endif()
+if(NOT "${HDF5_DIR}" STREQUAL "")
+  find_dependency(
+    HDF5
+    NAMES
+    hdf5
+    COMPONENTS
+    CXX
+    @SEARCH_TYPE@
+    CONFIG
+    NO_DEFAULT_PATH
+    REQUIRED)
+endif()
+
+set(WITH_PYTHON "@WITH_PYTHON@")
+if(WITH_PYTHON)
+  find_dependency(Python3 COMPONENTS Interpreter Development.Module REQUIRED)
+  find_dependency(pybind11 2.11 CONFIG REQUIRED)
+endif()
+
+set(URX_PYTHON_TEST_PATH
+    "@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_DATAROOTDIR@/@INSTALL_NAME@/python")
+set(URX_MATLAB_INSTALL_DATADIR
+    "@CMAKE_INSTALL_PREFIX@/@URX_MATLAB_INSTALL_DATADIR@")
+
+include("${CMAKE_CURRENT_LIST_DIR}/UrxTargets.cmake")
+
+check_required_components(Urx UrxUtils)
