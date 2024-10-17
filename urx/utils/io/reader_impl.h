@@ -4,6 +4,7 @@
 #include <complex>
 #include <cstddef>
 #include <cstdint>
+#include <functional>
 #include <iterator>
 #include <memory>
 #include <stdexcept>
@@ -105,7 +106,17 @@ struct DeserializeHdf5<T, U, ContainerType::WEAK_PTR> {
 
       DeserializeHdf5<std::size_t, U>::f(name, idx, group, map, data_field);
 
-      field = getSharedPtr<typename T::element_type>(map)[idx];
+      const auto& map_i = getSharedPtr<typename T::element_type>(map);
+
+      if (map_i.size() > idx) {
+        field = map_i[idx];
+      } else {
+        // NOLINTNEXTLINE
+        const_cast<std::vector<std::function<void()>>*>(
+            static_cast<const std::vector<std::function<void()>>*>(
+                map.at(nameTypeid<std::function<void()>>())))
+            ->push_back([&field, &map_i, idx]() { field = map_i[idx]; });
+      }
     }
   }
 };
@@ -191,11 +202,16 @@ struct DeserializeHdf5<T, U, ContainerType::VECTOR> {
       size_t i = 0;
       while (group_child.nameExists(common::formatIndexWithLeadingZeros(i, ITER_LENGTH)) ||
              group_child.attrExists(common::formatIndexWithLeadingZeros(i, ITER_LENGTH))) {
+        i++;
+      }
+
+      field.reserve(i);
+
+      for (size_t j = 0; j < i; j++) {
         field.push_back(typename T::value_type{});
         DeserializeHdf5<typename T::value_type, U>::f(
-            common::formatIndexWithLeadingZeros(i, ITER_LENGTH), field.back(), group_child, map,
+            common::formatIndexWithLeadingZeros(j, ITER_LENGTH), field.back(), group_child, map,
             data_field);
-        i++;
       }
     }
   }
