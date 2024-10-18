@@ -20,6 +20,7 @@ test/python/__pycache__/
 /.venv/
 /vcpkg/
 /vcpkg_installed/
+/vcpkg-registry/
 
 *.pyres
 *.res

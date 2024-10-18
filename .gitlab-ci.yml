@@ -3,7 +3,11 @@ variables:
 
 .before-script-vcpkg-windows: &before-script-vcpkg-windows
   - Push-Location
-  - git submodule update --init vcpkg-registry
+  - $url_vcpkg_registry, $sha1_vcpkg_registry = (Select-String "vcpkg-registry" -Path "requirements-3rd-party.txt" | ForEach-Object { $_ -split "@", 3 | Select-Object -Skip 1 | ForEach-Object { $_.Trim() } })
+  - git clone https://write_wiki:${VCPKG_TOKEN}@${url_vcpkg_registry} vcpkg-registry
+  - cd vcpkg-registry
+  - git checkout $sha1_vcpkg_registry
+  - cd ..
   - $vcpkg_repository=Select-String -Path "vcpkg-configuration.json" -Pattern '"repository":\s"(.+?)"' | ForEach-Object { $_.Matches.Groups[1].Value }
   - if (-not (Test-Path -Path "$Env:VCPKG_LOCAL_GIT")) { git clone $vcpkg_repository $Env:VCPKG_LOCAL_GIT }
   - $baseline=Select-String -Path "vcpkg-configuration.json" -Pattern '"baseline":\s"(.+?)"' | ForEach-Object { $_.Matches.Groups[1].Value }
@@ -21,7 +25,13 @@ variables:
   - $Env:LOCALAPPDATA = $Env:GITLAB_LOCALAPPDATA
 
 .before-script-vcpkg-linux: &before-script-vcpkg-linux
-  - git submodule update --init vcpkg-registry
+  - line_vcpkg_registry=$(grep "vcpkg-registry" requirements-3rd-party.txt)
+  - url_vcpkg_registry=$(echo $line_vcpkg_registry | cut -d'@' -f2 | xargs)
+  - sha1_vcpkg_registry=$(echo $line_vcpkg_registry | cut -d'@' -f3)
+  - git clone https://write_wiki:${VCPKG_TOKEN}@${url_vcpkg_registry} vcpkg-registry
+  - cd vcpkg-registry
+  - git checkout $sha1_vcpkg_registry
+  - cd ..
   - vcpkg_repository=$(grep -Po '"repository":\s"\K[^"]+' vcpkg-configuration.json)
   - if [ ! -d $VCPKG_LOCAL_GIT ]; then git clone $vcpkg_repository $VCPKG_LOCAL_GIT || exit 1; fi
   - baseline=$(grep -Po '"baseline":\s"\K[^"]+' vcpkg-configuration.json)
