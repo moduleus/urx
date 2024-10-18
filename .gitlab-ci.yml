@@ -32,8 +32,8 @@ variables:
   - cd -
   - vcpkg_tag=$(sed -n 's/^VCPKG_TOOL_RELEASE_TAG=\(.*\)/\1/p' < "$VCPKG_LOCAL_GIT/scripts/vcpkg-tool-metadata.txt")
   - mkdir -p $VCPKG_CACHE_PATH
-  - destination="$VCPKG_CACHE_PATH/vcpkg-$vcpkg_tag"
-  - if [ ! -f "$destination" ]; then wget -O "$destination" "https://github.com/microsoft/vcpkg-tool/releases/download/$vcpkg_tag/vcpkg-glibc" || exit 1; chmod +x "$destination"; fi
+  - destination="$VCPKG_CACHE_PATH/vcpkg-$( [ -e /etc/alpine-release ] && echo "muslc" || echo "glibc" )-$vcpkg_tag"
+  - if [ ! -f "$destination" ]; then wget -O "$destination" "https://github.com/microsoft/vcpkg-tool/releases/download/$vcpkg_tag/vcpkg-$( [ -f /etc/alpine-release ] && echo "muslc" || echo "glibc" )" || exit 1; chmod +x "$destination"; fi
   - cp $destination "$VCPKG_LOCAL_GIT/vcpkg" || exit 1
 
 .after-script-clean-vcpkg-windows: &after-script-clean-vcpkg-windows
@@ -505,7 +505,7 @@ build:ubuntu-matlab-static:
       - urx-*-linux-amd64.mltbx
     expire_in: 1 day
 
-release:all-python-linux-x64:
+release:all-python-manylinux-x64:
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
     PLAT: manylinux_2_27_x86_64
@@ -528,6 +528,31 @@ release:all-python-linux-x64:
   artifacts:
     paths:
       - ultrasound_rawdata_exchange*manylinux*.whl
+    expire_in: 1 day
+
+release:all-python-musllinux-x64:
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+    PLAT: musllinux_1_2_x86_64
+    # cp313-cp313t: failed to build numpy. Wait official release.
+    # cp36-cp36m;cp37-cp37m: not maintained anymore
+    SKIP_PYTHON: cp313-cp313t;cp36-cp36m;cp37-cp37m
+    # ONLY_PYTHON: cp312-cp312
+  stage: release
+  needs: []
+  when: manual
+  tags:
+    - docker
+  image: $CI_REGISTRY/common/ci/dockerci/musllinux:latest
+  before_script:
+    - git config --global credential.helper store
+    - echo "https://gitlab-ci-token:${CI_JOB_TOKEN}@$CI_SERVER_HOST" > ~/.git-credentials
+    - *before-script-vcpkg-linux
+  script:
+    - sh /CI/musllinux_vcpkg.sh ultrasound_rawdata_exchange
+  artifacts:
+    paths:
+      - ultrasound_rawdata_exchange*musllinux*.whl
     expire_in: 1 day
 
 release:all-python-windows-x64:
@@ -618,7 +643,8 @@ release:all-python-windows-arm64:
 release:upload-to-pypi:
   stage: release
   needs:
-    - release:all-python-linux-x64
+    - release:all-python-manylinux-x64
+    - release:all-python-musllinux-x64
     - release:all-python-windows-x64
     - release:all-python-windows-x86
   when: manual
@@ -632,7 +658,8 @@ release:upload-to-pypi:
 release:upload-to-github:
   stage: release
   needs:
-    - release:all-python-linux-x64
+    - release:all-python-manylinux-x64
+    - release:all-python-musllinux-x64
     - release:all-python-windows-x64
     - release:all-python-windows-x86
     - build:windows-matlab-static
