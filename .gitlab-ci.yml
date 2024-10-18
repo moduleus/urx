@@ -467,6 +467,7 @@ build:windows-matlab-static:
     - $Env:URX_DEBUG=$Env:TMP + "/urx-matlab.log"
     - C:/"Program Files"/MATLAB/R2023b/bin/matlab.exe -wait -batch runTestsCi
     - cat $Env:TMP/urx-matlab.log
+    - C:/"Program Files"/MATLAB/R2018b/bin/matlab.exe -wait -batch runTestsCi
     - cd ../../CI/matlab/binding/Release
     - C:/"Program Files"/MATLAB/R2023b/bin/matlab.exe -wait -batch "matlab.addons.toolbox.packageToolbox('windows-Release.prj')"
     - cd ../../../..
