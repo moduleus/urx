@@ -38,12 +38,12 @@ classdef FileFromScratch < matlab.unittest.TestCase
       testcase.verifyEqual(dataset.version.minor, uint16(1));
       testcase.verifyEqual(dataset.version.major, uint16(42));
       testcase.verifyEqual(dataset.version.patch, uint16(73));
-      dataset.version.minor = 7;
-      dataset.version.major = 48;
-      dataset.version.patch = 159;
-      testcase.verifyEqual(version.minor, uint16(7));
-      testcase.verifyEqual(version.major, uint16(48));
-      testcase.verifyEqual(version.patch, uint16(159));
+      dataset.version.minor = urx.Version().minor;
+      dataset.version.major = urx.Version().major;
+      dataset.version.patch = urx.Version().patch;
+      testcase.verifyEqual(version.minor, uint16(urx.Version().minor));
+      testcase.verifyEqual(version.major, uint16(urx.Version().major));
+      testcase.verifyEqual(version.patch, uint16(urx.Version().patch));
       
       
       dataset.acquisition.authors = 'AuthOr';
@@ -413,6 +413,7 @@ classdef FileFromScratch < matlab.unittest.TestCase
       dataset2 = urx.Dataset.loadFromFile('test.urx');
 
       % testcase.verifyTrue(isequal(dataset, dataset2));
+      testcase.verifyEqual(dataset.version.minor, dataset2.version.minor);
       
       delete 'test.urx'
     end
