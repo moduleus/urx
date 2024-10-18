@@ -1,6 +1,6 @@
 classdef Object < urx.ObjectField
   properties (Access = private)
-    parent {mustBeScalarOrEmpty} = urx.Object.empty(1,0)
+    parent {urx.Validator.mustBeScalarOrEmpty} = urx.Object.empty(1,0)
     saveId
   end
 
@@ -125,7 +125,8 @@ classdef Object < urx.ObjectField
     end
 
     function res = getPtrTypeFromValidator(object, propertyName)
-      props = metaclass(object).PropertyList;
+      metaclassObject = metaclass(object);
+      props = metaclassObject.PropertyList;
       idxProperty = arrayfun(@(x) strcmp(x.Name, propertyName), props);
       validatorFunc = props(idxProperty).Validation.ValidatorFunctions;
       validatorStr = cellfun(@func2str, validatorFunc, 'UniformOutput', false);
@@ -196,7 +197,8 @@ classdef Object < urx.ObjectField
       % Get data from event.
       affectedObject = evnt.AffectedObject;
       affectedPropertyName = src.Name;
-      if isa(affectedObject, 'urx.Object') && any(strcmp({metaclass(affectedObject).PropertyList.Name}, [affectedPropertyName 'Std']))
+      metaclassAffectedObject = metaclass(affectedObject);
+      if isa(affectedObject, 'urx.Object') && any(strcmp({metaclassAffectedObject.PropertyList.Name}, [affectedPropertyName 'Std']))
         affectedPropertyStd = affectedObject.([affectedPropertyName 'Std']);
       else
         affectedPropertyStd = [];
@@ -432,7 +434,8 @@ classdef Object < urx.ObjectField
                   newObject = feval(realAffectedPropertyClassName, affectedCFieldPtr, affectedPropertyPtrType, affectedObject);
                 end
               else
-                newObject = feval(affectedPropertyClassName, []).empty;
+                feval_empty = feval(affectedPropertyClassName, []);
+                newObject = feval_empty.empty;
               end
               affectedObject.(affectedPropertyName) = newObject;
             elseif (affectedPropertyPtrType == urx.PtrType.WEAK && affectedObject.(affectedPropertyName).ptrType == urx.PtrType.SHARED)

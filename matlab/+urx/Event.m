@@ -1,7 +1,7 @@
 classdef Event < urx.Object % handle
   properties (Access = public, SetObservable, GetObservable)
-    transmitSetup urx.TransmitSetup {mustBeScalarOrEmpty, urx.Validator.rawInCpp}
-    receiveSetup urx.ReceiveSetup {mustBeScalarOrEmpty, urx.Validator.rawInCpp}
+    transmitSetup urx.TransmitSetup {urx.Validator.mustBeScalarOrEmpty, urx.Validator.rawInCpp}
+    receiveSetup urx.ReceiveSetup {urx.Validator.mustBeScalarOrEmpty, urx.Validator.rawInCpp}
   end
 
   methods
