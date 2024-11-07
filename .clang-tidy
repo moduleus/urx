@@ -1,0 +1,80 @@
+---
+Checks: "*,cppcoreguidelines-avoid-goto,hicpp-avoid-goto,cert-flp30-c,bugprone-misplaced-widening-cast,readability-redundant-member-init,google-build-explicit-make-pair,bugprone-implicit-widening-of-multiplication-result,modernize-pass-by-value,modernize-concat-nested-namespaces,modernize-use-default-member-init,hicpp-named-parameter,modernize-use-transparent-functors,readability-duplicate-include,hicpp-exception-baseclass,cert-err09-cpp,cert-err61-cpp,bugprone-implicit-widening-of-multiplication-result,performance-type-promotion-in-math-fn,readability-container-data-pointer,readability-const-return-type,performance-for-range-copy,llvm-else-after-return,readability-else-after-return,bugprone-macro-parentheses,readability-simplify-boolean-expr,performance-faster-string-find,modernize-return-braced-init-list,bugprone-integer-division,readability-redundant-string-init,readability-non-const-parameter,bugprone-incorrect-roundings,bugprone-redundant-branch-condition,performance-unnecessary-copy-initialization,modernize-loop-convert,readability-static-accessed-through-instance,readability-inconsistent-declaration-parameter-name,readability-container-size-empty,readability-redundant-smartptr-get,google-explicit-constructor,hicpp-explicit-conversions,hicpp-use-emplace,modernize-use-emplace,readability-string-compare,cppcoreguidelines-owning-memory,performance-unnecessary-value-param,modernize-use-bool-literals,cppcoreguidelines-non-private-member-variables-in-classes,cert-oop54-cpp,modernize-use-using,cppcoreguidelines-c-copy-assignment-signature,misc-unconventional-assign-operator,modernize-use-nullptr,modernize-use-override,cppcoreguidelines-explicit-virtual-functions,readability-make-member-function-const,readability-qualified-auto,hicpp-use-equals-default,google-readability-casting,hicpp-deprecated-headers,modernize-deprecated-headers,readability-redundant-access-specifiers,readability-convert-member-functions-to-static,readability-identifier-naming,-readability-identifier-length,-cppcoreguidelines-macro-usage,-modernize-use-trailing-return-type,-altera-struct-pack-align,-llvmlibc-callee-namespace,-modernize-use-nodiscard,-readability-avoid-const-params-in-decls,-google-default-arguments,-cppcoreguidelines-pro-bounds-pointer-arithmetic,-altera-id-dependent-backward-branch,-hicpp-use-auto,-modernize-use-auto,-bugprone-easily-swappable-parameters,-readability-function-cognitive-complexity,-cppcoreguidelines-pro-type-member-init,-hicpp-member-init,-llvmlibc-implementation-in-namespace,-fuchsia-overloaded-operator,-hicpp-braces-around-statements,-readability-braces-around-statements,-altera-unroll-loops,-misc-non-private-member-variables-in-classes,-llvm-header-guard,-llvm-include-order,-cppcoreguidelines-special-member-functions,-hicpp-special-member-functions,-llvmlibc-restrict-system-libc-headers,-cppcoreguidelines-prefer-member-initializer,-cppcoreguidelines-avoid-magic-numbers,-readability-magic-numbers,-fuchsia-default-arguments-calls,-fuchsia-default-arguments-declarations,-cppcoreguidelines-non-private-member-variables-in-classes,-hicpp-signed-bitwise,-cppcoreguidelines-avoid-c-arrays,-readability-isolate-declaration,-google-global-names-in-headers,-readability-implicit-bool-conversion,-bugprone-narrowing-conversions,-cppcoreguidelines-narrowing-conversions,-hicpp-uppercase-literal-suffix,-readability-uppercase-literal-suffix,-google-readability-braces-around-statements,-hicpp-avoid-c-arrays,-modernize-avoid-c-arrays,-cppcoreguidelines-pro-bounds-constant-array-index,-cppcoreguidelines-init-variables,-cppcoreguidelines-pro-type-reinterpret-cast,-misc-unused-parameters,-cppcoreguidelines-pro-bounds-array-to-pointer-decay,-hicpp-no-array-decay,-cert-msc30-c,-cert-msc50-cpp,-concurrency-mt-unsafe,-cert-msc32-c,-cert-msc51-cpp,-bugprone-reserved-identifier,-cert-dcl37-c,-cert-dcl51-cpp,-abseil-string-find-str-contains,-readability-use-anyofallof,-cert-err33-c,-cppcoreguidelines-pro-type-vararg,-hicpp-vararg,-android-cloexec-fopen,-cppcoreguidelines-avoid-non-const-global-variables,-clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,-cert-err34-c,-google-runtime-int,-google-readability-todo,-bugprone-exception-escape,-cert-err58-cpp,-performance-no-int-to-ptr,-hicpp-named-parameter,-google-build-using-namespace,-readability-named-parameter,-fuchsia-statically-constructed-objects,-fuchsia-multiple-inheritance,-cert-err60-cpp,-google-readability-namespace-comments,-llvm-namespace-comment,-cppcoreguidelines-pro-type-union-access,-llvmlibc-inline-function-decl,-misc-include-cleaner,-cppcoreguidelines-no-malloc,-hicpp-no-malloc,-readability-avoid-unconditional-preprocessor-if"
+WarningsAsErrors: "*"
+HeaderFilterRegex: ".*"
+FormatStyle: none
+CheckOptions:
+  - key: llvm-else-after-return.WarnOnConditionVariables
+    value: "false"
+  - key: modernize-loop-convert.MinConfidence
+    value: reasonable
+  - key: modernize-replace-auto-ptr.IncludeStyle
+    value: llvm
+  - key: cert-str34-c.DiagnoseSignedUnsignedCharComparisons
+    value: "false"
+  - key: google-readability-namespace-comments.ShortNamespaceLines
+    value: "10"
+  - key: cert-err33-c.CheckedFunctions
+    value: "::aligned_alloc;::asctime_s;::at_quick_exit;::atexit;::bsearch;::bsearch_s;::btowc;::c16rtomb;::c32rtomb;::calloc;::clock;::cnd_broadcast;::cnd_init;::cnd_signal;::cnd_timedwait;::cnd_wait;::ctime_s;::fclose;::fflush;::fgetc;::fgetpos;::fgets;::fgetwc;::fopen;::fopen_s;::fprintf;::fprintf_s;::fputc;::fputs;::fputwc;::fputws;::fread;::freopen;::freopen_s;::fscanf;::fscanf_s;::fseek;::fsetpos;::ftell;::fwprintf;::fwprintf_s;::fwrite;::fwscanf;::fwscanf_s;::getc;::getchar;::getenv;::getenv_s;::gets_s;::getwc;::getwchar;::gmtime;::gmtime_s;::localtime;::localtime_s;::malloc;::mbrtoc16;::mbrtoc32;::mbsrtowcs;::mbsrtowcs_s;::mbstowcs;::mbstowcs_s;::memchr;::mktime;::mtx_init;::mtx_lock;::mtx_timedlock;::mtx_trylock;::mtx_unlock;::printf_s;::putc;::putwc;::raise;::realloc;::remove;::rename;::scanf;::scanf_s;::setlocale;::setvbuf;::signal;::snprintf;::snprintf_s;::sprintf;::sprintf_s;::sscanf;::sscanf_s;::strchr;::strerror_s;::strftime;::strpbrk;::strrchr;::strstr;::strtod;::strtof;::strtoimax;::strtok;::strtok_s;::strtol;::strtold;::strtoll;::strtoul;::strtoull;::strtoumax;::strxfrm;::swprintf;::swprintf_s;::swscanf;::swscanf_s;::thrd_create;::thrd_detach;::thrd_join;::thrd_sleep;::time;::timespec_get;::tmpfile;::tmpfile_s;::tmpnam;::tmpnam_s;::tss_create;::tss_get;::tss_set;::ungetc;::ungetwc;::vfprintf;::vfprintf_s;::vfscanf;::vfscanf_s;::vfwprintf;::vfwprintf_s;::vfwscanf;::vfwscanf_s;::vprintf_s;::vscanf;::vscanf_s;::vsnprintf;::vsnprintf_s;::vsprintf;::vsprintf_s;::vsscanf;::vsscanf_s;::vswprintf;::vswprintf_s;::vswscanf;::vswscanf_s;::vwprintf_s;::vwscanf;::vwscanf_s;::wcrtomb;::wcschr;::wcsftime;::wcspbrk;::wcsrchr;::wcsrtombs;::wcsrtombs_s;::wcsstr;::wcstod;::wcstof;::wcstoimax;::wcstok;::wcstok_s;::wcstol;::wcstold;::wcstoll;::wcstombs;::wcstombs_s;::wcstoul;::wcstoull;::wcstoumax;::wcsxfrm;::wctob;::wctrans;::wctype;::wmemchr;::wprintf_s;::wscanf;::wscanf_s;"
+  - key: cert-oop54-cpp.WarnOnlyIfThisHasSuspiciousField
+    value: "false"
+  - key: cert-dcl16-c.NewSuffixes
+    value: "L;LL;LU;LLU"
+  - key: google-readability-braces-around-statements.ShortStatementLines
+    value: "1"
+  - key: cppcoreguidelines-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic
+    value: "true"
+  - key: google-readability-namespace-comments.SpacesBeforeComments
+    value: "2"
+  - key: modernize-loop-convert.MaxCopySize
+    value: "16"
+  - key: modernize-pass-by-value.IncludeStyle
+    value: llvm
+  - key: modernize-use-nullptr.NullMacros
+    value: "NULL"
+  - key: llvm-qualified-auto.AddConstToQualified
+    value: "false"
+  - key: modernize-loop-convert.NamingStyle
+    value: CamelCase
+  - key: llvm-else-after-return.WarnOnUnfixable
+    value: "false"
+  - key: google-readability-function-size.StatementThreshold
+    value: "800"
+  - key: "readability-identifier-naming.ClassCase"
+    value: "CamelCase"
+  - key: "readability-identifier-naming.ConstantCase"
+    value: "lower_case"
+  - key: "readability-identifier-naming.EnumConstantCase"
+    value: "UPPER_CASE"
+  - key: "readability-identifier-naming.GlobalConstantCase"
+    value: "UPPER_CASE"
+  - key: "readability-identifier-naming.MemberCase"
+    value: "lower_case"
+  - key: "readability-identifier-naming.PrivateMemberPrefix"
+    value: "_"
+  - key: "readability-identifier-naming.ProtectedMemberPrefix"
+    value: "_"
+  - key: "readability-identifier-naming.MethodCase"
+    value: "camelBack"
+  - key: "readability-identifier-naming.PrivateMethodPrefix"
+    value: "_"
+  - key: "readability-identifier-naming.ProtectedMethodPrefix"
+    value: "_"
+  - key: "readability-identifier-naming.ParameterCase"
+    value: "lower_case"
+  - key: "readability-identifier-naming.FunctionCase"
+    value: "camelBack"
+  - key: "readability-identifier-naming.ConstexprFunctionCase"
+    value: "lower_case"
+  - key: "readability-identifier-naming.VariableCase"
+    value: "lower_case"
+  - key: "readability-identifier-naming.NamespaceCase"
+    value: "lower_case"
+  - key: "readability-identifier-naming.EnumCase"
+    value: "CamelCase"
+  - key: "readability-identifier-naming.StructCase"
+    value: "CamelCase"
+  - key: "readability-identifier-naming.TypeAliasCase"
+    value: "CamelCase"
+---
+
