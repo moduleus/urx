@@ -339,7 +339,7 @@ Be sure to use a vcpkg triplet with the same shared / static link option.
 
 Also, be sure that submodule `vcpkg-registry` is initialized with `git submodule update --init --recursive`.
 
-Then pass the following arguments:
+Then pass the arguments below. ⚠ If you use `cmake-gui`, be sure to set these variables BEFORE running configure once. Otherwise, you need to reset cache.
 
 Windows:
 ```cmake
