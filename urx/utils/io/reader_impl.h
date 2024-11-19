@@ -45,9 +45,11 @@ struct DeserializeHdf5<T, U, ContainerType::RAW> {
       if (group.nameExists(name)) {
         const H5::DataSet dataset = group.openDataSet(name);
         dataset.read(&field, datatype);
-      } else {
+      } else if (group.attrExists(name)) {
         const H5::Attribute attribute = group.openAttribute(name);
         attribute.read(datatype, &field);
+      } else {
+        throw std::runtime_error("Failed to read " + group.getObjName() + "/" + name);
       }
     }
     // Enum
@@ -58,9 +60,11 @@ struct DeserializeHdf5<T, U, ContainerType::RAW> {
       if (group.nameExists(name)) {
         const H5::DataSet dataset = group.openDataSet(name);
         dataset.read(value, datatype, dataspace);
-      } else {
+      } else if (group.attrExists(name)) {
         const H5::Attribute attribute = group.openAttribute(name);
         attribute.read(datatype, value);
+      } else {
+        throw std::runtime_error("Failed to read " + group.getObjName() + "/" + name);
       }
 
       field = urx::utils::io::enums::stringToEnum<T>(value);
@@ -226,9 +230,11 @@ struct DeserializeHdf5<std::string, U, ContainerType::RAW> {
     if (group.nameExists(name)) {
       const H5::DataSet dataset = group.openDataSet(name);
       dataset.read(field, datatype, dataspace);
-    } else {
+    } else if (group.attrExists(name)) {
       const H5::Attribute attribute = group.openAttribute(name);
       attribute.read(datatype, field);
+    } else {
+      throw std::runtime_error("Failed to read " + group.getObjName() + "/" + name);
     }
   }
 };
