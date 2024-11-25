@@ -375,6 +375,8 @@ classdef FileFromScratch < matlab.unittest.TestCase
       
       rawData = urx.RawData_double_real(6);
       testcase.verifyEqual(rawData.size, int64(6));
+      testcase.verifyEqual(rawData.dataType(), urx.Group.DataType.DOUBLE);
+      testcase.verifyEqual(rawData.samplingType(), urx.Group.SamplingType.RF);
       rawData.data(1,1) = 1.2;
       rawData.data(1,2) = 2.3;
       rawData.data(1,3) = 3.4;
@@ -393,6 +395,8 @@ classdef FileFromScratch < matlab.unittest.TestCase
       
       rawData = urx.RawData_int16_t_complex(4);
       testcase.verifyEqual(rawData.size, int64(4));
+      testcase.verifyEqual(rawData.dataType(), urx.Group.DataType.INT16);
+      testcase.verifyEqual(rawData.samplingType(), urx.Group.SamplingType.IQ);
       rawData.data(1,1) = 123;
       rawData.data(2,1) = 456;
       rawData.data(1,2) = 159;
