@@ -127,6 +127,7 @@ struct DeserializeHdf5<T, U, ContainerType::WEAK_PTR> {
 template <typename T, typename U>
 struct DeserializeHdf5<T, U, ContainerType::VECTOR> {
   static void
+  // NOLINTNEXTLINE(misc-no-recursion)
   f(const std::string& name, T& field, const H5::Group& group, MapToSharedPtr& map,
     const std::unordered_map<std::type_index, std::vector<std::pair<U, std::string>>>& data_field) {
     if constexpr (std::is_arithmetic_v<typename T::value_type>) {

@@ -456,7 +456,11 @@ bool checkHasValue(const T &argument) {
     return &static_cast<std::shared_ptr<type> *>(this_ptr)->get()->member;            \
   }                                                                                   \
   void *CONCAT3(snake, optional, member)(void *this_ptr) {                            \
-    return &(*static_cast<std::optional<type> *>(this_ptr))->member;                  \
+    auto *opt_ptr = static_cast<std::optional<type> *>(this_ptr);                     \
+    if (!*opt_ptr) {                                                                  \
+      return nullptr;                                                                 \
+    }                                                                                 \
+    return &(*opt_ptr)->member;                                                       \
   }                                                                                   \
   bool CONCAT4(snake, raw, member, has_data)(void *this_ptr) {                        \
     return urx::matlab::detail::checkHasValue(static_cast<type *>(this_ptr)->member); \
@@ -470,8 +474,11 @@ bool checkHasValue(const T &argument) {
         static_cast<std::shared_ptr<type> *>(this_ptr)->get()->member);               \
   }                                                                                   \
   bool CONCAT4(snake, optional, member, has_data)(void *this_ptr) {                   \
-    return urx::matlab::detail::checkHasValue(                                        \
-        (*static_cast<std::optional<type> *>(this_ptr))->member);                     \
+    auto *opt_ptr = static_cast<std::optional<type> *>(this_ptr);                     \
+    if (!*opt_ptr) {                                                                  \
+      return false;                                                                   \
+    }                                                                                 \
+    return urx::matlab::detail::checkHasValue((*opt_ptr)->member);                    \
   }                                                                                   \
   FORCE_SEMICOLON
 
