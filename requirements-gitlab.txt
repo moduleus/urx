@@ -23,7 +23,7 @@ mdurl==0.1.2
 more-itertools==10.5.0
 mypy-extensions==1.0.0
 nh3==0.2.18
-packaging==24.2
+packaging
 pkginfo==1.10.0
 Pygments==2.18.0
 pyproject_hooks==1.1.0
@@ -34,4 +34,4 @@ requests-toolbelt==1.0.0
 rfc3986==2.0.0
 rich==13.8.1
 urllib3==2.2.3
-zipp==3.20.2
+zipp
