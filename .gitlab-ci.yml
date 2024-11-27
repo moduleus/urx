@@ -480,7 +480,7 @@ build:ubuntu-python:
     - *python-venv-linux-d
     - python3d -m pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" --config-settings="--global-option=cmake_build_type=Debug" --config-settings="--global-option=vcpkg_triplet=x64-linux" --no-clean -v
     - python3d -m unittest discover test/python
-    - stubgen -p ultrasound_rawdata_exchange -o python
+    - stubgen -p ultrasound_rawdata_exchange -o python --no-analysis
     - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Run stubgen -p ultrasound_rawdata_exchange -o python before commit."; echo "$(git status --porcelain)"; git diff; exit 1; fi
 
 build:windows-matlab-static:
@@ -544,9 +544,8 @@ release:all-python-manylinux-x64:
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
     PLAT: manylinux_2_27_x86_64
-    # numpy 1.26 is not compatible with 3.13t
     # cp36-cp36m;cp37-cp37m: not maintained anymore
-    SKIP_PYTHON: cp313-cp313t;cp36-cp36m;cp37-cp37m
+    SKIP_PYTHON: cp36-cp36m;cp37-cp37m
     # ONLY_PYTHON: cp312-cp312
   stage: release
   needs: []
@@ -569,9 +568,8 @@ release:all-python-musllinux-x64:
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
     PLAT: musllinux_1_2_x86_64
-    # numpy 1.26 is not compatible with 3.13t
     # cp36-cp36m;cp37-cp37m: not maintained anymore
-    SKIP_PYTHON: cp313-cp313t;cp36-cp36m;cp37-cp37m
+    SKIP_PYTHON: cp36-cp36m;cp37-cp37m
     # ONLY_PYTHON: cp312-cp312
   stage: release
   needs: []
@@ -592,7 +590,7 @@ release:all-python-musllinux-x64:
 
 release:all-python-windows-x64:
   variables:
-    CIBW_BUILD: cp38-win_amd64 cp39-win_amd64 cp310-win_amd64 cp311-win_amd64 cp312-win_amd64 cp313-win_amd64 pp38-win_amd64 pp39-win_amd64 pp310-win_amd64
+    CIBW_BUILD: cp38-win_amd64 cp39-win_amd64 cp310-win_amd64 cp311-win_amd64 cp312-win_amd64 cp313-win_amd64 cp313t-win_amd64 pp38-win_amd64 pp39-win_amd64 pp310-win_amd64
     CIBW_ENABLE: cpython-freethreading
   stage: release
   needs: []
@@ -620,7 +618,7 @@ release:all-python-windows-x64:
 
 release:all-python-windows-x86:
   variables:
-    CIBW_BUILD: cp38-win32 cp39-win32 cp310-win32 cp311-win32 cp312-win32 cp313-win32
+    CIBW_BUILD: cp38-win32 cp39-win32 cp310-win32 cp311-win32 cp312-win32 cp313-win32 cp313t-win32
     CIBW_ENABLE: cpython-freethreading
   stage: release
   needs: []
@@ -651,7 +649,7 @@ release:all-python-windows-x86:
 # Can't cross-compile. pybind11 and python/CMakeLists.txt launch python.exe.
 release:all-python-windows-arm64:
   variables:
-    CIBW_BUILD: cp39-win_arm64 cp310-win_arm64 cp311-win_arm64 cp312-win_arm64 cp313-win_arm64
+    CIBW_BUILD: cp39-win_arm64 cp310-win_arm64 cp311-win_arm64 cp312-win_arm64 cp313-win_arm64 cp313t-win_arm64
     CIBW_ENABLE: cpython-freethreading
     CIBW_ARCHS: ARM64
   stage: release

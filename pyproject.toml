@@ -1,46 +1,23 @@
 [build-system]
 build-backend = "setuptools.build_meta"
 requires = [
-    "wheel==0.44.0",
-    "setuptools==72.2.0",
-    "cmake-build-extension==0.6.1",
-    "importlib_metadata==8.5.0",
-    "numpy==1.24.4; python_version == '3.8'",
-    "numpy==1.26.4; python_version >= '3.9'",
-    "toml==0.10.2",
-    "pip",
-    "cmake==3.30.3",
-    "parameterized==0.9.0",
-    #"## The following requirements were added by pip freeze:",
-    "gitdb==4.0.11",
-    "GitPython==3.1.43",
-    "ninja==1.11.1.1",
-    "packaging",
-    "setuptools-scm==8.1.0",
-    "smmap==5.0.1",
-    "zipp"
+    "wheel",
+    "cmake-build-extension",
+    "setuptools",
+    "toml",
+    "cmake",
 ]
 
 [project]
 name = "ultrasound-rawdata-exchange"
 version = "1.0.1"
 dependencies = [
-    "cmake-build-extension==0.6.1",
+    "cmake_build_extension",
     "numpy==1.24.4; python_version == '3.8'",
-    "numpy==1.26.4; python_version >= '3.9'",
-    "parameterized==0.9.0",
-    "setuptools==72.2.0",
-    "pip",
-    "cmake==3.30.3",
-    "toml==0.10.2",
-    #"## The following requirements were added by pip freeze:",
-    "gitdb==4.0.11",
-    "GitPython==3.1.43",
-    "ninja==1.11.1.1",
-    "packaging",
-    "setuptools-scm==8.1.0",
-    "smmap==5.0.1",
-    "zipp"
+    "numpy==1.26.4; python_version == '3.9'",
+    "numpy==2.1.3; python_version >= '3.10'",
+    #"## For tests",
+    "parameterized",
 ]
 description = "Ultrasound Raw data eXchange file format C++ implementation and wrapping in Python and Matlab"
 readme = "README.md"
