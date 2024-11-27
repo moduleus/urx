@@ -39,7 +39,7 @@ dependencies = [
 ]
 description = "Ultrasound Raw data eXchange file format C++ implementation and wrapping in Python and Matlab"
 readme = "README.md"
-license = {text = "MIT License"}
+license = { text = "MIT License" }
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Healthcare Industry",
@@ -60,7 +60,7 @@ classifiers = [
     "Programming Language :: Python",
     "Topic :: File Formats",
     "Topic :: Scientific/Engineering",
-    ]
+]
 requires-python = ">=3.8"
 
 [project.urls]
@@ -79,10 +79,16 @@ extend-exclude = '\.pyi$'
 
 [tool.cibuildwheel]
 build-verbosity = 1
-build-frontend = { name="pip", args=["--no-clean"] }
+build-frontend = { name = "pip", args = ["--no-clean"] }
 
 [tool.cibuildwheel.windows]
 # "cp313-win_amd64" : Not officialy release.
-build = ["cp38-win_amd64", "cp39-win_amd64", "cp310-win_amd64", "cp311-win_amd64", "cp312-win_amd64"]
+build = [
+    "cp38-win_amd64",
+    "cp39-win_amd64",
+    "cp310-win_amd64",
+    "cp311-win_amd64",
+    "cp312-win_amd64",
+]
 # Should be build-system.requires but doesn't work.
 before-build = "pip install cmake"
