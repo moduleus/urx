@@ -20,8 +20,8 @@ set(msvc_cxx "$<COMPILE_LANG_AND_ID:CXX,MSVC>")
 target_compile_options(
   UrxCompilerFlags
   INTERFACE
-    "$<${gcc_like_cxx}:$<BUILD_INTERFACE:-Wall;-Werror;-Wextra;-Wshadow;-Wformat=2;-Wunused>>"
-    "$<${msvc_cxx}:$<BUILD_INTERFACE:/W3;/WX;/EHsc;/wd4251>>")
+    "$<${gcc_like_cxx}:-Wall;-Werror;-Wextra;-Wshadow;-Wformat=2;-Wunused>"
+    "$<${msvc_cxx}:/W3;/WX;/EHsc;/wd4251>")
 
 set(URX_UTILS_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/common.cpp

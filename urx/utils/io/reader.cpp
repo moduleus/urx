@@ -1,4 +1,4 @@
-#include <algorithm>
+#include <functional>
 #include <memory>
 #include <typeindex>
 #include <utility>
@@ -12,9 +12,11 @@
 #include <urx/group.h>
 #include <urx/group_data.h>
 #include <urx/probe.h>
+#include <urx/urx.h>
 #include <urx/utils/io/reader.h>
 #include <urx/utils/io/reader_impl.h>
 #include <urx/utils/io/serialize_helper.h>
+#include <urx/version.h>
 
 namespace urx::utils::io::reader {
 
@@ -35,6 +37,13 @@ std::shared_ptr<Dataset> loadFromFile(const std::string& filename) {
   for (auto& funct : async_weak_assign) {
     funct();
   }
+
+  if (dataset->version.major != urx::URX_VERSION_MAJOR) {
+    return {};
+  }
+
+  dataset->version.minor = urx::URX_VERSION_MINOR;
+  dataset->version.patch = urx::URX_VERSION_PATCH;
 
   return dataset;
 }

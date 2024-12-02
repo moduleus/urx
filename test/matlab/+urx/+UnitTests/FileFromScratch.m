@@ -38,12 +38,12 @@ classdef FileFromScratch < matlab.unittest.TestCase
       testcase.verifyEqual(dataset.version.minor, uint16(1));
       testcase.verifyEqual(dataset.version.major, uint16(42));
       testcase.verifyEqual(dataset.version.patch, uint16(73));
-      dataset.version.minor = 7;
-      dataset.version.major = 48;
-      dataset.version.patch = 159;
-      testcase.verifyEqual(version.minor, uint16(7));
-      testcase.verifyEqual(version.major, uint16(48));
-      testcase.verifyEqual(version.patch, uint16(159));
+      dataset.version.minor = urx.Version().minor;
+      dataset.version.major = urx.Version().major;
+      dataset.version.patch = urx.Version().patch;
+      testcase.verifyEqual(version.minor, uint16(urx.Version().minor));
+      testcase.verifyEqual(version.major, uint16(urx.Version().major));
+      testcase.verifyEqual(version.patch, uint16(urx.Version().patch));
       
       
       dataset.acquisition.authors = 'AuthOr';
@@ -375,6 +375,8 @@ classdef FileFromScratch < matlab.unittest.TestCase
       
       rawData = urx.RawData_double_real(6);
       testcase.verifyEqual(rawData.size, int64(6));
+      testcase.verifyEqual(rawData.dataType(), urx.Group.DataType.DOUBLE);
+      testcase.verifyEqual(rawData.samplingType(), urx.Group.SamplingType.RF);
       rawData.data(1,1) = 1.2;
       rawData.data(1,2) = 2.3;
       rawData.data(1,3) = 3.4;
@@ -393,6 +395,8 @@ classdef FileFromScratch < matlab.unittest.TestCase
       
       rawData = urx.RawData_int16_t_complex(4);
       testcase.verifyEqual(rawData.size, int64(4));
+      testcase.verifyEqual(rawData.dataType(), urx.Group.DataType.INT16);
+      testcase.verifyEqual(rawData.samplingType(), urx.Group.SamplingType.IQ);
       rawData.data(1,1) = 123;
       rawData.data(2,1) = 456;
       rawData.data(1,2) = 159;
@@ -413,6 +417,7 @@ classdef FileFromScratch < matlab.unittest.TestCase
       dataset2 = urx.Dataset.loadFromFile('test.urx');
 
       % testcase.verifyTrue(isequal(dataset, dataset2));
+      testcase.verifyEqual(dataset.version.minor, dataset2.version.minor);
       
       delete 'test.urx'
     end

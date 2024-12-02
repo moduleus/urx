@@ -1,6 +1,5 @@
 #pragma once
 
-#include <algorithm>
 #include <complex>
 #include <cstddef>
 #include <cstdint>
@@ -46,9 +45,11 @@ struct DeserializeHdf5<T, U, ContainerType::RAW> {
       if (group.nameExists(name)) {
         const H5::DataSet dataset = group.openDataSet(name);
         dataset.read(&field, datatype);
-      } else {
+      } else if (group.attrExists(name)) {
         const H5::Attribute attribute = group.openAttribute(name);
         attribute.read(datatype, &field);
+      } else {
+        throw std::runtime_error("Failed to read " + group.getObjName() + "/" + name);
       }
     }
     // Enum
@@ -59,9 +60,11 @@ struct DeserializeHdf5<T, U, ContainerType::RAW> {
       if (group.nameExists(name)) {
         const H5::DataSet dataset = group.openDataSet(name);
         dataset.read(value, datatype, dataspace);
-      } else {
+      } else if (group.attrExists(name)) {
         const H5::Attribute attribute = group.openAttribute(name);
         attribute.read(datatype, value);
+      } else {
+        throw std::runtime_error("Failed to read " + group.getObjName() + "/" + name);
       }
 
       field = urx::utils::io::enums::stringToEnum<T>(value);
@@ -124,6 +127,7 @@ struct DeserializeHdf5<T, U, ContainerType::WEAK_PTR> {
 template <typename T, typename U>
 struct DeserializeHdf5<T, U, ContainerType::VECTOR> {
   static void
+  // NOLINTNEXTLINE(misc-no-recursion)
   f(const std::string& name, T& field, const H5::Group& group, MapToSharedPtr& map,
     const std::unordered_map<std::type_index, std::vector<std::pair<U, std::string>>>& data_field) {
     if constexpr (std::is_arithmetic_v<typename T::value_type>) {
@@ -227,9 +231,11 @@ struct DeserializeHdf5<std::string, U, ContainerType::RAW> {
     if (group.nameExists(name)) {
       const H5::DataSet dataset = group.openDataSet(name);
       dataset.read(field, datatype, dataspace);
-    } else {
+    } else if (group.attrExists(name)) {
       const H5::Attribute attribute = group.openAttribute(name);
       attribute.read(datatype, field);
+    } else {
+      throw std::runtime_error("Failed to read " + group.getObjName() + "/" + name);
     }
   }
 };

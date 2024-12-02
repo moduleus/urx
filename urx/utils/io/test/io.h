@@ -17,6 +17,7 @@
 #include <urx/impulse_response.h>
 #include <urx/probe.h>
 #include <urx/transform.h>
+#include <urx/urx.h>
 #include <urx/vector.h>
 
 namespace urx::utils::io::test {
@@ -29,9 +30,9 @@ std::shared_ptr<T> generateFakeDataset() {
 
   auto dataset = std::make_shared<T>();
 
-  dataset->version.major = 123;
-  dataset->version.minor = 456;
-  dataset->version.patch = 789;
+  dataset->version.major = urx::URX_VERSION_MAJOR;
+  dataset->version.minor = urx::URX_VERSION_MINOR;
+  dataset->version.patch = urx::URX_VERSION_PATCH;
 
   dataset->acquisition.authors = "AuthOr";
   dataset->acquisition.description = "康Description🐜";

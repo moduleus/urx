@@ -50,8 +50,9 @@ target_include_directories(
          $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
          $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${INSTALL_NAME}>)
 set_target_properties(
-  ${URX_PYTHON_LIBRARY} PROPERTIES OUTPUT_NAME
-                                   "${URX_PYTHON_LIBRARY}-${git_branch}")
+  ${URX_PYTHON_LIBRARY}
+  PROPERTIES OUTPUT_NAME "${URX_PYTHON_LIBRARY}-${git_branch}" DEBUG_POSTFIX
+                                                               "d")
 
 set(CMAKE_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR}/${INSTALL_NAME})
 

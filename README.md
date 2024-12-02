@@ -87,6 +87,82 @@ All MATLAB files will be installed in :
     - `INSTALL_PATH/lib` (static libraries),
     - `INSTALL_PATH/bin` (shared libraries for Windows only).
 
+### C++ compiler
+
+You need a C++ compiler.
+
+If you have an error like `MATLAB:mex:NoCompilerFound_link_Win64` or `No supported compiler was found`, run `mex -setup c -v` and `mex -setup c++ -v`.
+
+<details>
+  <summary>Example of full error message</summary>
+
+```
+... Looking for compiler 'Intel Parallel Studio XE 2015 for C++ with Microsoft Visual Studio 2015' ...
+... Looking for environment variable 'ICPP_COMPILER15' ...No.
+Did not find installed compiler 'Intel Parallel Studio XE 2015 for C++ with Microsoft Visual Studio 2015'.
+... Looking for compiler 'Intel Parallel Studio XE 2016 for C++ with Microsoft Visual Studio 2015' ...
+... Looking for environment variable 'ICPP_COMPILER16' ...No.
+Did not find installed compiler 'Intel Parallel Studio XE 2016 for C++ with Microsoft Visual Studio 2015'.
+... Looking for compiler 'Intel Parallel Studio XE 2017 for C++ with Microsoft Visual Studio 2015' ...
+... Looking for environment variable 'ICPP_COMPILER17' ...No.
+Did not find installed compiler 'Intel Parallel Studio XE 2017 for C++ with Microsoft Visual Studio 2015'.
+... Looking for compiler 'Intel Parallel Studio XE 2017 for C++ with Microsoft Visual Studio 2017' ...
+... Looking for environment variable 'ICPP_COMPILER17' ...No.
+Did not find installed compiler 'Intel Parallel Studio XE 2017 for C++ with Microsoft Visual Studio 2017'.
+... Looking for compiler 'Intel Parallel Studio XE 2018 for C++ with Microsoft Visual Studio 2015' ...
+... Looking for environment variable 'ICPP_COMPILER18' ...No.
+Did not find installed compiler 'Intel Parallel Studio XE 2018 for C++ with Microsoft Visual Studio 2015'.
+... Looking for compiler 'Intel Parallel Studio XE 2018 for C++ with Microsoft Visual Studio 2017' ...
+... Looking for environment variable 'ICPP_COMPILER18' ...No.
+Did not find installed compiler 'Intel Parallel Studio XE 2018 for C++ with Microsoft Visual Studio 2017'.
+... Looking for compiler 'MinGW64 Compiler (C++)' ...
+... Looking for environment variable 'MW_MINGW64_LOC' ...No.
+Did not find installed compiler 'MinGW64 Compiler (C++)'.
+... Looking for compiler 'MinGW64 Compiler with Windows 10 SDK or later (C++)' ...
+... Looking for environment variable 'MW_MINGW64_LOC' ...No.
+Did not find installed compiler 'MinGW64 Compiler with Windows 10 SDK or later (C++)'.
+... Looking for compiler 'Microsoft Visual C++ 2013' ...
+... Looking for registry setting 'HKLM\SOFTWARE\Microsoft\VisualStudio\SxS\VS7' 12.0 ...No.
+... Looking for registry setting 'HKCU\SOFTWARE\Microsoft\VisualStudio\SxS\VS7' 12.0 ...No.
+... Looking for registry setting 'HKLM\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VS7' 12.0 ...No.
+... Looking for registry setting 'HKCU\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VS7' 12.0 ...No.
+Did not find installed compiler 'Microsoft Visual C++ 2013'.
+... Looking for compiler 'Microsoft Visual C++ 2015' ...
+... Looking for registry setting 'HKLM\SOFTWARE\Microsoft\VisualStudio\SxS\VC7' 14.0 ...No.
+... Looking for registry setting 'HKCU\SOFTWARE\Microsoft\VisualStudio\SxS\VC7' 14.0 ...No.
+... Looking for registry setting 'HKLM\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VC7' 14.0 ...No.
+... Looking for registry setting 'HKCU\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VC7' 14.0 ...No.
+Did not find installed compiler 'Microsoft Visual C++ 2015'.
+... Looking for compiler 'Microsoft Visual C++ 2017' ...
+... Looking for registry setting 'HKLM\SOFTWARE\Microsoft\VisualStudio\SxS\VS7' 15.0 ...No.
+... Looking for registry setting 'HKCU\SOFTWARE\Microsoft\VisualStudio\SxS\VS7' 15.0 ...No.
+... Looking for registry setting 'HKLM\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VS7' 15.0 ...No.
+... Looking for registry setting 'HKCU\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VS7' 15.0 ...No.
+Did not find installed compiler 'Microsoft Visual C++ 2017'.
+... Looking for compiler 'MinGW64 Compiler (C++)' ...
+... Looking for environment variable 'MW_MINGW64_LOC' ...No.
+Did not find installed compiler 'MinGW64 Compiler (C++)'.
+Error using mex
+No supported compiler was found. You can install the freely
+available MinGW-w64 C/C++ compiler; see Install MinGW-w64
+Compiler. For more options, visit
+https://www.mathworks.com/support/compilers.
+```
+
+</details>
+
+If you want to use a free compiler, follow the next steps:
+
+  - Download `MinGW-w64` from [https://www.mingw-w64.org/downloads](https://www.mingw-w64.org/downloads). You may use `LLVM-MinGW` at Github [https://github.com/mstorsjo/llvm-mingw/releases](https://github.com/mstorsjo/llvm-mingw/releases) and get the latest release from the file `llvm-mingw-YYYYMMDD-msvcrt-x86_64.zip`.
+  - Extract it and install it on `c:\llvm-mingw-YYYYMMDD-msvcrt-x86_64` (path `c:\llvm-mingw-YYYYMMDD-msvcrt-x86_64\bin` must exist) or anywhere but don't use path with space inside.
+  - In MATLAB, run:
+```MATLAB
+setenv('MW_MINGW64_LOC', 'C:/llvm-mingw-YYYYMMDD-msvcrt-x86_64')
+mex -setup c -v
+mex -setup c++ -v
+```
+Check you have a message `Found installed compiler 'MinGW64 Compiler (C++)'.`.
+
 ### Configuration
 
 If you are using Urx from MATLAB toolkit, you just have to enable Unicode if you need it (`feature('DefaultCharacterSet','UTF-8');`).
@@ -263,7 +339,7 @@ Be sure to use a vcpkg triplet with the same shared / static link option.
 
 Also, be sure that submodule `vcpkg-registry` is initialized with `git submodule update --init --recursive`.
 
-Then pass the following arguments:
+Then pass the arguments below. ⚠ If you use `cmake-gui`, be sure to set these variables BEFORE running configure once. Otherwise, you need to reset cache.
 
 Windows:
 ```cmake

@@ -11,6 +11,12 @@ set_property(
   APPEND
   PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/config.h")
 
+configure_file(urx.h.in urx.h @ONLY)
+set_property(
+  DIRECTORY
+  APPEND
+  PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/urx.h")
+
 set(URX_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/detail/compare.h
     ${CMAKE_CURRENT_SOURCE_DIR}/detail/double_nan.h
@@ -29,7 +35,6 @@ set(URX_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/receive_setup.h
     ${CMAKE_CURRENT_SOURCE_DIR}/transform.h
     ${CMAKE_CURRENT_SOURCE_DIR}/transmit_setup.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/urx.h
     ${CMAKE_CURRENT_SOURCE_DIR}/vector.h
     ${CMAKE_CURRENT_SOURCE_DIR}/version.h
     ${CMAKE_CURRENT_SOURCE_DIR}/wave.h)
@@ -41,7 +46,8 @@ add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 target_sources(
   ${PROJECT_NAME} INTERFACE FILE_SET HEADERS BASE_DIRS
                             ${CMAKE_CURRENT_SOURCE_DIR}/.. FILES ${URX_SRCS})
-target_sources(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/config.h")
+target_sources(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/config.h"
+                                       "${CMAKE_CURRENT_BINARY_DIR}/urx.h")
 
 target_include_directories(
   ${PROJECT_NAME}
@@ -68,6 +74,7 @@ write_basic_package_version_file(
 set(CMAKE_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR}/${INSTALL_NAME})
 
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/config.h"
+              "${CMAKE_CURRENT_BINARY_DIR}/urx.h"
         DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/urx")
 
 install(
