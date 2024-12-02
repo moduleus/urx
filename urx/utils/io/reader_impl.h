@@ -27,7 +27,7 @@
 #include <urx/utils/io/enums.h>
 #include <urx/utils/io/serialize_helper.h>
 
-namespace urx::utils::io::reader {
+namespace urx::utils::io {
 
 template <typename T, typename U, ContainerType = TypeContainer<T>::VALUE>
 struct DeserializeHdf5;
@@ -67,7 +67,7 @@ struct DeserializeHdf5<T, U, ContainerType::RAW> {
         throw std::runtime_error("Failed to read " + group.getObjName() + "/" + name);
       }
 
-      field = urx::utils::io::enums::stringToEnum<T>(value);
+      field = urx::utils::io::stringToEnum<T>(value);
     }
     // Default
     else {
@@ -398,4 +398,4 @@ struct DeserializeAll<std::shared_ptr<RawData>, U> {
   }
 };
 
-}  // namespace urx::utils::io::reader
+}  // namespace urx::utils::io

@@ -29,8 +29,7 @@ py::array rawDataToPyArray(urx::RawData& raw_data) {
   const bool are_data_complex = raw_data.getSamplingType() == urx::SamplingType::IQ;
   const py::ssize_t data_size = raw_data.getSize();
   void* data_ptr = raw_data.getBuffer();
-  const py::ssize_t sizeof_data_type_var =
-      urx::utils::group_helper::sizeofDataType(raw_data.getDataType());
+  const py::ssize_t sizeof_data_type_var = urx::utils::sizeofDataType(raw_data.getDataType());
   const std::string data_format = urx::python::utils::pyGetFormat(raw_data.getDataType());
 
   auto buffer = py::buffer_info(

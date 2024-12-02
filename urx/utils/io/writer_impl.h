@@ -26,7 +26,7 @@
 #include <urx/utils/io/enums.h>
 #include <urx/utils/io/serialize_helper.h>
 
-namespace urx::utils::io::writer {
+namespace urx::utils::io {
 
 template <typename T, typename U, ContainerType = TypeContainer<T>::VALUE>
 struct SerializeHdf5;
@@ -54,7 +54,7 @@ struct SerializeHdf5<T, U, ContainerType::RAW> {
     else if constexpr (std::is_enum_v<T>) {
       const H5::StrType datatype(0, H5T_VARIABLE);
       const H5::DataSpace dataspace(H5S_SCALAR);
-      const std::string value = urx::utils::io::enums::enumToString(field);
+      const std::string value = urx::utils::io::enumToString(field);
       if constexpr (USE_ATTRIBUTE) {
         const H5::Attribute attribute = group.createAttribute(name, datatype, dataspace);
         attribute.write(datatype, value);
@@ -174,9 +174,8 @@ struct SerializeHdf5<T, U, ContainerType::VECTOR> {
 
       size_t i = 0;
       for (const auto& iter : field) {
-        SerializeHdf5<typename T::value_type, U>::f(
-            common::formatIndexWithLeadingZeros(i, ITER_LENGTH), iter, group_child, map,
-            data_field);
+        SerializeHdf5<typename T::value_type, U>::f(formatIndexWithLeadingZeros(i, ITER_LENGTH),
+                                                    iter, group_child, map, data_field);
         i++;
       }
     }
@@ -294,4 +293,4 @@ struct SerializeAll {
   }
 };
 
-}  // namespace urx::utils::io::writer
+}  // namespace urx::utils::io

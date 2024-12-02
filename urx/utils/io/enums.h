@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <utility>
 
-namespace urx::utils::io::enums {
+namespace urx::utils::io {
 template <typename T, typename U>
 std::unordered_map<U, T> invertMap(const std::unordered_map<T, U>& map) {
   std::unordered_map<U, T> retval;
@@ -36,4 +36,4 @@ template <typename T>
 T stringToEnum(const std::string& enumeration);
 template <typename T>
 std::string enumToString(T enumeration);
-}  // namespace urx::utils::io::enums
+}  // namespace urx::utils::io

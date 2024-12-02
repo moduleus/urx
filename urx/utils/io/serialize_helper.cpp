@@ -1,3 +1,5 @@
+#include "serialize_helper.h"
+
 #include <memory>
 
 #include <urx/acquisition.h>
@@ -14,7 +16,6 @@
 #include <urx/receive_setup.h>
 #include <urx/transform.h>
 #include <urx/transmit_setup.h>
-#include <urx/utils/io/serialize_helper.h>
 #include <urx/vector.h>
 #include <urx/version.h>
 #include <urx/wave.h>

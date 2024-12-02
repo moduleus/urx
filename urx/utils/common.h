@@ -5,7 +5,7 @@
 
 #include <urx/utils/export.h>
 
-namespace urx::utils::common {
+namespace urx::utils {
 
 ///
 ///\brief Index to string with leading zeros.
@@ -18,4 +18,4 @@ namespace urx::utils::common {
 ///
 URX_UTILS_EXPORT std::string formatIndexWithLeadingZeros(const std::size_t index, const int length);
 
-}  // namespace urx::utils::common
+}  // namespace urx::utils

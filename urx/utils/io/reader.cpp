@@ -1,3 +1,5 @@
+#include "reader.h"
+
 #include <functional>
 #include <memory>
 #include <typeindex>
@@ -19,7 +21,7 @@
 #include <urx/utils/io/serialize_helper.h>
 #include <urx/version.h>
 
-namespace urx::utils::io::reader {
+namespace urx::utils::io {
 
 std::shared_ptr<Dataset> loadFromFile(const std::string& filename) {
   auto dataset = std::make_shared<Dataset>();
@@ -54,4 +56,4 @@ std::shared_ptr<Dataset> loadFromFile(const std::string& filename) {
   return dataset;
 }
 
-}  // namespace urx::utils::io::reader
+}  // namespace urx::utils::io

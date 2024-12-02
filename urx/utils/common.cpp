@@ -1,9 +1,9 @@
+#include "common.h"
+
 #include <cstdio>
 #include <utility>
 
-#include <urx/utils/common.h>
-
-namespace urx::utils::common {
+namespace urx::utils {
 
 std::string formatIndexWithLeadingZeros(const std::size_t index, const int length) {
   std::string str;
@@ -13,4 +13,4 @@ std::string formatIndexWithLeadingZeros(const std::size_t index, const int lengt
   return str;
 }
 
-}  // namespace urx::utils::common
+}  // namespace urx::utils

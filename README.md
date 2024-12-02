@@ -70,9 +70,9 @@ auto probe = std::make_shared<urx::Probe>();
 probe->description = "Probe 1";
 dataset->acquisition.probes.push_back(probe);
 
-urx::utils::io::writer::saveToFile("file.urx", *dataset);
+urx::utils::io::saveToFile("file.urx", *dataset);
 
-auto dataset_loaded = urx::utils::io::reader::loadFromFile("file.urx");
+auto dataset_loaded = urx::utils::io::loadFromFile("file.urx");
 ```
 
 You may found a complete example in file `urx/utils/io/test/io.h` in function `generateFakeDataset`.

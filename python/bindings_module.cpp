@@ -233,8 +233,8 @@ PYBIND11_MODULE(bindings, m) {
                                                          PyExc_RuntimeError);
 
 #ifdef URX_WITH_HDF5
-  m.def("loadFromFile", &urx::utils::io::reader::loadFromFile);
-  m.def("saveToFile", &urx::utils::io::writer::saveToFile);
+  m.def("loadFromFile", &urx::utils::io::loadFromFile);
+  m.def("saveToFile", &urx::utils::io::saveToFile);
 #endif
 
   // group_data_reader.h
@@ -248,12 +248,12 @@ PYBIND11_MODULE(bindings, m) {
       .def("sampleByteSize", &urx::utils::GroupDataReader::sampleByteSize);
 
   // group_helper
-  m.def("sizeofDataType", &urx::utils::group_helper::sizeofDataType);
+  m.def("sizeofDataType", &urx::utils::sizeofDataType);
   m.def("pyGetFormat", &urx::python::utils::pyGetFormat);
-  m.def("sizeofSample", &urx::utils::group_helper::sizeofSample);
+  m.def("sizeofSample", &urx::utils::sizeofSample);
 
   // time_helper.h
-  m.def("isIso8601", &urx::utils::time_helper::isIso8601);
-  m.def("isIso3166", &urx::utils::time_helper::isIso3166);
+  m.def("isIso8601", &urx::utils::isIso8601);
+  m.def("isIso3166", &urx::utils::isIso3166);
 }
 // NOLINTEND(misc-redundant-expression)

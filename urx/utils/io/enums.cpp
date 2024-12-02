@@ -1,12 +1,13 @@
+#include "enums.h"
+
 #include <memory>
 #include <unordered_map>
 #include <utility>
 
 #include <urx/enums.h>
 #include <urx/utils/export.h>
-#include <urx/utils/io/enums.h>
 
-namespace urx::utils::io::enums {
+namespace urx::utils::io {
 
 namespace {
 std::unordered_map<urx::ProbeType, std::string> probe_to_string{
@@ -74,4 +75,4 @@ URX_UTILS_EXPORT std::string enumToString(urx::DataType enumeration) {
   return enumToStringImpl(enumeration, data_to_string);
 }
 
-}  // namespace urx::utils::io::enums
+}  // namespace urx::utils::io

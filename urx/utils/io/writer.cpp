@@ -1,3 +1,5 @@
+#include "writer.h"
+
 #include <algorithm>
 #include <memory>
 #include <typeindex>
@@ -14,10 +16,9 @@
 #include <urx/probe.h>
 #include <urx/utils/exception.h>
 #include <urx/utils/io/serialize_helper.h>
-#include <urx/utils/io/writer.h>
 #include <urx/utils/io/writer_impl.h>
 
-namespace urx::utils::io::writer {
+namespace urx::utils::io {
 void saveToFile(const std::string& filename, const Dataset& dataset) {
   try {
     const H5::H5File file(filename.data(), H5F_ACC_TRUNC);
@@ -34,4 +35,4 @@ void saveToFile(const std::string& filename, const Dataset& dataset) {
   }
 }
 
-}  // namespace urx::utils::io::writer
+}  // namespace urx::utils::io
