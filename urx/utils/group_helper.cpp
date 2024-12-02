@@ -1,11 +1,12 @@
+#include "group_helper.h"
+
 #include <cstdint>
 #include <memory>
 #include <unordered_map>
 
 #include <urx/enums.h>
-#include <urx/utils/group_helper.h>
 
-namespace urx::utils::group_helper {
+namespace urx::utils {
 
 size_t sizeofDataType(const DataType& data_type) {
   static std::unordered_map<DataType, size_t> group_dt_to_sizeof{
@@ -24,4 +25,4 @@ size_t sizeofSample(const SamplingType& sampling_type, const DataType& data_type
   return group_st_to_nels.at(sampling_type) * sizeofDataType(data_type);
 }
 
-}  // namespace urx::utils::group_helper
+}  // namespace urx::utils

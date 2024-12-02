@@ -1,3 +1,5 @@
+#include "probe_helper.h"
+
 #include <algorithm>
 #include <cstddef>
 #include <memory>
@@ -7,10 +9,9 @@
 #include <urx/element.h>
 #include <urx/probe.h>
 #include <urx/transform.h>
-#include <urx/utils/probe_helper.h>
 #include <urx/vector.h>
 
-namespace urx::utils::probe_helper {
+namespace urx::utils {
 
 void updateRcaElementsPositions(Probe& rca, const Vector2D<uint32_t>& nb_elements,
                                 const Vector2D<double>& pitch) {
@@ -62,4 +63,4 @@ void updateLinearElementsPositions(Probe& linear, uint32_t nb_elements, double p
   }
 }
 
-}  // namespace urx::utils::probe_helper
+}  // namespace urx::utils

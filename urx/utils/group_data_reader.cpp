@@ -1,3 +1,5 @@
+#include "group_data_reader.h"
+
 #include <algorithm>
 
 #include <urx/detail/raw_data.h>
@@ -5,7 +7,6 @@
 #include <urx/group.h>
 #include <urx/group_data.h>
 #include <urx/receive_setup.h>
-#include <urx/utils/group_data_reader.h>
 #include <urx/utils/group_helper.h>
 
 namespace urx::utils {
@@ -14,7 +15,7 @@ GroupDataReader::GroupDataReader(const GroupData& group_data, const size_t custo
     : _group_data{group_data} {
   try {
     auto group = _group_data.group.lock();
-    _sample_byte_size = group_helper::sizeofSample(group->sampling_type, group->data_type);
+    _sample_byte_size = sizeofSample(group->sampling_type, group->data_type);
   } catch (std::out_of_range&) {
     _sample_byte_size = custom_sample_byte_size;
   }
