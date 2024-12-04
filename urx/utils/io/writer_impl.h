@@ -23,6 +23,7 @@
 #include <urx/impulse_response.h>
 #include <urx/probe.h>
 #include <urx/utils/common.h>
+#include <urx/utils/cpp.h>
 #include <urx/utils/io/enums.h>
 #include <urx/utils/io/serialize_helper.h>
 
