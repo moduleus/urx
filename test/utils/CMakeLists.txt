@@ -2,6 +2,7 @@ set(URX_TEST_FILES
     clone_vector2D.cpp
     clone_vector3D.cpp
     clone_version.cpp
+    clone_transform.cpp
     common.cpp
     cpp.cpp
     time_helper.cpp
