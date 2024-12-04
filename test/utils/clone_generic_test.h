@@ -1,0 +1,65 @@
+#pragma once
+
+#include <memory>
+
+#include <catch2/catch_test_macros.hpp>
+
+#include <urx/utils/clone.h>
+
+namespace urx::utils::test {
+
+template <typename T>
+void generic_clone_test(T var) {
+  auto var_cloned = utils::clone(var);
+  REQUIRE(var == var_cloned);
+  REQUIRE(std::is_same_v<decltype(var), decltype(var_cloned)>);
+
+  // Raw PTR
+  auto var_ptr_cloned = utils::clone(&var);
+  REQUIRE(var == *var_ptr_cloned);
+  REQUIRE(std::is_same_v<decltype(&var), decltype(var_ptr_cloned)>);
+
+  // Shared PTR
+  std::shared_ptr<T> var_shared_ptr = std::make_shared<T>(var);
+  auto var_shared_ptr_cloned = utils::clone(var_shared_ptr);
+  REQUIRE(*var_shared_ptr == *var_shared_ptr_cloned);
+  REQUIRE(var_shared_ptr.get() != var_shared_ptr_cloned.get());
+  REQUIRE(var_shared_ptr != var_shared_ptr_cloned);
+  REQUIRE(std::is_same_v<decltype(var_shared_ptr), decltype(var_shared_ptr_cloned)>);
+
+  // Weak PTR
+  std::weak_ptr<T> var_weak_ptr = var_shared_ptr;
+  auto var_weak_ptr_cloned = utils::clone(var_weak_ptr);
+  REQUIRE(*var_weak_ptr.lock() == *var_weak_ptr_cloned.lock());
+  // REQUIRE(var_weak_ptr == var_weak_ptr_cloned);
+  REQUIRE(std::is_same_v<decltype(var_weak_ptr), decltype(var_weak_ptr_cloned)>);
+
+  // Optional
+  std::optional<T> var_opt = var;
+  auto var_opt_cloned = utils::clone(var_opt);
+  REQUIRE(var_opt == var_opt_cloned);
+  REQUIRE(var_opt.value() == var_opt_cloned.value());
+  REQUIRE(std::is_same_v<decltype(var_opt), decltype(var_opt_cloned)>);
+
+  // Shared PTR nullptr
+  var_shared_ptr = nullptr;
+  var_shared_ptr_cloned = utils::clone(var_shared_ptr);
+  REQUIRE(var_shared_ptr == var_shared_ptr_cloned);
+  REQUIRE(var_shared_ptr.get() == var_shared_ptr_cloned.get());
+
+  // Weak PTR expired
+  var_weak_ptr = std::weak_ptr<T>();
+  var_weak_ptr_cloned = utils::clone(var_weak_ptr);
+  REQUIRE(var_weak_ptr.expired());
+  REQUIRE(var_weak_ptr_cloned.expired());
+
+  // Optional nullopt
+  var_opt = std::nullopt;
+  var_opt_cloned = utils::clone(var_opt);
+  REQUIRE(var_opt == var_opt_cloned);
+  REQUIRE(!var_opt.has_value());
+  REQUIRE(!var_opt_cloned.has_value());
+  REQUIRE(std::is_same_v<decltype(var_opt), decltype(var_opt_cloned)>);
+}
+
+}  // namespace urx::utils::test

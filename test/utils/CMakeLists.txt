@@ -1,4 +1,5 @@
 set(URX_TEST_FILES
+    clone_generic_test.h
     clone_vector2D.cpp
     clone_vector3D.cpp
     clone_version.cpp
