@@ -65,14 +65,6 @@ std::type_index nameTypeid() {
 constexpr int ITER_LENGTH = 8;
 constexpr bool USE_ATTRIBUTE = false;
 
-template <class... Ts>
-struct Overloaded : Ts... {
-  using Ts::operator()...;
-};
-// explicit deduction guide (not needed as of C++20)
-template <class... Ts>
-Overloaded(Ts...) -> Overloaded<Ts...>;
-
 template <typename T>
 const std::vector<std::shared_ptr<T>>& getSharedPtr(MapToSharedPtr& map) {
   return *reinterpret_cast<const std::vector<std::shared_ptr<T>>*>(map.at(nameTypeid<T>()));
