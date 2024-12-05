@@ -99,15 +99,20 @@ TEST_CASE("Clone ElementGeometry", "[Clone]") {
 }
 
 TEST_CASE("Clone ImpulseResponse", "[Clone]") {
-  ImpulseResponse ir;
-  generic_clone_test(ir);
+  generic_clone_test(ImpulseResponse());
+  auto d = utils::test::generateWrongDataset<Dataset>();
 
-  ir.data = {1.23, 4.56, 7.89, 10.11, 12.13};
-  ir.sampling_frequency = 120e6;
-  ir.units = "Test";
-  ir.time_offset = 10e3;
-
-  generic_clone_test(ir);
+  for (size_t p_id = 0; p_id < d->acquisition.groups.size(); ++p_id) {
+    auto& probe = d->acquisition.probes.at(p_id);
+    if (probe != nullptr) {
+      for (size_t ir_id = 0; ir_id < probe->impulse_responses.size(); ++ir_id) {
+        std::shared_ptr<ImpulseResponse> ir = probe->impulse_responses.at(ir_id);
+        if (ir) {
+          generic_clone_test(*ir);
+        }
+      }
+    }
+  }
 }
 
 TEST_CASE("Clone TransmitSetup", "[Clone]") {
