@@ -7,4 +7,10 @@ classdef ObjectField < handle
     libBindingRef = urx.LibBinding.empty(1,0)
     ptrType urx.PtrType
   end
+
+  methods
+    function res = getId(this)
+      res = this.id;
+    end
+  end
 end

@@ -71,7 +71,7 @@ classdef Object < urx.ObjectField
       end
     end
 
-    function res = getInstance(this)
+    function res = getInstance(this) %#ok<MANU>
       res = urx.LibBinding.getInstance();
     end
 
