@@ -43,4 +43,14 @@ TEST_CASE("Clone Transform", "[Clone]") {
   generic_clone_test(t);
 }
 
+TEST_CASE("Clone Wave", "[Clone]") {
+  Wave w;
+  generic_clone_test(w);
+  w.type = urx::WaveType::DIVERGING_WAVE;
+  w.time_zero = -42.42;
+  w.time_zero_reference_point = {1.23, 4.56, 7.89};
+  w.parameters = {1.23, 4.56, 7.89, 10.11, 12.13};
+  generic_clone_test(w);
+}
+
 }  // namespace urx::utils::test
