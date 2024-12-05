@@ -53,4 +53,17 @@ TEST_CASE("Clone Wave", "[Clone]") {
   generic_clone_test(w);
 }
 
+TEST_CASE("Clone Element", "[Clone]") {
+  Element e;
+  generic_clone_test(e);
+
+  std::shared_ptr<ElementGeometry> element_geometry = std::make_shared<ElementGeometry>();
+  std::shared_ptr<ImpulseResponse> impulse_response = std::make_shared<ImpulseResponse>();
+
+  e.transform = {{1.23, 4.56, 7.89}, {10, -11.1, 12.3}};
+  e.element_geometry = element_geometry;
+  e.impulse_response = impulse_response;
+
+  generic_clone_test(e);
+}
 }  // namespace urx::utils::test
