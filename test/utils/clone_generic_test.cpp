@@ -66,4 +66,14 @@ TEST_CASE("Clone Element", "[Clone]") {
 
   generic_clone_test(e);
 }
+
+TEST_CASE("Clone ElementGeometry", "[Clone]") {
+  ElementGeometry eg;
+  generic_clone_test(eg);
+
+  eg.perimeter = {{1.23, 4.56, 7.89}, {10, -11.1, 12.3}, {-1.23, -4.56, 7.89}, {-10, 11.1, -12.3}};
+
+  generic_clone_test(eg);
+}
+
 }  // namespace urx::utils::test
