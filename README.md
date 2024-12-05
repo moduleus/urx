@@ -167,6 +167,11 @@ Check you have a message `Found installed compiler 'MinGW64 Compiler (C++)'.`.
 
 If you are using Urx from MATLAB toolkit, you just have to enable Unicode if you need it (`feature('DefaultCharacterSet','UTF-8');`).
 
+If you want to enable logging, set `URX_DEBUG` environment variable to:
+
+  - `COUT` to display message to the standard output,
+  - the filename where you want to store log messages.
+
 If you built Urx from source, before using `Urx` in MATLAB, you first need to:
 
   - allow utf-8 caracters,
