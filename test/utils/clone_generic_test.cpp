@@ -172,4 +172,16 @@ TEST_CASE("Clone Excitation", "[Clone]") {
   }
 }
 
+TEST_CASE("Clone Group", "[Clone]") {
+  generic_clone_test(Group());
+  auto d = utils::test::generateWrongDataset<Dataset>();
+
+  for (size_t g_id = 0; g_id < d->acquisition.groups.size(); ++g_id) {
+    auto& g = d->acquisition.groups.at(g_id);
+    if (g != nullptr) {
+      generic_clone_test(*g);
+    }
+  }
+}
+
 }  // namespace urx::utils::test
