@@ -116,33 +116,18 @@ TEST_CASE("Clone ImpulseResponse", "[Clone]") {
 }
 
 TEST_CASE("Clone TransmitSetup", "[Clone]") {
-  TransmitSetup ts;
-  generic_clone_test(ts);
+  generic_clone_test(TransmitSetup());
+  auto d = utils::test::generateWrongDataset<Dataset>();
 
-  Wave w;
-  w.type = urx::WaveType::DIVERGING_WAVE;
-  w.time_zero = -42.42;
-  w.time_zero_reference_point = {1.23, 4.56, 7.89};
-  w.parameters = {1.23, 4.56, 7.89, 10.11, 12.13};
-
-  std::shared_ptr<Excitation> ex = std::make_shared<Excitation>();
-  std::shared_ptr<Excitation> ex_2 = std::make_shared<Excitation>();
-  ex_2->pulse_shape = "Something";
-  ex_2->sampling_frequency = 120e6;
-  ex_2->transmit_frequency = 10e6;
-  ex_2->waveform = {0, 1.2, -3.4, .56, -7, 89};
-
-  std::shared_ptr<Probe> p = std::make_shared<Probe>();
-
-  ts.wave = w;
-  ts.time_offset = 10e3;
-  ts.probe_transform = {{1.23, 4.56, 7.89}, {10, -11.1, 12.3}};
-  ts.active_elements = {{}, {1, 2}, {1, 4, 789}};
-  ts.delays = {1.23, 4.56, 7.89, 10.11, 12.13};
-  ts.excitations = {ex, std::weak_ptr<Excitation>(), ex_2};
-  ts.probe = p;
-
-  generic_clone_test(ts);
+  for (size_t g_id = 0; g_id < d->acquisition.groups.size(); ++g_id) {
+    auto& group = d->acquisition.groups.at(g_id);
+    if (group != nullptr) {
+      for (size_t e_id = 0; e_id < group->sequence.size(); ++e_id) {
+        TransmitSetup& ts = group->sequence.at(e_id).transmit_setup;
+        generic_clone_test(ts);
+      }
+    }
+  }
 }
 
 }  // namespace urx::utils::test
