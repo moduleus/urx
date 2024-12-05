@@ -37,7 +37,7 @@ set(URX_UTILS_H
     ${CMAKE_CURRENT_SOURCE_DIR}/cpp.h
     ${CMAKE_CURRENT_SOURCE_DIR}/group_data_reader.h
     ${CMAKE_CURRENT_SOURCE_DIR}/group_helper.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/io/test/io.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/test/dataset_gen.h
     ${CMAKE_CURRENT_SOURCE_DIR}/probe_helper.h
     ${CMAKE_CURRENT_SOURCE_DIR}/time_helper.h)
 

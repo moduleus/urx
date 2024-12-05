@@ -15,8 +15,8 @@
 #include <urx/probe.h>
 #include <urx/utils/exception.h>
 #include <urx/utils/io/reader.h>
-#include <urx/utils/io/test/io.h>
 #include <urx/utils/io/writer.h>
+#include <urx/utils/test/dataset_gen.h>
 
 namespace urx::utils::io::test {
 
