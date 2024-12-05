@@ -76,4 +76,16 @@ TEST_CASE("Clone ElementGeometry", "[Clone]") {
   generic_clone_test(eg);
 }
 
+TEST_CASE("Clone ImpulseResponse", "[Clone]") {
+  ImpulseResponse ir;
+  generic_clone_test(ir);
+
+  ir.data = {1.23, 4.56, 7.89, 10.11, 12.13};
+  ir.sampling_frequency = 120e6;
+  ir.units = "Test";
+  ir.time_offset = 10e3;
+
+  generic_clone_test(ir);
+}
+
 }  // namespace urx::utils::test
