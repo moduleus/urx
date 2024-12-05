@@ -145,4 +145,19 @@ TEST_CASE("Clone ReceiveSetup", "[Clone]") {
   }
 }
 
+TEST_CASE("Clone Event", "[Clone]") {
+  generic_clone_test(Event());
+  auto d = utils::test::generateWrongDataset<Dataset>();
+
+  for (size_t g_id = 0; g_id < d->acquisition.groups.size(); ++g_id) {
+    auto& group = d->acquisition.groups.at(g_id);
+    if (group != nullptr) {
+      for (size_t e_id = 0; e_id < group->sequence.size(); ++e_id) {
+        Event& e = group->sequence.at(e_id);
+        generic_clone_test(e);
+      }
+    }
+  }
+}
+
 }  // namespace urx::utils::test
