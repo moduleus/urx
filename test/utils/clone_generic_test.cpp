@@ -67,17 +67,18 @@ TEST_CASE("Clone Wave", "[Clone]") {
 }
 
 TEST_CASE("Clone Element", "[Clone]") {
-  Element e;
-  generic_clone_test(e);
+  generic_clone_test(Element());
+  auto d = utils::test::generateWrongDataset<Dataset>();
 
-  std::shared_ptr<ElementGeometry> element_geometry = std::make_shared<ElementGeometry>();
-  std::shared_ptr<ImpulseResponse> impulse_response = std::make_shared<ImpulseResponse>();
-
-  e.transform = {{1.23, 4.56, 7.89}, {10, -11.1, 12.3}};
-  e.element_geometry = element_geometry;
-  e.impulse_response = impulse_response;
-
-  generic_clone_test(e);
+  for (size_t p_id = 0; p_id < d->acquisition.groups.size(); ++p_id) {
+    auto& probe = d->acquisition.probes.at(p_id);
+    if (probe != nullptr) {
+      for (size_t e_id = 0; e_id < probe->elements.size(); ++e_id) {
+        Element& e = probe->elements.at(e_id);
+        generic_clone_test(e);
+      }
+    }
+  }
 }
 
 TEST_CASE("Clone ElementGeometry", "[Clone]") {
