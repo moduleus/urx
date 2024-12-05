@@ -23,6 +23,13 @@
 
 namespace urx::utils::test {
 
+TEST_CASE("Clone DoubleNan", "[Clone]") {
+  DoubleNan d;
+  generic_clone_test(d);
+  d = 42.42;
+  generic_clone_test(d);
+}
+
 TEST_CASE("Clone Vector2D", "[Clone]") {
   Vector2D<double> d_vec = {1.23, 4.56};
   generic_clone_test(d_vec);
