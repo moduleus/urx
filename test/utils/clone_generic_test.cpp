@@ -17,6 +17,7 @@
 #include <urx/receive_setup.h>
 #include <urx/transform.h>
 #include <urx/transmit_setup.h>
+#include <urx/utils/test/dataset_gen.h>
 #include <urx/vector.h>
 #include <urx/version.h>
 #include <urx/wave.h>
@@ -51,13 +52,18 @@ TEST_CASE("Clone Transform", "[Clone]") {
 }
 
 TEST_CASE("Clone Wave", "[Clone]") {
-  Wave w;
-  generic_clone_test(w);
-  w.type = urx::WaveType::DIVERGING_WAVE;
-  w.time_zero = -42.42;
-  w.time_zero_reference_point = {1.23, 4.56, 7.89};
-  w.parameters = {1.23, 4.56, 7.89, 10.11, 12.13};
-  generic_clone_test(w);
+  generic_clone_test(Wave());
+  auto d = utils::test::generateWrongDataset<Dataset>();
+
+  for (size_t g_id = 0; g_id < d->acquisition.groups.size(); ++g_id) {
+    auto& group = d->acquisition.groups.at(g_id);
+    if (group != nullptr) {
+      for (size_t e_id = 0; e_id < group->sequence.size(); ++e_id) {
+        Wave& w = group->sequence.at(e_id).transmit_setup.wave;
+        generic_clone_test(w);
+      }
+    }
+  }
 }
 
 TEST_CASE("Clone Element", "[Clone]") {
