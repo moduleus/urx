@@ -184,4 +184,14 @@ TEST_CASE("Clone Group", "[Clone]") {
   }
 }
 
+TEST_CASE("Clone GroupData", "[Clone]") {
+  generic_clone_test(GroupData());
+  auto d = utils::test::generateWrongDataset<Dataset>();
+
+  for (size_t gd_id = 0; gd_id < d->acquisition.groups_data.size(); ++gd_id) {
+    auto& gd = d->acquisition.groups_data.at(gd_id);
+    generic_clone_test(gd);
+  }
+}
+
 }  // namespace urx::utils::test
