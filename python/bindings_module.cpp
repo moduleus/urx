@@ -1,7 +1,12 @@
 #include "bindings_module.h"
 
 #include <cstddef>
+#include <iomanip>
+#include <ios>
+#include <iosfwd>
 #include <memory>
+#include <ostream>
+#include <sstream>
 #include <string>
 #include <utility>
 #include <vector>
@@ -108,6 +113,12 @@ PYBIND11_MODULE(bindings, m) {
       .def(py::init<const urx::DoubleNan &>())
       .def(py::init())
       .def_readwrite("value", &urx::DoubleNan::value)
+      .def("__repr__",
+           [](const urx::DoubleNan &v) {
+             std::ostringstream oss;
+             oss << std::setprecision(17) << v.value;
+             return oss.str();
+           })
       .def(py::self == py::self)
       .def(py::self != py::self)
       .def(double() == py::self)

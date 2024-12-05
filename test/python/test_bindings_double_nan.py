@@ -1,3 +1,5 @@
+import io
+import sys
 import numpy as np
 
 
@@ -56,5 +58,11 @@ def test_double_nan(
     self.assertEqual(d / 2.13, double_nan_copy(42 / 2.13))
     self.assertEqual(2 / d, double_nan_copy(2 / 42))
     self.assertEqual(d / 2, double_nan_copy(42 / 2))
+
+    capturedOutput = io.StringIO()
+    sys.stdout = capturedOutput
+    print(d_3, end="")
+    sys.stdout = sys.__stdout__
+    self.assertEqual(capturedOutput.getvalue(), "42")
 
     print("--Test %s END--" % testName)
