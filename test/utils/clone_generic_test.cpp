@@ -194,4 +194,68 @@ TEST_CASE("Clone GroupData", "[Clone]") {
   }
 }
 
+TEST_CASE("Clone Probe", "[Clone]") {
+  generic_clone_test(Probe());
+  auto d = utils::test::generateWrongDataset<Dataset>();
+
+  for (size_t p_id = 0; p_id < d->acquisition.probes.size(); ++p_id) {
+    auto& p = d->acquisition.probes.at(p_id);
+    if (p != nullptr) {
+      if (p->description != "Probe with wrong ptr") {
+        generic_clone_test(*p);
+      }
+      auto p_cloned = utils::clone(p);
+
+      REQUIRE(p_cloned->element_geometries.size() == p->element_geometries.size());
+      REQUIRE(p_cloned->impulse_responses.size() == p->impulse_responses.size());
+      REQUIRE(p_cloned->elements.size() == p->elements.size());
+
+      for (size_t eg_id = 0; eg_id < p->element_geometries.size(); ++eg_id) {
+        // Compare shared_ptr<ElementGeometry> does not compare ptr
+        REQUIRE(p_cloned->element_geometries[eg_id] == p->element_geometries.at(eg_id));
+        if (p->element_geometries.at(eg_id)) {
+          REQUIRE(*p_cloned->element_geometries[eg_id] == *p->element_geometries.at(eg_id));
+          // Compare shared_ptr<ElementGeometry> ptr
+          REQUIRE(p_cloned->element_geometries[eg_id].get() !=
+                  p->element_geometries.at(eg_id).get());
+        }
+      }
+      for (size_t ir_id = 0; ir_id < p->impulse_responses.size(); ++ir_id) {
+        // Compare shared_ptr<ImpulseResponse> does not compare ptr
+        REQUIRE(p_cloned->impulse_responses[ir_id] == p->impulse_responses.at(ir_id));
+        if (p->impulse_responses.at(ir_id)) {
+          REQUIRE(*p_cloned->impulse_responses[ir_id] == *p->impulse_responses.at(ir_id));
+          // Compare shared_ptr<ImpulseResponse> ptr
+          REQUIRE(p_cloned->impulse_responses[ir_id].get() != p->impulse_responses.at(ir_id).get());
+        }
+      }
+      for (size_t e_id = 0; e_id < p_cloned->elements.size(); ++e_id) {
+        int32_t eg_id =
+            getEltId(p_cloned->element_geometries, p_cloned->elements.at(e_id).element_geometry);
+        if (eg_id < 0) {
+          REQUIRE(p_cloned->elements.at(e_id).element_geometry == std::weak_ptr<ElementGeometry>());
+        } else {
+          REQUIRE(p_cloned->elements.at(e_id).element_geometry ==
+                  p_cloned->element_geometries.at(eg_id));
+          REQUIRE(p_cloned->elements.at(e_id).element_geometry == p->element_geometries.at(eg_id));
+          REQUIRE(-1 !=
+                  getEltId(p->element_geometries, p_cloned->elements.at(e_id).element_geometry));
+        }
+
+        int32_t ir_id =
+            getEltId(p_cloned->impulse_responses, p_cloned->elements.at(e_id).impulse_response);
+        if (eg_id < 0) {
+          REQUIRE(p_cloned->elements.at(e_id).impulse_response == std::weak_ptr<ImpulseResponse>());
+        } else {
+          REQUIRE(p_cloned->elements.at(e_id).impulse_response ==
+                  p_cloned->impulse_responses.at(ir_id));
+          REQUIRE(p_cloned->elements.at(e_id).impulse_response == p->impulse_responses.at(ir_id));
+          REQUIRE(-1 !=
+                  getEltId(p->impulse_responses, p_cloned->elements.at(e_id).impulse_response));
+        }
+      }
+    }
+  }
+}
+
 }  // namespace urx::utils::test
