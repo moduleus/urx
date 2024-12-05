@@ -1,13 +1,5 @@
-set(URX_TEST_FILES
-    clone_generic_test.h
-    clone_vector2D.cpp
-    clone_vector3D.cpp
-    clone_version.cpp
-    clone_transform.cpp
-    common.cpp
-    cpp.cpp
-    time_helper.cpp
-    group_data_reader.cpp)
+set(URX_TEST_FILES clone_generic_test.h clone_generic_test.cpp common.cpp
+                   cpp.cpp time_helper.cpp group_data_reader.cpp)
 
 add_executable(UrxUtilsTest ${URX_TEST_FILES})
 if(ENABLE_PCH)
