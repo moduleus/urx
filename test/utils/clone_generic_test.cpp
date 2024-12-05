@@ -82,12 +82,20 @@ TEST_CASE("Clone Element", "[Clone]") {
 }
 
 TEST_CASE("Clone ElementGeometry", "[Clone]") {
-  ElementGeometry eg;
-  generic_clone_test(eg);
+  generic_clone_test(ElementGeometry());
+  auto d = utils::test::generateWrongDataset<Dataset>();
 
-  eg.perimeter = {{1.23, 4.56, 7.89}, {10, -11.1, 12.3}, {-1.23, -4.56, 7.89}, {-10, 11.1, -12.3}};
-
-  generic_clone_test(eg);
+  for (size_t p_id = 0; p_id < d->acquisition.groups.size(); ++p_id) {
+    auto& probe = d->acquisition.probes.at(p_id);
+    if (probe != nullptr) {
+      for (size_t eg_id = 0; eg_id < probe->element_geometries.size(); ++eg_id) {
+        std::shared_ptr<ElementGeometry> eg = probe->element_geometries.at(eg_id);
+        if (eg) {
+          generic_clone_test(*eg);
+        }
+      }
+    }
+  }
 }
 
 TEST_CASE("Clone ImpulseResponse", "[Clone]") {
