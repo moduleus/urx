@@ -1,4 +1,6 @@
+#include <algorithm>
 #include <memory>
+#include <random>
 
 #include <catch2/catch_test_macros.hpp>
 #include <test/utils/clone_generic_test.h>
@@ -191,6 +193,115 @@ TEST_CASE("Clone GroupData", "[Clone]") {
   for (size_t gd_id = 0; gd_id < d->acquisition.groups_data.size(); ++gd_id) {
     auto& gd = d->acquisition.groups_data.at(gd_id);
     generic_clone_test(gd);
+  }
+}
+
+TEST_CASE("Clone RawData", "[Clone]") {
+  auto d = utils::test::generateWrongDataset<Dataset>();
+
+  std::vector<std::shared_ptr<RawData>> rd_vec;
+  rd_vec.reserve(d->acquisition.groups_data.size());
+  for (size_t gd_id = 0; gd_id < d->acquisition.groups_data.size(); ++gd_id) {
+    rd_vec.push_back(d->acquisition.groups_data.at(gd_id).raw_data);
+  }
+  // NULLPTR
+  rd_vec.push_back(nullptr);
+
+  // Random gen
+  std::random_device rd;
+  std::mt19937 gen(
+      rd());  // these can be global and/or static, depending on how you use random elsewhere
+
+  // RawDataVector with no data
+  std::vector<std::complex<float>> no_data_vec(0);
+  rd_vec.push_back(std::make_shared<RawDataVector<std::complex<float>>>(no_data_vec));
+
+  // RawDataVector with 1000 std::complex<float>
+  std::vector<std::complex<float>> com_float_data_vec(1000);
+  std::uniform_real_distribution<> real_dis(-1e9, 1e9);
+  std::generate(com_float_data_vec.begin(), com_float_data_vec.end(),
+                [&]() { return std::complex<float>(real_dis(gen), real_dis(gen)); });
+  auto rd_vec_comp_float = std::make_shared<RawDataVector<std::complex<float>>>(com_float_data_vec);
+  rd_vec.push_back(rd_vec_comp_float);
+
+  // RawDataVector with 1000 int16_t
+  std::vector<int16_t> data_vec(1000);
+  std::uniform_int_distribution<> int_dis(-1e9, 1e9);
+  std::generate(data_vec.begin(), data_vec.end(), [&]() { return int_dis(gen); });
+  auto rd_vec_int16 = std::make_shared<RawDataVector<int16_t>>(data_vec);
+  rd_vec.push_back(rd_vec_int16);
+
+  // RawDataNoInit with no data
+  rd_vec.push_back(std::make_shared<RawDataNoInit<int32_t>>(0));
+  rd_vec.push_back(std::make_shared<RawDataNoInit<std::complex<int16_t>>>(0));
+
+  // RawDataNoInit with 1000 int16_t not initialized
+  rd_vec.push_back(std::make_shared<RawDataNoInit<int16_t>>(1000));
+
+  // RawDataNoInit with 1000 std::complex<double> not initialized
+  auto rd_no_init_comp_double = std::make_shared<RawDataNoInit<std::complex<double>>>(1000);
+  rd_vec.push_back(rd_no_init_comp_double);
+
+  // RawDataNoInit with 1000 std::complex<double>
+  auto rd_no_init_comp_double_init = std::make_shared<RawDataNoInit<std::complex<double>>>(1000);
+  rd_vec.push_back(rd_no_init_comp_double_init);
+  std::generate(static_cast<std::complex<double>*>(rd_no_init_comp_double_init->getBuffer()),
+                static_cast<std::complex<double>*>(rd_no_init_comp_double_init->getBuffer()) +
+                    rd_no_init_comp_double_init->getSize(),
+                [&]() { return std::complex<double>(real_dis(gen), real_dis(gen)); });
+
+  // RawDataWeak with 1000 int16
+  rd_vec.push_back(
+      std::make_shared<RawDataWeak<int16_t>>(rd_vec_int16->getBuffer(), rd_vec_int16->getSize()));
+
+  // RawDataWeak with 1000 int16
+  rd_vec.push_back(std::make_shared<RawDataWeak<std::complex<float>>>(
+      rd_vec_comp_float->getBuffer(), rd_vec_comp_float->getSize()));
+
+  // RawDataWeak with 1000 int16
+  rd_vec.push_back(std::make_shared<RawDataWeak<int16_t>>(rd_vec_comp_float->getBuffer(),
+                                                          rd_vec_comp_float->getSize()));
+
+  // RawDataWeak with 1000 complex double no init
+  rd_vec.push_back(std::make_shared<RawDataWeak<int16_t>>(rd_no_init_comp_double->getBuffer(),
+                                                          rd_no_init_comp_double->getSize()));
+
+  // RawDataWeak with 1000 complex double init
+  rd_vec.push_back(std::make_shared<RawDataWeak<int16_t>>(rd_no_init_comp_double_init->getBuffer(),
+                                                          rd_no_init_comp_double_init->getSize()));
+
+  for (size_t rd_id = 0; rd_id < rd_vec.size(); ++rd_id) {
+    std::shared_ptr<RawData> rd = rd_vec.at(rd_id);
+    if (rd) {
+      std::shared_ptr<RawData> rd_cloned = std::shared_ptr<RawData>(clone<RawData, RawData*>(*rd));
+      REQUIRE(rd_cloned == rd);
+      if (rd) {
+        REQUIRE(rd_cloned->getSize() == rd->getSize());
+        REQUIRE(rd_cloned->getSamplingType() == rd->getSamplingType());
+        REQUIRE(rd_cloned->getDataType() == rd->getDataType());
+        if (dynamic_cast<RawDataWeak<std::complex<double>>*>(rd_vec.at(rd_id).get())) {
+          REQUIRE(rd_cloned->getBuffer() == rd->getBuffer());
+        } else if (dynamic_cast<RawDataWeak<std::complex<float>>*>(rd_vec.at(rd_id).get())) {
+          REQUIRE(rd_cloned->getBuffer() == rd->getBuffer());
+        } else if (dynamic_cast<RawDataWeak<std::complex<int32_t>>*>(rd_vec.at(rd_id).get())) {
+          REQUIRE(rd_cloned->getBuffer() == rd->getBuffer());
+        } else if (dynamic_cast<RawDataWeak<std::complex<int16_t>>*>(rd_vec.at(rd_id).get())) {
+          REQUIRE(rd_cloned->getBuffer() == rd->getBuffer());
+        } else if (dynamic_cast<RawDataWeak<double>*>(rd_vec.at(rd_id).get())) {
+          REQUIRE(rd_cloned->getBuffer() == rd->getBuffer());
+        } else if (dynamic_cast<RawDataWeak<float>*>(rd_vec.at(rd_id).get())) {
+          REQUIRE(rd_cloned->getBuffer() == rd->getBuffer());
+        } else if (dynamic_cast<RawDataWeak<int32_t>*>(rd_vec.at(rd_id).get())) {
+          REQUIRE(rd_cloned->getBuffer() == rd->getBuffer());
+        } else if (dynamic_cast<RawDataWeak<int16_t>*>(rd_vec.at(rd_id).get())) {
+          REQUIRE(rd_cloned->getBuffer() == rd->getBuffer());
+        } else {
+          if (rd_cloned->getBuffer()) {
+            REQUIRE(rd_cloned->getBuffer() != rd->getBuffer());
+          }
+        }
+      }
+    }
   }
 }
 

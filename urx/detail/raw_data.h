@@ -15,6 +15,37 @@
 
 namespace urx {
 
+// Get DataType associated to type T
+template <typename T>
+struct DataTypeSelector {
+  static constexpr DataType value = DataType::UNDEFINED;
+};
+
+template <>
+struct DataTypeSelector<double> {
+  static constexpr DataType value = DataType::DOUBLE;
+};
+
+template <>
+struct DataTypeSelector<float> {
+  static constexpr DataType value = DataType::FLOAT;
+};
+
+template <>
+struct DataTypeSelector<int32_t> {
+  static constexpr DataType value = DataType::INT32;
+};
+
+template <>
+struct DataTypeSelector<int16_t> {
+  static constexpr DataType value = DataType::INT16;
+};
+
+template <typename T>
+struct DataTypeSelector<std::complex<T>> {
+  static constexpr DataType value = DataTypeSelector<T>::value;
+};
+
 class RawData {
  public:
   virtual const void* getBuffer() const = 0;
@@ -42,25 +73,11 @@ class IRawData : public RawData {
  public:
   using ValueType = T;
 
-  SamplingType getSamplingType() const override {
+  constexpr SamplingType getSamplingType() const override {
     return utils::IsComplex<ValueType>::value ? SamplingType::IQ : SamplingType::RF;
   };
 
-  DataType getDataType() const override {
-    const std::type_index type([]() -> std::type_index {
-      if constexpr (utils::IsComplex<ValueType>::value) {
-        return typeid(typename ValueType::value_type);
-      }
-      return typeid(ValueType);
-    }());
-    static std::unordered_map<std::type_index, DataType> typeid_to_dt{
-        {std::type_index(typeid(int16_t)), DataType::INT16},
-        {std::type_index(typeid(int32_t)), DataType::INT32},
-        {std::type_index(typeid(float)), DataType::FLOAT},
-        {std::type_index(typeid(double)), DataType::DOUBLE}};
-
-    return typeid_to_dt.at(type);
-  };
+  constexpr DataType getDataType() const override { return DataTypeSelector<ValueType>::value; };
 
   ~IRawData() override = default;
 };
@@ -68,7 +85,7 @@ class IRawData : public RawData {
 template <typename DataType>
 class RawDataVector final : public IRawData<DataType> {
  public:
-  explicit RawDataVector(std::vector<DataType>&& vector) : _vector(std::move(vector)) {}
+  explicit RawDataVector(std::vector<DataType> vector) : _vector(std::move(vector)) {}
   ~RawDataVector() override = default;
 
   const void* getBuffer() const override { return _vector.data(); }
