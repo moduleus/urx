@@ -33,6 +33,7 @@ set(URX_UTILS_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/probe_helper.cpp)
 set(URX_UTILS_H
     ${CMAKE_CURRENT_SOURCE_DIR}/common.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/exception.h
     ${CMAKE_CURRENT_SOURCE_DIR}/group_data_reader.h
     ${CMAKE_CURRENT_SOURCE_DIR}/group_helper.h
     ${CMAKE_CURRENT_SOURCE_DIR}/io/test/io.h

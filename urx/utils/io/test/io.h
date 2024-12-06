@@ -199,7 +199,7 @@ std::shared_ptr<T> generateFakeDataset() {
       event.transmit_setup.wave.time_zero_reference_point.z = 4;
       event.transmit_setup.wave.time_zero = 5.11;
       event.transmit_setup.wave.parameters = {7, 53, .2, 1, .3, 5.6, 7};
-      event.transmit_setup.active_elements = {{0, 1}, {0}};
+      event.transmit_setup.active_elements = {{}, {0}};
       event.transmit_setup.excitations = {dataset->acquisition.excitations[1],
                                           dataset->acquisition.excitations[0]};
       event.transmit_setup.delays = {1.2, .3};

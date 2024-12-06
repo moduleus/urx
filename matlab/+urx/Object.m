@@ -71,7 +71,7 @@ classdef Object < urx.ObjectField
       end
     end
 
-    function res = getInstance(this)
+    function res = getInstance(this) %#ok<MANU>
       res = urx.LibBinding.getInstance();
     end
 
@@ -177,11 +177,11 @@ classdef Object < urx.ObjectField
 
       % Disable hint for tipinfo and workspace info. To ease debug. Need to
       % be removed before release.
-      if any(arrayfun(@(x) strcmp(x.name, 'datatipinfo'), s)) || any(arrayfun(@(x) strcmp(x.name, 'workspacefunc'), s))
-        % disp will be shown in tipinfo.
-        disp(['Disabled ' evnt.EventName ' for ' src.Name '. Shown value may be wrong.'])
-        return;
-      end
+      % if any(arrayfun(@(x) strcmp(x.name, 'datatipinfo'), s)) || any(arrayfun(@(x) strcmp(x.name, 'workspacefunc'), s))
+      %   % disp will be shown in tipinfo.
+      %   disp(['Disabled ' evnt.EventName ' for ' src.Name '. Shown value may be wrong.'])
+      %   return;
+      % end
 
       % Don't observe when called from constructor with inheritance.
       % Object constructor must be called before child constructor.

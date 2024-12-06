@@ -412,9 +412,9 @@ classdef FileFromScratch < matlab.unittest.TestCase
       groupData2.eventTimestamps = {[4, 5, 7], [8, 7, 6]};
       dataset.acquisition.groupsData = [groupData1, groupData2];
       
-      dataset.saveToFile('test.urx');
+      urx.saveToFile('test.urx', dataset);
 
-      dataset2 = urx.Dataset.loadFromFile('test.urx');
+      dataset2 = urx.loadFromFile('test.urx');
 
       % testcase.verifyTrue(isequal(dataset, dataset2));
       testcase.verifyEqual(dataset.version.minor, dataset2.version.minor);
@@ -434,9 +434,9 @@ classdef FileFromScratch < matlab.unittest.TestCase
         acq.groupsData.rawData.data(i) = i;
       end
   
-      dataset.saveToFile('test.urx');
+      urx.saveToFile('test.urx', dataset);
 
-      dataset2 = urx.Dataset.loadFromFile('test.urx');
+      dataset2 = urx.loadFromFile('test.urx');
 
       testcase.verifyEqual(dataset.acquisition.groupsData.rawData.size, dataset2.acquisition.groupsData.rawData.size)
       testcase.verifyEqual(dataset.acquisition.groupsData.rawData.data, dataset2.acquisition.groupsData.rawData.data)
@@ -452,9 +452,9 @@ classdef FileFromScratch < matlab.unittest.TestCase
       actives{1} = 42;
       rs = acq.groups(1).sequence(1).receiveSetup;
       rs.activeElements = actives;
-      dataset.saveToFile('test.urx');
+      urx.saveToFile('test.urx', dataset);
 
-      dataset2 = urx.Dataset.loadFromFile('test.urx');
+      dataset2 = urx.loadFromFile('test.urx');
 
       rs2 = dataset2.acquisition.groups(1).sequence(1).receiveSetup;
       testcase.verifyEqual(actives, rs2.activeElements);
