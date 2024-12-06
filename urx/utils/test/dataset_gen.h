@@ -308,13 +308,13 @@ std::shared_ptr<T> generateFakeDataset() {
 
   dataset->acquisition.timestamp = 1242;
 
-  if constexpr (std::is_same_v<T, urx::Acquisition>) {
+  if constexpr (std::is_same_v<T, urx::Dataset>) {
     using GroupDataT = typename decltype(T::acquisition.groups_data)::value_type;
     {
       dataset->acquisition.groups_data.push_back(GroupDataT());
       {
         GroupDataT group_data;
-        group_data.group = dataset->acquisition.groups[1];
+        group_data.group = dataset->acquisition.groups[2];
 
         group_data.raw_data = std::make_shared<RawDataNoInit<double>>(6);
         double* buf = static_cast<double*>(group_data.raw_data->getBuffer());
@@ -333,11 +333,11 @@ std::shared_ptr<T> generateFakeDataset() {
       }
       {
         GroupDataT group_data;
-        group_data.group = dataset->acquisition.groups[0];
+        group_data.group = dataset->acquisition.groups[1];
 
-        group_data.raw_data = std::make_shared<RawDataNoInit<std::complex<short>>>(4);
-        std::complex<short>* buf =
-            static_cast<std::complex<short>*>(group_data.raw_data->getBuffer());
+        group_data.raw_data = std::make_shared<RawDataNoInit<std::complex<int16_t>>>(4);
+        std::complex<int16_t>* buf =
+            static_cast<std::complex<int16_t>*>(group_data.raw_data->getBuffer());
         buf[0] = {123, 456};
         buf[1] = {159, 753};
         buf[2] = {789, 456};
@@ -345,6 +345,23 @@ std::shared_ptr<T> generateFakeDataset() {
         group_data.group_timestamp = 123;
         group_data.sequence_timestamps = {1, 2, 34};
         group_data.event_timestamps = {{4, 5, 7}, {8, 7, 6}};
+        dataset->acquisition.groups_data.push_back(std::move(group_data));
+      }
+      {
+        GroupDataT group_data;
+        group_data.group = dataset->acquisition.groups[1];
+
+        std::vector<std::complex<int16_t>> buf = {
+            {123, 456}, {159, 753}, {789, 456}, {123, 753}, {-0255, 15909}};
+
+        group_data.raw_data = std::make_shared<RawDataVector<std::complex<int16_t>>>(buf);
+        dataset->acquisition.groups_data.push_back(std::move(group_data));
+      }
+      {
+        GroupDataT group_data;
+        group_data.group = dataset->acquisition.groups[0];
+
+        group_data.raw_data = std::make_shared<RawDataWeak<int32_t>>(nullptr, 0);
         dataset->acquisition.groups_data.push_back(std::move(group_data));
       }
     }
