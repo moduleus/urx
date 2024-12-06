@@ -11,27 +11,9 @@
 
 #include <urx/detail/compare.h>  // IWYU pragma: keep
 #include <urx/enums.h>
+#include <urx/utils/cpp.h>
 
 namespace urx {
-
-template <typename T>
-struct IsComplex : public std::false_type {};
-
-template <typename T>
-struct IsComplex<std::complex<T>> : public std::true_type {};
-
-template <typename T>
-struct IsComplex<std::vector<std::complex<T>>> : public std::true_type {};
-
-template <typename T>
-constexpr bool is_complex() {
-  return IsComplex<T>::value;
-}
-
-template <typename T>
-constexpr bool is_complex(const T&) {
-  return is_complex<T>();
-}
 
 class RawData {
  public:
@@ -61,12 +43,12 @@ class IRawData : public RawData {
   using ValueType = T;
 
   SamplingType getSamplingType() const override {
-    return IsComplex<ValueType>::value ? SamplingType::IQ : SamplingType::RF;
+    return utils::IsComplex<ValueType>::value ? SamplingType::IQ : SamplingType::RF;
   };
 
   DataType getDataType() const override {
     const std::type_index type([]() -> std::type_index {
-      if constexpr (IsComplex<ValueType>::value) {
+      if constexpr (utils::IsComplex<ValueType>::value) {
         return typeid(typename ValueType::value_type);
       }
       return typeid(ValueType);

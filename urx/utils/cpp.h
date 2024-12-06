@@ -1,5 +1,6 @@
 #pragma once
 
+#include <complex>
 #include <memory>
 #include <optional>
 
@@ -50,5 +51,24 @@ template <typename T>
 struct TypeContainer<std::optional<T>> {
   static constexpr ContainerType VALUE = ContainerType::OPTIONAL;
 };
+
+template <typename T>
+struct IsComplex : public std::false_type {};
+
+template <typename T>
+struct IsComplex<std::complex<T>> : public std::true_type {};
+
+template <typename T>
+struct IsComplex<std::vector<std::complex<T>>> : public std::true_type {};
+
+template <typename T>
+constexpr bool is_complex() {
+  return IsComplex<T>::value;
+}
+
+template <typename T>
+constexpr bool is_complex(const T&) {
+  return is_complex<T>();
+}
 
 }  // namespace urx::utils
