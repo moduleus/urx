@@ -124,22 +124,11 @@ workflow:
     - when: never
 
 stages:
-  - XXX
   - build
   - format
   - doc
   - tag
   - release
-
-XXX:doxygen:
-  stage: XXX
-  script:
-    - env
-    - echo $($CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH)
-    - echo $($CI_MERGE_REQUEST_SOURCE_BRANCH_NAME != "develop")
-    - echo $($CI_MERGE_REQUEST_SOURCE_BRANCH_NAME !~ /^hotfix.*$/)
-  tags:
-    - ubuntu
 
 doc:doxygen:
   stage: doc
