@@ -19,22 +19,19 @@
 
 namespace urx::utils::io::writer {
 void saveToFile(const std::string& filename, const Dataset& dataset) {
-  H5::H5File file;
-
   try {
-    H5::H5File file_try(filename.data(), H5F_ACC_TRUNC);
-    std::swap(file, file_try);
+    const H5::H5File file(filename.data(), H5F_ACC_TRUNC);
+
+    MapToSharedPtr map_to_shared_ptr{{nameTypeid<Group>(), &dataset.acquisition.groups},
+                                     {nameTypeid<Probe>(), &dataset.acquisition.probes},
+                                     {nameTypeid<Excitation>(), &dataset.acquisition.excitations},
+                                     {nameTypeid<GroupData>(), &dataset.acquisition.groups_data}};
+
+    SerializeHdf5<Dataset, AllTypeInVariant>::f("dataset", dataset, file, map_to_shared_ptr,
+                                                getMemberMap());
   } catch (const H5::FileIException&) {
     throw WriteFileException("Failed to write " + filename + ".");
   }
-
-  MapToSharedPtr map_to_shared_ptr{{nameTypeid<Group>(), &dataset.acquisition.groups},
-                                   {nameTypeid<Probe>(), &dataset.acquisition.probes},
-                                   {nameTypeid<Excitation>(), &dataset.acquisition.excitations},
-                                   {nameTypeid<GroupData>(), &dataset.acquisition.groups_data}};
-
-  SerializeHdf5<Dataset, AllTypeInVariant>::f("dataset", dataset, file, map_to_shared_ptr,
-                                              getMemberMap());
 }
 
 }  // namespace urx::utils::io::writer
