@@ -141,6 +141,7 @@ doc:doxygen:
     - mv doc/html public
   allow_failure: true
   artifacts:
+    name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - public
     expire_in: 1 day
@@ -220,6 +221,7 @@ doc:plantuml:
     - mv doc/plantuml/architecture_cpp.* public/plantuml/
   allow_failure: true
   artifacts:
+    name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - public
     expire_in: 1 day
@@ -275,6 +277,7 @@ format:iwyu:
     - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Please apply iwyu patch to fix your includes"; exit 1; fi
   allow_failure: true
   artifacts:
+    name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     when: on_failure
     paths:
       - CI/iwyu_tool.log
@@ -295,6 +298,7 @@ format:black-format:
     - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Please, format your python code with black."; exit 1; fi
   allow_failure: true
   artifacts:
+    name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     when: on_failure
     paths:
       - CI/format.patch
@@ -367,6 +371,7 @@ build:windows-with-HDF5-static:
     - cd CI
     - ctest.exe --output-on-failure -C Debug
   artifacts:
+    name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - install
     expire_in: 1 day
@@ -388,6 +393,7 @@ build:windows-with-HDF5-shared:
     - cd CI
     - ctest.exe --output-on-failure -C Release
   artifacts:
+    name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - install
     expire_in: 1 day
@@ -409,6 +415,7 @@ build:ubuntu-with-HDF5-static:
     - cd CI
     - ctest --output-on-failure -C Release
   artifacts:
+    name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - CI/version.txt
       - CI/compile_commands.json
@@ -438,6 +445,7 @@ build:ubuntu-with-HDF5-shared:
     - cd CI
     - ctest --output-on-failure -C Debug
   artifacts:
+    name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - install
     expire_in: 1 day
@@ -457,6 +465,7 @@ build:ubuntu-without-3rd-party:
     - cd CI
     - ctest --output-on-failure -C Release
   artifacts:
+    name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - install
     expire_in: 1 day
@@ -514,6 +523,7 @@ build:windows-matlab-static:
     - cd ../../../..
     - Move-Item CI/matlab/binding/Release/urx.mltbx ("urx-" + (Get-Content CI/version.txt) + "-win-amd64.mltbx")
   artifacts:
+    name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - install
       - urx-*-win-amd64.mltbx
@@ -542,6 +552,7 @@ build:ubuntu-matlab-static:
   after_script:
     - rm -Rf test/matlab/test.urx CI/matlab/binding/urx.mltbx
   artifacts:
+    name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - CI/version.txt
       - install
@@ -568,6 +579,7 @@ release:all-python-manylinux-x64:
   script:
     - sh /CI/manylinux_vcpkg.sh ultrasound_rawdata_exchange
   artifacts:
+    name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - ultrasound_rawdata_exchange*manylinux*.whl
     expire_in: 1 day
@@ -592,6 +604,7 @@ release:all-python-musllinux-x64:
   script:
     - sh /CI/musllinux_vcpkg.sh ultrasound_rawdata_exchange
   artifacts:
+    name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - ultrasound_rawdata_exchange*musllinux*.whl
     expire_in: 1 day
@@ -620,6 +633,7 @@ release:all-python-windows-x64:
     - python.exe -m cibuildwheel --output-dir wheelhouse --platform windows
     - *after-script-clean-vcpkg-windows
   artifacts:
+    name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - wheelhouse
     expire_in: 1 day
@@ -648,6 +662,7 @@ release:all-python-windows-x86:
     - python.exe -m cibuildwheel --output-dir wheelhouse --platform windows
     - *after-script-clean-vcpkg-windows
   artifacts:
+    name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - wheelhouse
     expire_in: 1 day
@@ -680,6 +695,7 @@ release:all-python-windows-arm64:
     - python.exe -m cibuildwheel --output-dir wheelhouse --platform windows
     - *after-script-clean-vcpkg-windows
   artifacts:
+    name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - wheelhouse
     expire_in: 1 day
