@@ -416,7 +416,6 @@ std::shared_ptr<T> generateWrongDataset() {
     wrong_probe->elements.push_back(std::move(element));
   }
   dataset->acquisition.probes.push_back(wrong_probe);
-  dataset->acquisition.probes.push_back(wrong_probe);
 
   for (size_t g_id = 0; g_id < dataset->acquisition.groups.size(); ++g_id) {
     for (size_t e_id = 0; e_id < dataset->acquisition.groups.at(g_id)->sequence.size(); ++e_id) {
