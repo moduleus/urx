@@ -3,6 +3,7 @@
 #include <memory>
 #include <type_traits>
 
+#include <urx/acquisition.h>
 #include <urx/detail/raw_data.h>
 #include <urx/group_data.h>
 #include <urx/probe.h>
@@ -66,9 +67,9 @@ using sampling_data_type = sampling_type<sampling_enum_value, data_type<data_enu
 template <typename T, typename U = T>
 U clone(const T& value) {
   if constexpr (std::is_pointer_v<T>) {
-    return value ? new std::remove_pointer_t<T>(*value) : nullptr;
+    return value ? new std::remove_pointer_t<T>(clone(*value)) : nullptr;
   } else if constexpr (utils::is_shared_ptr<T>::value) {
-    return value ? std::make_shared<typename T::element_type>(*value) : nullptr;
+    return value ? std::make_shared<typename T::element_type>(clone(*value)) : nullptr;
   } else {
     return value;
   }
@@ -210,29 +211,62 @@ GroupData clone(const GroupData& gd) {
   return gd_cloned;
 }
 
-// template <>
-// Acquisition clone(const Acquisition& acq) {
-//   Acquisition acq_cloned(acq);
+template <>
+Acquisition clone(const Acquisition& acq) {
+  Acquisition acq_cloned(acq);
 
-//   for (size_t p_id = 0; p_id < acq.probes.size(); ++p_id) {
-//     acq_cloned.probes[p_id] = clone(acq_cloned.probes.at(p_id));
-//   }
-//   for (size_t ex_id = 0; ex_id < acq.excitations.size(); ++ex_id) {
-//     acq_cloned.excitations[ex_id] = clone(acq_cloned.excitations.at(ex_id));
-//   }
-//   for (size_t g_id = 0; g_id < acq.groups.size(); ++g_id) {
-//     acq_cloned.groups[g_id] = clone(acq_cloned.groups.at(g_id));
-//   }
+  for (size_t p_id = 0; p_id < acq.probes.size(); ++p_id) {
+    acq_cloned.probes[p_id] = clone(acq.probes.at(p_id));
+  }
+  for (size_t ex_id = 0; ex_id < acq.excitations.size(); ++ex_id) {
+    acq_cloned.excitations[ex_id] = clone(acq.excitations.at(ex_id));
+  }
+  for (size_t g_id = 0; g_id < acq.groups.size(); ++g_id) {
+    acq_cloned.groups[g_id] = clone(acq.groups.at(g_id));
+  }
+  for (size_t gd_id = 0; gd_id < acq.groups_data.size(); ++gd_id) {
+    acq_cloned.groups_data[gd_id] = clone(acq_cloned.groups_data.at(gd_id));
+    int32_t g_id = getEltId(acq.groups, acq.groups_data.at(gd_id).group);
+    if (g_id < 0) {
+      acq_cloned.groups_data.at(gd_id).group = std::weak_ptr<Group>();
+    } else {
+      acq_cloned.groups_data.at(gd_id).group = acq_cloned.groups.at(g_id);
+    }
+  }
 
-//   for (size_t gd_id = 0; gd_id < acq.groups_data.size(); ++gd_id) {
-//     int32_t g_id = getEltId(acq.groups, acq.groups_data.at(gd_id).group);
-//     if (g_id < 0) {
-//       acq_cloned.groups_data.at(gd_id).group = std::weak_ptr<Group>();
-//     } else {
-//       acq_cloned.groups_data.at(gd_id).group = acq_cloned.groups.at(g_id);
-//     }
-//   }
-//   return acq_cloned;
-// }
+  for (size_t g_id = 0; g_id < acq.groups.size(); ++g_id) {
+    auto& group = acq_cloned.groups.at(g_id);
+    if (group) {
+      for (size_t e_id = 0; e_id < group->sequence.size(); ++e_id) {
+        auto& receive_setup = group->sequence.at(e_id).receive_setup;
+        auto& transmit_setup = group->sequence.at(e_id).transmit_setup;
+
+        int32_t p_id = getEltId(acq.probes, receive_setup.probe);
+        if (p_id < 0) {
+          receive_setup.probe = std::weak_ptr<Probe>();
+        } else {
+          receive_setup.probe = acq_cloned.probes.at(p_id);
+        }
+
+        p_id = getEltId(acq.probes, transmit_setup.probe);
+        if (p_id < 0) {
+          transmit_setup.probe = std::weak_ptr<Probe>();
+        } else {
+          transmit_setup.probe = acq_cloned.probes.at(p_id);
+        }
+        for (size_t ex_id = 0; ex_id < transmit_setup.excitations.size(); ++ex_id) {
+          int32_t acq_ex_id = getEltId(acq.excitations, transmit_setup.excitations.at(ex_id));
+          if (acq_ex_id < 0) {
+            transmit_setup.excitations[ex_id] = std::weak_ptr<Excitation>();
+          } else {
+            transmit_setup.excitations[ex_id] = acq_cloned.excitations.at(acq_ex_id);
+          }
+        }
+      }
+    }
+  }
+
+  return acq_cloned;
+}
 
 }  // namespace urx::utils

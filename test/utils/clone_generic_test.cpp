@@ -369,4 +369,103 @@ TEST_CASE("Clone Probe", "[Clone]") {
   }
 }
 
+TEST_CASE("Clone Acquisition", "[Clone]") {
+  generic_clone_test(Acquisition());
+  auto d = utils::test::generateWrongDataset<Dataset>();
+  auto acq = d->acquisition;
+  auto acq_cloned = utils::clone(acq);
+  REQUIRE(acq != acq_cloned);
+  REQUIRE(std::is_same_v<decltype(acq), decltype(acq_cloned)>);
+
+  for (size_t p_id = 0; p_id < acq.probes.size(); ++p_id) {
+    if (acq.probes.at(p_id)->description == "Probe with wrong ptr") {
+      acq.probes.erase(acq.probes.begin() + p_id);
+      break;
+    }
+  }
+  generic_clone_test(acq);
+  acq_cloned = utils::clone(acq);
+
+  for (size_t p_id = 0; p_id < acq.probes.size(); ++p_id) {
+    REQUIRE(acq_cloned.probes.at(p_id) == acq.probes.at(p_id));
+    if (acq.probes.at(p_id).get()) {
+      REQUIRE(acq_cloned.probes.at(p_id).get() != acq.probes.at(p_id).get());
+    } else {
+      REQUIRE(acq_cloned.probes.at(p_id).get() == acq.probes.at(p_id).get());
+    }
+  }
+  for (size_t ex_id = 0; ex_id < acq.excitations.size(); ++ex_id) {
+    REQUIRE(acq_cloned.excitations.at(ex_id) == acq.excitations.at(ex_id));
+    if (acq.excitations.at(ex_id).get()) {
+      REQUIRE(acq_cloned.excitations.at(ex_id).get() != acq.excitations.at(ex_id).get());
+    } else {
+      REQUIRE(acq_cloned.excitations.at(ex_id).get() == acq.excitations.at(ex_id).get());
+    }
+  }
+  for (size_t g_id = 0; g_id < acq.groups.size(); ++g_id) {
+    REQUIRE(acq_cloned.groups.at(g_id) == acq.groups.at(g_id));
+    if (acq.groups.at(g_id).get()) {
+      REQUIRE(acq_cloned.groups.at(g_id).get() != acq.groups.at(g_id).get());
+    } else {
+      REQUIRE(acq_cloned.groups.at(g_id).get() == acq.groups.at(g_id).get());
+    }
+  }
+  for (size_t gd_id = 0; gd_id < acq.groups_data.size(); ++gd_id) {
+    REQUIRE(acq_cloned.groups_data.at(gd_id) == acq.groups_data.at(gd_id));
+    if (acq.groups_data.at(gd_id).raw_data.get()) {
+      REQUIRE(acq_cloned.groups_data.at(gd_id).raw_data.get() !=
+              acq.groups_data.at(gd_id).raw_data.get());
+    } else {
+      REQUIRE(acq_cloned.groups_data.at(gd_id).raw_data.get() ==
+              acq.groups_data.at(gd_id).raw_data.get());
+    }
+
+    int32_t g_id = getEltId(acq.groups, acq.groups_data.at(gd_id).group);
+    int32_t cloned_g_id = getEltId(acq_cloned.groups, acq_cloned.groups_data.at(gd_id).group);
+    REQUIRE(acq_cloned.groups_data.at(gd_id) == acq.groups_data.at(gd_id));
+    REQUIRE(g_id == cloned_g_id);
+    if (g_id < 0) {
+      REQUIRE(acq_cloned.groups_data.at(gd_id).group == std::weak_ptr<Group>());
+    } else {
+      REQUIRE(acq_cloned.groups_data.at(gd_id).group.lock().get() ==
+              acq_cloned.groups.at(cloned_g_id).get());
+      REQUIRE(acq.groups_data.at(gd_id).group.lock().get() == acq.groups.at(cloned_g_id).get());
+      REQUIRE(acq_cloned.groups_data.at(gd_id).group.lock().get() !=
+              acq.groups_data.at(gd_id).group.lock().get());
+    }
+  }
+
+  for (size_t g_id = 0; g_id < acq.groups.size(); ++g_id) {
+    if (acq_cloned.groups.at(g_id)) {
+      auto& group = acq_cloned.groups.at(g_id);
+      for (size_t e_id = 0; e_id < group->sequence.size(); ++e_id) {
+        auto& receive_setup = group->sequence.at(e_id).receive_setup;
+        auto& transmit_setup = group->sequence.at(e_id).transmit_setup;
+
+        int32_t p_id = getEltId(acq.probes, receive_setup.probe);
+        if (p_id < 0) {
+          receive_setup.probe = std::weak_ptr<Probe>();
+        } else {
+          receive_setup.probe = acq_cloned.probes.at(p_id);
+        }
+
+        p_id = getEltId(acq.probes, transmit_setup.probe);
+        if (p_id < 0) {
+          transmit_setup.probe = std::weak_ptr<Probe>();
+        } else {
+          transmit_setup.probe = acq_cloned.probes.at(p_id);
+        }
+        for (size_t ex_id = 0; ex_id < transmit_setup.excitations.size(); ++ex_id) {
+          int32_t acq_ex_id = getEltId(acq.excitations, transmit_setup.excitations.at(ex_id));
+          if (acq_ex_id < 0) {
+            transmit_setup.excitations[ex_id] = std::weak_ptr<Excitation>();
+          } else {
+            transmit_setup.excitations[ex_id] = acq_cloned.excitations.at(acq_ex_id);
+          }
+        }
+      }
+    }
+  }
+}
+
 }  // namespace urx::utils::test
