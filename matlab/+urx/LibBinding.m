@@ -51,7 +51,7 @@ classdef LibBinding < handle
     function this = getInstance(libraryPath, headerPath, includepaths, envpaths)
       persistent instance
       if isempty(instance)
-        setenv("HDF5_DISABLE_VERSION_CHECK", "1");
+        setenv("HDF5_DISABLE_VERSION_CHECK", "2");
         if nargin < 4
           scriptPath = fileparts(mfilename('fullpath'));
           % Default path for toolbox
