@@ -42,15 +42,6 @@ classdef Object < urx.ObjectField
       mc = metaclass(this);
       props = mc.PropertyList;
       for i = 1:numel(props)
-        if props(i).SetObservable
-          if (isa(this.(props(i).Name), 'urx.Object'))
-            addlistener(this, props(i).Name, 'PreSet', @urx.Object.handlePropEvents);
-          end
-          addlistener(this, props(i).Name, 'PostSet', @urx.Object.handlePropEvents);
-        end
-        if props(i).GetObservable
-          addlistener(this, props(i).Name, 'PreGet', @urx.Object.handlePropEvents);
-        end
         % Initialize *Std properties.
         if any(arrayfun(@(x) strcmp(x.Name, [props(i).Name 'Std']), props)) && ~iscell(this.(props(i).Name))
           if any(cellfun(@(x) strcmp(func2str(x), 'urx.Validator.sharedPtrInCpp'), props(i).Validation.ValidatorFunctions))
@@ -67,6 +58,15 @@ classdef Object < urx.ObjectField
             assert(false);
           end
           this.([props(i).Name 'Std']) = feval([namespace '.StdVector'], class(this.(props(i).Name)), 1, stdPtrType, this);
+        end
+        if props(i).SetObservable
+          if (isa(this.(props(i).Name), 'urx.Object'))
+            addlistener(this, props(i).Name, 'PreSet', @urx.Object.handlePropEvents);
+          end
+          addlistener(this, props(i).Name, 'PostSet', @urx.Object.handlePropEvents);
+        end
+        if props(i).GetObservable
+          addlistener(this, props(i).Name, 'PreGet', @urx.Object.handlePropEvents);
         end
       end
     end
@@ -186,13 +186,13 @@ classdef Object < urx.ObjectField
       % Don't observe when called from constructor with inheritance.
       % Object constructor must be called before child constructor.
       % So all properties already have listeners set.
-      for i = 1:numel(s)
-        strInheritance = strfind(s(i).name, '.');
-        % Try to found in the stack "Name.Name".
-        if numel(strInheritance) == 1 && strcmp(s(i).name, [s(i).name(1:strInheritance-1) '.' s(i).name(1:strInheritance-1)])
-          return;
-        end
-      end
+      % for i = 1:numel(s)
+      %   strInheritance = strfind(s(i).name, '.');
+      %   % Try to found in the stack "Name.Name".
+      %   if numel(strInheritance) == 1 && strcmp(s(i).name, [s(i).name(1:strInheritance-1) '.' s(i).name(1:strInheritance-1)])
+      %     return;
+      %   end
+      % end
 
       % Get data from event.
       affectedObject = evnt.AffectedObject;
