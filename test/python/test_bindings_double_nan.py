@@ -59,6 +59,11 @@ def test_double_nan(
     self.assertEqual(2 / d, double_nan_copy(2 / 42))
     self.assertEqual(d / 2, double_nan_copy(42 / 2))
 
+    # Check auto convertion
+    self.assertEqual(np.sin(d_3), np.sin(42))
+    self.assertEqual(np.sin(d_3.value), np.sin(42))
+
+    # Check __repr__
     capturedOutput = io.StringIO()
     sys.stdout = capturedOutput
     print(d_3, end="")

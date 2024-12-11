@@ -11,6 +11,7 @@
 #include <utility>
 #include <vector>
 
+#include <pybind11/numpy.h>
 #include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
@@ -112,6 +113,12 @@ PYBIND11_MODULE(bindings, m) {
       .def(py::init<double>())
       .def(py::init<const urx::DoubleNan &>())
       .def(py::init())
+      .def("__float__", [](const urx::DoubleNan &v) { return v.value; })
+      .def("__array__",
+           [](const urx::DoubleNan &v) {
+             std::vector<double> data = {v.value};
+             return py::array_t<double>(data.size(), data.data());
+           })
       .def_readwrite("value", &urx::DoubleNan::value)
       .def("__repr__",
            [](const urx::DoubleNan &v) {
