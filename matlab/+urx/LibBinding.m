@@ -37,6 +37,9 @@ classdef LibBinding < handle
         if isa(varargin{i}, 'urx.ObjectField')
           varargin{i} = varargin{i}.id;
         end
+        if isa(varargin{i},'string')
+          varargin{i} = char(varargin{i});
+        end
       end
       varargout{:} = calllib(this.libName, varargin{:});
     end

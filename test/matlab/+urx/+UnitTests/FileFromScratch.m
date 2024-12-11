@@ -46,10 +46,10 @@ classdef FileFromScratch < matlab.unittest.TestCase
       testcase.verifyEqual(version.patch, uint16(urx.Version().patch));
       
       
-      dataset.acquisition.authors = 'AuthOr';
+      dataset.acquisition.authors = "AuthOr";
       dataset.acquisition.description = '康Description🐜';
       testcase.verifyTrue(strcmp(dataset.acquisition.description, '康Description🐜'));
-      dataset.acquisition.localTime = '2019-06-15T15:53:00';
+      dataset.acquisition.localTime = "2019-06-15T15:53:00";
       dataset.acquisition.countryCode = 'FR';
       dataset.acquisition.system = '???';
       
@@ -434,7 +434,7 @@ classdef FileFromScratch < matlab.unittest.TestCase
         acq.groupsData.rawData.data(i) = i;
       end
   
-      urx.saveToFile('test.urx', dataset);
+      urx.saveToFile("test.urx", dataset);
 
       dataset2 = urx.loadFromFile('test.urx');
 
