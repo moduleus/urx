@@ -468,4 +468,11 @@ TEST_CASE("Clone Acquisition", "[Clone]") {
   }
 }
 
+TEST_CASE("Clone Dataset", "[Clone]") {
+  generic_clone_test(Dataset());
+  auto d = utils::test::generateFakeDataset<Dataset>();
+  generic_clone_test(*d);
+  generic_clone_test(d);
+}
+
 }  // namespace urx::utils::test
