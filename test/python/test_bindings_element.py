@@ -35,9 +35,11 @@ def test_element(
     self.assertEqual(elt, elt_2)
     elt_2.transform = transform_args(v_2, v_2)
     self.assertNotEqual(elt, elt_2)
+    self.assertNotEqual(id(elt), id(elt_2))
     elt_ref = elt
     elt_ref.transform = transform_args(v_2, v_2)
     self.assertEqual(elt, elt_ref)
+    self.assertEqual(id(elt), id(elt_ref))
 
     t = transform_args(v_3, v_3)
 

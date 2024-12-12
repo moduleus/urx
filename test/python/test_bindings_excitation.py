@@ -25,9 +25,11 @@ def test_excitation(
     self.assertEqual(ex, ex_2)
     ex_2.pulse_shape = "Hello"
     self.assertNotEqual(ex, ex_2)
+    self.assertNotEqual(id(ex), id(ex_2))
     ex_ref = ex
     ex_ref.pulse_shape = "Hello"
     self.assertEqual(ex, ex_ref)
+    self.assertEqual(id(ex), id(ex_ref))
 
     # Check CTOR with all parameters
     ex = excitation_args("linear", 42, np.nan, vec_float64_args([3.14, -42]))

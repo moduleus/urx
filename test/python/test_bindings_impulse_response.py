@@ -25,9 +25,11 @@ def test_impulse_response(
     self.assertEqual(ir, ir_2)
     ir_2.units = "Hello"
     self.assertNotEqual(ir, ir_2)
+    self.assertNotEqual(id(ir), id(ir_2))
     ir_ref = ir
     ir_ref.units = "Hello"
     self.assertEqual(ir, ir_ref)
+    self.assertEqual(id(ir), id(ir_ref))
 
     # Check CTOR with all parameters
     ir = impulse_response_args(42, np.nan, "sec", vec_float64_args([3.14, -42]))

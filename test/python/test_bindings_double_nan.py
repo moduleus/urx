@@ -15,10 +15,13 @@ def test_double_nan(
     d = double_nan_constructor()
     d_2 = double_nan_copy(d)
     d_3 = double_nan_copy(42)
+    d_ref = d
 
     # Check Nan comparison
     self.assertTrue(np.isnan(d.value))
     self.assertEqual(d, d_2)
+    self.assertNotEqual(id(d), id(d_2))
+    self.assertEqual(id(d), id(d_ref))
     self.assertEqual(d, double_nan_copy(np.nan))
     self.assertNotEqual(d, np.nan)
     self.assertNotEqual(d.value, np.nan)
@@ -26,6 +29,8 @@ def test_double_nan(
     # Check non Nan comparison
     d.value = 42
     self.assertEqual(d, d_3)
+    self.assertEqual(d, d_ref)
+    self.assertEqual(id(d), id(d_ref))
 
     # Check operators
     self.assertEqual(+d, 42)

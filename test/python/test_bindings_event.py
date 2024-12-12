@@ -35,9 +35,11 @@ def test_event(
     self.assertEqual(evt, evt_2)
     evt_2.receive_setup = rs
     self.assertNotEqual(evt, evt_2)
+    self.assertNotEqual(id(evt), id(evt_2))
     evt_ref = evt
     evt_ref.receive_setup = rs
     self.assertEqual(evt, evt_ref)
+    self.assertEqual(id(evt), id(evt_ref))
 
     # Check CTOR with all parameters
     evt = event_args(ts, rs)

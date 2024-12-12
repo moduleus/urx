@@ -24,7 +24,12 @@ def test_transform(
     self.assertEqual(tf.translation, t)
 
     tf_2 = transform_copy(tf)
+    tf_ref = tf
     self.assertEqual(tf, tf_2)
+    self.assertNotEqual(id(tf), id(tf_2))
+    tf_ref.rotation.z = 1e9
+    self.assertEqual(tf, tf_ref)
+    self.assertEqual(id(tf), id(tf_ref))
 
     r_2 = r
     r.x = 42
