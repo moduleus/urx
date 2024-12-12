@@ -173,7 +173,7 @@ pybind11_add_module(
   UrxBindingsPython
   THIN_LTO
   ${CMAKE_CURRENT_SOURCE_DIR}/bindings_module.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/bindings_module2.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/bindings_urx_classes.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/bindings_module.h
   ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt)
 target_link_libraries(
