@@ -18,4 +18,5 @@ install(
         ${CMAKE_CURRENT_SOURCE_DIR}/test_bindings_vector.py
         ${CMAKE_CURRENT_SOURCE_DIR}/test_bindings_version.py
         ${CMAKE_CURRENT_SOURCE_DIR}/test_bindings_wave.py
+        ${CMAKE_CURRENT_SOURCE_DIR}/test_bindings_clone.py
   DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${INSTALL_NAME}/python)
