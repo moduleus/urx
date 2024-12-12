@@ -39,12 +39,14 @@ template <typename CppClass, const char *python_name>
 void bindVector(pybind11::module_ &m) {
   py::bind_vector<CppClass>(m, python_name, py::buffer_protocol());
   py::implicitly_convertible<py::list, CppClass>();
+  py::implicitly_convertible<py::array, CppClass>();
 }
 
 template <typename CppClass, const char *python_name>
 void bindVectorNoBufferProtocol(pybind11::module_ &m) {
   py::bind_vector<CppClass>(m, python_name);
   py::implicitly_convertible<py::list, CppClass>();
+  py::implicitly_convertible<py::array, CppClass>();
 }
 
 }  // namespace detail
