@@ -62,6 +62,16 @@ def test_excitation(
     # Check assignment
     ex.waveform = [3.14, -42]
     self.assertEqual(waveform_ref, [3.14, -42])
+    self.assertEqual(waveform_ref, np.array([3.14, -42]))
+    self.assertEqual(waveform_ref, np.array([3.14, -42]).tolist())
+    ex.waveform = np.array([3.14, -42])
+    self.assertEqual(waveform_ref, [3.14, -42])
+    self.assertEqual(waveform_ref, np.array([3.14, -42]))
+    self.assertEqual(waveform_ref, np.array([3.14, -42]).tolist())
+    ex.waveform = [3.14, -42]
+    self.assertEqual(waveform_ref, [3.14, -42])
+    self.assertEqual(waveform_ref, np.array([3.14, -42]))
+    self.assertEqual(waveform_ref, np.array([3.14, -42]).tolist())
 
     # Reference is possible for transmit_frequency (DoubleNan)
     self.assertEqual(ex, ex_2)

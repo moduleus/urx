@@ -160,6 +160,25 @@ py::class_<Container> registerVector3D(py::module_ &m, const std::string &prefix
                                   typename Container::Type>())
                     .def(py::init<const Container &>())
                     .def(py::init())
+                    .def(py::init([](const py::array_t<double> &arr) {
+                      if (arr.size() != 3)
+                        throw std::invalid_argument("Array must have exactly 3 elements.");
+                      auto buf = arr.unchecked<1>();
+                      Container retval;
+                      retval.x = buf(0);
+                      retval.y = buf(1);
+                      retval.z = buf(2);
+                      return retval;
+                    }))
+                    .def(py::init([](const std::vector<double> &vec) {
+                      if (vec.size() != 3)
+                        throw std::invalid_argument("List must have exactly 3 elements.");
+                      Container retval;
+                      retval.x = vec[0];
+                      retval.y = vec[1];
+                      retval.z = vec[2];
+                      return retval;
+                    }))
                     .def(pybind11::self == pybind11::self)
                     .def(pybind11::self != pybind11::self)
                     .def_readwrite("x", &Container::x)
