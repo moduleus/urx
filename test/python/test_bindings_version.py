@@ -28,8 +28,10 @@ def test_version(
     self.assertEqual(v, v_2)
     v_2.minor = 42
     self.assertNotEqual(v, v_2)
+    self.assertNotEqual(id(v), id(v_2))
     v_ref = v
     v_ref.minor = 42
     self.assertEqual(v, v_ref)
+    self.assertEqual(id(v), id(v_ref))
 
     print("--Test %s END--" % testName)

@@ -236,11 +236,13 @@ def test_group_data(
     # Check copy CTOR and referencing object
     group_data_2 = group_data_copy(group_data)
     self.assertEqual(group_data, group_data_2)
+    self.assertNotEqual(id(group_data), id(group_data_2))
     group_data_2.group_timestamp = double_nan_args(0)
     self.assertNotEqual(group_data, group_data_2)
     group_data_ref = group_data
     group_data_ref.group_timestamp = double_nan_args(0)
     self.assertEqual(group_data, group_data_ref)
+    self.assertEqual(id(group_data), id(group_data_ref))
     group_data_2 = group_data_copy(group_data)
 
     # No CTOR with parameters to test

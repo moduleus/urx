@@ -38,11 +38,13 @@ def test_acquisition(
     # Check copy CTOR and referencing object
     acq_2 = acq_copy(acq)
     self.assertEqual(acq, acq_2)
+    self.assertNotEqual(id(acq), id(acq_2))
     acq_2.authors = "Hello"
     self.assertNotEqual(acq, acq_2)
     acq_ref = acq
     acq_ref.authors = "Hello"
     self.assertEqual(acq, acq_ref)
+    self.assertEqual(id(acq), id(acq_ref))
 
     acq = acq_constructor()
     acq_2 = acq_copy(acq)
@@ -60,17 +62,17 @@ def test_acquisition(
     # Reference is not possible for description (string)
     self.assertEqual(acq, acq_2)
     description = acq.description
-    self.assertEqual(authors, acq.description)
+    self.assertEqual(description, acq.description)
     # Check assignment
     acq.description = "Hello"
-    self.assertNotEqual(authors, acq.description)
+    self.assertNotEqual(description, acq.description)
     self.assertNotEqual(acq, acq_2)
     acq_2 = acq_copy(acq)
 
     # Reference is not possible for local_time (string)
     self.assertEqual(acq, acq_2)
     local_time = acq.local_time
-    self.assertEqual(authors, acq.local_time)
+    self.assertEqual(local_time, acq.local_time)
     # Check assignment
     acq.local_time = "Hello"
     self.assertNotEqual(local_time, acq.local_time)
@@ -80,7 +82,7 @@ def test_acquisition(
     # Reference is not possible for country_code (string)
     self.assertEqual(acq, acq_2)
     country_code = acq.country_code
-    self.assertEqual(authors, acq.country_code)
+    self.assertEqual(country_code, acq.country_code)
     # Check assignment
     acq.country_code = "Hello"
     self.assertNotEqual(country_code, acq.country_code)

@@ -12,6 +12,7 @@ def test_element_geometry(
 
     eg = element_geometry_constructor()
     eg_2 = element_geometry_constructor()
+    eg_ref = eg
 
     v = vector3d_constructor()
     v_2 = vector3d_args(1, 2, 3)
@@ -19,10 +20,15 @@ def test_element_geometry(
 
     self.assertEqual(len(eg.perimeter), 0)
     self.assertEqual(eg, eg_2)
+    self.assertNotEqual(id(eg), id(eg_2))
+    self.assertEqual(eg, eg_ref)
+    self.assertEqual(id(eg), id(eg_ref))
 
     # Possible to affect a list to perimeter
     eg.perimeter = [v, v_2]
     self.assertNotEqual(eg, eg_2)
+    self.assertEqual(eg, eg_ref)
+    self.assertEqual(id(eg), id(eg_ref))
 
     # Possible to create ElementGeometry from urx.VecVector3D
     vec_v = vec_vector3d_args([v, v_2])

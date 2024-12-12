@@ -48,9 +48,11 @@ def test_probe(
     self.assertEqual(p, p_2)
     p_2.transform = t_2
     self.assertNotEqual(p, p_2)
+    self.assertNotEqual(id(p), id(p_2))
     p_ref = p
     p_ref.transform = t_2
     self.assertEqual(p, p_ref)
+    self.assertEqual(id(p), id(p_ref))
 
     eg = element_geometry_args([v, v])
     eg_2 = element_geometry_args([v_2, v_2])

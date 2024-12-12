@@ -18,9 +18,11 @@ def test_vector2d(
     self.assertEqual(v, v_2)
     v_2.x = 42
     self.assertNotEqual(v, v_2)
+    self.assertNotEqual(id(v), id(v_2))
     v_ref = v
     v_ref.x = 42
     self.assertEqual(v, v_ref)
+    self.assertEqual(id(v), id(v_ref))
 
     # Check CTOR with all parameters
     v = vector2d_args(1, 2)
@@ -50,9 +52,11 @@ def test_vector3d(
     self.assertEqual(v, v_2)
     v_2.x = 42
     self.assertNotEqual(v, v_2)
+    self.assertNotEqual(id(v), id(v_2))
     v_ref = v
     v_ref.x = 42
     self.assertEqual(v, v_ref)
+    self.assertEqual(id(v), id(v_ref))
 
     # Check CTOR with all parameters
     v = vector3d_args(1, 2, 3)

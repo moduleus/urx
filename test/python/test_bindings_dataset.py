@@ -26,11 +26,13 @@ def test_dataset(
     # Check copy CTOR and referencing object
     dataset_2 = dataset_copy(dataset)
     self.assertEqual(dataset, dataset_2)
+    self.assertNotEqual(id(dataset), id(dataset_2))
     dataset_2.acquisition = acq
     self.assertNotEqual(dataset, dataset_2)
     dataset_ref = dataset
     dataset_ref.acquisition = acq
     self.assertEqual(dataset, dataset_ref)
+    self.assertEqual(id(dataset), id(dataset_ref))
 
     # Check CTOR with all parameters
     dataset = dataset_constructor_args(acq, v)

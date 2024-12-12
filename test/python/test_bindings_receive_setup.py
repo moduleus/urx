@@ -44,9 +44,11 @@ def test_receive_setup(
     self.assertEqual(rs, rs_2)
     rs_2.probe_transform = t_2
     self.assertNotEqual(rs, rs_2)
+    self.assertNotEqual(id(rs), id(rs_2))
     rs_ref = rs
     rs_ref.probe_transform = t_2
     self.assertEqual(rs, rs_ref)
+    self.assertEqual(id(rs), id(rs_ref))
 
     # Check CTOR with all parameters
     rs = receive_setup_args(probe_constructor(), t_2, 1, 2, [[3]], [4], 5, 6, 7)
