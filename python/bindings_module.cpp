@@ -37,6 +37,7 @@
 #include <urx/transform.h>
 #include <urx/transmit_setup.h>
 #include <urx/urx.h>
+#include <urx/utils/clone.h>
 #include <urx/utils/exception.h>
 #include <urx/utils/group_data_reader.h>
 #include <urx/utils/group_helper.h>
@@ -255,5 +256,62 @@ PYBIND11_MODULE(bindings, m) {
   // time_helper.h
   m.def("isIso8601", &urx::utils::isIso8601);
   m.def("isIso3166", &urx::utils::isIso3166);
+
+  // clone
+  m.def("clone", &urx::utils::clone<urx::DoubleNan, urx::DoubleNan>,
+        "Clone/Duplicate URX DoubleNan class in memory");
+
+  m.def("clone", &urx::utils::clone<urx::Vector2D<double>, urx::Vector2D<double>>,
+        "Clone/Duplicate URX Vector2D<double> class in memory");
+  m.def("clone", &urx::utils::clone<urx::Vector3D<double>, urx::Vector3D<double>>,
+        "Clone/Duplicate URX Vector3D<double> class in memory");
+
+  m.def("clone", &urx::utils::clone<urx::Version, urx::Version>,
+        "Clone/Duplicate URX Version class in memory");
+
+  m.def("clone", &urx::utils::clone<urx::Transform, urx::Transform>,
+        "Clone/Duplicate URX Transform class in memory");
+
+  m.def("clone", &urx::utils::clone<urx::Wave, urx::Wave>,
+        "Clone/Duplicate URX Wave class in memory");
+
+  m.def("clone", &urx::utils::clone<urx::Element, urx::Element>,
+        "Clone/Duplicate URX Element class in memory");
+
+  m.def("clone", &urx::utils::clone<urx::ElementGeometry, urx::ElementGeometry>,
+        "Clone/Duplicate URX ElementGeometry class in memory");
+
+  m.def("clone", &urx::utils::clone<urx::ImpulseResponse, urx::ImpulseResponse>,
+        "Clone/Duplicate URX ImpulseResponse class in memory");
+
+  m.def("clone", &urx::utils::clone<urx::TransmitSetup, urx::TransmitSetup>,
+        "Clone/Duplicate URX TransmitSetup class in memory");
+
+  m.def("clone", &urx::utils::clone<urx::ReceiveSetup, urx::ReceiveSetup>,
+        "Clone/Duplicate URX ReceiveSetup class in memory");
+
+  m.def("clone", &urx::utils::clone<urx::Event, urx::Event>,
+        "Clone/Duplicate URX Event class in memory");
+
+  m.def("clone", &urx::utils::clone<urx::Excitation, urx::Excitation>,
+        "Clone/Duplicate URX Excitation class in memory");
+
+  m.def("clone", &urx::utils::clone<urx::Group, urx::Group>,
+        "Clone/Duplicate URX Group class in memory");
+
+  m.def("clone", &urx::utils::clone<urx::GroupData, urx::GroupData>,
+        "Clone/Duplicate URX GroupData class in memory");
+
+  m.def("clone", &urx::utils::clone<urx::RawData, urx::RawData *>,
+        "Clone/Duplicate URX RawData class in memory");
+
+  m.def("clone", &urx::utils::clone<urx::Probe, urx::Probe>,
+        "Clone/Duplicate URX Probe class in memory");
+
+  m.def("clone", &urx::utils::clone<urx::Acquisition, urx::Acquisition>,
+        "Clone/Duplicate URX Acquisition class in memory");
+
+  m.def("clone", &urx::utils::clone<urx::Dataset, urx::Dataset>,
+        "Clone/Duplicate URX Dataset class in memory");
 }
 // NOLINTEND(misc-redundant-expression)
