@@ -21,7 +21,7 @@
 namespace urx::utils::io::test {
 
 TEST_CASE("Write HDF5 file", "[hdf5_writer][hdf5_reader]") {
-  auto dataset = generateFakeDataset<Dataset>();
+  auto dataset = utils::test::generateFakeDataset<Dataset>();
 
   saveToFile("writer康🐜.urx", *dataset);
 
@@ -35,7 +35,7 @@ TEST_CASE("Write HDF5 file", "[hdf5_writer][hdf5_reader]") {
 }
 
 TEST_CASE("Read failure HDF5 file", "[hdf5_reader]") {
-  REQUIRE_THROWS_AS(reader::loadFromFile("missing_file.urx"), urx::utils::ReadFileException);
+  REQUIRE_THROWS_AS(loadFromFile("missing_file.urx"), urx::utils::ReadFileException);
 }
 
 TEST_CASE("Write failure HDF5 file", "[hdf5_writer]") {
@@ -43,7 +43,7 @@ TEST_CASE("Write failure HDF5 file", "[hdf5_writer]") {
 #ifdef _WIN32
   REQUIRE_THROWS_AS(writer::saveToFile("aux", dataset), urx::utils::WriteFileException);
 #else
-  REQUIRE_THROWS_AS(writer::saveToFile("/", dataset), urx::utils::WriteFileException);
+  REQUIRE_THROWS_AS(saveToFile("/", dataset), urx::utils::WriteFileException);
 #endif
 }
 
