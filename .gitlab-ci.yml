@@ -141,6 +141,7 @@ doc:doxygen:
     - mv doc/html public
   allow_failure: true
   artifacts:
+    name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - public
     expire_in: 1 day
@@ -220,6 +221,7 @@ doc:plantuml:
     - mv doc/plantuml/architecture_cpp.* public/plantuml/
   allow_failure: true
   artifacts:
+    name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - public
     expire_in: 1 day
@@ -275,6 +277,7 @@ format:iwyu:
     - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Please apply iwyu patch to fix your includes"; exit 1; fi
   allow_failure: true
   artifacts:
+    name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     when: on_failure
     paths:
       - CI/iwyu_tool.log
@@ -295,6 +298,7 @@ format:black-format:
     - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Please, format your python code with black."; exit 1; fi
   allow_failure: true
   artifacts:
+    name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     when: on_failure
     paths:
       - CI/format.patch
@@ -350,6 +354,29 @@ tag:version:
     - ubuntu
     - build
 
+build:matlab-ubuntu-20.04:
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+  stage: build
+  needs: []
+  tags:
+    - docker
+  image: $CI_REGISTRY/common/ci/dockerci/ubuntu-20.04:latest
+  before_script:
+    - git config --global credential.helper store
+    - echo "https://gitlab-ci-token:${CI_JOB_TOKEN}@$CI_SERVER_HOST" > ~/.git-credentials
+    - *before-script-vcpkg-linux
+  script:
+    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-lssrp -DVCPKG_HOST_TRIPLET=x64-lssrp -DVCPKG_OVERLAY_TRIPLETS=$VCPKG_REGISTRY_LOCAL_GIT/triplets -DCMAKE_INSTALL_PREFIX="install/ubuntu-20.04" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=OFF -DWITH_MATLAB:BOOL=ON
+    - *after-script-clean-vcpkg-linux
+    - cmake --build CI --config Release --parallel $NUM_PARALLEL --target UrxMatlabBinding
+    - cp CI/matlab/binding/libUrxMatlabBinding.so CI/libUrxMatlabBinding.so
+  artifacts:
+    name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
+    paths:
+      - CI/libUrxMatlabBinding.so
+    expire_in: 1 day
+
 build:windows-with-HDF5-static:
   stage: build
   needs: []
@@ -367,6 +394,7 @@ build:windows-with-HDF5-static:
     - cd CI
     - ctest.exe --output-on-failure -C Debug
   artifacts:
+    name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - install
     expire_in: 1 day
@@ -388,6 +416,7 @@ build:windows-with-HDF5-shared:
     - cd CI
     - ctest.exe --output-on-failure -C Release
   artifacts:
+    name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - install
     expire_in: 1 day
@@ -409,6 +438,7 @@ build:ubuntu-with-HDF5-static:
     - cd CI
     - ctest --output-on-failure -C Release
   artifacts:
+    name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - CI/version.txt
       - CI/compile_commands.json
@@ -438,6 +468,7 @@ build:ubuntu-with-HDF5-shared:
     - cd CI
     - ctest --output-on-failure -C Debug
   artifacts:
+    name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - install
     expire_in: 1 day
@@ -457,6 +488,7 @@ build:ubuntu-without-3rd-party:
     - cd CI
     - ctest --output-on-failure -C Release
   artifacts:
+    name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - install
     expire_in: 1 day
@@ -514,6 +546,7 @@ build:windows-matlab-static:
     - cd ../../../..
     - Move-Item CI/matlab/binding/Release/urx.mltbx ("urx-" + (Get-Content CI/version.txt) + "-win-amd64.mltbx")
   artifacts:
+    name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - install
       - urx-*-win-amd64.mltbx
@@ -521,7 +554,7 @@ build:windows-matlab-static:
 
 build:ubuntu-matlab-static:
   stage: build
-  needs: []
+  needs: [build:matlab-ubuntu-20.04]
   tags:
     - matlab
     - ubuntu
@@ -536,12 +569,14 @@ build:ubuntu-matlab-static:
     - ssh moduleus@localhost "export URX_DEBUG=/tmp/urx-matlab.log; cd $PWD && /opt/matlab/R2022b/bin/matlab -batch runTestsCi"
     - cat /tmp/urx-matlab.log
     - cd ../../CI/matlab/binding
+    - rm libUrxMatlabBinding.so && cp ../../libUrxMatlabBinding.so .
     - ssh moduleus@localhost 'cd '`pwd`' && /opt/matlab/R2022b/bin/matlab -batch "matlab.addons.toolbox.packageToolbox(\"linux-Release.prj\")"'
     - cd ../../..
     - cp CI/matlab/binding/urx.mltbx urx-$(cat CI/version.txt)-linux-amd64.mltbx
   after_script:
     - rm -Rf test/matlab/test.urx CI/matlab/binding/urx.mltbx
   artifacts:
+    name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - CI/version.txt
       - install
@@ -568,6 +603,7 @@ release:all-python-manylinux-x64:
   script:
     - sh /CI/manylinux_vcpkg.sh ultrasound_rawdata_exchange
   artifacts:
+    name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - ultrasound_rawdata_exchange*manylinux*.whl
     expire_in: 1 day
@@ -592,6 +628,7 @@ release:all-python-musllinux-x64:
   script:
     - sh /CI/musllinux_vcpkg.sh ultrasound_rawdata_exchange
   artifacts:
+    name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - ultrasound_rawdata_exchange*musllinux*.whl
     expire_in: 1 day
@@ -620,6 +657,7 @@ release:all-python-windows-x64:
     - python.exe -m cibuildwheel --output-dir wheelhouse --platform windows
     - *after-script-clean-vcpkg-windows
   artifacts:
+    name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - wheelhouse
     expire_in: 1 day
@@ -648,6 +686,7 @@ release:all-python-windows-x86:
     - python.exe -m cibuildwheel --output-dir wheelhouse --platform windows
     - *after-script-clean-vcpkg-windows
   artifacts:
+    name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - wheelhouse
     expire_in: 1 day
@@ -680,6 +719,7 @@ release:all-python-windows-arm64:
     - python.exe -m cibuildwheel --output-dir wheelhouse --platform windows
     - *after-script-clean-vcpkg-windows
   artifacts:
+    name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - wheelhouse
     expire_in: 1 day

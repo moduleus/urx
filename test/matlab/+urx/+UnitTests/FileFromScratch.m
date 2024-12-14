@@ -46,10 +46,10 @@ classdef FileFromScratch < matlab.unittest.TestCase
       testcase.verifyEqual(version.patch, uint16(urx.Version().patch));
       
       
-      dataset.acquisition.authors = 'AuthOr';
+      dataset.acquisition.authors = "AuthOr";
       dataset.acquisition.description = '康Description🐜';
       testcase.verifyTrue(strcmp(dataset.acquisition.description, '康Description🐜'));
-      dataset.acquisition.localTime = '2019-06-15T15:53:00';
+      dataset.acquisition.localTime = "2019-06-15T15:53:00";
       dataset.acquisition.countryCode = 'FR';
       dataset.acquisition.system = '???';
       
@@ -65,10 +65,10 @@ classdef FileFromScratch < matlab.unittest.TestCase
       probe1.transform.translation.z = 3.2;
       
       elementGeometry1 = urx.ElementGeometry();
-      vector1 = urx.Vector3D();
-      vector1.x = 0.15;
-      vector1.y = 0.23;
-      vector1.z = 543;
+      vector1 = urx.Vector3D(0.15, 0.23, 543);
+      testcase.verifyEqual(vector1.x, 0.15);
+      testcase.verifyEqual(vector1.y, 0.23);
+      testcase.verifyEqual(vector1.z, 543);
       
       vector2 = urx.Vector3D();
       vector2.x = 2.2;
@@ -434,7 +434,7 @@ classdef FileFromScratch < matlab.unittest.TestCase
         acq.groupsData.rawData.data(i) = i;
       end
   
-      urx.saveToFile('test.urx', dataset);
+      urx.saveToFile("test.urx", dataset);
 
       dataset2 = urx.loadFromFile('test.urx');
 
