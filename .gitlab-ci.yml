@@ -639,6 +639,7 @@ release:all-python-musllinux-x64:
     # cp36-cp36m;cp37-cp37m: not maintained anymore
     SKIP_PYTHON: cp36-cp36m;cp37-cp37m
     # ONLY_PYTHON: cp312-cp312
+    VCPKG_FORCE_SYSTEM_BINARIES: 1
   stage: release
   needs: []
   when: manual
