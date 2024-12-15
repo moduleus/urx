@@ -619,7 +619,7 @@ release:all-python-manylinux-x64:
   when: manual
   tags:
     - docker
-  image: $CI_REGISTRY/common/ci/dockerci/manylinux:latest
+  image: $CI_REGISTRY/common/ci/dockerci/manylinux_2_28_x86_64:latest
   before_script:
     - git config --global credential.helper store
     - echo "https://gitlab-ci-token:${CI_JOB_TOKEN}@$CI_SERVER_HOST" > ~/.git-credentials
@@ -645,7 +645,7 @@ release:all-python-musllinux-x64:
   when: manual
   tags:
     - docker
-  image: $CI_REGISTRY/common/ci/dockerci/musllinux:latest
+  image: $CI_REGISTRY/common/ci/dockerci/musllinux_1_2_x86_64:latest
   before_script:
     - git config --global credential.helper store
     - echo "https://gitlab-ci-token:${CI_JOB_TOKEN}@$CI_SERVER_HOST" > ~/.git-credentials
