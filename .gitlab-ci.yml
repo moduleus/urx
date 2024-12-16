@@ -663,7 +663,7 @@ release:all-python-musllinux-x64:
 
 release:all-python-windows-x64:
   variables:
-    CIBW_BUILD: cp38-win_amd64 cp39-win_amd64 cp310-win_amd64 cp311-win_amd64 cp312-win_amd64 cp313-win_amd64 cp313t-win_amd64 pp38-win_amd64 pp39-win_amd64 pp310-win_amd64
+    CIBW_BUILD: cp38-win_amd64 cp39-win_amd64 cp310-win_amd64 cp311-win_amd64 cp312-win_amd64 cp313-win_amd64 pp38-win_amd64 pp39-win_amd64 pp310-win_amd64
     CIBW_ENABLE: cpython-freethreading
   stage: release
   needs: []
@@ -692,7 +692,7 @@ release:all-python-windows-x64:
 
 release:all-python-windows-x86:
   variables:
-    CIBW_BUILD: cp38-win32 cp39-win32 cp310-win32 cp311-win32 cp312-win32 cp313-win32 cp313t-win32
+    CIBW_BUILD: cp38-win32 cp39-win32 cp310-win32 cp311-win32 cp312-win32 cp313-win32
     CIBW_ENABLE: cpython-freethreading
   stage: release
   needs: []
@@ -724,7 +724,7 @@ release:all-python-windows-x86:
 # Can't cross-compile. pybind11 and python/CMakeLists.txt launch python.exe.
 release:all-python-windows-arm64:
   variables:
-    CIBW_BUILD: cp39-win_arm64 cp310-win_arm64 cp311-win_arm64 cp312-win_arm64 cp313-win_arm64 cp313t-win_arm64
+    CIBW_BUILD: cp39-win_arm64 cp310-win_arm64 cp311-win_arm64 cp312-win_arm64 cp313-win_arm64
     CIBW_ENABLE: cpython-freethreading
     CIBW_ARCHS: ARM64
   stage: release
