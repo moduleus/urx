@@ -612,7 +612,8 @@ release:all-python-manylinux-x64:
     GIT_SUBMODULE_STRATEGY: recursive
     PLAT: manylinux_2_27_x86_64
     # cp36-cp36m;cp37-cp37m: not maintained anymore
-    SKIP_PYTHON: cp36-cp36m;cp37-cp37m
+    # cp313-cp313t build fails
+    SKIP_PYTHON: cp36-cp36m;cp37-cp37m;cp313-cp313t
     # ONLY_PYTHON: cp312-cp312
     PIP_WHEEL_OPTIONS: --config-settings=--global-option=-DBUILD_TESTING:BOOL=OFF
   stage: release
@@ -638,7 +639,7 @@ release:all-python-musllinux-x64:
     GIT_SUBMODULE_STRATEGY: recursive
     PLAT: musllinux_1_2_x86_64
     # cp36-cp36m;cp37-cp37m: not maintained anymore
-    SKIP_PYTHON: cp36-cp36m;cp37-cp37m
+    SKIP_PYTHON: cp36-cp36m;cp37-cp37m;cp313-cp313t
     # ONLY_PYTHON: cp312-cp312
     VCPKG_FORCE_SYSTEM_BINARIES: 1
     PIP_WHEEL_OPTIONS: --config-settings=--global-option=-DBUILD_TESTING:BOOL=OFF
