@@ -33,8 +33,17 @@ add_library(
 add_library(Urx::UrxMatlabBinding ALIAS UrxMatlabBinding)
 
 if(UNIX)
-  target_link_options(UrxMatlabBinding PRIVATE "-static-libgcc"
-                      "-static-libstdc++")
+  execute_process(
+    COMMAND ${CMAKE_CXX_COMPILER} -print-file-name=libstdc++.so.6
+    OUTPUT_VARIABLE STDCPP_SO_PATH
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  target_link_options(UrxMatlabBinding PRIVATE "-Wl,-rpath,$ORIGIN")
+  add_custom_command(
+    TARGET UrxMatlabBinding
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${STDCPP_SO_PATH}
+            $<TARGET_FILE_DIR:UrxMatlabBinding>
+    COMMAND_EXPAND_LISTS)
 endif(UNIX)
 
 generate_export_header(UrxMatlabBinding BASE_NAME URX_MATLAB EXPORT_FILE_NAME

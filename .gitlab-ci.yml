@@ -371,11 +371,13 @@ build:matlab-ubuntu-12.04:
     - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-lssrp -DVCPKG_HOST_TRIPLET=x64-lssrp -DVCPKG_OVERLAY_TRIPLETS=$VCPKG_REGISTRY_LOCAL_GIT/triplets -DCMAKE_INSTALL_PREFIX="install/ubuntu-20.04" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=OFF -DWITH_MATLAB:BOOL=ON
     - *after-script-clean-vcpkg-linux
     - cmake --build CI --config Release --parallel $NUM_PARALLEL --target UrxMatlabBinding
-    - cp CI/matlab/binding/libUrxMatlabBinding.so CI/libUrxMatlabBinding.so
+    - cp CI/matlab/binding/libUrxMatlabBinding.so CI
+    - cp CI/matlab/binding/libstdc++.so.6 CI
   artifacts:
     name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - CI/libUrxMatlabBinding.so
+      - CI/libstdc++.so.6
     expire_in: 1 day
 
 build:matlab-ubuntu-20.04:
@@ -394,11 +396,13 @@ build:matlab-ubuntu-20.04:
     - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-lssrp -DVCPKG_HOST_TRIPLET=x64-lssrp -DVCPKG_OVERLAY_TRIPLETS=$VCPKG_REGISTRY_LOCAL_GIT/triplets -DCMAKE_INSTALL_PREFIX="install/ubuntu-20.04" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=OFF -DWITH_MATLAB:BOOL=ON
     - *after-script-clean-vcpkg-linux
     - cmake --build CI --config Release --parallel $NUM_PARALLEL --target UrxMatlabBinding
-    - cp CI/matlab/binding/libUrxMatlabBinding.so CI/libUrxMatlabBinding.so
+    - cp CI/matlab/binding/libUrxMatlabBinding.so CI
+    - cp CI/matlab/binding/libstdc++.so.6 CI
   artifacts:
     name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - CI/libUrxMatlabBinding.so
+      - CI/libstdc++.so.6
     expire_in: 1 day
 
 build:windows-with-HDF5-static:
@@ -593,7 +597,7 @@ build:ubuntu-matlab-static:
     - ssh moduleus@localhost "export URX_DEBUG=/tmp/urx-matlab.log; cd $PWD && /opt/matlab/R2022b/bin/matlab -batch runTestsCi"
     - cat /tmp/urx-matlab.log
     - cd ../../CI/matlab/binding
-    - rm libUrxMatlabBinding.so && cp ../../libUrxMatlabBinding.so .
+    - rm libUrxMatlabBinding.so && cp ../../libUrxMatlabBinding.so . && cp ../../libstdc++.so.6 .
     - ssh moduleus@localhost 'cd '`pwd`' && /opt/matlab/R2022b/bin/matlab -batch "matlab.addons.toolbox.packageToolbox(\"linux-Release.prj\")"'
     - cd ../../..
     - cp CI/matlab/binding/urx.mltbx urx-$(cat CI/version.txt)-linux-amd64.mltbx
