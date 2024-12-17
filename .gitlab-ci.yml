@@ -611,14 +611,41 @@ build:ubuntu-matlab-static:
       - urx-*-linux-amd64.mltbx
     expire_in: 1 day
 
-release:all-python-manylinux-x64:
+release:all-python-manylinux2014_x86_64:
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+    PLAT: manylinux_2_17_x86_64
+    # cp36-cp36m;cp37-cp37m: not maintained anymore
+    # cp313-cp313t build fails
+    # pp310-pypy310_pp73 build fails (cryptography-cffi from cargo)
+    SKIP_PYTHON: cp36-cp36m;cp37-cp37m;cp313-cp313t;pp310-pypy310_pp73
+    # ONLY_PYTHON: cp312-cp312
+    PIP_WHEEL_OPTIONS: --config-settings=--global-option=-DBUILD_TESTING:BOOL=OFF
+  stage: release
+  needs: []
+  when: manual
+  tags:
+    - docker
+  image: $CI_REGISTRY/common/ci/dockerci/manylinux2014_x86_64:latest
+  before_script:
+    - git config --global credential.helper store
+    - echo "https://gitlab-ci-token:${CI_JOB_TOKEN}@$CI_SERVER_HOST" > ~/.git-credentials
+    - *before-script-vcpkg-linux
+  script:
+    - sed -i 's/\r//' /CI/manylinux_vcpkg.sh
+    - sh /CI/manylinux_vcpkg.sh ultrasound_rawdata_exchange
+  artifacts:
+    name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
+    paths:
+      - ultrasound_rawdata_exchange*manylinux*.whl
+    expire_in: 1 day
+
+release:all-python-manylinux_2_28_x86_64:
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
     PLAT: manylinux_2_27_x86_64
-    # cp36-cp36m;cp37-cp37m: not maintained anymore
-    # cp313-cp313t build fails
-    SKIP_PYTHON: cp36-cp36m;cp37-cp37m;cp313-cp313t
-    # ONLY_PYTHON: cp312-cp312
+    # SKIP_PYTHON: cp36-cp36m;cp37-cp37m;cp313-cp313t
+    ONLY_PYTHON: pp310-pypy310_pp73
     PIP_WHEEL_OPTIONS: --config-settings=--global-option=-DBUILD_TESTING:BOOL=OFF
   stage: release
   needs: []
@@ -638,7 +665,7 @@ release:all-python-manylinux-x64:
       - ultrasound_rawdata_exchange*manylinux*.whl
     expire_in: 1 day
 
-release:all-python-musllinux-x64:
+release:all-python-musllinux_1_2_x86_64:
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
     PLAT: musllinux_1_2_x86_64
@@ -759,8 +786,9 @@ release:all-python-windows-arm64:
 release:upload-to-pypi:
   stage: release
   needs:
-    - release:all-python-manylinux-x64
-    - release:all-python-musllinux-x64
+    - release:all-python-manylinux2014_x86_64
+    - release:all-python-manylinux_2_28_x86_64
+    - release:all-python-musllinux_1_2_x86_64
     - release:all-python-windows-x64
     - release:all-python-windows-x86
   when: manual
@@ -774,8 +802,9 @@ release:upload-to-pypi:
 release:upload-to-github:
   stage: release
   needs:
-    - release:all-python-manylinux-x64
-    - release:all-python-musllinux-x64
+    - release:all-python-manylinux2014_x86_64
+    - release:all-python-manylinux_2_28_x86_64
+    - release:all-python-musllinux_1_2_x86_64
     - release:all-python-windows-x64
     - release:all-python-windows-x86
     - build:windows-matlab-static
