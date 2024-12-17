@@ -270,7 +270,7 @@ std::shared_ptr<T> generateFakeDataset() {
       event.receive_setup.number_samples = 48452;
       event.receive_setup.active_elements = {
           {1, 2, 5753, 58, 60, 2, 1}, {4, 57, 7, 76, 21, 87, 9, 3}, {17, 26, 57, 7, 8, 3, 6, 5}};
-      event.receive_setup.tgc_profile = {01.2, 45., 4.25, -4.52, 1, .5, 4.36, 1, 2};
+      event.receive_setup.tgc_profile = {1.2, 45., 4.25, -4.52, 1, .5, 4.36, 1, 2};
       event.receive_setup.tgc_sampling_frequency = -12.5;
       event.receive_setup.modulation_frequency = 1925;
       event.receive_setup.time_offset = 1 + 205;
@@ -283,9 +283,7 @@ std::shared_ptr<T> generateFakeDataset() {
       event.transmit_setup.probe_transform = {{5.1e-120, -8, 7.}, {5.2, 4.3, 8.2e10}};
       event.transmit_setup.time_offset = 1202;
       event.transmit_setup.wave.type = WaveType::CONVERGING_WAVE;
-      event.transmit_setup.wave.time_zero_reference_point.x = 6;
-      event.transmit_setup.wave.time_zero_reference_point.y = 5;
-      event.transmit_setup.wave.time_zero_reference_point.z = 2;
+      event.transmit_setup.wave.time_zero_reference_point = {6, 5, 2};
       event.transmit_setup.wave.time_zero = 4.11;
       event.transmit_setup.wave.parameters = {7, 53, .3, 5.6, 7};
       event.transmit_setup.active_elements = {{1}};
