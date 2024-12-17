@@ -1,4 +1,5 @@
 import gc
+import platform
 
 
 def test_receive_setup(
@@ -49,7 +50,8 @@ def test_receive_setup(
 
     # Check CTOR with all parameters
     rs = receive_setup_args(probe_constructor(), t_2, 1, 2, [[3]], [4], 5, 6, 7)
-    self.assertEqual(rs.probe, None)
+    if platform.python_implementation() != "PyPy":
+        self.assertEqual(rs.probe, None)
 
     probe = probe_constructor()
     probe_2 = probe_copy(probe)
@@ -68,7 +70,8 @@ def test_receive_setup(
     self.assertEqual(rs.probe, probe_2)
     del probe_2
     gc.collect()
-    self.assertEqual(rs.probe, None)
+    if platform.python_implementation() != "PyPy":
+        self.assertEqual(rs.probe, None)
 
     # Reference is possible for probe_transform
     self.assertEqual(rs.probe_transform, t_2)

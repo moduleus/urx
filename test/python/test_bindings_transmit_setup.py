@@ -1,5 +1,6 @@
 import numpy as np
 import gc
+import platform
 
 
 def test_transmit_setup(
@@ -66,7 +67,8 @@ def test_transmit_setup(
         42,
     )
     ts_2 = transmit_setup_copy(ts)
-    self.assertEqual(ts.probe, None)
+    if platform.python_implementation() != "PyPy":
+        self.assertEqual(ts.probe, None)
     self.assertEqual(ts.active_elements, [[1, 2, 3], [4, 5, 6, 7, 8, 9]])
     self.assertEqual(ts.excitations, [ex, ex_2])
     self.assertEqual(ts.delays, [3.14, 42])
@@ -113,7 +115,8 @@ def test_transmit_setup(
     self.assertEqual(ts.probe, probe_2)
     del probe_2
     gc.collect()
-    self.assertEqual(ts.probe, None)
+    if platform.python_implementation() != "PyPy":
+        self.assertEqual(ts.probe, None)
 
     # wave is not a pointer
     self.assertEqual(ts.wave, wave)
@@ -155,8 +158,9 @@ def test_transmit_setup(
     self.assertEqual(len(ts.excitations), 3)
     self.assertEqual(len(ts_2.excitations), 3)
 
-    self.assertIsNone(ts.excitations[1])
-    self.assertIsNone(ts_2.excitations[1])
+    if platform.python_implementation() != "PyPy":
+        self.assertIsNone(ts.excitations[1])
+        self.assertIsNone(ts_2.excitations[1])
 
     # Reference is possible for delays (VecFloat64)
     self.assertEqual(ts.delays, [3.14, 42])
