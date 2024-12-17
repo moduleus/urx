@@ -1,5 +1,6 @@
 import numpy as np
 import gc
+from dataset_gen import gen_fake_dataset
 
 
 def test_clone(
@@ -31,11 +32,46 @@ def test_clone(
     version_args_constructor,
     enum_probe,
     enum_sampling,
+    enum_data,
     enum_wave,
     clone,
 ):
     testName = "Clone binding"
     print("\n--Test %s BEGIN--" % testName)
+
+    fake_dataset = gen_fake_dataset(
+        self,
+        dataset_constructor,
+        acq_constructor,
+        acq_copy,
+        double_nan_constructor,
+        double_nan_copy,
+        probe_constructor,
+        probe_copy,
+        excitation_constructor,
+        excitation_copy,
+        group_constructor,
+        group_copy,
+        group_data_constructor,
+        group_data_copy,
+        element_geometry_constructor,
+        element_constructor,
+        element_copy,
+        event_constructor,
+        impulse_response_constructor,
+        receive_setup_constructor,
+        transmit_setup_constructor,
+        wave_constructor,
+        transform_args_constructor,
+        vector2D_args_constructor,
+        vector3D_args_constructor,
+        version_args_constructor,
+        enum_probe,
+        enum_sampling,
+        enum_data,
+        enum_wave,
+        clone,
+    )
 
     # Version
     vers = version_args_constructor(1, 2, 3)
