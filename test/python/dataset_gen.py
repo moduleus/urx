@@ -3,37 +3,21 @@ import ultrasound_rawdata_exchange as urx
 
 
 def gen_fake_dataset(
-    self,
     dataset_constructor,
-    acq_constructor,
-    acq_copy,
-    double_nan_constructor,
-    double_nan_copy,
     probe_constructor,
-    probe_copy,
     excitation_constructor,
-    excitation_copy,
     group_constructor,
-    group_copy,
     group_data_constructor,
-    group_data_copy,
     element_geometry_constructor,
     element_constructor,
-    element_copy,
     event_constructor,
     impulse_response_constructor,
-    receive_setup_constructor,
-    transmit_setup_constructor,
-    wave_constructor,
     transform_args_constructor,
-    vector2D_args_constructor,
     vector3D_args_constructor,
-    version_args_constructor,
     enum_probe,
     enum_sampling,
     enum_data,
     enum_wave,
-    clone,
 ):
 
     dataset = dataset_constructor()
@@ -52,7 +36,7 @@ def gen_fake_dataset(
 
     probe = probe_constructor()
     probe.description = "Probe 1"
-    probe.type = urx.ProbeType.MATRIX
+    probe.type = enum_probe().MATRIX
     probe.transform = transform_args_constructor(
         vector3D_args_constructor(-1, 2.3, 4e5), vector3D_args_constructor(1.2, -2.2, 232)
     )
@@ -127,7 +111,7 @@ def gen_fake_dataset(
 
     probe = probe_constructor()
     probe.description = "Probe 2"
-    probe.type = urx.ProbeType(123)
+    probe.type = enum_probe()(123)
     probe.transform = transform_args_constructor(
         vector3D_args_constructor(3, 4, 5), vector3D_args_constructor(3.2, 4.2, 5.2)
     )

@@ -36,7 +36,20 @@ from test_bindings_utils import test_utils_io
 from test_bindings_vector import test_vector2d, test_vector3d
 from test_bindings_version import test_version
 from test_bindings_wave import test_wave
-from test_bindings_clone import test_clone
+from test_bindings_clone import (
+    test_clone,
+    test_clone_version,
+    test_clone_vector_2D,
+    test_clone_vector_3D,
+    test_clone_transform,
+    test_clone_wave,
+    test_clone_impulse_response,
+    test_clone_element_geometry,
+    test_clone_element,
+    test_clone_excitation,
+    test_clone_transmit_setup,
+    test_clone_receive_setup,
+)
 from parameterized import parameterized
 import numpy as np
 
@@ -610,6 +623,107 @@ class TestBindings(unittest.TestCase):
     def test_clone_run(
         self,
     ):
+        test_clone_version(
+            self,
+            version_args_constructor=lambda major, minor, patch: urx.Version(major, minor, patch),
+            version_copy=lambda copy: urx.Version(copy),
+            clone=lambda urx_object: urx.clone(urx_object),
+        )
+
+        test_clone_vector_2D(
+            self,
+            vector2D_args_constructor=lambda x, y: urx.Vector2D(x, y),
+            vector2D_copy=lambda copy: urx.Vector2D(copy),
+            clone=lambda urx_object: urx.clone(urx_object),
+        )
+
+        test_clone_vector_3D(
+            self,
+            vector3D_args_constructor=lambda x, y, z: urx.Vector3D(x, y, z),
+            vector3D_copy=lambda copy: urx.Vector3D(copy),
+            clone=lambda urx_object: urx.clone(urx_object),
+        )
+
+        test_clone_transform(
+            self,
+            transform_args_constructor=lambda rotation, translation: urx.Transform(
+                rotation, translation
+            ),
+            transform_copy=lambda copy: urx.Transform(copy),
+            vector3D_args_constructor=lambda x, y, z: urx.Vector3D(x, y, z),
+            clone=lambda urx_object: urx.clone(urx_object),
+        )
+
+        test_clone_wave(
+            self,
+            wave_constructor=lambda: urx.Wave(),
+            wave_copy=lambda copy: urx.Wave(copy),
+            vector3D_args_constructor=lambda x, y, z: urx.Vector3D(x, y, z),
+            enum_wave=lambda: urx.WaveType,
+            clone=lambda urx_object: urx.clone(urx_object),
+        )
+
+        test_clone_impulse_response(
+            self,
+            impulse_response_constructor=lambda: urx.ImpulseResponse(),
+            impulse_response_copy=lambda copy: urx.ImpulseResponse(copy),
+            clone=lambda urx_object: urx.clone(urx_object),
+        )
+
+        test_clone_element_geometry(
+            self,
+            element_geometry_constructor=lambda: urx.ElementGeometry(),
+            element_geometry_copy=lambda copy: urx.ElementGeometry(copy),
+            vector3D_args_constructor=lambda x, y, z: urx.Vector3D(x, y, z),
+            clone=lambda urx_object: urx.clone(urx_object),
+        )
+
+        test_clone_element(
+            self,
+            element_constructor=lambda: urx.Element(),
+            element_copy=lambda copy: urx.Element(copy),
+            element_geometry_constructor=lambda: urx.ElementGeometry(),
+            impulse_response_constructor=lambda: urx.ImpulseResponse(),
+            transform_args_constructor=lambda rotation, translation: urx.Transform(
+                rotation, translation
+            ),
+            vector3D_args_constructor=lambda x, y, z: urx.Vector3D(x, y, z),
+            clone=lambda urx_object: urx.clone(urx_object),
+        )
+
+        test_clone_excitation(
+            self,
+            excitation_constructor=lambda: urx.Excitation(),
+            excitation_copy=lambda copy: urx.Excitation(copy),
+            clone=lambda urx_object: urx.clone(urx_object),
+        )
+
+        test_clone_transmit_setup(
+            self,
+            transmit_setup_constructor=lambda: urx.TransmitSetup(),
+            transmit_setup_copy=lambda copy: urx.TransmitSetup(copy),
+            probe_constructor=lambda: urx.Probe(),
+            excitation_constructor=lambda: urx.Excitation(),
+            transform_args_constructor=lambda rotation, translation: urx.Transform(
+                rotation, translation
+            ),
+            vector3D_args_constructor=lambda x, y, z: urx.Vector3D(x, y, z),
+            enum_wave=lambda: urx.WaveType,
+            clone=lambda urx_object: urx.clone(urx_object),
+        )
+
+        test_clone_receive_setup(
+            self,
+            receive_setup_constructor=lambda: urx.ReceiveSetup(),
+            receive_setup_copy=lambda copy: urx.ReceiveSetup(copy),
+            probe_constructor=lambda: urx.Probe(),
+            transform_args_constructor=lambda rotation, translation: urx.Transform(
+                rotation, translation
+            ),
+            vector3D_args_constructor=lambda x, y, z: urx.Vector3D(x, y, z),
+            clone=lambda urx_object: urx.clone(urx_object),
+        )
+
         test_clone(
             self,
             dataset_constructor=lambda: urx.Dataset(),
