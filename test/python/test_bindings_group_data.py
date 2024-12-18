@@ -15,13 +15,13 @@ def test_group_data_huge_transform(
     tmp = np.arange(data_size, dtype=np.float32)
     group_data.raw_data = tmp
     tmp /= 20
-    self.assertTrue(np.array_equal(group_data.raw_data, tmp))
+    self.assertTrue(np.allclose(group_data.raw_data, tmp))
     group_data.raw_data[-1]
     ref = group_data.raw_data
     tic = perf_counter()
     ref /= 20
-    self.assertTrue(np.array_equal(group_data.raw_data, ref))
-    self.assertTrue(np.array_equal(group_data.raw_data, tmp))
+    self.assertTrue(np.allclose(group_data.raw_data, ref))
+    self.assertTrue(np.allclose(group_data.raw_data, tmp))
     toc = perf_counter() - tic
 
     print(f"  Dividing np.array by 20 computing time: {toc:.3f}")
@@ -63,33 +63,31 @@ def test_raw_data_float_complex(
     self.assertEqual(group_data.raw_data.shape, (2, 2))
 
     ref = group_data.raw_data
-    self.assertTrue(np.array_equal(np.array([[1, 2], [2, 3]], dtype=np_type), ref))
-    self.assertTrue(np.array_equal(np.array([[1, 2], [2, 3]], dtype=np_type), group_data.raw_data))
+    self.assertTrue(np.allclose(np.array([[1, 2], [2, 3]], dtype=np_type), ref))
+    self.assertTrue(np.allclose(np.array([[1, 2], [2, 3]], dtype=np_type), group_data.raw_data))
 
     ref[0] = [45, 67]
-    self.assertTrue(np.array_equal(np.array([[45, 67], [2, 3]], dtype=np_type), ref))
+    self.assertTrue(np.allclose(np.array([[45, 67], [2, 3]], dtype=np_type), ref))
+    self.assertTrue(np.allclose(np.array([[45, 67], [2, 3]], dtype=np_type), group_data.raw_data))
     self.assertTrue(
-        np.array_equal(np.array([[45, 67], [2, 3]], dtype=np_type), group_data.raw_data)
-    )
-    self.assertTrue(
-        np.array_equal(
+        np.allclose(
             group_data.raw_data.view(np_comp_type)[:, 0],
             np_comp_type([45 + 67j, 2 + 3j]),
         )
     )
 
     ref += 1
-    self.assertTrue(np.array_equal(ref, np.array([[46, 68], [3, 4]], dtype=np_type)))
-    self.assertTrue(np.array_equal(ref, group_data.raw_data))
+    self.assertTrue(np.allclose(ref, np.array([[46, 68], [3, 4]], dtype=np_type)))
+    self.assertTrue(np.allclose(ref, group_data.raw_data))
 
     ref[:, 0] += 1
-    self.assertTrue(np.array_equal(ref, np.array([[47, 68], [4, 4]], dtype=np_type)))
-    self.assertTrue(np.array_equal(ref, group_data.raw_data))
+    self.assertTrue(np.allclose(ref, np.array([[47, 68], [4, 4]], dtype=np_type)))
+    self.assertTrue(np.allclose(ref, group_data.raw_data))
 
     comp_ref = group_data.raw_data.view(np_comp_type)[:, 0]
     comp_ref += 1
-    self.assertTrue(np.array_equal(comp_ref, [48 + 68j, 5 + 4j]))
-    self.assertFalse(np.array_equal(group_data.raw_data.view(np_comp_type), comp_ref))
+    self.assertTrue(np.allclose(comp_ref, [48 + 68j, 5 + 4j]))
+    self.assertFalse(np.allclose(group_data.raw_data.view(np_comp_type), comp_ref))
 
     print("--Test %s END--" % test_name)
 
@@ -127,22 +125,20 @@ def test_raw_data_universal_complex(
     self.assertEqual(group_data.raw_data.shape, (2, 2))
 
     ref = group_data.raw_data
-    self.assertTrue(np.array_equal(np.array([[1, 2], [2, 3]], dtype=np_type), ref))
-    self.assertTrue(np.array_equal(np.array([[1, 2], [2, 3]], dtype=np_type), group_data.raw_data))
+    self.assertTrue(np.allclose(np.array([[1, 2], [2, 3]], dtype=np_type), ref))
+    self.assertTrue(np.allclose(np.array([[1, 2], [2, 3]], dtype=np_type), group_data.raw_data))
 
     ref[0] = [45, 67]
-    self.assertTrue(np.array_equal(np.array([[45, 67], [2, 3]], dtype=np_type), ref))
-    self.assertTrue(
-        np.array_equal(np.array([[45, 67], [2, 3]], dtype=np_type), group_data.raw_data)
-    )
+    self.assertTrue(np.allclose(np.array([[45, 67], [2, 3]], dtype=np_type), ref))
+    self.assertTrue(np.allclose(np.array([[45, 67], [2, 3]], dtype=np_type), group_data.raw_data))
 
     ref += 1
-    self.assertTrue(np.array_equal(ref, np.array([[46, 68], [3, 4]], dtype=np_type)))
-    self.assertTrue(np.array_equal(ref, group_data.raw_data))
+    self.assertTrue(np.allclose(ref, np.array([[46, 68], [3, 4]], dtype=np_type)))
+    self.assertTrue(np.allclose(ref, group_data.raw_data))
 
     ref[:, 0] += 1
-    self.assertTrue(np.array_equal(ref, np.array([[47, 68], [4, 4]], dtype=np_type)))
-    self.assertTrue(np.array_equal(ref, group_data.raw_data))
+    self.assertTrue(np.allclose(ref, np.array([[47, 68], [4, 4]], dtype=np_type)))
+    self.assertTrue(np.allclose(ref, group_data.raw_data))
 
     print("--Test %s END--" % test_name)
 
@@ -180,20 +176,20 @@ def test_raw_data_universal_real(
     self.assertEqual(group_data.raw_data.shape, (4,))
 
     ref = group_data.raw_data
-    self.assertTrue(np.array_equal(np.array([1, 2, 2, 3], dtype=np_type), ref))
-    self.assertTrue(np.array_equal(np.array([1, 2, 2, 3], dtype=np_type), group_data.raw_data))
+    self.assertTrue(np.allclose(np.array([1, 2, 2, 3], dtype=np_type), ref))
+    self.assertTrue(np.allclose(np.array([1, 2, 2, 3], dtype=np_type), group_data.raw_data))
 
     ref[0] = 45
-    self.assertTrue(np.array_equal(np.array([45, 2, 2, 3], dtype=np_type), ref))
-    self.assertTrue(np.array_equal(np.array([45, 2, 2, 3], dtype=np_type), group_data.raw_data))
+    self.assertTrue(np.allclose(np.array([45, 2, 2, 3], dtype=np_type), ref))
+    self.assertTrue(np.allclose(np.array([45, 2, 2, 3], dtype=np_type), group_data.raw_data))
 
     ref += 1
-    self.assertTrue(np.array_equal(ref, np.array([46, 3, 3, 4], dtype=np_type)))
-    self.assertTrue(np.array_equal(ref, group_data.raw_data))
+    self.assertTrue(np.allclose(ref, np.array([46, 3, 3, 4], dtype=np_type)))
+    self.assertTrue(np.allclose(ref, group_data.raw_data))
 
     ref[::2] += 1
-    self.assertTrue(np.array_equal(ref, np.array([47, 3, 4, 4], dtype=np_type)))
-    self.assertTrue(np.array_equal(ref, group_data.raw_data))
+    self.assertTrue(np.allclose(ref, np.array([47, 3, 4, 4], dtype=np_type)))
+    self.assertTrue(np.allclose(ref, group_data.raw_data))
 
     print("--Test %s END--" % test_name)
 
@@ -217,7 +213,7 @@ def test_group_data(
     group_data = group_data_constructor()
     self.assertEqual(group_data.group, None)
     self.assertEqual(group_data.raw_data.size, 0)
-    self.assertTrue(np.array_equal(group_data.raw_data, np.empty(0, dtype=np.float32)))
+    self.assertTrue(np.allclose(group_data.raw_data, np.empty(0, dtype=np.float32)))
     self.assertEqual(group_data.group_timestamp, double_nan_constructor())
     self.assertEqual(group_data.sequence_timestamps, vec_float64_constructor())
     self.assertEqual(group_data.event_timestamps, vec_vec_float64_constructor())

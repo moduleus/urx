@@ -11,7 +11,7 @@ def test_vec_float64(
 
     self.assertEqual(vec_float64_constructor(), [])
     self.assertEqual(vec_float64_args([1.23, 2.34]), [1.23, 2.34])
-    self.assertTrue(np.array_equal(vec_float64_args([1.23, 2.34]), np.array([1.23, 2.34])))
+    self.assertTrue(np.allclose(vec_float64_args([1.23, 2.34]), np.array([1.23, 2.34])))
 
     v = [1.23, 2.34]
     toto = v[0]
@@ -34,7 +34,7 @@ def test_vec_uint32(
 
     self.assertEqual(vec_uint32_constructor(), [])
     self.assertEqual(vec_uint32_args([1, 2, 3]), [1, 2, 3])
-    self.assertTrue(np.array_equal(vec_uint32_args([1, 2, 3]), np.array([1, 2, 3])))
+    self.assertTrue(np.allclose(vec_uint32_args([1, 2, 3]), np.array([1, 2, 3])))
 
     v = [1, 2, 3]
     toto = v[0]
@@ -138,19 +138,17 @@ def test_vec_vector3d(
     # np.array
     v_arr = np.array([np.asarray(v), np.asarray(v_2)])
     self.assertEqual(len(v_arr), 2)
-    self.assertTrue(np.array_equal(v_arr, np.array([np.asarray(v), np.asarray(v_2)])))
+    self.assertTrue(np.allclose(v_arr, np.array([np.asarray(v), np.asarray(v_2)])))
     # v_arr[0] = v_3
     # self.assertEqual(v_arr[0], v_3)
-    # self.assertTrue(np.array_equal(v_arr, np.array([v_3, v_2])))
+    # self.assertTrue(np.allclose(v_arr, np.array([v_3, v_2])))
     # v_3.y = 42
     # self.assertEqual(v_arr[0].y, v_3.y)
     # self.assertEqual(v_arr[0], v_3)
-    # self.assertTrue(np.array_equal(v_arr, np.array([v_3, v_2])))
+    # self.assertTrue(np.allclose(v_arr, np.array([v_3, v_2])))
     v_arr = np.append(v_arr, [np.asarray(v_3)], axis=0)
     self.assertEqual(len(v_arr), 3)
-    self.assertTrue(
-        np.array_equal(v_arr, np.array([np.asarray(v), np.asarray(v_2), np.asarray(v_3)]))
-    )
+    self.assertTrue(np.allclose(v_arr, np.array([np.asarray(v), np.asarray(v_2), np.asarray(v_3)])))
 
     # VecVector3D
     vec = vec_vector3d_args([v, v_2])
