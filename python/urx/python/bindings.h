@@ -28,6 +28,8 @@
 #include <urx/impulse_response.h>
 #include <urx/probe.h>
 #include <urx/python/export.h>
+#include <urx/python/utils/group_helper.h>
+#include <urx/utils/group_helper.h>
 #include <urx/vector.h>
 
 namespace urx::python {
@@ -130,11 +132,39 @@ namespace detail {
 template <typename CppClass>
 void bindVector(py::module_ &m);
 
-URX_PYTHON_EXPORT py::array rawDataToPyArray(urx::RawData &raw_data);
-
 URX_PYTHON_EXPORT std::shared_ptr<urx::RawData> pyArrayToRawData(const py::array &array);
 
+inline py::array rawDataToPyArray(urx::RawData &raw_data) {
+  const bool are_data_complex = raw_data.getSamplingType() == urx::SamplingType::IQ;
+  const py::ssize_t data_size = raw_data.getSize();
+  void *data_ptr = raw_data.getBuffer();
+  const py::ssize_t sizeof_data_type_var =
+      urx::utils::group_helper::sizeofDataType(raw_data.getDataType());
+  const std::string data_format = urx::python::utils::pyGetFormat(raw_data.getDataType());
+
+  auto buffer = py::buffer_info(
+      data_ptr, sizeof_data_type_var, data_format, are_data_complex ? 2 : 1,
+      are_data_complex ? std::vector<py::ssize_t>{data_size, 2}
+                       : std::vector<py::ssize_t>{data_size},
+      are_data_complex ? std::vector<py::ssize_t>{sizeof_data_type_var * 2, sizeof_data_type_var}
+                       : std::vector<py::ssize_t>{sizeof_data_type_var});
+
+  return py::array(buffer, py::cast(raw_data.getBuffer()));
+}
+
 }  // namespace detail
+
+template <typename DataType>
+class RawDataWeakPython final : public RawDataWeak<DataType> {
+ public:
+  RawDataWeakPython(void *buffer, size_t size) : RawDataWeak(buffer, size) {
+    _py_array = detail::rawDataToPyArray(*this);
+  }
+  ~RawDataWeakPython() override = default;
+
+ private:
+  py::array _py_array;
+};
 
 // NOLINTBEGIN(misc-redundant-expression)
 template <typename ImpulseResponse>
@@ -475,6 +505,103 @@ py::class_<Group, std::shared_ptr<Group>, Options...> registerGroup(py::module_ 
   return retval;
 }
 
+inline py::class_<RawData, std::shared_ptr<RawData>> registerRawData(py::module_ &m,
+                                                                     const std::string &prefix) {
+  auto retval =
+      py::class_<RawData, std::shared_ptr<RawData>>(m, (prefix + "RawData").c_str(),
+                                                    py::buffer_protocol())
+          .def(py::init([](py::buffer b) -> std::shared_ptr<RawData> {
+            py::buffer_info info = b.request();
+            if (info.ndim > 2)
+              throw std::runtime_error("Dimension error: Too many dimensions in this data array");
+
+            if (info.ndim == 2) {
+              if (info.shape[1] > 2)
+                throw std::runtime_error(
+                    "Dimension error: Too many data in second dimension (2nd dimension must be "
+                    "equal to 2)");
+              if (info.shape[1] < 2)
+                throw std::runtime_error(
+                    "Dimension error: Not enough data in second dimension (2nd dimension must be "
+                    "equal to 2)");
+            }
+
+            if (info.ndim == 1) {
+              if (info.item_type_is_equivalent_to<std::complex<double>>()) {
+                return std::make_shared<urx::python::RawDataWeakPython<std::complex<double>>>(
+                    info.ptr, info.shape[0]);
+              }
+              if (info.item_type_is_equivalent_to<std::complex<float>>()) {
+                return std::make_shared<urx::python::RawDataWeakPython<std::complex<float>>>(
+                    info.ptr, info.shape[0]);
+              }
+              if (info.item_type_is_equivalent_to<int16_t>()) {
+                return std::make_shared<urx::python::RawDataWeakPython<int16_t>>(info.ptr,
+                                                                                 info.shape[0]);
+              }
+              if (info.item_type_is_equivalent_to<int32_t>()) {
+                return std::make_shared<urx::python::RawDataWeakPython<int32_t>>(info.ptr,
+                                                                                 info.shape[0]);
+              }
+              if (info.item_type_is_equivalent_to<float>()) {
+                return std::make_shared<urx::python::RawDataWeakPython<float>>(info.ptr,
+                                                                               info.shape[0]);
+              }
+              if (info.item_type_is_equivalent_to<double>()) {
+                return std::make_shared<urx::python::RawDataWeakPython<double>>(info.ptr,
+                                                                                info.shape[0]);
+              }
+              throw std::runtime_error("No equivalent data type to provided buffer");
+            }
+            // info.ndim == 2
+            if (info.item_type_is_equivalent_to<int16_t>()) {
+              return std::make_shared<urx::python::RawDataWeakPython<std::complex<int16_t>>>(
+                  info.ptr, info.shape[0]);
+            }
+            if (info.item_type_is_equivalent_to<int32_t>()) {
+              return std::make_shared<urx::python::RawDataWeakPython<std::complex<int32_t>>>(
+                  info.ptr, info.shape[0]);
+            }
+            if (info.item_type_is_equivalent_to<float>()) {
+              return std::make_shared<urx::python::RawDataWeakPython<std::complex<float>>>(
+                  info.ptr, info.shape[0]);
+            }
+            if (info.item_type_is_equivalent_to<double>()) {
+              return std::make_shared<urx::python::RawDataWeakPython<std::complex<double>>>(
+                  info.ptr, info.shape[0]);
+            }
+            throw std::runtime_error("No equivalent data type to provided buffer");
+          }))
+
+          .def_buffer([](RawData &raw_data) -> py::buffer_info {
+            const bool are_data_complex = raw_data.getSamplingType() == urx::SamplingType::IQ;
+            const py::ssize_t data_size = raw_data.getSize();
+            void *data_ptr = raw_data.getBuffer();
+            const py::ssize_t sizeof_data_type_var =
+                urx::utils::group_helper::sizeofDataType(raw_data.getDataType());
+            const std::string data_format = urx::python::utils::pyGetFormat(raw_data.getDataType());
+            return py::buffer_info(
+                data_ptr, sizeof_data_type_var, data_format, are_data_complex ? 2 : 1,
+                are_data_complex ? std::vector<py::ssize_t>{data_size, 2}
+                                 : std::vector<py::ssize_t>{data_size},
+                are_data_complex
+                    ? std::vector<py::ssize_t>{sizeof_data_type_var * 2, sizeof_data_type_var}
+                    : std::vector<py::ssize_t>{sizeof_data_type_var});
+#if 0
+            return py::buffer_info(
+                m.data(),                               /* Pointer to buffer */
+                sizeof(float),                          /* Size of one scalar */
+                py::format_descriptor<float>::format(), /* Python struct-style format descriptor */
+                2,                                      /* Number of dimensions */
+                {m.rows(), m.cols()},                   /* Buffer dimensions */
+                {sizeof(float) * m.cols(),              /* Strides (in bytes) for each index */
+                 sizeof(float)});
+#endif
+          });
+  m.attr("RawData") = m.attr((prefix + "RawData").c_str());
+  return retval;
+}
+
 template <typename GroupData>
 py::class_<GroupData, std::shared_ptr<GroupData>> registerGroupData(py::module_ &m,
                                                                     const std::string &prefix) {
@@ -495,11 +622,7 @@ py::class_<GroupData, std::shared_ptr<GroupData>> registerGroupData(py::module_ 
                 return self.group.lock();
               },
               [](GroupData &self, const std::shared_ptr<Group> &group) { self.group = group; })
-          .def_property(
-              "raw_data", [](GroupData &self) { return detail::rawDataToPyArray(*self.raw_data); },
-              [](GroupData &self, const py::array &vec) {
-                self.raw_data = detail::pyArrayToRawData(vec);
-              })
+          .def_readwrite("raw_data", &GroupData::raw_data)
           .def_readwrite("group_timestamp", &GroupData::group_timestamp)
           .def_readwrite("sequence_timestamps", &GroupData::sequence_timestamps)
           .def_readwrite("event_timestamps", &GroupData::event_timestamps);

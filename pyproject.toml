@@ -23,7 +23,7 @@ dependencies = [
     "cmake-build-extension==0.6.1",
     "numpy==1.24.4; python_version == '3.8'",
     "numpy==1.26.4; python_version == '3.9'",
-    "numpy==2.1.3; python_version >= '3.10'",
+    "numpy==2.2.0; python_version >= '3.10'",
     #"## For tests",
     "parameterized==0.9.0",
     #"## The following requirements were added by pip freeze:",

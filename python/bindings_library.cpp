@@ -25,24 +25,6 @@
 
 namespace urx::python::detail {
 
-py::array rawDataToPyArray(urx::RawData& raw_data) {
-  const bool are_data_complex = raw_data.getSamplingType() == urx::SamplingType::IQ;
-  const py::ssize_t data_size = raw_data.getSize();
-  void* data_ptr = raw_data.getBuffer();
-  const py::ssize_t sizeof_data_type_var =
-      urx::utils::group_helper::sizeofDataType(raw_data.getDataType());
-  const std::string data_format = urx::python::utils::pyGetFormat(raw_data.getDataType());
-
-  auto buffer = py::buffer_info(
-      data_ptr, sizeof_data_type_var, data_format, are_data_complex ? 2 : 1,
-      are_data_complex ? std::vector<py::ssize_t>{data_size, 2}
-                       : std::vector<py::ssize_t>{data_size},
-      are_data_complex ? std::vector<py::ssize_t>{sizeof_data_type_var * 2, sizeof_data_type_var}
-                       : std::vector<py::ssize_t>{sizeof_data_type_var});
-
-  return py::array(buffer, py::cast(raw_data.getBuffer()));
-}
-
 std::shared_ptr<urx::RawData> pyArrayToRawData(const py::array& array) {
   py::buffer_info info = array.request();
   if (info.ndim > 2)
@@ -61,37 +43,43 @@ std::shared_ptr<urx::RawData> pyArrayToRawData(const py::array& array) {
 
   if (info.ndim == 1) {
     if (info.item_type_is_equivalent_to<std::complex<double>>()) {
-      return std::make_shared<urx::RawDataWeak<std::complex<double>>>(info.ptr, info.shape[0]);
+      return std::make_shared<urx::python::RawDataWeakPython<std::complex<double>>>(info.ptr,
+                                                                                    info.shape[0]);
     }
     if (info.item_type_is_equivalent_to<std::complex<float>>()) {
-      return std::make_shared<urx::RawDataWeak<std::complex<float>>>(info.ptr, info.shape[0]);
+      return std::make_shared<urx::python::RawDataWeakPython<std::complex<float>>>(info.ptr,
+                                                                                   info.shape[0]);
     }
     if (info.item_type_is_equivalent_to<int16_t>()) {
-      return std::make_shared<urx::RawDataWeak<int16_t>>(info.ptr, info.shape[0]);
+      return std::make_shared<urx::python::RawDataWeakPython<int16_t>>(info.ptr, info.shape[0]);
     }
     if (info.item_type_is_equivalent_to<int32_t>()) {
-      return std::make_shared<urx::RawDataWeak<int32_t>>(info.ptr, info.shape[0]);
+      return std::make_shared<urx::python::RawDataWeakPython<int32_t>>(info.ptr, info.shape[0]);
     }
     if (info.item_type_is_equivalent_to<float>()) {
-      return std::make_shared<urx::RawDataWeak<float>>(info.ptr, info.shape[0]);
+      return std::make_shared<urx::python::RawDataWeakPython<float>>(info.ptr, info.shape[0]);
     }
     if (info.item_type_is_equivalent_to<double>()) {
-      return std::make_shared<urx::RawDataWeak<double>>(info.ptr, info.shape[0]);
+      return std::make_shared<urx::python::RawDataWeakPython<double>>(info.ptr, info.shape[0]);
     }
     throw std::runtime_error("No equivalent data type to provided buffer");
   }
   // info.ndim == 2
   if (info.item_type_is_equivalent_to<int16_t>()) {
-    return std::make_shared<urx::RawDataWeak<std::complex<int16_t>>>(info.ptr, info.shape[0]);
+    return std::make_shared<urx::python::RawDataWeakPython<std::complex<int16_t>>>(info.ptr,
+                                                                                   info.shape[0]);
   }
   if (info.item_type_is_equivalent_to<int32_t>()) {
-    return std::make_shared<urx::RawDataWeak<std::complex<int32_t>>>(info.ptr, info.shape[0]);
+    return std::make_shared<urx::python::RawDataWeakPython<std::complex<int32_t>>>(info.ptr,
+                                                                                   info.shape[0]);
   }
   if (info.item_type_is_equivalent_to<float>()) {
-    return std::make_shared<urx::RawDataWeak<std::complex<float>>>(info.ptr, info.shape[0]);
+    return std::make_shared<urx::python::RawDataWeakPython<std::complex<float>>>(info.ptr,
+                                                                                 info.shape[0]);
   }
   if (info.item_type_is_equivalent_to<double>()) {
-    return std::make_shared<urx::RawDataWeak<std::complex<double>>>(info.ptr, info.shape[0]);
+    return std::make_shared<urx::python::RawDataWeakPython<std::complex<double>>>(info.ptr,
+                                                                                  info.shape[0]);
   }
   throw std::runtime_error("No equivalent data type to provided buffer");
 }

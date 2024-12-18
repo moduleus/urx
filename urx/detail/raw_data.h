@@ -86,7 +86,7 @@ class IRawData : public RawData {
 template <typename DataType>
 class RawDataVector final : public IRawData<DataType> {
  public:
-  explicit RawDataVector(std::vector<DataType>&& vector) : _vector(std::move(vector)) {}
+  explicit RawDataVector(std::vector<DataType> vector) : _vector(std::move(vector)) {}
   ~RawDataVector() override = default;
 
   const void* getBuffer() const override { return _vector.data(); }
@@ -113,7 +113,7 @@ class RawDataNoInit final : public IRawData<DataType> {
 };
 
 template <typename DataType>
-class RawDataWeak final : public IRawData<DataType> {
+class RawDataWeak : public IRawData<DataType> {
  public:
   RawDataWeak(void* buffer, size_t size) : _buffer(buffer), _size(size) {}
   ~RawDataWeak() override = default;

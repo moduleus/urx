@@ -220,6 +220,8 @@ PYBIND11_MODULE(bindings, m) {
                const urx::python::VecEvent &>());
   urx::python::detail::bindVector<urx::python::VecGroupPtr>(m);
 
+  urx::python::registerRawData(m, "Urx");
+
   urx::python::registerGroupData(m);
   urx::python::detail::bindVector<urx::python::VecGroupData>(m);
 

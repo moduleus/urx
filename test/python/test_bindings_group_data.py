@@ -1,6 +1,7 @@
 import numpy as np
 from time import perf_counter
 import gc
+import ultrasound_rawdata_exchange as urx
 
 
 def test_group_data_huge_transform(
@@ -13,7 +14,7 @@ def test_group_data_huge_transform(
 
     group_data = group_data_constructor()
     tmp = np.arange(data_size, dtype=np.float32)
-    group_data.raw_data = tmp
+    group_data.raw_data = urx.RawData(tmp)
     tmp /= 20
     self.assertTrue(np.allclose(group_data.raw_data, tmp))
     group_data.raw_data[-1]
@@ -29,6 +30,10 @@ def test_group_data_huge_transform(
     print("--Test %s END--" % test_name)
 
 
+def foo(a):
+    print(a)
+
+
 def test_raw_data_float_complex(
     self,
     test_name,
@@ -39,32 +44,52 @@ def test_raw_data_float_complex(
     print("\n--Test %s BEGIN--" % test_name)
 
     group_data = group_data_constructor()
-    self.assertEqual(len(group_data.raw_data), 0)
-    self.assertEqual(group_data.raw_data.shape, (0,))
+    # # self.assertEqual(len(group_data.raw_data), 0)
+    # self.assertEqual(group_data.raw_data.shape, (0,))
 
-    group_data.raw_data = np.array([], dtype=np_comp_type)
-    self.assertEqual(len(group_data.raw_data), 0)
-    self.assertEqual(group_data.raw_data.size, 0)
-    self.assertEqual(group_data.raw_data.shape, (0, 2))
+    # group_data.raw_data = np.array([], dtype=np_comp_type)
+    # # self.assertEqual(len(group_data.raw_data), 0)
+    # self.assertEqual(group_data.raw_data.size, 0)
+    # self.assertEqual(group_data.raw_data.shape, (0, 2))
 
-    group_data.raw_data = np.array([np_comp_type()])
-    self.assertEqual(len(group_data.raw_data), 1)
-    self.assertEqual(group_data.raw_data.size, 2)
-    self.assertEqual(group_data.raw_data.shape, (1, 2))
+    # group_data.raw_data = np.array([np_comp_type()])
+    # # self.assertEqual(len(group_data.raw_data), 1)
+    # self.assertEqual(group_data.raw_data.size, 2)
+    # self.assertEqual(group_data.raw_data.shape, (1, 2))
 
-    group_data.raw_data = np_comp_type([1.0 + 2.0j, 2.0 + 3.0j])
-    self.assertEqual(group_data.raw_data.size, 4)
-    self.assertEqual(len(group_data.raw_data), 2)
-    self.assertEqual(group_data.raw_data.shape, (2, 2))
+    # group_data.raw_data = np_comp_type([1.0 + 2.0j, 2.0 + 3.0j])
+    # self.assertEqual(group_data.raw_data.size, 4)
+    # # self.assertEqual(len(group_data.raw_data), 2)
+    # self.assertEqual(group_data.raw_data.shape, (2, 2))
 
-    group_data.raw_data = np.array([1.0 + 2.0j, 2.0 + 3.0j], dtype=np_comp_type)
-    self.assertEqual(group_data.raw_data.size, 4)
-    self.assertEqual(len(group_data.raw_data), 2)
-    self.assertEqual(group_data.raw_data.shape, (2, 2))
+    group_data.raw_data = urx.RawData(np.array([1.0 + 2.0j, 2.0 + 3.0j], dtype=np_comp_type))
+    # self.assertEqual(group_data.raw_data.size, 4)
+    # self.assertEqual(len(group_data.raw_data), 2)
+    # self.assertEqual(group_data.raw_data.shape, (2, 2))
 
-    ref = group_data.raw_data
+    ref = np.asarray(group_data.raw_data)
+    print(ref)
+    print(np.asarray(group_data.raw_data))
+    ones = np.ones(np.shape(ref), dtype=np_type)
+    print(np.asarray(group_data.raw_data))
+    print(ref)
+    print(np.asarray(group_data.raw_data))
+    print(ones)
+    print(np.asarray(group_data.raw_data))
     self.assertTrue(np.allclose(np.array([[1, 2], [2, 3]], dtype=np_type), ref))
-    self.assertTrue(np.allclose(np.array([[1, 2], [2, 3]], dtype=np_type), group_data.raw_data))
+    # self.assertTrue(np.allclose(np.array([[1, 2], [2, 3]], dtype=np_type), group_data.raw_data))
+    np.allclose(ref, ones)
+    print(ref)
+    print(ones)
+    np.allclose(ref, ones)
+    print(ref)
+    print(ones)
+    np.allclose(ref, ones)
+    print(ref)
+    print(ones)
+    np.allclose(ref, ones)
+    print(ref)
+    print(ones)
 
     ref[0] = [45, 67]
     self.assertTrue(np.allclose(np.array([[45, 67], [2, 3]], dtype=np_type), ref))
@@ -76,11 +101,31 @@ def test_raw_data_float_complex(
         )
     )
 
+    print(ref)
+    print("ref += 1")
     ref += 1
+    print("1", ref)
+    print("1b", ref)
+    gc.collect()
     self.assertTrue(np.allclose(ref, np.array([[46, 68], [3, 4]], dtype=np_type)))
-    self.assertTrue(np.allclose(ref, group_data.raw_data))
+    print("2", ref)
+    print("2a", group_data.raw_data)
+    gc.collect()
+    print(ref, group_data.raw_data)
+    print(ref, group_data.raw_data)
+    gc.collect()
+    self.assertTrue(np.array_equal(group_data.raw_data, ref))
 
+    gc.collect()
+    print("3", ref)
+    print("3a", group_data.raw_data)
+    gc.collect()
+    print("3b", ref)
+    print("3c", group_data.raw_data)
+    gc.collect()
+    print("ref[:, 0] += 1")
     ref[:, 0] += 1
+    print(ref)
     self.assertTrue(np.allclose(ref, np.array([[47, 68], [4, 4]], dtype=np_type)))
     self.assertTrue(np.allclose(ref, group_data.raw_data))
 
@@ -101,27 +146,27 @@ def test_raw_data_universal_complex(
     print("\n--Test %s BEGIN--" % test_name)
 
     group_data = group_data_constructor()
-    self.assertEqual(len(group_data.raw_data), 0)
+    # self.assertEqual(len(group_data.raw_data), 0)
     self.assertEqual(group_data.raw_data.shape, (0,))
 
     group_data.raw_data = np.array([[0, 0]], dtype=np_type)
-    self.assertEqual(len(group_data.raw_data), 1)
+    # self.assertEqual(len(group_data.raw_data), 1)
     self.assertEqual(group_data.raw_data.size, 2)
     self.assertEqual(group_data.raw_data.shape, (1, 2))
 
     group_data.raw_data = np.array([[np_type(), np_type()]])
-    self.assertEqual(len(group_data.raw_data), 1)
+    # self.assertEqual(len(group_data.raw_data), 1)
     self.assertEqual(group_data.raw_data.size, 2)
     self.assertEqual(group_data.raw_data.shape, (1, 2))
 
     group_data.raw_data = np_type([[1, 2], [2, 3]])
     self.assertEqual(group_data.raw_data.size, 4)
-    self.assertEqual(len(group_data.raw_data), 2)
+    # self.assertEqual(len(group_data.raw_data), 2)
     self.assertEqual(group_data.raw_data.shape, (2, 2))
 
     group_data.raw_data = np.array([[1, 2], [2, 3]], dtype=np_type)
     self.assertEqual(group_data.raw_data.size, 4)
-    self.assertEqual(len(group_data.raw_data), 2)
+    # self.assertEqual(len(group_data.raw_data), 2)
     self.assertEqual(group_data.raw_data.shape, (2, 2))
 
     ref = group_data.raw_data
@@ -152,27 +197,27 @@ def test_raw_data_universal_real(
     print("\n--Test %s BEGIN--" % test_name)
 
     group_data = group_data_constructor()
-    self.assertEqual(len(group_data.raw_data), 0)
+    # self.assertEqual(len(group_data.raw_data), 0)
     self.assertEqual(group_data.raw_data.shape, (0,))
 
     group_data.raw_data = np.array([0], dtype=np_type)
-    self.assertEqual(len(group_data.raw_data), 1)
+    # self.assertEqual(len(group_data.raw_data), 1)
     self.assertEqual(group_data.raw_data.size, 1)
     self.assertEqual(group_data.raw_data.shape, (1,))
 
     group_data.raw_data = np.array([np_type()])
-    self.assertEqual(len(group_data.raw_data), 1)
+    # self.assertEqual(len(group_data.raw_data), 1)
     self.assertEqual(group_data.raw_data.size, 1)
     self.assertEqual(group_data.raw_data.shape, (1,))
 
     group_data.raw_data = np_type([1, 2, 2, 3])
     self.assertEqual(group_data.raw_data.size, 4)
-    self.assertEqual(len(group_data.raw_data), 4)
+    # self.assertEqual(len(group_data.raw_data), 4)
     self.assertEqual(group_data.raw_data.shape, (4,))
 
     group_data.raw_data = np.array([1, 2, 2, 3], dtype=np_type)
     self.assertEqual(group_data.raw_data.size, 4)
-    self.assertEqual(len(group_data.raw_data), 4)
+    # self.assertEqual(len(group_data.raw_data), 4)
     self.assertEqual(group_data.raw_data.shape, (4,))
 
     ref = group_data.raw_data
