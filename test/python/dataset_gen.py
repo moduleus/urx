@@ -158,7 +158,7 @@ def gen_fake_dataset(
     probe.impulse_responses.append(impulse_response)
 
     impulse_response = impulse_response_constructor()
-    impulse_response.sampling_frequency = 5000004402
+    impulse_response.sampling_frequency = 5000004402.0
     impulse_response.data = [23.2, 2.53, 72.4]
     impulse_response.units = "mi3lli"
     impulse_response.time_offset = 200100
@@ -200,8 +200,8 @@ def gen_fake_dataset(
     dataset.acquisition.groups.append(group_constructor())
 
     group = group_constructor()
-    group.sampling_type = enum_sampling.IQ
-    group.data_type = enum_data.INT16
+    group.sampling_type = enum_sampling().IQ
+    group.data_type = enum_data().INT16
     group.sound_speed = 1500.0
     group.sequence.append(event_constructor())
 
@@ -211,7 +211,7 @@ def gen_fake_dataset(
         vector3D_args_constructor(5.1e-120, -8, 7.0), vector3D_args_constructor(5.2, 4.3, 8.2e10)
     )
     event.transmit_setup.time_offset = 120.2
-    event.transmit_setup.wave.type = enum_wave.CONVERGING_WAVE
+    event.transmit_setup.wave.type = enum_wave().CONVERGING_WAVE
     event.transmit_setup.wave.time_zero_reference_point = [5, 4, 3]
     event.transmit_setup.wave.time_zero = 5.11
     event.transmit_setup.wave.parameters = [7, 53e-12, 0.2, 1, 0.3, 5.6e20, 7]
@@ -245,7 +245,7 @@ def gen_fake_dataset(
         vector3D_args_constructor(5.1e-120, -8, 7.0), vector3D_args_constructor(5.2, 4.3, 8.2e10)
     )
     event.transmit_setup.time_offset = 12052
-    event.transmit_setup.wave.type = enum_wave.CONVERGING_WAVE
+    event.transmit_setup.wave.type = enum_wave().CONVERGING_WAVE
     event.transmit_setup.wave.time_zero_reference_point.x = 1
     event.transmit_setup.wave.time_zero_reference_point.y = 2
     event.transmit_setup.wave.time_zero_reference_point.z = 3
@@ -274,8 +274,8 @@ def gen_fake_dataset(
     dataset.acquisition.groups.append(group)
 
     group = group_constructor()
-    group.sampling_type = enum_sampling.RF
-    group.data_type = enum_data.DOUBLE
+    group.sampling_type = enum_sampling().RF
+    group.data_type = enum_data().DOUBLE
     group.sound_speed = 1550.0
 
     group.sequence.append(event_constructor())
@@ -286,7 +286,7 @@ def gen_fake_dataset(
         vector3D_args_constructor(5.1e-120, -8, 7.0), vector3D_args_constructor(5.2, 4.3, 8.2e10)
     )
     event.transmit_setup.time_offset = 1202.2
-    event.transmit_setup.wave.type = enum_wave.CYLINDRICAL_WAVE
+    event.transmit_setup.wave.type = enum_wave().CYLINDRICAL_WAVE
     event.transmit_setup.wave.time_zero_reference_point.x = 3
     event.transmit_setup.wave.time_zero_reference_point.y = 4
     event.transmit_setup.wave.time_zero_reference_point.z = 5
@@ -321,7 +321,7 @@ def gen_fake_dataset(
         vector3D_args_constructor(5.1e-120, -8, 7.0), vector3D_args_constructor(5.2, 4.3, 8.2e10)
     )
     event.transmit_setup.time_offset = 1202
-    event.transmit_setup.wave.type = enum_wave.CONVERGING_WAVE
+    event.transmit_setup.wave.type = enum_wave().CONVERGING_WAVE
     event.transmit_setup.wave.time_zero_reference_point = vector3D_args_constructor(6, 5, 2)
     event.transmit_setup.wave.time_zero = 4.11
     event.transmit_setup.wave.parameters = [7, 53, 0.3, 5.6, 7]
@@ -345,5 +345,56 @@ def gen_fake_dataset(
     dataset.acquisition.groups.append(group)
 
     dataset.acquisition.timestamp = 1242
+
+    if type(dataset_constructor()) == type(urx.Dataset()):
+        dataset.acquisition.groups_data.append(group_data_constructor())
+
+        group_data = group_data_constructor()
+        group_data.group = dataset.acquisition.groups[2]
+
+        group_data.raw_data = np.zeros(6, dtype=np.float64)
+        group_data.raw_data[0] = 1.2
+        group_data.raw_data[1] = 2.3
+        group_data.raw_data[2] = 3.4
+        group_data.raw_data[3] = 4.5
+        group_data.raw_data[4] = 5.6
+        group_data.raw_data[5] = 6.7
+
+        group_data.group_timestamp = 283954.334
+        group_data.sequence_timestamps = [1, 2, 4.2, 1, 0.5, 5.6]
+        group_data.event_timestamps = [
+            [1, 0.24, 1.0, 5.2, 4.5, 7, 0.964, 0.5],
+            [1, 2, 4, 85, 0.15, -4.5, -7, 0.45, 0.6, 4],
+        ]
+        dataset.acquisition.groups_data.append(group_data)
+
+        group_data = group_data_constructor()
+        group_data.group = dataset.acquisition.groups[1]
+
+        group_data.raw_data = np.zeros(4, dtype=np.complex64)
+        group_data.raw_data[0] = [123, 456]
+        group_data.raw_data[1] = [159, 753]
+        group_data.raw_data[2] = [789, 456]
+        group_data.raw_data[3] = [123, 753]
+        group_data.group_timestamp = 123
+        group_data.sequence_timestamps = [1, 2, 34]
+        group_data.event_timestamps = [[4, 5, 7], [8, 7, 6]]
+        dataset.acquisition.groups_data.append(group_data)
+
+        group_data = group_data_constructor()
+        group_data.group = dataset.acquisition.groups[1]
+
+        buf = np.array(
+            [123 + 456j, 159 + 753j, 789, 456j, 123, 753j, -255, 15909j], dtype=np.complex64
+        )
+
+        group_data.raw_data = buf
+        dataset.acquisition.groups_data.append(group_data)
+
+        group_data = group_data_constructor()
+        group_data.group = dataset.acquisition.groups[0]
+
+        group_data.raw_data = np.zeros(0, dtype=np.int32)
+        dataset.acquisition.groups_data.append(group_data)
 
     return dataset
