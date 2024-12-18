@@ -3,6 +3,310 @@ import gc
 from dataset_gen import gen_fake_dataset
 
 
+def generic_clone_test(self, var, copy_ctor, clone):
+    var_ref = var
+    var_2 = copy_ctor(var)
+    var_cloned = clone(var)
+    self.assertEqual(var, var_ref)
+    self.assertEqual(var, var_2)
+    self.assertEqual(var, var_cloned)
+    self.assertEqual(id(var), id(var_ref))
+    self.assertNotEqual(id(var), id(var_2))
+    self.assertNotEqual(id(var), id(var_cloned))
+
+
+def test_clone_version(
+    self,
+    version_args_constructor,
+    version_copy,
+    clone,
+):
+    testName = "Clone Version binding"
+    print("\n--Test %s BEGIN--" % testName)
+
+    vers = version_args_constructor(1, 2, 3)
+    generic_clone_test(self, vers, version_copy, clone)
+
+    print("--Test %s END--" % testName)
+
+
+def test_clone_vector_2D(
+    self,
+    vector2D_args_constructor,
+    vector2D_copy,
+    clone,
+):
+    testName = "Clone Vector2D binding"
+    print("\n--Test %s BEGIN--" % testName)
+
+    vec2D = vector2D_args_constructor(1, 2)
+    generic_clone_test(self, vec2D, vector2D_copy, clone)
+
+    print("--Test %s END--" % testName)
+
+
+def test_clone_vector_3D(
+    self,
+    vector3D_args_constructor,
+    vector3D_copy,
+    clone,
+):
+    testName = "Clone Vector3D binding"
+    print("\n--Test %s BEGIN--" % testName)
+
+    vec3D = vector3D_args_constructor(1, 2, 3)
+    generic_clone_test(self, vec3D, vector3D_copy, clone)
+
+    print("--Test %s END--" % testName)
+
+
+def test_clone_transform(
+    self,
+    transform_args_constructor,
+    transform_copy,
+    vector3D_args_constructor,
+    clone,
+):
+    testName = "Clone Transform binding"
+    print("\n--Test %s BEGIN--" % testName)
+
+    transf = transform_args_constructor(
+        vector3D_args_constructor(1, 2, 3), vector3D_args_constructor(4, 5, 6)
+    )
+    generic_clone_test(self, transf, transform_copy, clone)
+
+    print("--Test %s END--" % testName)
+
+
+def test_clone_wave(
+    self,
+    wave_constructor,
+    wave_copy,
+    vector3D_args_constructor,
+    enum_wave,
+    clone,
+):
+    testName = "Clone Wave binding"
+    print("\n--Test %s BEGIN--" % testName)
+
+    w = wave_constructor()
+    w.type = enum_wave().DIVERGING_WAVE
+    w.time_zero = 42
+    w.time_zero_reference_point = vector3D_args_constructor(7, 8, 9)
+    w.parameters = [12.34, 56.7]
+
+    generic_clone_test(self, w, wave_copy, clone)
+
+    print("--Test %s END--" % testName)
+
+
+def test_clone_impulse_response(
+    self,
+    impulse_response_constructor,
+    impulse_response_copy,
+    clone,
+):
+    testName = "Clone ImpulseResponse binding"
+    print("\n--Test %s BEGIN--" % testName)
+
+    ir = impulse_response_constructor()
+    ir.sampling_frequency = 120e6
+    ir.time_offset = 100e-6
+    ir.units = "azerty"
+    ir.data = [12.34, 56.7, 7.89e10]
+
+    generic_clone_test(self, ir, impulse_response_copy, clone)
+
+    print("--Test %s END--" % testName)
+
+
+def test_clone_element_geometry(
+    self,
+    element_geometry_constructor,
+    element_geometry_copy,
+    vector3D_args_constructor,
+    clone,
+):
+    testName = "Clone ElementGeometry binding"
+    print("\n--Test %s BEGIN--" % testName)
+
+    eg = element_geometry_constructor()
+    eg.perimeter.append(vector3D_args_constructor(0, 0, 0))
+    eg.perimeter.append(vector3D_args_constructor(0, 1, 0))
+    eg.perimeter.append(vector3D_args_constructor(1, 1, 0))
+    eg.perimeter.append(vector3D_args_constructor(1, 0, 0))
+
+    generic_clone_test(self, eg, element_geometry_copy, clone)
+
+    print("--Test %s END--" % testName)
+
+
+def test_clone_element(
+    self,
+    element_constructor,
+    element_copy,
+    element_geometry_constructor,
+    impulse_response_constructor,
+    transform_args_constructor,
+    vector3D_args_constructor,
+    clone,
+):
+    testName = "Clone Element binding"
+    print("\n--Test %s BEGIN--" % testName)
+
+    transf = transform_args_constructor(
+        vector3D_args_constructor(1, 2, 3), vector3D_args_constructor(4, 5, 6)
+    )
+
+    eg = element_geometry_constructor()
+    eg.perimeter.append(vector3D_args_constructor(0, 0, 0))
+    eg.perimeter.append(vector3D_args_constructor(0, 1, 0))
+    eg.perimeter.append(vector3D_args_constructor(1, 1, 0))
+    eg.perimeter.append(vector3D_args_constructor(1, 0, 0))
+
+    ir = impulse_response_constructor()
+    ir.sampling_frequency = 120e6
+
+    elt = element_constructor()
+    elt.transform = transf
+    elt.element_geometry = eg
+    elt.impulse_response = ir
+
+    generic_clone_test(self, elt, element_copy, clone)
+
+    elt_ref = elt
+    elt_2 = element_copy(elt)
+    elt_cloned = clone(elt)
+
+    self.assertEqual(id(elt.element_geometry), id(elt_ref.element_geometry))
+    self.assertEqual(id(elt.element_geometry), id(elt_2.element_geometry))
+    self.assertEqual(id(elt.element_geometry), id(elt_cloned.element_geometry))
+
+    self.assertEqual(id(elt.impulse_response), id(elt_ref.impulse_response))
+    self.assertEqual(id(elt.impulse_response), id(elt_2.impulse_response))
+    self.assertEqual(id(elt.impulse_response), id(elt_cloned.impulse_response))
+
+    print("--Test %s END--" % testName)
+
+
+def test_clone_excitation(
+    self,
+    excitation_constructor,
+    excitation_copy,
+    clone,
+):
+    testName = "Clone Element binding"
+    print("\n--Test %s BEGIN--" % testName)
+
+    ex = excitation_constructor()
+    ex.pulse_shape = "pulse shape"
+    ex.transmit_frequency = 10e6
+    ex.waveform = np.arange(100, dtype=np.float64)
+
+    generic_clone_test(self, ex, excitation_copy, clone)
+
+    print("--Test %s END--" % testName)
+
+
+def test_clone_transmit_setup(
+    self,
+    transmit_setup_constructor,
+    transmit_setup_copy,
+    probe_constructor,
+    excitation_constructor,
+    transform_args_constructor,
+    vector3D_args_constructor,
+    enum_wave,
+    clone,
+):
+    testName = "Clone TransmitSetup binding"
+    print("\n--Test %s BEGIN--" % testName)
+
+    probe = probe_constructor()
+    probe.description = "undefined probe"
+
+    ex = excitation_constructor()
+    ex.transmit_frequency = 10e6
+
+    ex2 = excitation_constructor()
+    ex2.pulse_shape = "pulse shape"
+
+    ts = transmit_setup_constructor()
+    ts.probe = probe
+    ts.probe_transform = transform_args_constructor(
+        vector3D_args_constructor(5.1e-120, -8, 7.0), vector3D_args_constructor(5.2, 4.3, 8.2e10)
+    )
+    ts.time_offset = 12052
+    ts.wave.type = enum_wave().CONVERGING_WAVE
+    ts.wave.time_zero_reference_point = vector3D_args_constructor(1, 2, 3)
+    ts.wave.time_zero = 4.11
+    ts.wave.parameters = [7, 0.3, 5.6, 7]
+    ts.active_elements = [[1], [0, 1]]
+    ts.excitations = [
+        ex,
+        ex2,
+    ]
+    ts.delays = [0.3, 1.2]
+
+    generic_clone_test(self, ts, transmit_setup_copy, clone)
+
+    ts_ref = ts
+    ts_2 = transmit_setup_copy(ts)
+    ts_cloned = clone(ts)
+
+    for i in range(len(ts.excitations)):
+        self.assertEqual(id(ts.excitations[i]), id(ts_ref.excitations[i]))
+        self.assertEqual(id(ts.excitations[i]), id(ts_2.excitations[i]))
+        self.assertEqual(id(ts.excitations[i]), id(ts_cloned.excitations[i]))
+
+    self.assertEqual(id(ts.probe), id(ts_ref.probe))
+    self.assertEqual(id(ts.probe), id(ts_2.probe))
+    self.assertEqual(id(ts.probe), id(ts_cloned.probe))
+
+    print("--Test %s END--" % testName)
+
+
+def test_clone_receive_setup(
+    self,
+    receive_setup_constructor,
+    receive_setup_copy,
+    probe_constructor,
+    transform_args_constructor,
+    vector3D_args_constructor,
+    clone,
+):
+    testName = "Clone ReceiveSetup binding"
+    print("\n--Test %s BEGIN--" % testName)
+
+    probe = probe_constructor()
+    probe.description = "undefined probe"
+
+    rs = receive_setup_constructor()
+    rs.probe = probe
+    rs.probe_transform = transform_args_constructor(
+        vector3D_args_constructor(5.1e-120, -8, 7.0), vector3D_args_constructor(5.2, 4.3, 8.2e10)
+    )
+    rs.sampling_frequency = 1268
+    rs.number_samples = 42
+    rs.active_elements = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+    rs.tgc_profile = [1, 0.2, 4.0, 5, 0.1, 5, 0.45, 5]
+    rs.tgc_sampling_frequency = 4.5
+    rs.modulation_frequency = 4.58
+    rs.time_offset = 7.8
+
+    generic_clone_test(self, rs, receive_setup_copy, clone)
+
+    rs_ref = rs
+    rs_2 = receive_setup_copy(rs)
+    rs_cloned = clone(rs)
+
+    self.assertEqual(id(rs.probe), id(rs_ref.probe))
+    self.assertEqual(id(rs.probe), id(rs_2.probe))
+    self.assertEqual(id(rs.probe), id(rs_cloned.probe))
+
+    print("--Test %s END--" % testName)
+
+
 def test_clone(
     self,
     dataset_constructor,
@@ -40,154 +344,22 @@ def test_clone(
     print("\n--Test %s BEGIN--" % testName)
 
     fake_dataset = gen_fake_dataset(
-        self,
         dataset_constructor,
-        acq_constructor,
-        acq_copy,
-        double_nan_constructor,
-        double_nan_copy,
         probe_constructor,
-        probe_copy,
         excitation_constructor,
-        excitation_copy,
         group_constructor,
-        group_copy,
         group_data_constructor,
-        group_data_copy,
         element_geometry_constructor,
         element_constructor,
-        element_copy,
         event_constructor,
         impulse_response_constructor,
-        receive_setup_constructor,
-        transmit_setup_constructor,
-        wave_constructor,
         transform_args_constructor,
-        vector2D_args_constructor,
         vector3D_args_constructor,
-        version_args_constructor,
         enum_probe,
         enum_sampling,
         enum_data,
         enum_wave,
-        clone,
     )
-
-    # Version
-    vers = version_args_constructor(1, 2, 3)
-    vers_ref = vers
-    vers_cloned = clone(vers)
-    self.assertEqual(vers, vers_ref)
-    self.assertEqual(vers, vers_cloned)
-    self.assertEqual(id(vers), id(vers_ref))
-    self.assertNotEqual(id(vers), id(vers_cloned))
-
-    # Vector2D
-    vec2D = vector2D_args_constructor(1, 2)
-    vec2D_ref = vec2D
-    vec2D_cloned = clone(vec2D)
-    self.assertEqual(vec2D, vec2D_ref)
-    self.assertEqual(vec2D, vec2D_cloned)
-    self.assertEqual(id(vec2D), id(vec2D_ref))
-    self.assertNotEqual(id(vec2D), id(vec2D_cloned))
-
-    # Vector3D
-    vec3D = vector3D_args_constructor(1, 2, 3)
-    vec3D_ref = vec3D
-    vec3D_cloned = clone(vec3D)
-    self.assertEqual(vec3D, vec3D_ref)
-    self.assertEqual(vec3D, vec3D_cloned)
-    self.assertEqual(id(vec3D), id(vec3D_ref))
-    self.assertNotEqual(id(vec3D), id(vec3D_cloned))
-
-    # Transform
-    transf = transform_args_constructor(
-        vector3D_args_constructor(1, 2, 3), vector3D_args_constructor(4, 5, 6)
-    )
-    transf_ref = transf
-    transf_cloned = clone(transf)
-    self.assertEqual(transf, transf_ref)
-    self.assertEqual(transf, transf_cloned)
-    self.assertEqual(id(transf), id(transf_ref))
-    self.assertNotEqual(id(transf), id(transf_cloned))
-
-    # Wave
-    w = wave_constructor()
-    w.type = enum_wave().DIVERGING_WAVE
-    w.time_zero = 42
-    w.time_zero_reference_point = vector3D_args_constructor(7, 8, 9)
-    w.parameters = [12.34, 56.7]
-    w_ref = w
-    w_cloned = clone(w)
-    self.assertEqual(w, w_ref)
-    self.assertEqual(w, w_cloned)
-    self.assertEqual(id(w), id(w_ref))
-    self.assertNotEqual(id(w), id(w_cloned))
-
-    # Impulse Response
-    ir = impulse_response_constructor()
-    ir.sampling_frequency = 120e6
-    ir.time_offset = 100e-6
-    ir.units = "azerty"
-    ir.data = [12.34, 56.7, 7.89e10]
-    ir_ref = ir
-    ir_cloned = clone(ir)
-    self.assertEqual(ir, ir_ref)
-    self.assertEqual(ir, ir_cloned)
-    self.assertEqual(id(ir), id(ir_ref))
-    self.assertNotEqual(id(ir), id(ir_cloned))
-
-    # Element Geometry
-    eg = element_geometry_constructor()
-    eg.perimeter.append(vector3D_args_constructor(0, 0, 0))
-    eg.perimeter.append(vector3D_args_constructor(0, 1, 0))
-    eg.perimeter.append(vector3D_args_constructor(1, 1, 0))
-    eg.perimeter.append(vector3D_args_constructor(1, 0, 0))
-    eg_ref = eg
-    eg_cloned = clone(eg)
-    self.assertEqual(eg, eg_ref)
-    self.assertEqual(eg, eg_cloned)
-    self.assertEqual(id(eg), id(eg_ref))
-    self.assertNotEqual(id(eg), id(eg_cloned))
-
-    # Element
-    elt = element_constructor()
-    elt.transform = transf
-    elt.element_geometry = eg_cloned
-    elt.impulse_response = ir_cloned
-    elt_ref = elt
-    elt_2 = element_copy(elt)
-    elt_cloned = clone(elt)
-
-    self.assertEqual(elt, elt_ref)
-    self.assertEqual(elt, elt_2)
-    self.assertEqual(elt, elt_cloned)
-    self.assertEqual(id(elt), id(elt_ref))
-    self.assertNotEqual(id(elt), id(elt_2))
-    self.assertNotEqual(id(elt), id(elt_cloned))
-
-    self.assertEqual(id(elt.element_geometry), id(elt_ref.element_geometry))
-    self.assertEqual(id(elt.element_geometry), id(elt_2.element_geometry))
-    self.assertEqual(id(elt.element_geometry), id(elt_cloned.element_geometry))
-
-    self.assertEqual(id(elt.impulse_response), id(elt_ref.impulse_response))
-    self.assertEqual(id(elt.impulse_response), id(elt_2.impulse_response))
-    self.assertEqual(id(elt.impulse_response), id(elt_cloned.impulse_response))
-
-    # Excitation Geometry
-    ex = excitation_constructor()
-    ex.pulse_shape = "pulse shape"
-    ex.transmit_frequency = 10e6
-    # ex.waveform = [range(0, 100)]
-    ex_ref = ex
-    ex_2 = excitation_copy(ex)
-    ex_cloned = clone(ex)
-    self.assertEqual(ex, ex_ref)
-    self.assertEqual(ex, ex_2)
-    self.assertEqual(ex, ex_cloned)
-    self.assertEqual(id(ex), id(ex_ref))
-    self.assertNotEqual(id(ex), id(ex_2))
-    self.assertNotEqual(id(ex), id(ex_cloned))
 
     # acq = acq_constructor()
 
