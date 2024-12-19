@@ -617,8 +617,7 @@ release:all-python-manylinux2014_x86_64:
     PLAT: manylinux_2_17_x86_64
     # cp36-cp36m;cp37-cp37m: not maintained anymore
     # cp313-cp313t build fails
-    # pp310-pypy310_pp73 build fails (cryptography-cffi from cargo)
-    SKIP_PYTHON: cp36-cp36m;cp37-cp37m;cp313-cp313t;pp310-pypy310_pp73
+    SKIP_PYTHON: cp36-cp36m;cp37-cp37m;cp313-cp313t
     # ONLY_PYTHON: cp312-cp312
     PIP_WHEEL_OPTIONS: --config-settings=--global-option=-DBUILD_TESTING:BOOL=OFF
   stage: release
@@ -645,7 +644,7 @@ release:all-python-manylinux_2_28_x86_64:
     GIT_SUBMODULE_STRATEGY: recursive
     PLAT: manylinux_2_27_x86_64
     # SKIP_PYTHON: cp36-cp36m;cp37-cp37m;cp313-cp313t
-    ONLY_PYTHON: pp310-pypy310_pp73
+    ONLY_PYTHON: ;
     PIP_WHEEL_OPTIONS: --config-settings=--global-option=-DBUILD_TESTING:BOOL=OFF
   stage: release
   needs: []
