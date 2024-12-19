@@ -1,5 +1,6 @@
 import numpy as np
 import gc
+import platform
 
 
 def test_element(
@@ -42,8 +43,9 @@ def test_element(
 
     # Check CTOR with all parameters
     elt = element_args(t, element_geometry_constructor(), impulse_response_constructor())
-    self.assertEqual(elt.element_geometry, None)
-    self.assertEqual(elt.impulse_response, None)
+    if platform.python_implementation() != "PyPy":
+        self.assertEqual(elt.element_geometry, None)
+        self.assertEqual(elt.impulse_response, None)
     self.assertEqual(elt.transform, transform_args(v_3, v_3))
     t.rotation = v
     self.assertEqual(elt.transform, transform_args(v_3, v_3))

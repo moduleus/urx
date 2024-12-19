@@ -136,9 +136,9 @@ def test_vec_vector3d(
     self.assertEqual(v_list, [v_3, v_2, v_3])
 
     # np.array
-    v_arr = np.array([v, v_2])
+    v_arr = np.array([np.asarray(v), np.asarray(v_2)])
     self.assertEqual(len(v_arr), 2)
-    self.assertTrue(np.array_equal(v_arr, np.array([v, v_2])))
+    self.assertTrue(np.array_equal(v_arr, np.array([np.asarray(v), np.asarray(v_2)])))
     # v_arr[0] = v_3
     # self.assertEqual(v_arr[0], v_3)
     # self.assertTrue(np.array_equal(v_arr, np.array([v_3, v_2])))
@@ -146,13 +146,15 @@ def test_vec_vector3d(
     # self.assertEqual(v_arr[0].y, v_3.y)
     # self.assertEqual(v_arr[0], v_3)
     # self.assertTrue(np.array_equal(v_arr, np.array([v_3, v_2])))
-    v_arr = np.append(v_arr, [v_3], axis=0)
+    v_arr = np.append(v_arr, [np.asarray(v_3)], axis=0)
     self.assertEqual(len(v_arr), 3)
-    self.assertTrue(np.array_equal(v_arr, np.array([v, v_2, v_3])))
+    self.assertTrue(
+        np.array_equal(v_arr, np.array([np.asarray(v), np.asarray(v_2), np.asarray(v_3)]))
+    )
 
     # VecVector3D
     vec = vec_vector3d_args([v, v_2])
-    vec_2 = vec_vector3d_args(np.array([v, v_2]))
+    vec_2 = vec_vector3d_args(np.array([np.asarray(v), np.asarray(v_2)]))
     self.assertEqual(len(vec), 2)
     self.assertEqual(len(vec_2), 2)
     self.assertEqual(vec, vec_2)

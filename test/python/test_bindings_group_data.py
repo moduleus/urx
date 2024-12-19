@@ -58,6 +58,17 @@ def test_raw_data_float_complex(
     self.assertEqual(group_data.raw_data.shape, (2, 2))
 
     group_data.raw_data = np.array([1.0 + 2.0j, 2.0 + 3.0j], dtype=np_comp_type)
+    self.assertTrue(
+        np.array_equal(
+            group_data.raw_data,
+            np.column_stack(
+                (
+                    np.array([1.0 + 2.0j, 2.0 + 3.0j], dtype=np_comp_type).real,
+                    np.array([1.0 + 2.0j, 2.0 + 3.0j], dtype=np_comp_type).imag,
+                )
+            ),
+        )
+    )
     self.assertEqual(group_data.raw_data.size, 4)
     self.assertEqual(len(group_data.raw_data), 2)
     self.assertEqual(group_data.raw_data.shape, (2, 2))

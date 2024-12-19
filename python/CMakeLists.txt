@@ -173,8 +173,17 @@ target_link_libraries(
   UrxBindingsPython PRIVATE ${PROJECT_NAME} Urx::UrxUtils
                             Urx::${URX_PYTHON_LIBRARY} pybind11::pybind11)
 if(UNIX)
-  target_link_options(UrxBindingsPython PRIVATE "-static-libgcc"
-                      "-static-libstdc++")
+  execute_process(
+    COMMAND ${CMAKE_CXX_COMPILER} -print-file-name=libstdc++.so.6
+    OUTPUT_VARIABLE STDCPP_SO_PATH
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  message(STATUS "Found libstdc++.so.6 in ${STDCPP_SO_PATH}")
+  target_link_options(UrxBindingsPython PRIVATE "-Wl,-rpath,$ORIGIN")
+  add_custom_command(
+    TARGET UrxBindingsPython
+    POST_BUILD
+    COMMAND cp -L ${STDCPP_SO_PATH} $<TARGET_FILE_DIR:UrxBindingsPython>
+    COMMAND_EXPAND_LISTS)
 endif(UNIX)
 
 set_target_properties(UrxBindingsPython PROPERTIES OUTPUT_NAME "bindings")
@@ -189,3 +198,9 @@ install(
   EXPORT ${PROJECT_NAME}Targets
   COMPONENT bindings
   LIBRARY DESTINATION ${PYTHON_INSTALL_LIBDIR})
+if(UNIX)
+  install(
+    FILES $<TARGET_FILE_DIR:UrxBindingsPython>/libstdc++.so.6
+    COMPONENT bindings
+    DESTINATION ${PYTHON_INSTALL_LIBDIR})
+endif()
