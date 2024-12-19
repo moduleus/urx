@@ -307,6 +307,88 @@ def test_clone_receive_setup(
     print("--Test %s END--" % testName)
 
 
+def test_clone_event(
+    self,
+    event_constructor,
+    event_copy,
+    clone,
+):
+    testName = "Clone Event binding"
+    print("\n--Test %s BEGIN--" % testName)
+
+    event = event_constructor()
+    generic_clone_test(self, event, event_copy, clone)
+
+    print("--Test %s END--" % testName)
+
+
+def test_clone_group(
+    self,
+    group_constructor,
+    group_copy,
+    event_constructor,
+    enum_sampling,
+    enum_data,
+    clone,
+):
+    testName = "Clone Group binding"
+    print("\n--Test %s BEGIN--" % testName)
+
+    evt = event_constructor()
+    evt.receive_setup.sampling_frequency = 120e6
+    evt2 = event_constructor()
+    evt2.receive_setup.sampling_frequency = 100e6
+
+    group = group_constructor()
+    group.sampling_type = enum_sampling().IQ
+    group.data_type = enum_data().DOUBLE
+    group.description = "dummmy group"
+    group.sound_speed = 1500
+    group.sequence = [evt, evt2]
+    generic_clone_test(self, group, group_copy, clone)
+
+    print("--Test %s END--" % testName)
+
+
+def test_clone_group_data(
+    self,
+    group_data_constructor,
+    group_data_copy,
+    group_constructor,
+    enum_sampling,
+    enum_data,
+    clone,
+):
+    testName = "Clone GroupData binding"
+    print("\n--Test %s BEGIN--" % testName)
+
+    group = group_constructor()
+    group.sampling_type = enum_sampling().IQ
+    group.data_type = enum_data().DOUBLE
+
+    group_data = group_data_constructor()
+    group_data.group = group
+    group_data.raw_data = np.array([11 + 2j, -3 + 4.5j], np.complex128)
+    group_data.sequence_timestamps = [1, 2, 3, 4.56]
+    group_data.event_timestamps = [[1, 2, 3, 4.56], [7.8, 9]]
+
+    generic_clone_test(self, group_data, group_data_copy, clone)
+
+    group_data_ref = group_data
+    group_data_2 = group_data_copy(group_data)
+    group_data_cloned = clone(group_data)
+
+    self.assertEqual(id(group_data.group), id(group_data_ref.group))
+    self.assertEqual(id(group_data.group), id(group_data_2.group))
+    self.assertEqual(id(group_data.group), id(group_data_cloned.group))
+
+    self.assertEqual(id(group_data.raw_data), id(group_data_ref.raw_data))
+    self.assertEqual(id(group_data.raw_data), id(group_data_2.raw_data))
+    self.assertEqual(id(group_data.raw_data), id(group_data_cloned.raw_data))
+
+    print("--Test %s END--" % testName)
+
+
 def test_clone(
     self,
     dataset_constructor,

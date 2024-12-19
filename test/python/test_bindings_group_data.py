@@ -272,6 +272,10 @@ def test_group_data(
     self.assertEqual(group_data.sequence_timestamps, sequence_timestamps_ref)
     self.assertEqual(group_data.sequence_timestamps, [1, 2, 3, 4.56])
     self.assertEqual(group_data, group_data_2)
+    group_data.sequence_timestamps = np.array([7, 8, 9.1])
+    self.assertEqual(group_data.sequence_timestamps, sequence_timestamps_ref)
+    self.assertEqual(group_data.sequence_timestamps, [7, 8, 9.1])
+    self.assertNotEqual(group_data, group_data_2)
 
     # Reference is possible for event_timestamps (VecVecFloat64)
     group_data.event_timestamps = vec_vec_float64_args([[1, 2, 3, 4.56], [7.8, 9]])
@@ -286,6 +290,10 @@ def test_group_data(
     self.assertEqual(group_data.event_timestamps, event_timestamps_ref)
     self.assertEqual(group_data.event_timestamps, [[1, 2, 3, 4.56], [7.8, 9]])
     self.assertEqual(group_data, group_data_2)
+    group_data.event_timestamps = [np.array([11, 12, 13, 14.56]), np.array([17.8, 19])]
+    self.assertEqual(group_data.event_timestamps, event_timestamps_ref)
+    self.assertEqual(group_data.event_timestamps, [[11, 12, 13, 14.56], [17.8, 19]])
+    self.assertNotEqual(group_data, group_data_2)
 
     # group is a pointer and will always be shared
     group = group_constructor()
