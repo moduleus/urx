@@ -49,6 +49,9 @@ from test_bindings_clone import (
     test_clone_excitation,
     test_clone_transmit_setup,
     test_clone_receive_setup,
+    test_clone_event,
+    test_clone_group,
+    test_clone_group_data,
 )
 from parameterized import parameterized
 import numpy as np
@@ -243,21 +246,21 @@ class TestBindings(unittest.TestCase):
     #         group_data_constructor=lambda: urx.GroupData(),
     #     )
 
-    # def test_group_data_run(
-    #     self,
-    # ):
-    #     test_group_data(
-    #         self,
-    #         group_data_constructor=lambda: urx.GroupData(),
-    #         group_data_copy=lambda copy: urx.GroupData(copy),
-    #         double_nan_constructor=lambda: urx.DoubleNan(),
-    #         double_nan_args=lambda data: urx.DoubleNan(data),
-    #         vec_float64_constructor=lambda: urx.VecFloat64(),
-    #         vec_float64_args=lambda data: urx.VecFloat64(data),
-    #         vec_vec_float64_constructor=lambda: urx.VecVecFloat64(),
-    #         vec_vec_float64_args=lambda data: urx.VecVecFloat64(data),
-    #         group_constructor=lambda: urx.Group(),
-    #     )
+    def test_group_data_run(
+        self,
+    ):
+        test_group_data(
+            self,
+            group_data_constructor=lambda: urx.GroupData(),
+            group_data_copy=lambda copy: urx.GroupData(copy),
+            double_nan_constructor=lambda: urx.DoubleNan(),
+            double_nan_args=lambda data: urx.DoubleNan(data),
+            vec_float64_constructor=lambda: urx.VecFloat64(),
+            vec_float64_args=lambda data: urx.VecFloat64(data),
+            vec_vec_float64_constructor=lambda: urx.VecVecFloat64(),
+            vec_vec_float64_args=lambda data: urx.VecVecFloat64(data),
+            group_constructor=lambda: urx.Group(),
+        )
 
     # def test_group_run(
     #     self,
@@ -721,6 +724,33 @@ class TestBindings(unittest.TestCase):
                 rotation, translation
             ),
             vector3D_args_constructor=lambda x, y, z: urx.Vector3D(x, y, z),
+            clone=lambda urx_object: urx.clone(urx_object),
+        )
+
+        test_clone_event(
+            self,
+            event_constructor=lambda: urx.Event(),
+            event_copy=lambda copy: urx.Event(copy),
+            clone=lambda urx_object: urx.clone(urx_object),
+        )
+
+        test_clone_group(
+            self,
+            group_constructor=lambda: urx.Group(),
+            group_copy=lambda copy: urx.Group(copy),
+            event_constructor=lambda: urx.Event(),
+            enum_sampling=lambda: urx.SamplingType,
+            enum_data=lambda: urx.DataType,
+            clone=lambda urx_object: urx.clone(urx_object),
+        )
+
+        test_clone_group_data(
+            self,
+            group_data_constructor=lambda: urx.GroupData(),
+            group_data_copy=lambda copy: urx.GroupData(copy),
+            group_constructor=lambda: urx.Group(),
+            enum_sampling=lambda: urx.SamplingType,
+            enum_data=lambda: urx.DataType,
             clone=lambda urx_object: urx.clone(urx_object),
         )
 
