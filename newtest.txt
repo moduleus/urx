@@ -1,0 +1,24 @@
+    self.assertEqual(group_data.raw_data, np.array([1.0 + 2.0j, 2.0 + 3.0j], dtype=np_comp_type))
+    ref = group_data.raw_data
+    self.assertEqual(group_data.raw_data, np.array([1.0 + 2.0j, 2.0 + 3.0j], dtype=np_comp_type))
+    self.assertEqual(ref, np.array([1.0 + 2.0j, 2.0 + 3.0j], dtype=np_comp_type))
+
+    group_data.raw_data = np.array([-41.0 - 42.0j, -42.0 - 43.0j], dtype=np_comp_type)
+    ref = group_data.raw_data
+    self.assertTrue(np.allclose(ref, np.array([-41.0 - 42.0j, -42.0 - 43.0j], dtype=np_comp_type)))
+    self.assertTrue(
+        np.allclose(
+            group_data.raw_data, np.array([-41.0 - 42.0j, -42.0 - 43.0j], dtype=np_comp_type)
+        )
+    )
+    tmp = np.array([41.0 + 42.0j, 42.0 + 43.0j], dtype=np_comp_type)
+    self.assertTrue(
+        np.allclose(
+            group_data.raw_data, np.array([-41.0 - 42.0j, -42.0 - 43.0j], dtype=np_comp_type)
+        )
+    )
+    group_data.raw_data = tmp
+    self.assertTrue(
+        np.allclose(group_data.raw_data, np.array([41.0 + 42.0j, 42.0 + 43.0j], dtype=np_comp_type))
+    )
+
