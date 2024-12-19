@@ -246,9 +246,7 @@ def gen_fake_dataset(
     )
     event.transmit_setup.time_offset = 12052
     event.transmit_setup.wave.type = enum_wave().CONVERGING_WAVE
-    event.transmit_setup.wave.time_zero_reference_point.x = 1
-    event.transmit_setup.wave.time_zero_reference_point.y = 2
-    event.transmit_setup.wave.time_zero_reference_point.z = 3
+    event.transmit_setup.wave.time_zero_reference_point = vector3D_args_constructor(1, 2, 3)
     event.transmit_setup.wave.time_zero = 4.11
     event.transmit_setup.wave.parameters = [7, 0.3, 5.6, 7]
     event.transmit_setup.active_elements = [[1], [0, 1]]
