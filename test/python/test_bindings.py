@@ -52,6 +52,7 @@ from test_bindings_clone import (
     test_clone_event,
     test_clone_group,
     test_clone_group_data,
+    test_clone_probe,
 )
 from parameterized import parameterized
 import numpy as np
@@ -751,6 +752,29 @@ class TestBindings(unittest.TestCase):
             group_constructor=lambda: urx.Group(),
             enum_sampling=lambda: urx.SamplingType,
             enum_data=lambda: urx.DataType,
+            clone=lambda urx_object: urx.clone(urx_object),
+        )
+
+        test_clone_probe(
+            self,
+            probe_copy=lambda copy: urx.Probe(copy),
+            dataset_constructor=lambda: urx.Dataset(),
+            probe_constructor=lambda: urx.Probe(),
+            excitation_constructor=lambda: urx.Excitation(),
+            group_constructor=lambda: urx.Group(),
+            group_data_constructor=lambda: urx.GroupData(),
+            element_geometry_constructor=lambda: urx.ElementGeometry(),
+            element_constructor=lambda: urx.Element(),
+            event_constructor=lambda: urx.Event(),
+            impulse_response_constructor=lambda: urx.ImpulseResponse(),
+            transform_args_constructor=lambda rotation, translation: urx.Transform(
+                rotation, translation
+            ),
+            vector3D_args_constructor=lambda x, y, z: urx.Vector3D(x, y, z),
+            enum_probe=lambda: urx.ProbeType,
+            enum_sampling=lambda: urx.SamplingType,
+            enum_data=lambda: urx.DataType,
+            enum_wave=lambda: urx.WaveType,
             clone=lambda urx_object: urx.clone(urx_object),
         )
 
