@@ -100,6 +100,8 @@ if(NOT CALL_FROM_SETUP_PY AND WITH_PYTHON_WHL)
       --config-settings=--global-option=-DHDF5_DIR=${HDF5_DIR}
       --config-settings=--global-option=-DBUILD_TESTING=${BUILD_TESTING}
       --config-settings=--global-option=-Dpybind11_DIR=${pybind11_DIR}
+      --config-settings=--global-option=-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+      --config-settings=--global-option=-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
       --wheel-dir
       ${CMAKE_CURRENT_BINARY_DIR}
       --no-clean
