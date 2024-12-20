@@ -10,9 +10,9 @@ def generic_clone_test(self, var, copy_ctor, clone):
     self.assertEqual(var, var_ref)
     self.assertEqual(var, var_2)
     self.assertEqual(var, var_cloned)
-    self.assertEqual(id(var), id(var_ref))
-    self.assertNotEqual(id(var), id(var_2))
-    self.assertNotEqual(id(var), id(var_cloned))
+    self.assertEqual(hex(id(var)), hex(id(var_ref)))
+    self.assertNotEqual(hex(id(var)), hex(id(var_2)))
+    self.assertNotEqual(hex(id(var)), hex(id(var_cloned)))
 
 
 def test_clone_version(
@@ -178,13 +178,13 @@ def test_clone_element(
     elt_2 = element_copy(elt)
     elt_cloned = clone(elt)
 
-    self.assertEqual(id(elt.element_geometry), id(elt_ref.element_geometry))
-    self.assertEqual(id(elt.element_geometry), id(elt_2.element_geometry))
-    self.assertEqual(id(elt.element_geometry), id(elt_cloned.element_geometry))
+    self.assertEqual(hex(id(elt.element_geometry)), hex(id(elt_ref.element_geometry)))
+    self.assertEqual(hex(id(elt.element_geometry)), hex(id(elt_2.element_geometry)))
+    self.assertEqual(hex(id(elt.element_geometry)), hex(id(elt_cloned.element_geometry)))
 
-    self.assertEqual(id(elt.impulse_response), id(elt_ref.impulse_response))
-    self.assertEqual(id(elt.impulse_response), id(elt_2.impulse_response))
-    self.assertEqual(id(elt.impulse_response), id(elt_cloned.impulse_response))
+    self.assertEqual(hex(id(elt.impulse_response)), hex(id(elt_ref.impulse_response)))
+    self.assertEqual(hex(id(elt.impulse_response)), hex(id(elt_2.impulse_response)))
+    self.assertEqual(hex(id(elt.impulse_response)), hex(id(elt_cloned.impulse_response)))
 
     print("--Test %s END--" % testName)
 
@@ -255,13 +255,13 @@ def test_clone_transmit_setup(
     ts_cloned = clone(ts)
 
     for i in range(len(ts.excitations)):
-        self.assertEqual(id(ts.excitations[i]), id(ts_ref.excitations[i]))
-        self.assertEqual(id(ts.excitations[i]), id(ts_2.excitations[i]))
-        self.assertEqual(id(ts.excitations[i]), id(ts_cloned.excitations[i]))
+        self.assertEqual(hex(id(ts.excitations[i])), hex(id(ts_ref.excitations[i])))
+        self.assertEqual(hex(id(ts.excitations[i])), hex(id(ts_2.excitations[i])))
+        self.assertEqual(hex(id(ts.excitations[i])), hex(id(ts_cloned.excitations[i])))
 
-    self.assertEqual(id(ts.probe), id(ts_ref.probe))
-    self.assertEqual(id(ts.probe), id(ts_2.probe))
-    self.assertEqual(id(ts.probe), id(ts_cloned.probe))
+    self.assertEqual(hex(id(ts.probe)), hex(id(ts_ref.probe)))
+    self.assertEqual(hex(id(ts.probe)), hex(id(ts_2.probe)))
+    self.assertEqual(hex(id(ts.probe)), hex(id(ts_cloned.probe)))
 
     print("--Test %s END--" % testName)
 
@@ -300,9 +300,9 @@ def test_clone_receive_setup(
     rs_2 = receive_setup_copy(rs)
     rs_cloned = clone(rs)
 
-    self.assertEqual(id(rs.probe), id(rs_ref.probe))
-    self.assertEqual(id(rs.probe), id(rs_2.probe))
-    self.assertEqual(id(rs.probe), id(rs_cloned.probe))
+    self.assertEqual(hex(id(rs.probe)), hex(id(rs_ref.probe)))
+    self.assertEqual(hex(id(rs.probe)), hex(id(rs_2.probe)))
+    self.assertEqual(hex(id(rs.probe)), hex(id(rs_cloned.probe)))
 
     print("--Test %s END--" % testName)
 
@@ -378,13 +378,260 @@ def test_clone_group_data(
     group_data_2 = group_data_copy(group_data)
     group_data_cloned = clone(group_data)
 
-    self.assertEqual(id(group_data.group), id(group_data_ref.group))
-    self.assertEqual(id(group_data.group), id(group_data_2.group))
-    self.assertEqual(id(group_data.group), id(group_data_cloned.group))
+    self.assertEqual(hex(id(group_data.group)), hex(id(group_data_ref.group)))
+    self.assertEqual(hex(id(group_data.group)), hex(id(group_data_2.group)))
+    self.assertEqual(hex(id(group_data.group)), hex(id(group_data_cloned.group)))
 
-    self.assertEqual(id(group_data.raw_data), id(group_data_ref.raw_data))
-    self.assertEqual(id(group_data.raw_data), id(group_data_2.raw_data))
-    self.assertEqual(id(group_data.raw_data), id(group_data_cloned.raw_data))
+    self.assertEqual(hex(id(group_data.raw_data)), hex(id(group_data_ref.raw_data)))
+    self.assertEqual(hex(id(group_data.raw_data)), hex(id(group_data_2.raw_data)))
+    self.assertEqual(hex(id(group_data.raw_data)), hex(id(group_data_cloned.raw_data)))
+
+    print("--Test %s END--" % testName)
+
+
+def test_clone_probe(
+    self,
+    probe_copy,
+    dataset_constructor,
+    probe_constructor,
+    excitation_constructor,
+    group_constructor,
+    group_data_constructor,
+    element_geometry_constructor,
+    element_constructor,
+    event_constructor,
+    impulse_response_constructor,
+    transform_args_constructor,
+    vector3D_args_constructor,
+    enum_probe,
+    enum_sampling,
+    enum_data,
+    enum_wave,
+    clone,
+):
+    testName = "Clone Probe binding"
+    print("\n--Test %s BEGIN--" % testName)
+
+    d = gen_fake_dataset(
+        dataset_constructor,
+        probe_constructor,
+        excitation_constructor,
+        group_constructor,
+        group_data_constructor,
+        element_geometry_constructor,
+        element_constructor,
+        event_constructor,
+        impulse_response_constructor,
+        transform_args_constructor,
+        vector3D_args_constructor,
+        enum_probe,
+        enum_sampling,
+        enum_data,
+        enum_wave,
+    )
+
+    for p_id in range(len(d.acquisition.probes)):
+        probe = d.acquisition.probes[p_id]
+        generic_clone_test(self, probe, probe_copy, clone)
+
+        probe_cloned = clone(probe)
+        self.assertEqual(len(probe.element_geometries), len(probe_cloned.element_geometries))
+        self.assertEqual(len(probe.impulse_responses), len(probe_cloned.impulse_responses))
+        self.assertEqual(len(probe.elements), len(probe_cloned.elements))
+        for eg_id in range(len(probe.element_geometries)):
+            self.assertEqual(
+                probe_cloned.element_geometries[eg_id], probe.element_geometries[eg_id]
+            )
+
+        for ir_id in range(len(probe.impulse_responses)):
+            self.assertEqual(probe_cloned.impulse_responses[ir_id], probe.impulse_responses[ir_id])
+
+        for e_id in range(len(probe.elements)):
+            eg_id = -1
+            for i in range(len(probe_cloned.element_geometries)):
+                if (
+                    probe_cloned.element_geometries[i]
+                    == probe_cloned.elements[e_id].element_geometry
+                ):
+                    eg_id = i
+                    break
+            if eg_id < 0:
+                self.assertEqual(probe_cloned.elements[e_id].element_geometry, None)
+            else:
+                self.assertEqual(
+                    probe_cloned.elements[e_id].element_geometry,
+                    probe_cloned.element_geometries[eg_id],
+                )
+                self.assertEqual(
+                    probe_cloned.elements[e_id].element_geometry, probe.element_geometries[eg_id]
+                )
+
+                eg_id_bis = -1
+                for i in range(len(probe.element_geometries)):
+                    if probe.element_geometries[i] == probe_cloned.elements[e_id].element_geometry:
+                        eg_id_bis = i
+                        break
+                self.assertNotEqual(-1, eg_id_bis)
+
+            ir_id = -1
+            for i in range(len(probe_cloned.impulse_responses)):
+                if (
+                    probe_cloned.impulse_responses[i]
+                    == probe_cloned.elements[e_id].impulse_response
+                ):
+                    ir_id = i
+                    break
+            if ir_id < 0:
+                self.assertEqual(probe_cloned.elements[e_id].impulse_response, None)
+            else:
+                self.assertEqual(
+                    probe_cloned.elements[e_id].impulse_response,
+                    probe_cloned.impulse_responses[ir_id],
+                )
+                self.assertEqual(
+                    probe_cloned.elements[e_id].impulse_response, probe.impulse_responses[ir_id]
+                )
+
+                ir_id_bis = -1
+                for i in range(len(probe.impulse_responses)):
+                    if probe.impulse_responses[i] == probe_cloned.elements[e_id].impulse_response:
+                        ir_id_bis = i
+                        break
+                self.assertNotEqual(-1, ir_id_bis)
+
+    # PROBE 1
+
+    probe_1 = d.acquisition.probes[1]
+    probe_1_cloned = clone(probe_1)
+
+    self.assertEqual(probe_1_cloned.element_geometries[0], element_geometry_constructor())
+    self.assertEqual(
+        probe_1_cloned.element_geometries[1].perimeter,
+        [
+            vector3D_args_constructor(15, 23, 543),
+            vector3D_args_constructor(2.2, 1.4, 0.2),
+        ],
+    )
+    self.assertEqual(
+        probe_1_cloned.element_geometries[2].perimeter,
+        [
+            vector3D_args_constructor(2.2, 1.4, 0.2),
+            vector3D_args_constructor(1.2, 2.4, 543),
+        ],
+    )
+
+    self.assertEqual(probe_1_cloned.impulse_responses[0], impulse_response_constructor())
+    self.assertEqual(probe_1_cloned.impulse_responses[1].units, "meter")
+    self.assertEqual(probe_1_cloned.impulse_responses[2].units, "milli")
+
+    self.assertEqual(probe_1_cloned.elements[0], element_constructor())
+
+    self.assertEqual(
+        probe_1_cloned.elements[1].element_geometry, probe_1_cloned.element_geometries[0]
+    )
+    self.assertEqual(
+        probe_1_cloned.elements[1].impulse_response, probe_1_cloned.impulse_responses[1]
+    )
+
+    self.assertEqual(
+        probe_1_cloned.elements[2].element_geometry, probe_1_cloned.element_geometries[1]
+    )
+    self.assertEqual(
+        probe_1_cloned.elements[2].impulse_response, probe_1_cloned.impulse_responses[2]
+    )
+
+    self.assertEqual(
+        probe_1_cloned.elements[3].element_geometry, probe_1_cloned.element_geometries[1]
+    )
+    self.assertEqual(
+        probe_1_cloned.elements[3].impulse_response, probe_1_cloned.impulse_responses[0]
+    )
+
+    self.assertEqual(
+        probe_1_cloned.elements[4].element_geometry, probe_1_cloned.element_geometries[2]
+    )
+    self.assertEqual(
+        probe_1_cloned.elements[4].impulse_response, probe_1_cloned.impulse_responses[1]
+    )
+
+    # Change probe_1_cloned and check probe_1 is not affected
+    self.assertEqual(probe_1, probe_1_cloned)
+
+    probe_1_cloned.element_geometries[0].perimeter = [
+        vector3D_args_constructor(15, 23, 543),
+        vector3D_args_constructor(2.2, 1.4, 0.2),
+    ]
+    self.assertEqual(probe_1.element_geometries[0], element_geometry_constructor())
+    self.assertEqual(
+        probe_1_cloned.elements[1].element_geometry, probe_1_cloned.element_geometries[0]
+    )
+    self.assertNotEqual(probe_1.elements[1].element_geometry, probe_1_cloned.element_geometries[0])
+
+    probe_1_cloned.impulse_responses[0].units = "toto"
+    self.assertEqual(probe_1.impulse_responses[0], impulse_response_constructor())
+    self.assertEqual(
+        probe_1_cloned.elements[3].impulse_response, probe_1_cloned.impulse_responses[0]
+    )
+    self.assertNotEqual(probe_1.elements[3].impulse_response, probe_1_cloned.impulse_responses[0])
+
+    self.assertNotEqual(probe_1, probe_1_cloned)
+
+    # PROBE 2
+
+    probe_2 = d.acquisition.probes[2]
+    probe_2_cloned = clone(probe_2)
+
+    self.assertEqual(probe_2_cloned.element_geometries[0], element_geometry_constructor())
+    self.assertEqual(
+        probe_2_cloned.element_geometries[1].perimeter,
+        [
+            vector3D_args_constructor(123, 4.5, 5.4),
+            vector3D_args_constructor(1.1, 22.1, 5.4),
+        ],
+    )
+    self.assertEqual(
+        probe_2_cloned.element_geometries[2].perimeter,
+        [
+            vector3D_args_constructor(5.5, 6.6, 7.7),
+            vector3D_args_constructor(1.1, 0.0, 5.5),
+        ],
+    )
+
+    self.assertEqual(probe_2_cloned.impulse_responses[0], impulse_response_constructor())
+    self.assertEqual(probe_2_cloned.impulse_responses[1].units, "met55er")
+    self.assertEqual(probe_2_cloned.impulse_responses[2].units, "mi3lli")
+
+    self.assertEqual(
+        probe_2_cloned.elements[0].element_geometry, probe_2_cloned.element_geometries[1]
+    )
+    self.assertEqual(
+        probe_2_cloned.elements[0].impulse_response, probe_2_cloned.impulse_responses[1]
+    )
+
+    self.assertEqual(
+        probe_2_cloned.elements[1].element_geometry, probe_2_cloned.element_geometries[2]
+    )
+    self.assertEqual(
+        probe_2_cloned.elements[1].impulse_response, probe_2_cloned.impulse_responses[2]
+    )
+
+    # Change probe_2_cloned and check probe_2 is not affected
+    self.assertEqual(probe_2, probe_2_cloned)
+
+    probe_2_cloned.element_geometries[0].perimeter = [
+        vector3D_args_constructor(15, 23, 543),
+        vector3D_args_constructor(2.2, 1.4, 0.2),
+    ]
+    self.assertEqual(probe_2.element_geometries[0], element_geometry_constructor())
+    probe_2_cloned.element_geometries.append(element_geometry_constructor())
+    self.assertEqual(len(probe_2.element_geometries) + 1, len(probe_2_cloned.element_geometries))
+
+    probe_2_cloned.impulse_responses[0].units = "toto"
+    self.assertEqual(probe_2.impulse_responses[0], impulse_response_constructor())
+    probe_2_cloned.impulse_responses.append(impulse_response_constructor())
+    self.assertEqual(len(probe_2.impulse_responses) + 1, len(probe_2_cloned.impulse_responses))
+
+    self.assertNotEqual(probe_2, probe_2_cloned)
 
     print("--Test %s END--" % testName)
 
@@ -448,13 +695,13 @@ def test_clone(
     # # Check copy CTOR and referencing object
     # acq_2 = acq_copy(acq)
     # self.assertEqual(acq, acq_2)
-    # self.assertNotEqual(id(acq), id(acq_2))
+    # self.assertNotEqual(hex(id(acq), hex(id(acq_2))
     # acq_2.authors = "Hello"
     # self.assertNotEqual(acq, acq_2)
     # acq_ref = acq
     # acq_ref.authors = "Hello"
     # self.assertEqual(acq, acq_ref)
-    # self.assertEqual(id(acq), id(acq_ref))
+    # self.assertEqual(hex(id(acq), hex(id(acq_ref))
 
     # acq = acq_constructor()
     # acq_2 = acq_copy(acq)
