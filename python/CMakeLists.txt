@@ -102,6 +102,7 @@ if(NOT CALL_FROM_SETUP_PY AND WITH_PYTHON_WHL)
       --config-settings=--global-option=-Dpybind11_DIR=${pybind11_DIR}
       --config-settings=--global-option=-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
       --config-settings=--global-option=-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+      --config-settings=--global-option=-DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
       --wheel-dir
       ${CMAKE_CURRENT_BINARY_DIR}
       --no-clean
