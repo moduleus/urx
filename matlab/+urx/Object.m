@@ -413,7 +413,7 @@ classdef Object < urx.ObjectField
                 % Field may be empty (i.e. weak_ptr without data).
                 has_data = libBindingRef.call([functionCFieldAccessor '_has_data'], affectedObject.id);
                 % Force value if PreGet is called from a PreSet.
-                if (has_data || (disableGetRecursion == 0 && disableSetRecursion == 1 && strcmp(s(2).name, 'Object.handlePropEvents')))
+                if (has_data || (disableGetRecursion == 0 && disableSetRecursion == 1 && numel(s) > 1 && strcmp(s(2).name, 'Object.handlePropEvents')))
                   newObject = feval(affectedPropertyClassName, affectedCFieldPtr, affectedPropertyPtrType, affectedObject);
                   if isa(affectedProperty, 'urx.RawData')
                     sampling = newObject.samplingType();
