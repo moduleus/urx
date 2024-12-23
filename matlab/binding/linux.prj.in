@@ -87,7 +87,6 @@ urx
       <file>${PROJECT_ROOT}\+urx</file>
       <file>${PROJECT_ROOT}\include</file>
       <file>${PROJECT_ROOT}\libUrxMatlabBinding.so</file>
-      <file>${PROJECT_ROOT}\libstdc++.so.6</file>
     </fileset.rootfiles>
     <fileset.depfun.included />
     <fileset.depfun.excluded />
