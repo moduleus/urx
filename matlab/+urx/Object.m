@@ -402,7 +402,7 @@ classdef Object < urx.ObjectField
                 end
                 affectedCFieldPtr.setdatatype([strSplit{2} 'Ptr'], d2dim, affectedObject.size);
               else
-                assert(numel(affectedProperty) == 1);
+                assert(numel(affectedProperty) <= 1);
                 affectedCFieldPtr.setdatatype([affectedPropertyClassName 'Ptr'], 1);
               end
 
