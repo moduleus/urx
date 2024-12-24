@@ -275,7 +275,11 @@ struct IsSharedPtr<std::shared_ptr<T>> : std::true_type {};
     return reinterpret_cast<uint64_t>(this_ptr);                                                   \
   }                                                                                                \
   uint64_t CONCAT3(snake, raw_ptr, weak)(void *this_ptr) {                                         \
-    return reinterpret_cast<uint64_t>(static_cast<std::weak_ptr<type> *>(this_ptr)->lock().get()); \
+    auto ptr_lock = static_cast<std::weak_ptr<type> *>(this_ptr) -> lock();                        \
+    if (!ptr_lock) {                                                                               \
+      return 0;                                                                                    \
+    }                                                                                              \
+    return reinterpret_cast<uint64_t>(ptr_lock.get());                                             \
   }                                                                                                \
   uint64_t CONCAT3(snake, raw_ptr, shared)(void *this_ptr) {                                       \
     return reinterpret_cast<uint64_t>(static_cast<std::shared_ptr<type> *>(this_ptr)->get());      \
@@ -286,6 +290,119 @@ struct IsSharedPtr<std::shared_ptr<T>> : std::true_type {};
       return 0;                                                                                    \
     }                                                                                              \
     return reinterpret_cast<uint64_t>(&opt_ptr->value());                                          \
+  }                                                                                                \
+  bool CONCAT4(snake, cmp, raw, raw)(void *this_ptr, void *other_ptr) {                            \
+    return *static_cast<type *>(this_ptr) == *static_cast<type *>(other_ptr);                      \
+  }                                                                                                \
+  bool CONCAT4(snake, cmp, raw, weak)(void *this_ptr, void *other_ptr) {                           \
+    auto ptr_lock = static_cast<std::weak_ptr<type> *>(other_ptr) -> lock();                       \
+    if (!ptr_lock) {                                                                               \
+      return false;                                                                                \
+    }                                                                                              \
+    return *static_cast<type *>(this_ptr) == *ptr_lock;                                            \
+  }                                                                                                \
+  bool CONCAT4(snake, cmp, raw, shared)(void *this_ptr, void *other_ptr) {                         \
+    return *static_cast<type *>(this_ptr) == **static_cast<std::shared_ptr<type> *>(other_ptr);    \
+  }                                                                                                \
+  bool CONCAT4(snake, cmp, raw, optional)(void *this_ptr, void *other_ptr) {                       \
+    auto *opt_ptr = static_cast<std::optional<type> *>(other_ptr);                                 \
+    if (!*opt_ptr) {                                                                               \
+      return false;                                                                                \
+    }                                                                                              \
+    return *static_cast<type *>(this_ptr) == *opt_ptr;                                             \
+  }                                                                                                \
+  bool CONCAT4(snake, cmp, weak, raw)(void *this_ptr, void *other_ptr) {                           \
+    auto ptr_lock = static_cast<std::weak_ptr<type> *>(this_ptr) -> lock();                        \
+    if (!ptr_lock) {                                                                               \
+      return false;                                                                                \
+    }                                                                                              \
+    return *ptr_lock == *static_cast<type *>(other_ptr);                                           \
+  }                                                                                                \
+  bool CONCAT4(snake, cmp, weak, weak)(void *this_ptr, void *other_ptr) {                          \
+    auto ptr_lock1 = static_cast<std::weak_ptr<type> *>(this_ptr) -> lock();                       \
+    if (!ptr_lock1) {                                                                              \
+      return false;                                                                                \
+    }                                                                                              \
+    auto ptr_lock2 = static_cast<std::weak_ptr<type> *>(other_ptr) -> lock();                      \
+    if (!ptr_lock2) {                                                                              \
+      return false;                                                                                \
+    }                                                                                              \
+    return *ptr_lock1 == *ptr_lock2;                                                               \
+  }                                                                                                \
+  bool CONCAT4(snake, cmp, weak, shared)(void *this_ptr, void *other_ptr) {                        \
+    auto ptr_lock = static_cast<std::weak_ptr<type> *>(this_ptr) -> lock();                        \
+    if (!ptr_lock) {                                                                               \
+      return false;                                                                                \
+    }                                                                                              \
+    return *ptr_lock == **static_cast<std::shared_ptr<type> *>(other_ptr);                         \
+  }                                                                                                \
+  bool CONCAT4(snake, cmp, weak, optional)(void *this_ptr, void *other_ptr) {                      \
+    auto ptr_lock = static_cast<std::weak_ptr<type> *>(this_ptr) -> lock();                        \
+    if (!ptr_lock) {                                                                               \
+      return false;                                                                                \
+    }                                                                                              \
+    auto *opt_ptr = static_cast<std::optional<type> *>(other_ptr);                                 \
+    if (!*opt_ptr) {                                                                               \
+      return false;                                                                                \
+    }                                                                                              \
+    return *ptr_lock == *opt_ptr;                                                                  \
+  }                                                                                                \
+  bool CONCAT4(snake, cmp, shared, raw)(void *this_ptr, void *other_ptr) {                         \
+    return **static_cast<std::shared_ptr<type> *>(this_ptr) == *static_cast<type *>(other_ptr);    \
+  }                                                                                                \
+  bool CONCAT4(snake, cmp, shared, weak)(void *this_ptr, void *other_ptr) {                        \
+    auto ptr_lock = static_cast<std::weak_ptr<type> *>(other_ptr) -> lock();                       \
+    if (!ptr_lock) {                                                                               \
+      return false;                                                                                \
+    }                                                                                              \
+    return **static_cast<std::shared_ptr<type> *>(this_ptr) == *ptr_lock;                          \
+  }                                                                                                \
+  bool CONCAT4(snake, cmp, shared, shared)(void *this_ptr, void *other_ptr) {                      \
+    return **static_cast<std::shared_ptr<type> *>(this_ptr) ==                                     \
+           **static_cast<std::shared_ptr<type> *>(other_ptr);                                      \
+  }                                                                                                \
+  bool CONCAT4(snake, cmp, shared, optional)(void *this_ptr, void *other_ptr) {                    \
+    auto *opt_ptr = static_cast<std::optional<type> *>(other_ptr);                                 \
+    if (!*opt_ptr) {                                                                               \
+      return false;                                                                                \
+    }                                                                                              \
+    return **static_cast<std::shared_ptr<type> *>(this_ptr) == *opt_ptr;                           \
+  }                                                                                                \
+  bool CONCAT4(snake, cmp, optional, raw)(void *this_ptr, void *other_ptr) {                       \
+    auto *opt_ptr = static_cast<std::optional<type> *>(this_ptr);                                  \
+    if (!*opt_ptr) {                                                                               \
+      return false;                                                                                \
+    }                                                                                              \
+    return *opt_ptr == *static_cast<type *>(other_ptr);                                            \
+  }                                                                                                \
+  bool CONCAT4(snake, cmp, optional, weak)(void *this_ptr, void *other_ptr) {                      \
+    auto *opt_ptr = static_cast<std::optional<type> *>(this_ptr);                                  \
+    if (!*opt_ptr) {                                                                               \
+      return false;                                                                                \
+    }                                                                                              \
+    auto ptr_lock = static_cast<std::weak_ptr<type> *>(other_ptr) -> lock();                       \
+    if (!ptr_lock) {                                                                               \
+      return false;                                                                                \
+    }                                                                                              \
+    return *opt_ptr == *ptr_lock;                                                                  \
+  }                                                                                                \
+  bool CONCAT4(snake, cmp, optional, shared)(void *this_ptr, void *other_ptr) {                    \
+    auto *opt_ptr = static_cast<std::optional<type> *>(this_ptr);                                  \
+    if (!*opt_ptr) {                                                                               \
+      return false;                                                                                \
+    }                                                                                              \
+    return *opt_ptr == **static_cast<std::shared_ptr<type> *>(other_ptr);                          \
+  }                                                                                                \
+  bool CONCAT4(snake, cmp, optional, optional)(void *this_ptr, void *other_ptr) {                  \
+    auto *opt_ptr1 = static_cast<std::optional<type> *>(this_ptr);                                 \
+    if (!*opt_ptr1) {                                                                              \
+      return false;                                                                                \
+    }                                                                                              \
+    auto *opt_ptr2 = static_cast<std::optional<type> *>(other_ptr);                                \
+    if (!*opt_ptr2) {                                                                              \
+      return false;                                                                                \
+    }                                                                                              \
+    return *opt_ptr1 == *opt_ptr2;                                                                 \
   }                                                                                                \
   FORCE_SEMICOLON
 
@@ -466,8 +583,11 @@ bool checkHasValue(const T &argument) {
     return urx::matlab::detail::checkHasValue(static_cast<type *>(this_ptr)->member); \
   }                                                                                   \
   bool CONCAT4(snake, weak, member, has_data)(void *this_ptr) {                       \
-    return urx::matlab::detail::checkHasValue(                                        \
-        static_cast<std::weak_ptr<type> *>(this_ptr)->lock()->member);                \
+    auto lock_ptr = static_cast<std::weak_ptr<type> *>(this_ptr) -> lock();           \
+    if (!lock_ptr) {                                                                  \
+      return false;                                                                   \
+    }                                                                                 \
+    return urx::matlab::detail::checkHasValue(lock_ptr->member);                      \
   }                                                                                   \
   bool CONCAT4(snake, shared, member, has_data)(void *this_ptr) {                     \
     return urx::matlab::detail::checkHasValue(                                        \

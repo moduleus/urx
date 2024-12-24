@@ -93,6 +93,10 @@ classdef Object < urx.ObjectField
       res = this.libBindingRef.showPtr(this) == this.libBindingRef.showPtr(obj2);
     end
 
+    function res = isEqual(this, obj2)
+      res = this.libBindingRef.call([strrep(class(this), '.', '_') '_cmp' urx.Object.functionPtrType(this.ptrType) urx.Object.functionPtrType(obj2.ptrType)], this.id, obj2.id);
+    end
+
     function res = getRawPtr(this)
       res = this.libBindingRef.call([strrep(class(this), '.', '_') '_raw_ptr' urx.Object.functionPtrType(this.ptrType)], this.id);
     end

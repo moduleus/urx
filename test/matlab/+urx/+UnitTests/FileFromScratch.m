@@ -29,6 +29,14 @@ classdef FileFromScratch < matlab.unittest.TestCase
       version.patch = 963;
       dataset.version = version;
       
+      version2 = urx.Version();
+      version2.minor = 111;
+      version2.major = 852;
+      version2.patch = 963;
+      testcase.verifyFalse(version == version2);
+      testcase.verifyTrue(isEqual(version, version2));
+      testcase.verifyTrue(version.isEqual(version2));
+      
       testcase.verifyEqual(dataset.version.minor, uint16(111));
       testcase.verifyEqual(dataset.version.major, uint16(852));
       testcase.verifyEqual(dataset.version.patch, uint16(963));
