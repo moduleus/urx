@@ -367,6 +367,7 @@ classdef FileFromScratch < matlab.unittest.TestCase
       
       group2.description = 'group2 description';
       dataset.acquisition.groups = [group1, group2];
+      testcase.verifyTrue(dataset.acquisition.groups(1) == dataset.acquisition.groups(1));
       dataset.acquisition.timestamp = 1242;
       
       
