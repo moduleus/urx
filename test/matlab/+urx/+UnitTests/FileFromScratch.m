@@ -34,8 +34,8 @@ classdef FileFromScratch < matlab.unittest.TestCase
       version2.major = 852;
       version2.patch = 963;
       testcase.verifyFalse(version == version2);
-      testcase.verifyTrue(isEqual(version, version2));
-      testcase.verifyTrue(version.isEqual(version2));
+      testcase.verifyTrue(isequal(version, version2));
+      testcase.verifyEqual(version, version2);
       
       testcase.verifyEqual(dataset.version.minor, uint16(111));
       testcase.verifyEqual(dataset.version.major, uint16(852));
@@ -424,11 +424,40 @@ classdef FileFromScratch < matlab.unittest.TestCase
       urx.saveToFile('test.urx', dataset);
 
       dataset2 = urx.loadFromFile('test.urx');
-
-      % testcase.verifyTrue(isequal(dataset, dataset2));
-      testcase.verifyEqual(dataset.version.minor, dataset2.version.minor);
       
       delete 'test.urx'
+
+      testcase.verifyTrue(isequal(dataset, dataset2));
+      testcase.verifyEqual(dataset.version.minor, dataset2.version.minor);
+
+      testcase.verifyEqual(dataset.acquisition, dataset2.acquisition);
+      testcase.verifyEqual(dataset, dataset2);
+      testcase.verifyEqual(dataset.acquisition.probes(1).elements(1).elementGeometry, ...
+        dataset2.acquisition.probes(1).elements(1).elementGeometry);
+      testcase.verifyEqual(dataset.acquisition.probes(1).elements(1), ...
+        dataset2.acquisition.probes(1).elements(1));
+      testcase.verifyEqual(dataset.acquisition.groups(1).sequence(1), ...
+        dataset2.acquisition.groups(1).sequence(1));
+      testcase.verifyEqual(dataset.acquisition.excitations(1), dataset2.acquisition.excitations(1));
+      testcase.verifyEqual(dataset.acquisition.groupsData(1), dataset2.acquisition.groupsData(1));
+      testcase.verifyEqual(dataset.acquisition.groups(1), dataset2.acquisition.groups(1));
+      testcase.verifyEqual(dataset.acquisition.probes(1).elements(1).impulseResponse, ...
+        dataset2.acquisition.probes(1).elements(1).impulseResponse);
+      testcase.verifyEqual(dataset.acquisition.probes(1), dataset2.acquisition.probes(1));
+      testcase.verifyEqual(dataset.acquisition.groups(1).sequence(1).receiveSetup, ...
+        dataset2.acquisition.groups(1).sequence(1).receiveSetup);
+      testcase.verifyEqual(dataset.acquisition.groups(1).sequence(1).receiveSetup.probeTransform, ...
+        dataset2.acquisition.groups(1).sequence(1).receiveSetup.probeTransform);
+      testcase.verifyEqual(dataset.acquisition.groups(1).sequence(1).transmitSetup, ...
+        dataset2.acquisition.groups(1).sequence(1).transmitSetup);
+      testcase.verifyEqual(dataset.acquisition.groups(1).sequence(1).receiveSetup.probeTransform.rotation, ...
+        dataset2.acquisition.groups(1).sequence(1).receiveSetup.probeTransform.rotation);
+      testcase.verifyEqual(dataset.version, dataset2.version);
+      testcase.verifyEqual(dataset.acquisition.groups(1).sequence(1).transmitSetup.wave, ...
+        dataset2.acquisition.groups(1).sequence(1).transmitSetup.wave);
+
+      testcase.verifyError(@() dataset.isequal(dataset2.acquisition), 'urx:fatalError');
+      
     end
 
 

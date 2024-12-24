@@ -90,10 +90,16 @@ classdef Object < urx.ObjectField
     end
 
     function res = eq(this, obj2)
+      if (~strcmp(class(this), class(obj2)))
+        throw(MException('urx:fatalError', [ 'First argument (' class(this) ') must have the same type than the second argument (' class(obj2) ').']));
+      end
       res = this.libBindingRef.showPtr(this) == this.libBindingRef.showPtr(obj2);
     end
 
-    function res = isEqual(this, obj2)
+    function res = isequal(this, obj2)
+      if (~strcmp(class(this), class(obj2)))
+        throw(MException('urx:fatalError', [ 'First argument (' class(this) ') must have the same type than the second argument (' class(obj2) ').']));
+      end
       res = this.libBindingRef.call([strrep(class(this), '.', '_') '_cmp' urx.Object.functionPtrType(this.ptrType) urx.Object.functionPtrType(obj2.ptrType)], this.id, obj2.id);
     end
 
