@@ -38,7 +38,8 @@ if(UNIX)
     OUTPUT_VARIABLE STDCPP_SO_PATH
     OUTPUT_STRIP_TRAILING_WHITESPACE)
   message(STATUS "Found libstdc++.so.6 in ${STDCPP_SO_PATH}")
-  target_link_options(UrxMatlabBinding PRIVATE "-Wl,-rpath,$ORIGIN")
+  target_link_options(UrxMatlabBinding PRIVATE "-Wl,-rpath,$ORIGIN"
+                      "-Wl,--disable-new-dtags")
   add_custom_command(
     TARGET UrxMatlabBinding
     POST_BUILD
