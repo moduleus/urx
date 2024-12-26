@@ -103,6 +103,13 @@ classdef Object < urx.ObjectField
       res = this.libBindingRef.call([strrep(class(this), '.', '_') '_cmp' urx.Object.functionPtrType(this.ptrType) urx.Object.functionPtrType(obj2.ptrType)], this.id, obj2.id);
     end
 
+    function res = isequaln(this, obj2)
+      if (~strcmp(class(this), class(obj2)))
+        throw(MException('urx:fatalError', [ 'First argument (' class(this) ') must have the same type than the second argument (' class(obj2) ').']));
+      end
+      res = this.libBindingRef.call([strrep(class(this), '.', '_') '_cmp' urx.Object.functionPtrType(this.ptrType) urx.Object.functionPtrType(obj2.ptrType)], this.id, obj2.id);
+    end
+
     function res = getRawPtr(this)
       res = this.libBindingRef.call([strrep(class(this), '.', '_') '_raw_ptr' urx.Object.functionPtrType(this.ptrType)], this.id);
     end
