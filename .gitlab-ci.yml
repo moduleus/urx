@@ -523,7 +523,6 @@ build:windows-python:
   tags:
     - win10
     - python
-    - ntfs
   before_script:
     - *before-script-vcpkg-windows
   script:
@@ -697,7 +696,6 @@ release:all-python-windows-x64:
   tags:
     - win10
     - python
-    - ntfs
   before_script:
     - *before-script-vcpkg-windows
   script:
@@ -726,7 +724,6 @@ release:all-python-windows-x86:
   tags:
     - win10
     - python
-    - ntfs
   before_script:
     - *before-script-vcpkg-windows
   script:
@@ -759,7 +756,6 @@ release:all-python-windows-arm64:
   tags:
     - win10
     - python
-    - ntfs
   before_script:
     - *before-script-vcpkg-windows
   script:
