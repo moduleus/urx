@@ -314,13 +314,42 @@ See `.gitlab-ci.yml` file for various examples.
 
 ### Windows
 
+Requirements:
+
+  * [git](https://gitforwindows.org/),
+  * [cmake v3.28](https://gitforwindows.org/),
+
 Under Windows, you need to explicitly set Visual Studio generator.
 
 `cmake.exe -S root_path -B CI -G "Visual Studio 17 2022" -A x64`
 
+Full example:
+
+```sh
+git clone https://github.com/moduleus/urx.git
+cd urx
+git clone https://github.com/microsoft/vcpkg.git
+vcpkg/bootstrap-vcpkg.bat
+git clone https://github.com/moduleus/vcpkg-registry.git
+cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake -DBUILD_SHARED_LIBS=OFF -DVCPKG_TARGET_TRIPLET=x64-wsmep -DVCPKG_HOST_TRIPLET=x64-wsmep -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DWITH_PYTHON:BOOL=OFF -DWITH_PYTHON_WHL:BOOL=OFF -DWITH_HDF5:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DBUILD_TESTING:BOOL=OFF -DENABLE_PCH:BOOL=OFF -DCMAKE_INSTALL_PREFIX=install
+cmake --build build --config Release --parallel 4
+```
+
 ### Linux
 
 `cmake -S . -B CI`
+
+Full example:
+
+```sh
+git clone https://github.com/moduleus/urx.git
+cd urx
+git clone https://github.com/microsoft/vcpkg.git
+vcpkg/bootstrap-vcpkg.sh
+git clone https://github.com/moduleus/vcpkg-registry.git
+cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DVCPKG_TARGET_TRIPLET=x64-lsrp -DVCPKG_HOST_TRIPLET=x64-lsrp -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DWITH_PYTHON:BOOL=OFF -DWITH_PYTHON_WHL:BOOL=OFF -DWITH_HDF5:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DBUILD_TESTING:BOOL=OFF -DENABLE_PCH:BOOL=OFF -DCMAKE_INSTALL_PREFIX=install
+cmake --build build --parallel 4
+```
 
 ### Common features
 
@@ -344,7 +373,7 @@ Be sure to use a vcpkg triplet with the same shared / static link option.
 
 `vcpkg` is a package manager. You first need to clone it with `git clone https://github.com/microsoft/vcpkg.git`.
 
-Also, be sure that submodule `vcpkg-registry` is initialized with `git submodule update --init --recursive`.
+Also, clone `vcpkg-registry` with `git clone https://github.com/moduleus/vcpkg-registry.git`.
 
 Then pass the arguments below. ⚠ If you use `cmake-gui`, be sure to set these variables BEFORE running configure once. Otherwise, you need to reset cache.
 
