@@ -89,6 +89,27 @@ classdef Object < urx.ObjectField
       this.freeMem();
     end
 
+    function res = eq(this, obj2)
+      if (~strcmp(class(this), class(obj2)))
+        throw(MException('urx:fatalError', [ 'First argument (' class(this) ') must have the same type than the second argument (' class(obj2) ').']));
+      end
+      res = this.libBindingRef.showPtr(this) == this.libBindingRef.showPtr(obj2);
+    end
+
+    function res = isequal(this, obj2)
+      if (~strcmp(class(this), class(obj2)))
+        throw(MException('urx:fatalError', [ 'First argument (' class(this) ') must have the same type than the second argument (' class(obj2) ').']));
+      end
+      res = this.libBindingRef.call([strrep(class(this), '.', '_') '_cmp' urx.Object.functionPtrType(this.ptrType) urx.Object.functionPtrType(obj2.ptrType)], this.id, obj2.id);
+    end
+
+    function res = isequaln(this, obj2)
+      if (~strcmp(class(this), class(obj2)))
+        throw(MException('urx:fatalError', [ 'First argument (' class(this) ') must have the same type than the second argument (' class(obj2) ').']));
+      end
+      res = this.libBindingRef.call([strrep(class(this), '.', '_') '_cmp' urx.Object.functionPtrType(this.ptrType) urx.Object.functionPtrType(obj2.ptrType)], this.id, obj2.id);
+    end
+
     function res = getRawPtr(this)
       res = this.libBindingRef.call([strrep(class(this), '.', '_') '_raw_ptr' urx.Object.functionPtrType(this.ptrType)], this.id);
     end
@@ -402,7 +423,7 @@ classdef Object < urx.ObjectField
                 end
                 affectedCFieldPtr.setdatatype([strSplit{2} 'Ptr'], d2dim, affectedObject.size);
               else
-                assert(numel(affectedProperty) == 1);
+                assert(numel(affectedProperty) <= 1);
                 affectedCFieldPtr.setdatatype([affectedPropertyClassName 'Ptr'], 1);
               end
 
@@ -413,7 +434,7 @@ classdef Object < urx.ObjectField
                 % Field may be empty (i.e. weak_ptr without data).
                 has_data = libBindingRef.call([functionCFieldAccessor '_has_data'], affectedObject.id);
                 % Force value if PreGet is called from a PreSet.
-                if (has_data || (disableGetRecursion == 0 && disableSetRecursion == 1 && strcmp(s(2).name, 'Object.handlePropEvents')))
+                if (has_data || (disableGetRecursion == 0 && disableSetRecursion == 1 && numel(s) > 1 && strcmp(s(2).name, 'Object.handlePropEvents')))
                   newObject = feval(affectedPropertyClassName, affectedCFieldPtr, affectedPropertyPtrType, affectedObject);
                   if isa(affectedProperty, 'urx.RawData')
                     sampling = newObject.samplingType();
