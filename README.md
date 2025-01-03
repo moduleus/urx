@@ -91,7 +91,7 @@ All MATLAB files will be installed in :
 
 You need a C++ compiler.
 
-If you have an error like `MATLAB:mex:NoCompilerFound_link_Win64` or `No supported compiler was found`, run `mex -setup c -v` and `mex -setup c++ -v`.
+If you have an error like `MATLAB:mex:NoCompilerFound_link_Win64` / `No supported compiler was found` / `Output from preprocessor is:'cl' is not recognized as an internal or external command, operable program or batch file.`, run `mex -setup c -v` and `mex -setup c++ -v`.
 
 <details>
   <summary>Example of full error message</summary>
@@ -150,6 +150,8 @@ https://www.mathworks.com/support/compilers.
 ```
 
 </details>
+
+#### Use MinGW
 
 If you want to use a free compiler, follow the next steps:
 
