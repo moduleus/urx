@@ -37,7 +37,6 @@ from test_bindings_vector import test_vector2d, test_vector3d
 from test_bindings_version import test_version
 from test_bindings_wave import test_wave
 from test_bindings_clone import (
-    test_clone,
     test_clone_version,
     test_clone_vector_2D,
     test_clone_vector_3D,
@@ -53,6 +52,8 @@ from test_bindings_clone import (
     test_clone_group,
     test_clone_group_data,
     test_clone_probe,
+    test_clone_acquisition,
+    test_clone_dataset,
 )
 from parameterized import parameterized
 import numpy as np
@@ -778,35 +779,45 @@ class TestBindings(unittest.TestCase):
             clone=lambda urx_object: urx.clone(urx_object),
         )
 
-        test_clone(
+        test_clone_acquisition(
             self,
-            dataset_constructor=lambda: urx.Dataset(),
-            acq_constructor=lambda: urx.Acquisition(),
             acq_copy=lambda copy: urx.Acquisition(copy),
-            double_nan_constructor=lambda: urx.DoubleNan(),
-            double_nan_copy=lambda copy: urx.DoubleNan(copy),
+            dataset_constructor=lambda: urx.Dataset(),
             probe_constructor=lambda: urx.Probe(),
-            probe_copy=lambda copy: urx.Probe(copy),
             excitation_constructor=lambda: urx.Excitation(),
-            excitation_copy=lambda copy: urx.Excitation(copy),
             group_constructor=lambda: urx.Group(),
-            group_copy=lambda copy: urx.Group(copy),
             group_data_constructor=lambda: urx.GroupData(),
-            group_data_copy=lambda copy: urx.GroupData(copy),
             element_geometry_constructor=lambda: urx.ElementGeometry(),
             element_constructor=lambda: urx.Element(),
-            element_copy=lambda copy: urx.Element(copy),
             event_constructor=lambda: urx.Event(),
             impulse_response_constructor=lambda: urx.ImpulseResponse(),
-            receive_setup_constructor=lambda: urx.ReceiveSetup(),
-            transmit_setup_constructor=lambda: urx.TransmitSetup(),
-            wave_constructor=lambda: urx.Wave(),
             transform_args_constructor=lambda rotation, translation: urx.Transform(
                 rotation, translation
             ),
-            vector2D_args_constructor=lambda x, y: urx.Vector2D(x, y),
             vector3D_args_constructor=lambda x, y, z: urx.Vector3D(x, y, z),
-            version_args_constructor=lambda major, minor, patch: urx.Version(major, minor, patch),
+            enum_probe=lambda: urx.ProbeType,
+            enum_sampling=lambda: urx.SamplingType,
+            enum_data=lambda: urx.DataType,
+            enum_wave=lambda: urx.WaveType,
+            clone=lambda urx_object: urx.clone(urx_object),
+        )
+
+        test_clone_dataset(
+            self,
+            dataset_copy=lambda copy: urx.Dataset(copy),
+            dataset_constructor=lambda: urx.Dataset(),
+            probe_constructor=lambda: urx.Probe(),
+            excitation_constructor=lambda: urx.Excitation(),
+            group_constructor=lambda: urx.Group(),
+            group_data_constructor=lambda: urx.GroupData(),
+            element_geometry_constructor=lambda: urx.ElementGeometry(),
+            element_constructor=lambda: urx.Element(),
+            event_constructor=lambda: urx.Event(),
+            impulse_response_constructor=lambda: urx.ImpulseResponse(),
+            transform_args_constructor=lambda rotation, translation: urx.Transform(
+                rotation, translation
+            ),
+            vector3D_args_constructor=lambda x, y, z: urx.Vector3D(x, y, z),
             enum_probe=lambda: urx.ProbeType,
             enum_sampling=lambda: urx.SamplingType,
             enum_data=lambda: urx.DataType,
