@@ -371,9 +371,15 @@ TEST_CASE("Clone Probe", "[Clone]") {
 
 TEST_CASE("Clone Acquisition", "[Clone]") {
   generic_clone_test(Acquisition());
-  auto d = utils::test::generateWrongDataset<Dataset>();
+  auto d = utils::test::generateFakeDataset<Dataset>();
   auto acq = d->acquisition;
   auto acq_cloned = utils::clone(acq);
+  REQUIRE(acq == acq_cloned);
+  REQUIRE(std::is_same_v<decltype(acq), decltype(acq_cloned)>);
+
+  d = utils::test::generateWrongDataset<Dataset>();
+  acq = d->acquisition;
+  acq_cloned = utils::clone(acq);
   REQUIRE(acq != acq_cloned);
   REQUIRE(std::is_same_v<decltype(acq), decltype(acq_cloned)>);
 

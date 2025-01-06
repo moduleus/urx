@@ -466,13 +466,6 @@ def test_clone_probe(
                     probe_cloned.elements[e_id].element_geometry, probe.element_geometries[eg_id]
                 )
 
-                eg_id_bis = -1
-                for i in range(len(probe.element_geometries)):
-                    if probe.element_geometries[i] == probe_cloned.elements[e_id].element_geometry:
-                        eg_id_bis = i
-                        break
-                self.assertNotEqual(-1, eg_id_bis)
-
             ir_id = -1
             for i in range(len(probe_cloned.impulse_responses)):
                 if (
@@ -491,13 +484,6 @@ def test_clone_probe(
                 self.assertEqual(
                     probe_cloned.elements[e_id].impulse_response, probe.impulse_responses[ir_id]
                 )
-
-                ir_id_bis = -1
-                for i in range(len(probe.impulse_responses)):
-                    if probe.impulse_responses[i] == probe_cloned.elements[e_id].impulse_response:
-                        ir_id_bis = i
-                        break
-                self.assertNotEqual(-1, ir_id_bis)
 
     # PROBE 1
 
@@ -636,43 +622,30 @@ def test_clone_probe(
     print("--Test %s END--" % testName)
 
 
-def test_clone(
+def test_clone_acquisition(
     self,
-    dataset_constructor,
-    acq_constructor,
     acq_copy,
-    double_nan_constructor,
-    double_nan_copy,
+    dataset_constructor,
     probe_constructor,
-    probe_copy,
     excitation_constructor,
-    excitation_copy,
     group_constructor,
-    group_copy,
     group_data_constructor,
-    group_data_copy,
     element_geometry_constructor,
     element_constructor,
-    element_copy,
     event_constructor,
     impulse_response_constructor,
-    receive_setup_constructor,
-    transmit_setup_constructor,
-    wave_constructor,
     transform_args_constructor,
-    vector2D_args_constructor,
     vector3D_args_constructor,
-    version_args_constructor,
     enum_probe,
     enum_sampling,
     enum_data,
     enum_wave,
     clone,
 ):
-    testName = "Clone binding"
+    testName = "Clone Acquisition binding"
     print("\n--Test %s BEGIN--" % testName)
 
-    fake_dataset = gen_fake_dataset(
+    d = gen_fake_dataset(
         dataset_constructor,
         probe_constructor,
         excitation_constructor,
@@ -690,195 +663,145 @@ def test_clone(
         enum_wave,
     )
 
-    # acq = acq_constructor()
+    acq = d.acquisition
+    acq_cloned = clone(acq)
+    self.assertEqual(acq, acq_cloned)
 
-    # # Check copy CTOR and referencing object
-    # acq_2 = acq_copy(acq)
-    # self.assertEqual(acq, acq_2)
-    # self.assertNotEqual(hex(id(acq), hex(id(acq_2))
-    # acq_2.authors = "Hello"
-    # self.assertNotEqual(acq, acq_2)
-    # acq_ref = acq
-    # acq_ref.authors = "Hello"
-    # self.assertEqual(acq, acq_ref)
-    # self.assertEqual(hex(id(acq), hex(id(acq_ref))
+    generic_clone_test(self, acq, acq_copy, clone)
 
-    # acq = acq_constructor()
-    # acq_2 = acq_copy(acq)
+    for g_id in range(len(d.acquisition.groups)):
+        self.assertEqual(acq_cloned.groups[g_id], acq.groups[g_id])
+        if acq.groups[g_id] != None:
+            acq_cloned.groups[g_id].description = "toto"
+            self.assertNotEqual(acq_cloned.groups[g_id], acq.groups[g_id])
+            acq_cloned.groups[g_id].description = acq.groups[g_id].description
 
-    # # probes is a pointer vector, thus all modifications are shared
-    # p = probe_constructor()
-    # p_rca = probe_constructor()
-    # p_rca.type = enum_probe().RCA
-    # p_rca_bis = probe_copy(p_rca)
-    # acq.probes = [p, p_rca]
-    # acq_2 = acq_copy(acq)
-    # self.assertEqual(acq.probes[1], p_rca)
-    # self.assertEqual(acq, acq_2)
+    for ex_id in range(len(d.acquisition.excitations)):
+        self.assertEqual(acq_cloned.excitations[ex_id], acq.excitations[ex_id])
+        if acq.excitations[ex_id] != None:
+            acq_cloned.excitations[ex_id].pulse_shape = "toto"
+            self.assertNotEqual(acq_cloned.excitations[ex_id], acq.excitations[ex_id])
+            acq_cloned.excitations[ex_id].pulse_shape = acq.excitations[ex_id].pulse_shape
 
-    # p_rca.type = enum_probe().LINEAR
-    # self.assertEqual(acq.probes[1], p_rca)
-    # self.assertEqual(acq_2.probes[1], p_rca)
-    # p_rca.type = enum_probe().RCA
+    for p_id in range(len(d.acquisition.probes)):
+        self.assertEqual(acq_cloned.probes[p_id], acq.probes[p_id])
+        if acq.probes[p_id] != None:
+            acq_cloned.probes[p_id].description = "toto"
+            self.assertNotEqual(acq_cloned.probes[p_id], acq.probes[p_id])
+            acq_cloned.probes[p_id].description = acq.probes[p_id].description
 
-    # # Reference is possible for shared pointers vector
-    # self.assertEqual(acq.probes, [p, p_rca])
-    # probes_ref = acq.probes
-    # probes_ref[0] = p_rca_bis
-    # self.assertEqual(acq.probes, probes_ref)
-    # self.assertNotEqual(acq, acq_2)
-    # # Check assignment
-    # acq.probes = [p, p_rca]
-    # self.assertEqual(acq.probes, probes_ref)
-    # self.assertEqual(acq.probes, [p, p_rca])
-    # self.assertEqual(acq, acq_2)
+    for gd_id in range(len(d.acquisition.groups_data)):
+        self.assertEqual(acq_cloned.groups_data[gd_id], acq.groups_data[gd_id])
+        if acq.groups_data[gd_id] != None:
+            acq_cloned.groups_data[gd_id].group_timestamp = 42
+            self.assertNotEqual(acq_cloned.groups_data[gd_id], acq.groups_data[gd_id])
+            acq_cloned.groups_data[gd_id].group_timestamp = acq.groups_data[gd_id].group_timestamp
 
-    # # deleting the local variable does not impact the shared pointers vectors
-    # del p
-    # del p_rca
-    # gc.collect()
-    # self.assertEqual(len(acq.probes), 2)
-    # self.assertEqual(len(acq_2.probes), 2)
+        g_id = -1
+        for i in range(len(acq_cloned.groups)):
+            if acq_cloned.groups[i] == acq_cloned.groups_data[gd_id].group:
+                g_id = i
+                break
+        if g_id < 0:
+            self.assertEqual(acq_cloned.groups_data[gd_id].group, None)
+        else:
+            self.assertEqual(
+                acq_cloned.groups_data[gd_id].group,
+                acq_cloned.groups[g_id],
+            )
+            self.assertEqual(acq_cloned.groups_data[gd_id].group, acq.groups[g_id])
 
-    # # deleting the pointers inside the vectors to check resize
-    # del acq.probes[0]
-    # del acq_2.probes[0]
-    # gc.collect()
-    # self.assertEqual(len(acq.probes), 1)
-    # self.assertEqual(len(acq_2.probes), 1)
-    # self.assertRaises(IndexError, lambda acq: acq.probes[1], acq)
-    # self.assertEqual(acq.probes[0].type, enum_probe().RCA)
+    for g_id in range(len(d.acquisition.groups)):
+        if acq_cloned.groups[g_id] != None:
+            group = acq_cloned.groups[g_id]
+            for e_id in range(len(group.sequence)):
+                receive_setup = group.sequence[e_id].receive_setup
+                transmit_setup = group.sequence[e_id].transmit_setup
 
-    # # excitations is a pointer vector, thus all modifications are shared
-    # ex = excitation_constructor()
-    # ex_2 = excitation_constructor()
-    # ex_2.pulse_shape = "Hello"
-    # ex_3 = excitation_copy(ex_2)
-    # acq.excitations = [ex, ex_2]
-    # acq_2 = acq_copy(acq)
-    # self.assertEqual(acq.excitations[1], ex_2)
-    # self.assertEqual(acq, acq_2)
+                p_id = -1
+                for i in range(len(acq_cloned.probes)):
+                    if acq_cloned.probes[i] == receive_setup.probe:
+                        p_id = i
+                        break
+                if p_id < 0:
+                    self.assertEqual(receive_setup.probe, None)
+                else:
+                    self.assertEqual(
+                        receive_setup.probe,
+                        acq_cloned.probes[p_id],
+                    )
 
-    # ex_2.pulse_shape = "World"
-    # self.assertEqual(acq.excitations[1], ex_2)
-    # self.assertEqual(acq_2.excitations[1], ex_2)
-    # ex_2.pulse_shape = "Hello"
+                p_id = -1
+                for i in range(len(acq_cloned.probes)):
+                    if acq_cloned.probes[i] == transmit_setup.probe:
+                        p_id = i
+                        break
+                if p_id < 0:
+                    self.assertEqual(transmit_setup.probe, None)
+                else:
+                    self.assertEqual(
+                        transmit_setup.probe,
+                        acq_cloned.probes[p_id],
+                    )
 
-    # # Reference is possible for shared pointers vector
-    # self.assertEqual(acq.excitations, [ex, ex_2])
-    # excitations_ref = acq.excitations
-    # excitations_ref[0] = ex_3
-    # self.assertEqual(acq.excitations, excitations_ref)
-    # self.assertNotEqual(acq, acq_2)
-    # # Check assignment
-    # acq.excitations = [ex, ex_2]
-    # self.assertEqual(acq.excitations, excitations_ref)
-    # self.assertEqual(acq.excitations, [ex, ex_2])
-    # self.assertEqual(acq, acq_2)
+                for ex_id in range(len(transmit_setup.excitations)):
+                    acq_ex_id = -1
+                    for i in range(len(acq.excitations)):
+                        if acq.excitations[i] == transmit_setup.excitations[ex_id]:
+                            acq_ex_id = i
+                            break
+                    if acq_ex_id < 0:
+                        self.assertEqual(transmit_setup.excitations[ex_id], None)
+                    else:
+                        self.assertEqual(
+                            transmit_setup.excitations[ex_id],
+                            acq_cloned.excitations[acq_ex_id],
+                        )
 
-    # # deleting the local variable does not impact the shared pointers vectors
-    # del ex
-    # del ex_2
-    # gc.collect()
-    # self.assertEqual(len(acq.excitations), 2)
-    # self.assertEqual(len(acq_2.excitations), 2)
+    print("--Test %s END--" % testName)
 
-    # # deleting the pointers inside the vectors to check resize
-    # del acq.excitations[0]
-    # del acq_2.excitations[0]
-    # gc.collect()
-    # self.assertEqual(len(acq.excitations), 1)
-    # self.assertEqual(len(acq_2.excitations), 1)
-    # self.assertRaises(IndexError, lambda acq: acq.excitations[1], acq)
-    # self.assertEqual(acq.excitations[0].pulse_shape, "Hello")
 
-    # # groups is a pointer vector, thus all modifications are shared
-    # g = group_constructor()
-    # g_2 = group_constructor()
-    # g_2.sampling_type = enum_sampling().RF
-    # g_3 = group_copy(g_2)
-    # acq.groups = [g, g_2]
-    # acq_2 = acq_copy(acq)
-    # self.assertEqual(acq.groups[1], g_2)
-    # self.assertEqual(acq, acq_2)
+def test_clone_dataset(
+    self,
+    dataset_copy,
+    dataset_constructor,
+    probe_constructor,
+    excitation_constructor,
+    group_constructor,
+    group_data_constructor,
+    element_geometry_constructor,
+    element_constructor,
+    event_constructor,
+    impulse_response_constructor,
+    transform_args_constructor,
+    vector3D_args_constructor,
+    enum_probe,
+    enum_sampling,
+    enum_data,
+    enum_wave,
+    clone,
+):
+    testName = "Clone Dataset binding"
+    print("\n--Test %s BEGIN--" % testName)
 
-    # g_2.sampling_type = enum_sampling().IQ
-    # self.assertEqual(acq.groups[1], g_2)
-    # self.assertEqual(acq_2.groups[1], g_2)
-    # g_2.sampling_type = enum_sampling().RF
+    d = gen_fake_dataset(
+        dataset_constructor,
+        probe_constructor,
+        excitation_constructor,
+        group_constructor,
+        group_data_constructor,
+        element_geometry_constructor,
+        element_constructor,
+        event_constructor,
+        impulse_response_constructor,
+        transform_args_constructor,
+        vector3D_args_constructor,
+        enum_probe,
+        enum_sampling,
+        enum_data,
+        enum_wave,
+    )
 
-    # # Reference is possible for shared pointers vector
-    # self.assertEqual(acq.groups, [g, g_2])
-    # groups_ref = acq.groups
-    # groups_ref[0] = g_3
-    # self.assertEqual(acq.groups, groups_ref)
-    # self.assertNotEqual(acq, acq_2)
-    # # Check assignment
-    # acq.groups = [g, g_2]
-    # self.assertEqual(acq.groups, groups_ref)
-    # self.assertEqual(acq.groups, [g, g_2])
-    # self.assertEqual(acq, acq_2)
-
-    # # deleting the local variable does not impact the shared pointers vectors
-    # del g
-    # del g_2
-    # gc.collect()
-    # self.assertEqual(len(acq.groups), 2)
-    # self.assertEqual(len(acq_2.groups), 2)
-
-    # # deleting the pointers inside the vectors to check resize
-    # del acq.groups[0]
-    # del acq_2.groups[0]
-    # gc.collect()
-    # self.assertEqual(len(acq.groups), 1)
-    # self.assertEqual(len(acq_2.groups), 1)
-    # self.assertRaises(IndexError, lambda acq: acq.groups[1], acq)
-    # self.assertEqual(acq.groups[0].sampling_type, enum_sampling().RF)
-
-    # # groups_data is a pointer vector, thus all modifications are shared
-    # if group_data_constructor is not None and group_data_copy is not None:
-    #     gd = group_data_constructor()
-    #     gd_2 = group_data_constructor()
-    #     gd_2.group_timestamp = double_nan_copy(42)
-    #     gd_3 = group_data_copy(gd_2)
-    #     gd_3.group_timestamp = double_nan_copy(24)
-    #     acq.groups_data = [gd, gd_2]
-    #     acq_2 = acq_copy(acq)
-    #     self.assertEqual(acq.groups_data[1], gd_2)
-    #     self.assertEqual(acq, acq_2)
-
-    #     # gd_2 is a copy. Not a shared_ptr.
-    #     # gd_2.group_timestamp = double_nan_copy(99)
-    #     # self.assertEqual(acq.groups_data[1], gd_2)
-    #     # self.assertEqual(acq_2.groups_data[1], gd_2)
-    #     # gd_2.group_timestamp = double_nan_copy(42)
-
-    #     # Reference is possible for GroupData vector
-    #     self.assertEqual(acq.groups_data, [gd, gd_2])
-    #     groups_data_ref = acq.groups_data
-    #     groups_data_ref[0] = gd_3
-    #     self.assertEqual(acq.groups_data, groups_data_ref)
-    #     self.assertNotEqual(acq, acq_2)
-    #     # Check assignment
-    #     acq.groups_data = [gd, gd_2]
-    #     self.assertEqual(acq.groups_data, groups_data_ref)
-    #     self.assertEqual(acq.groups_data, [gd, gd_2])
-    #     self.assertEqual(acq, acq_2)
-
-    #     # deleting the local variable does not impact the shared pointers vectors
-    #     del gd
-    #     del gd_2
-    #     gc.collect()
-    #     self.assertEqual(len(acq.groups_data), 2)
-    #     self.assertEqual(len(acq_2.groups_data), 2)
-
-    #     # deleting the pointers inside the vectors to check resize
-    #     del acq.groups_data[0]
-    #     del acq_2.groups_data[0]
-    #     gc.collect()
-    #     self.assertEqual(len(acq.groups_data), 1)
-    #     self.assertEqual(len(acq_2.groups_data), 1)
-    #     self.assertRaises(IndexError, lambda acq: acq.groups_data[1], acq)
-    #     self.assertEqual(acq.groups_data[0].group_timestamp, double_nan_copy(42))
+    generic_clone_test(self, d, dataset_copy, clone)
 
     print("--Test %s END--" % testName)
