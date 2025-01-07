@@ -73,11 +73,11 @@ class IRawData : public RawData {
  public:
   using ValueType = T;
 
-  constexpr SamplingType getSamplingType() const override {
+  SamplingType getSamplingType() const override {
     return utils::IsComplex<ValueType>::value ? SamplingType::IQ : SamplingType::RF;
   };
 
-  constexpr DataType getDataType() const override { return DataTypeSelector<ValueType>::value; };
+  DataType getDataType() const override { return DataTypeSelector<ValueType>::value; };
 
   ~IRawData() override = default;
 };

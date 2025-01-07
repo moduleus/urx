@@ -41,7 +41,7 @@ TEST_CASE("Read failure HDF5 file", "[hdf5_reader]") {
 TEST_CASE("Write failure HDF5 file", "[hdf5_writer]") {
   const urx::Dataset dataset;
 #ifdef _WIN32
-  REQUIRE_THROWS_AS(writer::saveToFile("aux", dataset), urx::utils::WriteFileException);
+  REQUIRE_THROWS_AS(saveToFile("aux", dataset), urx::utils::WriteFileException);
 #else
   REQUIRE_THROWS_AS(saveToFile("/", dataset), urx::utils::WriteFileException);
 #endif
