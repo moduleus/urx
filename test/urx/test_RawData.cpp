@@ -134,8 +134,8 @@ TEST_CASE("getDataType throws on wrong template", "[test_RawData]") {
   const RawDataVector<uint32_t> raw_data_vector_uint32(std::vector<uint32_t>{1, 2});
   const RawDataVector<uint16_t> raw_data_vector_uint16(std::vector<uint16_t>{1, 2});
 
-  CHECK_THROWS_AS(raw_data_vector_uint32.getDataType(), std::out_of_range);
-  CHECK_THROWS_AS(raw_data_vector_uint16.getDataType(), std::out_of_range);
+  CHECK(raw_data_vector_uint32.getDataType() == DataType::UNDEFINED);
+  CHECK(raw_data_vector_uint16.getDataType() == DataType::UNDEFINED);
 }
 
 }  // namespace urx::test
