@@ -9,7 +9,7 @@
 namespace urx::utils::test {
 
 template <typename T>
-void generic_clone_test(T var) {
+void genericCloneTest(T var) {
   auto var_cloned = utils::clone(var);
   REQUIRE(var == var_cloned);
   REQUIRE(std::is_same_v<decltype(var), decltype(var_cloned)>);
@@ -18,7 +18,7 @@ void generic_clone_test(T var) {
   }
 
   // Raw PTR
-  auto var_ptr_cloned = utils::clone(&var);
+  auto *var_ptr_cloned = utils::clone(&var);
   REQUIRE(var == *var_ptr_cloned);
   REQUIRE(std::is_same_v<decltype(&var), decltype(var_ptr_cloned)>);
   delete var_ptr_cloned;

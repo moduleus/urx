@@ -28,72 +28,69 @@ namespace urx::utils::test {
 
 TEST_CASE("Clone DoubleNan", "[Clone]") {
   DoubleNan d;
-  generic_clone_test(d);
+  genericCloneTest(d);
   d = 42.42;
-  generic_clone_test(d);
+  genericCloneTest(d);
 }
 
 TEST_CASE("Clone Vector2D", "[Clone]") {
-  Vector2D<double> d_vec = {1.23, 4.56};
-  generic_clone_test(d_vec);
+  Vector2D<double> const d_vec = {1.23, 4.56};
+  genericCloneTest(d_vec);
 }
 
 TEST_CASE("Clone Vector3D", "[Clone]") {
-  Vector3D<double> d_vec = {1.23, 4.56, -7.89};
-  generic_clone_test(d_vec);
+  Vector3D<double> const d_vec = {1.23, 4.56, -7.89};
+  genericCloneTest(d_vec);
 }
 
 TEST_CASE("Clone Version", "[Clone]") {
-  Version vers = {1, 2, 3};
-  generic_clone_test(vers);
+  Version const vers = {1, 2, 3};
+  genericCloneTest(vers);
 }
 
 TEST_CASE("Clone Transform", "[Clone]") {
-  Transform t = {{1, 2, 3}, {4, 5, 6}};
-  generic_clone_test(t);
+  Transform const t = {{1, 2, 3}, {4, 5, 6}};
+  genericCloneTest(t);
 }
 
 TEST_CASE("Clone Wave", "[Clone]") {
-  generic_clone_test(Wave());
+  genericCloneTest(Wave());
   auto d = utils::test::generateWrongDataset<Dataset>();
 
-  for (size_t g_id = 0; g_id < d->acquisition.groups.size(); ++g_id) {
-    auto& group = d->acquisition.groups.at(g_id);
+  for (auto& group : d->acquisition.groups) {
     if (group != nullptr) {
-      for (size_t e_id = 0; e_id < group->sequence.size(); ++e_id) {
-        Wave& w = group->sequence.at(e_id).transmit_setup.wave;
-        generic_clone_test(w);
+      for (auto& e : group->sequence) {
+        Wave const& w = e.transmit_setup.wave;
+        genericCloneTest(w);
       }
     }
   }
 }
 
 TEST_CASE("Clone Element", "[Clone]") {
-  generic_clone_test(Element());
+  genericCloneTest(Element());
   auto d = utils::test::generateWrongDataset<Dataset>();
 
   for (size_t p_id = 0; p_id < d->acquisition.groups.size(); ++p_id) {
     auto& probe = d->acquisition.probes.at(p_id);
     if (probe != nullptr) {
-      for (size_t e_id = 0; e_id < probe->elements.size(); ++e_id) {
-        Element& e = probe->elements.at(e_id);
-        generic_clone_test(e);
+      for (auto& e : probe->elements) {
+        genericCloneTest(e);
       }
     }
   }
 }
 
 TEST_CASE("Clone ElementGeometry", "[Clone]") {
-  generic_clone_test(ElementGeometry());
+  genericCloneTest(ElementGeometry());
   auto d = utils::test::generateWrongDataset<Dataset>();
 
   for (size_t p_id = 0; p_id < d->acquisition.groups.size(); ++p_id) {
     auto& probe = d->acquisition.probes.at(p_id);
     if (probe != nullptr) {
-      for (size_t eg_id = 0; eg_id < probe->element_geometries.size(); ++eg_id) {
-        std::shared_ptr<ElementGeometry> eg = probe->element_geometries.at(eg_id);
+      for (const auto& eg : probe->element_geometries) {
         if (eg) {
-          generic_clone_test(*eg);
+          genericCloneTest(*eg);
         }
       }
     }
@@ -101,16 +98,15 @@ TEST_CASE("Clone ElementGeometry", "[Clone]") {
 }
 
 TEST_CASE("Clone ImpulseResponse", "[Clone]") {
-  generic_clone_test(ImpulseResponse());
+  genericCloneTest(ImpulseResponse());
   auto d = utils::test::generateWrongDataset<Dataset>();
 
   for (size_t p_id = 0; p_id < d->acquisition.groups.size(); ++p_id) {
     auto& probe = d->acquisition.probes.at(p_id);
     if (probe != nullptr) {
-      for (size_t ir_id = 0; ir_id < probe->impulse_responses.size(); ++ir_id) {
-        std::shared_ptr<ImpulseResponse> ir = probe->impulse_responses.at(ir_id);
+      for (const auto& ir : probe->impulse_responses) {
         if (ir) {
-          generic_clone_test(*ir);
+          genericCloneTest(*ir);
         }
       }
     }
@@ -118,81 +114,74 @@ TEST_CASE("Clone ImpulseResponse", "[Clone]") {
 }
 
 TEST_CASE("Clone TransmitSetup", "[Clone]") {
-  generic_clone_test(TransmitSetup());
+  genericCloneTest(TransmitSetup());
   auto d = utils::test::generateWrongDataset<Dataset>();
 
-  for (size_t g_id = 0; g_id < d->acquisition.groups.size(); ++g_id) {
-    auto& group = d->acquisition.groups.at(g_id);
+  for (auto& group : d->acquisition.groups) {
     if (group != nullptr) {
-      for (size_t e_id = 0; e_id < group->sequence.size(); ++e_id) {
-        TransmitSetup& ts = group->sequence.at(e_id).transmit_setup;
-        generic_clone_test(ts);
+      for (auto& e : group->sequence) {
+        TransmitSetup const& ts = e.transmit_setup;
+        genericCloneTest(ts);
       }
     }
   }
 }
 
 TEST_CASE("Clone ReceiveSetup", "[Clone]") {
-  generic_clone_test(ReceiveSetup());
+  genericCloneTest(ReceiveSetup());
   auto d = utils::test::generateWrongDataset<Dataset>();
 
-  for (size_t g_id = 0; g_id < d->acquisition.groups.size(); ++g_id) {
-    auto& group = d->acquisition.groups.at(g_id);
+  for (auto& group : d->acquisition.groups) {
     if (group != nullptr) {
-      for (size_t e_id = 0; e_id < group->sequence.size(); ++e_id) {
-        ReceiveSetup& rs = group->sequence.at(e_id).receive_setup;
-        generic_clone_test(rs);
+      for (auto& e : group->sequence) {
+        ReceiveSetup const& rs = e.receive_setup;
+        genericCloneTest(rs);
       }
     }
   }
 }
 
 TEST_CASE("Clone Event", "[Clone]") {
-  generic_clone_test(Event());
+  genericCloneTest(Event());
   auto d = utils::test::generateWrongDataset<Dataset>();
 
-  for (size_t g_id = 0; g_id < d->acquisition.groups.size(); ++g_id) {
-    auto& group = d->acquisition.groups.at(g_id);
+  for (auto& group : d->acquisition.groups) {
     if (group != nullptr) {
-      for (size_t e_id = 0; e_id < group->sequence.size(); ++e_id) {
-        Event& e = group->sequence.at(e_id);
-        generic_clone_test(e);
+      for (auto& e : group->sequence) {
+        genericCloneTest(e);
       }
     }
   }
 }
 
 TEST_CASE("Clone Excitation", "[Clone]") {
-  generic_clone_test(Excitation());
+  genericCloneTest(Excitation());
   auto d = utils::test::generateWrongDataset<Dataset>();
 
-  for (size_t ex_id = 0; ex_id < d->acquisition.excitations.size(); ++ex_id) {
-    auto& ex = d->acquisition.excitations.at(ex_id);
+  for (auto& ex : d->acquisition.excitations) {
     if (ex != nullptr) {
-      generic_clone_test(*ex);
+      genericCloneTest(*ex);
     }
   }
 }
 
 TEST_CASE("Clone Group", "[Clone]") {
-  generic_clone_test(Group());
+  genericCloneTest(Group());
   auto d = utils::test::generateWrongDataset<Dataset>();
 
-  for (size_t g_id = 0; g_id < d->acquisition.groups.size(); ++g_id) {
-    auto& g = d->acquisition.groups.at(g_id);
+  for (auto& g : d->acquisition.groups) {
     if (g != nullptr) {
-      generic_clone_test(*g);
+      genericCloneTest(*g);
     }
   }
 }
 
 TEST_CASE("Clone GroupData", "[Clone]") {
-  generic_clone_test(GroupData());
+  genericCloneTest(GroupData());
   auto d = utils::test::generateWrongDataset<Dataset>();
 
-  for (size_t gd_id = 0; gd_id < d->acquisition.groups_data.size(); ++gd_id) {
-    auto& gd = d->acquisition.groups_data.at(gd_id);
-    generic_clone_test(gd);
+  for (auto& gd : d->acquisition.groups_data) {
+    genericCloneTest(gd);
   }
 }
 
@@ -201,8 +190,8 @@ TEST_CASE("Clone RawData", "[Clone]") {
 
   std::vector<std::shared_ptr<RawData>> rd_vec;
   rd_vec.reserve(d->acquisition.groups_data.size());
-  for (size_t gd_id = 0; gd_id < d->acquisition.groups_data.size(); ++gd_id) {
-    rd_vec.push_back(d->acquisition.groups_data.at(gd_id).raw_data);
+  for (auto& gd_id : d->acquisition.groups_data) {
+    rd_vec.push_back(gd_id.raw_data);
   }
   // NULLPTR
   rd_vec.push_back(nullptr);
@@ -213,7 +202,7 @@ TEST_CASE("Clone RawData", "[Clone]") {
       rd());  // these can be global and/or static, depending on how you use random elsewhere
 
   // RawDataVector with no data
-  std::vector<std::complex<float>> no_data_vec(0);
+  std::vector<std::complex<float>> const no_data_vec(0);
   rd_vec.push_back(std::make_shared<RawDataVector<std::complex<float>>>(no_data_vec));
 
   // RawDataVector with 1000 std::complex<float>
@@ -270,8 +259,7 @@ TEST_CASE("Clone RawData", "[Clone]") {
   rd_vec.push_back(std::make_shared<RawDataWeak<int16_t>>(rd_no_init_comp_double_init->getBuffer(),
                                                           rd_no_init_comp_double_init->getSize()));
 
-  for (size_t rd_id = 0; rd_id < rd_vec.size(); ++rd_id) {
-    std::shared_ptr<RawData> rd = rd_vec.at(rd_id);
+  for (auto& rd : rd_vec) {
     if (rd) {
       std::shared_ptr<RawData> rd_cloned = std::shared_ptr<RawData>(clone<RawData, RawData*>(*rd));
       REQUIRE(rd_cloned == rd);
@@ -279,21 +267,21 @@ TEST_CASE("Clone RawData", "[Clone]") {
         REQUIRE(rd_cloned->getSize() == rd->getSize());
         REQUIRE(rd_cloned->getSamplingType() == rd->getSamplingType());
         REQUIRE(rd_cloned->getDataType() == rd->getDataType());
-        if (dynamic_cast<RawDataWeak<std::complex<double>>*>(rd_vec.at(rd_id).get())) {
+        if (dynamic_cast<RawDataWeak<std::complex<double>>*>(rd.get())) {
           REQUIRE(rd_cloned->getBuffer() == rd->getBuffer());
-        } else if (dynamic_cast<RawDataWeak<std::complex<float>>*>(rd_vec.at(rd_id).get())) {
+        } else if (dynamic_cast<RawDataWeak<std::complex<float>>*>(rd.get())) {
           REQUIRE(rd_cloned->getBuffer() == rd->getBuffer());
-        } else if (dynamic_cast<RawDataWeak<std::complex<int32_t>>*>(rd_vec.at(rd_id).get())) {
+        } else if (dynamic_cast<RawDataWeak<std::complex<int32_t>>*>(rd.get())) {
           REQUIRE(rd_cloned->getBuffer() == rd->getBuffer());
-        } else if (dynamic_cast<RawDataWeak<std::complex<int16_t>>*>(rd_vec.at(rd_id).get())) {
+        } else if (dynamic_cast<RawDataWeak<std::complex<int16_t>>*>(rd.get())) {
           REQUIRE(rd_cloned->getBuffer() == rd->getBuffer());
-        } else if (dynamic_cast<RawDataWeak<double>*>(rd_vec.at(rd_id).get())) {
+        } else if (dynamic_cast<RawDataWeak<double>*>(rd.get())) {
           REQUIRE(rd_cloned->getBuffer() == rd->getBuffer());
-        } else if (dynamic_cast<RawDataWeak<float>*>(rd_vec.at(rd_id).get())) {
+        } else if (dynamic_cast<RawDataWeak<float>*>(rd.get())) {
           REQUIRE(rd_cloned->getBuffer() == rd->getBuffer());
-        } else if (dynamic_cast<RawDataWeak<int32_t>*>(rd_vec.at(rd_id).get())) {
+        } else if (dynamic_cast<RawDataWeak<int32_t>*>(rd.get())) {
           REQUIRE(rd_cloned->getBuffer() == rd->getBuffer());
-        } else if (dynamic_cast<RawDataWeak<int16_t>*>(rd_vec.at(rd_id).get())) {
+        } else if (dynamic_cast<RawDataWeak<int16_t>*>(rd.get())) {
           REQUIRE(rd_cloned->getBuffer() == rd->getBuffer());
         } else {
           if (rd_cloned->getBuffer()) {
@@ -306,14 +294,13 @@ TEST_CASE("Clone RawData", "[Clone]") {
 }
 
 TEST_CASE("Clone Probe", "[Clone]") {
-  generic_clone_test(Probe());
+  genericCloneTest(Probe());
   auto d = utils::test::generateWrongDataset<Dataset>();
 
-  for (size_t p_id = 0; p_id < d->acquisition.probes.size(); ++p_id) {
-    auto& p = d->acquisition.probes.at(p_id);
+  for (auto& p : d->acquisition.probes) {
     if (p != nullptr) {
       if (p->description != "Probe with wrong ptr") {
-        generic_clone_test(*p);
+        genericCloneTest(*p);
       }
       auto p_cloned = utils::clone(p);
 
@@ -341,7 +328,7 @@ TEST_CASE("Clone Probe", "[Clone]") {
         }
       }
       for (size_t e_id = 0; e_id < p_cloned->elements.size(); ++e_id) {
-        int32_t eg_id =
+        int32_t const eg_id =
             getEltId(p_cloned->element_geometries, p_cloned->elements.at(e_id).element_geometry);
         if (eg_id < 0) {
           REQUIRE(p_cloned->elements.at(e_id).element_geometry == std::weak_ptr<ElementGeometry>());
@@ -353,7 +340,7 @@ TEST_CASE("Clone Probe", "[Clone]") {
                   getEltId(p->element_geometries, p_cloned->elements.at(e_id).element_geometry));
         }
 
-        int32_t ir_id =
+        int32_t const ir_id =
             getEltId(p_cloned->impulse_responses, p_cloned->elements.at(e_id).impulse_response);
         if (eg_id < 0) {
           REQUIRE(p_cloned->elements.at(e_id).impulse_response == std::weak_ptr<ImpulseResponse>());
@@ -370,7 +357,7 @@ TEST_CASE("Clone Probe", "[Clone]") {
 }
 
 TEST_CASE("Clone Acquisition", "[Clone]") {
-  generic_clone_test(Acquisition());
+  genericCloneTest(Acquisition());
   auto d = utils::test::generateFakeDataset<Dataset>();
   auto acq = d->acquisition;
   auto acq_cloned = utils::clone(acq);
@@ -389,7 +376,7 @@ TEST_CASE("Clone Acquisition", "[Clone]") {
       break;
     }
   }
-  generic_clone_test(acq);
+  genericCloneTest(acq);
   acq_cloned = utils::clone(acq);
 
   for (size_t p_id = 0; p_id < acq.probes.size(); ++p_id) {
@@ -426,8 +413,8 @@ TEST_CASE("Clone Acquisition", "[Clone]") {
               acq.groups_data.at(gd_id).raw_data.get());
     }
 
-    int32_t g_id = getEltId(acq.groups, acq.groups_data.at(gd_id).group);
-    int32_t cloned_g_id = getEltId(acq_cloned.groups, acq_cloned.groups_data.at(gd_id).group);
+    int32_t const g_id = getEltId(acq.groups, acq.groups_data.at(gd_id).group);
+    int32_t const cloned_g_id = getEltId(acq_cloned.groups, acq_cloned.groups_data.at(gd_id).group);
     REQUIRE(acq_cloned.groups_data.at(gd_id) == acq.groups_data.at(gd_id));
     REQUIRE(g_id == cloned_g_id);
     if (g_id < 0) {
@@ -444,9 +431,9 @@ TEST_CASE("Clone Acquisition", "[Clone]") {
   for (size_t g_id = 0; g_id < acq.groups.size(); ++g_id) {
     if (acq_cloned.groups.at(g_id)) {
       auto& group = acq_cloned.groups.at(g_id);
-      for (size_t e_id = 0; e_id < group->sequence.size(); ++e_id) {
-        auto& receive_setup = group->sequence.at(e_id).receive_setup;
-        auto& transmit_setup = group->sequence.at(e_id).transmit_setup;
+      for (auto& e : group->sequence) {
+        auto& receive_setup = e.receive_setup;
+        auto& transmit_setup = e.transmit_setup;
 
         int32_t p_id = getEltId(acq.probes, receive_setup.probe);
         if (p_id < 0) {
@@ -461,12 +448,12 @@ TEST_CASE("Clone Acquisition", "[Clone]") {
         } else {
           transmit_setup.probe = acq_cloned.probes.at(p_id);
         }
-        for (size_t ex_id = 0; ex_id < transmit_setup.excitations.size(); ++ex_id) {
-          int32_t acq_ex_id = getEltId(acq.excitations, transmit_setup.excitations.at(ex_id));
+        for (auto& excitation : transmit_setup.excitations) {
+          int32_t const acq_ex_id = getEltId(acq.excitations, excitation);
           if (acq_ex_id < 0) {
-            transmit_setup.excitations[ex_id] = std::weak_ptr<Excitation>();
+            excitation = std::weak_ptr<Excitation>();
           } else {
-            transmit_setup.excitations[ex_id] = acq_cloned.excitations.at(acq_ex_id);
+            excitation = acq_cloned.excitations.at(acq_ex_id);
           }
         }
       }
@@ -475,10 +462,10 @@ TEST_CASE("Clone Acquisition", "[Clone]") {
 }
 
 TEST_CASE("Clone Dataset", "[Clone]") {
-  generic_clone_test(Dataset());
+  genericCloneTest(Dataset());
   auto d = utils::test::generateFakeDataset<Dataset>();
-  generic_clone_test(*d);
-  generic_clone_test(d);
+  genericCloneTest(*d);
+  genericCloneTest(d);
 }
 
 }  // namespace urx::utils::test

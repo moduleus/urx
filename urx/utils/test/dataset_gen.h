@@ -76,7 +76,7 @@ std::shared_ptr<T> generateFakeDataset() {
       probe->impulse_responses.push_back(impulse_response);
     }
 
-    probe->elements.push_back(Element());
+    probe->elements.emplace_back();
 
     {
       Element element;
@@ -248,7 +248,7 @@ std::shared_ptr<T> generateFakeDataset() {
     group->data_type = DataType::DOUBLE;
     group->sound_speed = 1550.;
 
-    group->sequence.push_back(EventT());
+    group->sequence.emplace_back();
     {
       EventT event;
       event.transmit_setup.probe = dataset->acquisition.probes[1];
@@ -349,7 +349,7 @@ std::shared_ptr<T> generateFakeDataset() {
         GroupDataT group_data;
         group_data.group = dataset->acquisition.groups[1];
 
-        std::vector<std::complex<int16_t>> buf = {
+        const std::vector<std::complex<int16_t>> buf = {
             {123, 456}, {159, 753}, {789, 456}, {123, 753}, {-0255, 15909}};
 
         group_data.raw_data = std::make_shared<RawDataVector<std::complex<int16_t>>>(buf);
@@ -370,7 +370,6 @@ std::shared_ptr<T> generateFakeDataset() {
 
 template <typename T>
 std::shared_ptr<T> generateWrongDataset() {
-  using ExcitationT = typename decltype(T::acquisition.excitations)::value_type::element_type;
   auto dataset = generateFakeDataset<T>();
   auto dataset_bis = generateFakeDataset<T>();
 
@@ -385,7 +384,7 @@ std::shared_ptr<T> generateWrongDataset() {
     wrong_probe->impulse_responses.push_back(std::make_shared<ImpulseResponse>());
     wrong_probe->impulse_responses.resize(2);
   }
-  wrong_probe->elements.push_back(Element());
+  wrong_probe->elements.emplace_back();
   {
     Element element;
     element.element_geometry = wrong_probe->element_geometries[0];
@@ -427,7 +426,7 @@ std::shared_ptr<T> generateWrongDataset() {
 
       auto& ex_vec =
           dataset->acquisition.groups.at(g_id)->sequence.at(e_id).transmit_setup.excitations;
-      ex_vec.push_back(std::weak_ptr<ExcitationT>());
+      ex_vec.emplace_back();
       ex_vec.push_back(dataset_bis->acquisition.excitations.back());
       ex_vec.resize(ex_vec.size() + 1);
     }

@@ -18,32 +18,32 @@ namespace urx {
 // Get DataType associated to type T
 template <typename T>
 struct DataTypeSelector {
-  static constexpr DataType value = DataType::UNDEFINED;
+  static constexpr DataType VALUE = DataType::UNDEFINED;
 };
 
 template <>
 struct DataTypeSelector<double> {
-  static constexpr DataType value = DataType::DOUBLE;
+  static constexpr DataType VALUE = DataType::DOUBLE;
 };
 
 template <>
 struct DataTypeSelector<float> {
-  static constexpr DataType value = DataType::FLOAT;
+  static constexpr DataType VALUE = DataType::FLOAT;
 };
 
 template <>
 struct DataTypeSelector<int32_t> {
-  static constexpr DataType value = DataType::INT32;
+  static constexpr DataType VALUE = DataType::INT32;
 };
 
 template <>
 struct DataTypeSelector<int16_t> {
-  static constexpr DataType value = DataType::INT16;
+  static constexpr DataType VALUE = DataType::INT16;
 };
 
 template <typename T>
 struct DataTypeSelector<std::complex<T>> {
-  static constexpr DataType value = DataTypeSelector<T>::value;
+  static constexpr DataType VALUE = DataTypeSelector<T>::VALUE;
 };
 
 class RawData {
@@ -77,7 +77,7 @@ class IRawData : public RawData {
     return utils::IsComplex<ValueType>::value ? SamplingType::IQ : SamplingType::RF;
   };
 
-  DataType getDataType() const override { return DataTypeSelector<ValueType>::value; };
+  DataType getDataType() const override { return DataTypeSelector<ValueType>::VALUE; };
 
   ~IRawData() override = default;
 };
