@@ -13,11 +13,15 @@ void generic_clone_test(T var) {
   auto var_cloned = utils::clone(var);
   REQUIRE(var == var_cloned);
   REQUIRE(std::is_same_v<decltype(var), decltype(var_cloned)>);
+  if constexpr (std::is_pointer_v<T>) {
+    delete var_cloned;
+  }
 
   // Raw PTR
   auto var_ptr_cloned = utils::clone(&var);
   REQUIRE(var == *var_ptr_cloned);
   REQUIRE(std::is_same_v<decltype(&var), decltype(var_ptr_cloned)>);
+  delete var_ptr_cloned;
 
   // Shared PTR
   std::shared_ptr<T> var_shared_ptr = std::make_shared<T>(var);
