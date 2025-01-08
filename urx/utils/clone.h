@@ -11,7 +11,7 @@
 #include <urx/utils/cpp.h>
 
 template <typename T>
-using raw_type = T;
+using RawType = T;
 
 namespace urx::utils {
 
@@ -21,16 +21,16 @@ struct SamplingTypeSelector;
 
 template <typename T>
 struct SamplingTypeSelector<SamplingType::IQ, T> {
-  using type = std::complex<T>;
+  using Type = std::complex<T>;
 };
 
 template <typename T>
 struct SamplingTypeSelector<SamplingType::RF, T> {
-  using type = T;
+  using Type = T;
 };
 
 template <SamplingType enum_value, typename T>
-using sampling_type = typename SamplingTypeSelector<enum_value, T>::type;
+using SamplingTypeType = typename SamplingTypeSelector<enum_value, T>::type;
 
 // Get type associated to DataType
 template <DataType enum_value>
@@ -38,37 +38,37 @@ struct DataTypeSelector;
 
 template <>
 struct DataTypeSelector<DataType::DOUBLE> {
-  using type = double;
+  using Type = double;
 };
 
 template <>
 struct DataTypeSelector<DataType::FLOAT> {
-  using type = float;
+  using Type = float;
 };
 
 template <>
 struct DataTypeSelector<DataType::INT32> {
-  using type = int32_t;
+  using Type = int32_t;
 };
 
 template <>
 struct DataTypeSelector<DataType::INT16> {
-  using type = int16_t;
+  using Type = int16_t;
 };
 
 template <DataType enum_value>
-using data_type = typename DataTypeSelector<enum_value>::type;
+using DataTypeType = typename DataTypeSelector<enum_value>::type;
 
 // Get type associated to SamplingType and DataType
 // Waiting C++20 to be used in clone(GroupData)
 template <SamplingType sampling_enum_value, DataType data_enum_value>
-using sampling_data_type = sampling_type<sampling_enum_value, data_type<data_enum_value>>;
+using SamplingDataType = SamplingTypeType<sampling_enum_value, DataTypeType<data_enum_value>>;
 
 template <typename T, typename U = T>
-U clone(const T& value) {
+inline U clone(const T& value) {
   if constexpr (std::is_pointer_v<T>) {
     return value ? new std::remove_pointer_t<T>(clone(*value)) : nullptr;
-  } else if constexpr (utils::is_shared_ptr<T>::value) {
+  } else if constexpr (utils::IsSharedPtr<T>::value) {
     return value ? std::make_shared<typename T::element_type>(clone(*value)) : nullptr;
   } else {
     return value;
@@ -76,19 +76,21 @@ U clone(const T& value) {
 }
 
 template <>
-Probe clone(const Probe& p) {
-  Probe probe_cloned(p);
+inline Probe clone(const Probe& value) {
+  Probe probe_cloned(value);
 
-  for (size_t eg_id = 0; eg_id < p.element_geometries.size(); ++eg_id) {
-    probe_cloned.element_geometries[eg_id] = clone(p.element_geometries.at(eg_id));
+  for (size_t eg_id = 0; eg_id < value.element_geometries.size(); ++eg_id) {
+    probe_cloned.element_geometries[eg_id] = clone(value.element_geometries.at(eg_id));
   }
-  for (size_t ir_id = 0; ir_id < p.impulse_responses.size(); ++ir_id) {
-    probe_cloned.impulse_responses[ir_id] = clone(p.impulse_responses.at(ir_id));
+  for (size_t ir_id = 0; ir_id < value.impulse_responses.size(); ++ir_id) {
+    probe_cloned.impulse_responses[ir_id] = clone(value.impulse_responses.at(ir_id));
   }
 
-  for (size_t e_id = 0; e_id < p.elements.size(); ++e_id) {
-    int32_t eg_id = getEltId(p.element_geometries, p.elements.at(e_id).element_geometry);
-    int32_t ir_id = getEltId(p.impulse_responses, p.elements.at(e_id).impulse_response);
+  for (size_t e_id = 0; e_id < value.elements.size(); ++e_id) {
+    int32_t const eg_id =
+        getEltId(value.element_geometries, value.elements.at(e_id).element_geometry);
+    int32_t const ir_id =
+        getEltId(value.impulse_responses, value.elements.at(e_id).impulse_response);
     if (eg_id < 0) {
       probe_cloned.elements.at(e_id).element_geometry = std::weak_ptr<ElementGeometry>();
     } else {
@@ -104,14 +106,14 @@ Probe clone(const Probe& p) {
 }
 
 template <>
-std::shared_ptr<Probe> clone(const std::shared_ptr<Probe>& p) {
-  return (p == nullptr) ? nullptr : std::make_shared<Probe>(clone(*p));
+inline std::shared_ptr<Probe> clone(const std::shared_ptr<Probe>& value) {
+  return (value == nullptr) ? nullptr : std::make_shared<Probe>(clone(*value));
 }
 
 template <typename T>
-RawDataVector<T>* cloneRawData(const RawDataVector<T>* rd) {
-  std::vector<T> data(static_cast<const T*>(rd->getBuffer()),
-                      static_cast<const T*>(rd->getBuffer()) + rd->getSize());
+inline RawDataVector<T>* cloneRawData(const RawDataVector<T>* rd) {
+  std::vector<T> const data(static_cast<const T*>(rd->getBuffer()),
+                            static_cast<const T*>(rd->getBuffer()) + rd->getSize());
 
   RawDataVector<T>* rd_cloned = new RawDataVector<T>(data);
 
@@ -119,7 +121,7 @@ RawDataVector<T>* cloneRawData(const RawDataVector<T>* rd) {
 }
 
 template <typename T>
-RawDataNoInit<T>* cloneRawData(const RawDataNoInit<T>* rd) {
+inline RawDataNoInit<T>* cloneRawData(const RawDataNoInit<T>* rd) {
   RawDataNoInit<T>* rd_cloned = new RawDataNoInit<T>(rd->getSize());
   std::memcpy(rd_cloned->getBuffer(), rd->getBuffer(), rd->getSize() * sizeof(T));
 
@@ -127,7 +129,7 @@ RawDataNoInit<T>* cloneRawData(const RawDataNoInit<T>* rd) {
 }
 
 template <typename T>
-RawDataWeak<T>* cloneRawData(const RawDataWeak<T>* rd) {
+inline RawDataWeak<T>* cloneRawData(const RawDataWeak<T>* rd) {
   RawDataWeak<T>* rd_cloned =
       new RawDataWeak<T>(const_cast<RawDataWeak<T>*>(rd)->getBuffer(), rd->getSize());
 
@@ -135,38 +137,39 @@ RawDataWeak<T>* cloneRawData(const RawDataWeak<T>* rd) {
 }
 
 template <typename T>
-RawData* cloneRawData(const RawData* rd) {
+inline RawData* cloneRawData(const RawData* rd) {
   if (const auto* cast_raw_data = dynamic_cast<const RawDataVector<T>*>(rd)) {
     return cloneRawData(cast_raw_data);
-  } else if (const auto* cast_raw_data = dynamic_cast<const RawDataNoInit<T>*>(rd)) {
-    return cloneRawData(cast_raw_data);
-  } else if (const auto* cast_raw_data = dynamic_cast<const RawDataWeak<T>*>(rd)) {
-    return cloneRawData(cast_raw_data);
-  } else {
-    throw std::runtime_error("Can not clone not known RawData derived class");
   }
+  if (const auto* cast_raw_data = dynamic_cast<const RawDataNoInit<T>*>(rd)) {
+    return cloneRawData(cast_raw_data);
+  }
+  if (const auto* cast_raw_data = dynamic_cast<const RawDataWeak<T>*>(rd)) {
+    return cloneRawData(cast_raw_data);
+  }
+  throw std::runtime_error("Can not clone not known RawData derived class");
 }
 
 template <>
-RawData* clone(const RawData& rd) {
+inline RawData* clone(const RawData& value) {
   RawData* rd_cloned = nullptr;
-  SamplingType current_sampling = rd.getSamplingType();
-  DataType current_data = rd.getDataType();
+  const SamplingType current_sampling = value.getSamplingType();
+  const DataType current_data = value.getDataType();
 
   switch (current_sampling) {
     case SamplingType::IQ: {
       switch (current_data) {
         case DataType::DOUBLE: {
-          rd_cloned = cloneRawData<std::complex<double>>(&rd);
+          rd_cloned = cloneRawData<std::complex<double>>(&value);
         } break;
         case DataType::FLOAT: {
-          rd_cloned = cloneRawData<std::complex<float>>(&rd);
+          rd_cloned = cloneRawData<std::complex<float>>(&value);
         } break;
         case DataType::INT32: {
-          rd_cloned = cloneRawData<std::complex<int32_t>>(&rd);
+          rd_cloned = cloneRawData<std::complex<int32_t>>(&value);
         } break;
         case DataType::INT16: {
-          rd_cloned = cloneRawData<std::complex<int16_t>>(&rd);
+          rd_cloned = cloneRawData<std::complex<int16_t>>(&value);
         } break;
         default:
           throw std::runtime_error("Can not clone RawData derived class without knowing DataType");
@@ -177,16 +180,16 @@ RawData* clone(const RawData& rd) {
     case SamplingType::RF: {
       switch (current_data) {
         case DataType::DOUBLE: {
-          rd_cloned = cloneRawData<double>(&rd);
+          rd_cloned = cloneRawData<double>(&value);
         } break;
         case DataType::FLOAT: {
-          rd_cloned = cloneRawData<float>(&rd);
+          rd_cloned = cloneRawData<float>(&value);
         } break;
         case DataType::INT32: {
-          rd_cloned = cloneRawData<int32_t>(&rd);
+          rd_cloned = cloneRawData<int32_t>(&value);
         } break;
         case DataType::INT16: {
-          rd_cloned = cloneRawData<int16_t>(&rd);
+          rd_cloned = cloneRawData<int16_t>(&value);
         } break;
         default:
           throw std::runtime_error("Can not clone RawData derived class without knowing DataType");
@@ -202,31 +205,31 @@ RawData* clone(const RawData& rd) {
 }
 
 template <>
-GroupData clone(const GroupData& gd) {
-  GroupData gd_cloned(gd);
+inline GroupData clone(const GroupData& value) {
+  GroupData gd_cloned(value);
 
   if (gd_cloned.raw_data) {
-    gd_cloned.raw_data = std::shared_ptr<RawData>(clone<RawData, RawData*>(*gd.raw_data));
+    gd_cloned.raw_data = std::shared_ptr<RawData>(clone<RawData, RawData*>(*value.raw_data));
   }
   return gd_cloned;
 }
 
 template <>
-Acquisition clone(const Acquisition& acq) {
-  Acquisition acq_cloned(acq);
+inline Acquisition clone(const Acquisition& value) {
+  Acquisition acq_cloned(value);
 
-  for (size_t p_id = 0; p_id < acq.probes.size(); ++p_id) {
-    acq_cloned.probes[p_id] = clone(acq.probes.at(p_id));
+  for (size_t p_id = 0; p_id < value.probes.size(); ++p_id) {
+    acq_cloned.probes[p_id] = clone(value.probes.at(p_id));
   }
-  for (size_t ex_id = 0; ex_id < acq.excitations.size(); ++ex_id) {
-    acq_cloned.excitations[ex_id] = clone(acq.excitations.at(ex_id));
+  for (size_t ex_id = 0; ex_id < value.excitations.size(); ++ex_id) {
+    acq_cloned.excitations[ex_id] = clone(value.excitations.at(ex_id));
   }
-  for (size_t g_id = 0; g_id < acq.groups.size(); ++g_id) {
-    acq_cloned.groups[g_id] = clone(acq.groups.at(g_id));
+  for (size_t g_id = 0; g_id < value.groups.size(); ++g_id) {
+    acq_cloned.groups[g_id] = clone(value.groups.at(g_id));
   }
-  for (size_t gd_id = 0; gd_id < acq.groups_data.size(); ++gd_id) {
+  for (size_t gd_id = 0; gd_id < value.groups_data.size(); ++gd_id) {
     acq_cloned.groups_data[gd_id] = clone(acq_cloned.groups_data.at(gd_id));
-    int32_t g_id = getEltId(acq.groups, acq.groups_data.at(gd_id).group);
+    const int32_t g_id = getEltId(value.groups, value.groups_data.at(gd_id).group);
     if (g_id < 0) {
       acq_cloned.groups_data.at(gd_id).group = std::weak_ptr<Group>();
     } else {
@@ -234,32 +237,32 @@ Acquisition clone(const Acquisition& acq) {
     }
   }
 
-  for (size_t g_id = 0; g_id < acq.groups.size(); ++g_id) {
+  for (size_t g_id = 0; g_id < value.groups.size(); ++g_id) {
     auto& group = acq_cloned.groups.at(g_id);
     if (group) {
-      for (size_t e_id = 0; e_id < group->sequence.size(); ++e_id) {
-        auto& receive_setup = group->sequence.at(e_id).receive_setup;
-        auto& transmit_setup = group->sequence.at(e_id).transmit_setup;
+      for (auto& event : group->sequence) {
+        auto& receive_setup = event.receive_setup;
+        auto& transmit_setup = event.transmit_setup;
 
-        int32_t p_id = getEltId(acq.probes, receive_setup.probe);
+        int32_t p_id = getEltId(value.probes, receive_setup.probe);
         if (p_id < 0) {
           receive_setup.probe = std::weak_ptr<Probe>();
         } else {
           receive_setup.probe = acq_cloned.probes.at(p_id);
         }
 
-        p_id = getEltId(acq.probes, transmit_setup.probe);
+        p_id = getEltId(value.probes, transmit_setup.probe);
         if (p_id < 0) {
           transmit_setup.probe = std::weak_ptr<Probe>();
         } else {
           transmit_setup.probe = acq_cloned.probes.at(p_id);
         }
-        for (size_t ex_id = 0; ex_id < transmit_setup.excitations.size(); ++ex_id) {
-          int32_t acq_ex_id = getEltId(acq.excitations, transmit_setup.excitations.at(ex_id));
+        for (auto& excitation : transmit_setup.excitations) {
+          int32_t const acq_ex_id = getEltId(value.excitations, excitation);
           if (acq_ex_id < 0) {
-            transmit_setup.excitations[ex_id] = std::weak_ptr<Excitation>();
+            excitation = std::weak_ptr<Excitation>();
           } else {
-            transmit_setup.excitations[ex_id] = acq_cloned.excitations.at(acq_ex_id);
+            excitation = acq_cloned.excitations.at(acq_ex_id);
           }
         }
       }
