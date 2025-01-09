@@ -261,7 +261,7 @@ TEST_CASE("Clone RawData", "[Clone]") {
 
   for (auto& rd : rd_vec) {
     if (rd) {
-      std::shared_ptr<RawData> rd_cloned = std::shared_ptr<RawData>(clone<RawData, RawData*>(*rd));
+      std::shared_ptr<RawData> rd_cloned = clone<RawData, std::shared_ptr<RawData>>(*rd);
       REQUIRE(rd_cloned == rd);
       if (rd) {
         REQUIRE(rd_cloned->getSize() == rd->getSize());

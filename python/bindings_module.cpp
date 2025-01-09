@@ -302,7 +302,7 @@ PYBIND11_MODULE(bindings, m) {
   m.def("clone", &urx::utils::clone<urx::GroupData, urx::GroupData>,
         "Clone/Duplicate URX GroupData class in memory");
 
-  m.def("clone", &urx::utils::clone<urx::RawData, urx::RawData *>,
+  m.def("clone", &urx::utils::clone<urx::RawData, std::shared_ptr<urx::RawData>>,
         "Clone/Duplicate URX RawData class in memory");
 
   m.def("clone", &urx::utils::clone<urx::Probe, urx::Probe>,
