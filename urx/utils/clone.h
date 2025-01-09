@@ -111,33 +111,34 @@ inline std::shared_ptr<Probe> clone(const std::shared_ptr<Probe>& value) {
 }
 
 template <typename T>
-inline RawDataVector<T>* cloneRawData(const RawDataVector<T>* rd) {
+inline std::shared_ptr<RawDataVector<T>> cloneRawData(const RawDataVector<T>* rd) {
   std::vector<T> const data(static_cast<const T*>(rd->getBuffer()),
                             static_cast<const T*>(rd->getBuffer()) + rd->getSize());
 
-  RawDataVector<T>* rd_cloned = new RawDataVector<T>(data);
+  std::shared_ptr<RawDataVector<T>> rd_cloned = std::make_shared<RawDataVector<T>>(data);
 
   return rd_cloned;
 }
 
 template <typename T>
-inline RawDataNoInit<T>* cloneRawData(const RawDataNoInit<T>* rd) {
-  RawDataNoInit<T>* rd_cloned = new RawDataNoInit<T>(rd->getSize());
+inline std::shared_ptr<RawDataNoInit<T>> cloneRawData(const RawDataNoInit<T>* rd) {
+  std::shared_ptr<RawDataNoInit<T>> rd_cloned = std::make_shared<RawDataNoInit<T>>(rd->getSize());
   std::memcpy(rd_cloned->getBuffer(), rd->getBuffer(), rd->getSize() * sizeof(T));
 
   return rd_cloned;
 }
 
 template <typename T>
-inline RawDataWeak<T>* cloneRawData(const RawDataWeak<T>* rd) {
-  RawDataWeak<T>* rd_cloned =
-      new RawDataWeak<T>(const_cast<RawDataWeak<T>*>(rd)->getBuffer(), rd->getSize());
+inline std::shared_ptr<RawDataWeak<T>> cloneRawData(const RawDataWeak<T>* rd) {
+  std::shared_ptr<RawDataWeak<T>> rd_cloned =
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+      std::make_shared<RawDataWeak<T>>(const_cast<RawDataWeak<T>*>(rd)->getBuffer(), rd->getSize());
 
   return rd_cloned;
 }
 
 template <typename T>
-inline RawData* cloneRawData(const RawData* rd) {
+inline std::shared_ptr<RawData> cloneRawData(const RawData* rd) {
   if (const auto* cast_raw_data = dynamic_cast<const RawDataVector<T>*>(rd)) {
     return cloneRawData(cast_raw_data);
   }
@@ -151,8 +152,8 @@ inline RawData* cloneRawData(const RawData* rd) {
 }
 
 template <>
-inline RawData* clone(const RawData& value) {
-  RawData* rd_cloned = nullptr;
+inline std::shared_ptr<RawData> clone(const RawData& value) {
+  std::shared_ptr<RawData> rd_cloned = nullptr;
   const SamplingType current_sampling = value.getSamplingType();
   const DataType current_data = value.getDataType();
 
@@ -209,7 +210,7 @@ inline GroupData clone(const GroupData& value) {
   GroupData gd_cloned(value);
 
   if (gd_cloned.raw_data) {
-    gd_cloned.raw_data = std::shared_ptr<RawData>(clone<RawData, RawData*>(*value.raw_data));
+    gd_cloned.raw_data = clone<RawData, std::shared_ptr<RawData>>(*value.raw_data);
   }
   return gd_cloned;
 }

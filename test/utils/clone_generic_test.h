@@ -14,6 +14,7 @@ void genericCloneTest(T var) {
   REQUIRE(var == var_cloned);
   REQUIRE(std::is_same_v<decltype(var), decltype(var_cloned)>);
   if constexpr (std::is_pointer_v<T>) {
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access, cppcoreguidelines-owning-memory)
     delete var_cloned;
   }
 
@@ -21,6 +22,7 @@ void genericCloneTest(T var) {
   auto *var_ptr_cloned = utils::clone(&var);
   REQUIRE(var == *var_ptr_cloned);
   REQUIRE(std::is_same_v<decltype(&var), decltype(var_ptr_cloned)>);
+  // NOLINTNEXTLINE(bugprone-unchecked-optional-access, cppcoreguidelines-owning-memory)
   delete var_ptr_cloned;
 
   // Shared PTR
@@ -42,7 +44,10 @@ void genericCloneTest(T var) {
   std::optional<T> var_opt = var;
   auto var_opt_cloned = utils::clone(var_opt);
   REQUIRE(var_opt == var_opt_cloned);
-  REQUIRE(var_opt.value() == var_opt_cloned.value());
+  REQUIRE(var_opt.has_value() == var_opt_cloned.has_value());
+  if (var_opt.has_value() && var_opt_cloned.has_value()) {
+    REQUIRE(var_opt.value() == var_opt_cloned.value());
+  }
   REQUIRE(std::is_same_v<decltype(var_opt), decltype(var_opt_cloned)>);
 
   // Shared PTR nullptr
