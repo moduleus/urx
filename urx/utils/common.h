@@ -22,16 +22,21 @@ namespace urx::utils {
 ///
 URX_UTILS_EXPORT std::string formatIndexWithLeadingZeros(const std::size_t index, const int length);
 
+template <typename T, typename U>
+auto getElementIt(const std::vector<T> &elt_vec, const U &elt) {
+  return std::find(elt_vec.begin(), elt_vec.end(), elt);
+};
+
 /// Return the first index corresponding to the target element in the element vector
 /// If the element does not belong to the vector then -1 is returned
 template <typename T, typename U>
-int32_t getEltId(const std::vector<T> &elt_vec, const U &elt) {
-  const ptrdiff_t res_id =
-      std::distance(elt_vec.cbegin(), std::find(elt_vec.cbegin(), elt_vec.cend(), elt));
-  if (res_id < 0 || static_cast<size_t>(res_id) >= elt_vec.size()) {
+int32_t getElementIndex(const std::vector<T> &elt_vec, const U &elt) {
+  auto it = getElementIt(elt_vec, elt);
+  if (it == elt_vec.end()) {
     return -1;
   }
+  const ptrdiff_t res_id = std::distance(elt_vec.cbegin(), it);
   return res_id;
-};
+}
 
 }  // namespace urx::utils

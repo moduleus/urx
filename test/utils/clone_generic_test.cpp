@@ -328,28 +328,28 @@ TEST_CASE("Clone Probe", "[Clone]") {
         }
       }
       for (size_t e_id = 0; e_id < p_cloned->elements.size(); ++e_id) {
-        int32_t const eg_id =
-            getEltId(p_cloned->element_geometries, p_cloned->elements.at(e_id).element_geometry);
+        int32_t const eg_id = getElementIndex(p_cloned->element_geometries,
+                                              p_cloned->elements.at(e_id).element_geometry);
         if (eg_id < 0) {
           REQUIRE(p_cloned->elements.at(e_id).element_geometry == std::weak_ptr<ElementGeometry>());
         } else {
           REQUIRE(p_cloned->elements.at(e_id).element_geometry ==
                   p_cloned->element_geometries.at(eg_id));
           REQUIRE(p_cloned->elements.at(e_id).element_geometry == p->element_geometries.at(eg_id));
-          REQUIRE(-1 !=
-                  getEltId(p->element_geometries, p_cloned->elements.at(e_id).element_geometry));
+          REQUIRE(-1 != getElementIndex(p->element_geometries,
+                                        p_cloned->elements.at(e_id).element_geometry));
         }
 
-        int32_t const ir_id =
-            getEltId(p_cloned->impulse_responses, p_cloned->elements.at(e_id).impulse_response);
+        int32_t const ir_id = getElementIndex(p_cloned->impulse_responses,
+                                              p_cloned->elements.at(e_id).impulse_response);
         if (eg_id < 0) {
           REQUIRE(p_cloned->elements.at(e_id).impulse_response == std::weak_ptr<ImpulseResponse>());
         } else {
           REQUIRE(p_cloned->elements.at(e_id).impulse_response ==
                   p_cloned->impulse_responses.at(ir_id));
           REQUIRE(p_cloned->elements.at(e_id).impulse_response == p->impulse_responses.at(ir_id));
-          REQUIRE(-1 !=
-                  getEltId(p->impulse_responses, p_cloned->elements.at(e_id).impulse_response));
+          REQUIRE(-1 != getElementIndex(p->impulse_responses,
+                                        p_cloned->elements.at(e_id).impulse_response));
         }
       }
     }
@@ -413,8 +413,9 @@ TEST_CASE("Clone Acquisition", "[Clone]") {
               acq.groups_data.at(gd_id).raw_data.get());
     }
 
-    int32_t const g_id = getEltId(acq.groups, acq.groups_data.at(gd_id).group);
-    int32_t const cloned_g_id = getEltId(acq_cloned.groups, acq_cloned.groups_data.at(gd_id).group);
+    int32_t const g_id = getElementIndex(acq.groups, acq.groups_data.at(gd_id).group);
+    int32_t const cloned_g_id =
+        getElementIndex(acq_cloned.groups, acq_cloned.groups_data.at(gd_id).group);
     REQUIRE(acq_cloned.groups_data.at(gd_id) == acq.groups_data.at(gd_id));
     REQUIRE(g_id == cloned_g_id);
     if (g_id < 0) {
@@ -435,21 +436,21 @@ TEST_CASE("Clone Acquisition", "[Clone]") {
         auto& receive_setup = e.receive_setup;
         auto& transmit_setup = e.transmit_setup;
 
-        int32_t p_id = getEltId(acq.probes, receive_setup.probe);
+        int32_t p_id = getElementIndex(acq.probes, receive_setup.probe);
         if (p_id < 0) {
           receive_setup.probe = std::weak_ptr<Probe>();
         } else {
           receive_setup.probe = acq_cloned.probes.at(p_id);
         }
 
-        p_id = getEltId(acq.probes, transmit_setup.probe);
+        p_id = getElementIndex(acq.probes, transmit_setup.probe);
         if (p_id < 0) {
           transmit_setup.probe = std::weak_ptr<Probe>();
         } else {
           transmit_setup.probe = acq_cloned.probes.at(p_id);
         }
         for (auto& excitation : transmit_setup.excitations) {
-          int32_t const acq_ex_id = getEltId(acq.excitations, excitation);
+          int32_t const acq_ex_id = getElementIndex(acq.excitations, excitation);
           if (acq_ex_id < 0) {
             excitation = std::weak_ptr<Excitation>();
           } else {

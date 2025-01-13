@@ -88,9 +88,9 @@ inline Probe clone(const Probe& value) {
 
   for (size_t e_id = 0; e_id < value.elements.size(); ++e_id) {
     int32_t const eg_id =
-        getEltId(value.element_geometries, value.elements.at(e_id).element_geometry);
+        getElementIndex(value.element_geometries, value.elements.at(e_id).element_geometry);
     int32_t const ir_id =
-        getEltId(value.impulse_responses, value.elements.at(e_id).impulse_response);
+        getElementIndex(value.impulse_responses, value.elements.at(e_id).impulse_response);
     if (eg_id < 0) {
       probe_cloned.elements.at(e_id).element_geometry = std::weak_ptr<ElementGeometry>();
     } else {
@@ -230,7 +230,7 @@ inline Acquisition clone(const Acquisition& value) {
   }
   for (size_t gd_id = 0; gd_id < value.groups_data.size(); ++gd_id) {
     acq_cloned.groups_data[gd_id] = clone(acq_cloned.groups_data.at(gd_id));
-    const int32_t g_id = getEltId(value.groups, value.groups_data.at(gd_id).group);
+    const int32_t g_id = getElementIndex(value.groups, value.groups_data.at(gd_id).group);
     if (g_id < 0) {
       acq_cloned.groups_data.at(gd_id).group = std::weak_ptr<Group>();
     } else {
@@ -245,21 +245,21 @@ inline Acquisition clone(const Acquisition& value) {
         auto& receive_setup = event.receive_setup;
         auto& transmit_setup = event.transmit_setup;
 
-        int32_t p_id = getEltId(value.probes, receive_setup.probe);
+        int32_t p_id = getElementIndex(value.probes, receive_setup.probe);
         if (p_id < 0) {
           receive_setup.probe = std::weak_ptr<Probe>();
         } else {
           receive_setup.probe = acq_cloned.probes.at(p_id);
         }
 
-        p_id = getEltId(value.probes, transmit_setup.probe);
+        p_id = getElementIndex(value.probes, transmit_setup.probe);
         if (p_id < 0) {
           transmit_setup.probe = std::weak_ptr<Probe>();
         } else {
           transmit_setup.probe = acq_cloned.probes.at(p_id);
         }
         for (auto& excitation : transmit_setup.excitations) {
-          int32_t const acq_ex_id = getEltId(value.excitations, excitation);
+          int32_t const acq_ex_id = getElementIndex(value.excitations, excitation);
           if (acq_ex_id < 0) {
             excitation = std::weak_ptr<Excitation>();
           } else {

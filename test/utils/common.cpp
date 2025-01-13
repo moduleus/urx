@@ -32,14 +32,14 @@ TEST_CASE("formatIndexWithLeadingZeros", "[Common]") {
   }
 }
 
-TEST_CASE("getEltId double", "[Common]") {
+TEST_CASE("getElementIndex double", "[Common]") {
   std::vector<double> vec(10000);
   std::iota(std::begin(vec), std::end(vec), 0);
   for (size_t i = -vec.size(); i < 2 * vec.size(); ++i) {
     if (i >= 0 && i < vec.size()) {
-      REQUIRE(i == getEltId(vec, vec.at(i)));
+      REQUIRE(i == getElementIndex(vec, vec.at(i)));
     } else {
-      REQUIRE(-1 == getEltId(vec, vec.at(i)));
+      REQUIRE(-1 == getElementIndex(vec, vec.at(i)));
     }
   }
 }
