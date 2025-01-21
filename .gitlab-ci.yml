@@ -158,14 +158,14 @@ doc:doxygen:
   # Remove number of connections
   - sed -i -E 's/ "[0-9]+" \*--/ *--/' doc/plantuml/architecture.puml
   # Only show relation between shared_ptr and class. Remove weak_ptr relations.
-  - sed -i -E 's/^urx\..*TransmitSetup \*-- urx\.Excitation$//' doc/plantuml/architecture.puml
-  - sed -i -E 's/^urx\..*GroupData \*-- urx\..*Group$//' doc/plantuml/architecture.puml
-  - sed -i -E 's/^urx\..*ReceiveSetup \*-- urx\.Probe$//' doc/plantuml/architecture.puml
-  - sed -i -E 's/^urx\..*TransmitSetup \*-- urx\.Probe$//' doc/plantuml/architecture.puml
-  - sed -i -E 's/^urx\.Element \*-- urx\.ElementGeometry$//' doc/plantuml/architecture.puml
-  - sed -i -E 's/^urx\.Element \*-- urx\.ImpulseResponse$//' doc/plantuml/architecture.puml
-  - sed -i -E 's/^urx\.RawDataNoInit \*-- urx\.DataType$//' doc/plantuml/architecture.puml
-  - sed -i -E 's/^urx\.RawDataVector \*-- urx\.DataType$//' doc/plantuml/architecture.puml
+  - sed -i -E 's/^urx\..*TransmitSetup .-- urx\.Excitation$//' doc/plantuml/architecture.puml
+  - sed -i -E 's/^urx\..*GroupData .-- urx\..*Group$//' doc/plantuml/architecture.puml
+  - sed -i -E 's/^urx\..*ReceiveSetup .-- urx\.Probe$//' doc/plantuml/architecture.puml
+  - sed -i -E 's/^urx\..*TransmitSetup .-- urx\.Probe$//' doc/plantuml/architecture.puml
+  - sed -i -E 's/^urx\.Element .-- urx\.ElementGeometry$//' doc/plantuml/architecture.puml
+  - sed -i -E 's/^urx\.Element .-- urx\.ImpulseResponse$//' doc/plantuml/architecture.puml
+  - sed -i -E 's/^urx\.RawDataNoInit .-- urx\.DataType$//' doc/plantuml/architecture.puml
+  - sed -i -E 's/^urx\.RawDataVector .-- urx\.DataType$//' doc/plantuml/architecture.puml
   # Remove detail namespace
   - sed -i 's/detail\.//g' doc/plantuml/architecture.puml
   - sed -i 's/namespace detail {//' doc/plantuml/architecture.puml
@@ -214,7 +214,7 @@ doc:plantuml:
     # Remove metaprogramming struct
     - sed -i -E -z 's/\n[^\n]*IsComplex[^}]*}//g' doc/plantuml/architecture_cpp.puml
     # Only show relation between shared_ptr and class. Remove weak_ptr relations.
-    - sed -i -E 's/^urx\..*Acquisition \*-- urx\..*Group$//' doc/plantuml/architecture_cpp.puml
+    - sed -i -E 's/^urx\..*Acquisition .-- urx\..*Group$//' doc/plantuml/architecture_cpp.puml
     # Generate image
     - plantuml doc/plantuml/architecture_cpp.puml
     - plantuml -tsvg doc/plantuml/architecture_cpp.puml
