@@ -1,3 +1,6 @@
+import numpy as np
+
+
 def test_transform(
     self,
     transform_constructor,
@@ -27,5 +30,18 @@ def test_transform(
     r.x = 42
     self.assertNotEqual(tf.rotation, r)
     self.assertNotEqual(tf.rotation, r_2)
+
+    v = vector3d_constructor()
+    v.x = 1.0
+    v.y = 2.0
+    v.z = 3.0
+    tf.rotation = v
+    self.assertEqual(tf.rotation.x, v.x)
+    self.assertEqual(tf.rotation.y, v.y)
+    self.assertEqual(tf.rotation.z, v.z)
+    tf.rotation = np.array([2.0, 3.0, 4.0])
+    self.assertEqual(tf.rotation.x, 2.0)
+    self.assertEqual(tf.rotation.y, 3.0)
+    self.assertEqual(tf.rotation.z, 4.0)
 
     print("--Test %s END--" % testName)

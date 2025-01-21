@@ -1,12 +1,15 @@
 include(GenerateExportHeader)
 
 if(WITH_HDF5)
-  if(BUILD_SHARED_LIBS)
+  option(URX_HDF5_LINK_SHARED "Link shared or static HDF5 lib"
+         ${BUILD_SHARED_LIBS})
+  if(URX_HDF5_LINK_SHARED)
     set(LIB_TYPE SHARED)
   else()
     set(LIB_TYPE STATIC)
   endif()
   string(TOLOWER ${LIB_TYPE} SEARCH_TYPE)
+  message(STATUS "UrxUtils linking hdf5 ${SEARCH_TYPE}")
 
   if(NOT TARGET hdf5::hdf5-${SEARCH_TYPE})
     find_package(HDF5 REQUIRED NAMES hdf5 COMPONENTS CXX ${SEARCH_TYPE})
@@ -20,8 +23,8 @@ set(msvc_cxx "$<COMPILE_LANG_AND_ID:CXX,MSVC>")
 target_compile_options(
   UrxCompilerFlags
   INTERFACE
-    "$<${gcc_like_cxx}:$<BUILD_INTERFACE:-Wall;-Werror;-Wextra;-Wshadow;-Wformat=2;-Wunused>>"
-    "$<${msvc_cxx}:$<BUILD_INTERFACE:/W3;/WX;/EHsc;/wd4251>>")
+    "$<${gcc_like_cxx}:-Wall;-Werror;-Wextra;-Wshadow;-Wformat=2;-Wunused>"
+    "$<${msvc_cxx}:/W3;/WX;/EHsc;/wd4251>")
 
 set(URX_UTILS_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/common.cpp
@@ -30,6 +33,7 @@ set(URX_UTILS_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/probe_helper.cpp)
 set(URX_UTILS_H
     ${CMAKE_CURRENT_SOURCE_DIR}/common.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/exception.h
     ${CMAKE_CURRENT_SOURCE_DIR}/group_data_reader.h
     ${CMAKE_CURRENT_SOURCE_DIR}/group_helper.h
     ${CMAKE_CURRENT_SOURCE_DIR}/io/test/io.h

@@ -1,9 +1,9 @@
 classdef Element < urx.Object
   properties (Access = public, SetObservable, GetObservable)
-    transform urx.Transform {mustBeScalarOrEmpty, urx.Validator.rawInCpp}
+    transform urx.Transform {urx.Validator.mustBeScalarOrEmpty, urx.Validator.rawInCpp}
     
-    elementGeometry urx.ElementGeometry {mustBeScalarOrEmpty, urx.Validator.weakPtrInCpp}
-    impulseResponse urx.ImpulseResponse {mustBeScalarOrEmpty, urx.Validator.weakPtrInCpp}
+    elementGeometry urx.ElementGeometry {urx.Validator.mustBeScalarOrEmpty, urx.Validator.weakPtrInCpp}
+    impulseResponse urx.ImpulseResponse {urx.Validator.mustBeScalarOrEmpty, urx.Validator.weakPtrInCpp}
   end
 
   methods

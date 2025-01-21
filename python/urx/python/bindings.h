@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <iterator>
 #include <memory>
+#include <stdexcept>
 #include <string>
 #include <type_traits>
 #include <utility>
@@ -39,12 +40,14 @@ template <typename CppClass, const char *python_name>
 void bindVector(pybind11::module_ &m) {
   py::bind_vector<CppClass>(m, python_name, py::buffer_protocol());
   py::implicitly_convertible<py::list, CppClass>();
+  py::implicitly_convertible<py::array, CppClass>();
 }
 
 template <typename CppClass, const char *python_name>
 void bindVectorNoBufferProtocol(pybind11::module_ &m) {
   py::bind_vector<CppClass>(m, python_name);
   py::implicitly_convertible<py::list, CppClass>();
+  py::implicitly_convertible<py::array, CppClass>();
 }
 
 }  // namespace detail
@@ -158,11 +161,37 @@ py::class_<Container> registerVector3D(py::module_ &m, const std::string &prefix
                                   typename Container::Type>())
                     .def(py::init<const Container &>())
                     .def(py::init())
+                    .def(py::init([](const py::array_t<typename Container::Type> &arr) {
+                      if (arr.size() != 3)
+                        throw std::invalid_argument("Array must have exactly 3 elements.");
+                      auto buf = arr.template unchecked<1>();
+                      Container retval_array;
+                      retval_array.x = buf(0);
+                      retval_array.y = buf(1);
+                      retval_array.z = buf(2);
+                      return retval_array;
+                    }))
+                    .def(py::init([](const std::vector<typename Container::Type> &vec) {
+                      if (vec.size() != 3)
+                        throw std::invalid_argument("List must have exactly 3 elements.");
+                      Container retval_array;
+                      retval_array.x = vec[0];
+                      retval_array.y = vec[1];
+                      retval_array.z = vec[2];
+                      return retval_array;
+                    }))
                     .def(pybind11::self == pybind11::self)
                     .def(pybind11::self != pybind11::self)
+                    .def("__array__",
+                         [](const Container &v) {
+                           std::vector<typename Container::Type> data{v.x, v.y, v.z};
+                           return py::array_t<typename Container::Type>(data.size(), data.data());
+                         })
                     .def_readwrite("x", &Container::x)
                     .def_readwrite("y", &Container::y)
                     .def_readwrite("z", &Container::z);
+  py::implicitly_convertible<py::list, Container>();
+  py::implicitly_convertible<py::array, Container>();
   m.attr("Vector3D") = m.attr((prefix + "Vector3D").c_str());
   return retval;
 }
@@ -173,10 +202,34 @@ py::class_<Container> registerVector2D(py::module_ &m, const std::string &prefix
                     .def(py::init<typename Container::Type, typename Container::Type>())
                     .def(py::init<const Container &>())
                     .def(py::init())
+                    .def(py::init([](const py::array_t<typename Container::Type> &arr) {
+                      if (arr.size() != 2)
+                        throw std::invalid_argument("Array must have exactly 3 elements.");
+                      auto buf = arr.template unchecked<1>();
+                      Container retval_array;
+                      retval_array.x = buf(0);
+                      retval_array.y = buf(1);
+                      return retval_array;
+                    }))
+                    .def(py::init([](const std::vector<typename Container::Type> &vec) {
+                      if (vec.size() != 2)
+                        throw std::invalid_argument("List must have exactly 3 elements.");
+                      Container retval_array;
+                      retval_array.x = vec[0];
+                      retval_array.y = vec[1];
+                      return retval_array;
+                    }))
                     .def(pybind11::self == pybind11::self)
                     .def(pybind11::self != pybind11::self)
+                    .def("__array__",
+                         [](const Container &v) {
+                           std::vector<typename Container::Type> data{v.x, v.y};
+                           return py::array_t<typename Container::Type>(data.size(), data.data());
+                         })
                     .def_readwrite("x", &Container::x)
                     .def_readwrite("y", &Container::y);
+  py::implicitly_convertible<py::list, Container>();
+  py::implicitly_convertible<py::array, Container>();
   m.attr("Vector2D") = m.attr((prefix + "Vector2D").c_str());
   return retval;
 }

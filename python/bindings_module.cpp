@@ -1,16 +1,23 @@
 #include "bindings_module.h"
 
 #include <cstddef>
+#include <iomanip>
+#include <ios>
+#include <iosfwd>
 #include <memory>
+#include <ostream>
+#include <sstream>
 #include <string>
 #include <utility>
 #include <vector>
 
+#include <pybind11/numpy.h>
 #include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
 #include <pybind11/stl.h>       // IWYU pragma: keep
 #include <pybind11/stl_bind.h>  // IWYU pragma: keep
+#include <pyerrors.h>
 
 #include <urx/acquisition.h>
 #include <urx/config.h>
@@ -30,6 +37,7 @@
 #include <urx/transform.h>
 #include <urx/transmit_setup.h>
 #include <urx/urx.h>
+#include <urx/utils/exception.h>
 #include <urx/utils/group_data_reader.h>
 #include <urx/utils/group_helper.h>
 #include <urx/utils/time_helper.h>
@@ -105,7 +113,19 @@ PYBIND11_MODULE(bindings, m) {
       .def(py::init<double>())
       .def(py::init<const urx::DoubleNan &>())
       .def(py::init())
+      .def("__float__", [](const urx::DoubleNan &v) { return v.value; })
+      .def("__array__",
+           [](const urx::DoubleNan &v) {
+             std::vector<double> data = {v.value};
+             return py::array_t<double>(data.size(), data.data());
+           })
       .def_readwrite("value", &urx::DoubleNan::value)
+      .def("__repr__",
+           [](const urx::DoubleNan &v) {
+             std::ostringstream oss;
+             oss << std::setprecision(17) << v.value;
+             return oss.str();
+           })
       .def(py::self == py::self)
       .def(py::self != py::self)
       .def(double() == py::self)
@@ -207,6 +227,10 @@ PYBIND11_MODULE(bindings, m) {
 
   urx::python::registerDataset<urx::Dataset>(m, "Urx").def(
       py::init<const urx::Acquisition &, const urx::Version &>());
+
+  py::register_exception<urx::utils::ReadFileException>(m, "ReadFileException", PyExc_RuntimeError);
+  py::register_exception<urx::utils::WriteFileException>(m, "WriteFileException",
+                                                         PyExc_RuntimeError);
 
 #ifdef URX_WITH_HDF5
   m.def("loadFromFile", &urx::utils::io::reader::loadFromFile);

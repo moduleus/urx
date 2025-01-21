@@ -33,8 +33,8 @@ add_library(
 add_library(Urx::UrxMatlabBinding ALIAS UrxMatlabBinding)
 
 if(UNIX)
-  target_link_options(UrxMatlabBinding PRIVATE "-static-libgcc"
-                      "-static-libstdc++")
+  target_link_options(UrxMatlabBinding PRIVATE "-static-libstdc++"
+                      "-static-libgcc")
 endif(UNIX)
 
 generate_export_header(UrxMatlabBinding BASE_NAME URX_MATLAB EXPORT_FILE_NAME
