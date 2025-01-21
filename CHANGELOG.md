@@ -46,7 +46,7 @@ Fix support for Python 3.8 to 3.13 and for pypy 3.8 to 3.10.
 
 `GroupData.raw_data` was release by garbage collector if it was allocated by Python.
 
-## 1.1.0
+## 1.0.1
 
 Fix reader. Groups may have destination link to a group that has not yet been read.
 
