@@ -1,10 +1,10 @@
 {
   "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
   "name": "urx",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Ultrasound Raw eXchange format",
   "homepage": "https://www.moduleus.com/",
-  "license": "LGPL-3.0-or-later",
+  "license": "MIT",
   "dependencies": [
     {
       "name": "vcpkg-cmake",

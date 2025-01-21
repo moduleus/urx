@@ -308,7 +308,7 @@ Some field are optional or can be empty (see C++ UML diagram). If you want to un
 
 ### Python wheel
 
-Urx MATLAB homepage is hosted in [Pypi](https://pypi.org/project/ultrasound-rawdata-exchange/). Binaries are hosted in Pypi and [Github releases](https://github.com/moduleus/urx/releases). Be sure to click on `Show all 25 assets`, download the wheel of your python version (i.e. `ultrasound_rawdata_exchange-1.0.1-cp312-cp312-win32.whl`) then run `pip install ultrasound_rawdata_exchange-1.0.1-cp312-cp312-win32.whl`.
+Urx MATLAB homepage is hosted in [Pypi](https://pypi.org/project/ultrasound-rawdata-exchange/). Binaries are hosted in Pypi and [Github releases](https://github.com/moduleus/urx/releases). Be sure to click on `Show all 25 assets`, download the wheel of your python version (i.e. `ultrasound_rawdata_exchange-1.1.0-cp312-cp312-win32.whl`) then run `pip install ultrasound_rawdata_exchange-1.1.0-cp312-cp312-win32.whl`.
 
 ### Examples
 
