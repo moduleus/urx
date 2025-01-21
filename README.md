@@ -8,19 +8,28 @@ You may use it with various languages (C++, Python and MATLAB).
 
 [Get more informations in the Wiki](./wiki) about class diagram.
 
-## C++
+## Table of Contents
 
-### CMake
+  * Common installation and usage in [C++](#use-it-with-c), [MATLAB](#use-it-with-matlab), [Python](#use-it-with-python).
+  * Build it yourself for C++, MATLAB, Python with [CMake](#build-it-with-cmake).
 
-#### Available files
+## Use it with C++
+
+### C++/CMake
+
+#### C++ installer
+
+There is no installer for C++ user. You need to [build](#build-it-with-cmake) it yourself. If you don't need to read / write file, urx library is header-only.
+
+#### Installed files
 
 All CMake files will be installed in `INSTALL_PATH/lib/cmake/Urx-XXXYYY/` with:
-  - XXX: the version of the Urx library,
-  - YYY: empty if library has been built in shared mode, "_static" if library is static.
+  - XXX: the version of the Urx library (i.e. `1.0.2`),
+  - YYY: empty if library has been built in shared mode, `_static` if library is static.
 
 #### Configuration
 
-First, you need to get Urx package with `find_package`.
+First, you need to get Urx package with `find_package`. If package is not found, set `Urx_DIR=INSTALL_PATH/lib/cmake/Urx-XXXYYY`.
 
 ```cmake
 find_package(Urx REQUIRED)
@@ -31,7 +40,7 @@ You will have access to targets:
   - `Urx::Urx`: header-only library of the urx struct.
   - `Urx::UrxUtils`: library with helper to manipulate urx struct, including read / write in hdf5 file format.
 
-#### Usage
+#### Examples
 
 ```cmake
 add_executable(UrxTestIo ${SRCS_FILES})
@@ -43,19 +52,19 @@ target_link_libraries(
 
 `HDF5_CXX_LIBRARIES` is only needed if the library has been built with HDF5 support.
 
-You may found a complete example in `test/urx` or in `test/io` folders.
+You may found a complete example of `CMakeLists.txt` in `test/urx` or in `test/io` folders.
 
-### C++
+### C++ code
 
-#### Available files
+#### Installed files
 
 All files will be installed in :
 
   - `INSTALL_PATH/include/Urx-XXXYYY/` (headers),
-  - `INSTALL_PATH/lib` (static libraries),
-  - `INSTALL_PATH/bin` (executables and libraries for Windows only).
+  - `INSTALL_PATH/lib` (dynamic libraries for Linux and static libraries for all operating system),
+  - `INSTALL_PATH/bin` (dynamic libraries for Windows and executables for all operating system).
 
-#### Usage
+#### Examples
 
 All dynamic memory allocation should be stored in a `shared_ptr`.
 
@@ -63,6 +72,9 @@ All dynamic memory allocation should be stored in a `shared_ptr`.
 #include <memory>
 
 #include <urx/dataset.h>
+#include <urx/probe.h>
+#include <urx/utils/io/reader.h>
+#include <urx/utils/io/writer.h>
 
 auto dataset = std::make_shared<urx::Dataset>();
 
@@ -75,21 +87,17 @@ urx::utils::io::writer::saveToFile("file.urx", *dataset);
 auto dataset_loaded = urx::utils::io::reader::loadFromFile("file.urx");
 ```
 
-You may found a complete example in file `urx/utils/io/test/io.h` in function `generateFakeDataset`.
+You may found an example for all C++ classes in file `urx/utils/io/test/io.h` in function `generateFakeDataset`.
 
-## MATLAB
+## Use it with MATLAB
 
-### Available files
+### MATLAB installer
 
-All MATLAB files will be installed in :
+Urx MATLAB homepage is hosted in [MATLAB File Exchange](https://fr.mathworks.com/matlabcentral/fileexchange/176398-ultrasound-raw-data-exchange) but binaries are hosted in [Github releases](https://github.com/moduleus/urx/releases). Be sure to click on `Show all 25 assets`, download your toolbox (`urx-X.Y.Z-linux-amd64.mltbx` for Linux or `urx-X.Y.Z-win-amd64.mltbx` for Windows) then open the toolbox with MATLAB.
 
-    - `INSTALL_PATH/share/Urx-XXXYYY/matlab` (scripts),
-    - `INSTALL_PATH/lib` (static libraries),
-    - `INSTALL_PATH/bin` (shared libraries for Windows only).
+### Requirements
 
-### C++ compiler
-
-You need a C++ compiler.
+MATLAB needs a C compiler to load the C library in Urx toolbox.
 
 If you have an error like `MATLAB:mex:NoCompilerFound_link_Win64` / `No supported compiler was found` / `Output from preprocessor is:'cl' is not recognized as an internal or external command, operable program or batch file.`, run `mex -setup c -v` and `mex -setup c++ -v`.
 
@@ -165,13 +173,21 @@ mex -setup c++ -v
 ```
 Check you have a message `Found installed compiler 'MinGW64 Compiler (C++)'.`.
 
+### Installed files
+
+All MATLAB files will be installed in `C:\Users\CURRENT_USER\AppData\Roaming\MathWorks\MATLAB Add-Ons\Toolboxes\urx` :
+
+  - `+urx` (all MATLAB script),
+  - `include` (C++ header, needed to get symbols in C++ library),
+  - `UrxMatlabBinding.dll` (main C++ library).
+
 ### Configuration
 
-If you are using Urx from MATLAB toolkit, you just have to enable Unicode if you need it (`feature('DefaultCharacterSet','UTF-8');`).
+If you are using Urx from MATLAB toolbox, you just have to enable Unicode if you need it (`feature('DefaultCharacterSet','UTF-8');`).
 
 If you want to enable logging, set `URX_DEBUG` environment variable to:
 
-  - `COUT` to display message to the standard output,
+  - `COUT` to display message to the standard output or,
   - the filename where you want to store log messages.
 
 If you built Urx from source, before using `Urx` in MATLAB, you first need to:
@@ -187,7 +203,7 @@ urx.LibBinding.getInstance([path to libUrxMatlabBinding.so], [path to INSTALL_PA
 
 ⚠ When invoking `urx.LibBinding.getInstance` the first time, environment variable `HDF5_DISABLE_VERSION_CHECK` is set. MATLAB have it's own version of HDF5 library. Under Linux it will conflict with the one from Urx.
 
-If you try to use `dataset.saveToFile(...)` or `urx.Dataset.loadFromFile(...)` without setting `HDF5_DISABLE_VERSION_CHECK`, MATLAB will crash with error: `Headers are 1.8.23, library is 1.8.12`.
+If you try to use `urx.saveToFile(...)` or `urx.loadFromFile(...)` without setting `HDF5_DISABLE_VERSION_CHECK`, MATLAB will crash with error: `Headers are 1.8.23, library is 1.8.12`.
 
 <details>
   <summary>Example of full error message</summary>
@@ -268,7 +284,7 @@ Urx must use the same version (at least major / minor number) than the one from 
 
 Why is there a problem? Under Linux, the same symbol from two differents libraries are merged. So you can't know which one will be used. By setting `HDF5_DISABLE_VERSION_CHECK` to 1, you are disabling version check. Under Windows, the operating system keeps symbols from different libraries separate.
 
-### Usage
+### Examples
 
 ```MATLAB
 dataset = urx.Dataset();
@@ -277,9 +293,9 @@ probe1 = urx.Probe();
 probe1.description = 'Probe 1';
 dataset.acquisition.excitations = [excitation1];
 
-dataset.saveToFile('test.urx');
+urx.saveToFile('test.urx', dataset);
 
-dataset2 = urx.Dataset.loadFromFile('test.urx');
+dataset2 = urx.loadFromFile('test.urx');
 ```
 
 You may found a complete example in file `test/matlab/+urx/+UnitTests/FileFromScratch.m`.
@@ -288,9 +304,13 @@ You may found a complete example in file `test/matlab/+urx/+UnitTests/FileFromSc
 
 Some field are optional or can be empty (see C++ UML diagram). If you want to unassign a value, don't use `[]` but use `empty` method of the class (i.e. `urx.ElementGeometry.empty`).
 
-## Python
+## Use it with Python
 
-### Usage
+### Python wheel
+
+Urx MATLAB homepage is hosted in [Pypi](https://pypi.org/project/ultrasound-rawdata-exchange/). Binaries are hosted in Pypi and [Github releases](https://github.com/moduleus/urx/releases). Be sure to click on `Show all 25 assets`, download the wheel of your python version (i.e. `ultrasound_rawdata_exchange-1.1.0-cp312-cp312-win32.whl`) then run `pip install ultrasound_rawdata_exchange-1.1.0-cp312-cp312-win32.whl`.
+
+### Examples
 
 ```python
 import ultrasound_rawdata_exchange as urx;
@@ -306,24 +326,27 @@ urx.saveToFile('test.urx', dataset)
 dataset2 = urx.loadFromFile('test.urx')
 ```
 
-You may found a basic usage in folder `test/python`.
+You may found a basic example in folder `test/python`.
 
 ## Build it with CMake
 
+You can use CMake to build urx for C++ / MATLAB / Python user.
+
 See `.gitlab-ci.yml` file for various examples.
 
-### Windows
+### Build for Windows
 
 Requirements:
 
   * [git](https://gitforwindows.org/),
-  * [cmake v3.28](https://gitforwindows.org/),
+  * [cmake v3.28 minimum](https://gitforwindows.org/),
+  * [Python v3.8 minimum](https://www.python.org/downloads/),
 
 Under Windows, you need to explicitly set Visual Studio generator.
 
 `cmake.exe -S root_path -B CI -G "Visual Studio 17 2022" -A x64`
 
-Full example:
+Full example with git-bash console:
 
 ```sh
 git clone https://github.com/moduleus/urx.git
@@ -331,11 +354,11 @@ cd urx
 git clone https://github.com/microsoft/vcpkg.git
 vcpkg/bootstrap-vcpkg.bat
 git clone https://github.com/moduleus/vcpkg-registry.git
-cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake -DBUILD_SHARED_LIBS=OFF -DVCPKG_TARGET_TRIPLET=x64-wsmep -DVCPKG_HOST_TRIPLET=x64-wsmep -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DWITH_PYTHON:BOOL=OFF -DWITH_PYTHON_WHL:BOOL=OFF -DWITH_HDF5:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DBUILD_TESTING:BOOL=OFF -DENABLE_PCH:BOOL=OFF -DCMAKE_INSTALL_PREFIX=install
+cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake -DBUILD_SHARED_LIBS=OFF -DVCPKG_TARGET_TRIPLET=x64-wsmep -DVCPKG_HOST_TRIPLET=x64-wsmep -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DWITH_PYTHON:BOOL=ON -DWITH_PYTHON_WHL:BOOL=ON -DWITH_HDF5:BOOL=ON -DWITH_MATLAB:BOOL=ON -DBUILD_TESTING:BOOL=OFF -DENABLE_PCH:BOOL=OFF -DCMAKE_INSTALL_PREFIX=install
 cmake --build build --config Release --parallel 4
 ```
 
-### Linux
+### Build for Linux
 
 `cmake -S . -B CI`
 
@@ -347,7 +370,7 @@ cd urx
 git clone https://github.com/microsoft/vcpkg.git
 vcpkg/bootstrap-vcpkg.sh
 git clone https://github.com/moduleus/vcpkg-registry.git
-cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DVCPKG_TARGET_TRIPLET=x64-lsrp -DVCPKG_HOST_TRIPLET=x64-lsrp -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DWITH_PYTHON:BOOL=OFF -DWITH_PYTHON_WHL:BOOL=OFF -DWITH_HDF5:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DBUILD_TESTING:BOOL=OFF -DENABLE_PCH:BOOL=OFF -DCMAKE_INSTALL_PREFIX=install
+cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DVCPKG_TARGET_TRIPLET=x64-lsrp -DVCPKG_HOST_TRIPLET=x64-lsrp -DVCPKG_OVERLAY_TRIPLETS=vcpkg-registry/triplets -DWITH_PYTHON:BOOL=ON -DWITH_PYTHON_WHL:BOOL=ON -DWITH_HDF5:BOOL=ON -DWITH_MATLAB:BOOL=ON -DBUILD_TESTING:BOOL=OFF -DENABLE_PCH:BOOL=OFF -DCMAKE_INSTALL_PREFIX=install
 cmake --build build --parallel 4
 ```
 
@@ -367,7 +390,11 @@ Set `BUILD_SHARED_LIBS` to `OFF` or `ON`.
 
 Note that you should set `BUILD_SHARED_LIBS` to `OFF` if you want to build MATLAB or Python buiding.
 
-Be sure to use a vcpkg triplet with the same shared / static link option.
+Be sure to use a vcpkg triplet with the same shared / static link option. For example:
+  - Windows and static: `x64-wsmep`
+  - Windows and shared: `x64-wdrep`
+  - Linux and static: `x64-lsrp`
+  - Linux and shared: `x64-ldr`
 
   * Use external 3rd party with vcpkg
 
@@ -433,7 +460,7 @@ You need to set lots of CMake variables and use CMake 3.29 if you want to use `C
 
 You may found various command to build Urx in file `.gitlab-ci.yml`.
 
-## Build it with pip wheel
+## Build Python module with pip wheel
 
 ### Using vcpkg
 
