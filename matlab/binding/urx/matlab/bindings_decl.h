@@ -123,8 +123,23 @@
   URX_MATLAB_EXPORT uint64_t CONCAT3(name, raw_ptr, raw)(void *this_ptr);                          \
   URX_MATLAB_EXPORT uint64_t CONCAT3(name, raw_ptr, weak)(void *this_ptr);                         \
   URX_MATLAB_EXPORT uint64_t CONCAT3(name, raw_ptr, shared)(void *this_ptr);                       \
-  URX_MATLAB_EXPORT uint64_t CONCAT3(name, raw_ptr, optional)(void *this_ptr)
-
+  URX_MATLAB_EXPORT uint64_t CONCAT3(name, raw_ptr, optional)(void *this_ptr);                     \
+  URX_MATLAB_EXPORT bool CONCAT4(name, cmp, raw, raw)(void *this_ptr, void *other_ptr);            \
+  URX_MATLAB_EXPORT bool CONCAT4(name, cmp, raw, weak)(void *this_ptr, void *other_ptr);           \
+  URX_MATLAB_EXPORT bool CONCAT4(name, cmp, raw, shared)(void *this_ptr, void *other_ptr);         \
+  URX_MATLAB_EXPORT bool CONCAT4(name, cmp, raw, optional)(void *this_ptr, void *other_ptr);       \
+  URX_MATLAB_EXPORT bool CONCAT4(name, cmp, weak, raw)(void *this_ptr, void *other_ptr);           \
+  URX_MATLAB_EXPORT bool CONCAT4(name, cmp, weak, weak)(void *this_ptr, void *other_ptr);          \
+  URX_MATLAB_EXPORT bool CONCAT4(name, cmp, weak, shared)(void *this_ptr, void *other_ptr);        \
+  URX_MATLAB_EXPORT bool CONCAT4(name, cmp, weak, optional)(void *this_ptr, void *other_ptr);      \
+  URX_MATLAB_EXPORT bool CONCAT4(name, cmp, shared, raw)(void *this_ptr, void *other_ptr);         \
+  URX_MATLAB_EXPORT bool CONCAT4(name, cmp, shared, weak)(void *this_ptr, void *other_ptr);        \
+  URX_MATLAB_EXPORT bool CONCAT4(name, cmp, shared, shared)(void *this_ptr, void *other_ptr);      \
+  URX_MATLAB_EXPORT bool CONCAT4(name, cmp, shared, optional)(void *this_ptr, void *other_ptr);    \
+  URX_MATLAB_EXPORT bool CONCAT4(name, cmp, optional, raw)(void *this_ptr, void *other_ptr);       \
+  URX_MATLAB_EXPORT bool CONCAT4(name, cmp, optional, weak)(void *this_ptr, void *other_ptr);      \
+  URX_MATLAB_EXPORT bool CONCAT4(name, cmp, optional, shared)(void *this_ptr, void *other_ptr);    \
+  URX_MATLAB_EXPORT bool CONCAT4(name, cmp, optional, optional)(void *this_ptr, void *other_ptr)
 #define OBJECT_NS_DECL(ns, type) _OBJECT_DECL(CONCAT2(ns, type))
 #define OBJECT_DECL(type) _OBJECT_DECL(type)
 

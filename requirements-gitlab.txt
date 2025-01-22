@@ -1,37 +1,43 @@
-build==1.2.2
+build==1.2.2.post1
 twine==5.1.1
-wheel==0.44.0
-setuptools==72.2.0
-mypy==1.11.2
+wheel==0.45.1
+setuptools==75.3.0; python_version == '3.8'
+setuptools==75.6.0; python_version >= '3.9'
+mypy==1.13.0
 typing_extensions==4.12.2
 toml==0.10.2
-cmake==3.30.3
+cmake==3.31.1
 ## The following requirements were added by pip freeze:
 backports.tarfile==1.2.0
-certifi==2024.8.30
-charset-normalizer==3.3.2
+certifi==2024.12.14
+charset-normalizer==3.4.0
 colorama==0.4.6
-docutils==0.21.2
+docutils==0.20.1; python_version == '3.8'
+docutils==0.21.2; python_version >= '3.9'
 idna==3.10
 importlib_metadata==8.5.0
+importlib-resources==6.4.5
 jaraco.classes==3.4.0
 jaraco.context==6.0.1
-jaraco.functools==4.0.2
-keyring==25.4.1
+jaraco.functools==4.1.0
+keyring==25.5.0
 markdown-it-py==3.0.0
 mdurl==0.1.2
 more-itertools==10.5.0
 mypy-extensions==1.0.0
-nh3==0.2.18
-packaging==24.1
+nh3==0.2.19
+packaging==24.2
 pkginfo==1.10.0
 Pygments==2.18.0
-pyproject_hooks==1.1.0
+pyproject_hooks==1.2.0
 pywin32-ctypes==0.2.3
-readme_renderer==44.0
+readme_renderer==43.0; python_version == '3.8'
+readme_renderer==44.0; python_version >= '3.9'
 requests==2.32.3
 requests-toolbelt==1.0.0
 rfc3986==2.0.0
-rich==13.8.1
+rich==13.9.4
+tomli==2.2.1
 urllib3==2.2.3
-zipp==3.20.2
+zipp==3.20.2; python_version == '3.8'
+zipp==3.21.0; python_version >= '3.9'

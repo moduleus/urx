@@ -50,8 +50,9 @@ target_include_directories(
          $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
          $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${INSTALL_NAME}>)
 set_target_properties(
-  ${URX_PYTHON_LIBRARY} PROPERTIES OUTPUT_NAME
-                                   "${URX_PYTHON_LIBRARY}-${git_branch}")
+  ${URX_PYTHON_LIBRARY}
+  PROPERTIES OUTPUT_NAME "${URX_PYTHON_LIBRARY}-${git_branch}" DEBUG_POSTFIX
+                                                               "d")
 
 set(CMAKE_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR}/${INSTALL_NAME})
 
@@ -99,6 +100,13 @@ if(NOT CALL_FROM_SETUP_PY AND WITH_PYTHON_WHL)
       --config-settings=--global-option=-DHDF5_DIR=${HDF5_DIR}
       --config-settings=--global-option=-DBUILD_TESTING=${BUILD_TESTING}
       --config-settings=--global-option=-Dpybind11_DIR=${pybind11_DIR}
+      --config-settings=--global-option=-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+      --config-settings=--global-option=-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+      --config-settings=--global-option=-DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
+      --config-settings=--global-option=-DCMAKE_AR=${CMAKE_AR}
+      --config-settings=--global-option=-DCMAKE_AS=${CMAKE_AS}
+      --config-settings=--global-option=-DCMAKE_RANLIB=${CMAKE_RANLIB}
+      --config-settings=--global-option=-DCMAKE_LINKER_TYPE=${CMAKE_LINKER_TYPE}
       --wheel-dir
       ${CMAKE_CURRENT_BINARY_DIR}
       --no-clean
@@ -172,8 +180,17 @@ target_link_libraries(
   UrxBindingsPython PRIVATE ${PROJECT_NAME} Urx::UrxUtils
                             Urx::${URX_PYTHON_LIBRARY} pybind11::pybind11)
 if(UNIX)
-  target_link_options(UrxBindingsPython PRIVATE "-static-libgcc"
-                      "-static-libstdc++")
+  execute_process(
+    COMMAND ${CMAKE_CXX_COMPILER} -print-file-name=libstdc++.so.6
+    OUTPUT_VARIABLE STDCPP_SO_PATH
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  message(STATUS "Found libstdc++.so.6 in ${STDCPP_SO_PATH}")
+  target_link_options(UrxBindingsPython PRIVATE "-Wl,-rpath,$ORIGIN")
+  add_custom_command(
+    TARGET UrxBindingsPython
+    POST_BUILD
+    COMMAND cp -L ${STDCPP_SO_PATH} $<TARGET_FILE_DIR:UrxBindingsPython>
+    COMMAND_EXPAND_LISTS)
 endif(UNIX)
 
 set_target_properties(UrxBindingsPython PROPERTIES OUTPUT_NAME "bindings")
@@ -188,3 +205,9 @@ install(
   EXPORT ${PROJECT_NAME}Targets
   COMPONENT bindings
   LIBRARY DESTINATION ${PYTHON_INSTALL_LIBDIR})
+if(UNIX)
+  install(
+    FILES $<TARGET_FILE_DIR:UrxBindingsPython>/libstdc++.so.6
+    COMPONENT bindings
+    DESTINATION ${PYTHON_INSTALL_LIBDIR})
+endif()

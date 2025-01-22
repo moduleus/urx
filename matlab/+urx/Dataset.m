@@ -1,7 +1,7 @@
 classdef Dataset < urx.Object
   properties (Access = public, SetObservable, GetObservable)
-    version urx.Version {mustBeScalarOrEmpty, urx.Validator.rawInCpp}
-    acquisition urx.Acquisition {mustBeScalarOrEmpty, urx.Validator.rawInCpp}
+    version urx.Version {urx.Validator.mustBeScalarOrEmpty, urx.Validator.rawInCpp}
+    acquisition urx.Acquisition {urx.Validator.mustBeScalarOrEmpty, urx.Validator.rawInCpp}
   end
 
   methods
@@ -10,21 +10,14 @@ classdef Dataset < urx.Object
     end
 
     function saveToFile(this, filename)
-      arguments
-        this
-        filename char
-      end
-
+      warning('urx.Dataset.saveTofile is depreciated. Use static method urx.saveToFile(filename, dataset).');
       this.libBindingRef.call('urx_save_to_file', filename, this.id);
     end
   end
 
   methods(Static)
     function this = loadFromFile(filename)
-      arguments
-        filename char
-      end
-
+      warning('urx.Dataset.loadFromFile is depreciated. Use static method urx.loadFromFile(filename).');
       dataset_ptr = urx.LibBinding.getInstance().call('urx_load_from_file', filename);
       this = urx.Dataset(dataset_ptr, urx.PtrType.SHARED, []);
     end

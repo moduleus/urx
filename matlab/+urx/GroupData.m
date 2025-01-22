@@ -4,8 +4,8 @@ classdef GroupData < urx.Object
     eventTimestampsStd
   end
   properties (Access = public, SetObservable, GetObservable)
-    group urx.Group {mustBeScalarOrEmpty, urx.Validator.weakPtrInCpp}
-    rawData urx.RawData {mustBeScalarOrEmpty, urx.Validator.sharedPtrInCpp}
+    group urx.Group {urx.Validator.mustBeScalarOrEmpty, urx.Validator.weakPtrInCpp}
+    rawData urx.RawData {urx.Validator.mustBeScalarOrEmpty, urx.Validator.sharedPtrInCpp}
 
     groupTimestamp(1,1) double
 

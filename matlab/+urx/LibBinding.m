@@ -37,6 +37,9 @@ classdef LibBinding < handle
         if isa(varargin{i}, 'urx.ObjectField')
           varargin{i} = varargin{i}.id;
         end
+        if isa(varargin{i},'string')
+          varargin{i} = char(varargin{i});
+        end
       end
       varargout{:} = calllib(this.libName, varargin{:});
     end
@@ -51,7 +54,7 @@ classdef LibBinding < handle
     function this = getInstance(libraryPath, headerPath, includepaths, envpaths)
       persistent instance
       if isempty(instance)
-        setenv("HDF5_DISABLE_VERSION_CHECK", "1");
+        setenv("HDF5_DISABLE_VERSION_CHECK", "2");
         if nargin < 4
           scriptPath = fileparts(mfilename('fullpath'));
           % Default path for toolbox

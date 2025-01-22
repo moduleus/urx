@@ -2,20 +2,24 @@
 
 include(CMakeFindDependencyMacro)
 
-if(NOT HDF5_DIR)
-  set(HDF5_DIR "@HDF5_DIR@")
-endif()
-if(NOT "${HDF5_DIR}" STREQUAL "")
-  find_dependency(
-    HDF5
-    NAMES
-    hdf5
-    COMPONENTS
-    CXX
-    @SEARCH_TYPE@
-    CONFIG
-    NO_DEFAULT_PATH
-    REQUIRED)
+if(NOT (NOT @URX_HDF5_LINK_SHARED@ AND @BUILD_SHARED_LIBS@))
+
+  if(NOT HDF5_DIR)
+    set(HDF5_DIR "@HDF5_DIR@")
+  endif()
+  if(NOT "${HDF5_DIR}" STREQUAL "")
+    find_dependency(
+      HDF5
+      NAMES
+      hdf5
+      COMPONENTS
+      CXX
+      @SEARCH_TYPE@
+      CONFIG
+      NO_DEFAULT_PATH
+      REQUIRED)
+  endif()
+
 endif()
 
 set(WITH_PYTHON "@WITH_PYTHON@")

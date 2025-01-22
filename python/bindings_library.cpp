@@ -44,6 +44,7 @@ py::array rawDataToPyArray(urx::RawData& raw_data) {
 }
 
 std::shared_ptr<urx::RawData> pyArrayToRawData(const py::array& array) {
+  array.inc_ref();
   py::buffer_info info = array.request();
   if (info.ndim > 2)
     throw std::runtime_error("Dimension error: Too many dimensions in this data array");

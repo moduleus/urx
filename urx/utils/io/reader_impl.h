@@ -24,7 +24,6 @@
 #include <urx/element_geometry.h>
 #include <urx/impulse_response.h>
 #include <urx/probe.h>
-#include <urx/utils/common.h>
 #include <urx/utils/io/enums.h>
 #include <urx/utils/io/serialize_helper.h>
 
@@ -46,9 +45,11 @@ struct DeserializeHdf5<T, U, ContainerType::RAW> {
       if (group.nameExists(name)) {
         const H5::DataSet dataset = group.openDataSet(name);
         dataset.read(&field, datatype);
-      } else {
+      } else if (group.attrExists(name)) {
         const H5::Attribute attribute = group.openAttribute(name);
         attribute.read(datatype, &field);
+      } else {
+        throw std::runtime_error("Failed to read " + group.getObjName() + "/" + name);
       }
     }
     // Enum
@@ -59,9 +60,11 @@ struct DeserializeHdf5<T, U, ContainerType::RAW> {
       if (group.nameExists(name)) {
         const H5::DataSet dataset = group.openDataSet(name);
         dataset.read(value, datatype, dataspace);
-      } else {
+      } else if (group.attrExists(name)) {
         const H5::Attribute attribute = group.openAttribute(name);
         attribute.read(datatype, value);
+      } else {
+        throw std::runtime_error("Failed to read " + group.getObjName() + "/" + name);
       }
 
       field = urx::utils::io::enums::stringToEnum<T>(value);
@@ -124,6 +127,7 @@ struct DeserializeHdf5<T, U, ContainerType::WEAK_PTR> {
 template <typename T, typename U>
 struct DeserializeHdf5<T, U, ContainerType::VECTOR> {
   static void
+  // NOLINTNEXTLINE(misc-no-recursion)
   f(const std::string& name, T& field, const H5::Group& group, MapToSharedPtr& map,
     const std::unordered_map<std::type_index, std::vector<std::pair<U, std::string>>>& data_field) {
     if constexpr (std::is_arithmetic_v<typename T::value_type>) {
@@ -199,19 +203,63 @@ struct DeserializeHdf5<T, U, ContainerType::VECTOR> {
 
       const H5::Group group_child(group.openGroup(name));
 
-      size_t i = 0;
-      while (group_child.nameExists(common::formatIndexWithLeadingZeros(i, ITER_LENGTH)) ||
-             group_child.attrExists(common::formatIndexWithLeadingZeros(i, ITER_LENGTH))) {
-        i++;
+      const hsize_t number_attrs = group_child.getNumAttrs();
+      const hsize_t number_dataset = group_child.getNumObjs();
+
+      if (number_attrs != 0 && number_dataset != 0) {
+        throw std::runtime_error("Reader doesn't support mixing attributs and dataset in vector " +
+                                 group_child.getObjName() + "/" + name);
       }
 
-      field.reserve(i);
+      int max_attribute_name = -1;
 
-      for (size_t j = 0; j < i; j++) {
-        field.push_back(typename T::value_type{});
-        DeserializeHdf5<typename T::value_type, U>::f(
-            common::formatIndexWithLeadingZeros(j, ITER_LENGTH), field.back(), group_child, map,
-            data_field);
+      if (number_attrs) {
+        for (unsigned int i = 0; i < number_attrs; ++i) {
+          const H5::Attribute attr = group_child.openAttribute(i);
+          const std::string attr_name = attr.getName();
+
+          try {
+            const int value = std::stoi(attr_name);
+            max_attribute_name = std::max(max_attribute_name, value);
+          } catch (const std::invalid_argument&) {
+            throw std::runtime_error("Can't read attr_name in " + group_child.getObjName() + "/" +
+                                     name);
+          }
+        }
+      }
+      if (number_dataset) {
+        for (unsigned int i = 0; i < number_dataset; ++i) {
+          const std::string dataset_name = group_child.getObjnameByIdx(i);
+          try {
+            const int value = std::stoi(dataset_name);
+            max_attribute_name = std::max(max_attribute_name, value);
+          } catch (const std::invalid_argument&) {
+            throw std::runtime_error("Can't read attr_name in " + group_child.getObjName() + "/" +
+                                     name);
+          }
+        }
+      }
+
+      field.resize(max_attribute_name + 1);
+
+      if (number_attrs) {
+        for (unsigned int i = 0; i < number_attrs; ++i) {
+          const H5::Attribute attr = group_child.openAttribute(i);
+          const std::string name_i = attr.getName();
+
+          const int value = std::stoi(name_i);
+          DeserializeHdf5<typename T::value_type, U>::f(name_i, field[value], group_child, map,
+                                                        data_field);
+        }
+      }
+      if (number_dataset) {
+        for (hsize_t i = 0; i < number_dataset; ++i) {
+          const std::string name_i = group_child.getObjnameByIdx(i);
+
+          const int value = std::stoi(name_i);
+          DeserializeHdf5<typename T::value_type, U>::f(name_i, field[value], group_child, map,
+                                                        data_field);
+        }
       }
     }
   }
@@ -227,9 +275,11 @@ struct DeserializeHdf5<std::string, U, ContainerType::RAW> {
     if (group.nameExists(name)) {
       const H5::DataSet dataset = group.openDataSet(name);
       dataset.read(field, datatype, dataspace);
-    } else {
+    } else if (group.attrExists(name)) {
       const H5::Attribute attribute = group.openAttribute(name);
       attribute.read(datatype, field);
+    } else {
+      throw std::runtime_error("Failed to read " + group.getObjName() + "/" + name);
     }
   }
 };

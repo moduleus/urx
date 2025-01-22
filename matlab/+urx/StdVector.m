@@ -2,7 +2,7 @@ classdef StdVector < urx.ObjectField
   properties (Access = public)
     objectClassName(1,:) char
     nbDims uint8
-    parent urx.Object {mustBeScalarOrEmpty} = urx.Object.empty(1,0)
+    parent urx.Object {urx.Validator.mustBeScalarOrEmpty} = urx.Object.empty(1,0)
   end
   
   methods
