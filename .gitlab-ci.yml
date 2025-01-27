@@ -172,6 +172,8 @@ doc:doxygen:
   - sed -i -z 's/\t\t\}\n\t\}/\t\}/g' doc/plantuml/architecture.puml
   # Remove destructor
   - sed -i -z "s/\n[^~\n]*~[^\n]*\n/\n/g" doc/plantuml/architecture.puml
+  # Remove Vector2D unused class
+  - perl -i -0pe 's/\s+class Vector2D\s+\{((.*?\n\s+)+?)\}//g' doc/plantuml/architecture.puml
 
 doc:plantuml:
   stage: doc
