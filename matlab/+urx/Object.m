@@ -421,7 +421,12 @@ classdef Object < urx.ObjectField
                 else
                   d2dim = 2;
                 end
-                affectedCFieldPtr.setdatatype([strSplit{2} 'Ptr'], d2dim, affectedObject.size);
+                if strcmp(strSplit{2}, 'float')
+                  cType = 'singlePtr';
+                else
+                  cType = [strSplit{2} 'Ptr'];
+                end
+                affectedCFieldPtr.setdatatype(cType, d2dim, affectedObject.size);
               else
                 assert(numel(affectedProperty) <= 1);
                 affectedCFieldPtr.setdatatype([affectedPropertyClassName 'Ptr'], 1);
