@@ -497,5 +497,21 @@ classdef FileFromScratch < matlab.unittest.TestCase
       rs2 = dataset2.acquisition.groups(1).sequence(1).receiveSetup;
       testcase.verifyEqual(actives, rs2.activeElements);
     end
+
+    function assignSharedInWeak(testcase)
+      a=urx.Element;
+      b=urx.ElementGeometry;
+      a.elementGeometry = b;
+      b
+    end
+
+    function assignFailure(testcase)
+      groupData = urx.GroupData;
+      assert(isempty(lastwarn));
+      groupData.rawData = urx.RawData_int16_t_complex();
+      lastwarn('');
+      groupData.rawData = urx.RawData_int16_t_complex(10);
+      groupData.rawData
+    end
   end
 end
