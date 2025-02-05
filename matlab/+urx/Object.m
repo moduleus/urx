@@ -343,7 +343,9 @@ classdef Object < urx.ObjectField
                 libBindingRef.call(assignFunction, affectedCFieldPtr, affectedProperty.id);
 
                 % New value has never been affected.
-                if isempty(affectedProperty.parent)
+                % Don't replace shared_ptr variable by weak_ptr variable.
+                % It's not sure that shared_ptr is stored in another place.
+                if isempty(affectedProperty.parent) && (affectedPropertyPtrType ~= urx.PtrType.WEAK || affectedProperty.ptrType ~= urx.PtrType.SHARED)
                   affectedProperty.freeMem();
 
                   % Restore pointer and ptrType of the property.
