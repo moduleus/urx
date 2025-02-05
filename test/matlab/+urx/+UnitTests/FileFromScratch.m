@@ -513,5 +513,23 @@ classdef FileFromScratch < matlab.unittest.TestCase
       groupData.rawData = urx.RawData_int16_t_complex(10);
       groupData.rawData
     end
+
+    function vector3dSingle(testcase)
+      A = urx.Vector3D(double(1),0,0);
+      B = urx.ElementGeometry();
+      B.perimeter = A;
+      B.perimeter.x
+      assert(isa(A.x, 'double'))
+      assert(isa(B.perimeter.x, 'double'))
+      testcase.verifyEqual(A.x, B.perimeter.x)
+
+      C = urx.Vector3D(single(1),0,0);
+      D = urx.ElementGeometry();
+      D.perimeter = C;
+      D.perimeter.x
+      assert(isa(C.x, 'double'))
+      assert(isa(D.perimeter.x, 'double'))
+      testcase.verifyEqual(C.x, D.perimeter.x)
+    end
   end
 end
