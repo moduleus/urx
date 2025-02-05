@@ -502,33 +502,35 @@ classdef FileFromScratch < matlab.unittest.TestCase
       a=urx.Element;
       b=urx.ElementGeometry;
       a.elementGeometry = b;
-      b
+      b;
     end
 
     function assignFailure(testcase)
       groupData = urx.GroupData;
-      assert(isempty(lastwarn));
-      groupData.rawData = urx.RawData_int16_t_complex();
+      testcase.verifyTrue(isempty(lastwarn));
       lastwarn('');
+      warning('off')
+      groupData.rawData = urx.RawData_int16_t_complex();
+      testcase.verifyFalse(isempty(lastwarn));
+      lastwarn('');
+      warning('on')
       groupData.rawData = urx.RawData_int16_t_complex(10);
-      groupData.rawData
+      groupData.rawData;
     end
 
     function vector3dSingle(testcase)
       A = urx.Vector3D(double(1),0,0);
       B = urx.ElementGeometry();
       B.perimeter = A;
-      B.perimeter.x
-      assert(isa(A.x, 'double'))
-      assert(isa(B.perimeter.x, 'double'))
+      testcase.verifyTrue(isa(A.x, 'double'))
+      testcase.verifyTrue(isa(B.perimeter.x, 'double'))
       testcase.verifyEqual(A.x, B.perimeter.x)
 
       C = urx.Vector3D(single(1),0,0);
       D = urx.ElementGeometry();
       D.perimeter = C;
-      D.perimeter.x
-      assert(isa(C.x, 'double'))
-      assert(isa(D.perimeter.x, 'double'))
+      testcase.verifyTrue(isa(C.x, 'double'))
+      testcase.verifyTrue(isa(D.perimeter.x, 'double'))
       testcase.verifyEqual(C.x, D.perimeter.x)
     end
   end
