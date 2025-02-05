@@ -204,17 +204,6 @@ classdef Object < urx.ObjectField
       %   return;
       % end
 
-      % Don't observe when called from constructor with inheritance.
-      % Object constructor must be called before child constructor.
-      % So all properties already have listeners set.
-      % for i = 1:numel(s)
-      %   strInheritance = strfind(s(i).name, '.');
-      %   % Try to found in the stack "Name.Name".
-      %   if numel(strInheritance) == 1 && strcmp(s(i).name, [s(i).name(1:strInheritance-1) '.' s(i).name(1:strInheritance-1)])
-      %     return;
-      %   end
-      % end
-
       % Get data from event.
       affectedObject = evnt.AffectedObject;
       affectedPropertyName = src.Name;
