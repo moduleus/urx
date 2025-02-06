@@ -96,10 +96,19 @@ classdef FileFromScratch < matlab.unittest.TestCase
       vector2.z = 543;
       elementGeometry2.perimeter = [vector1, vector2];
       probe1.elementGeometries = [elementGeometry1, elementGeometry2];
+      testcase.verifyEqual(probe1.elementGeometries(1).perimeter(1).y,elementGeometry1.perimeter(1).y);
+      testcase.verifyEqual(probe1.elementGeometries(2).perimeter(2).y,elementGeometry2.perimeter(2).y);
+      elementGeometry1.perimeter(1).y=111.;
+      elementGeometry2.perimeter(2).y=131.;
+      testcase.verifyEqual(probe1.elementGeometries(1).perimeter(1).y,elementGeometry1.perimeter(1).y);
+      testcase.verifyEqual(probe1.elementGeometries(2).perimeter(2).y,elementGeometry2.perimeter(2).y);
       
       impulseResponse1 = urx.ImpulseResponse();
       impulseResponse1.samplingFrequency = 20000001;
-      impulseResponse1.data = [1.2, 1.3, 1.4];
+      impulseResponse1.data = [1.2, 1.3];
+      testcase.verifyEqual(impulseResponse1.data, [1.2, 1.3]);
+      impulseResponse1.data = [impulseResponse1.data, 1.4];
+      testcase.verifyEqual(impulseResponse1.data, [1.2, 1.3, 1.4]);
       impulseResponse1.units = 'meter';
       impulseResponse1.timeOffset = 10000;
       
@@ -165,6 +174,20 @@ classdef FileFromScratch < matlab.unittest.TestCase
       vector2.z = 5.5;
       elementGeometry2.perimeter = [vector1, vector2];
       probe2.elementGeometries = [elementGeometry1, elementGeometry2];
+      % TODO: Replace previous line by next following lines.
+      %probe2.elementGeometries = elementGeometry1;
+      %testcase.verifyEqual(probe2.elementGeometries(1).perimeter(1).y,elementGeometry1.perimeter(1).y);
+      %elementGeometry1.perimeter(1).y=211.;
+      %testcase.verifyEqual(probe2.elementGeometries(1).perimeter(1).y,elementGeometry1.perimeter(1).y);
+      %probe2.elementGeometries = [probe2.elementGeometries, elementGeometry2];
+      % For the current time, elementGeometry1 points to an invalid memory area because previous line
+      % changes the size of std::vector. So it reallocates memory and change pointer memory location.
+      %testcase.verifyEqual(probe2.elementGeometries(1).perimeter(1).y,elementGeometry1.perimeter(1).y);
+      %testcase.verifyEqual(probe2.elementGeometries(2).perimeter(2).y,elementGeometry2.perimeter(2).y);
+      %elementGeometry1.perimeter(1).y=311.;
+      %elementGeometry2.perimeter(2).y=331.;
+      %testcase.verifyEqual(probe2.elementGeometries(1).perimeter(1).y,elementGeometry1.perimeter(1).y);
+      %testcase.verifyEqual(probe2.elementGeometries(2).perimeter(2).y,elementGeometry2.perimeter(2).y);
       
       impulseResponse1 = urx.ImpulseResponse();
       impulseResponse1.samplingFrequency = 20000011;
@@ -532,6 +555,65 @@ classdef FileFromScratch < matlab.unittest.TestCase
       testcase.verifyTrue(isa(C.x, 'double'))
       testcase.verifyTrue(isa(D.perimeter.x, 'double'))
       testcase.verifyEqual(C.x, D.perimeter.x)
+    end
+
+    function incrementSharedArray(testcase)
+      probe = urx.Probe();
+
+      elementGeometry = urx.ElementGeometry();
+      elementGeometry.perimeter = [urx.Vector3D(-1,-1,0),...
+                              urx.Vector3D(1,-1,0),...
+                              urx.Vector3D(1,1,0),...
+                              urx.Vector3D(-1,1,0)];
+
+      probe.elementGeometries = elementGeometry;
+
+      probe.elements = urx.Element();
+      probe.elements.elementGeometry = elementGeometry;
+      probe.elements.transform.rotation.x = 1;
+
+      for kk=2:10
+        element = urx.Element();
+        element.elementGeometry = elementGeometry;
+        element.transform.rotation.x = kk;
+        probe.elements = [probe.elements,element];
+      end
+
+      for kk=11:20
+        element = urx.Element();
+        element.elementGeometry = elementGeometry;
+        element.transform.rotation.x = kk;
+        probe.elements(end+1) = element;
+      end
+
+      for kk=2:10
+        testcase.verifyEqual(numel(probe.elements(kk).elementGeometry.perimeter), 4);
+        testcase.verifyEqual(probe.elements(kk).elementGeometry.perimeter(1).x, -1);
+        testcase.verifyEqual(probe.elements(kk).transform.rotation.x, kk);
+      end
+    end
+
+    function incrementRawArray(testcase)
+      group = urx.Group();
+
+      group.sequence = urx.Event();
+      group.sequence.transmitSetup.delays = 1;
+
+      for kk=2:10
+        event = urx.Event();
+        event.transmitSetup.delays = kk;
+        group.sequence = [group.sequence,event];
+      end
+
+      for kk=11:20
+        event = urx.Event();
+        event.transmitSetup.delays = kk;
+        group.sequence(end+1) = event;
+      end
+
+      for kk=2:20
+        testcase.verifyEqual(group.sequence(kk).transmitSetup.delays, kk);
+      end
     end
   end
 end
