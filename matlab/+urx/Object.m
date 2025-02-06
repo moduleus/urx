@@ -274,13 +274,30 @@ classdef Object < urx.ObjectField
               affectedCFieldPtr.Value = int32(affectedProperty);
             elseif ~isempty(affectedPropertyStd)
               affectedPropertyStd.id = affectedCFieldPtr;
-              affectedPropertyStd.clear();
+
+              namespace = class(affectedObject);
+              namespace = namespace(1:3);
+
               % Check consistency.
               if affectedPropertyStd.nbDims == 1
                 assert(strcmp(class(affectedProperty), affectedPropertyStd.objectClassName));
-                for i = 1:numel(affectedProperty)
-                  affectedPropertyStd.pushBack(affectedProperty(i));
+
+                if (isa(affectedProperty, 'urx.Object'))
+                  vector = feval([namespace '.StdVector'], affectedPropertyStd.objectClassName, 1, affectedPropertyStd.ptrType);
+                  for i = 1:numel(affectedProperty)
+                    vector.pushBack(affectedProperty(i));
+                  end
+                  
+                  affectedPropertyStd.clear();
+                  assignFunction = vector.functionName('assign');
+                  libBindingRef.call(assignFunction, affectedCFieldPtr, vector.id);
+                else
+                  affectedPropertyStd.clear();
+                  for i = 1:numel(affectedProperty)
+                    affectedPropertyStd.pushBack(affectedProperty(i));
+                  end
                 end
+
                 % Update id and ptrType
                 % Do it after all pushBack. std::vector::pushBack may realloc
                 % and change all pointer adresses.
@@ -293,11 +310,10 @@ classdef Object < urx.ObjectField
                   end
                 end
               else
+                affectedPropertyStd.clear();
+
                 assert(affectedPropertyStd.nbDims == 2);
                 assert(iscell(affectedProperty));
-
-                namespace = class(affectedObject);
-                namespace = namespace(1:3);
 
                 for i = 1:numel(affectedProperty)
                   vectori = feval([namespace '.StdVector'], affectedPropertyStd.objectClassName, affectedPropertyStd.nbDims-1, affectedPropertyStd.ptrType);

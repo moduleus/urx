@@ -96,10 +96,19 @@ classdef FileFromScratch < matlab.unittest.TestCase
       vector2.z = 543;
       elementGeometry2.perimeter = [vector1, vector2];
       probe1.elementGeometries = [elementGeometry1, elementGeometry2];
+      testcase.verifyEqual(probe1.elementGeometries(1).perimeter(1).y,elementGeometry1.perimeter(1).y);
+      testcase.verifyEqual(probe1.elementGeometries(2).perimeter(2).y,elementGeometry2.perimeter(2).y);
+      elementGeometry1.perimeter(1).y=111.;
+      elementGeometry2.perimeter(2).y=131.;
+      testcase.verifyEqual(probe1.elementGeometries(1).perimeter(1).y,elementGeometry1.perimeter(1).y);
+      testcase.verifyEqual(probe1.elementGeometries(2).perimeter(2).y,elementGeometry2.perimeter(2).y);
       
       impulseResponse1 = urx.ImpulseResponse();
       impulseResponse1.samplingFrequency = 20000001;
-      impulseResponse1.data = [1.2, 1.3, 1.4];
+      impulseResponse1.data = [1.2, 1.3];
+      testcase.verifyEqual(impulseResponse1.data, [1.2, 1.3]);
+      impulseResponse1.data = [impulseResponse1.data, 1.4];
+      testcase.verifyEqual(impulseResponse1.data, [1.2, 1.3, 1.4]);
       impulseResponse1.units = 'meter';
       impulseResponse1.timeOffset = 10000;
       
@@ -164,7 +173,17 @@ classdef FileFromScratch < matlab.unittest.TestCase
       vector2.y = 0.0;
       vector2.z = 5.5;
       elementGeometry2.perimeter = [vector1, vector2];
-      probe2.elementGeometries = [elementGeometry1, elementGeometry2];
+      probe2.elementGeometries = elementGeometry1;
+      testcase.verifyEqual(probe2.elementGeometries(1).perimeter(1).y,elementGeometry1.perimeter(1).y);
+      elementGeometry1.perimeter(1).y=211.;
+      testcase.verifyEqual(probe2.elementGeometries(1).perimeter(1).y,elementGeometry1.perimeter(1).y);
+      probe2.elementGeometries = [probe2.elementGeometries, elementGeometry2];
+      testcase.verifyEqual(probe2.elementGeometries(1).perimeter(1).y,elementGeometry1.perimeter(1).y);
+      testcase.verifyEqual(probe2.elementGeometries(2).perimeter(2).y,elementGeometry2.perimeter(2).y);
+      elementGeometry1.perimeter(1).y=311.;
+      elementGeometry2.perimeter(2).y=331.;
+      testcase.verifyEqual(probe2.elementGeometries(1).perimeter(1).y,elementGeometry1.perimeter(1).y);
+      testcase.verifyEqual(probe2.elementGeometries(2).perimeter(2).y,elementGeometry2.perimeter(2).y);
       
       impulseResponse1 = urx.ImpulseResponse();
       impulseResponse1.samplingFrequency = 20000011;
@@ -532,6 +551,28 @@ classdef FileFromScratch < matlab.unittest.TestCase
       testcase.verifyTrue(isa(C.x, 'double'))
       testcase.verifyTrue(isa(D.perimeter.x, 'double'))
       testcase.verifyEqual(C.x, D.perimeter.x)
+    end
+
+    function incrementArray(testcase)
+      probe = urx.Probe();
+
+      elementGeometry = urx.ElementGeometry();
+      elementGeometry.perimeter = [urx.Vector3D(-1,-1,0),...
+                              urx.Vector3D(1,-1,0),...
+                              urx.Vector3D(1,1,0),...
+                              urx.Vector3D(-1,1,0)];
+
+      probe.elementGeometries = elementGeometry;
+
+      probe.elements = urx.Element();
+      probe.elements.elementGeometry = elementGeometry;
+
+      element = urx.Element();
+      element.elementGeometry = elementGeometry;
+      probe.elements = [probe.elements,element];
+
+      testcase.verifyEqual(numel(probe.elements(1).elementGeometry.perimeter), 4);
+      testcase.verifyEqual(numel(probe.elements(2).elementGeometry.perimeter), 4);
     end
   end
 end
