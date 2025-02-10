@@ -371,6 +371,20 @@ classdef Object < urx.ObjectField
                     % (and dataset.version) is cleared.
                     affectedProperty.parent = affectedObject;
 
+                    % Update cache
+                    metaclassAffectedProperty = metaclass(affectedProperty);
+                    disableSetRecursion = disableSetRecursion + 1;
+                    disableGetRecursion = disableGetRecursion + 1;
+                    for prop = metaclassAffectedProperty.PropertyList'
+                      propName = prop.Name;
+                      if ~isempty(affectedProperty.(propName)) && isa(affectedProperty.(propName), 'urx.Object')
+                        propType = class(affectedProperty.(propName));
+                        affectedProperty.(propName) = eval([propType, '.empty']);
+                      end
+                    end
+                    disableSetRecursion = disableSetRecursion - 1;
+                    disableGetRecursion = disableGetRecursion - 1;
+
                     % shared stored in weak ptr.
                   elseif affectedPropertyPtrType == urx.PtrType.WEAK && affectedProperty.ptrType == urx.PtrType.SHARED
                   elseif affectedPropertyPtrType == urx.PtrType.WEAK && affectedProperty.ptrType == urx.PtrType.WEAK

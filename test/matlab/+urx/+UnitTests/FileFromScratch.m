@@ -615,5 +615,14 @@ classdef FileFromScratch < matlab.unittest.TestCase
         testcase.verifyEqual(group.sequence(kk).transmitSetup.delays, kk);
       end
     end
+
+    function updateFieldAfterCached(testcase)
+      a = urx.Wave();
+      testcase.verifyEqual(a.timeZeroReferencePoint.x, 0);
+      b = urx.TransmitSetup();
+      b.wave = a;
+      testcase.verifyEqual(a.timeZeroReferencePoint.x, 0);
+      testcase.verifyEqual(b.wave.timeZeroReferencePoint.x, 0);
+    end
   end
 end
