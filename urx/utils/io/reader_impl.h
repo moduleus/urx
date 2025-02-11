@@ -186,8 +186,10 @@ struct DeserializeHdf5<T, U, ContainerType::VECTOR> {
 
       if (dimension[0] != 0) {
         if (group.nameExists(name)) {
+          // NOLINTNEXTLINE(bugprone-multi-level-implicit-pointer-conversion)
           dataset.read(field_char.data(), datatype, dataspace);
         } else {
+          // NOLINTNEXTLINE(bugprone-multi-level-implicit-pointer-conversion)
           attribute.read(datatype, field_char.data());
         }
         for (char* str_i : field_char) {

@@ -159,6 +159,7 @@ struct SerializeHdf5<T, U, ContainerType::VECTOR> {
 
       if constexpr (USE_ATTRIBUTE) {
         const H5::Attribute attribute = group.createAttribute(name, datatype, dataspace);
+        // NOLINTNEXTLINE(bugprone-multi-level-implicit-pointer-conversion)
         attribute.write(datatype, c_strings.data());
       } else {
         const H5::DSetCreatPropList plist;
@@ -167,6 +168,7 @@ struct SerializeHdf5<T, U, ContainerType::VECTOR> {
 #endif
         const H5::DataSet dataset = group.createDataSet(name, datatype, dataspace, plist);
 
+        // NOLINTNEXTLINE(bugprone-multi-level-implicit-pointer-conversion)
         dataset.write(c_strings.data(), datatype);
       }
     } else {
@@ -223,7 +225,7 @@ struct SerializeHdf5<std::shared_ptr<RawData>, U, ContainerType::SHARED_PTR> {
       return;
     }
 
-    enum class Format { ARRAY_2D, COMPOUND };
+    enum class Format : int8_t { ARRAY_2D, COMPOUND };
     constexpr Format format = Format::ARRAY_2D;
 
     const std::unordered_map<DataType, std::type_index> group_dt_to_typeid{

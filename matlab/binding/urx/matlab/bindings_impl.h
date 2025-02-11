@@ -275,7 +275,7 @@ struct IsSharedPtr<std::shared_ptr<T>> : std::true_type {};
     return reinterpret_cast<uint64_t>(this_ptr);                                                   \
   }                                                                                                \
   uint64_t CONCAT3(snake, raw_ptr, weak)(void *this_ptr) {                                         \
-    auto ptr_lock = static_cast<std::weak_ptr<type> *>(this_ptr) -> lock();                        \
+    auto ptr_lock = static_cast<std::weak_ptr<type> *>(this_ptr)->lock();                          \
     if (!ptr_lock) {                                                                               \
       return 0;                                                                                    \
     }                                                                                              \
@@ -295,7 +295,7 @@ struct IsSharedPtr<std::shared_ptr<T>> : std::true_type {};
     return *static_cast<type *>(this_ptr) == *static_cast<type *>(other_ptr);                      \
   }                                                                                                \
   bool CONCAT4(snake, cmp, raw, weak)(void *this_ptr, void *other_ptr) {                           \
-    auto ptr_lock = static_cast<std::weak_ptr<type> *>(other_ptr) -> lock();                       \
+    auto ptr_lock = static_cast<std::weak_ptr<type> *>(other_ptr)->lock();                         \
     if (!ptr_lock) {                                                                               \
       return false;                                                                                \
     }                                                                                              \
@@ -312,32 +312,32 @@ struct IsSharedPtr<std::shared_ptr<T>> : std::true_type {};
     return *static_cast<type *>(this_ptr) == *opt_ptr;                                             \
   }                                                                                                \
   bool CONCAT4(snake, cmp, weak, raw)(void *this_ptr, void *other_ptr) {                           \
-    auto ptr_lock = static_cast<std::weak_ptr<type> *>(this_ptr) -> lock();                        \
+    auto ptr_lock = static_cast<std::weak_ptr<type> *>(this_ptr)->lock();                          \
     if (!ptr_lock) {                                                                               \
       return false;                                                                                \
     }                                                                                              \
     return *ptr_lock == *static_cast<type *>(other_ptr);                                           \
   }                                                                                                \
   bool CONCAT4(snake, cmp, weak, weak)(void *this_ptr, void *other_ptr) {                          \
-    auto ptr_lock1 = static_cast<std::weak_ptr<type> *>(this_ptr) -> lock();                       \
+    auto ptr_lock1 = static_cast<std::weak_ptr<type> *>(this_ptr)->lock();                         \
     if (!ptr_lock1) {                                                                              \
       return false;                                                                                \
     }                                                                                              \
-    auto ptr_lock2 = static_cast<std::weak_ptr<type> *>(other_ptr) -> lock();                      \
+    auto ptr_lock2 = static_cast<std::weak_ptr<type> *>(other_ptr)->lock();                        \
     if (!ptr_lock2) {                                                                              \
       return false;                                                                                \
     }                                                                                              \
     return *ptr_lock1 == *ptr_lock2;                                                               \
   }                                                                                                \
   bool CONCAT4(snake, cmp, weak, shared)(void *this_ptr, void *other_ptr) {                        \
-    auto ptr_lock = static_cast<std::weak_ptr<type> *>(this_ptr) -> lock();                        \
+    auto ptr_lock = static_cast<std::weak_ptr<type> *>(this_ptr)->lock();                          \
     if (!ptr_lock) {                                                                               \
       return false;                                                                                \
     }                                                                                              \
     return *ptr_lock == **static_cast<std::shared_ptr<type> *>(other_ptr);                         \
   }                                                                                                \
   bool CONCAT4(snake, cmp, weak, optional)(void *this_ptr, void *other_ptr) {                      \
-    auto ptr_lock = static_cast<std::weak_ptr<type> *>(this_ptr) -> lock();                        \
+    auto ptr_lock = static_cast<std::weak_ptr<type> *>(this_ptr)->lock();                          \
     if (!ptr_lock) {                                                                               \
       return false;                                                                                \
     }                                                                                              \
@@ -351,7 +351,7 @@ struct IsSharedPtr<std::shared_ptr<T>> : std::true_type {};
     return **static_cast<std::shared_ptr<type> *>(this_ptr) == *static_cast<type *>(other_ptr);    \
   }                                                                                                \
   bool CONCAT4(snake, cmp, shared, weak)(void *this_ptr, void *other_ptr) {                        \
-    auto ptr_lock = static_cast<std::weak_ptr<type> *>(other_ptr) -> lock();                       \
+    auto ptr_lock = static_cast<std::weak_ptr<type> *>(other_ptr)->lock();                         \
     if (!ptr_lock) {                                                                               \
       return false;                                                                                \
     }                                                                                              \
@@ -380,7 +380,7 @@ struct IsSharedPtr<std::shared_ptr<T>> : std::true_type {};
     if (!*opt_ptr) {                                                                               \
       return false;                                                                                \
     }                                                                                              \
-    auto ptr_lock = static_cast<std::weak_ptr<type> *>(other_ptr) -> lock();                       \
+    auto ptr_lock = static_cast<std::weak_ptr<type> *>(other_ptr)->lock();                         \
     if (!ptr_lock) {                                                                               \
       return false;                                                                                \
     }                                                                                              \
@@ -583,7 +583,7 @@ bool checkHasValue(const T &argument) {
     return urx::matlab::detail::checkHasValue(static_cast<type *>(this_ptr)->member); \
   }                                                                                   \
   bool CONCAT4(snake, weak, member, has_data)(void *this_ptr) {                       \
-    auto lock_ptr = static_cast<std::weak_ptr<type> *>(this_ptr) -> lock();           \
+    auto lock_ptr = static_cast<std::weak_ptr<type> *>(this_ptr)->lock();             \
     if (!lock_ptr) {                                                                  \
       return false;                                                                   \
     }                                                                                 \

@@ -1,7 +1,9 @@
 #pragma once
 
+#include <cstdint>
+
 namespace urx {
-enum class ProbeType {
+enum class ProbeType : int8_t {
   LINEAR = 0,
   CURVILINEAR = 1,
   RCA = 2,
@@ -10,7 +12,7 @@ enum class ProbeType {
   UNDEFINED = -1
 };
 
-enum class WaveType {
+enum class WaveType : int8_t {
   CONVERGING_WAVE = 0,
   DIVERGING_WAVE = 1,
   PLANE_WAVE = 2,
@@ -18,7 +20,7 @@ enum class WaveType {
   UNDEFINED = -1
 };
 
-enum class SamplingType { RF = 0, IQ = 1, UNDEFINED = -1 };
+enum class SamplingType : int8_t { RF = 0, IQ = 1, UNDEFINED = -1 };
 
-enum class DataType { INT16 = 0, INT32 = 1, FLOAT = 2, DOUBLE = 3, UNDEFINED = -1 };
+enum class DataType : int8_t { INT16 = 0, INT32 = 1, FLOAT = 2, DOUBLE = 3, UNDEFINED = -1 };
 }  // namespace urx
