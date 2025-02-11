@@ -450,11 +450,11 @@ You don't need to have MATLAB installed on your computer to build the MATLAB bin
 You need to set lots of CMake variables and use CMake 3.29 if you want to use `CMAKE_LINKER_TYPE` variable.
 
 ```cmake
--DCMAKE_C_COMPILER=/usr/bin/clang-17
--DCMAKE_CXX_COMPILER=/usr/bin/clang++-17
--DCMAKE_AR=/usr/bin/llvm-ar-17
--DCMAKE_AS=/usr/bin/llvm-as-17
--DCMAKE_RANLIB=/usr/bin/llvm-ranlib-17
+-DCMAKE_C_COMPILER=/usr/bin/clang-18
+-DCMAKE_CXX_COMPILER=/usr/bin/clang++-18
+-DCMAKE_AR=/usr/bin/llvm-ar-18
+-DCMAKE_AS=/usr/bin/llvm-as-18
+-DCMAKE_RANLIB=/usr/bin/llvm-ranlib-18
 -DCMAKE_LINKER_TYPE=LLD
 ```
 

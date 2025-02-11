@@ -78,7 +78,7 @@ const std::vector<std::shared_ptr<T>>& getSharedPtr(MapToSharedPtr& map) {
   return *reinterpret_cast<const std::vector<std::shared_ptr<T>>*>(map.at(nameTypeid<T>()));
 }
 
-enum class ContainerType { RAW, VECTOR, SHARED_PTR, WEAK_PTR, OPTIONAL };
+enum class ContainerType : uint8_t { RAW, VECTOR, SHARED_PTR, WEAK_PTR, OPTIONAL };
 
 template <typename T>
 struct TypeContainer {
