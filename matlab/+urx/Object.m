@@ -302,7 +302,9 @@ classdef Object < urx.ObjectField
                 % and change all pointer adresses.
                 for i = 1:numel(affectedProperty)
                   realAffectedDataI = affectedPropertyStd.data(i);
-                  if isa(affectedProperty(i), 'urx.Object')
+                  if isa(affectedProperty(i), 'urx.Object') && ( ...
+                      affectedProperty(i).ptrType ~= urx.PtrType.SHARED || ...
+                      realAffectedDataI.ptrType ~= urx.PtrType.WEAK)
                     affectedProperty(i).id = realAffectedDataI.id;
                     affectedProperty(i).ptrType = realAffectedDataI.ptrType;
                     affectedProperty(i).parent = affectedObject;

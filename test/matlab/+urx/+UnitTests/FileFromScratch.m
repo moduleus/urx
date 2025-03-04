@@ -624,5 +624,28 @@ classdef FileFromScratch < matlab.unittest.TestCase
       testcase.verifyEqual(a.timeZeroReferencePoint.x, 0);
       testcase.verifyEqual(b.wave.timeZeroReferencePoint.x, 0);
     end
+
+    function assignVectorSharedInVectorWeak(testcase)
+      transmitSetup = urx.TransmitSetup();
+      excitation = urx.Excitation();
+      excitation.transmitFrequency = 150.;
+      transmitSetup.excitations = repmat(excitation, [1, 10]);
+
+      Events = urx.Event();
+      Events.transmitSetup = transmitSetup;
+
+      Group = urx.Group();
+      Group.sequence = Events;
+
+      Acquisition = urx.Acquisition();
+      Acquisition.excitations = [excitation];
+      Acquisition.groups = [Group];
+
+      dataset = urx.Dataset();
+      dataset.acquisition = Acquisition;
+      urx.saveToFile('vector_weak.urx',dataset);
+
+      delete 'vector_weak.urx'
+    end
   end
 end
