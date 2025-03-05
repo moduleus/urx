@@ -16,6 +16,8 @@ classdef FileFromScratch < matlab.unittest.TestCase
 
   methods(Test)
     function createFileFromScratch(testcase)
+      libBinding = urx.LibBinding.getInstance();
+
       dataset = urx.Dataset();
       
       dataset.version.minor = 123;
@@ -211,9 +213,9 @@ classdef FileFromScratch < matlab.unittest.TestCase
       element1.transform.translation.z = 963;
       % Test empty weak_ptr field
       element1.elementGeometry = probe2.elementGeometries(1);
-      testcase.verifyTrue(urx.LibBinding.getInstance().call('urx_Element_shared_element_geometry_has_data', element1));
+      testcase.verifyTrue(libBinding.call('urx_Element_shared_element_geometry_has_data', element1));
       element1.elementGeometry = urx.ElementGeometry.empty;
-      testcase.verifyFalse(urx.LibBinding.getInstance().call('urx_Element_shared_element_geometry_has_data', element1));
+      testcase.verifyFalse(libBinding.call('urx_Element_shared_element_geometry_has_data', element1));
       element1.impulseResponse = probe2.impulseResponses(2);
       
       element2 = urx.Element();
@@ -643,7 +645,7 @@ classdef FileFromScratch < matlab.unittest.TestCase
 
       dataset = urx.Dataset();
       dataset.acquisition = Acquisition;
-      urx.saveToFile('vector_weak.urx',dataset);
+      urx.saveToFile('vector_weak.urx', dataset);
 
       delete 'vector_weak.urx'
     end
