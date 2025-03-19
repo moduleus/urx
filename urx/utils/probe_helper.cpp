@@ -62,67 +62,49 @@ void updateLinearElementsPositions(Probe& linear, uint32_t nb_elements, double p
   }
 }
 
-void updateRectElementsGeometry(Probe& probe, const Vector2D<double>& size) {
-  const size_t n_els = probe.elements.size();
+void updateRcaElementsRectGeometry(Probe& probe, const Vector2D<uint32_t>& nb_elements,
+                                   const Vector2D<double>& col_size,
+                                   const Vector2D<double>& row_size) {
   auto& probe_geom = probe.element_geometries;
-
   probe_geom.clear();
 
-  if (probe.type == ProbeType::RCA) {
-    // Setup the geometry shared accross all elements
-    const ElementGeometry el_geom{{{-size.x / 2, -size.y / 2, 0},
-                                   {size.x / 2, -size.y / 2, 0},
-                                   {size.x / 2, size.y / 2, 0},
-                                   {-size.x / 2, size.y / 2, 0}}};
-    const auto sh_el_geom = std::make_shared<ElementGeometry>(el_geom);
+  // Setup the geometry shared accross all rows and cols elements
+  const ElementGeometry col_el_geom{{{-col_size.x / 2, -col_size.y / 2, 0},
+                                     {col_size.x / 2, -col_size.y / 2, 0},
+                                     {col_size.x / 2, col_size.y / 2, 0},
+                                     {-col_size.x / 2, col_size.y / 2, 0}}};
+  const ElementGeometry row_el_geom{{{-row_size.x / 2, -row_size.y / 2, 0},
+                                     {row_size.x / 2, -row_size.y / 2, 0},
+                                     {row_size.x / 2, row_size.y / 2, 0},
+                                     {-row_size.x / 2, row_size.y / 2, 0}}};
 
-    // Set the probe elements geometry
-    for (size_t i = 0; i < n_els; i++) probe_geom.emplace_back(sh_el_geom);
-  } else {
-    // Setup the geometry shared accross all elements along x and y axis
-    const ElementGeometry el_geom_x{{{-size.x / 2, -size.y / 2, 0},
-                                     {size.x / 2, -size.y / 2, 0},
-                                     {size.x / 2, size.y / 2, 0},
-                                     {-size.x / 2, size.y / 2, 0}}};
-    const ElementGeometry el_geom_y{{{-size.y / 2, -size.x / 2, 0},
-                                     {size.y / 2, -size.x / 2, 0},
-                                     {size.y / 2, size.x / 2, 0},
-                                     {-size.y / 2, size.x / 2, 0}}};
+  const auto sh_col_el_geom = std::make_shared<ElementGeometry>(col_el_geom);
+  const auto sh_row_el_geom = std::make_shared<ElementGeometry>(row_el_geom);
 
-    const auto sh_el_geom_x = std::make_shared<ElementGeometry>(el_geom_x);
-    const auto sh_el_geom_y = std::make_shared<ElementGeometry>(el_geom_y);
-
-    size_t i = 0;  // element index
-
-    // Set the probe elements geometry along x-axis
-    for (; i < n_els; i++) {
-      // Detect axis change
-      if (probe.elements[i].transform.translation.y != 0.0) break;
-      probe_geom.emplace_back(sh_el_geom_x);
-    }
-
-    // Set the probe elements geometry along y-axis
-    for (; i < n_els; i++) probe_geom.emplace_back(sh_el_geom_y);
-  }
+  // Set the probe elements geometry
+  for (size_t i = 0; i < nb_elements.x; i++) probe_geom.emplace_back(sh_col_el_geom);
+  for (size_t i = 0; i < nb_elements.y; i++) probe_geom.emplace_back(sh_row_el_geom);
 }
 
-void updateRcaProbeGeometry(Probe& probe, const Vector2D<uint32_t>& nb_elements,
-                            const Vector2D<double>& pitch, const Vector2D<double>& element_size) {
-  updateRcaElementsPositions(probe, nb_elements, pitch);
-  updateRectElementsGeometry(probe, element_size);
+void updateMatrixElementsRectGeometry(Probe& probe, const Vector2D<uint32_t>& nb_elements,
+                                      const Vector2D<double>& size) {
+  updateLinearElementsGeometry(probe, nb_elements.x * nb_elements.y, size);
 }
 
-void updateMatrixProbeGeometry(Probe& probe, const Vector2D<uint32_t>& nb_elements,
-                               const Vector2D<double>& pitch,
-                               const Vector2D<double>& element_size) {
-  updateMatrixElementsPositions(probe, nb_elements, pitch);
-  updateRectElementsGeometry(probe, element_size);
-}
+void updateLinearElementsGeometry(Probe& probe, uint32_t nb_elements,
+                                  const Vector2D<double>& size) {
+  auto& probe_geom = probe.element_geometries;
+  probe_geom.clear();
 
-void updateLinearProbeGeometry(Probe& probe, uint32_t nb_elements, double pitch,
-                               const Vector2D<double>& element_size) {
-  updateLinearElementsPositions(probe, nb_elements, pitch);
-  updateRectElementsGeometry(probe, element_size);
+  // Setup the geometry shared accross all elements
+  const ElementGeometry el_geom{{{-size.x / 2, -size.y / 2, 0},
+                                 {size.x / 2, -size.y / 2, 0},
+                                 {size.x / 2, size.y / 2, 0},
+                                 {-size.x / 2, size.y / 2, 0}}};
+  const auto sh_el_geom = std::make_shared<ElementGeometry>(el_geom);
+
+  // Set the probe elements geometry
+  for (size_t i = 0; i < nb_elements; i++) probe_geom.emplace_back(sh_el_geom);
 }
 
 }  // namespace urx::utils::probe_helper
