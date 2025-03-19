@@ -68,7 +68,7 @@ void updateRcaElementsRectGeometry(Probe& probe, const Vector2D<uint32_t>& nb_el
   auto& probe_geom = probe.element_geometries;
   probe_geom.clear();
 
-  // Setup the geometry shared accross all rows and cols elements
+  // Setup the geometry shared accross rows and cols elements
   const ElementGeometry col_el_geom{{{-col_size.x / 2, -col_size.y / 2, 0},
                                      {col_size.x / 2, -col_size.y / 2, 0},
                                      {col_size.x / 2, col_size.y / 2, 0},
@@ -88,11 +88,11 @@ void updateRcaElementsRectGeometry(Probe& probe, const Vector2D<uint32_t>& nb_el
 
 void updateMatrixElementsRectGeometry(Probe& probe, const Vector2D<uint32_t>& nb_elements,
                                       const Vector2D<double>& size) {
-  updateLinearElementsGeometry(probe, nb_elements.x * nb_elements.y, size);
+  updateLinearElementsRectGeometry(probe, nb_elements.x * nb_elements.y, size);
 }
 
-void updateLinearElementsGeometry(Probe& probe, uint32_t nb_elements,
-                                  const Vector2D<double>& size) {
+void updateLinearElementsRectGeometry(Probe& probe, uint32_t nb_elements,
+                                      const Vector2D<double>& size) {
   auto& probe_geom = probe.element_geometries;
   probe_geom.clear();
 
