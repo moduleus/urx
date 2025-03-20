@@ -1,6 +1,16 @@
+#include <algorithm>
+#include <cstddef>
+#include <memory>
+#include <vector>
+
 #include <catch2/catch_test_macros.hpp>
 
+#include <urx/detail/compare.h>
+#include <urx/element.h>
+#include <urx/element_geometry.h>
+#include <urx/probe.h>
 #include <urx/utils/probe_helper.h>
+#include <urx/vector.h>
 
 namespace urx::utils::probe_helper::test {
 

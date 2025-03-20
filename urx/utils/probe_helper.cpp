@@ -1,12 +1,16 @@
 #include <algorithm>
 #include <cstddef>
-#include <exception>
+#include <ios>
 #include <iostream>
 #include <memory>
+#include <ostream>
+#include <stdexcept>
+#include <string>
 #include <utility>
 #include <vector>
 
 #include <urx/element.h>
+#include <urx/element_geometry.h>
 #include <urx/probe.h>
 #include <urx/transform.h>
 #include <urx/utils/probe_helper.h>
