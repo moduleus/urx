@@ -70,13 +70,13 @@ void updateRcaElementsRectGeometry(Probe& probe, const Vector2D<uint32_t>& nb_el
   auto& elements = probe.elements;
   const size_t n_els = elements.size();
 
-  if (nb_elements.x + nb_elements.y != probe.elements.size()) {
+  if (nb_elements.x + nb_elements.y != n_els) {
     throw std::runtime_error(
         "updateRcaElementsRectGeometry(): nb_elements.x + nb_elements.y != probe.elements.size()");
   }
 
   if (n_els == 0) {
-    std::cout << "[warning] updateRcaElementsRectGeometry(): no probe elements" << std::endl;
+    std::cout << "[warning] updateRcaElementsRectGeometry(): no probe elements\n";
     return;
   }
 
@@ -114,8 +114,8 @@ void updateMatrixElementsRectGeometry(Probe& probe, const Vector2D<double>& size
 }
 
 void updateLinearElementsRectGeometry(Probe& probe, const Vector2D<double>& size) {
-  if (probe.elements.size() == 0) {
-    std::cout << "[warning] updateRcaElementsRectGeometry(): no probe elements" << std::endl;
+  if (probe.elements.empty()) {
+    std::cout << "[warning] updateRcaElementsRectGeometry(): no probe elements\n";
     return;
   }
 
