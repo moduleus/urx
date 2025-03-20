@@ -18,7 +18,9 @@ TEST_CASE("Update linear probe elements geometry", "[probe][helper]") {
       {{-1.4, -0.8, 0.0}, {1.4, -0.8, 0.0}, {1.4, 0.8, 0.0}, {-1.4, 0.8, 0.0}}};
   REQUIRE(*sh_el_geom == expected_geom);
 
-  for (const auto& element : probe.elements) REQUIRE(element.element_geometry.lock() == sh_el_geom);
+  for (const auto& element : probe.elements) {
+    REQUIRE(element.element_geometry.lock() == sh_el_geom);
+  }
 }
 
 TEST_CASE("Update matrix probe elements geometry", "[probe][helper]") {
@@ -35,7 +37,9 @@ TEST_CASE("Update matrix probe elements geometry", "[probe][helper]") {
       {{-1.4, -0.8, 0.0}, {1.4, -0.8, 0.0}, {1.4, 0.8, 0.0}, {-1.4, 0.8, 0.0}}};
   REQUIRE(*sh_el_geom == expected_geom);
 
-  for (const auto& element : probe.elements) REQUIRE(element.element_geometry.lock() == sh_el_geom);
+  for (const auto& element : probe.elements) {
+    REQUIRE(element.element_geometry.lock() == sh_el_geom);
+  }
 }
 
 TEST_CASE("Update rca probe elements geometry", "[probe][helper]") {

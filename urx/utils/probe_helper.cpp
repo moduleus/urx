@@ -99,8 +99,14 @@ void updateRcaElementsRectGeometry(Probe& probe, const Vector2D<uint32_t>& nb_el
   probe.element_geometries.emplace_back(sh_row_el_geom);
 
   // Set the probe elements geometry
-  for (size_t i = 0; i < nb_elements.x; i++) elements[i].element_geometry = sh_col_el_geom;
-  for (size_t i = nb_elements.x; i < n_els; i++) elements[i].element_geometry = sh_row_el_geom;
+
+  for (size_t i = 0; i < nb_elements.x; i++) {
+    elements[i].element_geometry = sh_col_el_geom;
+  }
+
+  for (size_t i = nb_elements.x; i < n_els; i++) {
+    elements[i].element_geometry = sh_row_el_geom;
+  }
 }
 
 void updateMatrixElementsRectGeometry(Probe& probe, const Vector2D<double>& size) {
@@ -125,7 +131,9 @@ void updateLinearElementsRectGeometry(Probe& probe, const Vector2D<double>& size
   probe.element_geometries.emplace_back(sh_el_geom);
 
   // Set the probe elements geometry
-  for (auto& element : probe.elements) element.element_geometry = sh_el_geom;
+  for (auto& element : probe.elements) {
+    element.element_geometry = sh_el_geom;
+  }
 }
 
 }  // namespace urx::utils::probe_helper
