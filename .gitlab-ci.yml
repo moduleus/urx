@@ -9,7 +9,7 @@ variables:
   - cd "$Env:VCPKG_REGISTRY_LOCAL_GIT"
   - git remote set-url origin https://write_wiki:${VCPKG_TOKEN}@${url_vcpkg_registry}
   - git fetch
-  - git checkout $sha1_vcpkg_registry
+  - git checkout -f $sha1_vcpkg_registry
   - Pop-Location
 
   # vcpkg repository
@@ -20,7 +20,7 @@ variables:
   - cd "$Env:VCPKG_LOCAL_GIT"
   - git remote set-url origin $vcpkg_repository
   - git fetch
-  - git checkout $baseline
+  - git checkout -f $baseline
   - Pop-Location
 
   # vcpkg binary
@@ -44,7 +44,7 @@ variables:
   - cd "$VCPKG_REGISTRY_LOCAL_GIT"
   - git remote set-url origin https://write_wiki:${VCPKG_TOKEN}@${url_vcpkg_registry}
   - git fetch
-  - git checkout $sha1_vcpkg_registry
+  - git checkout -f $sha1_vcpkg_registry
   - cd -
 
   # vcpkg repository
@@ -54,7 +54,7 @@ variables:
   - cd "$VCPKG_LOCAL_GIT"
   - git remote set-url origin $vcpkg_repository
   - git fetch
-  - git checkout $baseline
+  - git checkout -f $baseline
   - cd -
 
   # vcpkg binary
@@ -74,6 +74,12 @@ variables:
 .after-script-clean-vcpkg-linux: &after-script-clean-vcpkg-linux
   - rm -Rf "$VCPKG_LOCAL_GIT/buildtrees"
   - rm -Rf "$VCPKG_LOCAL_GIT/packages"
+
+.build-vcpkg-ubuntu-12-04: &build-vcpkg-ubuntu-12-04
+  - cd "$VCPKG_LOCAL_GIT" || exit 1
+  - patch -p1 < /CI/vcpkg-2f210a9c13fcf2b0c36b1f2187366feec37e3390.patch
+  - ./bootstrap-vcpkg.sh
+  - cd - || exit 1
 
 .python-venv-windows: &python-venv-windows
   - $Env:CMAKE_BUILD_PARALLEL_LEVEL=$NUM_PARALLEL
@@ -172,6 +178,8 @@ doc:doxygen:
   - sed -i -z 's/\t\t\}\n\t\}/\t\}/g' doc/plantuml/architecture.puml
   # Remove destructor
   - sed -i -z "s/\n[^~\n]*~[^\n]*\n/\n/g" doc/plantuml/architecture.puml
+  # Remove Vector2D unused class
+  - perl -i -0pe 's/\s+class Vector2D\s+\{((.*?\n\s+)+?)\}//g' doc/plantuml/architecture.puml
 
 doc:plantuml:
   stage: doc
@@ -366,7 +374,7 @@ build:matlab-ubuntu-12.04:
     - git config --global credential.helper store
     - echo "https://gitlab-ci-token:${CI_JOB_TOKEN}@$CI_SERVER_HOST" > ~/.git-credentials
     - *before-script-vcpkg-linux
-    - cp /CI/vcpkg/vcpkg "$VCPKG_LOCAL_GIT/vcpkg" || exit 1
+    - *build-vcpkg-ubuntu-12-04
   script:
     - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-lssrp -DVCPKG_HOST_TRIPLET=x64-lssrp -DVCPKG_OVERLAY_TRIPLETS=$VCPKG_REGISTRY_LOCAL_GIT/triplets -DCMAKE_INSTALL_PREFIX="install/ubuntu-20.04" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=OFF -DWITH_MATLAB:BOOL=ON
     - *after-script-clean-vcpkg-linux

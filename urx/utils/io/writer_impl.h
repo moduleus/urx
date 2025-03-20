@@ -100,12 +100,15 @@ struct SerializeHdf5<T, U, ContainerType::WEAK_PTR> {
                                 return shared.get() == data.get();
                               });
       if (idx == all_shared.end()) {
-        throw std::runtime_error(("Failed to read data from " + name).c_str());
+        throw std::runtime_error(("Failed to found shared pointer assigned to weak pointer " +
+                                  group.getObjName() + "/" + name)
+                                     .c_str());
       }
       SerializeHdf5<std::size_t, U>::f(name, std::distance(all_shared.begin(), idx), group, map,
                                        data_field);
     } else {
-      throw std::runtime_error(("Failed to read data from " + name).c_str());
+      throw std::runtime_error(
+          ("Invalid weak field from " + group.getObjName() + "/" + name).c_str());
     }
   }
 };

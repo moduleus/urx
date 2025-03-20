@@ -1,5 +1,23 @@
 # Changelog
 
+## Next release
+
+### MATLAB
+
+#### Bug fixes
+
+  * `RawData_float_complex` and `RawData_float_real` couldn't be used in `GroupData.rawData`.
+
+  * Don't free memory when an allocated object by MATLAB (`shared_ptr`) is assigned in a `weak_ptr` C++ field.
+
+  * Reset property if PostSet throw exception.
+
+  * Vector3D must be double number.
+
+  * Fix append data in matrix (i.e. `probe.elements(end+1) = element`).
+
+  * Invalidate fields if an allocated object by MATLAB (`shared_ptr`) is assigned in a raw C++ field.
+
 ## 1.1.0
 
 ### C++
@@ -46,7 +64,7 @@ Fix support for Python 3.8 to 3.13 and for pypy 3.8 to 3.10.
 
 `GroupData.raw_data` was release by garbage collector if it was allocated by Python.
 
-## 1.1.0
+## 1.0.1
 
 Fix reader. Groups may have destination link to a group that has not yet been read.
 

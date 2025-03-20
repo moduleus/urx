@@ -123,13 +123,16 @@ classdef Object < urx.ObjectField
         res = '_weak';
       elseif ptrType == urx.PtrType.OPTIONAL
         res = '_optional';
-      else
+      elseif ptrType == urx.PtrType.RAW
         res = '_raw';
+      else
+        assert(false);
       end
     end
 
     function res = functionAssign(className, typeDest, typeSrc)
       res = [className '_assign' urx.Object.functionPtrType(typeDest)];
+      assert(~isempty(typeSrc));
       if typeSrc
         res = [res '_shared'];
       else
@@ -204,17 +207,6 @@ classdef Object < urx.ObjectField
       %   return;
       % end
 
-      % Don't observe when called from constructor with inheritance.
-      % Object constructor must be called before child constructor.
-      % So all properties already have listeners set.
-      % for i = 1:numel(s)
-      %   strInheritance = strfind(s(i).name, '.');
-      %   % Try to found in the stack "Name.Name".
-      %   if numel(strInheritance) == 1 && strcmp(s(i).name, [s(i).name(1:strInheritance-1) '.' s(i).name(1:strInheritance-1)])
-      %     return;
-      %   end
-      % end
-
       % Get data from event.
       affectedObject = evnt.AffectedObject;
       affectedPropertyName = src.Name;
@@ -273,102 +265,144 @@ classdef Object < urx.ObjectField
           end
 
         case 'PostSet'
-          if ischar(affectedProperty)
-            libBindingRef.call('std_string_set', affectedCFieldPtr, affectedProperty);
-          elseif isenum(affectedProperty)
-            assert(numel(affectedProperty) == 1);
-            affectedCFieldPtr.setdatatype('int32Ptr', 1);
-            affectedCFieldPtr.Value = int32(affectedProperty);
-          elseif ~isempty(affectedPropertyStd)
-            affectedPropertyStd.id = affectedCFieldPtr;
-            affectedPropertyStd.clear();
-            % Check consistency.
-            if affectedPropertyStd.nbDims == 1
-              assert(strcmp(class(affectedProperty), affectedPropertyStd.objectClassName));
-              for i = 1:numel(affectedProperty)
-                affectedPropertyStd.pushBack(affectedProperty(i));
-              end
-              % Update id and ptrType
-              % Do it after all pushBack. std::vector::pushBack may realloc
-              % and change all pointer adresses.
-              for i = 1:numel(affectedProperty)
-                realAffectedDataI = affectedPropertyStd.data(i);
-                if isa(affectedProperty(i), 'urx.Object')
-                  affectedProperty(i).id = realAffectedDataI.id;
-                  affectedProperty(i).ptrType = realAffectedDataI.ptrType;
-                  affectedProperty(i).parent = affectedObject;
-                end
-              end
-            else
-              assert(affectedPropertyStd.nbDims == 2);
-              assert(iscell(affectedProperty));
+          try
+            if ischar(affectedProperty)
+              libBindingRef.call('std_string_set', affectedCFieldPtr, affectedProperty);
+            elseif isenum(affectedProperty)
+              assert(numel(affectedProperty) == 1);
+              affectedCFieldPtr.setdatatype('int32Ptr', 1);
+              affectedCFieldPtr.Value = int32(affectedProperty);
+            elseif ~isempty(affectedPropertyStd)
+              affectedPropertyStd.id = affectedCFieldPtr;
 
               namespace = class(affectedObject);
               namespace = namespace(1:3);
 
-              for i = 1:numel(affectedProperty)
-                vectori = feval([namespace '.StdVector'], affectedPropertyStd.objectClassName, affectedPropertyStd.nbDims-1, affectedPropertyStd.ptrType);
-                for j = 1:numel(affectedProperty{i})
-                  vectori.pushBack(affectedProperty{i}(j));
-                end
-                affectedPropertyStd.pushBack(vectori);
-              end
-            end
-          elseif ~isempty(affectedPropertyHwPtr)
-            affectedPropertyHwPtr.clear();
-            affectedPropertyHwPtr.fromStruct(affectedProperty);
-          else
-            % Native type.
-            if ~isa(affectedProperty, 'urx.Object')
-              if numel(affectedProperty) ~= 1 && (~strncmp(class(affectedObject), 'urx.RawData', strlength('urx.RawData')) || ~strcmp(affectedPropertyName, 'data'))
-                throw(MException('urx:fatalError', 'Only single value is supported.'));
-              end
-              affectedCFieldPtr.setdatatype([affectedPropertyClassName 'Ptr'], size(affectedProperty, 1), size(affectedProperty, 2));
-              affectedCFieldPtr.Value = affectedProperty;
-              % urx.Object
-            else
-              affectedPropertyPtrType = urx.Object.getPtrTypeFromValidator(affectedObject, affectedPropertyName);
+              % Check consistency.
+              if affectedPropertyStd.nbDims == 1
+                assert(strcmp(class(affectedProperty), affectedPropertyStd.objectClassName));
 
-              % empty urx.Object (weak_ptr / optional)
-              if isempty(affectedProperty)
-                assignFunction = urx.Object.functionAssign(strrep(affectedPropertyClassName, '.', '_'), affectedPropertyPtrType, urx.PtrType.SHARED);
-                libBindingRef.call(assignFunction, affectedCFieldPtr, libpointer());
-              else
-                % When you assign an urx object to another one, you don't
-                % assign pointer, you copy data from a pointer to another
-                % pointer.
-                % So after assigning new data to old data, you need to free new
-                % data (that has been copied to old data).
-                assignFunction = urx.Object.functionAssign(strrep(affectedPropertyClassName, '.', '_'), affectedPropertyPtrType, affectedProperty.ptrType);
-                libBindingRef.call(assignFunction, affectedCFieldPtr, affectedProperty.id);
-
-                % New value has never been affected.
-                if isempty(affectedProperty.parent)
-                  affectedProperty.freeMem();
-
-                  % Restore pointer and ptrType of the property.
-                  affectedProperty.id = affectedObject.saveId;
-                  affectedProperty.ptrType = affectedPropertyPtrType;
-
-                  % The property must remember the parent. You may want to delete
-                  % the parent object and want to use the object property. I.e.
-                  % dataset = urx.Dataset();
-                  % version = urx.Version();
-                  % version.minor = 111;
-                  % dataset.version = version;
-                  % clear dataset
-                  % Here, version variable must be usable even if dataset
-                  % (and dataset.version) is cleared.
-                  affectedProperty.parent = affectedObject;
-
-                  % shared stored in weak ptr.
-                elseif affectedPropertyPtrType == urx.PtrType.WEAK && affectedProperty.ptrType == urx.PtrType.SHARED
-                elseif affectedPropertyPtrType == urx.PtrType.WEAK && affectedProperty.ptrType == urx.PtrType.WEAK
+                if (isa(affectedProperty, 'urx.Object'))
+                  vectorTmp = feval([namespace '.StdVector'], affectedPropertyStd.objectClassName, 1, affectedPropertyStd.ptrType);
+                  for i = 1:numel(affectedProperty)
+                    vectorTmp.pushBack(affectedProperty(i));
+                  end
+                  
+                  assignFunction = vectorTmp.functionName('assign');
+                  libBindingRef.call(assignFunction, affectedCFieldPtr, vectorTmp.id);
                 else
-                  assert(false);
+                  affectedPropertyStd.clear();
+                  for i = 1:numel(affectedProperty)
+                    affectedPropertyStd.pushBack(affectedProperty(i));
+                  end
+                end
+
+                % Update id and ptrType
+                % Do it after all pushBack. std::vector::pushBack may realloc
+                % and change all pointer adresses.
+                for i = 1:numel(affectedProperty)
+                  realAffectedDataI = affectedPropertyStd.data(i);
+                  if isa(affectedProperty(i), 'urx.Object') && ( ...
+                      affectedProperty(i).ptrType ~= urx.PtrType.SHARED || ...
+                      realAffectedDataI.ptrType ~= urx.PtrType.WEAK)
+                    affectedProperty(i).id = realAffectedDataI.id;
+                    affectedProperty(i).ptrType = realAffectedDataI.ptrType;
+                    affectedProperty(i).parent = affectedObject;
+                  end
+                end
+              else
+                affectedPropertyStd.clear();
+
+                assert(affectedPropertyStd.nbDims == 2);
+                assert(iscell(affectedProperty));
+
+                for i = 1:numel(affectedProperty)
+                  vectori = feval([namespace '.StdVector'], affectedPropertyStd.objectClassName, affectedPropertyStd.nbDims-1, affectedPropertyStd.ptrType);
+                  for j = 1:numel(affectedProperty{i})
+                    vectori.pushBack(affectedProperty{i}(j));
+                  end
+                  affectedPropertyStd.pushBack(vectori);
+                end
+              end
+            elseif ~isempty(affectedPropertyHwPtr)
+              affectedPropertyHwPtr.clear();
+              affectedPropertyHwPtr.fromStruct(affectedProperty);
+            else
+              % Native type.
+              if ~isa(affectedProperty, 'urx.Object')
+                if numel(affectedProperty) ~= 1 && (~strncmp(class(affectedObject), 'urx.RawData', strlength('urx.RawData')) || ~strcmp(affectedPropertyName, 'data'))
+                  throw(MException('urx:fatalError', 'Only single value is supported.'));
+                end
+                affectedCFieldPtr.setdatatype([affectedPropertyClassName 'Ptr'], size(affectedProperty, 1), size(affectedProperty, 2));
+                affectedCFieldPtr.Value = affectedProperty;
+                % urx.Object
+              else
+                affectedPropertyPtrType = urx.Object.getPtrTypeFromValidator(affectedObject, affectedPropertyName);
+
+                % empty urx.Object (weak_ptr / optional)
+                if isempty(affectedProperty)
+                  assignFunction = urx.Object.functionAssign(strrep(affectedPropertyClassName, '.', '_'), affectedPropertyPtrType, urx.PtrType.SHARED);
+                  libBindingRef.call(assignFunction, affectedCFieldPtr, libpointer());
+                else
+                  % When you assign an urx object to another one, you don't
+                  % assign pointer, you copy data from a pointer to another
+                  % pointer.
+                  % So after assigning new data to old data, you need to free new
+                  % data (that has been copied to old data).
+                  assignFunction = urx.Object.functionAssign(strrep(affectedPropertyClassName, '.', '_'), affectedPropertyPtrType, affectedProperty.ptrType);
+                  libBindingRef.call(assignFunction, affectedCFieldPtr, affectedProperty.id);
+
+                  % New value has never been affected.
+                  % Don't replace shared_ptr variable by weak_ptr variable.
+                  % It's not sure that shared_ptr is stored in another place.
+                  if isempty(affectedProperty.parent) && (affectedPropertyPtrType ~= urx.PtrType.WEAK || affectedProperty.ptrType ~= urx.PtrType.SHARED)
+                    affectedProperty.freeMem();
+
+                    % Restore pointer and ptrType of the property.
+                    affectedProperty.id = affectedObject.saveId;
+                    affectedProperty.ptrType = affectedPropertyPtrType;
+
+                    % The property must remember the parent. You may want to delete
+                    % the parent object and want to use the object property. I.e.
+                    % dataset = urx.Dataset();
+                    % version = urx.Version();
+                    % version.minor = 111;
+                    % dataset.version = version;
+                    % clear dataset
+                    % Here, version variable must be usable even if dataset
+                    % (and dataset.version) is cleared.
+                    affectedProperty.parent = affectedObject;
+
+                    % Update cache
+                    metaclassAffectedProperty = metaclass(affectedProperty);
+                    disableSetRecursion = disableSetRecursion + 1;
+                    disableGetRecursion = disableGetRecursion + 1;
+                    for prop = metaclassAffectedProperty.PropertyList'
+                      propName = prop.Name;
+                      if ~isempty(affectedProperty.(propName)) && isa(affectedProperty.(propName), 'urx.Object')
+                        propType = class(affectedProperty.(propName));
+                        affectedProperty.(propName) = eval([propType, '.empty']);
+                      end
+                    end
+                    disableSetRecursion = disableSetRecursion - 1;
+                    disableGetRecursion = disableGetRecursion - 1;
+
+                    % shared stored in weak ptr.
+                  elseif affectedPropertyPtrType == urx.PtrType.WEAK && affectedProperty.ptrType == urx.PtrType.SHARED
+                  elseif affectedPropertyPtrType == urx.PtrType.WEAK && affectedProperty.ptrType == urx.PtrType.WEAK
+                  else
+                    assert(false);
+                  end
                 end
               end
             end
+          catch ME
+            if (strncmp(affectedPropertyClassName, 'urx.RawData', 11))
+              affectedObject.(affectedPropertyName) = urx.RawData.empty;
+            else
+              affectedObject.(affectedPropertyName) = eval([affectedPropertyClassName, '.empty']);
+            end
+            rethrow(ME);
           end
 
           % Before every get:
@@ -421,7 +455,12 @@ classdef Object < urx.ObjectField
                 else
                   d2dim = 2;
                 end
-                affectedCFieldPtr.setdatatype([strSplit{2} 'Ptr'], d2dim, affectedObject.size);
+                if strcmp(strSplit{2}, 'float')
+                  cType = 'singlePtr';
+                else
+                  cType = [strSplit{2} 'Ptr'];
+                end
+                affectedCFieldPtr.setdatatype(cType, d2dim, affectedObject.size);
               else
                 assert(numel(affectedProperty) <= 1);
                 affectedCFieldPtr.setdatatype([affectedPropertyClassName 'Ptr'], 1);
