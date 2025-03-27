@@ -132,6 +132,13 @@ struct SerializeHdf5<T, U, ContainerType::VECTOR> {
     const std::unordered_map<std::type_index, std::vector<std::pair<U, std::string>>>& data_field) {
     const size_t size = field.size();
     if (size == 0) {
+      if constexpr (std::is_arithmetic_v<typename T::value_type>) {
+        const hsize_t dims[1] = {size};
+        const H5::DataSpace dataspace = H5::DataSpace(1, dims);
+        const H5::PredType* datatype = getStdToHdf5().at(nameTypeid<typename T::value_type>());
+        const H5::DSetCreatPropList plist;
+        group.createDataSet(name, *datatype, dataspace, plist);
+      }
       return;
     }
     if constexpr (std::is_arithmetic_v<typename T::value_type>) {
