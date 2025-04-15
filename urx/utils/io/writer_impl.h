@@ -48,7 +48,7 @@ class Writer {
   }
 
   template <typename T, typename U>
-  static typename std::enable_if_t<TypeContainer<T>::VALUE == ContainerType::RAW> SerializeHdf5(
+  typename std::enable_if_t<TypeContainer<T>::VALUE == ContainerType::RAW> SerializeHdf5(
       const std::string& name, const T& field, const H5::Group& group, MapToSharedPtr& map,
       const std::unordered_map<std::type_index, std::vector<std::pair<U, std::string>>>&
           data_field) {
@@ -85,20 +85,18 @@ class Writer {
   }
 
   template <typename T, typename U>
-  static typename std::enable_if_t<TypeContainer<T>::VALUE == ContainerType::SHARED_PTR>
-  SerializeHdf5(const std::string& name, const T& field, const H5::Group& group,
-                MapToSharedPtr& map,
-                const std::unordered_map<std::type_index, std::vector<std::pair<U, std::string>>>&
-                    data_field) {
+  typename std::enable_if_t<TypeContainer<T>::VALUE == ContainerType::SHARED_PTR> SerializeHdf5(
+      const std::string& name, const T& field, const H5::Group& group, MapToSharedPtr& map,
+      const std::unordered_map<std::type_index, std::vector<std::pair<U, std::string>>>&
+          data_field) {
     SerializeHdf5<typename T::element_type, U>(name, *field, group, map, data_field);
   }
 
   template <typename T, typename U>
-  static typename std::enable_if_t<TypeContainer<T>::VALUE == ContainerType::WEAK_PTR>
-  SerializeHdf5(const std::string& name, const T& field, const H5::Group& group,
-                MapToSharedPtr& map,
-                const std::unordered_map<std::type_index, std::vector<std::pair<U, std::string>>>&
-                    data_field) {
+  typename std::enable_if_t<TypeContainer<T>::VALUE == ContainerType::WEAK_PTR> SerializeHdf5(
+      const std::string& name, const T& field, const H5::Group& group, MapToSharedPtr& map,
+      const std::unordered_map<std::type_index, std::vector<std::pair<U, std::string>>>&
+          data_field) {
     // Never assigned
     if (!field.owner_before(std::weak_ptr<typename T::element_type>{}) &&
         !std::weak_ptr<typename T::element_type>{}.owner_before(field)) {
@@ -127,11 +125,10 @@ class Writer {
   }
 
   template <typename T, typename U>
-  static typename std::enable_if_t<TypeContainer<T>::VALUE == ContainerType::OPTIONAL>
-  SerializeHdf5(const std::string& name, const T& field, const H5::Group& group,
-                MapToSharedPtr& map,
-                const std::unordered_map<std::type_index, std::vector<std::pair<U, std::string>>>&
-                    data_field) {
+  typename std::enable_if_t<TypeContainer<T>::VALUE == ContainerType::OPTIONAL> SerializeHdf5(
+      const std::string& name, const T& field, const H5::Group& group, MapToSharedPtr& map,
+      const std::unordered_map<std::type_index, std::vector<std::pair<U, std::string>>>&
+          data_field) {
     if (!field) {
       return;
     }
@@ -139,7 +136,7 @@ class Writer {
   }
 
   template <typename T, typename U>
-  static typename std::enable_if_t<TypeContainer<T>::VALUE == ContainerType::VECTOR> SerializeHdf5(
+  typename std::enable_if_t<TypeContainer<T>::VALUE == ContainerType::VECTOR> SerializeHdf5(
       const std::string& name, const T& field, const H5::Group& group, MapToSharedPtr& map,
       const std::unordered_map<std::type_index, std::vector<std::pair<U, std::string>>>&
           data_field) {
@@ -206,8 +203,8 @@ class Writer {
   }
 
   template <typename T, typename U>
-  static typename std::enable_if_t<std::is_same_v<T, std::string> &&
-                                   TypeContainer<T>::VALUE == ContainerType::RAW>
+  typename std::enable_if_t<std::is_same_v<T, std::string> &&
+                            TypeContainer<T>::VALUE == ContainerType::RAW>
   SerializeHdf5(
       const std::string& name, const std::string& field, const H5::Group& group, MapToSharedPtr&,
       const std::unordered_map<std::type_index, std::vector<std::pair<U, std::string>>>&) {
@@ -227,8 +224,8 @@ class Writer {
   }
 
   template <typename T, typename U>
-  static typename std::enable_if_t<std::is_same_v<T, DoubleNan> &&
-                                   TypeContainer<T>::VALUE == ContainerType::RAW>
+  typename std::enable_if_t<std::is_same_v<T, DoubleNan> &&
+                            TypeContainer<T>::VALUE == ContainerType::RAW>
   SerializeHdf5(const std::string& name, const DoubleNan& field, const H5::Group& group,
                 MapToSharedPtr& map,
                 const std::unordered_map<std::type_index, std::vector<std::pair<U, std::string>>>&
@@ -237,8 +234,8 @@ class Writer {
   }
 
   template <typename T, typename U>
-  static typename std::enable_if_t<std::is_same_v<T, std::shared_ptr<RawData>> &&
-                                   TypeContainer<T>::VALUE == ContainerType::SHARED_PTR>
+  typename std::enable_if_t<std::is_same_v<T, std::shared_ptr<RawData>> &&
+                            TypeContainer<T>::VALUE == ContainerType::SHARED_PTR>
   SerializeHdf5(
       const std::string& name, const std::shared_ptr<RawData>& field, const H5::Group& group,
       MapToSharedPtr&,
@@ -289,10 +286,9 @@ class Writer {
   }
 
   template <typename T, typename U>
-  static void SerializeAll(
-      const T& field, const H5::Group& group, MapToSharedPtr& map,
-      const std::unordered_map<std::type_index, std::vector<std::pair<U, std::string>>>&
-          data_field) {
+  void SerializeAll(const T& field, const H5::Group& group, MapToSharedPtr& map,
+                    const std::unordered_map<std::type_index,
+                                             std::vector<std::pair<U, std::string>>>& data_field) {
     // Need to update map for Probe.
     if constexpr (std::is_same_v<T, Probe>) {
       map.insert({nameTypeid<ElementGeometry>(), &field.element_geometries});
@@ -300,7 +296,7 @@ class Writer {
     }
     for (const auto& kv : data_field.at(nameTypeid<T>())) {
       std::visit(
-          [name = kv.second, field_ptr = &field, &group, &map, &data_field](const auto* var) {
+          [this, name = kv.second, field_ptr = &field, &group, &map, &data_field](const auto* var) {
             SerializeHdf5<std::remove_cv_t<std::remove_pointer_t<decltype(var)>>, U>(
                 name,
                 *reinterpret_cast<decltype(var)>(reinterpret_cast<std::uintptr_t>(field_ptr) +
