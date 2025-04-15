@@ -241,7 +241,7 @@ format:clang-format:
     - ubuntu
     - clang-format
   script:
-    - find . -type d \( -path "*vcpkg*" -o -name build -o -name install \) -prune -false -o -type f \( -name "*.cpp" -o -name "*.cc" -o -name "*.hpp" -o -name "*.h" \) | xargs -t clang-format-17 --style=file --dry-run --Werror
+    - find . -type d \( -path "*vcpkg*" -o -name build -o -name install \) -prune -false -o -type f \( -name "*.cpp" -o -name "*.cc" -o -name "*.hpp" -o -name "*.h" \) | xargs -t clang-format-18 --style=file --dry-run --Werror
 
 format:cmake-format:
   stage: format
@@ -263,7 +263,7 @@ format:clang-tidy:
   script:
     - cd CI
     - mkdir -p $(grep -Po '"directory":\s"\K[^"]+' compile_commands.json | sort -u)
-    - CLANG_TIDY_CACHE_BINARY=/usr/bin/clang-tidy-17 run-clang-tidy-17 -clang-tidy-binary /usr/local/bin/clang-tidy-cache || exit 1
+    - CLANG_TIDY_CACHE_BINARY=/usr/bin/clang-tidy-18 run-clang-tidy-18 -clang-tidy-binary /usr/local/bin/clang-tidy-cache || exit 1
 
 format:iwyu:
   stage: format
@@ -279,7 +279,7 @@ format:iwyu:
     - sed -i "s/-Winvalid-pch.*cmake_pch.hxx //g" CI/compile_commands.json
     - iwyu_tool.py -p CI -j $NUM_PARALLEL -- -Xiwyu --no_default_mappings -Xiwyu --mapping_file="$(pwd)/.iwyu-imp" -Xiwyu --no_fwd_decls -Xiwyu --check_also="*urx/matlab/*.h" -Xiwyu --check_also="*urx/python/*.h" -Xiwyu --check_also="*urx/test/*.h" -Xiwyu --check_also="*urx/urx/*.h" > CI/iwyu_tool.log
     - fix_includes.py --nosafe_headers < CI/iwyu_tool.log
-    - find . -type d \( -path "*vcpkg*" -o -name build -o -name install \) -prune -false -o -type f \( -name "*.cpp" -o -name "*.cc" -o -name "*.hpp" -o -name "*.h" \) -exec clang-format-17 --style=file -i {} \;
+    - find . -type d \( -path "*vcpkg*" -o -name build -o -name install \) -prune -false -o -type f \( -name "*.cpp" -o -name "*.cc" -o -name "*.hpp" -o -name "*.h" \) -exec clang-format-18 --style=file -i {} \;
     - git diff > CI/iwyu.patch
     - cat CI/iwyu.patch
     - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Please apply iwyu patch to fix your includes"; exit 1; fi
