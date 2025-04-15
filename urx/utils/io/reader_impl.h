@@ -64,21 +64,6 @@ class Reader {
     _dataset->version.patch = urx::URX_VERSION_PATCH;
   }
 
-  template <typename T, typename U, ContainerType>
-  static void DeserializeHdf5(
-      const std::string& name, T& field, const H5::Group& group, MapToSharedPtr& map,
-      const std::unordered_map<std::type_index, std::vector<std::pair<U, std::string>>>&
-          data_field) {
-    throw std::runtime_error(__FUNCTION__);
-  }
-  /*
-  template <typename T, typename U>
-  static void DeserializeAll(
-      std::shared_ptr<RawData>& field, const H5::Group& group, MapToSharedPtr&,
-      const std::unordered_map<std::type_index, std::vector<std::pair<U, std::string>>>&) {
-    throw std::runtime_error(__FUNCTION__);
-  }
-*/
   template <typename T, typename U>
   static typename std::enable_if_t<TypeContainer<T>::VALUE == ContainerType::RAW> DeserializeHdf5(
       const std::string& name, T& field, const H5::Group& group, MapToSharedPtr& map,
