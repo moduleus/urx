@@ -23,6 +23,7 @@ namespace urx::utils::io::reader {
 
 std::shared_ptr<Dataset> loadFromFile(const std::string& filename) {
   urx::utils::io::Reader<Dataset, AllTypeInVariant> reader(filename, getMemberMap());
+  reader.read();
   return reader.getDataset();
 }
 

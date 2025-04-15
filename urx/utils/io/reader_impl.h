@@ -29,20 +29,25 @@
 
 namespace urx::utils::io {
 
-template <typename Dataset, typename AllTypeInVariant>
-class Reader {
+template <typename Dataset, typename AllTypeInVariant, typename Derived>
+class ReaderBase {
  public:
-  Reader(const std::string& filename,
-         const std::unordered_map<
-             std::type_index, std::vector<std::pair<AllTypeInVariant, std::string>>>& data_field)
-      : _dataset(std::make_shared<Dataset>()),
-        _data_field(data_field),
-        _map_to_shared_ptr{{nameTypeid<Group>(), &_dataset->acquisition.groups},
-                           {nameTypeid<Probe>(), &_dataset->acquisition.probes},
-                           {nameTypeid<Excitation>(), &_dataset->acquisition.excitations},
-                           {nameTypeid<GroupData>(), &_dataset->acquisition.groups_data}} {
+  ReaderBase(
+      const std::string& filename,
+      const std::unordered_map<std::type_index,
+                               std::vector<std::pair<AllTypeInVariant, std::string>>>& data_field)
+      : _filename(filename), _data_field(data_field), _dataset(std::make_shared<Dataset>()) {
+    if constexpr (std::is_same_v<Dataset, urx::Dataset>) {
+      _map_to_shared_ptr = {{nameTypeid<Group>(), &_dataset->acquisition.groups},
+                            {nameTypeid<Probe>(), &_dataset->acquisition.probes},
+                            {nameTypeid<Excitation>(), &_dataset->acquisition.excitations},
+                            {nameTypeid<GroupData>(), &_dataset->acquisition.groups_data}};
+    }
+  }
+
+  void read() {
     try {
-      const H5::H5File file(filename.data(), H5F_ACC_RDONLY);
+      const H5::H5File file(_filename.data(), H5F_ACC_RDONLY);
 
       DeserializeHdf5<Dataset>("dataset", *_dataset, file);
 
@@ -50,7 +55,7 @@ class Reader {
         funct();
       }
     } catch (const H5::FileIException&) {
-      throw ReadFileException("Failed to read " + filename + ".");
+      throw ReadFileException("Failed to read " + _filename + ".");
     }
 
     if (_dataset->version.major != urx::URX_VERSION_MAJOR) {
@@ -97,7 +102,7 @@ class Reader {
     // Default
     else {
       const H5::Group group_child(group.openGroup(name));
-      DeserializeAll<T>(field, group_child);
+      static_cast<Derived*>(this)->template DeserializeAll<T>(field, group_child);
     }
   }
 
@@ -105,7 +110,8 @@ class Reader {
   typename std::enable_if_t<TypeContainer<T>::VALUE == ContainerType::SHARED_PTR> DeserializeHdf5(
       const std::string& name, T& field, const H5::Group& group) {
     field = std::make_shared<typename T::element_type>();
-    DeserializeHdf5<typename T::element_type>(name, *field, group);
+    static_cast<Derived*>(this)->template DeserializeHdf5<typename T::element_type>(name, *field,
+                                                                                    group);
   }
 
   template <typename T>
@@ -113,7 +119,8 @@ class Reader {
       const std::string& name, T& field, const H5::Group& group) {
     if (group.nameExists(name) || group.attrExists(name)) {
       field = typename T::value_type{};
-      DeserializeHdf5<typename T::value_type>(name, *field, group);
+      static_cast<Derived*>(this)->template DeserializeHdf5<typename T::value_type>(name, *field,
+                                                                                    group);
     }
   }
 
@@ -123,7 +130,7 @@ class Reader {
     if (group.nameExists(name) || group.attrExists(name)) {
       std::size_t idx;
 
-      DeserializeHdf5<std::size_t>(name, idx, group);
+      static_cast<Derived*>(this)->template DeserializeHdf5<std::size_t>(name, idx, group);
 
       const auto& map_i = getSharedPtr<typename T::element_type>(_map_to_shared_ptr);
 
@@ -255,7 +262,8 @@ class Reader {
           const std::string name_i = attr.getName();
 
           const int value = std::stoi(name_i);
-          DeserializeHdf5<typename T::value_type>(name_i, field[value], group_child);
+          static_cast<Derived*>(this)->template DeserializeHdf5<typename T::value_type>(
+              name_i, field[value], group_child);
         }
       }
       if (number_dataset) {
@@ -263,7 +271,8 @@ class Reader {
           const std::string name_i = group_child.getObjnameByIdx(i);
 
           const int value = std::stoi(name_i);
-          DeserializeHdf5<typename T::value_type>(name_i, field[value], group_child);
+          static_cast<Derived*>(this)->template DeserializeHdf5<typename T::value_type>(
+              name_i, field[value], group_child);
         }
       }
     }
@@ -290,14 +299,14 @@ class Reader {
   typename std::enable_if_t<std::is_same_v<T, DoubleNan> &&
                             TypeContainer<T>::VALUE == ContainerType::RAW>
   DeserializeHdf5(const std::string& name, DoubleNan& field, const H5::Group& group) {
-    DeserializeHdf5<double>(name, field.value, group);
+    static_cast<Derived*>(this)->template DeserializeHdf5<double>(name, field.value, group);
   }
 
   template <typename T>
   typename std::enable_if_t<std::is_same_v<T, std::shared_ptr<RawData>> &&
                             TypeContainer<T>::VALUE == ContainerType::SHARED_PTR>
   DeserializeHdf5(const std::string&, std::shared_ptr<RawData>& field, const H5::Group& group) {
-    DeserializeAll<std::shared_ptr<RawData>>(field, group);
+    static_cast<Derived*>(this)->template DeserializeAll<std::shared_ptr<RawData>>(field, group);
   }
 
   template <typename T>
@@ -311,11 +320,12 @@ class Reader {
     for (const auto& kv : _data_field.at(nameTypeid<T>())) {
       std::visit(
           [this, name = kv.second, field_ptr = &field, &group](auto* var) {
-            DeserializeHdf5<std::remove_pointer_t<decltype(var)>>(
-                name,
-                *reinterpret_cast<decltype(var)>(reinterpret_cast<std::uintptr_t>(field_ptr) +
-                                                 reinterpret_cast<std::uintptr_t>(var)),
-                group);
+            static_cast<Derived*>(this)
+                ->template DeserializeHdf5<std::remove_pointer_t<decltype(var)>>(
+                    name,
+                    *reinterpret_cast<decltype(var)>(reinterpret_cast<std::uintptr_t>(field_ptr) +
+                                                     reinterpret_cast<std::uintptr_t>(var)),
+                    group);
           },
           std::get<0>(kv));
     }
@@ -390,11 +400,24 @@ class Reader {
   std::shared_ptr<Dataset> getDataset() { return _dataset; }
 
  private:
-  std::shared_ptr<Dataset> _dataset;
+  std::string _filename;
   const std::unordered_map<std::type_index, std::vector<std::pair<AllTypeInVariant, std::string>>>&
       _data_field;
+
+ protected:
+  std::shared_ptr<Dataset> _dataset;
   MapToSharedPtr _map_to_shared_ptr;
   std::vector<std::function<void()>> _async_weak_assign;
+};
+
+template <typename Dataset, typename AllTypeInVariant>
+class Reader : public ReaderBase<Dataset, AllTypeInVariant, Reader<Dataset, AllTypeInVariant>> {
+ public:
+  Reader(const std::string& filename,
+         const std::unordered_map<
+             std::type_index, std::vector<std::pair<AllTypeInVariant, std::string>>>& data_field)
+      : ReaderBase<Dataset, AllTypeInVariant, Reader<Dataset, AllTypeInVariant>>(filename,
+                                                                                 data_field) {}
 };
 
 }  // namespace urx::utils::io
