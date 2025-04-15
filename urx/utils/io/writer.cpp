@@ -20,7 +20,7 @@
 namespace urx::utils::io::writer {
 
 void saveToFile(const std::string& filename, const Dataset& dataset) {
-  urx::utils::io::Writer<Dataset, AllTypeInVariant> writer(filename, dataset);
+  urx::utils::io::Writer<Dataset, AllTypeInVariant> writer(filename, dataset, getMemberMap());
 }
 
 }  // namespace urx::utils::io::writer
