@@ -302,12 +302,14 @@ class WriterBase {
     }
   }
 
+ protected:
+  MapToSharedPtr _map_to_shared_ptr;
+
  private:
   const std::string& _filename;
   const Dataset& _dataset;
   const std::unordered_map<std::type_index, std::vector<std::pair<AllTypeInVariant, std::string>>>&
       _data_field;
-  MapToSharedPtr _map_to_shared_ptr;
 };
 
 template <typename Dataset, typename AllTypeInVariant>
