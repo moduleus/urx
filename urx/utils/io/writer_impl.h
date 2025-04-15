@@ -34,16 +34,15 @@ class Writer {
   Writer(const std::string& filename, const Dataset& dataset,
          const std::unordered_map<
              std::type_index, std::vector<std::pair<AllTypeInVariant, std::string>>>& data_field)
-      : _data_field(data_field) {
+      : _data_field(data_field),
+        _map_to_shared_ptr{{nameTypeid<Group>(), &dataset.acquisition.groups},
+                           {nameTypeid<Probe>(), &dataset.acquisition.probes},
+                           {nameTypeid<Excitation>(), &dataset.acquisition.excitations},
+                           {nameTypeid<GroupData>(), &dataset.acquisition.groups_data}} {
     try {
       const H5::H5File file(filename.data(), H5F_ACC_TRUNC);
 
-      MapToSharedPtr map_to_shared_ptr{{nameTypeid<Group>(), &dataset.acquisition.groups},
-                                       {nameTypeid<Probe>(), &dataset.acquisition.probes},
-                                       {nameTypeid<Excitation>(), &dataset.acquisition.excitations},
-                                       {nameTypeid<GroupData>(), &dataset.acquisition.groups_data}};
-
-      SerializeHdf5<Dataset>("dataset", dataset, file, map_to_shared_ptr);
+      SerializeHdf5<Dataset>("dataset", dataset, file);
     } catch (const H5::FileIException&) {
       throw WriteFileException("Failed to write " + filename + ".");
     }
@@ -51,7 +50,7 @@ class Writer {
 
   template <typename T>
   typename std::enable_if_t<TypeContainer<T>::VALUE == ContainerType::RAW> SerializeHdf5(
-      const std::string& name, const T& field, const H5::Group& group, MapToSharedPtr& map) {
+      const std::string& name, const T& field, const H5::Group& group) {
     // Number
     if constexpr (std::is_arithmetic_v<T>) {
       const H5::StrType datatype(*getStdToHdf5().at(nameTypeid<T>()));
@@ -80,19 +79,19 @@ class Writer {
     // Default
     else {
       const H5::Group group_child(group.createGroup(name));
-      SerializeAll<T>(field, group_child, map);
+      SerializeAll<T>(field, group_child);
     }
   }
 
   template <typename T>
   typename std::enable_if_t<TypeContainer<T>::VALUE == ContainerType::SHARED_PTR> SerializeHdf5(
-      const std::string& name, const T& field, const H5::Group& group, MapToSharedPtr& map) {
-    SerializeHdf5<typename T::element_type>(name, *field, group, map);
+      const std::string& name, const T& field, const H5::Group& group) {
+    SerializeHdf5<typename T::element_type>(name, *field, group);
   }
 
   template <typename T>
   typename std::enable_if_t<TypeContainer<T>::VALUE == ContainerType::WEAK_PTR> SerializeHdf5(
-      const std::string& name, const T& field, const H5::Group& group, MapToSharedPtr& map) {
+      const std::string& name, const T& field, const H5::Group& group) {
     // Never assigned
     if (!field.owner_before(std::weak_ptr<typename T::element_type>{}) &&
         !std::weak_ptr<typename T::element_type>{}.owner_before(field)) {
@@ -102,7 +101,7 @@ class Writer {
     if (auto shared = field.lock()) {
       const std::vector<std::shared_ptr<typename T::element_type>>& all_shared =
           *reinterpret_cast<const std::vector<std::shared_ptr<typename T::element_type>>*>(
-              map.at(nameTypeid<typename T::element_type>()));
+              _map_to_shared_ptr.at(nameTypeid<typename T::element_type>()));
       auto idx = std::find_if(all_shared.begin(), all_shared.end(),
                               [&shared](const std::shared_ptr<typename T::element_type>& data) {
                                 return shared.get() == data.get();
@@ -112,7 +111,7 @@ class Writer {
                                   group.getObjName() + "/" + name)
                                      .c_str());
       }
-      SerializeHdf5<std::size_t>(name, std::distance(all_shared.begin(), idx), group, map);
+      SerializeHdf5<std::size_t>(name, std::distance(all_shared.begin(), idx), group);
     } else {
       throw std::runtime_error(
           ("Invalid weak field from " + group.getObjName() + "/" + name).c_str());
@@ -121,16 +120,16 @@ class Writer {
 
   template <typename T>
   typename std::enable_if_t<TypeContainer<T>::VALUE == ContainerType::OPTIONAL> SerializeHdf5(
-      const std::string& name, const T& field, const H5::Group& group, MapToSharedPtr& map) {
+      const std::string& name, const T& field, const H5::Group& group) {
     if (!field) {
       return;
     }
-    SerializeHdf5<typename T::value_type>(name, *field, group, map);
+    SerializeHdf5<typename T::value_type>(name, *field, group);
   }
 
   template <typename T>
   typename std::enable_if_t<TypeContainer<T>::VALUE == ContainerType::VECTOR> SerializeHdf5(
-      const std::string& name, const T& field, const H5::Group& group, MapToSharedPtr& map) {
+      const std::string& name, const T& field, const H5::Group& group) {
     const size_t size = field.size();
     if (size == 0) {
       if constexpr (std::is_arithmetic_v<typename T::value_type>) {
@@ -186,7 +185,7 @@ class Writer {
       size_t i = 0;
       for (const auto& iter : field) {
         SerializeHdf5<typename T::value_type>(common::formatIndexWithLeadingZeros(i, ITER_LENGTH),
-                                              iter, group_child, map);
+                                              iter, group_child);
         i++;
       }
     }
@@ -195,8 +194,7 @@ class Writer {
   template <typename T>
   typename std::enable_if_t<std::is_same_v<T, std::string> &&
                             TypeContainer<T>::VALUE == ContainerType::RAW>
-  SerializeHdf5(const std::string& name, const std::string& field, const H5::Group& group,
-                MapToSharedPtr&) {
+  SerializeHdf5(const std::string& name, const std::string& field, const H5::Group& group) {
     const H5::StrType datatype(0, H5T_VARIABLE);
     const H5::DataSpace dataspace(H5S_SCALAR);
     if constexpr (USE_ATTRIBUTE) {
@@ -215,16 +213,15 @@ class Writer {
   template <typename T>
   typename std::enable_if_t<std::is_same_v<T, DoubleNan> &&
                             TypeContainer<T>::VALUE == ContainerType::RAW>
-  SerializeHdf5(const std::string& name, const DoubleNan& field, const H5::Group& group,
-                MapToSharedPtr& map) {
-    SerializeHdf5<double>(name, field.value, group, map);
+  SerializeHdf5(const std::string& name, const DoubleNan& field, const H5::Group& group) {
+    SerializeHdf5<double>(name, field.value, group);
   }
 
   template <typename T>
   typename std::enable_if_t<std::is_same_v<T, std::shared_ptr<RawData>> &&
                             TypeContainer<T>::VALUE == ContainerType::SHARED_PTR>
   SerializeHdf5(const std::string& name, const std::shared_ptr<RawData>& field,
-                const H5::Group& group, MapToSharedPtr&) {
+                const H5::Group& group) {
     if (field->getSize() == 0) {
       return;
     }
@@ -271,32 +268,33 @@ class Writer {
   }
 
   template <typename T>
-  void SerializeAll(const T& field, const H5::Group& group, MapToSharedPtr& map) {
+  void SerializeAll(const T& field, const H5::Group& group) {
     // Need to update map for Probe.
     if constexpr (std::is_same_v<T, Probe>) {
-      map.insert({nameTypeid<ElementGeometry>(), &field.element_geometries});
-      map.insert({nameTypeid<ImpulseResponse>(), &field.impulse_responses});
+      _map_to_shared_ptr.insert({nameTypeid<ElementGeometry>(), &field.element_geometries});
+      _map_to_shared_ptr.insert({nameTypeid<ImpulseResponse>(), &field.impulse_responses});
     }
     for (const auto& kv : _data_field.at(nameTypeid<T>())) {
       std::visit(
-          [this, name = kv.second, field_ptr = &field, &group, &map](const auto* var) {
+          [this, name = kv.second, field_ptr = &field, &group](const auto* var) {
             SerializeHdf5<std::remove_cv_t<std::remove_pointer_t<decltype(var)>>>(
                 name,
                 *reinterpret_cast<decltype(var)>(reinterpret_cast<std::uintptr_t>(field_ptr) +
                                                  reinterpret_cast<std::uintptr_t>(var)),
-                group, map);
+                group);
           },
           std::get<0>(kv));
     }
 
     if constexpr (std::is_same_v<T, Probe>) {
-      map.erase(nameTypeid<ElementGeometry>());
-      map.erase(nameTypeid<ImpulseResponse>());
+      _map_to_shared_ptr.erase(nameTypeid<ElementGeometry>());
+      _map_to_shared_ptr.erase(nameTypeid<ImpulseResponse>());
     }
   }
 
  private:
   const std::unordered_map<std::type_index, std::vector<std::pair<AllTypeInVariant, std::string>>>&
       _data_field;
+  MapToSharedPtr _map_to_shared_ptr;
 };
 }  // namespace urx::utils::io
