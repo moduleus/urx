@@ -103,6 +103,7 @@ std::shared_ptr<T> generateFakeDataset() {
 
     probe = std::make_shared<Probe>();
     probe->description = "Probe 2";
+    // NOLINTNEXTLINE
     probe->type = static_cast<ProbeType>(123);
     probe->transform.rotation.x = 3;
     probe->transform.rotation.y = 4;

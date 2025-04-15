@@ -19,11 +19,17 @@
 
 #include <H5Cpp.h>
 
+#include <urx/dataset.h>
 #include <urx/detail/double_nan.h>
 #include <urx/detail/raw_data.h>
 #include <urx/element_geometry.h>
+#include <urx/excitation.h>
+#include <urx/group.h>
+#include <urx/group_data.h>
 #include <urx/impulse_response.h>
 #include <urx/probe.h>
+#include <urx/urx.h>
+#include <urx/utils/exception.h>
 #include <urx/utils/io/enums.h>
 #include <urx/utils/io/serialize_helper.h>
 
@@ -33,10 +39,12 @@ template <typename Dataset, typename AllTypeInVariant, typename Derived>
 class ReaderBase {
  public:
   ReaderBase(
-      const std::string& filename,
+      std::string filename,
       const std::unordered_map<std::type_index,
                                std::vector<std::pair<AllTypeInVariant, std::string>>>& data_field)
-      : _filename(filename), _data_field(data_field), _dataset(std::make_shared<Dataset>()) {
+      : _filename(std::move(filename)),
+        _data_field(data_field),
+        _dataset(std::make_shared<Dataset>()) {
     if constexpr (std::is_same_v<Dataset, urx::Dataset>) {
       _map_to_shared_ptr = {{nameTypeid<Group>(), &_dataset->acquisition.groups},
                             {nameTypeid<Probe>(), &_dataset->acquisition.probes},
@@ -49,7 +57,7 @@ class ReaderBase {
     try {
       const H5::H5File file(_filename.data(), H5F_ACC_RDONLY);
 
-      DeserializeHdf5<Dataset>("dataset", *_dataset, file);
+      deserializeHdf5<Dataset>("dataset", *_dataset, file);
 
       for (auto& funct : _async_weak_assign) {
         funct();
@@ -67,7 +75,7 @@ class ReaderBase {
   }
 
   template <typename T>
-  typename std::enable_if_t<TypeContainer<T>::VALUE == ContainerType::RAW> DeserializeHdf5(
+  typename std::enable_if_t<TypeContainer<T>::VALUE == ContainerType::RAW> deserializeHdf5(
       const std::string& name, T& field, const H5::Group& group) {
     // Number
     if constexpr (std::is_arithmetic_v<T>) {
@@ -102,35 +110,35 @@ class ReaderBase {
     // Default
     else {
       const H5::Group group_child(group.openGroup(name));
-      static_cast<Derived*>(this)->template DeserializeAll<T>(field, group_child);
+      static_cast<Derived*>(this)->template deserializeAll<T>(field, group_child);
     }
   }
 
   template <typename T>
-  typename std::enable_if_t<TypeContainer<T>::VALUE == ContainerType::SHARED_PTR> DeserializeHdf5(
+  typename std::enable_if_t<TypeContainer<T>::VALUE == ContainerType::SHARED_PTR> deserializeHdf5(
       const std::string& name, T& field, const H5::Group& group) {
     field = std::make_shared<typename T::element_type>();
-    static_cast<Derived*>(this)->template DeserializeHdf5<typename T::element_type>(name, *field,
+    static_cast<Derived*>(this)->template deserializeHdf5<typename T::element_type>(name, *field,
                                                                                     group);
   }
 
   template <typename T>
-  typename std::enable_if_t<TypeContainer<T>::VALUE == ContainerType::OPTIONAL> DeserializeHdf5(
+  typename std::enable_if_t<TypeContainer<T>::VALUE == ContainerType::OPTIONAL> deserializeHdf5(
       const std::string& name, T& field, const H5::Group& group) {
     if (group.nameExists(name) || group.attrExists(name)) {
       field = typename T::value_type{};
-      static_cast<Derived*>(this)->template DeserializeHdf5<typename T::value_type>(name, *field,
+      static_cast<Derived*>(this)->template deserializeHdf5<typename T::value_type>(name, *field,
                                                                                     group);
     }
   }
 
   template <typename T>
-  typename std::enable_if_t<TypeContainer<T>::VALUE == ContainerType::WEAK_PTR> DeserializeHdf5(
+  typename std::enable_if_t<TypeContainer<T>::VALUE == ContainerType::WEAK_PTR> deserializeHdf5(
       const std::string& name, T& field, const H5::Group& group) {
     if (group.nameExists(name) || group.attrExists(name)) {
       std::size_t idx;
 
-      static_cast<Derived*>(this)->template DeserializeHdf5<std::size_t>(name, idx, group);
+      static_cast<Derived*>(this)->template deserializeHdf5<std::size_t>(name, idx, group);
 
       const auto& map_i = getSharedPtr<typename T::element_type>(_map_to_shared_ptr);
 
@@ -143,7 +151,8 @@ class ReaderBase {
   }
 
   template <typename T>
-  typename std::enable_if_t<TypeContainer<T>::VALUE == ContainerType::VECTOR> DeserializeHdf5(
+  // NOLINTNEXTLINE(misc-no-recursion)
+  typename std::enable_if_t<TypeContainer<T>::VALUE == ContainerType::VECTOR> deserializeHdf5(
       const std::string& name, T& field, const H5::Group& group) {
     if constexpr (std::is_arithmetic_v<typename T::value_type>) {
       const H5::StrType datatype(*getStdToHdf5().at(nameTypeid<typename T::value_type>()));
@@ -201,12 +210,13 @@ class ReaderBase {
 
       if (dimension[0] != 0) {
         if (group.nameExists(name)) {
-          dataset.read(field_char.data(), datatype, dataspace);
+          dataset.read(reinterpret_cast<void*>(field_char.data()), datatype, dataspace);
         } else {
-          attribute.read(datatype, field_char.data());
+          attribute.read(datatype, reinterpret_cast<void*>(field_char.data()));
         }
         for (char* str_i : field_char) {
           field.push_back(str_i);
+          // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
           delete[] str_i;
         }
       }
@@ -262,7 +272,7 @@ class ReaderBase {
           const std::string name_i = attr.getName();
 
           const int value = std::stoi(name_i);
-          static_cast<Derived*>(this)->template DeserializeHdf5<typename T::value_type>(
+          static_cast<Derived*>(this)->template deserializeHdf5<typename T::value_type>(
               name_i, field[value], group_child);
         }
       }
@@ -271,7 +281,7 @@ class ReaderBase {
           const std::string name_i = group_child.getObjnameByIdx(i);
 
           const int value = std::stoi(name_i);
-          static_cast<Derived*>(this)->template DeserializeHdf5<typename T::value_type>(
+          static_cast<Derived*>(this)->template deserializeHdf5<typename T::value_type>(
               name_i, field[value], group_child);
         }
       }
@@ -281,7 +291,7 @@ class ReaderBase {
   template <typename T>
   typename std::enable_if_t<std::is_same_v<T, std::string> &&
                             TypeContainer<T>::VALUE == ContainerType::RAW>
-  DeserializeHdf5(const std::string& name, std::string& field, const H5::Group& group) {
+  deserializeHdf5(const std::string& name, std::string& field, const H5::Group& group) {
     const H5::StrType datatype(0, H5T_VARIABLE);
     const H5::DataSpace dataspace(H5S_SCALAR);
     if (group.nameExists(name)) {
@@ -298,19 +308,19 @@ class ReaderBase {
   template <typename T>
   typename std::enable_if_t<std::is_same_v<T, DoubleNan> &&
                             TypeContainer<T>::VALUE == ContainerType::RAW>
-  DeserializeHdf5(const std::string& name, DoubleNan& field, const H5::Group& group) {
-    static_cast<Derived*>(this)->template DeserializeHdf5<double>(name, field.value, group);
+  deserializeHdf5(const std::string& name, DoubleNan& field, const H5::Group& group) {
+    static_cast<Derived*>(this)->template deserializeHdf5<double>(name, field.value, group);
   }
 
   template <typename T>
   typename std::enable_if_t<std::is_same_v<T, std::shared_ptr<RawData>> &&
                             TypeContainer<T>::VALUE == ContainerType::SHARED_PTR>
-  DeserializeHdf5(const std::string&, std::shared_ptr<RawData>& field, const H5::Group& group) {
-    static_cast<Derived*>(this)->template DeserializeAll<std::shared_ptr<RawData>>(field, group);
+  deserializeHdf5(const std::string&, std::shared_ptr<RawData>& field, const H5::Group& group) {
+    static_cast<Derived*>(this)->template deserializeAll<std::shared_ptr<RawData>>(field, group);
   }
 
   template <typename T>
-  void DeserializeAll(T& field, const H5::Group& group) {
+  void deserializeAll(T& field, const H5::Group& group) {
     // Need to update map for Probe.
     if constexpr (std::is_same_v<T, Probe>) {
       _map_to_shared_ptr.insert({nameTypeid<ElementGeometry>(), &field.element_geometries});
@@ -321,7 +331,7 @@ class ReaderBase {
       std::visit(
           [this, name = kv.second, field_ptr = &field, &group](auto* var) {
             static_cast<Derived*>(this)
-                ->template DeserializeHdf5<std::remove_pointer_t<decltype(var)>>(
+                ->template deserializeHdf5<std::remove_pointer_t<decltype(var)>>(
                     name,
                     *reinterpret_cast<decltype(var)>(reinterpret_cast<std::uintptr_t>(field_ptr) +
                                                      reinterpret_cast<std::uintptr_t>(var)),
@@ -337,7 +347,7 @@ class ReaderBase {
   }
 
   template <typename T = std::shared_ptr<RawData>>
-  void DeserializeAll(std::shared_ptr<RawData>& field, const H5::Group& group) {
+  void deserializeAll(std::shared_ptr<RawData>& field, const H5::Group& group) {
     if (!group.nameExists("raw_data")) {
       return;
     }
@@ -401,7 +411,7 @@ class ReaderBase {
 
  private:
   std::string _filename;
-  const std::unordered_map<std::type_index, std::vector<std::pair<AllTypeInVariant, std::string>>>&
+  std::unordered_map<std::type_index, std::vector<std::pair<AllTypeInVariant, std::string>>>
       _data_field;
 
  protected:
