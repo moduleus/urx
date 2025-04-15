@@ -28,12 +28,13 @@
 
 namespace urx::utils::io {
 
-template <typename Dataset, typename AllTypeInVariant>
-class Writer {
+template <typename Dataset, typename AllTypeInVariant, typename Derived>
+class WriterBase {
  public:
-  Writer(const std::string& filename, const Dataset& dataset,
-         const std::unordered_map<
-             std::type_index, std::vector<std::pair<AllTypeInVariant, std::string>>>& data_field)
+  WriterBase(
+      const std::string& filename, const Dataset& dataset,
+      const std::unordered_map<std::type_index,
+                               std::vector<std::pair<AllTypeInVariant, std::string>>>& data_field)
       : _filename(filename), _dataset(dataset), _data_field(data_field) {
     if constexpr (std::is_same_v<Dataset, urx::Dataset>) {
       _map_to_shared_ptr = {{nameTypeid<Group>(), &dataset.acquisition.groups},
@@ -47,7 +48,7 @@ class Writer {
     try {
       const H5::H5File file(_filename.data(), H5F_ACC_TRUNC);
 
-      SerializeHdf5<Dataset>("dataset", _dataset, file);
+      static_cast<Derived*>(this)->template SerializeHdf5<Dataset>("dataset", _dataset, file);
     } catch (const H5::FileIException&) {
       throw WriteFileException("Failed to write " + _filename + ".");
     }
@@ -84,14 +85,15 @@ class Writer {
     // Default
     else {
       const H5::Group group_child(group.createGroup(name));
-      SerializeAll<T>(field, group_child);
+      static_cast<Derived*>(this)->template SerializeAll<T>(field, group_child);
     }
   }
 
   template <typename T>
   typename std::enable_if_t<TypeContainer<T>::VALUE == ContainerType::SHARED_PTR> SerializeHdf5(
       const std::string& name, const T& field, const H5::Group& group) {
-    SerializeHdf5<typename T::element_type>(name, *field, group);
+    static_cast<Derived*>(this)->template SerializeHdf5<typename T::element_type>(name, *field,
+                                                                                  group);
   }
 
   template <typename T>
@@ -116,7 +118,8 @@ class Writer {
                                   group.getObjName() + "/" + name)
                                      .c_str());
       }
-      SerializeHdf5<std::size_t>(name, std::distance(all_shared.begin(), idx), group);
+      static_cast<Derived*>(this)->template SerializeHdf5<std::size_t>(
+          name, std::distance(all_shared.begin(), idx), group);
     } else {
       throw std::runtime_error(
           ("Invalid weak field from " + group.getObjName() + "/" + name).c_str());
@@ -129,7 +132,8 @@ class Writer {
     if (!field) {
       return;
     }
-    SerializeHdf5<typename T::value_type>(name, *field, group);
+    static_cast<Derived*>(this)->template SerializeHdf5<typename T::value_type>(name, *field,
+                                                                                group);
   }
 
   template <typename T>
@@ -189,8 +193,8 @@ class Writer {
 
       size_t i = 0;
       for (const auto& iter : field) {
-        SerializeHdf5<typename T::value_type>(common::formatIndexWithLeadingZeros(i, ITER_LENGTH),
-                                              iter, group_child);
+        static_cast<Derived*>(this)->template SerializeHdf5<typename T::value_type>(
+            common::formatIndexWithLeadingZeros(i, ITER_LENGTH), iter, group_child);
         i++;
       }
     }
@@ -219,7 +223,7 @@ class Writer {
   typename std::enable_if_t<std::is_same_v<T, DoubleNan> &&
                             TypeContainer<T>::VALUE == ContainerType::RAW>
   SerializeHdf5(const std::string& name, const DoubleNan& field, const H5::Group& group) {
-    SerializeHdf5<double>(name, field.value, group);
+    static_cast<Derived*>(this)->template SerializeHdf5<double>(name, field.value, group);
   }
 
   template <typename T>
@@ -282,11 +286,12 @@ class Writer {
     for (const auto& kv : _data_field.at(nameTypeid<T>())) {
       std::visit(
           [this, name = kv.second, field_ptr = &field, &group](const auto* var) {
-            SerializeHdf5<std::remove_cv_t<std::remove_pointer_t<decltype(var)>>>(
-                name,
-                *reinterpret_cast<decltype(var)>(reinterpret_cast<std::uintptr_t>(field_ptr) +
-                                                 reinterpret_cast<std::uintptr_t>(var)),
-                group);
+            static_cast<Derived*>(this)
+                ->template SerializeHdf5<std::remove_cv_t<std::remove_pointer_t<decltype(var)>>>(
+                    name,
+                    *reinterpret_cast<decltype(var)>(reinterpret_cast<std::uintptr_t>(field_ptr) +
+                                                     reinterpret_cast<std::uintptr_t>(var)),
+                    group);
           },
           std::get<0>(kv));
     }
@@ -304,4 +309,15 @@ class Writer {
       _data_field;
   MapToSharedPtr _map_to_shared_ptr;
 };
+
+template <typename Dataset, typename AllTypeInVariant>
+class Writer : public WriterBase<Dataset, AllTypeInVariant, Writer<Dataset, AllTypeInVariant>> {
+ public:
+  Writer(const std::string& filename, const Dataset& dataset,
+         const std::unordered_map<
+             std::type_index, std::vector<std::pair<AllTypeInVariant, std::string>>>& data_field)
+      : WriterBase<Dataset, AllTypeInVariant, Writer<Dataset, AllTypeInVariant>>(filename, dataset,
+                                                                                 data_field) {}
+};
+
 }  // namespace urx::utils::io
