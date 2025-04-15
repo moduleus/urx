@@ -46,8 +46,7 @@ class Reader {
           {nameTypeid<GroupData>(), &_dataset->acquisition.groups_data},
           {nameTypeid<std::function<void()>>(), &async_weak_assign}};
 
-      DeserializeHdf5<Dataset, AllTypeInVariant>("dataset", *_dataset, file, map_to_shared_ptr,
-                                                 getMemberMap());
+      DeserializeHdf5<Dataset>("dataset", *_dataset, file, map_to_shared_ptr, getMemberMap());
 
       for (auto& funct : async_weak_assign) {
         funct();
@@ -64,11 +63,11 @@ class Reader {
     _dataset->version.patch = urx::URX_VERSION_PATCH;
   }
 
-  template <typename T, typename U>
+  template <typename T>
   typename std::enable_if_t<TypeContainer<T>::VALUE == ContainerType::RAW> DeserializeHdf5(
       const std::string& name, T& field, const H5::Group& group, MapToSharedPtr& map,
-      const std::unordered_map<std::type_index, std::vector<std::pair<U, std::string>>>&
-          data_field) {
+      const std::unordered_map<std::type_index,
+                               std::vector<std::pair<AllTypeInVariant, std::string>>>& data_field) {
     // Number
     if constexpr (std::is_arithmetic_v<T>) {
       const H5::StrType datatype(*getStdToHdf5().at(nameTypeid<T>()));
@@ -102,39 +101,39 @@ class Reader {
     // Default
     else {
       const H5::Group group_child(group.openGroup(name));
-      DeserializeAll<T, U>(field, group_child, map, data_field);
+      DeserializeAll<T>(field, group_child, map, data_field);
     }
   }
 
-  template <typename T, typename U>
+  template <typename T>
   typename std::enable_if_t<TypeContainer<T>::VALUE == ContainerType::SHARED_PTR> DeserializeHdf5(
       const std::string& name, T& field, const H5::Group& group, MapToSharedPtr& map,
-      const std::unordered_map<std::type_index, std::vector<std::pair<U, std::string>>>&
-          data_field) {
+      const std::unordered_map<std::type_index,
+                               std::vector<std::pair<AllTypeInVariant, std::string>>>& data_field) {
     field = std::make_shared<typename T::element_type>();
-    DeserializeHdf5<typename T::element_type, U>(name, *field, group, map, data_field);
+    DeserializeHdf5<typename T::element_type>(name, *field, group, map, data_field);
   }
 
-  template <typename T, typename U>
+  template <typename T>
   typename std::enable_if_t<TypeContainer<T>::VALUE == ContainerType::OPTIONAL> DeserializeHdf5(
       const std::string& name, T& field, const H5::Group& group, MapToSharedPtr& map,
-      const std::unordered_map<std::type_index, std::vector<std::pair<U, std::string>>>&
-          data_field) {
+      const std::unordered_map<std::type_index,
+                               std::vector<std::pair<AllTypeInVariant, std::string>>>& data_field) {
     if (group.nameExists(name) || group.attrExists(name)) {
       field = typename T::value_type{};
-      DeserializeHdf5<typename T::value_type, U>(name, *field, group, map, data_field);
+      DeserializeHdf5<typename T::value_type>(name, *field, group, map, data_field);
     }
   }
 
-  template <typename T, typename U>
+  template <typename T>
   typename std::enable_if_t<TypeContainer<T>::VALUE == ContainerType::WEAK_PTR> DeserializeHdf5(
       const std::string& name, T& field, const H5::Group& group, MapToSharedPtr& map,
-      const std::unordered_map<std::type_index, std::vector<std::pair<U, std::string>>>&
-          data_field) {
+      const std::unordered_map<std::type_index,
+                               std::vector<std::pair<AllTypeInVariant, std::string>>>& data_field) {
     if (group.nameExists(name) || group.attrExists(name)) {
       std::size_t idx;
 
-      DeserializeHdf5<std::size_t, U>(name, idx, group, map, data_field);
+      DeserializeHdf5<std::size_t>(name, idx, group, map, data_field);
 
       const auto& map_i = getSharedPtr<typename T::element_type>(map);
 
@@ -149,11 +148,11 @@ class Reader {
     }
   }
 
-  template <typename T, typename U>
+  template <typename T>
   typename std::enable_if_t<TypeContainer<T>::VALUE == ContainerType::VECTOR> DeserializeHdf5(
       const std::string& name, T& field, const H5::Group& group, MapToSharedPtr& map,
-      const std::unordered_map<std::type_index, std::vector<std::pair<U, std::string>>>&
-          data_field) {
+      const std::unordered_map<std::type_index,
+                               std::vector<std::pair<AllTypeInVariant, std::string>>>& data_field) {
     if constexpr (std::is_arithmetic_v<typename T::value_type>) {
       const H5::StrType datatype(*getStdToHdf5().at(nameTypeid<typename T::value_type>()));
 
@@ -271,8 +270,8 @@ class Reader {
           const std::string name_i = attr.getName();
 
           const int value = std::stoi(name_i);
-          DeserializeHdf5<typename T::value_type, U>(name_i, field[value], group_child, map,
-                                                     data_field);
+          DeserializeHdf5<typename T::value_type>(name_i, field[value], group_child, map,
+                                                  data_field);
         }
       }
       if (number_dataset) {
@@ -280,19 +279,20 @@ class Reader {
           const std::string name_i = group_child.getObjnameByIdx(i);
 
           const int value = std::stoi(name_i);
-          DeserializeHdf5<typename T::value_type, U>(name_i, field[value], group_child, map,
-                                                     data_field);
+          DeserializeHdf5<typename T::value_type>(name_i, field[value], group_child, map,
+                                                  data_field);
         }
       }
     }
   }
 
-  template <typename T, typename U>
+  template <typename T>
   typename std::enable_if_t<std::is_same_v<T, std::string> &&
                             TypeContainer<T>::VALUE == ContainerType::RAW>
-  DeserializeHdf5(
-      const std::string& name, std::string& field, const H5::Group& group, MapToSharedPtr&,
-      const std::unordered_map<std::type_index, std::vector<std::pair<U, std::string>>>&) {
+  DeserializeHdf5(const std::string& name, std::string& field, const H5::Group& group,
+                  MapToSharedPtr&,
+                  const std::unordered_map<
+                      std::type_index, std::vector<std::pair<AllTypeInVariant, std::string>>>&) {
     const H5::StrType datatype(0, H5T_VARIABLE);
     const H5::DataSpace dataspace(H5S_SCALAR);
     if (group.nameExists(name)) {
@@ -306,31 +306,32 @@ class Reader {
     }
   }
 
-  template <typename T, typename U>
+  template <typename T>
   typename std::enable_if_t<std::is_same_v<T, DoubleNan> &&
                             TypeContainer<T>::VALUE == ContainerType::RAW>
-  DeserializeHdf5(const std::string& name, DoubleNan& field, const H5::Group& group,
-                  MapToSharedPtr& map,
-                  const std::unordered_map<std::type_index, std::vector<std::pair<U, std::string>>>&
-                      data_field) {
-    DeserializeHdf5<double, U>(name, field.value, group, map, data_field);
+  DeserializeHdf5(
+      const std::string& name, DoubleNan& field, const H5::Group& group, MapToSharedPtr& map,
+      const std::unordered_map<std::type_index,
+                               std::vector<std::pair<AllTypeInVariant, std::string>>>& data_field) {
+    DeserializeHdf5<double>(name, field.value, group, map, data_field);
   }
 
-  template <typename T, typename U>
+  template <typename T>
   typename std::enable_if_t<std::is_same_v<T, std::shared_ptr<RawData>> &&
                             TypeContainer<T>::VALUE == ContainerType::SHARED_PTR>
-  DeserializeHdf5(const std::string&, std::shared_ptr<RawData>& field, const H5::Group& group,
-                  MapToSharedPtr& map,
-                  const std::unordered_map<std::type_index, std::vector<std::pair<U, std::string>>>&
-                      data_field) {
-    DeserializeAll<std::shared_ptr<RawData>, U>(field, group, map, data_field);
+  DeserializeHdf5(
+      const std::string&, std::shared_ptr<RawData>& field, const H5::Group& group,
+      MapToSharedPtr& map,
+      const std::unordered_map<std::type_index,
+                               std::vector<std::pair<AllTypeInVariant, std::string>>>& data_field) {
+    DeserializeAll<std::shared_ptr<RawData>>(field, group, map, data_field);
   }
 
-  template <typename T, typename U>
+  template <typename T>
   void DeserializeAll(
       T& field, const H5::Group& group, MapToSharedPtr& map,
-      const std::unordered_map<std::type_index, std::vector<std::pair<U, std::string>>>&
-          data_field) {
+      const std::unordered_map<std::type_index,
+                               std::vector<std::pair<AllTypeInVariant, std::string>>>& data_field) {
     // Need to update map for Probe.
     if constexpr (std::is_same_v<T, Probe>) {
       map.insert({nameTypeid<ElementGeometry>(), &field.element_geometries});
@@ -340,7 +341,7 @@ class Reader {
     for (const auto& kv : data_field.at(nameTypeid<T>())) {
       std::visit(
           [this, name = kv.second, field_ptr = &field, &group, &map, &data_field](auto* var) {
-            DeserializeHdf5<std::remove_pointer_t<decltype(var)>, U>(
+            DeserializeHdf5<std::remove_pointer_t<decltype(var)>>(
                 name,
                 *reinterpret_cast<decltype(var)>(reinterpret_cast<std::uintptr_t>(field_ptr) +
                                                  reinterpret_cast<std::uintptr_t>(var)),
@@ -355,10 +356,11 @@ class Reader {
     }
   }
 
-  template <typename T = std::shared_ptr<RawData>, typename U>
+  template <typename T = std::shared_ptr<RawData>>
   void DeserializeAll(
       std::shared_ptr<RawData>& field, const H5::Group& group, MapToSharedPtr&,
-      const std::unordered_map<std::type_index, std::vector<std::pair<U, std::string>>>&) {
+      const std::unordered_map<std::type_index,
+                               std::vector<std::pair<AllTypeInVariant, std::string>>>&) {
     if (!group.nameExists("raw_data")) {
       return;
     }
