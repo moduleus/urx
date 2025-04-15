@@ -34,17 +34,22 @@ class Writer {
   Writer(const std::string& filename, const Dataset& dataset,
          const std::unordered_map<
              std::type_index, std::vector<std::pair<AllTypeInVariant, std::string>>>& data_field)
-      : _data_field(data_field),
-        _map_to_shared_ptr{{nameTypeid<Group>(), &dataset.acquisition.groups},
-                           {nameTypeid<Probe>(), &dataset.acquisition.probes},
-                           {nameTypeid<Excitation>(), &dataset.acquisition.excitations},
-                           {nameTypeid<GroupData>(), &dataset.acquisition.groups_data}} {
-    try {
-      const H5::H5File file(filename.data(), H5F_ACC_TRUNC);
+      : _filename(filename), _dataset(dataset), _data_field(data_field) {
+    if constexpr (std::is_same_v<Dataset, urx::Dataset>) {
+      _map_to_shared_ptr = {{nameTypeid<Group>(), &dataset.acquisition.groups},
+                            {nameTypeid<Probe>(), &dataset.acquisition.probes},
+                            {nameTypeid<Excitation>(), &dataset.acquisition.excitations},
+                            {nameTypeid<GroupData>(), &dataset.acquisition.groups_data}};
+    }
+  }
 
-      SerializeHdf5<Dataset>("dataset", dataset, file);
+  void write() {
+    try {
+      const H5::H5File file(_filename.data(), H5F_ACC_TRUNC);
+
+      SerializeHdf5<Dataset>("dataset", _dataset, file);
     } catch (const H5::FileIException&) {
-      throw WriteFileException("Failed to write " + filename + ".");
+      throw WriteFileException("Failed to write " + _filename + ".");
     }
   }
 
@@ -293,6 +298,8 @@ class Writer {
   }
 
  private:
+  const std::string& _filename;
+  const Dataset& _dataset;
   const std::unordered_map<std::type_index, std::vector<std::pair<AllTypeInVariant, std::string>>>&
       _data_field;
   MapToSharedPtr _map_to_shared_ptr;
