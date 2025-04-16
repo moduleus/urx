@@ -36,27 +36,17 @@ namespace urx::utils::io {
 template <typename Dataset, typename AllTypeInVariant, typename Derived>
 class WriterBase {
  public:
-  WriterBase(
-      std::string filename, const Dataset* dataset,
-      const std::unordered_map<std::type_index,
-                               std::vector<std::pair<AllTypeInVariant, std::string>>>& data_field)
-      : _filename(std::move(filename)), _dataset(dataset), _data_field(data_field) {
+  WriterBase() {
     if constexpr (std::is_same_v<Dataset, urx::Dataset>) {
-      _map_to_shared_ptr = {{nameTypeid<Group>(), &dataset->acquisition.groups},
-                            {nameTypeid<Probe>(), &dataset->acquisition.probes},
-                            {nameTypeid<Excitation>(), &dataset->acquisition.excitations},
-                            {nameTypeid<GroupData>(), &dataset->acquisition.groups_data}};
+      _data_field = urx::utils::io::getMemberMap();
     }
   }
 
-  void write() {
-    try {
-      const H5::H5File file(_filename.data(), H5F_ACC_TRUNC);
-
-      static_cast<Derived*>(this)->template serializeHdf5<Dataset>("dataset", *_dataset, file);
-    } catch (const H5::FileIException&) {
-      throw WriteFileException("Failed to write " + _filename + ".");
-    }
+  void init(const Dataset& dataset) {
+    _map_to_shared_ptr[nameTypeid<Group>()] = &dataset.acquisition.groups;
+    _map_to_shared_ptr[nameTypeid<Probe>()] = &dataset.acquisition.probes;
+    _map_to_shared_ptr[nameTypeid<Excitation>()] = &dataset.acquisition.excitations;
+    _map_to_shared_ptr[nameTypeid<GroupData>()] = &dataset.acquisition.groups_data;
   }
 
   template <typename T>
@@ -111,9 +101,7 @@ class WriterBase {
     }
 
     if (auto shared = field.lock()) {
-      const std::vector<std::shared_ptr<typename T::element_type>>& all_shared =
-          *reinterpret_cast<const std::vector<std::shared_ptr<typename T::element_type>>*>(
-              _map_to_shared_ptr.at(nameTypeid<typename T::element_type>()));
+      const auto& all_shared = getSharedPtr<typename T::element_type>(_map_to_shared_ptr);
       auto idx = std::find_if(all_shared.begin(), all_shared.end(),
                               [&shared](const std::shared_ptr<typename T::element_type>& data) {
                                 return shared.get() == data.get();
@@ -309,22 +297,40 @@ class WriterBase {
 
  protected:
   MapToSharedPtr _map_to_shared_ptr;
-
- private:
-  std::string _filename;
-  const Dataset* _dataset;
   std::unordered_map<std::type_index, std::vector<std::pair<AllTypeInVariant, std::string>>>
       _data_field;
 };
 
-template <typename Dataset, typename AllTypeInVariant>
-class Writer : public WriterBase<Dataset, AllTypeInVariant, Writer<Dataset, AllTypeInVariant>> {
+template <typename Dataset, typename AllTypeInVariant,
+          template <typename, typename, typename...> class Base>
+class WriterDataset
+    : public Base<Dataset, AllTypeInVariant, WriterDataset<Dataset, AllTypeInVariant, Base>> {
  public:
-  Writer(const std::string& filename, const Dataset* dataset,
-         const std::unordered_map<
-             std::type_index, std::vector<std::pair<AllTypeInVariant, std::string>>>& data_field)
-      : WriterBase<Dataset, AllTypeInVariant, Writer<Dataset, AllTypeInVariant>>(filename, dataset,
-                                                                                 data_field) {}
+  WriterDataset(std::string filename, const Dataset* dataset)
+      : Base<Dataset, AllTypeInVariant, WriterDataset<Dataset, AllTypeInVariant, Base>>(),
+        _filename(std::move(filename)),
+        _dataset(dataset) {}
+
+  using Base<Dataset, AllTypeInVariant,
+             WriterDataset<Dataset, AllTypeInVariant, Base>>::serializeHdf5;
+  using Base<Dataset, AllTypeInVariant,
+             WriterDataset<Dataset, AllTypeInVariant, Base>>::serializeAll;
+
+  void write() {
+    try {
+      const H5::H5File file(_filename.data(), H5F_ACC_TRUNC);
+
+      this->init(*_dataset);
+
+      this->serializeHdf5("dataset", *_dataset, file);
+    } catch (const H5::FileIException&) {
+      throw WriteFileException("Failed to write " + _filename + ".");
+    }
+  }
+
+ private:
+  std::string _filename;
+  const Dataset* _dataset;
 };
 
 }  // namespace urx::utils::io

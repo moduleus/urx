@@ -35,48 +35,42 @@
 
 namespace urx::utils::io {
 
+enum class ReaderGroupDataStrategy {
+  // RawData is loaded in memory when read method is called
+  FULL,
+  // RawData is never stored in memory.
+  STREAM
+};
+
+struct ReaderParam {
+  ReaderGroupDataStrategy group_data_strategy = ReaderGroupDataStrategy::FULL;
+};
+
 template <typename Dataset, typename AllTypeInVariant, typename Derived>
 class ReaderBase {
  public:
-  ReaderBase(
-      std::string filename,
-      const std::unordered_map<std::type_index,
-                               std::vector<std::pair<AllTypeInVariant, std::string>>>& data_field)
-      : _filename(std::move(filename)),
-        _data_field(data_field),
-        _dataset(std::make_shared<Dataset>()) {
+  ReaderBase() {
     if constexpr (std::is_same_v<Dataset, urx::Dataset>) {
-      _map_to_shared_ptr = {{nameTypeid<Group>(), &_dataset->acquisition.groups},
-                            {nameTypeid<Probe>(), &_dataset->acquisition.probes},
-                            {nameTypeid<Excitation>(), &_dataset->acquisition.excitations},
-                            {nameTypeid<GroupData>(), &_dataset->acquisition.groups_data}};
+      _data_field = getMemberMap();
     }
   }
 
-  void read() {
-    try {
-      const H5::H5File file(_filename.data(), H5F_ACC_RDONLY);
-
-      deserializeHdf5<Dataset>("dataset", *_dataset, file);
-
-      for (auto& funct : _async_weak_assign) {
-        funct();
-      }
-    } catch (const H5::FileIException&) {
-      throw ReadFileException("Failed to read " + _filename + ".");
-    }
-
-    if (_dataset->version.major != urx::URX_VERSION_MAJOR) {
-      _dataset = nullptr;
-    }
-
-    _dataset->version.minor = urx::URX_VERSION_MINOR;
-    _dataset->version.patch = urx::URX_VERSION_PATCH;
+  void init(const Dataset& dataset) {
+    _map_to_shared_ptr[nameTypeid<Group>()] = &dataset.acquisition.groups;
+    _map_to_shared_ptr[nameTypeid<Probe>()] = &dataset.acquisition.probes;
+    _map_to_shared_ptr[nameTypeid<Excitation>()] = &dataset.acquisition.excitations;
+    _map_to_shared_ptr[nameTypeid<GroupData>()] = &dataset.acquisition.groups_data;
   }
 
   template <typename T>
   typename std::enable_if_t<TypeContainer<T>::VALUE == ContainerType::RAW> deserializeHdf5(
       const std::string& name, T& field, const H5::Group& group) {
+    if constexpr (std::is_same_v<T, urx::Dataset>) {
+      _map_to_shared_ptr[nameTypeid<Group>()] = &field.acquisition.groups;
+      _map_to_shared_ptr[nameTypeid<Probe>()] = &field.acquisition.probes;
+      _map_to_shared_ptr[nameTypeid<Excitation>()] = &field.acquisition.excitations;
+      _map_to_shared_ptr[nameTypeid<GroupData>()] = &field.acquisition.groups_data;
+    }
     // Number
     if constexpr (std::is_arithmetic_v<T>) {
       const H5::StrType datatype(*getStdToHdf5().at(nameTypeid<T>()));
@@ -105,7 +99,7 @@ class ReaderBase {
         throw std::runtime_error("Failed to read " + group.getObjName() + "/" + name);
       }
 
-      field = urx::utils::io::enums::stringToEnum<T>(value);
+      field = enums::stringToEnum<T>(value);
     }
     // Default
     else {
@@ -348,7 +342,8 @@ class ReaderBase {
 
   template <typename T = std::shared_ptr<RawData>>
   void deserializeAll(std::shared_ptr<RawData>& field, const H5::Group& group) {
-    if (!group.nameExists("raw_data")) {
+    if (!group.nameExists("raw_data") ||
+        _param.group_data_strategy != ReaderGroupDataStrategy::FULL) {
       return;
     }
     const H5::DataSet dataset = group.openDataSet("raw_data");
@@ -407,29 +402,57 @@ class ReaderBase {
     dataset.read(field->getBuffer(), datatype_raw);
   }
 
-  std::shared_ptr<Dataset> getDataset() { return _dataset; }
-
  private:
-  std::string _filename;
-  std::unordered_map<std::type_index, std::vector<std::pair<AllTypeInVariant, std::string>>>
-      _data_field;
+  ReaderParam _param;
 
  protected:
-  std::shared_ptr<Dataset> _dataset;
   MapToSharedPtr _map_to_shared_ptr;
   std::vector<std::function<void()>> _async_weak_assign;
+  std::unordered_map<std::type_index, std::vector<std::pair<AllTypeInVariant, std::string>>>
+      _data_field;
 };
 
-template <typename Dataset, typename AllTypeInVariant>
-class Reader : public ReaderBase<Dataset, AllTypeInVariant, Reader<Dataset, AllTypeInVariant>> {
+template <typename Dataset, typename AllTypeInVariant,
+          template <typename, typename, typename...> class Base>
+class ReaderDataset
+    : public Base<Dataset, AllTypeInVariant, ReaderDataset<Dataset, AllTypeInVariant, Base>> {
  public:
-  Reader(const std::string& filename,
-         const std::unordered_map<
-             std::type_index, std::vector<std::pair<AllTypeInVariant, std::string>>>& data_field)
-      : ReaderBase<Dataset, AllTypeInVariant, Reader<Dataset, AllTypeInVariant>>(filename,
-                                                                                 data_field) {}
+  explicit ReaderDataset(std::string filename)
+      : Base<Dataset, AllTypeInVariant, ReaderDataset<Dataset, AllTypeInVariant, Base>>(),
+        _dataset(std::make_shared<Dataset>()),
+        _filename(std::move(filename)) {}
+
+  void read() {
+    try {
+      const H5::H5File file(_filename.data(), H5F_ACC_RDONLY);
+
+      this->init(*_dataset);
+
+      this->template deserializeHdf5<Dataset>("dataset", *_dataset, file);
+
+      for (auto& funct : this->_async_weak_assign) {
+        funct();
+      }
+    } catch (const H5::FileIException&) {
+      throw ReadFileException("Failed to read " + _filename + ".");
+    }
+
+    if (_dataset->version.major != urx::URX_VERSION_MAJOR) {
+      _dataset = nullptr;
+    }
+
+    _dataset->version.minor = urx::URX_VERSION_MINOR;
+    _dataset->version.patch = urx::URX_VERSION_PATCH;
+  }
+
+  std::shared_ptr<Dataset> getDataset() { return _dataset; }
+
+  const std::string& getFilename() const { return _filename; }
+  void setFilename(const std::string& filename) { _filename = filename; }
+
+ private:
+  std::shared_ptr<Dataset> _dataset;
+  std::string _filename;
 };
 
 }  // namespace urx::utils::io
-
-namespace urx::utils::io::reader {}  // namespace urx::utils::io::reader

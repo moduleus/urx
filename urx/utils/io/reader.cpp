@@ -1,5 +1,5 @@
 #include <memory>
-#include <vector>
+#include <vector>  // IWYU pragma: keep
 
 #include <urx/dataset.h>
 #include <urx/utils/io/reader.h>
@@ -9,7 +9,8 @@
 namespace urx::utils::io::reader {
 
 std::shared_ptr<Dataset> loadFromFile(const std::string& filename) {
-  urx::utils::io::Reader<Dataset, AllTypeInVariant> reader(filename, getMemberMap());
+  urx::utils::io::ReaderDataset<Dataset, AllTypeInVariant, urx::utils::io::ReaderBase> reader(
+      filename);
   reader.read();
   return reader.getDataset();
 }

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -75,7 +74,7 @@ template <class... Ts>
 Overloaded(Ts...) -> Overloaded<Ts...>;
 
 template <typename T>
-const std::vector<std::shared_ptr<T>>& getSharedPtr(MapToSharedPtr& map) {
+const std::vector<std::shared_ptr<T>>& getSharedPtr(const MapToSharedPtr& map) {
   return *reinterpret_cast<const std::vector<std::shared_ptr<T>>*>(map.at(nameTypeid<T>()));
 }
 
