@@ -21,4 +21,19 @@ URX_UTILS_EXPORT void updateRcaElementsRectGeometry(Probe& probe,
                                                     const Vector2D<double>& row_size);
 URX_UTILS_EXPORT void updateMatrixElementsRectGeometry(Probe& probe, const Vector2D<double>& size);
 URX_UTILS_EXPORT void updateLinearElementsRectGeometry(Probe& probe, const Vector2D<double>& size);
+
+URX_UTILS_EXPORT Probe createStandardRca(uint32_t n_x, uint32_t n_y, double pitch_x, double pitch_y,
+                                         double element_width_x, double element_width_y,
+                                         double element_height_x, double element_height_y,
+                                         double delta_z);
+
+URX_UTILS_EXPORT Probe createStandardLinear(uint32_t n, double pitch, double element_width,
+                                            double element_height);
+
+URX_UTILS_EXPORT Probe createStandardCurviLinear(uint32_t n, double pitch, double element_width,
+                                                 double element_height, double depth_delta);
+
+URX_UTILS_EXPORT Probe createStandardMatrix(uint32_t n_x, uint32_t n_y, double pitch_x,
+                                            double pitch_y, double element_width,
+                                            double element_height);
 }  // namespace urx::utils::probe_helper
