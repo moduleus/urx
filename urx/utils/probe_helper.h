@@ -31,7 +31,7 @@ URX_UTILS_EXPORT Probe createStandardLinear(uint32_t n, double pitch, double ele
                                             double element_height);
 
 URX_UTILS_EXPORT Probe createStandardCurviLinear(uint32_t n, double pitch, double element_width,
-                                                 double element_height, double depth_delta);
+                                                 double element_height, double curvature);
 
 URX_UTILS_EXPORT Probe createStandardMatrix(uint32_t n_x, uint32_t n_y, double pitch_x,
                                             double pitch_y, double element_width,
