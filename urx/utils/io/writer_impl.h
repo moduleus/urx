@@ -152,9 +152,6 @@ class WriterBase {
         attribute.write(*datatype, field.data());
       } else {
         const H5::DSetCreatPropList plist;
-#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR >= 14
-        plist.setLayout(size < 8192 ? H5D_COMPACT : H5D_CONTIGUOUS);
-#endif
         const H5::DataSet dataset = group.createDataSet(name, *datatype, dataspace, plist);
         dataset.write(field.data(), *datatype);
       }
@@ -174,9 +171,6 @@ class WriterBase {
         attribute.write(datatype, reinterpret_cast<const void*>(c_strings.data()));
       } else {
         const H5::DSetCreatPropList plist;
-#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR >= 14
-        plist.setLayout(size < 8192 ? H5D_COMPACT : H5D_CONTIGUOUS);
-#endif
         const H5::DataSet dataset = group.createDataSet(name, datatype, dataspace, plist);
 
         dataset.write(reinterpret_cast<const void*>(c_strings.data()), datatype);
@@ -204,9 +198,6 @@ class WriterBase {
       attribute.write(datatype, field);
     } else {
       const H5::DSetCreatPropList plist;
-#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR >= 14
-      plist.setLayout(field.size() < 65536 ? H5D_COMPACT : H5D_CONTIGUOUS);
-#endif
       const H5::DataSet dataset = group.createDataSet(name, datatype, dataspace, plist);
       dataset.write(field, datatype, dataspace);
     }
