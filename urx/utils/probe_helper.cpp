@@ -219,7 +219,7 @@ Probe createStandardLinear(uint32_t n, double pitch, double element_width, doubl
 }
 
 Probe createStandardCurviLinear(uint32_t n, double pitch, double element_width,
-                                double element_height, double depth_delta) {
+                                double element_height, double curvature) {
   Probe cla;
   cla.type = urx::ProbeType::CURVILINEAR;
   cla.description = "Standard curvi linear probe with " + std::to_string(n) + " elements";
@@ -233,30 +233,32 @@ Probe createStandardCurviLinear(uint32_t n, double pitch, double element_width,
 
   cla.element_geometries = {eg};
   cla.impulse_responses = {std::make_shared<ImpulseResponse>()};
+  ////////////////////////////////////////////////////////////////////////////////////////
+  ///
+  /// Formulas used to create curvilinear probe element transforms:
+  ///
+  /// alpha = (-pw/2 + i * p)/R, with  alpha : angular position on the probe
+  ///                                     pw : probe width, length of the circular arc between leftmost and rightmost elements
+  ///                                      p : pitch
+  ///                                      R : curvature
+  ///
+  /// x = R sin(a), with     x : abscissa of the element
+  ///                    alpha : angular position on the probe
+  ///                        R : curvature
+  ///
+  /// y = R (cos(a) - 1) + depth, with         y : ordinate of the element
+  ///                                      alpha : angular position on the probe
+  ///                                          R : curvature
+  ///                                      depth : depth of the probe, distance between the lowest and highest element on y-axis
+  ///
 
-  const double x_min = -pitch * (n - 1.) / 2.0;
-  const double x_max = -x_min;
-  // Compute the center of the circle that goes through the 3 points A(x_min,0), B(0, depth_delta), C(x_max,0)
-  // With x_max == - x_min (x_max > 0 & x_min <0)
-  // x_0 == 0
-  // y_0 is determined using the sacalar product of vector CB(-x_max,depth_delta) with vector OD (x-x_0, y-y_0)
-  // This product equals 0 since they are orthgonals
-  // That gives the equation (x-x_max/2)(-x_max)+(y-depth_delta/2)*depth_delta = 0
-  // With x_O = 0 <=> x_max²/2+(y_0-depth_delta/2)*depth_delta = 0
-  // <=> y_0 = 1/2 * (depth_delta-x_max²/depth_delta)
-  const double y_0 = 0.5 * (depth_delta - std::pow(x_max, 2) / depth_delta);
-  const double circle_radius = depth_delta - y_0;
+  const double probe_width = pitch * (n - 1);
+  const double depth = curvature * (1 - std::cos(0.5 * probe_width / curvature));
 
   for (uint32_t i = 0; i < n; ++i) {
-    // Compute the points on the circle from x_min to x_max
-    // Linear interpolaton for x
-    // The circle equation is (x-x_0)²+(y-y_0²)=r²
-    // With x_0 == 0 <=> (y-y_0)² = r² - x²
-    // <=> y = (+/-) sqrt(r² - x²) + y_O
-    // Only y>0 are wanted
-    const double x = x_min + i / (n - 1.) * (2 * std::abs(x_min));
-    const double y = std::sqrt(std::pow(circle_radius, 2) - std::pow(x, 2)) + y_0;
-    const double alpha = -std::acos(x / circle_radius) + M_PI / 2;
+    const double alpha = (-0.5 * probe_width + i * pitch) / curvature;
+    const double x = curvature * std::sin(alpha);
+    const double y = curvature * (std::cos(alpha) - 1) + depth;
     cla.elements.push_back(
         Element{Transform{Vector3D<double>{0, alpha, 0}, Vector3D<double>{x, 0, y}},
                 std::weak_ptr<ElementGeometry>(), std::weak_ptr<ImpulseResponse>()});
