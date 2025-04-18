@@ -237,22 +237,22 @@ Probe createStandardCurviLinear(uint32_t n, double pitch, double element_width,
   ///
   /// Formulas used to create curvilinear probe element transforms:
   ///
-  /// a = (-pw/2 + i * p)/R, with pw : probe width
-  ///                              p : pitch
-  ///                              R : curvature
-  ///
-  /// x = R sin(a), with x : position of the element
-  ///                    a : angular position on the probe
-  ///                    R : curvature
-  ///
-  /// y = R (cos(a) - 1) + depth, with     y : position of the element
-  ///                                      a : angular position on the probe
+  /// alpha = (-pw/2 + i * p)/R, with  alpha : angular position on the probe
+  ///                                     pw : probe width, length of the circular arc between leftmost and rightmost elements
+  ///                                      p : pitch
   ///                                      R : curvature
-  ///                                  depth : depth of the probe
   ///
-  /// Width of the probe seen as a linear array
+  /// x = R sin(a), with     x : abscissa of the element
+  ///                    alpha : angular position on the probe
+  ///                        R : curvature
+  ///
+  /// y = R (cos(a) - 1) + depth, with         y : ordinate of the element
+  ///                                      alpha : angular position on the probe
+  ///                                          R : curvature
+  ///                                      depth : depth of the probe, distance between the lowest and highest element on y-axis
+  ///
+
   const double probe_width = pitch * (n - 1);
-  /// depth of the probe, reached for the extrema elements when the center of probe is at origin.
   const double depth = curvature * (1 - std::cos(0.5 * probe_width / curvature));
 
   for (uint32_t i = 0; i < n; ++i) {
