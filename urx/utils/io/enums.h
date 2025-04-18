@@ -4,6 +4,11 @@
 #include <unordered_map>
 #include <utility>
 
+#include <H5Cpp.h>
+
+#include <urx/enums.h>
+#include <urx/utils/export.h>
+
 namespace urx::utils::io::enums {
 template <typename T, typename U>
 std::unordered_map<U, T> invertMap(const std::unordered_map<T, U>& map) {
@@ -36,4 +41,7 @@ template <typename T>
 T stringToEnum(const std::string& enumeration);
 template <typename T>
 std::string enumToString(T enumeration);
+
+URX_UTILS_EXPORT urx::DataType h5PredTypeToDataType(const H5::DataType& pred_type);
+
 }  // namespace urx::utils::io::enums

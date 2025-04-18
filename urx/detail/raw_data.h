@@ -42,12 +42,15 @@ class RawData {
   virtual DataType getDataType() const = 0;
 
   bool operator==(const RawData& other) const {
+    // Also exist in urx::utils::group_helper::sizeofDataType.
     static std::unordered_map<DataType, size_t> group_dt_to_sizeof{
         {DataType::INT16, sizeof(int16_t)},
         {DataType::INT32, sizeof(int32_t)},
         {DataType::FLOAT, sizeof(float)},
         {DataType::DOUBLE, sizeof(double)}};
-    return std::memcmp(getBuffer(), other.getBuffer(),
+    return getSamplingType() == other.getSamplingType() && getDataType() == other.getDataType() &&
+           getSize() == other.getSize() &&
+           std::memcmp(getBuffer(), other.getBuffer(),
                        getSize() * group_dt_to_sizeof.at(getDataType()) *
                            (getSamplingType() == SamplingType::RF ? 1 : 2)) == 0;
   }
@@ -87,6 +90,7 @@ template <typename DataType>
 class RawDataVector final : public IRawData<DataType> {
  public:
   explicit RawDataVector(std::vector<DataType>&& vector) : _vector(std::move(vector)) {}
+  explicit RawDataVector(size_t size) : _vector(size) {}
   ~RawDataVector() override = default;
 
   const void* getBuffer() const override { return _vector.data(); }

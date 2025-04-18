@@ -1,6 +1,9 @@
 #include <memory>
+#include <stdexcept>
 #include <unordered_map>
 #include <utility>
+
+#include <H5Cpp.h>
 
 #include <urx/enums.h>
 #include <urx/utils/export.h>
@@ -72,6 +75,23 @@ URX_UTILS_EXPORT std::string enumToString(urx::SamplingType enumeration) {
 template <>
 URX_UTILS_EXPORT std::string enumToString(urx::DataType enumeration) {
   return enumToStringImpl(enumeration, data_to_string);
+}
+
+URX_UTILS_EXPORT urx::DataType h5PredTypeToDataType(const H5::DataType& pred_type) {
+  if (pred_type == H5::PredType::NATIVE_INT16) {
+    return urx::DataType::INT16;
+  }
+  if (pred_type == H5::PredType::NATIVE_INT32) {
+    return urx::DataType::INT32;
+  }
+  if (pred_type == H5::PredType::NATIVE_FLOAT) {
+    return urx::DataType::FLOAT;
+  }
+  if (pred_type == H5::PredType::NATIVE_DOUBLE) {
+    return urx::DataType::DOUBLE;
+  }
+
+  throw std::runtime_error(__FUNCTION__);
 }
 
 }  // namespace urx::utils::io::enums

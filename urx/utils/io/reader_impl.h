@@ -1,7 +1,5 @@
 #pragma once
-
 #include <algorithm>
-#include <complex>
 #include <cstddef>
 #include <cstdint>
 #include <functional>
@@ -23,6 +21,7 @@
 #include <urx/detail/double_nan.h>
 #include <urx/detail/raw_data.h>
 #include <urx/element_geometry.h>
+#include <urx/enums.h>
 #include <urx/excitation.h>
 #include <urx/group.h>
 #include <urx/group_data.h>
@@ -32,6 +31,7 @@
 #include <urx/utils/exception.h>
 #include <urx/utils/io/enums.h>
 #include <urx/utils/io/serialize_helper.h>
+#include <urx/utils/raw_data_helper.h>
 
 namespace urx::utils::io {
 
@@ -65,12 +65,6 @@ class ReaderBase {
   template <typename T>
   typename std::enable_if_t<TypeContainer<T>::VALUE == ContainerType::RAW> deserializeHdf5(
       const std::string& name, T& field, const H5::Group& group) {
-    if constexpr (std::is_same_v<T, urx::Dataset>) {
-      _map_to_shared_ptr[nameTypeid<Group>()] = &field.acquisition.groups;
-      _map_to_shared_ptr[nameTypeid<Probe>()] = &field.acquisition.probes;
-      _map_to_shared_ptr[nameTypeid<Excitation>()] = &field.acquisition.excitations;
-      _map_to_shared_ptr[nameTypeid<GroupData>()] = &field.acquisition.groups_data;
-    }
     // Number
     if constexpr (std::is_arithmetic_v<T>) {
       const H5::StrType datatype(*getStdToHdf5().at(nameTypeid<T>()));
@@ -100,9 +94,30 @@ class ReaderBase {
       }
 
       field = enums::stringToEnum<T>(value);
+    } else if constexpr (std::is_same_v<T, std::string>) {
+      const H5::StrType datatype(0, H5T_VARIABLE);
+      const H5::DataSpace dataspace(H5S_SCALAR);
+      if (group.nameExists(name)) {
+        const H5::DataSet dataset = group.openDataSet(name);
+        dataset.read(field, datatype, dataspace);
+      } else if (group.attrExists(name)) {
+        const H5::Attribute attribute = group.openAttribute(name);
+        attribute.read(datatype, field);
+      } else {
+        throw std::runtime_error("Failed to read " + group.getObjName() + "/" + name);
+      }
+    } else if constexpr (std::is_same_v<T, DoubleNan>) {
+      static_cast<Derived*>(this)->template deserializeHdf5<double>(name, field.value, group);
     }
+
     // Default
     else {
+      if constexpr (std::is_same_v<T, urx::Dataset>) {
+        _map_to_shared_ptr[nameTypeid<Group>()] = &field.acquisition.groups;
+        _map_to_shared_ptr[nameTypeid<Probe>()] = &field.acquisition.probes;
+        _map_to_shared_ptr[nameTypeid<Excitation>()] = &field.acquisition.excitations;
+        _map_to_shared_ptr[nameTypeid<GroupData>()] = &field.acquisition.groups_data;
+      }
       const H5::Group group_child(group.openGroup(name));
       static_cast<Derived*>(this)->template deserializeAll<T>(field, group_child);
     }
@@ -111,9 +126,13 @@ class ReaderBase {
   template <typename T>
   typename std::enable_if_t<TypeContainer<T>::VALUE == ContainerType::SHARED_PTR> deserializeHdf5(
       const std::string& name, T& field, const H5::Group& group) {
-    field = std::make_shared<typename T::element_type>();
-    static_cast<Derived*>(this)->template deserializeHdf5<typename T::element_type>(name, *field,
-                                                                                    group);
+    if constexpr (std::is_same_v<T, std::shared_ptr<RawData>>) {
+      static_cast<Derived*>(this)->template deserializeAll<std::shared_ptr<RawData>>(field, group);
+    } else {
+      field = std::make_shared<typename T::element_type>();
+      static_cast<Derived*>(this)->template deserializeHdf5<typename T::element_type>(name, *field,
+                                                                                      group);
+    }
   }
 
   template <typename T>
@@ -211,7 +230,7 @@ class ReaderBase {
         for (char* str_i : field_char) {
           field.push_back(str_i);
           // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
-          delete[] str_i;
+          free(str_i);
         }
       }
     } else {
@@ -283,37 +302,6 @@ class ReaderBase {
   }
 
   template <typename T>
-  typename std::enable_if_t<std::is_same_v<T, std::string> &&
-                            TypeContainer<T>::VALUE == ContainerType::RAW>
-  deserializeHdf5(const std::string& name, std::string& field, const H5::Group& group) {
-    const H5::StrType datatype(0, H5T_VARIABLE);
-    const H5::DataSpace dataspace(H5S_SCALAR);
-    if (group.nameExists(name)) {
-      const H5::DataSet dataset = group.openDataSet(name);
-      dataset.read(field, datatype, dataspace);
-    } else if (group.attrExists(name)) {
-      const H5::Attribute attribute = group.openAttribute(name);
-      attribute.read(datatype, field);
-    } else {
-      throw std::runtime_error("Failed to read " + group.getObjName() + "/" + name);
-    }
-  }
-
-  template <typename T>
-  typename std::enable_if_t<std::is_same_v<T, DoubleNan> &&
-                            TypeContainer<T>::VALUE == ContainerType::RAW>
-  deserializeHdf5(const std::string& name, DoubleNan& field, const H5::Group& group) {
-    static_cast<Derived*>(this)->template deserializeHdf5<double>(name, field.value, group);
-  }
-
-  template <typename T>
-  typename std::enable_if_t<std::is_same_v<T, std::shared_ptr<RawData>> &&
-                            TypeContainer<T>::VALUE == ContainerType::SHARED_PTR>
-  deserializeHdf5(const std::string&, std::shared_ptr<RawData>& field, const H5::Group& group) {
-    static_cast<Derived*>(this)->template deserializeAll<std::shared_ptr<RawData>>(field, group);
-  }
-
-  template <typename T>
   void deserializeAll(T& field, const H5::Group& group) {
     // Need to update map for Probe.
     if constexpr (std::is_same_v<T, Probe>) {
@@ -348,58 +336,16 @@ class ReaderBase {
     }
     const H5::DataSet dataset = group.openDataSet("raw_data");
     const H5::DataSpace dataspace = dataset.getSpace();
-    const H5::DataType datatype_raw = dataset.getDataType();
-    const H5::DataType datatype = [&dataset, &datatype_raw]() {
-      if (datatype_raw.getClass() == H5T_COMPOUND) {
-        return dataset.getCompType().getMemberDataType(0);
-      }
-      return datatype_raw;
-    }();
+    const H5::DataType datatype = dataset.getDataType();
 
-    const int ndims = dataspace.getSimpleExtentNdims();
-    if ((datatype_raw.getClass() == H5T_COMPOUND && ndims != 1) ||
-        (datatype_raw.getClass() != H5T_COMPOUND && ndims != 2)) {
-      throw std::runtime_error("Invalid dimension of raw_data");
-    }
-    std::vector<hsize_t> dimension;
-    dimension.resize(2);
-    dataspace.getSimpleExtentDims(dimension.data());
-    if (datatype_raw.getClass() == H5T_COMPOUND) {
-      dimension[1] = dataset.getCompType().getNmembers();
-    }
+    hsize_t dimension[2];
+    dataspace.getSimpleExtentDims(dimension);
 
-    if (datatype == H5::PredType::NATIVE_INT16) {
-      if (dimension[1] == 1) {
-        field = std::make_shared<RawDataNoInit<int16_t>>(static_cast<size_t>(dimension[0]));
-      } else {
-        field = std::make_shared<RawDataNoInit<std::complex<int16_t>>>(
-            static_cast<size_t>(dimension[0]));
-      }
-    } else if (datatype == H5::PredType::NATIVE_INT32) {
-      if (dimension[1] == 1) {
-        field = std::make_shared<RawDataNoInit<int32_t>>(static_cast<size_t>(dimension[0]));
-      } else {
-        field = std::make_shared<RawDataNoInit<std::complex<int32_t>>>(
-            static_cast<size_t>(dimension[0]));
-      }
-    } else if (datatype == H5::PredType::NATIVE_FLOAT) {
-      if (dimension[1] == 1) {
-        field = std::make_shared<RawDataNoInit<float>>(static_cast<size_t>(dimension[0]));
-      } else {
-        field =
-            std::make_shared<RawDataNoInit<std::complex<float>>>(static_cast<size_t>(dimension[0]));
-      }
-    } else if (datatype == H5::PredType::NATIVE_DOUBLE) {
-      if (dimension[1] == 1) {
-        field = std::make_shared<RawDataNoInit<double>>(static_cast<size_t>(dimension[0]));
-      } else {
-        field = std::make_shared<RawDataNoInit<std::complex<double>>>(
-            static_cast<size_t>(dimension[0]));
-      }
-    } else
-      throw std::runtime_error("Invalid format of raw_data");
+    field = urx::utils::rawDataFactory(urx::utils::io::enums::h5PredTypeToDataType(datatype),
+                                       dimension[1] == 1 ? SamplingType::RF : SamplingType::IQ,
+                                       dimension[0]);
 
-    dataset.read(field->getBuffer(), datatype_raw);
+    dataset.read(field->getBuffer(), datatype);
   }
 
  private:
@@ -414,45 +360,43 @@ class ReaderBase {
 
 template <typename Dataset, typename AllTypeInVariant,
           template <typename, typename, typename...> class Base>
-class ReaderDataset
-    : public Base<Dataset, AllTypeInVariant, ReaderDataset<Dataset, AllTypeInVariant, Base>> {
+class ReaderDatasetBase
+    : public Base<Dataset, AllTypeInVariant, ReaderDatasetBase<Dataset, AllTypeInVariant, Base>> {
  public:
-  explicit ReaderDataset(std::string filename)
-      : Base<Dataset, AllTypeInVariant, ReaderDataset<Dataset, AllTypeInVariant, Base>>(),
-        _dataset(std::make_shared<Dataset>()),
-        _filename(std::move(filename)) {}
+  explicit ReaderDatasetBase()
+      : Base<Dataset, AllTypeInVariant, ReaderDatasetBase<Dataset, AllTypeInVariant, Base>>() {}
 
-  void read() {
-    try {
-      const H5::H5File file(_filename.data(), H5F_ACC_RDONLY);
+  void read(const H5::H5File& h5_file, Dataset& dataset) {
+    this->init(dataset);
 
-      this->init(*_dataset);
+    this->template deserializeHdf5<Dataset>("dataset", dataset, h5_file);
 
-      this->template deserializeHdf5<Dataset>("dataset", *_dataset, file);
-
-      for (auto& funct : this->_async_weak_assign) {
-        funct();
-      }
-    } catch (const H5::FileIException&) {
-      throw ReadFileException("Failed to read " + _filename + ".");
+    for (auto& funct : this->_async_weak_assign) {
+      funct();
     }
 
-    if (_dataset->version.major != urx::URX_VERSION_MAJOR) {
-      _dataset = nullptr;
+    if (dataset.version.major != urx::URX_VERSION_MAJOR) {
+      throw ReadFileException("Reader only support urx version " +
+                              std::to_string(urx::URX_VERSION_MAJOR) + ". File has version " +
+                              std::to_string(dataset.version.major) + ".");
     }
 
-    _dataset->version.minor = urx::URX_VERSION_MINOR;
-    _dataset->version.patch = urx::URX_VERSION_PATCH;
+    dataset.version.minor = urx::URX_VERSION_MINOR;
+    dataset.version.patch = urx::URX_VERSION_PATCH;
   }
 
-  std::shared_ptr<Dataset> getDataset() { return _dataset; }
+  void read(const std::string& filename, Dataset& dataset) {
+    try {
+      const H5::H5File file(filename.data(), H5F_ACC_RDONLY);
 
-  const std::string& getFilename() const { return _filename; }
-  void setFilename(const std::string& filename) { _filename = filename; }
-
- private:
-  std::shared_ptr<Dataset> _dataset;
-  std::string _filename;
+      read(file, dataset);
+    } catch (const H5::FileIException&) {
+      throw ReadFileException("Failed to read " + filename + ".");
+    }
+  }
 };
+
+using ReaderDataset =
+    urx::utils::io::ReaderDatasetBase<Dataset, AllTypeInVariant, urx::utils::io::ReaderBase>;
 
 }  // namespace urx::utils::io
