@@ -20,7 +20,9 @@
 
 namespace urx::utils::probe_helper {
 
-#define M_PI 3.14159265358979323846 /* pi */
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 void updateRcaElementsPositions(Probe& rca, const Vector2D<uint32_t>& nb_elements,
                                 const Vector2D<double>& pitch) {
