@@ -1,7 +1,7 @@
 #pragma once
 #include <algorithm>
-#include <cstddef>
 #include <cstdint>
+#include <cstdlib>
 #include <functional>
 #include <iterator>
 #include <memory>
@@ -30,21 +30,11 @@
 #include <urx/urx.h>
 #include <urx/utils/exception.h>
 #include <urx/utils/io/enums.h>
+#include <urx/utils/io/reader_options.h>
 #include <urx/utils/io/serialize_helper.h>
 #include <urx/utils/raw_data_helper.h>
 
 namespace urx::utils::io {
-
-enum class ReaderGroupDataStrategy {
-  // RawData is loaded in memory when read method is called
-  FULL,
-  // RawData is never stored in memory.
-  STREAM
-};
-
-struct ReaderParam {
-  ReaderGroupDataStrategy group_data_strategy = ReaderGroupDataStrategy::FULL;
-};
 
 template <typename Dataset, typename AllTypeInVariant, typename Derived>
 class ReaderBase {
@@ -303,53 +293,56 @@ class ReaderBase {
 
   template <typename T>
   void deserializeAll(T& field, const H5::Group& group) {
-    // Need to update map for Probe.
-    if constexpr (std::is_same_v<T, Probe>) {
-      _map_to_shared_ptr.insert({nameTypeid<ElementGeometry>(), &field.element_geometries});
-      _map_to_shared_ptr.insert({nameTypeid<ImpulseResponse>(), &field.impulse_responses});
-    }
+    if constexpr (std::is_same_v<T, std::shared_ptr<RawData>>) {
+      if (!group.nameExists("raw_data") ||
+          _options.getRawDataLoadPolicy() != RawDataLoadPolicy::FULL) {
+        return;
+      }
+      const H5::DataSet dataset = group.openDataSet("raw_data");
+      const H5::DataSpace dataspace = dataset.getSpace();
+      const H5::DataType datatype = dataset.getDataType();
 
-    for (const auto& kv : _data_field.at(nameTypeid<T>())) {
-      std::visit(
-          [this, name = kv.second, field_ptr = &field, &group](auto* var) {
-            static_cast<Derived*>(this)
-                ->template deserializeHdf5<std::remove_pointer_t<decltype(var)>>(
-                    name,
-                    *reinterpret_cast<decltype(var)>(reinterpret_cast<std::uintptr_t>(field_ptr) +
-                                                     reinterpret_cast<std::uintptr_t>(var)),
-                    group);
-          },
-          std::get<0>(kv));
-    }
+      hsize_t dimension[2];
+      dataspace.getSimpleExtentDims(dimension);
 
-    if constexpr (std::is_same_v<T, Probe>) {
-      _map_to_shared_ptr.erase(nameTypeid<ElementGeometry>());
-      _map_to_shared_ptr.erase(nameTypeid<ImpulseResponse>());
+      field = urx::utils::rawDataFactory(urx::utils::io::enums::h5PredTypeToDataType(datatype),
+                                         dimension[1] == 1 ? SamplingType::RF : SamplingType::IQ,
+                                         dimension[0]);
+
+      dataset.read(field->getBuffer(), datatype);
+    } else {
+      // Need to update map for Probe.
+      if constexpr (std::is_same_v<T, Probe>) {
+        _map_to_shared_ptr.insert({nameTypeid<ElementGeometry>(), &field.element_geometries});
+        _map_to_shared_ptr.insert({nameTypeid<ImpulseResponse>(), &field.impulse_responses});
+      }
+
+      for (const auto& kv : _data_field.at(nameTypeid<T>())) {
+        std::visit(
+            [this, name = kv.second, field_ptr = &field, &group](auto* var) {
+              static_cast<Derived*>(this)
+                  ->template deserializeHdf5<std::remove_pointer_t<decltype(var)>>(
+                      name,
+                      *reinterpret_cast<decltype(var)>(reinterpret_cast<std::uintptr_t>(field_ptr) +
+                                                       reinterpret_cast<std::uintptr_t>(var)),
+                      group);
+            },
+            std::get<0>(kv));
+      }
+
+      if constexpr (std::is_same_v<T, Probe>) {
+        _map_to_shared_ptr.erase(nameTypeid<ElementGeometry>());
+        _map_to_shared_ptr.erase(nameTypeid<ImpulseResponse>());
+      }
     }
   }
 
-  template <typename T = std::shared_ptr<RawData>>
-  void deserializeAll(std::shared_ptr<RawData>& field, const H5::Group& group) {
-    if (!group.nameExists("raw_data") ||
-        _param.group_data_strategy != ReaderGroupDataStrategy::FULL) {
-      return;
-    }
-    const H5::DataSet dataset = group.openDataSet("raw_data");
-    const H5::DataSpace dataspace = dataset.getSpace();
-    const H5::DataType datatype = dataset.getDataType();
-
-    hsize_t dimension[2];
-    dataspace.getSimpleExtentDims(dimension);
-
-    field = urx::utils::rawDataFactory(urx::utils::io::enums::h5PredTypeToDataType(datatype),
-                                       dimension[1] == 1 ? SamplingType::RF : SamplingType::IQ,
-                                       dimension[0]);
-
-    dataset.read(field->getBuffer(), datatype);
-  }
+  const ReaderOptions& getOptions() const { return _options; }
+  ReaderOptions& getOptions() { return _options; }
+  void setOptions(const ReaderOptions& options) { _options = options; }
 
  private:
-  ReaderParam _param;
+  ReaderOptions _options;
 
  protected:
   MapToSharedPtr _map_to_shared_ptr;

@@ -83,6 +83,9 @@ class IRawData : public RawData {
     return typeid_to_dt.at(type);
   };
 
+  const T* getTypedBuffer() const { return static_cast<const T*>(getBuffer()); };
+  T* getTypedBuffer() { return static_cast<T*>(getBuffer()); };
+
   ~IRawData() override = default;
 };
 

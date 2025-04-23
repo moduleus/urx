@@ -94,4 +94,21 @@ URX_UTILS_EXPORT urx::DataType h5PredTypeToDataType(const H5::DataType& pred_typ
   throw std::runtime_error(__FUNCTION__);
 }
 
+URX_UTILS_EXPORT const H5::PredType& dataTypeToH5PredType(urx::DataType data_type) {
+  if (data_type == urx::DataType::INT16) {
+    return H5::PredType::NATIVE_INT16;
+  }
+  if (data_type == urx::DataType::INT32) {
+    return H5::PredType::NATIVE_INT32;
+  }
+  if (data_type == urx::DataType::FLOAT) {
+    return H5::PredType::NATIVE_FLOAT;
+  }
+  if (data_type == urx::DataType::DOUBLE) {
+    return H5::PredType::NATIVE_DOUBLE;
+  }
+
+  throw std::runtime_error(__FUNCTION__);
+}
+
 }  // namespace urx::utils::io::enums

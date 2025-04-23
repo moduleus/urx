@@ -49,6 +49,7 @@ if(WITH_HDF5)
     ${CMAKE_CURRENT_SOURCE_DIR}/io/enums.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/io/reader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/io/serialize_helper.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/io/stream.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/io/writer.cpp)
   list(
     APPEND

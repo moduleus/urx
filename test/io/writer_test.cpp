@@ -1,4 +1,6 @@
 ﻿#include <algorithm>
+#include <complex>
+#include <cstring>
 #include <filesystem>
 #include <memory>
 #include <string>
@@ -19,6 +21,7 @@
 #include <urx/probe.h>
 #include <urx/utils/exception.h>
 #include <urx/utils/io/reader.h>
+#include <urx/utils/io/reader_options.h>
 #include <urx/utils/io/stream.h>
 #include <urx/utils/io/test/io.h>
 #include <urx/utils/io/writer.h>
@@ -59,20 +62,42 @@ TEST_CASE("Stream HDF5 file", "[hdf5_writer][hdf5_reader]") {
   }
 
   const std::shared_ptr<urx::RawData> raw_data_vector_double =
-      std::make_shared<RawDataVector<double>>(std::vector<double>{1.2, 3.4, -5.6});
+      std::make_shared<RawDataVector<std::complex<double>>>(
+          std::vector<std::complex<double>>{{1.2, 9.5}, {3.4, -6.4}, {-5.6, -99.8}, {5.6, 99.8}});
   const std::shared_ptr<urx::RawData> raw_data_vector_double2 =
-      std::make_shared<RawDataVector<double>>(std::vector<double>{12., 34., -56., 15.3});
+      std::make_shared<RawDataVector<std::complex<double>>>(
+          std::vector<std::complex<double>>{{12., -11.2}, {34., -7.1}, {-56., 8.7}, {15.3, -1.2}});
   const std::shared_ptr<urx::RawData> raw_data_vector_short =
-      std::make_shared<RawDataVector<short>>(std::vector<short>{12, 456});
+      std::make_shared<RawDataVector<short>>(std::vector<short>{12, 456, -12, -456});
   const std::shared_ptr<urx::RawData> raw_data_vector_short2 =
-      std::make_shared<RawDataVector<short>>(std::vector<short>{987, 654, 312});
+      std::make_shared<RawDataVector<short>>(std::vector<short>{987, 654, 312, -312});
 
+  const std::shared_ptr<urx::RawDataVector<std::complex<double>>> raw_data_double =
+      std::make_shared<urx::RawDataVector<std::complex<double>>>(
+          raw_data_vector_double->getSize() + raw_data_vector_double2->getSize());
+  memcpy(static_cast<std::complex<double>*>(raw_data_double->getBuffer()),
+         raw_data_vector_double->getBuffer(),
+         sizeof(std::complex<double>) * raw_data_vector_double->getSize());
+  memcpy(static_cast<std::complex<double>*>(raw_data_double->getBuffer()) +
+             raw_data_vector_double->getSize(),
+         raw_data_vector_double2->getBuffer(),
+         sizeof(std::complex<double>) * raw_data_vector_double2->getSize());
+
+  const std::shared_ptr<urx::RawDataVector<short>> raw_data_short =
+      std::make_shared<urx::RawDataVector<short>>(raw_data_vector_short->getSize() +
+                                                  raw_data_vector_short2->getSize());
+  memcpy(static_cast<short*>(raw_data_short->getBuffer()), raw_data_vector_short->getBuffer(),
+         sizeof(short) * raw_data_vector_short->getSize());
+  memcpy(static_cast<short*>(raw_data_short->getBuffer()) + raw_data_vector_short->getSize(),
+         raw_data_vector_short2->getBuffer(), sizeof(short) * raw_data_vector_short2->getSize());
+
+  // Write using stream.
   {
     Stream stream(filename, dataset);
     stream.saveToFile();
 
     {
-      stream.getWriter().getOptions().setChunkGroupData(false);
+      stream.setChunkGroupData(false);
       urx::utils::io::GroupDataStream group_data =
           stream.createGroupData(dataset->acquisition.groups.front(), urx::DoubleNan(1.));
 
@@ -81,7 +106,7 @@ TEST_CASE("Stream HDF5 file", "[hdf5_writer][hdf5_reader]") {
     }
 
     {
-      stream.getWriter().getOptions().setChunkGroupData(true);
+      stream.setChunkGroupData(true);
       urx::utils::io::GroupDataStream group_data =
           stream.createGroupData(dataset->acquisition.groups.front(), urx::DoubleNan(2.));
 
@@ -90,40 +115,59 @@ TEST_CASE("Stream HDF5 file", "[hdf5_writer][hdf5_reader]") {
     }
   }
 
-  auto dataset_loaded = reader::loadFromFile(filename);
-
+  // Full read
   {
-    const urx::GroupData& group_data_double =
-        dataset_loaded->acquisition.groups_data[dataset_loaded->acquisition.groups_data.size() - 2];
-    const std::shared_ptr<urx::RawDataVector<double>> raw_data_double =
-        std::make_shared<urx::RawDataVector<double>>(raw_data_vector_double->getSize() +
-                                                     raw_data_vector_double2->getSize());
-    memcpy(static_cast<double*>(raw_data_double->getBuffer()), raw_data_vector_double->getBuffer(),
-           sizeof(double) * raw_data_vector_double->getSize());
-    memcpy(static_cast<double*>(raw_data_double->getBuffer()) + raw_data_vector_double->getSize(),
-           raw_data_vector_double2->getBuffer(),
-           sizeof(double) * raw_data_vector_double2->getSize());
+    auto dataset_loaded = reader::loadFromFile(filename);
 
-    REQUIRE(group_data_double.sequence_timestamps == std::vector<double>{1.2, 12});
-    REQUIRE(group_data_double.event_timestamps ==
-            std::vector<std::vector<double>>{{2.3, 3.4, 4.5}, {23., 34., 45.}});
-    REQUIRE(*group_data_double.raw_data == *raw_data_double);
+    {
+      const urx::GroupData& group_data_double =
+          dataset_loaded->acquisition
+              .groups_data[dataset_loaded->acquisition.groups_data.size() - 2];
+
+      REQUIRE(group_data_double.sequence_timestamps == std::vector<double>{1.2, 12});
+      REQUIRE(group_data_double.event_timestamps ==
+              std::vector<std::vector<double>>{{2.3, 3.4, 4.5}, {23., 34., 45.}});
+      REQUIRE(*group_data_double.raw_data == *raw_data_double);
+    }
+
+    {
+      const urx::GroupData& group_data_short =
+          dataset_loaded->acquisition
+              .groups_data[dataset_loaded->acquisition.groups_data.size() - 1];
+
+      REQUIRE(group_data_short.sequence_timestamps == std::vector<double>{9., 5.});
+      REQUIRE(group_data_short.event_timestamps ==
+              std::vector<std::vector<double>>{{8.}, {8., 9.4}});
+      REQUIRE(*group_data_short.raw_data == *raw_data_short);
+    }
   }
 
+  // Stream read
   {
-    const urx::GroupData& group_data_short =
-        dataset_loaded->acquisition.groups_data[dataset_loaded->acquisition.groups_data.size() - 1];
-    const std::shared_ptr<urx::RawDataVector<short>> raw_data_short =
-        std::make_shared<urx::RawDataVector<short>>(raw_data_vector_short->getSize() +
-                                                    raw_data_vector_short2->getSize());
-    memcpy(static_cast<short*>(raw_data_short->getBuffer()), raw_data_vector_short->getBuffer(),
-           sizeof(short) * raw_data_vector_short->getSize());
-    memcpy(static_cast<short*>(raw_data_short->getBuffer()) + raw_data_vector_short->getSize(),
-           raw_data_vector_short2->getBuffer(), sizeof(short) * raw_data_vector_short2->getSize());
+    const std::shared_ptr<Dataset> dataset_loaded = std::make_shared<Dataset>();
+    Stream stream(filename, dataset_loaded);
+    stream.setRawDataLoadPolicy(urx::utils::io::RawDataLoadPolicy::STREAM);
+    stream.loadFromFile();
 
-    REQUIRE(group_data_short.sequence_timestamps == std::vector<double>{9., 5.});
-    REQUIRE(group_data_short.event_timestamps == std::vector<std::vector<double>>{{8.}, {8., 9.4}});
-    REQUIRE(*group_data_short.raw_data == *raw_data_short);
+    const std::shared_ptr<urx::RawData> buffer_double =
+        std::make_shared<urx::RawDataVector<std::complex<double>>>(8);
+    const std::shared_ptr<urx::RawData> buffer_short =
+        std::make_shared<urx::RawDataVector<short>>(8);
+    {
+      stream.readRawData(dataset_loaded->acquisition.groups_data.size() - 2, buffer_double, 0, 0,
+                         1);
+      stream.readRawData(dataset_loaded->acquisition.groups_data.size() - 2, buffer_double, 1, 1,
+                         1);
+
+      REQUIRE(*buffer_double == *raw_data_double);
+    }
+
+    {
+      stream.readRawData(dataset_loaded->acquisition.groups_data.size() - 1, buffer_short, 0, 0, 1);
+      stream.readRawData(dataset_loaded->acquisition.groups_data.size() - 1, buffer_short, 1, 1, 1);
+
+      REQUIRE(*buffer_short == *raw_data_short);
+    }
   }
 }
 
