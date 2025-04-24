@@ -14,6 +14,8 @@ URX_UTILS_EXPORT void updateMatrixElementsPositions(Probe& matrix,
                                                     const Vector2D<double>& pitch);
 URX_UTILS_EXPORT void updateLinearElementsPositions(Probe& linear, uint32_t nb_elements,
                                                     double pitch);
+URX_UTILS_EXPORT void updateCurvilinearElementsPositions(Probe& curvi, uint32_t nb_elements,
+                                                         double pitch, double curvature);
 
 URX_UTILS_EXPORT void updateRcaElementsRectGeometry(Probe& probe,
                                                     const Vector2D<uint32_t>& nb_elements,

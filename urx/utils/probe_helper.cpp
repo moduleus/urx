@@ -72,6 +72,24 @@ void updateLinearElementsPositions(Probe& linear, uint32_t nb_elements, double p
   }
 }
 
+void updateCurvilinearElementsPositions(Probe& curvi, uint32_t nb_elements, double pitch,
+                                        double curvature) {
+  curvi.elements.resize(nb_elements);
+  const double probe_width = pitch * (nb_elements - 1);
+  const double depth = curvature * (1 - std::cos(0.5 * probe_width / curvature));
+
+  for (uint32_t i = 0; i < nb_elements; ++i) {
+    const double alpha = (-0.5 * probe_width + i * pitch) / curvature;
+    const double x = curvature * std::sin(alpha);
+    const double y = curvature * (std::cos(alpha) - 1) + depth;
+
+    Element el;
+    el.transform.translation = {x, 0, y};
+    el.transform.rotation = {0, alpha, 0};
+    curvi.elements[i] = el;
+  }
+}
+
 void updateRcaElementsRectGeometry(Probe& probe, const Vector2D<uint32_t>& nb_elements,
                                    const Vector2D<double>& col_size,
                                    const Vector2D<double>& row_size) {
@@ -80,7 +98,8 @@ void updateRcaElementsRectGeometry(Probe& probe, const Vector2D<uint32_t>& nb_el
 
   if (nb_elements.x + nb_elements.y != n_els) {
     throw std::runtime_error(
-        "updateRcaElementsRectGeometry(): nb_elements.x + nb_elements.y != probe.elements.size()");
+        "updateRcaElementsRectGeometry(): nb_elements.x + nb_elements.y != "
+        "probe.elements.size()");
   }
 
   if (n_els == 0) {
@@ -142,6 +161,10 @@ void updateLinearElementsRectGeometry(Probe& probe, const Vector2D<double>& size
   for (auto& element : probe.elements) {
     element.element_geometry = sh_el_geom;
   }
+}
+
+void updateCurvilinearElementsRectGeometry(Probe& probe, const Vector2D<double>& size) {
+  updateLinearElementsRectGeometry(probe, size);
 }
 
 Probe createStandardRca(uint32_t n_x, uint32_t n_y, double pitch_x, double pitch_y,
