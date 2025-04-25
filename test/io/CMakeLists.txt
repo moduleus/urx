@@ -1,6 +1,6 @@
 find_package(Catch2 REQUIRED)
 
-set(SRCS_FILES writer_test.cpp)
+set(SRCS_FILES writer_test.cpp ../resources.cpp ../resources.h)
 
 add_executable(UrxTestIo ${SRCS_FILES})
 if(ENABLE_PCH)
@@ -22,6 +22,7 @@ target_link_libraries(
   PRIVATE Urx::Urx Urx::UrxUtils hdf5::hdf5-${SEARCH_TYPE}
           hdf5::hdf5_cpp-${SEARCH_TYPE} Catch2::Catch2WithMain
           Urx::UrxCompilerFlags)
+target_compile_definitions(UrxTestIo PRIVATE TEST_DATA_PATH="${TEST_DATA_PATH}")
 
 if(MSVC)
   target_compile_options(UrxTestIo PRIVATE /utf-8)

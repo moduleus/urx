@@ -7,8 +7,12 @@
 #include <utility>
 #include <vector>
 
+#include <catch2/benchmark/catch_benchmark.hpp>
+#include <catch2/catch_session.hpp>
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
+
+#include "../resources.h"
 
 #include <urx/acquisition.h>
 #include <urx/dataset.h>
@@ -169,6 +173,25 @@ TEST_CASE("Stream HDF5 file", "[hdf5_writer][hdf5_reader]") {
       REQUIRE(*buffer_short == *raw_data_short);
     }
   }
+}
+
+TEST_CASE("Benchmark stream HDF5 file", "[hdf5_reader]") {
+  std::string filename = ::test::getDataTestPath() + "/rca.urx";
+
+  BENCHMARK_ADVANCED("Fibonacci 20")(Catch::Benchmark::Chronometer meter) {
+    if (std::filesystem::exists(filename)) {
+      REQUIRE(std::filesystem::remove(filename));
+    }
+
+    const std::shared_ptr<Dataset> dataset_loaded = std::make_shared<Dataset>();
+    Stream stream(filename, dataset_loaded);
+    stream.setRawDataLoadPolicy(urx::utils::io::RawDataLoadPolicy::STREAM);
+    stream.loadFromFile();
+
+    meter.measure([] {
+
+    });
+  };
 }
 
 TEST_CASE("Read failure HDF5 file", "[hdf5_reader]") {
