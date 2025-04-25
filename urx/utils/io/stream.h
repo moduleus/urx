@@ -27,6 +27,8 @@ class GroupDataStream {
   URX_UTILS_EXPORT void append(const std::shared_ptr<RawData>& raw_data, double sequence_timestamp,
                                const std::vector<double>& event_timestamp);
 
+  URX_UTILS_EXPORT urx::GroupData& getGroupData();
+
  private:
   std::vector<urx::GroupData>* _group_data;
   size_t _group_data_idx;

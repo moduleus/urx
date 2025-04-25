@@ -1,16 +1,26 @@
 ﻿#include <algorithm>
+#include <chrono>
 #include <complex>
 #include <cstring>
 #include <filesystem>
+#include <iostream>
 #include <memory>
+#include <ostream>
 #include <string>
 #include <utility>
 #include <vector>
 
 #include <catch2/benchmark/catch_benchmark.hpp>
+#include <catch2/benchmark/catch_chronometer.hpp>
+#include <catch2/benchmark/catch_estimate.hpp>
+#include <catch2/benchmark/detail/catch_benchmark_stats.hpp>
+#include <catch2/catch_config.hpp>
 #include <catch2/catch_session.hpp>
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
+#include <catch2/interfaces/catch_interfaces_config.hpp>
+#include <catch2/reporters/catch_reporter_event_listener.hpp>
+#include <catch2/reporters/catch_reporter_registrars.hpp>
 
 #include "../resources.h"
 
@@ -19,17 +29,50 @@
 #include <urx/detail/compare.h>
 #include <urx/detail/double_nan.h>
 #include <urx/detail/raw_data.h>
+#include <urx/event.h>
 #include <urx/excitation.h>
 #include <urx/group.h>
 #include <urx/group_data.h>
 #include <urx/probe.h>
 #include <urx/utils/exception.h>
+#include <urx/utils/group_data_reader.h>
 #include <urx/utils/io/reader.h>
 #include <urx/utils/io/reader_options.h>
 #include <urx/utils/io/stream.h>
 #include <urx/utils/io/test/io.h>
 #include <urx/utils/io/writer.h>
 #include <urx/utils/io/writer_options.h>
+#include <urx/utils/raw_data_helper.h>
+
+namespace {
+size_t byte_count = 0;
+}
+
+class ComputeBandwidthReporter : public Catch::EventListenerBase {
+ public:
+  using Catch::EventListenerBase::EventListenerBase;
+
+  void benchmarkEnded(Catch::BenchmarkStats<> const& benchmark_stats) override {
+    std::cout << "\n[speed] "
+              << byte_count / (benchmark_stats.mean.point.count() / 1'000'000'000) / 1024 / 1024
+              << "Mo/s\n";
+  }
+};
+
+class ConfigDataSession : public Catch::Session {
+ public:
+  ConfigDataSession() {
+    auto& config_data = configData();
+    config_data.benchmarkSamples = 10;
+  }
+};
+
+CATCH_REGISTER_LISTENER(ComputeBandwidthReporter)
+
+int main(int argc, char* argv[]) {
+  ConfigDataSession session;
+  return session.run(argc, argv);
+}
 
 namespace urx::utils::io::test {
 
@@ -175,21 +218,66 @@ TEST_CASE("Stream HDF5 file", "[hdf5_writer][hdf5_reader]") {
   }
 }
 
-TEST_CASE("Benchmark stream HDF5 file", "[hdf5_reader]") {
+TEST_CASE("Benchmark stream HDF5 file", "[hdf5_reader][hdf5_writer]") {
   std::string filename = ::test::getDataTestPath() + "/rca.urx";
 
-  BENCHMARK_ADVANCED("Fibonacci 20")(Catch::Benchmark::Chronometer meter) {
-    if (std::filesystem::exists(filename)) {
-      REQUIRE(std::filesystem::remove(filename));
+  auto i = GENERATE(1, 10, 100, 1000);
+
+  BENCHMARK_ADVANCED("Stream write " + std::to_string(i) + " seq")
+  (Catch::Benchmark::Chronometer meter) {
+    if (std::filesystem::exists(filename + ".tmp")) {
+      REQUIRE(std::filesystem::remove(filename + ".tmp"));
     }
+    REQUIRE(std::filesystem::copy_file(filename, filename + ".tmp"));
 
     const std::shared_ptr<Dataset> dataset_loaded = std::make_shared<Dataset>();
-    Stream stream(filename, dataset_loaded);
+    Stream stream(filename + ".tmp", dataset_loaded);
+    stream.setRawDataLoadPolicy(urx::utils::io::RawDataLoadPolicy::STREAM);
+    stream.setChunkGroupData(true);
+    stream.loadFromFile();
+
+    urx::utils::io::GroupDataStream group_data =
+        stream.createGroupData(dataset_loaded->acquisition.groups.front(), urx::DoubleNan(1.));
+
+    const urx::utils::GroupDataReader group_data_reader(group_data.getGroupData());
+
+    const std::shared_ptr<urx::RawDataVector<short>> raw_data =
+        std::make_shared<urx::RawDataVector<short>>(group_data_reader.offset(1, 0, 0, 0));
+
+    const urx::utils::RawDataHelper raw_data_helper(raw_data.get());
+
+    byte_count = raw_data->getSize() * raw_data_helper.sizeofSample() * i;
+
+    std::vector<double> event_timestamp(group_data.getGroupData().group.lock()->sequence.size());
+
+    meter.measure(
+        [&group_data2 = group_data, &raw_data2 = raw_data, &event_timestamp2 = event_timestamp, i] {
+          for (int j = 0; j < i; j++) {
+            group_data2.append(raw_data2, 1.2, event_timestamp2);
+          }
+        });
+  };
+
+  BENCHMARK_ADVANCED("Stream read " + std::to_string(i) + " seq")
+  (Catch::Benchmark::Chronometer meter) {
+    const std::shared_ptr<Dataset> dataset_loaded = std::make_shared<Dataset>();
+    Stream stream(filename + ".tmp", dataset_loaded);
     stream.setRawDataLoadPolicy(urx::utils::io::RawDataLoadPolicy::STREAM);
     stream.loadFromFile();
 
-    meter.measure([] {
+    const urx::utils::GroupDataReader group_data_reader(dataset_loaded->acquisition.groups_data[0]);
 
+    const std::shared_ptr<urx::RawDataVector<short>> raw_data =
+        std::make_shared<urx::RawDataVector<short>>(group_data_reader.offset(1, 0, 0, 0));
+
+    const urx::utils::RawDataHelper raw_data_helper(raw_data.get());
+
+    byte_count = raw_data->getSize() * raw_data_helper.sizeofSample() * i;
+
+    meter.measure([&stream2 = stream, &raw_data2 = raw_data, i] {
+      for (int j = 0; j < i; j++) {
+        stream2.readRawData(0, raw_data2, 0, j, 1);
+      }
     });
   };
 }

@@ -20,8 +20,7 @@ endif()
 target_link_libraries(
   UrxTestIo
   PRIVATE Urx::Urx Urx::UrxUtils hdf5::hdf5-${SEARCH_TYPE}
-          hdf5::hdf5_cpp-${SEARCH_TYPE} Catch2::Catch2WithMain
-          Urx::UrxCompilerFlags)
+          hdf5::hdf5_cpp-${SEARCH_TYPE} Catch2::Catch2 Urx::UrxCompilerFlags)
 target_compile_definitions(UrxTestIo PRIVATE TEST_DATA_PATH="${TEST_DATA_PATH}")
 
 if(MSVC)

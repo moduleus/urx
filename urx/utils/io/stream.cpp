@@ -13,9 +13,11 @@
 #include <urx/group.h>
 #include <urx/group_data.h>
 #include <urx/utils/common.h>
+#include <urx/utils/export.h>
 #include <urx/utils/group_data_reader.h>
 #include <urx/utils/group_helper.h>
 #include <urx/utils/io/enums.h>
+#include <urx/utils/io/reader_options.h>
 #include <urx/utils/io/serialize_helper.h>
 #include <urx/utils/io/writer_impl.h>
 #include <urx/utils/io/writer_options.h>
@@ -58,6 +60,10 @@ void GroupDataStream::append(const std::shared_ptr<RawData>& raw_data, double se
   } else {
     _extend(_h5_group_data, _h5_raw_data, raw_data);
   }
+}
+
+URX_UTILS_EXPORT urx::GroupData& GroupDataStream::getGroupData() {
+  return (*_group_data)[_group_data_idx];
 }
 
 template <typename T>
@@ -156,7 +162,10 @@ void GroupDataStream::_extend(H5::Group& group, H5::DataSet& dataset,
 
 Stream::Stream(const std::string& filename, std::shared_ptr<Dataset> dataset)
     : _dataset(std::move(dataset)),
-      _file(filename.data(), std::filesystem::exists(filename) ? H5F_ACC_RDONLY : H5F_ACC_EXCL) {}
+      _file(filename.data(), std::filesystem::exists(filename) ? H5F_ACC_RDWR : H5F_ACC_EXCL) {
+  _reader.init(*_dataset);
+  _writer.init(*_dataset);
+}
 
 std::shared_ptr<Dataset> Stream::getDataset() const { return _dataset; }
 

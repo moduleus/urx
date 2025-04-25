@@ -28,7 +28,7 @@ const std::string& getDataTestPath() {
   }
 #endif
 
-  std::string data_test_hardcoded = TEST_DATA_PATH;
+  const std::string data_test_hardcoded = TEST_DATA_PATH;
   if (std::filesystem::is_directory(data_test_hardcoded)) {
     data_test = data_test_hardcoded;
     return data_test;
