@@ -14,6 +14,8 @@ URX_UTILS_EXPORT void updateMatrixElementsPositions(Probe& matrix,
                                                     const Vector2D<double>& pitch);
 URX_UTILS_EXPORT void updateLinearElementsPositions(Probe& linear, uint32_t nb_elements,
                                                     double pitch);
+URX_UTILS_EXPORT void updateCurvilinearElementsPositions(Probe& curvi, uint32_t nb_elements,
+                                                         double pitch, double curvature);
 
 URX_UTILS_EXPORT void updateRcaElementsRectGeometry(Probe& probe,
                                                     const Vector2D<uint32_t>& nb_elements,
@@ -21,6 +23,8 @@ URX_UTILS_EXPORT void updateRcaElementsRectGeometry(Probe& probe,
                                                     const Vector2D<double>& row_size);
 URX_UTILS_EXPORT void updateMatrixElementsRectGeometry(Probe& probe, const Vector2D<double>& size);
 URX_UTILS_EXPORT void updateLinearElementsRectGeometry(Probe& probe, const Vector2D<double>& size);
+URX_UTILS_EXPORT void updateCurvilinearElementsRectGeometry(Probe& probe,
+                                                            const Vector2D<double>& size);
 
 URX_UTILS_EXPORT Probe createStandardRca(uint32_t n_x, uint32_t n_y, double pitch_x, double pitch_y,
                                          double element_width_x, double element_width_y,
