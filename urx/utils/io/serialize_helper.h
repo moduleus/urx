@@ -1,6 +1,5 @@
 #pragma once
 
-#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -51,8 +50,9 @@ using AllTypeInVariant = std::variant<
     std::weak_ptr<Group>*, std::weak_ptr<ImpulseResponse>*, std::weak_ptr<Probe>*, uint16_t*,
     uint32_t*, uint64_t*, uint8_t*>;
 
-const std::unordered_map<std::type_index, std::vector<std::pair<AllTypeInVariant, std::string>>>&
-getMemberMap();
+URX_UTILS_EXPORT const
+    std::unordered_map<std::type_index, std::vector<std::pair<AllTypeInVariant, std::string>>>&
+    getMemberMap();
 
 URX_UTILS_EXPORT const std::unordered_map<std::type_index, const H5::PredType*>& getStdToHdf5();
 
@@ -75,7 +75,7 @@ template <class... Ts>
 Overloaded(Ts...) -> Overloaded<Ts...>;
 
 template <typename T>
-const std::vector<std::shared_ptr<T>>& getSharedPtr(MapToSharedPtr& map) {
+const std::vector<std::shared_ptr<T>>& getSharedPtr(const MapToSharedPtr& map) {
   return *reinterpret_cast<const std::vector<std::shared_ptr<T>>*>(map.at(nameTypeid<T>()));
 }
 

@@ -30,7 +30,8 @@ set(URX_UTILS_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/common.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/group_data_reader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/group_helper.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/probe_helper.cpp)
+    ${CMAKE_CURRENT_SOURCE_DIR}/probe_helper.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/raw_data_helper.cpp)
 set(URX_UTILS_H
     ${CMAKE_CURRENT_SOURCE_DIR}/common.h
     ${CMAKE_CURRENT_SOURCE_DIR}/exception.h
@@ -38,6 +39,7 @@ set(URX_UTILS_H
     ${CMAKE_CURRENT_SOURCE_DIR}/group_helper.h
     ${CMAKE_CURRENT_SOURCE_DIR}/io/test/io.h
     ${CMAKE_CURRENT_SOURCE_DIR}/probe_helper.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/raw_data_helper.h
     ${CMAKE_CURRENT_SOURCE_DIR}/time_helper.h)
 
 if(WITH_HDF5)
@@ -47,6 +49,7 @@ if(WITH_HDF5)
     ${CMAKE_CURRENT_SOURCE_DIR}/io/enums.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/io/reader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/io/serialize_helper.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/io/stream.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/io/writer.cpp)
   list(
     APPEND
@@ -55,7 +58,9 @@ if(WITH_HDF5)
     ${CMAKE_CURRENT_SOURCE_DIR}/io/reader_impl.h
     ${CMAKE_CURRENT_SOURCE_DIR}/io/reader.h
     ${CMAKE_CURRENT_SOURCE_DIR}/io/serialize_helper.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/io/stream.h
     ${CMAKE_CURRENT_SOURCE_DIR}/io/writer_impl.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/io/writer_options.h
     ${CMAKE_CURRENT_SOURCE_DIR}/io/writer.h)
 endif()
 
