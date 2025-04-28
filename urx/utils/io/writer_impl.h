@@ -32,6 +32,7 @@
 #include <urx/utils/io/enums.h>
 #include <urx/utils/io/serialize_helper.h>
 #include <urx/utils/io/writer_options.h>
+#include <urx/utils/type_container.h>
 
 namespace urx::utils::io {
 

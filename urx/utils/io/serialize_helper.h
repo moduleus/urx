@@ -3,7 +3,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
-#include <optional>
 #include <string>
 #include <typeindex>
 #include <unordered_map>
@@ -78,32 +77,5 @@ template <typename T>
 const std::vector<std::shared_ptr<T>>& getSharedPtr(const MapToSharedPtr& map) {
   return *reinterpret_cast<const std::vector<std::shared_ptr<T>>*>(map.at(nameTypeid<T>()));
 }
-
-enum class ContainerType { RAW, VECTOR, SHARED_PTR, WEAK_PTR, OPTIONAL };
-
-template <typename T>
-struct TypeContainer {
-  static constexpr ContainerType VALUE = ContainerType::RAW;
-};
-
-template <typename T>
-struct TypeContainer<std::vector<T>> {
-  static constexpr ContainerType VALUE = ContainerType::VECTOR;
-};
-
-template <typename T>
-struct TypeContainer<std::shared_ptr<T>> {
-  static constexpr ContainerType VALUE = ContainerType::SHARED_PTR;
-};
-
-template <typename T>
-struct TypeContainer<std::weak_ptr<T>> {
-  static constexpr ContainerType VALUE = ContainerType::WEAK_PTR;
-};
-
-template <typename T>
-struct TypeContainer<std::optional<T>> {
-  static constexpr ContainerType VALUE = ContainerType::OPTIONAL;
-};
 
 }  // namespace urx::utils::io
