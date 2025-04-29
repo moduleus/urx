@@ -40,7 +40,8 @@ set(URX_UTILS_H
     ${CMAKE_CURRENT_SOURCE_DIR}/io/test/io.h
     ${CMAKE_CURRENT_SOURCE_DIR}/probe_helper.h
     ${CMAKE_CURRENT_SOURCE_DIR}/raw_data_helper.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/time_helper.h)
+    ${CMAKE_CURRENT_SOURCE_DIR}/time_helper.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/type_container.h)
 
 if(WITH_HDF5)
   list(

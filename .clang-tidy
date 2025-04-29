@@ -76,5 +76,7 @@ CheckOptions:
     value: "CamelCase"
   - key: "readability-identifier-naming.TypeAliasCase"
     value: "CamelCase"
+  - key: "cppcoreguidelines-avoid-do-while.IgnoreMacros"
+    value: "true"
 ---
 

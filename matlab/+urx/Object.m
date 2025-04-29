@@ -474,7 +474,17 @@ classdef Object < urx.ObjectField
                 has_data = libBindingRef.call([functionCFieldAccessor '_has_data'], affectedObject.id);
                 % Force value if PreGet is called from a PreSet.
                 if (has_data || (disableGetRecursion == 0 && disableSetRecursion == 1 && numel(s) > 1 && strcmp(s(2).name, 'Object.handlePropEvents')))
-                  newObject = feval(affectedPropertyClassName, affectedCFieldPtr, affectedPropertyPtrType, affectedObject);
+
+                  % Don't create IGroup object but SuperGroup or Group.
+                  trueTypeFunction = [strrep(class(affectedObject), '.', '_') urx.Object.functionPtrType(affectedObject.ptrType) '_' urx.Object.camelToSnakeCase(affectedPropertyName) '_true_type'];
+                  if has_data && any(strcmp(libfunctions(libBindingRef.libName), trueTypeFunction))
+                    realPropertyClassName = blanks(100);
+                    realPropertyClassName = libBindingRef.call(trueTypeFunction, affectedObject, realPropertyClassName, numel(realPropertyClassName));
+                  else
+                    realPropertyClassName = affectedPropertyClassName;
+                  end
+
+                  newObject = feval(realPropertyClassName, affectedCFieldPtr, affectedPropertyPtrType, affectedObject);
                   if isa(affectedProperty, 'urx.RawData')
                     sampling = newObject.samplingType();
                     data = newObject.dataType();

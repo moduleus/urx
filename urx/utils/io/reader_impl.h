@@ -33,6 +33,7 @@
 #include <urx/utils/io/reader_options.h>
 #include <urx/utils/io/serialize_helper.h>
 #include <urx/utils/raw_data_helper.h>
+#include <urx/utils/type_container.h>
 
 namespace urx::utils::io {
 
