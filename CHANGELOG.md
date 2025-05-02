@@ -1,6 +1,18 @@
 # Changelog
 
-## Next release
+## 1.2.0
+
+### C++
+
+#### What's new (feature)
+
+  * Add stream support for GroupData. RawData can not be loaded in memory at urx read time and can be write sequence by sequence. See [README](urx/utils/io/README.md).
+
+  * Add various helpers for probe (`updateCurvilinearElementsPositions`, `updateRcaElementsRectGeometry`, `updateMatrixElementsRectGeometry`, `updateLinearElementsRectGeometry`, `updateCurvilinearElementsRectGeometry`, `createStandardRca`, `createStandardLinear`, `createStandardCurviLinear`, `createStandardMatrix`)
+
+#### What's new (improvement)
+
+  * Major refactor of urx reader / writer to merge it in a class.
 
 ### MATLAB
 
@@ -12,11 +24,31 @@
 
   * Reset property if PostSet throw exception.
 
+  * Exception in PreGet / PostSet shouldn't break urx library and need to restart MATLAB.
+
   * Vector3D must be double number.
 
   * Fix append data in matrix (i.e. `probe.elements(end+1) = element`).
 
   * Invalidate fields if an allocated object by MATLAB (`shared_ptr`) is assigned in a raw C++ field.
+
+  * Avoid warnings in MATLAB 2018.
+
+  * Fix fields of inherited classes when they are initialized by `loadFromFile` function. 
+
+  * Hide private field in `TransmitSetup` and `Wave` classes.
+
+  * Invalidate MATLAB object when C++ reallocate memory
+
+#### What's new (improvement)
+
+  * Merge Windows and Linux toolbox.
+
+### Python
+
+#### Bug fixes
+
+  * Fix memory leak when RawData is allocated on Python side.
 
 ## 1.1.0
 
