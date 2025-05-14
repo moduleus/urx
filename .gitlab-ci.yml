@@ -383,7 +383,11 @@ build:matlab-ubuntu-12.04:
   artifacts:
     name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
+      - CI/version.txt
       - CI/libUrxMatlabBinding.so
+      - CI/matlab/binding/urx-Release.prj
+      - CI/matlab/binding/include
+      - CI/matlab/binding/+urx
     expire_in: 1 day
 
 build:matlab-ubuntu-20.04:
@@ -575,12 +579,12 @@ build:windows-matlab-static:
   artifacts:
     name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
-      - install
+      - install/windows-matlab-static/bin/UrxMatlabBinding.dll
     expire_in: 1 day
 
 build:ubuntu-matlab-static:
   stage: build
-  needs: [build:matlab-ubuntu-12.04, build:windows-matlab-static]
+  needs: []
   tags:
     - matlab
     - ubuntu
@@ -594,19 +598,32 @@ build:ubuntu-matlab-static:
     - cd test/matlab
     - ssh moduleus@localhost "export URX_DEBUG=/tmp/urx-matlab.log; cd $PWD && /opt/matlab/R2022b/bin/matlab -batch runTestsCi"
     - cat /tmp/urx-matlab.log
-    - cd ../../CI/matlab/binding
-    - rm libUrxMatlabBinding.so && cp ../../libUrxMatlabBinding.so .
+  after_script:
+    - rm -Rf test/matlab/test.urx
+  artifacts:
+    name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
+    paths:
+      - install
+    expire_in: 1 day
+
+build:matlab-toolbox:
+  stage: build
+  needs: [build:matlab-ubuntu-12.04, build:windows-matlab-static]
+  tags:
+    - matlab
+    - ubuntu
+  script:
+    - cd CI/matlab/binding
+    - cp ../../libUrxMatlabBinding.so .
     - cp ../../../install/windows-matlab-static/bin/UrxMatlabBinding.dll .
     - ssh moduleus@localhost 'cd '`pwd`' && /opt/matlab/R2022b/bin/matlab -batch "matlab.addons.toolbox.packageToolbox(\"urx-Release.prj\")"'
     - cd ../../..
     - cp CI/matlab/binding/urx.mltbx urx-$(cat CI/version.txt)-amd64.mltbx
   after_script:
-    - rm -Rf test/matlab/test.urx CI/matlab/binding/urx.mltbx
+    - rm -Rf CI/matlab/binding/urx.mltbx
   artifacts:
     name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
-      - CI/version.txt
-      - install
       - urx-*-amd64.mltbx
     expire_in: 1 day
 
@@ -802,8 +819,7 @@ release:upload-to-github:
     - release:all-python-musllinux_1_2_x86_64
     - release:all-python-windows-x64
     - release:all-python-windows-x86
-    - build:windows-matlab-static
-    - build:ubuntu-matlab-static
+    - build:matlab-toolbox
   when: manual
   tags:
     - ubuntu
