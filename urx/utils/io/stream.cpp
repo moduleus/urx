@@ -85,7 +85,7 @@ void GroupDataStream::_extendVector(H5::Group& group, H5::DataSet& dataset, std:
     const H5::DataSpace memspace(1, dims);
     dataset.write(&value, mem_type, memspace, old_space);
   } else {
-    std::vector<T> data(old_size);
+    std::vector<T> data(static_cast<size_t>(old_size));
     dataset.read(data.data(), mem_type);
     data.push_back(value);
     const hsize_t dims[1] = {data.size()};
@@ -127,9 +127,10 @@ void GroupDataStream::_extend(H5::Group& group, H5::DataSet& dataset,
     const H5::DataSpace memspace(2, count);
     dataset.write(value->getBuffer(), datatype, memspace, filespace);
   } else {
-    const std::shared_ptr<urx::RawData> field = urx::utils::rawDataFactory(
-        urx::utils::io::enums::h5PredTypeToDataType(datatype),
-        dimension[1] == 1 ? SamplingType::RF : SamplingType::IQ, dimension[0] + value->getSize());
+    const std::shared_ptr<urx::RawData> field =
+        urx::utils::rawDataFactory(urx::utils::io::enums::h5PredTypeToDataType(datatype),
+                                   dimension[1] == 1 ? SamplingType::RF : SamplingType::IQ,
+                                   static_cast<size_t>(dimension[0]) + value->getSize());
 
     if (field->getDataType() != value->getDataType()) {
       throw std::runtime_error("Datatype of RawData to append (" +
@@ -197,7 +198,7 @@ GroupDataStream Stream::createGroupData(const std::shared_ptr<Group>& group, Dou
     h5_groups_data = h5_acquisition.openGroup("groups_data");
   }
 
-  const hsize_t idx_group_data = h5_groups_data.getNumObjs();
+  const size_t idx_group_data = static_cast<size_t>(h5_groups_data.getNumObjs());
   const std::string idx_string = common::formatIndexWithLeadingZeros(idx_group_data, ITER_LENGTH);
 
   _writer.serializeHdf5(idx_string, group_data, h5_groups_data);
