@@ -57,6 +57,7 @@ if(WITH_HDF5)
     URX_UTILS_H
     ${CMAKE_CURRENT_SOURCE_DIR}/io/enums.h
     ${CMAKE_CURRENT_SOURCE_DIR}/io/reader_impl.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/io/reader_options.h
     ${CMAKE_CURRENT_SOURCE_DIR}/io/reader.h
     ${CMAKE_CURRENT_SOURCE_DIR}/io/serialize_helper.h
     ${CMAKE_CURRENT_SOURCE_DIR}/io/stream.h

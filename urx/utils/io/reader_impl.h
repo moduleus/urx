@@ -308,7 +308,7 @@ class ReaderBase {
 
       field = urx::utils::rawDataFactory(urx::utils::io::enums::h5PredTypeToDataType(datatype),
                                          dimension[1] == 1 ? SamplingType::RF : SamplingType::IQ,
-                                         dimension[0]);
+                                         static_cast<size_t>(dimension[0]));
 
       dataset.read(field->getBuffer(), datatype);
     } else {
