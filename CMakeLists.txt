@@ -27,6 +27,14 @@ if(BUILD_TESTING)
   list(APPEND VCPKG_MANIFEST_FEATURES "tests")
 endif()
 
+# Windows only
+option(CRT_SHARED_LIBS "Build using CRT shared libraries" ON)
+
+if(NOT CRT_SHARED_LIBS)
+  cmake_policy(SET CMP0091 NEW)
+  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif()
+
 project(
   Urx
   VERSION 1.1.0
@@ -64,12 +72,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_LINK_WHAT_YOU_USE ON)
 
 option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
-# Windows only
-option(CRT_SHARED_LIBS "Build using CRT shared libraries" ON)
-
-if(NOT CRT_SHARED_LIBS)
-  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-endif()
 
 option(ENABLE_PCH "Build with PCH" ON)
 
