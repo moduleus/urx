@@ -25,7 +25,7 @@ if(HARDENED_BUILD)
     UrxCompilerFlags
     INTERFACE
       "$<${gcc_like_cxx}:-Wall;-Werror;-Wextra;-Wshadow;-Wformat=2;-Wunused>"
-      "$<${msvc_cxx}:/W3;/WX;/EHsc;/wd4251>")
+      "$<${msvc_cxx}:/W3;/WX;/wd4251>")
 endif()
 
 set(URX_UTILS_SRCS
