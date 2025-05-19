@@ -20,11 +20,13 @@ add_library(UrxCompilerFlags INTERFACE)
 add_library(Urx::UrxCompilerFlags ALIAS UrxCompilerFlags)
 set(gcc_like_cxx "$<COMPILE_LANG_AND_ID:CXX,ARMClang,AppleClang,Clang,GNU,LCC>")
 set(msvc_cxx "$<COMPILE_LANG_AND_ID:CXX,MSVC>")
-target_compile_options(
-  UrxCompilerFlags
-  INTERFACE
-    "$<${gcc_like_cxx}:-Wall;-Werror;-Wextra;-Wshadow;-Wformat=2;-Wunused>"
-    "$<${msvc_cxx}:/W3;/WX;/EHsc;/wd4251>")
+if(HARDENED_BUILD)
+  target_compile_options(
+    UrxCompilerFlags
+    INTERFACE
+      "$<${gcc_like_cxx}:-Wall;-Werror;-Wextra;-Wshadow;-Wformat=2;-Wunused>"
+      "$<${msvc_cxx}:/W3;/WX;/EHsc;/wd4251>")
+endif()
 
 set(URX_UTILS_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/common.cpp
