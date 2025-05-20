@@ -15,6 +15,60 @@ classdef FileFromScratch < matlab.unittest.TestCase
   end
 
   methods(Test)
+    function updateVectorOfRawType(testcase)
+      acquisition = urx.Acquisition();
+      groupDataShared = urx.GroupData(); % Shared
+      groupDataShared.groupTimestamp = 1.0;
+      acquisition.groupsData = [groupDataShared]; % Raw
+
+      groupDataShared2 = urx.GroupData(); % Shared
+      groupDataShared2.groupTimestamp = 2.0;
+      acquisition.groupsData(end+1) = groupDataShared2;
+
+      testcase.verifyTrue(isempty(lastwarn));
+      lastwarn('');
+      warning('off');
+      groupDataShared.groupTimestamp;
+      testcase.verifyTrue(contains(lastwarn, 'urx.Acquisition.groupsData'));
+      testcase.verifyTrue(contains(lastwarn, 'reallocated'));
+      lastwarn('');
+      warning('on');
+
+      testcase.verifyTrue(isempty(lastwarn));
+      lastwarn('');
+      warning('off');
+      testcase.verifyEqual(groupDataShared2.groupTimestamp, 2.0);
+      testcase.verifyTrue(isempty(lastwarn));
+      lastwarn('');
+      warning('on');
+
+      groupDataPtr = acquisition.groupsData(1); % Raw
+      testcase.verifyEqual(groupDataPtr.groupTimestamp, 1.0);
+      groupDataPtr2 = acquisition.groupsData(1); % Raw
+      testcase.verifyEqual(groupDataPtr2.groupTimestamp, 1.0);
+
+      acquisition.groupsData = [groupDataPtr, groupDataPtr, groupDataPtr, groupDataPtr, groupDataPtr, groupDataPtr, groupDataPtr, groupDataPtr, groupDataPtr, groupDataPtr, groupDataPtr, groupDataPtr, groupDataPtr, groupDataPtr, groupDataPtr, groupDataPtr, groupDataPtr, groupDataPtr, groupDataPtr, groupDataPtr, groupDataPtr]; % Raw
+      % groupDataPtr points to the last element.
+      % groupsData has realloc memory.
+
+      testcase.verifyEqual(groupDataPtr.groupTimestamp, 1.0);
+
+      acquisition.groupsData(1).groupTimestamp = 2.0;
+      testcase.verifyEqual(groupDataPtr.groupTimestamp, 1.0);
+
+      acquisition.groupsData(end).groupTimestamp = 3.0;
+      testcase.verifyEqual(groupDataPtr.groupTimestamp, 3.0);
+
+      testcase.verifyTrue(isempty(lastwarn));
+      lastwarn('');
+      warning('off');
+      groupDataPtr2.groupTimestamp;
+      testcase.verifyTrue(contains(lastwarn, 'urx.Acquisition.groupsData'));
+      testcase.verifyTrue(contains(lastwarn, 'reallocated'));
+      lastwarn('');
+      warning('on');
+    end
+
     function createFileFromScratch(testcase)
       libBinding = urx.LibBinding.getInstance();
 
@@ -534,11 +588,11 @@ classdef FileFromScratch < matlab.unittest.TestCase
       groupData = urx.GroupData;
       testcase.verifyTrue(isempty(lastwarn));
       lastwarn('');
-      warning('off')
+      warning('off');
       groupData.rawData = urx.RawData_int16_t_complex();
       testcase.verifyFalse(isempty(lastwarn));
       lastwarn('');
-      warning('on')
+      warning('on');
       groupData.rawData = urx.RawData_int16_t_complex(10);
       groupData.rawData;
     end
