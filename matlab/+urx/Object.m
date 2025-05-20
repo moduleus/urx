@@ -140,14 +140,6 @@ classdef Object < urx.ObjectField
       end
     end
 
-    function res = functionVector(className, func, type, nbDims)
-      res = ['vector' urx.Object.functionPtrType(type)];
-      if nbDims == 2
-        res = [res '_2d'];
-      end
-      res = [res '_' className '_' func];
-    end
-
     function res = getPtrTypeFromValidator(object, propertyName)
       metaclassObject = metaclass(object);
       props = metaclassObject.PropertyList;
