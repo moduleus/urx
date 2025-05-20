@@ -94,5 +94,9 @@ classdef StdVector < urx.ObjectField
     function copy(this, other)
       this.libBindingRef.call(this.functionName('copy'), this, other);
     end
+
+    function res = contains(this, other)
+      res = this.libBindingRef.call(this.functionName('contains'), this, other);
+    end
   end
 end

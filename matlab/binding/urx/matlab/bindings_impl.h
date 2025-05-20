@@ -88,6 +88,16 @@ struct IsSharedPtr<std::shared_ptr<T>> : std::true_type {};
   void CONCAT3(vector, snake, assign)(void *this_ptr, void *other_ptr) {                          \
     *static_cast<std::vector<type> *>(this_ptr) = *static_cast<std::vector<type> *>(other_ptr);   \
   }                                                                                               \
+  bool CONCAT3(vector, snake, contains)(void *this_ptr, void *other_ptr) {                        \
+    const auto &vec = *static_cast<std::vector<type> *>(this_ptr);                                \
+    const type *other_ptr_casted = static_cast<type *>(other_ptr);                                \
+    for (const auto &i : vec) {                                                                   \
+      if (&i == other_ptr_casted) {                                                               \
+        return true;                                                                              \
+      }                                                                                           \
+    }                                                                                             \
+    return false;                                                                                 \
+  }                                                                                               \
   FORCE_SEMICOLON
 
 #define _VECTOR_RAW_IMPL_RAW(snake, type)                                 \

@@ -1,6 +1,7 @@
 classdef Object < urx.ObjectField
   properties (Access = private)
     parent {urx.Validator.mustBeScalarOrEmpty} = urx.Object.empty(1,0)
+    vectorFieldName char % Name of the vector's parent field if object is stored in a stdVector.
     saveId
   end
 
@@ -140,14 +141,6 @@ classdef Object < urx.ObjectField
       end
     end
 
-    function res = functionVector(className, func, type, nbDims)
-      res = ['vector' urx.Object.functionPtrType(type)];
-      if nbDims == 2
-        res = [res '_2d'];
-      end
-      res = [res '_' className '_' func];
-    end
-
     function res = getPtrTypeFromValidator(object, propertyName)
       metaclassObject = metaclass(object);
       props = metaclassObject.PropertyList;
@@ -233,11 +226,26 @@ classdef Object < urx.ObjectField
         affectedProperty = affectedObject.(affectedPropertyName);
       end
 
+      libBindingRef = affectedObject.getInstance();
+
+      % If the object is stored as Raw in a C++ vector and the pointer is
+      % out of date due to memory reallocation.
+      if strcmp(evnt.EventName, 'PreGet') && isa(affectedObject, 'urx.Object') && ...
+          affectedObject.ptrType == urx.PtrType.RAW && ~isempty(affectedObject.vectorFieldName)
+        affectedObjectParent = affectedObject.parent;
+        affectedObjectVectorFieldName = [affectedObject.vectorFieldName 'Std'];
+        affectedObjectVector = affectedObjectParent.(affectedObjectVectorFieldName);
+        if ~affectedObjectVector.contains(affectedObject)
+          throw(MException('urx:fatalError', [ 'Failed to get property ' affectedPropertyName '. ' ...
+              'Object doesn''t belong to ' class(affectedObjectParent) '.' affectedObject.vectorFieldName ' anymore. ' ...
+              'The vector has changed or the C++ vector has reallocated memory and the object has became invalid.']));
+        end
+      end
+
       % For update of the C pointer at every call to be sure that value is
       % up to date.
       % Maybe only isempty(affectedProperty)
       functionCFieldAccessor = [strrep(class(affectedObject), '.', '_')  urx.Object.functionPtrType(affectedObject.ptrType) '_' urx.Object.camelToSnakeCase(affectedPropertyName)];
-      libBindingRef = affectedObject.getInstance();
       affectedCFieldPtr = libBindingRef.call(functionCFieldAccessor, affectedObject.id);
 
       if strcmp(affectedPropertyName, "hwConfig")
@@ -308,6 +316,7 @@ classdef Object < urx.ObjectField
                     affectedProperty(i).id = realAffectedDataI.id;
                     affectedProperty(i).ptrType = realAffectedDataI.ptrType;
                     affectedProperty(i).parent = affectedObject;
+                    affectedProperty(i).vectorFieldName = affectedPropertyName;
                   end
                 end
               else
@@ -430,6 +439,9 @@ classdef Object < urx.ObjectField
                 cppValues = repmat(eval([affectedPropertyStd.objectClassName, '([])']), 1, len);
                 for i = 1:len
                   cppValues(i) = affectedPropertyStd.data(i);
+                  if isa(cppValues(i), 'urx.Object')
+                    cppValues(i).vectorFieldName = affectedPropertyName;
+                  end
                 end
               else
                 cppValues = cell(1, len);
