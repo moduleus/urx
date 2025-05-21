@@ -120,7 +120,7 @@ class RawDataNoInit final : public IRawData<DataType> {
 };
 
 template <typename DataType>
-class RawDataWeak final : public IRawData<DataType> {
+class RawDataWeak : public IRawData<DataType> {
  public:
   RawDataWeak(void* buffer, size_t size) : _buffer(buffer), _size(size) {}
   ~RawDataWeak() override = default;
@@ -129,7 +129,7 @@ class RawDataWeak final : public IRawData<DataType> {
   void* getBuffer() override { return _buffer; }
   size_t getSize() const override { return _size; }
 
- private:
+ protected:
   void* _buffer;
   size_t _size;
 };

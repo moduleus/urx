@@ -13,6 +13,7 @@ from test_bindings_group_data import (
     test_raw_data_universal_complex,
     test_raw_data_universal_real,
     test_group_data,
+    test_raw_data_memory_leak_fixed,
 )
 from test_bindings_group import test_group
 from test_bindings_impulse_response import test_impulse_response
@@ -228,6 +229,17 @@ class TestBindings(unittest.TestCase):
             np_type,
             group_data_constructor=lambda: urx.GroupData(),
         )
+
+    @parameterized.expand(
+        [
+            ["Real int16", np.int16],
+            ["Real int32", np.int32],
+            ["Real float32", np.float32],
+            ["Real float64", np.float64],
+        ]
+    )
+    def test_raw_data_memory_leak_fixed_run(self, test_name, np_type):
+        test_raw_data_memory_leak_fixed(self, test_name, np_type)
 
     def test_group_data_run(
         self,

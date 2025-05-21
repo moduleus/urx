@@ -35,6 +35,16 @@ namespace urx::python {
 namespace py = pybind11;
 
 namespace detail {
+template <typename DataType>
+class RawDataWeakPython final : public urx::RawDataWeak<DataType> {
+ public:
+  RawDataWeakPython(const py::array &array)
+      : urx::RawDataWeak<DataType>(array.request().ptr, array.request().shape[0]), _array(array) {}
+  ~RawDataWeakPython() override = default;
+
+ private:
+  py::array _array;
+};
 
 template <typename CppClass, const char *python_name>
 void bindVector(pybind11::module_ &m) {
