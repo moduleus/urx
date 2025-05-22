@@ -36,10 +36,10 @@ namespace py = pybind11;
 
 namespace detail {
 template <typename DataType>
-class RawDataWeakPython final : public urx::RawDataWeak<DataType> {
+class RawDataWeakPython final : public RawDataWeak<DataType> {
  public:
   RawDataWeakPython(const py::array &array)
-      : urx::RawDataWeak<DataType>(array.request().ptr, array.request().shape[0]), _array(array) {}
+      : RawDataWeak<DataType>(array.request().ptr, array.request().shape[0]), _array(array) {}
   ~RawDataWeakPython() override = default;
 
  private:
