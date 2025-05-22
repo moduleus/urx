@@ -2,6 +2,7 @@ import numpy as np
 from time import perf_counter
 import sys
 import gc
+import platform
 import ultrasound_rawdata_exchange as urx
 
 
@@ -309,25 +310,43 @@ def test_group_data(
 
 def test_raw_data_memory_leak_fixed(self, test_name, np_type):
     print("\n--Test %s BEGIN--" % test_name)
+
     group_data = urx.GroupData()
     group_data.raw_data = np_type([1, 2, 3, 4])
     self.assertTrue(np.array_equal(np.array([1, 2, 3, 4], dtype=np_type), group_data.raw_data))
-    ref_count = sys.getrefcount(group_data.raw_data)
+
+    if platform.python_implementation() != "PyPy":
+        gc.collect()
+        ref_count = sys.getrefcount(group_data.raw_data)
 
     ref = group_data.raw_data
-    self.assertNotEqual(sys.getrefcount(group_data.raw_data), ref_count + 1)
     self.assertTrue(np.array_equal(np.array([1, 2, 3, 4], dtype=np_type), group_data.raw_data))
     self.assertTrue(np.array_equal(ref, group_data.raw_data))
 
-    ref_count = sys.getrefcount(group_data.raw_data)
-    ref_2 = group_data.raw_data
-    self.assertEqual(sys.getrefcount(ref_2), ref_count + 1)
+    if platform.python_implementation() != "PyPy":
+        gc.collect()
+        self.assertNotEqual(sys.getrefcount(group_data.raw_data), ref_count + 1)
+        gc.collect()
+        ref_count = sys.getrefcount(group_data.raw_data)
+        ref_2 = group_data.raw_data
+        gc.collect()
+        self.assertEqual(sys.getrefcount(ref_2), ref_count + 1)
 
     tmp = np_type([1, 2, 3, 4])
-    ref_count = sys.getrefcount(tmp)
+
+    if platform.python_implementation() != "PyPy":
+        gc.collect()
+        ref_count = sys.getrefcount(tmp)
+
     self.assertTrue(np.array_equal(np.array([1, 2, 3, 4], dtype=np_type), tmp))
     group_data.raw_data = tmp
     self.assertTrue(np.array_equal(np.array([1, 2, 3, 4], dtype=np_type), group_data.raw_data))
-    self.assertEqual(sys.getrefcount(tmp), ref_count + 1)
+
+    if platform.python_implementation() != "PyPy":
+        gc.collect()
+        self.assertEqual(sys.getrefcount(tmp), ref_count + 1)
+        del group_data
+        gc.collect()
+        self.assertEqual(sys.getrefcount(tmp), ref_count)
 
     print("--Test %s END--" % test_name)
