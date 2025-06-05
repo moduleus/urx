@@ -11,6 +11,7 @@
 #include <vector>
 
 #include <pybind11/attr.h>
+#include <pybind11/buffer_info.h>
 #include <pybind11/cast.h>
 #include <pybind11/numpy.h>
 #include <pybind11/operators.h>
