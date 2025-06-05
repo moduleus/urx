@@ -295,10 +295,10 @@ class ReaderBase {
   template <typename T>
   void deserializeAll(T& field, const H5::Group& group) {
     if constexpr (std::is_same_v<T, std::shared_ptr<RawData>>) {
-      if (!group.nameExists("raw_data") ||
-          _options.getRawDataLoadPolicy() != RawDataLoadPolicy::FULL) {
+      if (!group.nameExists("raw_data")) {
         return;
       }
+
       const H5::DataSet dataset = group.openDataSet("raw_data");
       const H5::DataSpace dataspace = dataset.getSpace();
       const H5::DataType datatype = dataset.getDataType();
@@ -306,9 +306,18 @@ class ReaderBase {
       hsize_t dimension[2];
       dataspace.getSimpleExtentDims(dimension);
 
-      field = urx::utils::rawDataFactory(urx::utils::io::enums::h5PredTypeToDataType(datatype),
-                                         dimension[1] == 1 ? SamplingType::RF : SamplingType::IQ,
-                                         static_cast<size_t>(dimension[0]));
+      if (_options.getRawDataLoadPolicy() == RawDataLoadPolicy::STREAM) {
+        field = urx::utils::rawDataFactory<RawDataStream>(
+            urx::utils::io::enums::h5PredTypeToDataType(datatype),
+            dimension[1] == 1 ? SamplingType::RF : SamplingType::IQ,
+            static_cast<size_t>(dimension[0]));
+        return;
+      }
+
+      field = urx::utils::rawDataFactory<RawDataNoInit>(
+          urx::utils::io::enums::h5PredTypeToDataType(datatype),
+          dimension[1] == 1 ? SamplingType::RF : SamplingType::IQ,
+          static_cast<size_t>(dimension[0]));
 
       dataset.read(field->getBuffer(), datatype);
     } else {

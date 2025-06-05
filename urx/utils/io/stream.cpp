@@ -127,10 +127,10 @@ void GroupDataStream::_extend(H5::Group& group, H5::DataSet& dataset,
     const H5::DataSpace memspace(2, count);
     dataset.write(value->getBuffer(), datatype, memspace, filespace);
   } else {
-    const std::shared_ptr<urx::RawData> field =
-        urx::utils::rawDataFactory(urx::utils::io::enums::h5PredTypeToDataType(datatype),
-                                   dimension[1] == 1 ? SamplingType::RF : SamplingType::IQ,
-                                   static_cast<size_t>(dimension[0]) + value->getSize());
+    const std::shared_ptr<urx::RawData> field = urx::utils::rawDataFactory<urx::RawDataNoInit>(
+        urx::utils::io::enums::h5PredTypeToDataType(datatype),
+        dimension[1] == 1 ? SamplingType::RF : SamplingType::IQ,
+        static_cast<size_t>(dimension[0]) + value->getSize());
 
     if (field->getDataType() != value->getDataType()) {
       throw std::runtime_error("Datatype of RawData to append (" +
@@ -186,7 +186,8 @@ void Stream::setChunkGroupData(bool value) { _writer.getOptions().setChunkGroupD
 GroupDataStream Stream::createGroupData(const std::shared_ptr<Group>& group, DoubleNan timestamp) {
   urx::GroupData group_data;
   group_data.group = group;
-  group_data.raw_data = urx::utils::rawDataFactory(group->data_type, group->sampling_type, 0);
+  group_data.raw_data =
+      urx::utils::rawDataFactory<RawDataNoInit>(group->data_type, group->sampling_type, 0);
   group_data.group_timestamp = timestamp;
 
   const H5::Group h5_acquisition = _file.openGroup("dataset").openGroup("acquisition");
