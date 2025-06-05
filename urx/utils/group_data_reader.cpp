@@ -49,7 +49,7 @@ size_t GroupDataReader::samplesCount(const size_t event_idx) const {
 size_t GroupDataReader::offset(const size_t sequence_idx, const size_t event_idx,
                                const size_t channel_idx, const size_t sample_idx) const {
   return sequence_idx * _samples_offset.back() + _samples_offset[event_idx] +
-         channel_idx * (channel_idx == 0 ? 0 : _samples_count[event_idx]) + sample_idx;
+         channel_idx * _samples_count[event_idx] + sample_idx;
 }
 
 size_t GroupDataReader::sampleByteSize() const { return _sample_byte_size; }
