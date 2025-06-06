@@ -17,9 +17,16 @@
 
 namespace urx::utils {
 
+template <template <typename> class Container>
 URX_UTILS_EXPORT std::shared_ptr<urx::RawData> rawDataFactory(DataType data_type,
                                                               SamplingType sampling_type,
                                                               size_t size);
+
+template <template <typename> class Container>
+URX_UTILS_EXPORT std::shared_ptr<urx::RawData> rawDataFactory(DataType data_type,
+                                                              SamplingType sampling_type,
+                                                              size_t size, void* buffer);
+
 class RawDataHelper {
  public:
   RawDataHelper(const urx::RawData* raw_data) : _raw_data(raw_data) {}

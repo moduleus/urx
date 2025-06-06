@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <cstring>
 #include <memory>
+#include <stdexcept>
 #include <type_traits>
 #include <typeindex>
 #include <unordered_map>
@@ -131,6 +132,26 @@ class RawDataWeak : public IRawData<DataType> {
 
  protected:
   void* _buffer;
+  size_t _size;
+};
+
+template <typename DataType>
+class RawDataStream : public IRawData<DataType> {
+ public:
+  RawDataStream(size_t size) : _size(size) {}
+  ~RawDataStream() override = default;
+
+  const void* getBuffer() const override {
+    throw std::runtime_error(__FUNCTION__);
+    return nullptr;
+  }
+  void* getBuffer() override {
+    throw std::runtime_error(__FUNCTION__);
+    return nullptr;
+  }
+  size_t getSize() const override { return _size; }
+
+ protected:
   size_t _size;
 };
 
