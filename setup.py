@@ -90,13 +90,6 @@ else:
         VCPKG_TRIPLET = "x86-"
 
     if sys.platform == "win32":
-        if VCPKG_TRIPLET == "arm64-":
-            cmake_configure_options += ["-A", "arm64"]
-        elif VCPKG_TRIPLET == "x64-":
-            cmake_configure_options += ["-A", "x64"]
-        else:
-            cmake_configure_options += ["-A", "Win32"]
-
         VCPKG_TRIPLET += "w"
 
         if build_shared_libs_arg == "OFF":
@@ -134,6 +127,14 @@ else:
         if build_shared_libs_arg == "OFF":
             # python dynamic
             VCPKG_TRIPLET += "p"
+
+if sys.platform == "win32":
+    if VCPKG_TRIPLET.startswith("arm64-"):
+        cmake_configure_options += ["-A", "arm64"]
+    elif VCPKG_TRIPLET.startswith("x64-"):
+        cmake_configure_options += ["-A", "x64"]
+    else:
+        cmake_configure_options += ["-A", "Win32"]
 
 hdf5_arg = next((arg for arg in sys.argv if arg.startswith("-DWITH_HDF5")), None)
 if hdf5_arg != None:

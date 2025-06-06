@@ -103,6 +103,7 @@ std::shared_ptr<T> generateFakeDataset() {
 
     probe = std::make_shared<Probe>();
     probe->description = "Probe 2";
+    // NOLINTNEXTLINE
     probe->type = static_cast<ProbeType>(123);
     probe->transform.rotation.x = 3;
     probe->transform.rotation.y = 4;
@@ -211,9 +212,8 @@ std::shared_ptr<T> generateFakeDataset() {
       event.receive_setup.probe_transform.translation.y = 4.83;
       event.receive_setup.probe_transform.translation.z = 8.52;
       event.receive_setup.sampling_frequency = 125468;
-      event.receive_setup.number_samples = 4452;
-      event.receive_setup.active_elements = {
-          {1, 2, 753, 8, 6, 2, 1}, {4, 5, 7, 6, 21, 8, 9, 3}, {1, 2, 5, 7, 3, 6, 5}};
+      event.receive_setup.number_samples = 1;
+      event.receive_setup.active_elements = {{1, 2, 753, 8, 6, 2, 1}, {4, 5, 7, 6, 21, 8, 9, 3}};
       event.receive_setup.tgc_profile = {1.2, 45., 4.5, -4.2, 1, .5, 4.6, 1, 2};
       event.receive_setup.tgc_sampling_frequency = 12.5;
       event.receive_setup.modulation_frequency = 125;
@@ -249,8 +249,8 @@ std::shared_ptr<T> generateFakeDataset() {
       event.receive_setup.probe_transform.translation.y = 43;
       event.receive_setup.probe_transform.translation.z = 52;
       event.receive_setup.sampling_frequency = 1268;
-      event.receive_setup.number_samples = 42;
-      event.receive_setup.active_elements = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
+      event.receive_setup.number_samples = 2;
+      event.receive_setup.active_elements = {{1, 2, 3}};
       event.receive_setup.tgc_profile = {1, .2, 4., 5, .1, 5, .45, 5};
       event.receive_setup.tgc_sampling_frequency = 4.5;
       event.receive_setup.modulation_frequency = 4.58;
@@ -292,9 +292,8 @@ std::shared_ptr<T> generateFakeDataset() {
       event.receive_setup.probe_transform.translation.y = 45.83;
       event.receive_setup.probe_transform.translation.z = 86.52;
       event.receive_setup.sampling_frequency = 1275468;
-      event.receive_setup.number_samples = 48452;
-      event.receive_setup.active_elements = {
-          {1, 2, 5753, 58, 60, 2, 1}, {4, 57, 7, 76, 21, 87, 9, 3}, {17, 26, 57, 7, 8, 3, 6, 5}};
+      event.receive_setup.number_samples = 3;
+      event.receive_setup.active_elements = {{1, 2, 5753, 58, 60, 2, 1}};
       event.receive_setup.tgc_profile = {01.2, 45., 4.25, -4.52, 1, .5, 4.36, 1, 2};
       event.receive_setup.tgc_sampling_frequency = -12.5;
       event.receive_setup.modulation_frequency = 1925;
@@ -329,8 +328,8 @@ std::shared_ptr<T> generateFakeDataset() {
       event.receive_setup.probe_transform.translation.y = 4;
       event.receive_setup.probe_transform.translation.z = 2;
       event.receive_setup.sampling_frequency = 12468;
-      event.receive_setup.number_samples = 442;
-      event.receive_setup.active_elements = {{15, 32, 3}, {4, 55, 6}, {7, 48, 9}};
+      event.receive_setup.number_samples = 4;
+      event.receive_setup.active_elements = {{15, 32, 3}, {4, 55, 6}};
       event.receive_setup.tgc_profile = {17, .2, 3., 5, .1, 35, .445, 5};
       event.receive_setup.tgc_sampling_frequency = 47.5;
       event.receive_setup.modulation_frequency = 4.558;

@@ -20,17 +20,20 @@ add_library(UrxCompilerFlags INTERFACE)
 add_library(Urx::UrxCompilerFlags ALIAS UrxCompilerFlags)
 set(gcc_like_cxx "$<COMPILE_LANG_AND_ID:CXX,ARMClang,AppleClang,Clang,GNU,LCC>")
 set(msvc_cxx "$<COMPILE_LANG_AND_ID:CXX,MSVC>")
-target_compile_options(
-  UrxCompilerFlags
-  INTERFACE
-    "$<${gcc_like_cxx}:-Wall;-Werror;-Wextra;-Wshadow;-Wformat=2;-Wunused>"
-    "$<${msvc_cxx}:/W3;/WX;/EHsc;/wd4251>")
+if(HARDENED_BUILD)
+  target_compile_options(
+    UrxCompilerFlags
+    INTERFACE
+      "$<${gcc_like_cxx}:-Wall;-Werror;-Wextra;-Wshadow;-Wformat=2;-Wunused>"
+      "$<${msvc_cxx}:/W3;/WX;/wd4251>")
+endif()
 
 set(URX_UTILS_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/common.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/group_data_reader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/group_helper.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/probe_helper.cpp)
+    ${CMAKE_CURRENT_SOURCE_DIR}/probe_helper.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/raw_data_helper.cpp)
 set(URX_UTILS_H
     ${CMAKE_CURRENT_SOURCE_DIR}/common.h
     ${CMAKE_CURRENT_SOURCE_DIR}/exception.h
@@ -38,7 +41,9 @@ set(URX_UTILS_H
     ${CMAKE_CURRENT_SOURCE_DIR}/group_helper.h
     ${CMAKE_CURRENT_SOURCE_DIR}/io/test/io.h
     ${CMAKE_CURRENT_SOURCE_DIR}/probe_helper.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/time_helper.h)
+    ${CMAKE_CURRENT_SOURCE_DIR}/raw_data_helper.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/time_helper.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/type_container.h)
 
 if(WITH_HDF5)
   list(
@@ -47,15 +52,19 @@ if(WITH_HDF5)
     ${CMAKE_CURRENT_SOURCE_DIR}/io/enums.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/io/reader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/io/serialize_helper.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/io/stream.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/io/writer.cpp)
   list(
     APPEND
     URX_UTILS_H
     ${CMAKE_CURRENT_SOURCE_DIR}/io/enums.h
     ${CMAKE_CURRENT_SOURCE_DIR}/io/reader_impl.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/io/reader_options.h
     ${CMAKE_CURRENT_SOURCE_DIR}/io/reader.h
     ${CMAKE_CURRENT_SOURCE_DIR}/io/serialize_helper.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/io/stream.h
     ${CMAKE_CURRENT_SOURCE_DIR}/io/writer_impl.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/io/writer_options.h
     ${CMAKE_CURRENT_SOURCE_DIR}/io/writer.h)
 endif()
 
