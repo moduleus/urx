@@ -21,7 +21,7 @@ classdef StdVector < urx.ObjectField
       end
     end
     
-    function res = getInstance(this)
+    function res = getInstance(this) %#ok<MANU>
       res = urx.LibBinding.getInstance();
     end
 
@@ -93,6 +93,10 @@ classdef StdVector < urx.ObjectField
     
     function copy(this, other)
       this.libBindingRef.call(this.functionName('copy'), this, other);
+    end
+
+    function res = contains(this, other)
+      res = this.libBindingRef.call(this.functionName('contains'), this, other);
     end
   end
 end

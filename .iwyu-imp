@@ -6,6 +6,7 @@
   { include: ["<stdio.h>", private, "<cstdio>", public] },
   { include: ["<float.h>", private, "<cfloat>", public] },
   { include: ["<time.h>", private, "<ctime>", public] },
+  { include: ["<bits/chrono.h>", private, "<chrono>", public ]},
   { include: ["<bits/time.h>", private, "<ctime>", public] },
   { include: ["<bits/types/struct_timeval.h>", private, "<ctime>", public] },
   { include: ["<bits/types/time_t.h>", private, "<ctime>", public] },

@@ -11,14 +11,14 @@ requires = [
     "gitdb==4.0.11",
     "GitPython==3.1.43",
     "ninja==1.11.1.2",
-    "packaging==24.2",
+    "packaging",
     "setuptools-scm==8.1.0",
     "smmap==5.0.1",
 ]
 
 [project]
 name = "ultrasound-rawdata-exchange"
-version = "1.1.0"
+version = "1.2.0"
 dependencies = [
     "cmake-build-extension==0.6.1",
     "numpy==1.24.4; python_version == '3.8'",
@@ -31,7 +31,7 @@ dependencies = [
     "gitdb==4.0.11",
     "GitPython==3.1.43",
     "ninja==1.11.1.2",
-    "packaging==24.2",
+    "packaging",
     "setuptools==75.3.0; python_version == '3.8'",
     "setuptools==75.6.0; python_version >= '3.9'",
     "setuptools-scm==8.1.0",

@@ -234,7 +234,8 @@ PYBIND11_MODULE(bindings, m) {
 
 #ifdef URX_WITH_HDF5
   m.def("loadFromFile", &urx::utils::io::reader::loadFromFile);
-  m.def("saveToFile", &urx::utils::io::writer::saveToFile);
+  m.def("saveToFile", static_cast<void (*)(const std::string &, const urx::Dataset &)>(
+                          &urx::utils::io::writer::saveToFile));
 #endif
 
   // group_data_reader.h

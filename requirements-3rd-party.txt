@@ -1,1 +1,1 @@
-vcpkg-registry @ github.com/moduleus/vcpkg-registry.git@86221a3d7c15e017a2f65611434b3921501ead3b
+vcpkg-registry @ github.com/moduleus/vcpkg-registry.git@42db1ee2ee35c3f98cccfa5f94702d3fd68139c8

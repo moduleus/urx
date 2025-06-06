@@ -15,7 +15,63 @@ classdef FileFromScratch < matlab.unittest.TestCase
   end
 
   methods(Test)
+    function updateVectorOfRawType(testcase)
+      acquisition = urx.Acquisition();
+      groupDataShared = urx.GroupData(); % Shared
+      groupDataShared.groupTimestamp = 1.0;
+      acquisition.groupsData = [groupDataShared]; % Raw
+
+      groupDataShared2 = urx.GroupData(); % Shared
+      groupDataShared2.groupTimestamp = 2.0;
+      acquisition.groupsData(end+1) = groupDataShared2;
+
+      testcase.verifyTrue(isempty(lastwarn));
+      lastwarn('');
+      warning('off');
+      groupDataShared.groupTimestamp;
+      testcase.verifyTrue(contains(lastwarn, 'urx.Acquisition.groupsData'));
+      testcase.verifyTrue(contains(lastwarn, 'reallocated'));
+      lastwarn('');
+      warning('on');
+
+      testcase.verifyTrue(isempty(lastwarn));
+      lastwarn('');
+      warning('off');
+      testcase.verifyEqual(groupDataShared2.groupTimestamp, 2.0);
+      testcase.verifyTrue(isempty(lastwarn));
+      lastwarn('');
+      warning('on');
+
+      groupDataPtr = acquisition.groupsData(1); % Raw
+      testcase.verifyEqual(groupDataPtr.groupTimestamp, 1.0);
+      groupDataPtr2 = acquisition.groupsData(1); % Raw
+      testcase.verifyEqual(groupDataPtr2.groupTimestamp, 1.0);
+
+      acquisition.groupsData = [groupDataPtr, groupDataPtr, groupDataPtr, groupDataPtr, groupDataPtr, groupDataPtr, groupDataPtr, groupDataPtr, groupDataPtr, groupDataPtr, groupDataPtr, groupDataPtr, groupDataPtr, groupDataPtr, groupDataPtr, groupDataPtr, groupDataPtr, groupDataPtr, groupDataPtr, groupDataPtr, groupDataPtr]; % Raw
+      % groupDataPtr points to the last element.
+      % groupsData has realloc memory.
+
+      testcase.verifyEqual(groupDataPtr.groupTimestamp, 1.0);
+
+      acquisition.groupsData(1).groupTimestamp = 2.0;
+      testcase.verifyEqual(groupDataPtr.groupTimestamp, 1.0);
+
+      acquisition.groupsData(end).groupTimestamp = 3.0;
+      testcase.verifyEqual(groupDataPtr.groupTimestamp, 3.0);
+
+      testcase.verifyTrue(isempty(lastwarn));
+      lastwarn('');
+      warning('off');
+      groupDataPtr2.groupTimestamp;
+      testcase.verifyTrue(contains(lastwarn, 'urx.Acquisition.groupsData'));
+      testcase.verifyTrue(contains(lastwarn, 'reallocated'));
+      lastwarn('');
+      warning('on');
+    end
+
     function createFileFromScratch(testcase)
+      libBinding = urx.LibBinding.getInstance();
+
       dataset = urx.Dataset();
       
       dataset.version.minor = 123;
@@ -96,10 +152,19 @@ classdef FileFromScratch < matlab.unittest.TestCase
       vector2.z = 543;
       elementGeometry2.perimeter = [vector1, vector2];
       probe1.elementGeometries = [elementGeometry1, elementGeometry2];
+      testcase.verifyEqual(probe1.elementGeometries(1).perimeter(1).y,elementGeometry1.perimeter(1).y);
+      testcase.verifyEqual(probe1.elementGeometries(2).perimeter(2).y,elementGeometry2.perimeter(2).y);
+      elementGeometry1.perimeter(1).y=111.;
+      elementGeometry2.perimeter(2).y=131.;
+      testcase.verifyEqual(probe1.elementGeometries(1).perimeter(1).y,elementGeometry1.perimeter(1).y);
+      testcase.verifyEqual(probe1.elementGeometries(2).perimeter(2).y,elementGeometry2.perimeter(2).y);
       
       impulseResponse1 = urx.ImpulseResponse();
       impulseResponse1.samplingFrequency = 20000001;
-      impulseResponse1.data = [1.2, 1.3, 1.4];
+      impulseResponse1.data = [1.2, 1.3];
+      testcase.verifyEqual(impulseResponse1.data, [1.2, 1.3]);
+      impulseResponse1.data = [impulseResponse1.data, 1.4];
+      testcase.verifyEqual(impulseResponse1.data, [1.2, 1.3, 1.4]);
       impulseResponse1.units = 'meter';
       impulseResponse1.timeOffset = 10000;
       
@@ -165,6 +230,20 @@ classdef FileFromScratch < matlab.unittest.TestCase
       vector2.z = 5.5;
       elementGeometry2.perimeter = [vector1, vector2];
       probe2.elementGeometries = [elementGeometry1, elementGeometry2];
+      % TODO: Replace previous line by next following lines.
+      %probe2.elementGeometries = elementGeometry1;
+      %testcase.verifyEqual(probe2.elementGeometries(1).perimeter(1).y,elementGeometry1.perimeter(1).y);
+      %elementGeometry1.perimeter(1).y=211.;
+      %testcase.verifyEqual(probe2.elementGeometries(1).perimeter(1).y,elementGeometry1.perimeter(1).y);
+      %probe2.elementGeometries = [probe2.elementGeometries, elementGeometry2];
+      % For the current time, elementGeometry1 points to an invalid memory area because previous line
+      % changes the size of std::vector. So it reallocates memory and change pointer memory location.
+      %testcase.verifyEqual(probe2.elementGeometries(1).perimeter(1).y,elementGeometry1.perimeter(1).y);
+      %testcase.verifyEqual(probe2.elementGeometries(2).perimeter(2).y,elementGeometry2.perimeter(2).y);
+      %elementGeometry1.perimeter(1).y=311.;
+      %elementGeometry2.perimeter(2).y=331.;
+      %testcase.verifyEqual(probe2.elementGeometries(1).perimeter(1).y,elementGeometry1.perimeter(1).y);
+      %testcase.verifyEqual(probe2.elementGeometries(2).perimeter(2).y,elementGeometry2.perimeter(2).y);
       
       impulseResponse1 = urx.ImpulseResponse();
       impulseResponse1.samplingFrequency = 20000011;
@@ -188,9 +267,9 @@ classdef FileFromScratch < matlab.unittest.TestCase
       element1.transform.translation.z = 963;
       % Test empty weak_ptr field
       element1.elementGeometry = probe2.elementGeometries(1);
-      testcase.verifyTrue(urx.LibBinding.getInstance().call('urx_Element_shared_element_geometry_has_data', element1));
+      testcase.verifyTrue(libBinding.call('urx_Element_shared_element_geometry_has_data', element1));
       element1.elementGeometry = urx.ElementGeometry.empty;
-      testcase.verifyFalse(urx.LibBinding.getInstance().call('urx_Element_shared_element_geometry_has_data', element1));
+      testcase.verifyFalse(libBinding.call('urx_Element_shared_element_geometry_has_data', element1));
       element1.impulseResponse = probe2.impulseResponses(2);
       
       element2 = urx.Element();
@@ -496,6 +575,133 @@ classdef FileFromScratch < matlab.unittest.TestCase
 
       rs2 = dataset2.acquisition.groups(1).sequence(1).receiveSetup;
       testcase.verifyEqual(actives, rs2.activeElements);
+    end
+
+    function assignSharedInWeak(testcase)
+      a=urx.Element;
+      b=urx.ElementGeometry;
+      a.elementGeometry = b;
+      b;
+    end
+
+    function assignFailure(testcase)
+      groupData = urx.GroupData;
+      testcase.verifyTrue(isempty(lastwarn));
+      lastwarn('');
+      warning('off');
+      groupData.rawData = urx.RawData_int16_t_complex();
+      testcase.verifyFalse(isempty(lastwarn));
+      lastwarn('');
+      warning('on');
+      groupData.rawData = urx.RawData_int16_t_complex(10);
+      groupData.rawData;
+    end
+
+    function vector3dSingle(testcase)
+      A = urx.Vector3D(double(1),0,0);
+      B = urx.ElementGeometry();
+      B.perimeter = A;
+      testcase.verifyTrue(isa(A.x, 'double'))
+      testcase.verifyTrue(isa(B.perimeter.x, 'double'))
+      testcase.verifyEqual(A.x, B.perimeter.x)
+
+      C = urx.Vector3D(single(1),0,0);
+      D = urx.ElementGeometry();
+      D.perimeter = C;
+      testcase.verifyTrue(isa(C.x, 'double'))
+      testcase.verifyTrue(isa(D.perimeter.x, 'double'))
+      testcase.verifyEqual(C.x, D.perimeter.x)
+    end
+
+    function incrementSharedArray(testcase)
+      probe = urx.Probe();
+
+      elementGeometry = urx.ElementGeometry();
+      elementGeometry.perimeter = [urx.Vector3D(-1,-1,0),...
+                              urx.Vector3D(1,-1,0),...
+                              urx.Vector3D(1,1,0),...
+                              urx.Vector3D(-1,1,0)];
+
+      probe.elementGeometries = elementGeometry;
+
+      probe.elements = urx.Element();
+      probe.elements.elementGeometry = elementGeometry;
+      probe.elements.transform.rotation.x = 1;
+
+      for kk=2:10
+        element = urx.Element();
+        element.elementGeometry = elementGeometry;
+        element.transform.rotation.x = kk;
+        probe.elements = [probe.elements,element];
+      end
+
+      for kk=11:20
+        element = urx.Element();
+        element.elementGeometry = elementGeometry;
+        element.transform.rotation.x = kk;
+        probe.elements(end+1) = element;
+      end
+
+      for kk=2:10
+        testcase.verifyEqual(numel(probe.elements(kk).elementGeometry.perimeter), 4);
+        testcase.verifyEqual(probe.elements(kk).elementGeometry.perimeter(1).x, -1);
+        testcase.verifyEqual(probe.elements(kk).transform.rotation.x, kk);
+      end
+    end
+
+    function incrementRawArray(testcase)
+      group = urx.Group();
+
+      group.sequence = urx.Event();
+      group.sequence.transmitSetup.delays = 1;
+
+      for kk=2:10
+        event = urx.Event();
+        event.transmitSetup.delays = kk;
+        group.sequence = [group.sequence,event];
+      end
+
+      for kk=11:20
+        event = urx.Event();
+        event.transmitSetup.delays = kk;
+        group.sequence(end+1) = event;
+      end
+
+      for kk=2:20
+        testcase.verifyEqual(group.sequence(kk).transmitSetup.delays, kk);
+      end
+    end
+
+    function updateFieldAfterCached(testcase)
+      a = urx.Wave();
+      testcase.verifyEqual(a.timeZeroReferencePoint.x, 0);
+      b = urx.TransmitSetup();
+      b.wave = a;
+      testcase.verifyEqual(a.timeZeroReferencePoint.x, 0);
+      testcase.verifyEqual(b.wave.timeZeroReferencePoint.x, 0);
+    end
+
+    function assignVectorSharedInVectorWeak(testcase)
+      transmitSetup = urx.TransmitSetup();
+      excitation = urx.Excitation();
+      excitation.transmitFrequency = 150.;
+      transmitSetup.excitations = repmat(excitation, [1, 10]);
+
+      Events = urx.Event();
+      Events.transmitSetup = transmitSetup;
+
+      Group = urx.Group();
+      Group.sequence = Events;
+
+      Acquisition = urx.Acquisition();
+      Acquisition.excitations = [excitation];
+      Acquisition.groups = [Group];
+
+      dataset = urx.Dataset();
+      dataset.acquisition = Acquisition;
+      urx.saveToFile('vector_weak.urx', dataset);
+
+      delete 'vector_weak.urx'
     end
   end
 end
