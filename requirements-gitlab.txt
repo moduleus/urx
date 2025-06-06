@@ -25,8 +25,9 @@ markdown-it-py==3.0.0
 mdurl==0.1.2
 more-itertools==10.5.0
 mypy-extensions==1.0.0
-nh3==0.2.19
-packaging==24.2
+nh3==0.2.18; platform_python_implementation == "PyPy" and python_version == '3.8'
+nh3==0.2.19; platform_python_implementation != "PyPy" or python_version >= '3.9'
+packaging
 pkginfo==1.10.0
 Pygments==2.18.0
 pyproject_hooks==1.2.0

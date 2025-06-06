@@ -7,9 +7,8 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include "urx/enums.h"
-
 #include <urx/detail/raw_data.h>
+#include <urx/enums.h>
 
 namespace urx::test {
 

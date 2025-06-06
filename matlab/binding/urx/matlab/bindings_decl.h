@@ -30,7 +30,8 @@
   URX_MATLAB_EXPORT void CONCAT4(vector, snake, push_back, shared)(void *this_ptr, void *val); \
   URX_MATLAB_EXPORT uint64_t CONCAT3(vector, snake, size)(void *this_ptr);                     \
   URX_MATLAB_EXPORT void *CONCAT3(vector, snake, data)(void *this_ptr, uint64_t i);            \
-  URX_MATLAB_EXPORT void CONCAT3(vector, snake, assign)(void *this_ptr, void *other_ptr)
+  URX_MATLAB_EXPORT void CONCAT3(vector, snake, assign)(void *this_ptr, void *other_ptr);      \
+  URX_MATLAB_EXPORT bool CONCAT3(vector, snake, contains)(void *this_ptr, void *other_ptr)
 
 #define _VECTOR_RAW_DECL_RAW(snake, type) \
   URX_MATLAB_EXPORT void CONCAT4(vector, snake, push_back, raw)(void *this_ptr, type val)

@@ -9,7 +9,7 @@ variables:
   - cd "$Env:VCPKG_REGISTRY_LOCAL_GIT"
   - git remote set-url origin https://write_wiki:${VCPKG_TOKEN}@${url_vcpkg_registry}
   - git fetch
-  - git checkout $sha1_vcpkg_registry
+  - git checkout -f $sha1_vcpkg_registry
   - Pop-Location
 
   # vcpkg repository
@@ -20,7 +20,7 @@ variables:
   - cd "$Env:VCPKG_LOCAL_GIT"
   - git remote set-url origin $vcpkg_repository
   - git fetch
-  - git checkout $baseline
+  - git checkout -f $baseline
   - Pop-Location
 
   # vcpkg binary
@@ -44,7 +44,7 @@ variables:
   - cd "$VCPKG_REGISTRY_LOCAL_GIT"
   - git remote set-url origin https://write_wiki:${VCPKG_TOKEN}@${url_vcpkg_registry}
   - git fetch
-  - git checkout $sha1_vcpkg_registry
+  - git checkout -f $sha1_vcpkg_registry
   - cd -
 
   # vcpkg repository
@@ -54,7 +54,7 @@ variables:
   - cd "$VCPKG_LOCAL_GIT"
   - git remote set-url origin $vcpkg_repository
   - git fetch
-  - git checkout $baseline
+  - git checkout -f $baseline
   - cd -
 
   # vcpkg binary
@@ -74,6 +74,12 @@ variables:
 .after-script-clean-vcpkg-linux: &after-script-clean-vcpkg-linux
   - rm -Rf "$VCPKG_LOCAL_GIT/buildtrees"
   - rm -Rf "$VCPKG_LOCAL_GIT/packages"
+
+.build-vcpkg-ubuntu-12-04: &build-vcpkg-ubuntu-12-04
+  - cd "$VCPKG_LOCAL_GIT" || exit 1
+  - patch -p1 < /CI/vcpkg-2f210a9c13fcf2b0c36b1f2187366feec37e3390.patch
+  - ./bootstrap-vcpkg.sh
+  - cd - || exit 1
 
 .python-venv-windows: &python-venv-windows
   - $Env:CMAKE_BUILD_PARALLEL_LEVEL=$NUM_PARALLEL
@@ -144,7 +150,6 @@ doc:doxygen:
     name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - public
-    expire_in: 1 day
 
 .plantuml-all-cleanup: &plantuml-all-cleanup # Remove template
   - sed -i 's/<template<[^>]*>>//' doc/plantuml/architecture.puml
@@ -172,6 +177,8 @@ doc:doxygen:
   - sed -i -z 's/\t\t\}\n\t\}/\t\}/g' doc/plantuml/architecture.puml
   # Remove destructor
   - sed -i -z "s/\n[^~\n]*~[^\n]*\n/\n/g" doc/plantuml/architecture.puml
+  # Remove Vector2D unused class
+  - perl -i -0pe 's/\s+class Vector2D\s+\{((.*?\n\s+)+?)\}//g' doc/plantuml/architecture.puml
 
 doc:plantuml:
   stage: doc
@@ -224,7 +231,6 @@ doc:plantuml:
     name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - public
-    expire_in: 1 day
 
 format:clang-format:
   stage: format
@@ -233,7 +239,7 @@ format:clang-format:
     - ubuntu
     - clang-format
   script:
-    - find . -type f -name "*.cpp" -or -name "*.cc" -or -name "*.hpp" -or -name "*.h" |xargs clang-format-17 --style=file --dry-run --Werror
+    - find . -type d \( -path "*vcpkg*" -o -name build -o -name install \) -prune -false -o -type f \( -name "*.cpp" -o -name "*.cc" -o -name "*.hpp" -o -name "*.h" \) | xargs -t clang-format-18 --style=file --dry-run --Werror
 
 format:cmake-format:
   stage: format
@@ -242,7 +248,7 @@ format:cmake-format:
     - ubuntu
     - cmake-format
   script:
-    - find . -name "CMakeLists.txt" | xargs cmake-format -i
+    - find . -type d \( -path "*vcpkg*" -o -name build -o -name install \) -prune -false -o -type f -name "CMakeLists.txt" | xargs cmake-format -i
     - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Please, format your CMake files."; echo "$(git status --porcelain)"; exit 1; fi
 
 format:clang-tidy:
@@ -255,7 +261,7 @@ format:clang-tidy:
   script:
     - cd CI
     - mkdir -p $(grep -Po '"directory":\s"\K[^"]+' compile_commands.json | sort -u)
-    - CLANG_TIDY_CACHE_BINARY=/usr/bin/clang-tidy-17 run-clang-tidy-17 -clang-tidy-binary /usr/local/bin/clang-tidy-cache || exit 1
+    - CLANG_TIDY_CACHE_BINARY=/usr/bin/clang-tidy-18 run-clang-tidy-18 -clang-tidy-binary /usr/local/bin/clang-tidy-cache || exit 1
 
 format:iwyu:
   stage: format
@@ -271,7 +277,7 @@ format:iwyu:
     - sed -i "s/-Winvalid-pch.*cmake_pch.hxx //g" CI/compile_commands.json
     - iwyu_tool.py -p CI -j $NUM_PARALLEL -- -Xiwyu --no_default_mappings -Xiwyu --mapping_file="$(pwd)/.iwyu-imp" -Xiwyu --no_fwd_decls -Xiwyu --check_also="*urx/matlab/*.h" -Xiwyu --check_also="*urx/python/*.h" -Xiwyu --check_also="*urx/test/*.h" -Xiwyu --check_also="*urx/urx/*.h" > CI/iwyu_tool.log
     - fix_includes.py --nosafe_headers < CI/iwyu_tool.log
-    - find . -type f -name "*.cpp" -or -name "*.cc" -or -name "*.hpp" -or -name "*.h" -exec clang-format-17 --style=file -i {} \;
+    - find . -type d \( -path "*vcpkg*" -o -name build -o -name install \) -prune -false -o -type f \( -name "*.cpp" -o -name "*.cc" -o -name "*.hpp" -o -name "*.h" \) -exec clang-format-18 --style=file -i {} \;
     - git diff > CI/iwyu.patch
     - cat CI/iwyu.patch
     - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Please apply iwyu patch to fix your includes"; exit 1; fi
@@ -282,7 +288,6 @@ format:iwyu:
     paths:
       - CI/iwyu_tool.log
       - CI/iwyu.patch
-    expire_in: 1 day
 
 format:black-format:
   stage: format
@@ -302,7 +307,6 @@ format:black-format:
     when: on_failure
     paths:
       - CI/format.patch
-    expire_in: 1 day
 
 release:update-images-of-wiki:
   stage: release
@@ -354,7 +358,7 @@ tag:version:
     - ubuntu
     - build
 
-build:matlab-ubuntu-12.04:
+build:ubuntu-matlab-12.04:
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
   stage: build
@@ -366,19 +370,24 @@ build:matlab-ubuntu-12.04:
     - git config --global credential.helper store
     - echo "https://gitlab-ci-token:${CI_JOB_TOKEN}@$CI_SERVER_HOST" > ~/.git-credentials
     - *before-script-vcpkg-linux
-    - cp /CI/vcpkg/vcpkg "$VCPKG_LOCAL_GIT/vcpkg" || exit 1
+    - *build-vcpkg-ubuntu-12-04
   script:
-    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-lssrp -DVCPKG_HOST_TRIPLET=x64-lssrp -DVCPKG_OVERLAY_TRIPLETS=$VCPKG_REGISTRY_LOCAL_GIT/triplets -DCMAKE_INSTALL_PREFIX="install/ubuntu-20.04" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=OFF -DWITH_MATLAB:BOOL=ON
+    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-lssrp -DVCPKG_HOST_TRIPLET=x64-lssrp -DVCPKG_OVERLAY_TRIPLETS=$VCPKG_REGISTRY_LOCAL_GIT/triplets -DCMAKE_INSTALL_PREFIX="install/ubuntu-20.04" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=OFF -DWITH_MATLAB:BOOL=ON -DHARDENED_BUILD:BOOL=OFF
     - *after-script-clean-vcpkg-linux
     - cmake --build CI --config Release --parallel $NUM_PARALLEL --target UrxMatlabBinding
     - cp CI/matlab/binding/libUrxMatlabBinding.so CI
   artifacts:
     name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
+    when: always
     paths:
+      - CI/version.txt
       - CI/libUrxMatlabBinding.so
-    expire_in: 1 day
+      - CI/matlab/binding/urx-Release.prj
+      - CI/matlab/binding/include
+      - CI/matlab/binding/+urx
+      - /builds/common/sw/urx/CI/vcpkg_installed/vcpkg/issue_body.md
 
-build:matlab-ubuntu-20.04:
+build:ubuntu-matlab-20.04:
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
   stage: build
@@ -391,15 +400,16 @@ build:matlab-ubuntu-20.04:
     - echo "https://gitlab-ci-token:${CI_JOB_TOKEN}@$CI_SERVER_HOST" > ~/.git-credentials
     - *before-script-vcpkg-linux
   script:
-    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-lssrp -DVCPKG_HOST_TRIPLET=x64-lssrp -DVCPKG_OVERLAY_TRIPLETS=$VCPKG_REGISTRY_LOCAL_GIT/triplets -DCMAKE_INSTALL_PREFIX="install/ubuntu-20.04" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=OFF -DWITH_MATLAB:BOOL=ON
+    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-lssrp -DVCPKG_HOST_TRIPLET=x64-lssrp -DVCPKG_OVERLAY_TRIPLETS=$VCPKG_REGISTRY_LOCAL_GIT/triplets -DCMAKE_INSTALL_PREFIX="install/ubuntu-20.04" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=OFF -DWITH_MATLAB:BOOL=ON -DHARDENED_BUILD:BOOL=OFF
     - *after-script-clean-vcpkg-linux
     - cmake --build CI --config Release --parallel $NUM_PARALLEL --target UrxMatlabBinding
     - cp CI/matlab/binding/libUrxMatlabBinding.so CI
   artifacts:
     name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
+    when: always
     paths:
       - CI/libUrxMatlabBinding.so
-    expire_in: 1 day
+      - /builds/common/sw/urx/CI/vcpkg_installed/vcpkg/issue_body.md
 
 build:windows-with-HDF5-static:
   stage: build
@@ -411,17 +421,16 @@ build:windows-with-HDF5-static:
     - *before-script-vcpkg-windows
   script:
     - *python-venv-windows-d
-    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE="$Env:VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-wsmep -DVCPKG_HOST_TRIPLET=x64-wsmep -DVCPKG_OVERLAY_TRIPLETS="$Env:VCPKG_REGISTRY_LOCAL_GIT/triplets" -DCMAKE_INSTALL_PREFIX="install/windows-with-HDF5-static" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_PYTHON_WHL:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DENABLE_PCH:BOOL=OFF -DVCPKG_INSTALL_OPTIONS=--x-buildtrees-root="$Env:VCPKG_BUILDTREE"
+    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE="$Env:VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-wsmep -DVCPKG_HOST_TRIPLET=x64-wsmep -DVCPKG_OVERLAY_TRIPLETS="$Env:VCPKG_REGISTRY_LOCAL_GIT/triplets" -DCMAKE_INSTALL_PREFIX="install/windows-with-HDF5-static" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_PYTHON_WHL:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DENABLE_PCH:BOOL=OFF -DVCPKG_INSTALL_OPTIONS=--x-buildtrees-root="$Env:VCPKG_BUILDTREE" -DHARDENED_BUILD:BOOL=ON
     - *after-script-clean-vcpkg-windows
     - cmake.exe --build CI --config Debug -- /p:CL_MPcount=$NUM_PARALLEL
     - cmake.exe --install CI --config Debug
     - cd CI
-    - ctest.exe --output-on-failure -C Debug
+    - ctest.exe --output-on-failure -C Debug --verbose
   artifacts:
     name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - install
-    expire_in: 1 day
 
 build:windows-with-HDF5-shared:
   stage: build
@@ -433,17 +442,16 @@ build:windows-with-HDF5-shared:
     - *before-script-vcpkg-windows
   script:
     - *python-venv-windows
-    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$Env:VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-wdrep -DVCPKG_HOST_TRIPLET=x64-wdrep -DVCPKG_OVERLAY_TRIPLETS="$Env:VCPKG_REGISTRY_LOCAL_GIT/triplets" -DCMAKE_INSTALL_PREFIX="install/windows-with-HDF5-shared" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DVCPKG_INSTALL_OPTIONS=--x-buildtrees-root="$Env:VCPKG_BUILDTREE"
+    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$Env:VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-wdrep -DVCPKG_HOST_TRIPLET=x64-wdrep -DVCPKG_OVERLAY_TRIPLETS="$Env:VCPKG_REGISTRY_LOCAL_GIT/triplets" -DCMAKE_INSTALL_PREFIX="install/windows-with-HDF5-shared" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DVCPKG_INSTALL_OPTIONS=--x-buildtrees-root="$Env:VCPKG_BUILDTREE" -DHARDENED_BUILD:BOOL=ON
     - *after-script-clean-vcpkg-windows
     - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
     - cmake.exe --install CI --config Release
     - cd CI
-    - ctest.exe --output-on-failure -C Release
+    - ctest.exe --output-on-failure -C Release --verbose
   artifacts:
     name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - install
-    expire_in: 1 day
 
 build:ubuntu-with-HDF5-static:
   stage: build
@@ -455,12 +463,12 @@ build:ubuntu-with-HDF5-static:
     - *before-script-vcpkg-linux
   script:
     - *python-venv-linux
-    - CFLAGS='-fsanitize=undefined -fsanitize=address' CXXFLAGS='-fsanitize=undefined -fsanitize=address' cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/usr/bin/clang-17 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-17 -DCMAKE_AR=/usr/bin/llvm-ar-17 -DCMAKE_AS=/usr/bin/llvm-as-17 -DCMAKE_RANLIB=/usr/bin/llvm-ranlib-17 -DCMAKE_LINKER_TYPE=LLD -DCMAKE_TOOLCHAIN_FILE="$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-lsrp -DVCPKG_HOST_TRIPLET=x64-lsrp -DVCPKG_OVERLAY_TRIPLETS=$VCPKG_REGISTRY_LOCAL_GIT/triplets -DCMAKE_INSTALL_PREFIX="install/ubuntu-with-HDF5-static" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_PYTHON_WHL:BOOL=ON -DWITH_MATLAB:BOOL=ON -DENABLE_PCH:BOOL=OFF -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+    - CFLAGS='-fsanitize=undefined -fsanitize=address' CXXFLAGS='-fsanitize=undefined -fsanitize=address' cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/usr/bin/clang-17 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-17 -DCMAKE_AR=/usr/bin/llvm-ar-17 -DCMAKE_AS=/usr/bin/llvm-as-17 -DCMAKE_RANLIB=/usr/bin/llvm-ranlib-17 -DCMAKE_LINKER_TYPE=LLD -DCMAKE_TOOLCHAIN_FILE="$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-lsrp -DVCPKG_HOST_TRIPLET=x64-lsrp -DVCPKG_OVERLAY_TRIPLETS=$VCPKG_REGISTRY_LOCAL_GIT/triplets -DCMAKE_INSTALL_PREFIX="install/ubuntu-with-HDF5-static" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_PYTHON_WHL:BOOL=ON -DWITH_MATLAB:BOOL=ON -DENABLE_PCH:BOOL=OFF -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DHARDENED_BUILD:BOOL=ON
     - *after-script-clean-vcpkg-linux
     - cmake --build CI --config Release --parallel $NUM_PARALLEL
     - cmake --install CI --config Release
     - cd CI
-    - ctest --output-on-failure -C Release
+    - ctest --output-on-failure -C Release --verbose
   artifacts:
     name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
@@ -473,7 +481,6 @@ build:ubuntu-with-HDF5-static:
       - CI/matlab/binding/urx/matlab/export.h
       - CI/python/urx/python/export.h
       - install
-    expire_in: 1 day
 
 build:ubuntu-with-HDF5-shared:
   stage: build
@@ -485,17 +492,16 @@ build:ubuntu-with-HDF5-shared:
     - *before-script-vcpkg-linux
   script:
     - *python-venv-linux-d
-    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE="$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-ld -DVCPKG_HOST_TRIPLET=x64-ld -DVCPKG_OVERLAY_TRIPLETS=$VCPKG_REGISTRY_LOCAL_GIT/triplets -DCMAKE_INSTALL_PREFIX="install/ubuntu-with-HDF5-shared" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE="$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-ld -DVCPKG_HOST_TRIPLET=x64-ld -DVCPKG_OVERLAY_TRIPLETS=$VCPKG_REGISTRY_LOCAL_GIT/triplets -DCMAKE_INSTALL_PREFIX="install/ubuntu-with-HDF5-shared" -DBUILD_SHARED_LIBS=ON -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=ON -DWITH_MATLAB:BOOL=OFF -DHARDENED_BUILD:BOOL=ON -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
     - *after-script-clean-vcpkg-linux
     - cmake --build CI --config Debug --parallel $NUM_PARALLEL
     - cmake --install CI --config Debug
     - cd CI
-    - ctest --output-on-failure -C Debug
+    - ctest --output-on-failure -C Debug --verbose
   artifacts:
     name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - install
-    expire_in: 1 day
 
 build:ubuntu-without-3rd-party:
   stage: build
@@ -506,16 +512,15 @@ build:ubuntu-without-3rd-party:
   before_script:
     - *before-script-vcpkg-linux
   script:
-    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="install/ubuntu-without-3rd-party" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=OFF -DBUILD_TESTING=OFF -DWITH_PYTHON:BOOL=OFF -DWITH_MATLAB:BOOL=ON -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="install/ubuntu-without-3rd-party" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=OFF -DBUILD_TESTING=OFF -DWITH_PYTHON:BOOL=OFF -DWITH_MATLAB:BOOL=ON -DHARDENED_BUILD:BOOL=ON -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
     - cmake --build CI --config Release --parallel $NUM_PARALLEL
     - cmake --install CI --config Release
     - cd CI
-    - ctest --output-on-failure -C Release
+    - ctest --output-on-failure -C Release --verbose
   artifacts:
     name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - install
-    expire_in: 1 day
 
 build:windows-python:
   stage: build
@@ -527,7 +532,7 @@ build:windows-python:
     - *before-script-vcpkg-windows
   script:
     - *python-venv-windows
-    - python.exe -m pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=$Env:VCPKG_LOCAL_GIT\\scripts\\buildsystems\\vcpkg.cmake" --config-settings="--global-option=cmake_build_type=Release" --config-settings="--global-option=vcpkg_triplet=x64-wsmrep" --config-settings="--global-option=-DVCPKG_INSTALL_OPTIONS=--x-buildtrees-root=$Env:VCPKG_BUILDTREE" --no-clean -v
+    - python.exe -m pip install . --config-settings="--global-option=CMAKE_TOOLCHAIN_FILE=$Env:VCPKG_LOCAL_GIT\\scripts\\buildsystems\\vcpkg.cmake" --config-settings="--global-option=cmake_build_type=Release" --config-settings="--global-option=vcpkg_triplet=x64-wssrep" --config-settings="--global-option=-DCRT_SHARED_LIBS=OFF" --config-settings="--global-option=-DVCPKG_INSTALL_OPTIONS=--x-buildtrees-root=$Env:VCPKG_BUILDTREE" --no-clean -v
     - *after-script-clean-vcpkg-windows
     - python.exe -m unittest discover test/python
 
@@ -546,7 +551,7 @@ build:ubuntu-python:
     - stubgen -p ultrasound_rawdata_exchange -o python --no-analysis
     - if [[ ! -z "$(git status --porcelain)" ]]; then echo "Run stubgen -p ultrasound_rawdata_exchange -o python before commit."; echo "$(git status --porcelain)"; git diff; exit 1; fi
 
-build:windows-matlab-static:
+build:windows-matlab:
   stage: build
   needs: []
   tags:
@@ -555,7 +560,7 @@ build:windows-matlab-static:
   before_script:
     - *before-script-vcpkg-windows
   script:
-    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$Env:VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-wsmrep -DVCPKG_HOST_TRIPLET=x64-wsmrep -DVCPKG_OVERLAY_TRIPLETS="$Env:VCPKG_REGISTRY_LOCAL_GIT/triplets" -DCMAKE_INSTALL_PREFIX="install/windows-matlab-static" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=OFF -DWITH_MATLAB:BOOL=ON -DENABLE_PCH:BOOL=OFF -DVCPKG_INSTALL_OPTIONS=--x-buildtrees-root="$Env:VCPKG_BUILDTREE"
+    - cmake.exe -S . -B CI -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$Env:VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-wssrep -DVCPKG_HOST_TRIPLET=x64-wssrep -DVCPKG_OVERLAY_TRIPLETS="$Env:VCPKG_REGISTRY_LOCAL_GIT/triplets" -DCMAKE_INSTALL_PREFIX="install/windows-matlab" -DBUILD_SHARED_LIBS=OFF -DCRT_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=OFF -DWITH_PYTHON:BOOL=OFF -DWITH_MATLAB:BOOL=ON -DENABLE_PCH:BOOL=OFF -DVCPKG_INSTALL_OPTIONS=--x-buildtrees-root="$Env:VCPKG_BUILDTREE" -DHARDENED_BUILD:BOOL=ON
     - *after-script-clean-vcpkg-windows
     - cmake.exe --build CI --config Release -- /p:CL_MPcount=$NUM_PARALLEL
     - cmake.exe --install CI --config Release
@@ -564,47 +569,54 @@ build:windows-matlab-static:
     - C:/"Program Files"/MATLAB/R2023b/bin/matlab.exe -wait -batch runTestsCi
     - cat $Env:TMP/urx-matlab.log
     - C:/"Program Files"/MATLAB/R2018b/bin/matlab.exe -wait -batch runTestsCi
-    - cd ../../CI/matlab/binding/Release
-    - C:/"Program Files"/MATLAB/R2023b/bin/matlab.exe -wait -batch "matlab.addons.toolbox.packageToolbox('windows-Release.prj')"
-    - cd ../../../..
-    - Move-Item CI/matlab/binding/Release/urx.mltbx ("urx-" + (Get-Content CI/version.txt) + "-win-amd64.mltbx")
   artifacts:
     name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
-      - install
-      - urx-*-win-amd64.mltbx
-    expire_in: 1 day
+      - install/windows-matlab/bin/UrxMatlabBinding.dll
 
-build:ubuntu-matlab-static:
+build:ubuntu-matlab:
   stage: build
-  needs: [build:matlab-ubuntu-12.04]
+  needs: []
   tags:
     - matlab
     - ubuntu
   before_script:
     - *before-script-vcpkg-linux
   script:
-    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/usr/bin/clang-17 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-17 -DCMAKE_AR=/usr/bin/llvm-ar-17 -DCMAKE_AS=/usr/bin/llvm-as-17 -DCMAKE_RANLIB=/usr/bin/llvm-ranlib-17 -DCMAKE_LINKER_TYPE=LLD -DCMAKE_TOOLCHAIN_FILE="$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-lsrp -DVCPKG_HOST_TRIPLET=x64-lsrp -DVCPKG_OVERLAY_TRIPLETS=$VCPKG_REGISTRY_LOCAL_GIT/triplets -DCMAKE_INSTALL_PREFIX="install/ubuntu-matlab-static" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=ON -DWITH_PYTHON:BOOL=OFF -DWITH_MATLAB:BOOL=ON -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+    - cmake -S . -B CI -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/usr/bin/clang-17 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-17 -DCMAKE_AR=/usr/bin/llvm-ar-17 -DCMAKE_AS=/usr/bin/llvm-as-17 -DCMAKE_RANLIB=/usr/bin/llvm-ranlib-17 -DCMAKE_LINKER_TYPE=LLD -DCMAKE_TOOLCHAIN_FILE="$VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-lsrp -DVCPKG_HOST_TRIPLET=x64-lsrp -DVCPKG_OVERLAY_TRIPLETS=$VCPKG_REGISTRY_LOCAL_GIT/triplets -DCMAKE_INSTALL_PREFIX="install/ubuntu-matlab" -DBUILD_SHARED_LIBS=OFF -DWITH_HDF5=ON -DBUILD_TESTING=OFF -DWITH_PYTHON:BOOL=OFF -DWITH_MATLAB:BOOL=ON -DHARDENED_BUILD:BOOL=ON -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
     - *after-script-clean-vcpkg-linux
     - cmake --build CI --config Release --parallel $NUM_PARALLEL
     - cmake --install CI --config Release
     - cd test/matlab
     - ssh moduleus@localhost "export URX_DEBUG=/tmp/urx-matlab.log; cd $PWD && /opt/matlab/R2022b/bin/matlab -batch runTestsCi"
     - cat /tmp/urx-matlab.log
-    - cd ../../CI/matlab/binding
-    - rm libUrxMatlabBinding.so && cp ../../libUrxMatlabBinding.so .
-    - ssh moduleus@localhost 'cd '`pwd`' && /opt/matlab/R2022b/bin/matlab -batch "matlab.addons.toolbox.packageToolbox(\"linux-Release.prj\")"'
-    - cd ../../..
-    - cp CI/matlab/binding/urx.mltbx urx-$(cat CI/version.txt)-linux-amd64.mltbx
   after_script:
-    - rm -Rf test/matlab/test.urx CI/matlab/binding/urx.mltbx
+    - rm -Rf test/matlab/test.urx
+  artifacts:
+    name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
+    paths:
+      - install
+
+build:matlab-toolbox:
+  stage: build
+  needs: [build:ubuntu-matlab-12.04, build:windows-matlab]
+  tags:
+    - matlab
+    - ubuntu
+  script:
+    - cd CI/matlab/binding
+    - cp ../../libUrxMatlabBinding.so .
+    - cp ../../../install/windows-matlab/bin/UrxMatlabBinding.dll .
+    - ssh moduleus@localhost 'cd '`pwd`' && /opt/matlab/R2022b/bin/matlab -batch "matlab.addons.toolbox.packageToolbox(\"urx-Release.prj\")"'
+    - cd ../../..
+    - cp CI/matlab/binding/urx.mltbx urx-$(cat CI/version.txt)-amd64.mltbx
+  after_script:
+    - rm -Rf CI/matlab/binding/urx.mltbx
   artifacts:
     name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - CI/version.txt
-      - install
-      - urx-*-linux-amd64.mltbx
-    expire_in: 1 day
+      - urx-*-amd64.mltbx
 
 release:all-python-manylinux2014_x86_64:
   variables:
@@ -632,7 +644,6 @@ release:all-python-manylinux2014_x86_64:
     name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - ultrasound_rawdata_exchange*manylinux*.whl
-    expire_in: 1 day
 
 release:all-python-manylinux_2_28_x86_64:
   variables:
@@ -657,7 +668,6 @@ release:all-python-manylinux_2_28_x86_64:
     name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - ultrasound_rawdata_exchange*manylinux*.whl
-    expire_in: 1 day
 
 release:all-python-musllinux_1_2_x86_64:
   variables:
@@ -684,12 +694,11 @@ release:all-python-musllinux_1_2_x86_64:
     name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - ultrasound_rawdata_exchange*musllinux*.whl
-    expire_in: 1 day
 
 release:all-python-windows-x64:
   variables:
     CIBW_BUILD: cp38-win_amd64 cp39-win_amd64 cp310-win_amd64 cp311-win_amd64 cp312-win_amd64 cp313-win_amd64 pp38-win_amd64 pp39-win_amd64 pp310-win_amd64
-    CIBW_ENABLE: cpython-freethreading
+    CIBW_ENABLE: cpython-freethreading pypy pypy-eol
   stage: release
   needs: []
   when: manual
@@ -704,7 +713,7 @@ release:all-python-windows-x64:
     - Enter-VsDevShell -VsInstallPath "C:\Program Files\Microsoft Visual Studio\2022\Community" -DevCmdArguments '-arch=x64'
     - Pop-Location
     - *python-venv-windows
-    - $Env:CIBW_CONFIG_SETTINGS = "--global-option=CMAKE_TOOLCHAIN_FILE=$Env:VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake --global-option=-DVCPKG_INSTALL_OPTIONS=--x-buildtrees-root=$Env:VCPKG_BUILDTREE --global-option=-DBUILD_TESTING:BOOL=OFF"
+    - $Env:CIBW_CONFIG_SETTINGS = "--global-option=CMAKE_TOOLCHAIN_FILE=$Env:VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake --global-option=-DVCPKG_INSTALL_OPTIONS=--x-buildtrees-root=$Env:VCPKG_BUILDTREE --global-option=-DBUILD_TESTING:BOOL=OFF --global-option=cmake_build_type=Release --global-option=vcpkg_triplet=x64-wssrep --global-option=-DCRT_SHARED_LIBS=OFF"
     - python.exe -m pip install cibuildwheel
     - python.exe -m cibuildwheel --output-dir wheelhouse --platform windows
     - *after-script-clean-vcpkg-windows
@@ -712,7 +721,6 @@ release:all-python-windows-x64:
     name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - wheelhouse
-    expire_in: 1 day
 
 release:all-python-windows-x86:
   variables:
@@ -732,7 +740,7 @@ release:all-python-windows-x86:
     - Enter-VsDevShell -VsInstallPath "C:\Program Files\Microsoft Visual Studio\2022\Community" -DevCmdArguments '-arch=x86'
     - Pop-Location
     - *python-venv-windows
-    - $Env:CIBW_CONFIG_SETTINGS = "--global-option=CMAKE_TOOLCHAIN_FILE=$Env:VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake --global-option=-DVCPKG_INSTALL_OPTIONS=--x-buildtrees-root=$Env:VCPKG_BUILDTREE --global-option=-DBUILD_TESTING:BOOL=OFF"
+    - $Env:CIBW_CONFIG_SETTINGS = "--global-option=CMAKE_TOOLCHAIN_FILE=$Env:VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake --global-option=-DVCPKG_INSTALL_OPTIONS=--x-buildtrees-root=$Env:VCPKG_BUILDTREE --global-option=-DBUILD_TESTING:BOOL=OFF --global-option=cmake_build_type=Release --global-option=vcpkg_triplet=x86-wssrep --global-option=-DCRT_SHARED_LIBS=OFF"
     - python.exe -m pip install cibuildwheel
     - python.exe -m cibuildwheel --output-dir wheelhouse --platform windows
     - *after-script-clean-vcpkg-windows
@@ -740,7 +748,6 @@ release:all-python-windows-x86:
     name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - wheelhouse
-    expire_in: 1 day
 
 # Need to use latest hdf5 to cross-compilation
 # Need to add -DVCPKG_INSTALL_OPTIONS=--allow-unsupported in setup.py for pybind11.
@@ -764,7 +771,7 @@ release:all-python-windows-arm64:
     - Enter-VsDevShell -VsInstallPath "C:\Program Files\Microsoft Visual Studio\2022\Community" -DevCmdArguments '-arch=arm64'
     - Pop-Location
     - *python-venv-windows
-    - $Env:CIBW_CONFIG_SETTINGS = "--global-option=CMAKE_TOOLCHAIN_FILE=$Env:VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake --global-option=-DVCPKG_INSTALL_OPTIONS=--x-buildtrees-root=$Env:VCPKG_BUILDTREE --global-option=-DBUILD_TESTING:BOOL=OFF"
+    - $Env:CIBW_CONFIG_SETTINGS = "--global-option=CMAKE_TOOLCHAIN_FILE=$Env:VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake --global-option=-DVCPKG_INSTALL_OPTIONS=--x-buildtrees-root=$Env:VCPKG_BUILDTREE --global-option=-DBUILD_TESTING:BOOL=OFF --global-option=cmake_build_type=Release --global-option=vcpkg_triplet=arm64-wssrep --global-option=-DCRT_SHARED_LIBS=OFF"
     - python.exe -m pip install cibuildwheel
     - python.exe -m cibuildwheel --output-dir wheelhouse --platform windows
     - *after-script-clean-vcpkg-windows
@@ -772,7 +779,6 @@ release:all-python-windows-arm64:
     name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - wheelhouse
-    expire_in: 1 day
 
 release:upload-to-pypi:
   stage: release
@@ -788,7 +794,16 @@ release:upload-to-pypi:
     - python
   script:
     - *python-venv-linux
-    - python -m twine upload `find . -name "*.whl"`
+    - |
+      if [ -z "$PYPI_TESTS" ]; then
+        echo "PYPI_TESTS is not set"; exit 1
+      elif [ "$PYPI_TESTS" = "TRUE" ]; then
+        python -m twine upload --repository testpypi $(find . -name "*.whl")
+      elif [ "$PYPI_TESTS" = "FALSE" ]; then
+        python -m twine upload `find . -name "*.whl"`
+      else
+        echo "PYPI_TESTS must be TRUE or FALSE"; exit 1
+      fi
 
 release:upload-to-github:
   stage: release
@@ -798,8 +813,7 @@ release:upload-to-github:
     - release:all-python-musllinux_1_2_x86_64
     - release:all-python-windows-x64
     - release:all-python-windows-x86
-    - build:windows-matlab-static
-    - build:ubuntu-matlab-static
+    - build:matlab-toolbox
   when: manual
   tags:
     - ubuntu

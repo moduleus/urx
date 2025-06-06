@@ -25,7 +25,7 @@ struct TransmitSetup {
 
   bool operator!=(const TransmitSetup& other) const { return !operator==(other); }
 
-  std::weak_ptr<Probe> probe = std::weak_ptr<Probe>();
+  std::weak_ptr<Probe> probe;
   Wave wave;
 
   std::vector<std::vector<uint32_t>> active_elements;

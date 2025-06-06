@@ -11,6 +11,7 @@
 #include <vector>
 
 #include <pybind11/attr.h>
+#include <pybind11/buffer_info.h>
 #include <pybind11/cast.h>
 #include <pybind11/numpy.h>
 #include <pybind11/operators.h>
@@ -35,6 +36,16 @@ namespace urx::python {
 namespace py = pybind11;
 
 namespace detail {
+template <typename DataType>
+class RawDataWeakPython final : public RawDataWeak<DataType> {
+ public:
+  RawDataWeakPython(const py::array &array)
+      : RawDataWeak<DataType>(array.request().ptr, array.request().shape[0]), _array(array) {}
+  ~RawDataWeakPython() override = default;
+
+ private:
+  py::array _array;
+};
 
 template <typename CppClass, const char *python_name>
 void bindVector(pybind11::module_ &m) {

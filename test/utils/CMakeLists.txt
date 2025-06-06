@@ -1,4 +1,4 @@
-set(URX_TEST_FILES time_helper.cpp group_data_reader.cpp)
+set(URX_TEST_FILES time_helper.cpp group_data_reader.cpp probe_helper.cpp)
 
 add_executable(UrxUtilsTest ${URX_TEST_FILES})
 if(ENABLE_PCH)

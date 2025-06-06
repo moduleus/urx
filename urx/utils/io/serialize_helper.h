@@ -3,7 +3,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
-#include <optional>
 #include <string>
 #include <typeindex>
 #include <unordered_map>
@@ -50,8 +49,9 @@ using AllTypeInVariant = std::variant<
     std::weak_ptr<Group>*, std::weak_ptr<ImpulseResponse>*, std::weak_ptr<Probe>*, uint16_t*,
     uint32_t*, uint64_t*, uint8_t*>;
 
-const std::unordered_map<std::type_index, std::vector<std::pair<AllTypeInVariant, std::string>>>&
-getMemberMap();
+URX_UTILS_EXPORT const
+    std::unordered_map<std::type_index, std::vector<std::pair<AllTypeInVariant, std::string>>>&
+    getMemberMap();
 
 URX_UTILS_EXPORT const std::unordered_map<std::type_index, const H5::PredType*>& getStdToHdf5();
 
@@ -74,35 +74,8 @@ template <class... Ts>
 Overloaded(Ts...) -> Overloaded<Ts...>;
 
 template <typename T>
-const std::vector<std::shared_ptr<T>>& getSharedPtr(MapToSharedPtr& map) {
+const std::vector<std::shared_ptr<T>>& getSharedPtr(const MapToSharedPtr& map) {
   return *reinterpret_cast<const std::vector<std::shared_ptr<T>>*>(map.at(nameTypeid<T>()));
 }
-
-enum class ContainerType { RAW, VECTOR, SHARED_PTR, WEAK_PTR, OPTIONAL };
-
-template <typename T>
-struct TypeContainer {
-  static constexpr ContainerType VALUE = ContainerType::RAW;
-};
-
-template <typename T>
-struct TypeContainer<std::vector<T>> {
-  static constexpr ContainerType VALUE = ContainerType::VECTOR;
-};
-
-template <typename T>
-struct TypeContainer<std::shared_ptr<T>> {
-  static constexpr ContainerType VALUE = ContainerType::SHARED_PTR;
-};
-
-template <typename T>
-struct TypeContainer<std::weak_ptr<T>> {
-  static constexpr ContainerType VALUE = ContainerType::WEAK_PTR;
-};
-
-template <typename T>
-struct TypeContainer<std::optional<T>> {
-  static constexpr ContainerType VALUE = ContainerType::OPTIONAL;
-};
 
 }  // namespace urx::utils::io

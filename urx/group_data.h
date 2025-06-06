@@ -23,7 +23,7 @@ struct GroupData {
 
   bool operator!=(const GroupData& other) const { return !operator==(other); }
 
-  std::weak_ptr<Group> group = std::weak_ptr<Group>();
+  std::weak_ptr<Group> group;
   std::shared_ptr<RawData> raw_data = std::make_shared<RawDataVector<float>>(std::vector<float>());
 
   DoubleNan group_timestamp;

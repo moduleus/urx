@@ -25,7 +25,7 @@ struct ReceiveSetup {
 
   bool operator!=(const ReceiveSetup& other) const { return !operator==(other); }
 
-  std::weak_ptr<Probe> probe = std::weak_ptr<Probe>();
+  std::weak_ptr<Probe> probe;
 
   Transform probe_transform;
 
