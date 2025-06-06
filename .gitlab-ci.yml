@@ -150,7 +150,6 @@ doc:doxygen:
     name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - public
-    expire_in: 1 day
 
 .plantuml-all-cleanup: &plantuml-all-cleanup # Remove template
   - sed -i 's/<template<[^>]*>>//' doc/plantuml/architecture.puml
@@ -232,7 +231,6 @@ doc:plantuml:
     name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - public
-    expire_in: 1 day
 
 format:clang-format:
   stage: format
@@ -290,7 +288,6 @@ format:iwyu:
     paths:
       - CI/iwyu_tool.log
       - CI/iwyu.patch
-    expire_in: 1 day
 
 format:black-format:
   stage: format
@@ -310,7 +307,6 @@ format:black-format:
     when: on_failure
     paths:
       - CI/format.patch
-    expire_in: 1 day
 
 release:update-images-of-wiki:
   stage: release
@@ -390,7 +386,6 @@ build:ubuntu-matlab-12.04:
       - CI/matlab/binding/include
       - CI/matlab/binding/+urx
       - /builds/common/sw/urx/CI/vcpkg_installed/vcpkg/issue_body.md
-    expire_in: 1 day
 
 build:ubuntu-matlab-20.04:
   variables:
@@ -415,7 +410,6 @@ build:ubuntu-matlab-20.04:
     paths:
       - CI/libUrxMatlabBinding.so
       - /builds/common/sw/urx/CI/vcpkg_installed/vcpkg/issue_body.md
-    expire_in: 1 day
 
 build:windows-with-HDF5-static:
   stage: build
@@ -437,7 +431,6 @@ build:windows-with-HDF5-static:
     name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - install
-    expire_in: 1 day
 
 build:windows-with-HDF5-shared:
   stage: build
@@ -459,7 +452,6 @@ build:windows-with-HDF5-shared:
     name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - install
-    expire_in: 1 day
 
 build:ubuntu-with-HDF5-static:
   stage: build
@@ -489,7 +481,6 @@ build:ubuntu-with-HDF5-static:
       - CI/matlab/binding/urx/matlab/export.h
       - CI/python/urx/python/export.h
       - install
-    expire_in: 1 day
 
 build:ubuntu-with-HDF5-shared:
   stage: build
@@ -511,7 +502,6 @@ build:ubuntu-with-HDF5-shared:
     name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - install
-    expire_in: 1 day
 
 build:ubuntu-without-3rd-party:
   stage: build
@@ -531,7 +521,6 @@ build:ubuntu-without-3rd-party:
     name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - install
-    expire_in: 1 day
 
 build:windows-python:
   stage: build
@@ -584,7 +573,6 @@ build:windows-matlab:
     name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - install/windows-matlab/bin/UrxMatlabBinding.dll
-    expire_in: 1 day
 
 build:ubuntu-matlab:
   stage: build
@@ -608,7 +596,6 @@ build:ubuntu-matlab:
     name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - install
-    expire_in: 1 day
 
 build:matlab-toolbox:
   stage: build
@@ -630,7 +617,6 @@ build:matlab-toolbox:
     paths:
       - CI/version.txt
       - urx-*-amd64.mltbx
-    expire_in: 1 day
 
 release:all-python-manylinux2014_x86_64:
   variables:
@@ -658,7 +644,6 @@ release:all-python-manylinux2014_x86_64:
     name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - ultrasound_rawdata_exchange*manylinux*.whl
-    expire_in: 1 day
 
 release:all-python-manylinux_2_28_x86_64:
   variables:
@@ -683,7 +668,6 @@ release:all-python-manylinux_2_28_x86_64:
     name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - ultrasound_rawdata_exchange*manylinux*.whl
-    expire_in: 1 day
 
 release:all-python-musllinux_1_2_x86_64:
   variables:
@@ -710,7 +694,6 @@ release:all-python-musllinux_1_2_x86_64:
     name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - ultrasound_rawdata_exchange*musllinux*.whl
-    expire_in: 1 day
 
 release:all-python-windows-x64:
   variables:
@@ -738,7 +721,6 @@ release:all-python-windows-x64:
     name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - wheelhouse
-    expire_in: 1 day
 
 release:all-python-windows-x86:
   variables:
@@ -766,7 +748,6 @@ release:all-python-windows-x86:
     name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - wheelhouse
-    expire_in: 1 day
 
 # Need to use latest hdf5 to cross-compilation
 # Need to add -DVCPKG_INSTALL_OPTIONS=--allow-unsupported in setup.py for pybind11.
@@ -798,7 +779,6 @@ release:all-python-windows-arm64:
     name: $CI_PROJECT_NAME-$CI_JOB_NAME_SLUG-$CI_JOB_ID
     paths:
       - wheelhouse
-    expire_in: 1 day
 
 release:upload-to-pypi:
   stage: release
