@@ -1,8 +1,8 @@
 #include "bindings_module.h"
 
+#include <algorithm>
 #include <cstddef>
 #include <iomanip>
-#include <ios>
 #include <iosfwd>
 #include <memory>
 #include <ostream>
@@ -11,6 +11,7 @@
 #include <utility>
 #include <vector>
 
+#include <pybind11/cast.h>
 #include <pybind11/numpy.h>
 #include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
@@ -23,6 +24,7 @@
 #include <urx/config.h>
 #include <urx/dataset.h>
 #include <urx/detail/double_nan.h>
+#include <urx/detail/raw_data.h>
 #include <urx/element.h>
 #include <urx/element_geometry.h>
 #include <urx/enums.h>
@@ -37,15 +39,20 @@
 #include <urx/transform.h>
 #include <urx/transmit_setup.h>
 #include <urx/urx.h>
+#include <urx/utils/clone.h>
 #include <urx/utils/exception.h>
 #include <urx/utils/group_data_reader.h>
 #include <urx/utils/group_helper.h>
+#include <urx/utils/io/reader_options.h>
+#include <urx/utils/io/writer_options.h>
 #include <urx/utils/time_helper.h>
+#include <urx/utils/validator.h>
 #include <urx/vector.h>
 #include <urx/version.h>
 
 #ifdef URX_WITH_HDF5
 #include <urx/utils/io/reader.h>
+#include <urx/utils/io/stream.h>
 #include <urx/utils/io/writer.h>
 #endif
 
@@ -233,20 +240,93 @@ PYBIND11_MODULE(bindings, m) {
                                                          PyExc_RuntimeError);
 
 #ifdef URX_WITH_HDF5
-  m.def("loadFromFile", &urx::utils::io::reader::loadFromFile);
-  m.def("saveToFile", static_cast<void (*)(const std::string &, const urx::Dataset &)>(
-                          &urx::utils::io::writer::saveToFile));
+  py::enum_<urx::utils::io::RawDataLoadPolicy>(m, "UrxRawDataLoadPolicy")
+      .value("FULL", urx::utils::io::RawDataLoadPolicy::FULL)
+      .value("STREAM", urx::utils::io::RawDataLoadPolicy::STREAM);
+  m.attr("RawDataLoadPolicy") = m.attr("UrxRawDataLoadPolicy");
+
+  py::class_<urx::utils::io::ReaderOptions>(m, "UrxReaderOptions")
+      .def(py::init())
+      .def(py::init<urx::utils::io::RawDataLoadPolicy>())
+      .def_property("raw_data_load_policy", &urx::utils::io::ReaderOptions::getRawDataLoadPolicy,
+                    &urx::utils::io::ReaderOptions::setRawDataLoadPolicy);
+  m.attr("ReaderOptions") = m.attr("UrxReaderOptions");
+
+  py::class_<urx::utils::io::WriterOptions>(m, "UrxWriterOptions")
+      .def(py::init())
+      .def(py::init<bool, bool, bool>())
+      .def_property("chunk_group_data", &urx::utils::io::WriterOptions::getChunkGroupData,
+                    &urx::utils::io::WriterOptions::setChunkGroupData)
+      .def_property("clean_unusable_data", &urx::utils::io::WriterOptions::getCleanUnusableData,
+                    &urx::utils::io::WriterOptions::setCleanUnusableData)
+      .def_property("check_data", &urx::utils::io::WriterOptions::getCheckData,
+                    &urx::utils::io::WriterOptions::setCheckData);
+  m.attr("WriterOptions") = m.attr("UrxWriterOptions");
+
+  m.def("loadFromFile", &urx::utils::io::reader::loadFromFile, py::arg("filename"),
+        py::arg("options") = urx::utils::io::ReaderOptions());
+  m.def("saveToFile", &urx::utils::io::writer::saveToFile, py::arg("filename"), py::arg("dataset"),
+        py::arg("options") = urx::utils::io::WriterOptions());
+
+  py::class_<urx::utils::io::GroupDataStream, std::shared_ptr<urx::utils::io::GroupDataStream>>(
+      m, "UrxGroupDatastream")
+      .def("append",
+           static_cast<void (urx::utils::io::GroupDataStream::*)(
+               const std::shared_ptr<urx::RawData> &, double, const std::vector<double> &)>(
+               &urx::utils::io::GroupDataStream::append))
+      .def("append",
+           [](urx::utils::io::GroupDataStream &self, const py::array &raw_data,
+              double sequence_timestamp, const urx::python::VecFloat64 &event_timestamp) {
+             self.append(urx::python::detail::pyArrayToRawData(raw_data), sequence_timestamp,
+                         event_timestamp);
+           })
+      .def("getGroupData", &urx::utils::io::GroupDataStream::getGroupData);
+  m.attr("GroupDatastream") = m.attr("UrxGroupDatastream");
+
+  py::class_<urx::utils::io::Stream, std::shared_ptr<urx::utils::io::Stream>>(m, "UrxStream")
+      .def(py::init<const std::string &, std::shared_ptr<urx::Dataset>>())
+      .def_property_readonly("dataset", &urx::utils::io::Stream::getDataset)
+      .def("saveToFile", &urx::utils::io::Stream::saveToFile)
+      .def("loadFromFile", &urx::utils::io::Stream::loadFromFile)
+      .def("readerOptions",
+           static_cast<urx::utils::io::ReaderOptions &(urx::utils::io::Stream::*)()>(
+               &urx::utils::io::Stream::readerOptions))
+      .def("writerOptions",
+           static_cast<urx::utils::io::WriterOptions &(urx::utils::io::Stream::*)()>(
+               &urx::utils::io::Stream::writerOptions))
+      .def("createGroupData",
+           [](urx::utils::io::Stream &stream, const std::shared_ptr<urx::Group> &group,
+              urx::DoubleNan timestamp) {
+             // NOLINTNEXTLINE(modernize-make-shared)
+             return std::shared_ptr<urx::utils::io::GroupDataStream>(
+                 new urx::utils::io::GroupDataStream(stream.createGroupData(group, timestamp)));
+           })
+      .def("readRawData",
+           static_cast<void (urx::utils::io::Stream::*)(
+               size_t, const std::shared_ptr<urx::RawData> &, size_t, size_t, size_t)>(
+               &urx::utils::io::Stream::readRawData))
+      .def("readRawData", [](urx::utils::io::Stream &stream, size_t group_data,
+                             const py::array &array, size_t sequence_urx_raw_data,
+                             size_t sequence_h5_raw_data, size_t count) {
+        const std::shared_ptr<urx::RawData> raw_data = urx::python::detail::pyArrayToRawData(array);
+        stream.readRawData(group_data, raw_data, sequence_urx_raw_data, sequence_h5_raw_data,
+                           count);
+        return urx::python::detail::rawDataToPyArray(*raw_data);
+      });
+
+  m.attr("Stream") = m.attr("UrxStream");
 #endif
 
   // group_data_reader.h
-  py::class_<urx::utils::GroupDataReader>(m, "GroupDataReader")
-      .def(py::init<urx::GroupData &, size_t>())
+  py::class_<urx::utils::GroupDataReader>(m, "UrxGroupDataReader")
+      .def(py::init<urx::GroupData &>())
       .def("sequencesCount", &urx::utils::GroupDataReader::sequencesCount)
       .def("eventsCount", &urx::utils::GroupDataReader::eventsCount)
       .def("channelsCount", &urx::utils::GroupDataReader::channelsCount)
       .def("samplesCount", &urx::utils::GroupDataReader::samplesCount)
       .def("offset", &urx::utils::GroupDataReader::offset)
       .def("sampleByteSize", &urx::utils::GroupDataReader::sampleByteSize);
+  m.attr("GroupDataReader") = m.attr("UrxGroupDataReader");
 
   // group_helper
   m.def("sizeofDataType", &urx::utils::group_helper::sizeofDataType);
@@ -256,5 +336,75 @@ PYBIND11_MODULE(bindings, m) {
   // time_helper.h
   m.def("isIso8601", &urx::utils::time_helper::isIso8601);
   m.def("isIso3166", &urx::utils::time_helper::isIso3166);
+
+  m.def("validate", [](const urx::Dataset &dataset) {
+    urx::utils::ValidatorReport validator;
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+    validator.check(const_cast<urx::Dataset &>(dataset));
+    validator.throwIfFailure();
+  });
+
+  // clone functions
+  // other clone than Dataset are not accessible yet
+  //   m.def("clone", &urx::utils::clone<urx::DoubleNan, urx::DoubleNan>,
+  //         "Clone/Duplicate URX DoubleNan class in memory");
+
+  //   m.def("clone", &urx::utils::clone<urx::Vector2D<double>, urx::Vector2D<double>>,
+  //         "Clone/Duplicate URX Vector2D<double> class in memory");
+  //   m.def("clone", &urx::utils::clone<urx::Vector3D<double>, urx::Vector3D<double>>,
+  //         "Clone/Duplicate URX Vector3D<double> class in memory");
+
+  //   m.def("clone", &urx::utils::clone<urx::Version, urx::Version>,
+  //         "Clone/Duplicate URX Version class in memory");
+
+  //   m.def("clone", &urx::utils::clone<urx::Transform, urx::Transform>,
+  //         "Clone/Duplicate URX Transform class in memory");
+
+  //   m.def("clone", &urx::utils::clone<urx::Wave, urx::Wave>,
+  //         "Clone/Duplicate URX Wave class in memory");
+
+  //   m.def("clone", &urx::utils::clone<urx::Element, urx::Element>,
+  //         "Clone/Duplicate URX Element class in memory");
+
+  //   m.def("clone", &urx::utils::clone<urx::ElementGeometry, urx::ElementGeometry>,
+  //         "Clone/Duplicate URX ElementGeometry class in memory");
+
+  //   m.def("clone", &urx::utils::clone<urx::ImpulseResponse, urx::ImpulseResponse>,
+  //         "Clone/Duplicate URX ImpulseResponse class in memory");
+
+  //   m.def("clone", &urx::utils::clone<urx::TransmitSetup, urx::TransmitSetup>,
+  //         "Clone/Duplicate URX TransmitSetup class in memory");
+
+  //   m.def("clone", &urx::utils::clone<urx::ReceiveSetup, urx::ReceiveSetup>,
+  //         "Clone/Duplicate URX ReceiveSetup class in memory");
+
+  //   m.def("clone", &urx::utils::clone<urx::Event, urx::Event>,
+  //         "Clone/Duplicate URX Event class in memory");
+
+  //   m.def("clone", &urx::utils::clone<urx::Excitation, urx::Excitation>,
+  //         "Clone/Duplicate URX Excitation class in memory");
+
+  //   m.def("clone", &urx::utils::clone<urx::Group, urx::Group>,
+  //         "Clone/Duplicate URX Group class in memory");
+
+  //   m.def("clone", &urx::utils::clone<urx::GroupData, urx::GroupData>,
+  //         "Clone/Duplicate URX GroupData class in memory");
+
+  //   m.def("clone", &urx::utils::clone<urx::RawData, std::shared_ptr<urx::RawData>>,
+  //         "Clone/Duplicate URX RawData class in memory");
+
+  //   m.def("clone", &urx::utils::clone<urx::Probe, urx::Probe>,
+  //         "Clone/Duplicate URX Probe class in memory");
+
+  //   m.def("clone", &urx::utils::clone<urx::Acquisition, urx::Acquisition>,
+  //         "Clone/Duplicate URX Acquisition class in memory");
+
+  //   m.def("clone", &urx::utils::clone<urx::Dataset, urx::Dataset>,
+  //         "Clone/Duplicate URX Dataset class in memory");
+
+  m.def("clone",
+        static_cast<std::shared_ptr<urx::Dataset> (*)(const std::shared_ptr<urx::Dataset> &)>(
+            &urx::utils::clone),
+        "Clone/Duplicate URX Dataset class in memory");
 }
 // NOLINTEND(misc-redundant-expression)

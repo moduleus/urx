@@ -18,8 +18,8 @@ def test_receive_setup(
     vector3d_constructor,
     vector3d_args,
 ):
-    testName = "ReceiveSetup"
-    print("\n--Test %s binding BEGIN--" % testName)
+    test_name = "ReceiveSetup"
+    print("\n--Test %s binding BEGIN--" % test_name)
 
     # Check default CTOR
     rs = receive_setup_constructor()
@@ -44,9 +44,11 @@ def test_receive_setup(
     self.assertEqual(rs, rs_2)
     rs_2.probe_transform = t_2
     self.assertNotEqual(rs, rs_2)
+    self.assertNotEqual(id(rs), id(rs_2))
     rs_ref = rs
     rs_ref.probe_transform = t_2
     self.assertEqual(rs, rs_ref)
+    self.assertEqual(id(rs), id(rs_ref))
 
     # Check CTOR with all parameters
     rs = receive_setup_args(probe_constructor(), t_2, 1, 2, [[3]], [4], 5, 6, 7)
@@ -171,4 +173,4 @@ def test_receive_setup(
     self.assertEqual(rs.time_offset, 7)
     self.assertEqual(rs, rs_2)
 
-    print("--Test %s END--" % testName)
+    print("--Test %s END--" % test_name)

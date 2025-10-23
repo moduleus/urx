@@ -8,8 +8,7 @@
 
 namespace urx::utils::io::writer {
 
-URX_UTILS_EXPORT void saveToFile(const std::string& filename, const Dataset& dataset);
 URX_UTILS_EXPORT void saveToFile(const std::string& filename, const Dataset& dataset,
-                                 const WriterOptions& options);
+                                 const WriterOptions& options = {});
 
 }  // namespace urx::utils::io::writer

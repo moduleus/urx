@@ -1,5 +1,6 @@
 import io
 import sys
+
 import numpy as np
 
 
@@ -8,17 +9,20 @@ def test_double_nan(
     double_nan_constructor,
     double_nan_copy,
 ):
-    testName = "DoubleNan"
-    print("\n--Test %s binding BEGIN--" % testName)
+    test_name = "DoubleNan"
+    print("\n--Test %s binding BEGIN--" % test_name)
 
     # Check CTORs
     d = double_nan_constructor()
     d_2 = double_nan_copy(d)
     d_3 = double_nan_copy(42)
+    d_ref = d
 
     # Check Nan comparison
     self.assertTrue(np.isnan(d.value))
     self.assertEqual(d, d_2)
+    self.assertNotEqual(id(d), id(d_2))
+    self.assertEqual(id(d), id(d_ref))
     self.assertEqual(d, double_nan_copy(np.nan))
     self.assertNotEqual(d, np.nan)
     self.assertNotEqual(d.value, np.nan)
@@ -26,6 +30,8 @@ def test_double_nan(
     # Check non Nan comparison
     d.value = 42
     self.assertEqual(d, d_3)
+    self.assertEqual(d, d_ref)
+    self.assertEqual(id(d), id(d_ref))
 
     # Check operators
     self.assertEqual(+d, 42)
@@ -64,10 +70,10 @@ def test_double_nan(
     self.assertEqual(np.sin(d_3.value), np.sin(42))
 
     # Check __repr__
-    capturedOutput = io.StringIO()
-    sys.stdout = capturedOutput
+    captured_output = io.StringIO()
+    sys.stdout = captured_output
     print(d_3, end="")
     sys.stdout = sys.__stdout__
-    self.assertEqual(capturedOutput.getvalue(), "42")
+    self.assertEqual(captured_output.getvalue(), "42")
 
-    print("--Test %s END--" % testName)
+    print("--Test %s END--" % test_name)

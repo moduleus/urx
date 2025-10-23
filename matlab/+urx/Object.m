@@ -17,9 +17,9 @@ classdef Object < urx.ObjectField
     % parent is used when an object is inside another object. For example:
     % Acquisition is inside a Dataset object. This feature should not be
     % used by user.
-    function this = Object(id, ptrType, parent, varargin)
+    function this = Object(varargin)
       % Need to skip when initializing a matrix with a none zero size.
-      if nargin == 1 && isempty(id)
+      if nargin == 1 && isempty(varargin{1})
         return;
       end
       this.libBindingRef = this.getInstance();
@@ -28,17 +28,27 @@ classdef Object < urx.ObjectField
       namespace = namespace(1:3);
 
       if nargin == 0
-        this.id = this.libBindingRef.call([strrep(class(this), '.', '_') '_new']);
         this.ptrType = urx.PtrType.SHARED;
-      elseif nargin == 3 % Only used from PreGet event.
-        this.id = id;
-        this.ptrType = ptrType;
-        this.parent = parent;
-      elseif nargin == 4
-        this.id = this.libBindingRef.call([strrep(class(this), '.', '_') '_new'], varargin{:});
-        this.ptrType = urx.PtrType.SHARED;
+        this.id = this.libBindingRef.call([strrep(class(this), '.', '_') '_new' urx.Object.functionPtrType(this.ptrType)]);
+      elseif nargin == 1 && isa(varargin{1}, 'urx.PtrType')
+        this.ptrType = varargin{1};
+        this.id = this.libBindingRef.call([strrep(class(this), '.', '_') '_new' urx.Object.functionPtrType(this.ptrType)]);
+      elseif nargin == 2 && isa(varargin{1}, 'urx.PtrType') && isa(varargin{2}, 'lib.pointer')
+        this.ptrType = varargin{1};
+        this.id = varargin{2};
+      elseif nargin == 3 && isa(varargin{1}, 'urx.PtrType') && isa(varargin{2}, 'lib.pointer')
+        this.ptrType = varargin{1};
+        this.id = varargin{2};
+        this.parent = varargin{3};
       else
-        assert(false);
+        if isempty(varargin{1})
+          this.ptrType = urx.PtrType.SHARED;
+        else
+          this.ptrType = varargin{1};
+        end
+        varargin(1) = [];
+
+        this.id = this.libBindingRef.call([strrep(class(this), '.', '_') '_new' urx.Object.functionPtrType(this.ptrType)], varargin{:});
       end
       mc = metaclass(this);
       props = mc.PropertyList;
@@ -80,7 +90,7 @@ classdef Object < urx.ObjectField
       % If the object has no parent, the C shared_ptr associated must be
       % released.
       if isempty(this.parent) && ~isempty(this.ptrType) && this.ptrType == urx.PtrType.SHARED
-        deleteFunction = [strrep(class(this), '.', '_') '_delete'];
+        deleteFunction = [strrep(class(this), '.', '_') '_delete' urx.Object.functionPtrType(this.ptrType)];
         this.libBindingRef.call(deleteFunction, this.id);
         this.id = libpointer;
       end
@@ -98,17 +108,23 @@ classdef Object < urx.ObjectField
     end
 
     function res = isequal(this, obj2)
-      if (~strcmp(class(this), class(obj2)))
+      if (isa(this, 'urx.RawData') && isa(obj2, 'urx.RawData'))
+        res = this.libBindingRef.call(['urx_RawData_cmp' urx.Object.functionPtrType(this.ptrType) urx.Object.functionPtrType(obj2.ptrType)], this.id, obj2.id);
+      elseif (~strcmp(class(this), class(obj2)))
         throw(MException('urx:fatalError', [ 'First argument (' class(this) ') must have the same type than the second argument (' class(obj2) ').']));
+      else
+        res = this.libBindingRef.call([strrep(class(this), '.', '_') '_cmp' urx.Object.functionPtrType(this.ptrType) urx.Object.functionPtrType(obj2.ptrType)], this.id, obj2.id);
       end
-      res = this.libBindingRef.call([strrep(class(this), '.', '_') '_cmp' urx.Object.functionPtrType(this.ptrType) urx.Object.functionPtrType(obj2.ptrType)], this.id, obj2.id);
     end
 
     function res = isequaln(this, obj2)
-      if (~strcmp(class(this), class(obj2)))
+      if (isa(this, 'urx.RawData') && isa(obj2, 'urx.RawData'))
+        res = this.libBindingRef.call(['urx_RawData_cmp' urx.Object.functionPtrType(this.ptrType) urx.Object.functionPtrType(obj2.ptrType)], this.id, obj2.id);
+      elseif (~strcmp(class(this), class(obj2)))
         throw(MException('urx:fatalError', [ 'First argument (' class(this) ') must have the same type than the second argument (' class(obj2) ').']));
+      else
+        res = this.libBindingRef.call([strrep(class(this), '.', '_') '_cmp' urx.Object.functionPtrType(this.ptrType) urx.Object.functionPtrType(obj2.ptrType)], this.id, obj2.id);
       end
-      res = this.libBindingRef.call([strrep(class(this), '.', '_') '_cmp' urx.Object.functionPtrType(this.ptrType) urx.Object.functionPtrType(obj2.ptrType)], this.id, obj2.id);
     end
 
     function res = getRawPtr(this)
@@ -251,7 +267,7 @@ classdef Object < urx.ObjectField
       if strcmp(affectedPropertyName, "hwConfig")
         affectedPropertyHwPtr = affectedObject.([affectedPropertyName 'Ptr']);
         if isempty(affectedPropertyHwPtr)
-          affectedPropertyHwPtr = uac.HwConfig(affectedCFieldPtr, urx.PtrType.RAW, affectedObject);
+          affectedPropertyHwPtr = uac.HwConfig(urx.PtrType.RAW, affectedCFieldPtr, affectedObject);
           affectedObject.([affectedPropertyName 'Ptr']) = affectedPropertyHwPtr;
         else
           assert(libBindingRef.showPtr(affectedPropertyHwPtr.id) == libBindingRef.showPtr(affectedCFieldPtr));
@@ -301,7 +317,11 @@ classdef Object < urx.ObjectField
                 else
                   affectedPropertyStd.clear();
                   for i = 1:numel(affectedProperty)
-                    affectedPropertyStd.pushBack(affectedProperty(i));
+                    if isa(affectedProperty(i), 'uint32')
+                      affectedPropertyStd.pushBack(affectedProperty(i) - 1);
+                    else
+                      affectedPropertyStd.pushBack(affectedProperty(i));
+                    end
                   end
                 end
 
@@ -328,7 +348,12 @@ classdef Object < urx.ObjectField
                 for i = 1:numel(affectedProperty)
                   vectori = feval([namespace '.StdVector'], affectedPropertyStd.objectClassName, affectedPropertyStd.nbDims-1, affectedPropertyStd.ptrType);
                   for j = 1:numel(affectedProperty{i})
-                    vectori.pushBack(affectedProperty{i}(j));
+                    if isa(affectedProperty{i}(j), 'uint32')
+                      % Index in MATLAB starts at 1.
+                      vectori.pushBack(affectedProperty{i}(j) - 1);
+                    else
+                      vectori.pushBack(affectedProperty{i}(j));
+                    end
                   end
                   affectedPropertyStd.pushBack(vectori);
                 end
@@ -441,6 +466,9 @@ classdef Object < urx.ObjectField
                   cppValues(i) = affectedPropertyStd.data(i);
                   if isa(cppValues(i), 'urx.Object')
                     cppValues(i).vectorFieldName = affectedPropertyName;
+                  elseif isa(cppValues(i), 'uint32')
+                      % Index in MATLAB starts at 1.
+                      cppValues(i) = cppValues(i) + 1;
                   end
                 end
               else
@@ -448,9 +476,15 @@ classdef Object < urx.ObjectField
                 for i = 1:len
                   vectori = affectedPropertyStd.data(i);
                   leni = vectori.len();
-                  cppValues(i) = {[]};
+                  cppValues(i) = {feval(affectedPropertyStd.objectClassName, [])};
                   for j = 1:leni
-                    cppValues{i}(end+1) = vectori.data(j);
+                    newValue = vectori.data(j);
+                    if isa(vectori.data(j), 'uint32')
+                      % Index in MATLAB starts at 1.
+                      cppValues{i}(end+1) = newValue + 1;
+                    else
+                      cppValues{i}(end+1) = newValue;
+                    end
                   end
                 end
               end
@@ -496,7 +530,7 @@ classdef Object < urx.ObjectField
                     realPropertyClassName = affectedPropertyClassName;
                   end
 
-                  newObject = feval(realPropertyClassName, affectedCFieldPtr, affectedPropertyPtrType, affectedObject);
+                  newObject = feval(realPropertyClassName, affectedPropertyPtrType, affectedCFieldPtr, affectedObject);
                   if isa(affectedProperty, 'urx.RawData')
                     sampling = newObject.samplingType();
                     data = newObject.dataType();
@@ -519,7 +553,7 @@ classdef Object < urx.ObjectField
                     else
                       assert(false);
                     end
-                    newObject = feval(realAffectedPropertyClassName, affectedCFieldPtr, affectedPropertyPtrType, affectedObject);
+                    newObject = feval(realAffectedPropertyClassName, affectedPropertyPtrType, affectedCFieldPtr, affectedObject);
                   end
                 else
                   feval_empty = feval(affectedPropertyClassName, []);
@@ -528,7 +562,7 @@ classdef Object < urx.ObjectField
                 affectedObject.(affectedPropertyName) = newObject;
               elseif (affectedPropertyPtrType == urx.PtrType.WEAK && affectedObject.(affectedPropertyName).ptrType == urx.PtrType.SHARED)
                 % Type may have changed when assigning WEAK from a SHARED.
-                newProperty = feval(affectedPropertyClassName, affectedCFieldPtr, affectedPropertyPtrType, affectedObject);
+                newProperty = feval(affectedPropertyClassName, affectedPropertyPtrType, affectedCFieldPtr, affectedObject);
                 props = properties(newProperty);
 
                 for i = 1:numel(props)

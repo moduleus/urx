@@ -1,11 +1,12 @@
-#ifndef URX_LIB_BINDING
-#define URX_LIB_BINDING
+#ifndef URX_MATLAB_BINDING
+#define URX_MATLAB_BINDING
 
 // MATLAB parser doesn't support __attribute__((visibility("default"))).
 #ifndef UrxMatlabBinding_EXPORTS
 #define URX_MATLAB_STATIC_DEFINE
 #endif
 
+#include <urx/config.h>
 #include <urx/matlab/bindings_decl.h>
 #include <urx/matlab/export.h>
 
@@ -94,8 +95,30 @@ VECTOR_WEAK_NS_DECL(urx, Excitation);
 
 RAW_DATA_SHARED_NS_DECL(urx, RawData);
 
-URX_MATLAB_EXPORT void *urx_load_from_file(const char *filename);
-URX_MATLAB_EXPORT void urx_save_to_file(const char *filename, void *dataset);
+#ifdef URX_WITH_HDF5
+
+URX_MATLAB_EXPORT void * /*pointer to shared_ptr<Dataset>*/ urx_load_from_file(
+    const char *filename);
+URX_MATLAB_EXPORT void * /*pointer to shared_ptr<Dataset>*/ urx_load_from_file_options(
+    const char *filename, int raw_data_load_policy);
+URX_MATLAB_EXPORT void urx_save_to_file(const char *filename, void *shared_dataset);
+URX_MATLAB_EXPORT void urx_save_to_file_options(const char *filename, void *shared_dataset,
+                                                bool chunk_group_data, bool clean_unusable_data,
+                                                bool check_data);
+
+URX_MATLAB_STREAM_DECL(urx);
+URX_MATLAB_GROUP_DATA_STREAM_DECL(urx);
+URX_MATLAB_GROUP_DATA_READER_DECL(urx);
+
+#endif
+
+URX_MATLAB_EXPORT void *urx_clone_dataset(void *shared_dataset);
+
+URX_MATLAB_EXPORT bool urx_validate_dataset(void *shared_dataset);
+
+URX_MATLAB_EXPORT void urx_throw(const char *v);
+URX_MATLAB_EXPORT void urx_cout(const char *v);
+URX_MATLAB_EXPORT void urx_cerr(const char *v);
 
 #ifdef __cplusplus
 }
@@ -103,4 +126,4 @@ URX_MATLAB_EXPORT void urx_save_to_file(const char *filename, void *dataset);
 
 // NOLINTEND(readability-identifier-naming)
 
-#endif  // #define URX_LIB_BINDING
+#endif  // #define URX_MATLAB_BINDING

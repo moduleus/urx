@@ -9,8 +9,8 @@ def test_wave(
     vector3d_constructor,
     vec_float64_constructor,
 ):
-    testName = "Wave"
-    print("\n--Test %s binding BEGIN--" % testName)
+    test_name = "Wave"
+    print("\n--Test %s binding BEGIN--" % test_name)
 
     # Check default CTOR
     w = wave_constructor()
@@ -24,9 +24,11 @@ def test_wave(
     self.assertEqual(w, w_2)
     w_2.type = enum_wave().CONVERGING_WAVE
     self.assertNotEqual(w, w_2)
-    p_ref = w
-    p_ref.type = enum_wave().CONVERGING_WAVE
-    self.assertEqual(w, p_ref)
+    self.assertNotEqual(id(w), id(w_2))
+    w_ref = w
+    w_ref.type = enum_wave().CONVERGING_WAVE
+    self.assertEqual(w, w_ref)
+    self.assertEqual(id(w), id(w_ref))
 
     # Check CTOR with all parameters
     w = wave_args(enum_wave().CONVERGING_WAVE, 0, vector3d_constructor(), [12.34, 56.78])
@@ -84,4 +86,4 @@ def test_wave(
     self.assertEqual(w.parameters, [12.34, 56.78])
     self.assertEqual(w, w_2)
 
-    print("--Test %s END--" % testName)
+    print("--Test %s END--" % test_name)

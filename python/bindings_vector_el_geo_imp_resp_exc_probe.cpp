@@ -10,7 +10,6 @@
 
 #include <pybind11/pybind11.h>
 
-#include <urx/detail/compare.h>
 #include <urx/detail/raw_data.h>
 #include <urx/enums.h>
 #include <urx/python/bindings.h>

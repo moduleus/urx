@@ -8,9 +8,6 @@ set(URX_TEST_FILES
     test_Version.cpp)
 
 add_executable(UrxClasses ${URX_TEST_FILES})
-if(ENABLE_PCH)
-  target_precompile_headers(UrxClasses PRIVATE ${URX_PCH} ${URX_PCH_TEST})
-endif()
 
 target_link_libraries(UrxClasses PRIVATE Urx::Urx Catch2::Catch2WithMain)
 

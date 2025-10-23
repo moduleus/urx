@@ -15,10 +15,10 @@ namespace urx {
 
 struct GroupData {
   bool operator==(const GroupData& other) const {
-    return group == other.group && raw_data->getSize() == other.raw_data->getSize() &&
+    return valueComparison(group, other.group) && valueComparison(raw_data, other.raw_data) &&
            group_timestamp == other.group_timestamp &&
            sequence_timestamps == other.sequence_timestamps &&
-           event_timestamps == other.event_timestamps && raw_data == other.raw_data;
+           event_timestamps == other.event_timestamps;
   }
 
   bool operator!=(const GroupData& other) const { return !operator==(other); }

@@ -41,7 +41,11 @@ classdef LibBinding < handle
           varargin{i} = char(varargin{i});
         end
       end
-      varargout{:} = calllib(this.libName, varargin{:});
+      if nargout > 0
+        varargout{:} = calllib(this.libName, varargin{:});
+      else
+        calllib(this.libName, varargin{:});
+      end
     end
 
     % May be useful to ease debug.

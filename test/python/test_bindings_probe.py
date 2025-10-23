@@ -1,5 +1,6 @@
-import numpy as np
 import gc
+
+import numpy as np
 
 
 def test_probe(
@@ -24,8 +25,8 @@ def test_probe(
     vec_element_args,
     enum_probe,
 ):
-    testName = "Probe binding"
-    print("\n--Test %s BEGIN--" % testName)
+    test_name = "Probe binding"
+    print("\n--Test %s BEGIN--" % test_name)
 
     v = vector3d_constructor()
     v_2 = vector3d_args(1, 2, 3)
@@ -48,9 +49,11 @@ def test_probe(
     self.assertEqual(p, p_2)
     p_2.transform = t_2
     self.assertNotEqual(p, p_2)
+    self.assertNotEqual(id(p), id(p_2))
     p_ref = p
     p_ref.transform = t_2
     self.assertEqual(p, p_ref)
+    self.assertEqual(id(p), id(p_ref))
 
     eg = element_geometry_args([v, v])
     eg_2 = element_geometry_args([v_2, v_2])
@@ -163,4 +166,4 @@ def test_probe(
     self.assertEqual(p_rca.description, "rca probe")
     self.assertEqual(p_rca, p_rca_bis)
 
-    print("--Test %s END--" % testName)
+    print("--Test %s END--" % test_name)

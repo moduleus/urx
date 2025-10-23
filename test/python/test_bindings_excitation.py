@@ -10,8 +10,8 @@ def test_excitation(
     double_nan_copy,
     vec_float64_args,
 ):
-    testName = "Excitation binding"
-    print("\n--Test %s BEGIN--" % testName)
+    test_name = "Excitation binding"
+    print("\n--Test %s BEGIN--" % test_name)
 
     # Check default CTOR
     ex = excitation_constructor()
@@ -25,9 +25,11 @@ def test_excitation(
     self.assertEqual(ex, ex_2)
     ex_2.pulse_shape = "Hello"
     self.assertNotEqual(ex, ex_2)
+    self.assertNotEqual(id(ex), id(ex_2))
     ex_ref = ex
     ex_ref.pulse_shape = "Hello"
     self.assertEqual(ex, ex_ref)
+    self.assertEqual(id(ex), id(ex_ref))
 
     # Check CTOR with all parameters
     ex = excitation_args("linear", 42, np.nan, vec_float64_args([3.14, -42]))
@@ -126,4 +128,4 @@ def test_excitation(
     ex.pulse_shape = "Hello"
     self.assertNotEqual(pulse_shape, ex.pulse_shape)
 
-    print("--Test %s END--" % testName)
+    print("--Test %s END--" % test_name)

@@ -1,21 +1,19 @@
+import os
+import subprocess
 import sys
+import sysconfig
+from pathlib import Path
 
 import cmake_build_extension
 import setuptools
 import toml
-import subprocess
-import os
-
-from pathlib import Path
-
-import sysconfig
 
 pyproject = toml.load("pyproject.toml")
 name_project = pyproject["project"]["name"]
 name_project_underscore = name_project.replace("-", "_")
 
 cmake_build_type_arg = next((arg for arg in sys.argv if arg.startswith("cmake_build_type=")), None)
-if cmake_build_type_arg != None:
+if cmake_build_type_arg is not None:
     sys.argv.remove(cmake_build_type_arg)
     cmake_build_type_arg = cmake_build_type_arg[len("cmake_build_type=") :]
 else:
@@ -24,15 +22,15 @@ else:
 CMAKE_TOOLCHAIN_FILE_arg = next(
     (arg for arg in sys.argv if arg.startswith("CMAKE_TOOLCHAIN_FILE")), None
 )
-if CMAKE_TOOLCHAIN_FILE_arg != None:
+if CMAKE_TOOLCHAIN_FILE_arg is not None:
     sys.argv.remove(CMAKE_TOOLCHAIN_FILE_arg)
 
 DISABLE_VCPKG_arg = next((arg for arg in sys.argv if arg.startswith("DISABLE_VCPKG")), None)
-if DISABLE_VCPKG_arg != None:
+if DISABLE_VCPKG_arg is not None:
     sys.argv.remove(DISABLE_VCPKG_arg)
 
 vcpkg_triplet_arg = next((arg for arg in sys.argv if arg.startswith("vcpkg_triplet=")), None)
-if vcpkg_triplet_arg != None:
+if vcpkg_triplet_arg is not None:
     sys.argv.remove(vcpkg_triplet_arg)
     vcpkg_triplet_arg = vcpkg_triplet_arg[len("vcpkg_triplet=") :]
 
@@ -60,28 +58,28 @@ if DISABLE_VCPKG_arg is None and CMAKE_TOOLCHAIN_FILE_arg is None:
 build_shared_libs_arg = next(
     (arg for arg in sys.argv if arg.startswith("-DBUILD_SHARED_LIBS=")), None
 )
-if build_shared_libs_arg != None:
+if build_shared_libs_arg is not None:
     sys.argv.remove(build_shared_libs_arg)
     build_shared_libs_arg = build_shared_libs_arg[len("-DBUILD_SHARED_LIBS=") :]
 else:
     build_shared_libs_arg = next(
         (arg for arg in sys.argv if arg.startswith("-DBUILD_SHARED_LIBS:BOOL=")), None
     )
-    if build_shared_libs_arg != None:
+    if build_shared_libs_arg is not None:
         sys.argv.remove(build_shared_libs_arg)
         build_shared_libs_arg = build_shared_libs_arg[len("-DBUILD_SHARED_LIBS:BOOL=") :]
     else:
         build_shared_libs_arg = "OFF"
 
-cmake_configure_options = []
+cmake_configure_options: list[str] = []
 
-if vcpkg_triplet_arg != None:
+if vcpkg_triplet_arg is not None:
     VCPKG_TRIPLET = vcpkg_triplet_arg
 else:
     if sys.maxsize > 2**32:
+        PYTHON_ARCH = os.environ.get("PYTHON_ARCH")
         if (
-            os.environ.get("PYTHON_ARCH") is not None
-            and os.environ.get("PYTHON_ARCH").upper() == "ARM64"
+            PYTHON_ARCH is not None and PYTHON_ARCH.upper() == "ARM64"
         ) or sysconfig.get_platform().endswith("arm64"):
             VCPKG_TRIPLET = "arm64-"
         else:
@@ -137,7 +135,7 @@ if sys.platform == "win32":
         cmake_configure_options += ["-A", "Win32"]
 
 hdf5_arg = next((arg for arg in sys.argv if arg.startswith("-DWITH_HDF5")), None)
-if hdf5_arg != None:
+if hdf5_arg is not None:
     sys.argv.remove(hdf5_arg)
 else:
     hdf5_arg = "-DWITH_HDF5=ON"

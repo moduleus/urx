@@ -15,7 +15,7 @@ namespace urx {
 
 struct ReceiveSetup {
   bool operator==(const ReceiveSetup& other) const {
-    return probe == other.probe && probe_transform == other.probe_transform &&
+    return valueComparison(probe, other.probe) && probe_transform == other.probe_transform &&
            sampling_frequency == other.sampling_frequency &&
            number_samples == other.number_samples && active_elements == other.active_elements &&
            tgc_profile == other.tgc_profile &&

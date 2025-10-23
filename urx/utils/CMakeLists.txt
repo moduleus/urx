@@ -9,11 +9,19 @@ if(WITH_HDF5)
     set(LIB_TYPE STATIC)
   endif()
   string(TOLOWER ${LIB_TYPE} SEARCH_TYPE)
+  # For UrxConfig.cmake.in
+  set(SEARCH_TYPE
+      ${SEARCH_TYPE}
+      PARENT_SCOPE)
   message(STATUS "UrxUtils linking hdf5 ${SEARCH_TYPE}")
 
   if(NOT TARGET hdf5::hdf5-${SEARCH_TYPE})
     find_package(HDF5 REQUIRED NAMES hdf5 COMPONENTS CXX ${SEARCH_TYPE})
   endif()
+else()
+  set(URX_HDF5_LINK_SHARED
+      ${BUILD_SHARED_LIBS}
+      PARENT_SCOPE)
 endif()
 
 add_library(UrxCompilerFlags INTERFACE)
@@ -29,19 +37,26 @@ if(HARDENED_BUILD)
 endif()
 
 set(URX_UTILS_SRCS
+    ${CMAKE_CURRENT_SOURCE_DIR}/clone.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/common.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/group_data_reader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/group_helper.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/probe_helper.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/raw_data_helper.cpp)
+    ${CMAKE_CURRENT_SOURCE_DIR}/raw_data_helper.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/serialize_helper.cpp)
 set(URX_UTILS_H
+    ${CMAKE_CURRENT_SOURCE_DIR}/detail/clone.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/clone.h
     ${CMAKE_CURRENT_SOURCE_DIR}/common.h
     ${CMAKE_CURRENT_SOURCE_DIR}/exception.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/cpp.h
     ${CMAKE_CURRENT_SOURCE_DIR}/group_data_reader.h
     ${CMAKE_CURRENT_SOURCE_DIR}/group_helper.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/io/test/io.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/test/dataset_gen.h
     ${CMAKE_CURRENT_SOURCE_DIR}/probe_helper.h
     ${CMAKE_CURRENT_SOURCE_DIR}/raw_data_helper.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/serialize_helper.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/validator.h
     ${CMAKE_CURRENT_SOURCE_DIR}/time_helper.h
     ${CMAKE_CURRENT_SOURCE_DIR}/type_container.h)
 
@@ -57,6 +72,7 @@ if(WITH_HDF5)
   list(
     APPEND
     URX_UTILS_H
+    ${CMAKE_CURRENT_SOURCE_DIR}/io/detail/hdf5.h
     ${CMAKE_CURRENT_SOURCE_DIR}/io/enums.h
     ${CMAKE_CURRENT_SOURCE_DIR}/io/reader_impl.h
     ${CMAKE_CURRENT_SOURCE_DIR}/io/reader_options.h
@@ -92,9 +108,6 @@ target_sources(
          ${URX_UTILS_H}
   PRIVATE ${URX_UTILS_SRCS} ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt
           ${CMAKE_CURRENT_BINARY_DIR}/urx/utils/export.h)
-if(ENABLE_PCH)
-  target_precompile_headers(${URX_UTILS_LIBRARY} PRIVATE ${URX_PCH})
-endif()
 
 set(CMAKE_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR}/${INSTALL_NAME})
 
@@ -103,12 +116,14 @@ target_link_libraries(
   PUBLIC Urx::Urx
   PRIVATE Urx::UrxCompilerFlags)
 if(WITH_HDF5)
+  target_compile_definitions(${URX_UTILS_LIBRARY} PRIVATE WITH_MATLAB)
   target_link_libraries(
     ${URX_UTILS_LIBRARY} PRIVATE hdf5::hdf5-${SEARCH_TYPE}
                                  hdf5::hdf5_cpp-${SEARCH_TYPE})
-  if(ENABLE_PCH)
-    target_precompile_headers(${URX_UTILS_LIBRARY} PRIVATE ${URX_PCH_IO})
-  endif()
+endif()
+
+if(MSVC)
+  target_compile_options(${URX_UTILS_LIBRARY} PRIVATE /bigobj)
 endif()
 
 if(NOT CALL_FROM_SETUP_PY)

@@ -11,8 +11,9 @@ namespace urx {
 
 struct Element {
   bool operator==(const Element& other) const {
-    return transform == other.transform && element_geometry == other.element_geometry &&
-           impulse_response == other.impulse_response;
+    return transform == other.transform &&
+           valueComparison(element_geometry, other.element_geometry) &&
+           valueComparison(impulse_response, other.impulse_response);
   }
 
   bool operator!=(const Element& other) const { return !operator==(other); }

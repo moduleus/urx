@@ -1,8 +1,9 @@
-import numpy as np
-from time import perf_counter
-import sys
 import gc
 import platform
+import sys
+from time import perf_counter
+
+import numpy as np
 import ultrasound_rawdata_exchange as urx
 
 
@@ -239,11 +240,13 @@ def test_group_data(
     # Check copy CTOR and referencing object
     group_data_2 = group_data_copy(group_data)
     self.assertEqual(group_data, group_data_2)
+    self.assertNotEqual(id(group_data), id(group_data_2))
     group_data_2.group_timestamp = double_nan_args(0)
     self.assertNotEqual(group_data, group_data_2)
     group_data_ref = group_data
     group_data_ref.group_timestamp = double_nan_args(0)
     self.assertEqual(group_data, group_data_ref)
+    self.assertEqual(id(group_data), id(group_data_ref))
     group_data_2 = group_data_copy(group_data)
 
     # No CTOR with parameters to test
@@ -273,6 +276,10 @@ def test_group_data(
     self.assertEqual(group_data.sequence_timestamps, sequence_timestamps_ref)
     self.assertEqual(group_data.sequence_timestamps, [1, 2, 3, 4.56])
     self.assertEqual(group_data, group_data_2)
+    group_data.sequence_timestamps = np.array([7, 8, 9.1])
+    self.assertEqual(group_data.sequence_timestamps, sequence_timestamps_ref)
+    self.assertEqual(group_data.sequence_timestamps, [7, 8, 9.1])
+    self.assertNotEqual(group_data, group_data_2)
 
     # Reference is possible for event_timestamps (VecVecFloat64)
     group_data.event_timestamps = vec_vec_float64_args([[1, 2, 3, 4.56], [7.8, 9]])
@@ -287,6 +294,10 @@ def test_group_data(
     self.assertEqual(group_data.event_timestamps, event_timestamps_ref)
     self.assertEqual(group_data.event_timestamps, [[1, 2, 3, 4.56], [7.8, 9]])
     self.assertEqual(group_data, group_data_2)
+    group_data.event_timestamps = [np.array([11, 12, 13, 14.56]), np.array([17.8, 19])]
+    self.assertEqual(group_data.event_timestamps, event_timestamps_ref)
+    self.assertEqual(group_data.event_timestamps, [[11, 12, 13, 14.56], [17.8, 19]])
+    self.assertNotEqual(group_data, group_data_2)
 
     # group is a pointer and will always be shared
     group = group_constructor()
@@ -315,7 +326,9 @@ def test_raw_data_memory_leak_fixed(self, test_name, np_type):
     group_data.raw_data = np_type([1, 2, 3, 4])
     self.assertTrue(np.array_equal(np.array([1, 2, 3, 4], dtype=np_type), group_data.raw_data))
 
-    if platform.python_implementation() != "PyPy":
+    is_not_py_py = platform.python_implementation() != "PyPy"
+    ref_count = 0
+    if is_not_py_py:
         gc.collect()
         ref_count = sys.getrefcount(group_data.raw_data)
 
@@ -323,18 +336,20 @@ def test_raw_data_memory_leak_fixed(self, test_name, np_type):
     self.assertTrue(np.array_equal(np.array([1, 2, 3, 4], dtype=np_type), group_data.raw_data))
     self.assertTrue(np.array_equal(ref, group_data.raw_data))
 
-    if platform.python_implementation() != "PyPy":
+    if is_not_py_py:
         gc.collect()
         self.assertNotEqual(sys.getrefcount(group_data.raw_data), ref_count + 1)
         gc.collect()
         ref_count = sys.getrefcount(group_data.raw_data)
         ref_2 = group_data.raw_data
         gc.collect()
-        self.assertEqual(sys.getrefcount(ref_2), ref_count + 1)
+        # Fail with Python 3.14
+        if sys.version_info.major == 3 and sys.version_info.minor < 14:
+            self.assertEqual(sys.getrefcount(ref_2), ref_count + 1)
 
     tmp = np_type([1, 2, 3, 4])
 
-    if platform.python_implementation() != "PyPy":
+    if is_not_py_py:
         gc.collect()
         ref_count = sys.getrefcount(tmp)
 
@@ -342,7 +357,7 @@ def test_raw_data_memory_leak_fixed(self, test_name, np_type):
     group_data.raw_data = tmp
     self.assertTrue(np.array_equal(np.array([1, 2, 3, 4], dtype=np_type), group_data.raw_data))
 
-    if platform.python_implementation() != "PyPy":
+    if is_not_py_py:
         gc.collect()
         self.assertEqual(sys.getrefcount(tmp), ref_count + 1)
         del group_data

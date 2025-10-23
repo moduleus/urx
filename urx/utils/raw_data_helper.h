@@ -12,7 +12,7 @@
 #ifdef URX_WITH_HDF5
 #include <H5Cpp.h>
 
-#include <urx/utils/io/enums.h>
+#include <urx/utils/io/detail/hdf5.h>
 #endif
 
 namespace urx::utils {
@@ -37,8 +37,9 @@ class RawDataHelper {
   }
 
 #ifdef URX_WITH_HDF5
+  [[deprecated("Don't expose HDF5 header.")]]
   const H5::PredType& getHdf5Type() const {
-    return urx::utils::io::enums::dataTypeToH5PredType(_raw_data->getDataType());
+    return urx::utils::io::detail::dataTypeToH5PredType(_raw_data->getDataType());
   }
 #endif
 

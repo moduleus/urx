@@ -4,12 +4,14 @@
 #include <urx/dataset.h>
 #include <urx/utils/io/reader.h>
 #include <urx/utils/io/reader_impl.h>
+#include <urx/utils/io/reader_options.h>
 
 namespace urx::utils::io::reader {
 
-std::shared_ptr<Dataset> loadFromFile(const std::string& filename) {
+std::shared_ptr<Dataset> loadFromFile(const std::string& filename, const ReaderOptions& options) {
   std::shared_ptr<Dataset> dataset = std::make_shared<Dataset>();
   urx::utils::io::ReaderDataset reader;
+  reader.setOptions(options);
   reader.read(filename, *dataset);
   return dataset;
 }

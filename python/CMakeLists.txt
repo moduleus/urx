@@ -40,10 +40,6 @@ target_sources(
          ${URX_PYTHON_LIBRARY_H}
   PRIVATE ${URX_PYTHON_LIBRARY_SRC} ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt
           ${CMAKE_CURRENT_BINARY_DIR}/urx/python/export.h)
-if(ENABLE_PCH)
-  target_precompile_headers(${URX_PYTHON_LIBRARY} PRIVATE ${URX_PCH}
-                            ${URX_PCH_PYTHON})
-endif()
 target_include_directories(
   ${URX_PYTHON_LIBRARY}
   PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
@@ -90,6 +86,9 @@ if(NOT CALL_FROM_SETUP_PY AND WITH_PYTHON_WHL)
       --config-settings=--global-option=-DCMAKE_AS=${CMAKE_AS}
       --config-settings=--global-option=-DCMAKE_RANLIB=${CMAKE_RANLIB}
       --config-settings=--global-option=-DCMAKE_LINKER_TYPE=${CMAKE_LINKER_TYPE}
+      --config-settings=--global-option=-DSCCACHE=${SCCACHE}
+      --config-settings=--global-option=-DCCACHE=${CCACHE}
+      --config-settings=--global-option=-DSCCACHE_PROGRAM="${SCCACHE_PROGRAM}"
       --wheel-dir
       ${CMAKE_CURRENT_BINARY_DIR}
       --no-clean
@@ -211,7 +210,7 @@ pybind11_add_module(
   UrxBindingsPython
   THIN_LTO
   ${CMAKE_CURRENT_SOURCE_DIR}/bindings_module.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/bindings_module2.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/bindings_urx_classes.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/bindings_module.h
   ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt)
 target_link_libraries(
@@ -232,11 +231,6 @@ if(UNIX)
 endif(UNIX)
 
 set_target_properties(UrxBindingsPython PROPERTIES OUTPUT_NAME "bindings")
-
-if(ENABLE_PCH)
-  target_precompile_headers(UrxBindingsPython PRIVATE ${URX_PCH}
-                            ${URX_PCH_PYTHON})
-endif()
 
 install(
   TARGETS UrxBindingsPython

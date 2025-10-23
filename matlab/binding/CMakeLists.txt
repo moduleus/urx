@@ -25,6 +25,8 @@ target_sources(
          ${MATLAB_HPP_PUBLIC_SRCS}
   PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/urx/matlab/export.h
           ${MATLAB_CPP_PRIVATE_SRCS})
+target_compile_options(UrxMatlab
+                       PRIVATE "$<$<COMPILE_LANG_AND_ID:CXX,MSVC>:/wd4297>")
 
 add_library(
   UrxMatlabBinding SHARED
@@ -98,5 +100,9 @@ add_custom_command(
   COMMAND
     ${CMAKE_COMMAND} -E copy_directory_if_different
     ${CMAKE_CURRENT_BINARY_DIR}/urx
+    $<TARGET_FILE_DIR:UrxMatlabBinding>/include/urx
+  COMMAND
+    ${CMAKE_COMMAND} -E copy_directory_if_different
+    ${CMAKE_CURRENT_BINARY_DIR}/../../urx
     $<TARGET_FILE_DIR:UrxMatlabBinding>/include/urx
   COMMAND_EXPAND_LISTS)

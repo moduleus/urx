@@ -1,6 +1,7 @@
-import numpy as np
 import gc
 import platform
+
+import numpy as np
 
 
 def test_transmit_setup(
@@ -24,8 +25,8 @@ def test_transmit_setup(
     wave_copy,
     enum_wave,
 ):
-    testName = "TransmitSetup"
-    print("\n--Test %s binding BEGIN--" % testName)
+    test_name = "TransmitSetup"
+    print("\n--Test %s binding BEGIN--" % test_name)
 
     # Check default CTOR
     ts = transmit_setup_constructor()
@@ -46,9 +47,11 @@ def test_transmit_setup(
     self.assertEqual(ts, ts_2)
     ts_2.probe_transform = t_2
     self.assertNotEqual(ts, ts_2)
+    self.assertNotEqual(id(ts), id(ts_2))
     ts_ref = ts
     ts_ref.probe_transform = t_2
     self.assertEqual(ts, ts_ref)
+    self.assertEqual(id(ts), id(ts_ref))
 
     ex = excitation_args("linear", double_nan_args(42), np.nan, [3.14, -42])
     ex_2 = excitation_copy(ex)
@@ -202,4 +205,4 @@ def test_transmit_setup(
     self.assertEqual(ts.time_offset, 42)
     self.assertEqual(ts, ts_2)
 
-    print("--Test %s END--" % testName)
+    print("--Test %s END--" % test_name)

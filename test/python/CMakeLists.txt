@@ -1,5 +1,6 @@
 install(
-  FILES ${CMAKE_CURRENT_SOURCE_DIR}/test_bindings_acquisition.py
+  FILES ${CMAKE_CURRENT_SOURCE_DIR}/dataset_gen.py
+        ${CMAKE_CURRENT_SOURCE_DIR}/test_bindings_acquisition.py
         ${CMAKE_CURRENT_SOURCE_DIR}/test_bindings_dataset.py
         ${CMAKE_CURRENT_SOURCE_DIR}/test_bindings_double_nan.py
         ${CMAKE_CURRENT_SOURCE_DIR}/test_bindings_element_geometry.py
@@ -18,4 +19,5 @@ install(
         ${CMAKE_CURRENT_SOURCE_DIR}/test_bindings_vector.py
         ${CMAKE_CURRENT_SOURCE_DIR}/test_bindings_version.py
         ${CMAKE_CURRENT_SOURCE_DIR}/test_bindings_wave.py
+        ${CMAKE_CURRENT_SOURCE_DIR}/test_bindings_clone.py
   DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${INSTALL_NAME}/python)

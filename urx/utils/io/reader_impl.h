@@ -28,12 +28,14 @@
 #include <urx/impulse_response.h>
 #include <urx/probe.h>
 #include <urx/urx.h>
+#include <urx/utils/cpp.h>
 #include <urx/utils/exception.h>
+#include <urx/utils/io/detail/hdf5.h>
 #include <urx/utils/io/enums.h>
 #include <urx/utils/io/reader_options.h>
 #include <urx/utils/io/serialize_helper.h>
 #include <urx/utils/raw_data_helper.h>
-#include <urx/utils/type_container.h>
+#include <urx/utils/serialize_helper.h>
 
 namespace urx::utils::io {
 
@@ -42,15 +44,15 @@ class ReaderBase {
  public:
   ReaderBase() {
     if constexpr (std::is_same_v<Dataset, urx::Dataset>) {
-      _data_field = getMemberMap();
+      _data_field = urx::utils::getMemberMap();
     }
   }
 
   void init(const Dataset& dataset) {
-    _map_to_shared_ptr[nameTypeid<Group>()] = &dataset.acquisition.groups;
-    _map_to_shared_ptr[nameTypeid<Probe>()] = &dataset.acquisition.probes;
-    _map_to_shared_ptr[nameTypeid<Excitation>()] = &dataset.acquisition.excitations;
-    _map_to_shared_ptr[nameTypeid<GroupData>()] = &dataset.acquisition.groups_data;
+    _map_to_shared_ptr[urx::utils::nameTypeid<Group>()] = &dataset.acquisition.groups;
+    _map_to_shared_ptr[urx::utils::nameTypeid<Probe>()] = &dataset.acquisition.probes;
+    _map_to_shared_ptr[urx::utils::nameTypeid<Excitation>()] = &dataset.acquisition.excitations;
+    _map_to_shared_ptr[urx::utils::nameTypeid<GroupData>()] = &dataset.acquisition.groups_data;
   }
 
   template <typename T>
@@ -58,7 +60,7 @@ class ReaderBase {
       const std::string& name, T& field, const H5::Group& group) {
     // Number
     if constexpr (std::is_arithmetic_v<T>) {
-      const H5::StrType datatype(*getStdToHdf5().at(nameTypeid<T>()));
+      const H5::StrType datatype(*getStdToHdf5().at(urx::utils::nameTypeid<T>()));
       if (group.nameExists(name)) {
         const H5::DataSet dataset = group.openDataSet(name);
         dataset.read(&field, datatype);
@@ -104,10 +106,10 @@ class ReaderBase {
     // Default
     else {
       if constexpr (std::is_same_v<T, urx::Dataset>) {
-        _map_to_shared_ptr[nameTypeid<Group>()] = &field.acquisition.groups;
-        _map_to_shared_ptr[nameTypeid<Probe>()] = &field.acquisition.probes;
-        _map_to_shared_ptr[nameTypeid<Excitation>()] = &field.acquisition.excitations;
-        _map_to_shared_ptr[nameTypeid<GroupData>()] = &field.acquisition.groups_data;
+        _map_to_shared_ptr[urx::utils::nameTypeid<Group>()] = &field.acquisition.groups;
+        _map_to_shared_ptr[urx::utils::nameTypeid<Probe>()] = &field.acquisition.probes;
+        _map_to_shared_ptr[urx::utils::nameTypeid<Excitation>()] = &field.acquisition.excitations;
+        _map_to_shared_ptr[urx::utils::nameTypeid<GroupData>()] = &field.acquisition.groups_data;
       }
       const H5::Group group_child(group.openGroup(name));
       static_cast<Derived*>(this)->template deserializeAll<T>(field, group_child);
@@ -144,7 +146,7 @@ class ReaderBase {
 
       static_cast<Derived*>(this)->template deserializeHdf5<std::size_t>(name, idx, group);
 
-      const auto& map_i = getSharedPtr<typename T::element_type>(_map_to_shared_ptr);
+      const auto& map_i = urx::utils::getSharedPtr<typename T::element_type>(_map_to_shared_ptr);
 
       if (map_i.size() > idx) {
         field = map_i[idx];
@@ -159,7 +161,8 @@ class ReaderBase {
   typename std::enable_if_t<TypeContainer<T>::VALUE == ContainerType::VECTOR> deserializeHdf5(
       const std::string& name, T& field, const H5::Group& group) {
     if constexpr (std::is_arithmetic_v<typename T::value_type>) {
-      const H5::StrType datatype(*getStdToHdf5().at(nameTypeid<typename T::value_type>()));
+      const H5::StrType datatype(
+          *getStdToHdf5().at(urx::utils::nameTypeid<typename T::value_type>()));
 
       H5::DataSet dataset;
       H5::DataSpace dataspace;
@@ -225,7 +228,7 @@ class ReaderBase {
         }
       }
     } else {
-      if (!group.nameExists(name)) {
+      if (!group.nameExists(name, H5P_DEFAULT)) {
         return;
       }
 
@@ -308,14 +311,14 @@ class ReaderBase {
 
       if (_options.getRawDataLoadPolicy() == RawDataLoadPolicy::STREAM) {
         field = urx::utils::rawDataFactory<RawDataStream>(
-            urx::utils::io::enums::h5PredTypeToDataType(datatype),
+            urx::utils::io::detail::h5PredTypeToDataType(datatype),
             dimension[1] == 1 ? SamplingType::RF : SamplingType::IQ,
             static_cast<size_t>(dimension[0]));
         return;
       }
 
       field = urx::utils::rawDataFactory<RawDataNoInit>(
-          urx::utils::io::enums::h5PredTypeToDataType(datatype),
+          urx::utils::io::detail::h5PredTypeToDataType(datatype),
           dimension[1] == 1 ? SamplingType::RF : SamplingType::IQ,
           static_cast<size_t>(dimension[0]));
 
@@ -323,11 +326,13 @@ class ReaderBase {
     } else {
       // Need to update map for Probe.
       if constexpr (std::is_same_v<T, Probe>) {
-        _map_to_shared_ptr.insert({nameTypeid<ElementGeometry>(), &field.element_geometries});
-        _map_to_shared_ptr.insert({nameTypeid<ImpulseResponse>(), &field.impulse_responses});
+        _map_to_shared_ptr.insert(
+            {urx::utils::nameTypeid<ElementGeometry>(), &field.element_geometries});
+        _map_to_shared_ptr.insert(
+            {urx::utils::nameTypeid<ImpulseResponse>(), &field.impulse_responses});
       }
 
-      for (const auto& kv : _data_field.at(nameTypeid<T>())) {
+      for (const auto& kv : _data_field.at(urx::utils::nameTypeid<T>())) {
         std::visit(
             [this, name = kv.second, field_ptr = &field, &group](auto* var) {
               static_cast<Derived*>(this)
@@ -341,8 +346,8 @@ class ReaderBase {
       }
 
       if constexpr (std::is_same_v<T, Probe>) {
-        _map_to_shared_ptr.erase(nameTypeid<ElementGeometry>());
-        _map_to_shared_ptr.erase(nameTypeid<ImpulseResponse>());
+        _map_to_shared_ptr.erase(urx::utils::nameTypeid<ElementGeometry>());
+        _map_to_shared_ptr.erase(urx::utils::nameTypeid<ImpulseResponse>());
       }
     }
   }
@@ -355,7 +360,7 @@ class ReaderBase {
   ReaderOptions _options;
 
  protected:
-  MapToSharedPtr _map_to_shared_ptr;
+  urx::utils::MapToSharedPtr _map_to_shared_ptr;
   std::vector<std::function<void()>> _async_weak_assign;
   std::unordered_map<std::type_index, std::vector<std::pair<AllTypeInVariant, std::string>>>
       _data_field;
@@ -390,7 +395,7 @@ class ReaderDatasetBase
 
   void read(const std::string& filename, Dataset& dataset) {
     try {
-      const H5::H5File file(filename.data(), H5F_ACC_RDONLY);
+      const H5::H5File file(filename.c_str(), H5F_ACC_RDONLY);
 
       read(file, dataset);
     } catch (const H5::FileIException&) {
@@ -399,7 +404,7 @@ class ReaderDatasetBase
   }
 };
 
-using ReaderDataset =
-    urx::utils::io::ReaderDatasetBase<Dataset, AllTypeInVariant, urx::utils::io::ReaderBase>;
+using ReaderDataset = urx::utils::io::ReaderDatasetBase<Dataset, urx::utils::AllTypeInVariant,
+                                                        urx::utils::io::ReaderBase>;
 
 }  // namespace urx::utils::io

@@ -10,8 +10,8 @@ def test_impulse_response(
     double_nan_args,
     vec_float64_args,
 ):
-    testName = "ImpulseResponse binding"
-    print("\n--Test %s BEGIN--" % testName)
+    test_name = "ImpulseResponse binding"
+    print("\n--Test %s BEGIN--" % test_name)
 
     # Check default CTOR
     ir = impulse_response_constructor()
@@ -25,9 +25,11 @@ def test_impulse_response(
     self.assertEqual(ir, ir_2)
     ir_2.units = "Hello"
     self.assertNotEqual(ir, ir_2)
+    self.assertNotEqual(id(ir), id(ir_2))
     ir_ref = ir
     ir_ref.units = "Hello"
     self.assertEqual(ir, ir_ref)
+    self.assertEqual(id(ir), id(ir_ref))
 
     # Check CTOR with all parameters
     ir = impulse_response_args(42, np.nan, "sec", vec_float64_args([3.14, -42]))
@@ -119,4 +121,4 @@ def test_impulse_response(
     self.assertEqual(ir.units, "sec")
     self.assertEqual(ir, ir_2)
 
-    print("--Test %s END--" % testName)
+    print("--Test %s END--" % test_name)

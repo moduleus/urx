@@ -42,7 +42,9 @@ T stringToEnum(const std::string& enumeration);
 template <typename T>
 std::string enumToString(T enumeration);
 
-URX_UTILS_EXPORT urx::DataType h5PredTypeToDataType(const H5::DataType& pred_type);
-URX_UTILS_EXPORT const H5::PredType& dataTypeToH5PredType(urx::DataType data_type);
+[[deprecated("Don't expose HDF5 header.")]] URX_UTILS_EXPORT urx::DataType h5PredTypeToDataType(
+    const H5::DataType& pred_type);
+[[deprecated("Don't expose HDF5 header.")]] URX_UTILS_EXPORT const H5::PredType&
+dataTypeToH5PredType(urx::DataType data_type);
 
 }  // namespace urx::utils::io::enums

@@ -1,9 +1,14 @@
-set(URX_TEST_FILES time_helper.cpp group_data_reader.cpp probe_helper.cpp)
+set(URX_TEST_FILES
+    clone_generic_test.h
+    clone_generic_test.cpp
+    compare.cpp
+    cpp.cpp
+    validator.cpp
+    time_helper.cpp
+    group_data_reader.cpp
+    probe_helper.cpp)
 
 add_executable(UrxUtilsTest ${URX_TEST_FILES})
-if(ENABLE_PCH)
-  target_precompile_headers(UrxUtilsTest PRIVATE ${URX_PCH} ${URX_PCH_TEST})
-endif()
 
 target_link_libraries(UrxUtilsTest PRIVATE Urx::Urx Urx::UrxUtils
                                            Catch2::Catch2WithMain)

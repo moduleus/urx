@@ -1,5 +1,59 @@
 # Changelog
 
+## 1.3.0
+
+### What's new (feature)
+
+  * Add clone feature to duplicate entirely a Dataset via a deep copy. The produced dataset doesn't share any memory with the original Dataset that has been cloned.
+
+  * Add check feature for all URX classes via a Validator. The check enables to detect/fix incoherent data in the classes.
+
+  * Dataset could not be saved anymore if the dataset doesn't pass the check by default. However, the WriterOptions class enables to bypass the check through CheckData property.
+
+  * Saving a file in an existing file now merges data.
+
+#### What's new (improvement)
+
+  * Better of errors handling.
+
+### C++
+
+#### What's new (feature)
+
+  * Add an utils fonction `urx::utils::common:getElementIndex` (file `urx/utils/common.h`) to find the index of an urx class instance in a vector: ie. find the index of a probe in acquisition.probes vector. The search can be done using deep value comparison or pointer comparison.
+
+  * Add an `valueComparison` fonction (file `urx/detail/compare.h`) to compare pointer by value rather by comparing adresses.
+
+#### Bug fixes
+
+  * Remove the `shared_ptr` and `weak_ptr` `operator==` overload have introduced weird behavior. Using `valueComparison` instead force to explicit the purpose of comparison by value. The comparison of `shared_ptr` and `weak_ptr` for these classes now have a different behavior, more suitable with the standard C++ code behavior:
+    -  ElementGeometry
+    -  Excitation
+    -  Group
+    -  GroupData
+    -  ImpulseResponse
+    -  Probe
+    -  RawData
+    -  Wave
+
+### MATLAB
+
+#### What's new (feature)
+
+  * Binding: add Streaming, GroupDataReader.
+
+  * Urx's field that contains vector of uint32 or array of cells of array of uint32 are now index. So value starts at 1.
+
+### Python
+
+#### What's new (feature)
+
+  * Add Streaming binding.
+
+#### What's new (improvement)
+
+  * Better stubs for better auto-completion in IDE.
+
 ## 1.2.0
 
 ### C++

@@ -5,7 +5,6 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <urx/detail/compare.h>
 #include <urx/element.h>
 #include <urx/element_geometry.h>
 #include <urx/probe.h>
@@ -29,7 +28,8 @@ TEST_CASE("Update linear probe elements geometry", "[probe][helper]") {
   REQUIRE(*sh_el_geom == expected_geom);
 
   for (const auto& element : probe.elements) {
-    REQUIRE(element.element_geometry.lock() == sh_el_geom);
+    REQUIRE(*(element.element_geometry.lock()) == *sh_el_geom);
+    REQUIRE(element.element_geometry.lock().get() == sh_el_geom.get());
   }
 }
 
@@ -48,7 +48,8 @@ TEST_CASE("Update matrix probe elements geometry", "[probe][helper]") {
   REQUIRE(*sh_el_geom == expected_geom);
 
   for (const auto& element : probe.elements) {
-    REQUIRE(element.element_geometry.lock() == sh_el_geom);
+    REQUIRE(*(element.element_geometry.lock()) == *sh_el_geom);
+    REQUIRE(element.element_geometry.lock().get() == sh_el_geom.get());
   }
 }
 
@@ -72,11 +73,13 @@ TEST_CASE("Update rca probe elements geometry", "[probe][helper]") {
   REQUIRE(*sh_row_el_geom == expected_row_geom);
 
   for (size_t i = 0; i < 4; i++) {
-    REQUIRE(probe.elements[i].element_geometry.lock() == sh_col_el_geom);
+    REQUIRE(*(probe.elements[i].element_geometry.lock()) == *sh_col_el_geom);
+    REQUIRE(probe.elements[i].element_geometry.lock().get() == sh_col_el_geom.get());
   }
 
   for (size_t i = 4; i < 6; i++) {
-    REQUIRE(probe.elements[i].element_geometry.lock() == sh_row_el_geom);
+    REQUIRE(*(probe.elements[i].element_geometry.lock()) == *sh_row_el_geom);
+    REQUIRE(probe.elements[i].element_geometry.lock().get() == sh_row_el_geom.get());
   }
 }
 

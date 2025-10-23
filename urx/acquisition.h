@@ -21,8 +21,9 @@ struct AcquisitionBase {
   bool operator==(const AcquisitionBase& other) const {
     return authors == other.authors && description == other.description &&
            local_time == other.local_time && country_code == other.country_code &&
-           system == other.system && timestamp == other.timestamp && probes == other.probes &&
-           excitations == other.excitations && groups == other.groups;
+           system == other.system && timestamp == other.timestamp &&
+           valueComparison(probes, other.probes) &&
+           valueComparison(excitations, other.excitations) && valueComparison(groups, other.groups);
   }
 
   bool operator!=(const AcquisitionBase& other) const { return !operator==(other); }
@@ -53,6 +54,7 @@ struct Acquisition : public AcquisitionBase<Excitation, Group> {
 };
 
 }  // namespace detail
+
 using Acquisition = detail::Acquisition<Excitation, Group>;
 
 }  // namespace urx

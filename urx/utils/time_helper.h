@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <ios>
 #include <istream>
+#include <iterator>
 #include <locale>
 #include <memory>
 #include <regex>

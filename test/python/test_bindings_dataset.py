@@ -1,6 +1,3 @@
-from time import perf_counter
-
-
 def test_dataset(
     self,
     dataset_constructor,
@@ -9,8 +6,8 @@ def test_dataset(
     acq_constructor,
     version_copy,
 ):
-    testName = "Dataset binding"
-    print("\n--Test %s BEGIN--" % testName)
+    test_name = "Dataset binding"
+    print("\n--Test %s BEGIN--" % test_name)
 
     # Check default CTOR
     dataset = dataset_constructor()
@@ -26,11 +23,13 @@ def test_dataset(
     # Check copy CTOR and referencing object
     dataset_2 = dataset_copy(dataset)
     self.assertEqual(dataset, dataset_2)
+    self.assertNotEqual(id(dataset), id(dataset_2))
     dataset_2.acquisition = acq
     self.assertNotEqual(dataset, dataset_2)
     dataset_ref = dataset
     dataset_ref.acquisition = acq
     self.assertEqual(dataset, dataset_ref)
+    self.assertEqual(id(dataset), id(dataset_ref))
 
     # Check CTOR with all parameters
     dataset = dataset_constructor_args(acq, v)
@@ -62,4 +61,4 @@ def test_dataset(
     self.assertEqual(dataset.version, v)
     self.assertEqual(dataset, dataset_2)
 
-    print("--Test %s END--" % testName)
+    print("--Test %s END--" % test_name)

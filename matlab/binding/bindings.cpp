@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <complex>
 #include <cstddef>
 #include <cstdint>
@@ -9,8 +10,10 @@
 #include <iostream>
 #include <memory>
 #include <ostream>
+#include <stdexcept>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include <urx/acquisition.h>
 #include <urx/config.h>
@@ -29,13 +32,17 @@
 #include <urx/receive_setup.h>
 #include <urx/transform.h>
 #include <urx/transmit_setup.h>
+#include <urx/utils/clone.h>
+#include <urx/utils/validator.h>
 #include <urx/vector.h>
 #include <urx/version.h>
 #include <urx/wave.h>
 
 #ifdef URX_WITH_HDF5
 #include <urx/utils/io/reader.h>
+#include <urx/utils/io/reader_options.h>
 #include <urx/utils/io/writer.h>
+#include <urx/utils/io/writer_options.h>
 #endif
 
 #define xstr(s) str(s)
@@ -185,19 +192,56 @@ RAW_DATA_SHARED_NS_IMPL(urx, RawData);
 
 uint64_t get_pointer(void *ptr) { return reinterpret_cast<uint64_t>(ptr); }
 
-void *urx_load_from_file([[maybe_unused]] const char *filename) {
 #ifdef URX_WITH_HDF5
+
+void *urx_load_from_file(const char *filename) {
   return new std::shared_ptr<urx::Dataset>(urx::utils::io::reader::loadFromFile(filename));
-#else
-  return nullptr;
-#endif
 }
 
-void urx_save_to_file([[maybe_unused]] const char *filename, [[maybe_unused]] void *dataset) {
-#ifdef URX_WITH_HDF5
-  urx::utils::io::writer::saveToFile(filename,
-                                     **static_cast<std::shared_ptr<urx::Dataset> *>(dataset));
-#endif
+void *urx_load_from_file_options(const char *filename, int raw_data_load_policy) {
+  return new std::shared_ptr<urx::Dataset>(urx::utils::io::reader::loadFromFile(
+      filename, {static_cast<urx::utils::io::RawDataLoadPolicy>(raw_data_load_policy)}));
 }
+
+void urx_save_to_file(const char *filename, void *shared_dataset) {
+  urx::utils::io::WriterOptions options;
+  options.setCleanUnusableData(false);
+  options.setCheckData(false);
+  urx::utils::io::writer::saveToFile(
+      filename, **static_cast<std::shared_ptr<urx::Dataset> *>(shared_dataset), options);
+}
+
+void urx_save_to_file_options(const char *filename, void *shared_dataset, bool chunk_group_data,
+                              bool clean_unusable_data, bool check_data) {
+  urx::utils::io::writer::saveToFile(filename,
+                                     **static_cast<std::shared_ptr<urx::Dataset> *>(shared_dataset),
+                                     {chunk_group_data, clean_unusable_data, check_data});
+}
+
+URX_MATLAB_STREAM_IMPL(urx);
+URX_MATLAB_GROUP_DATA_STREAM_IMPL(urx);
+URX_MATLAB_GROUP_DATA_READER_IMPL(urx);
+
+#endif
+
+void *urx_clone_dataset(void *shared_dataset) {
+  return new std::shared_ptr<urx::Dataset>(
+      urx::utils::clone(*static_cast<std::shared_ptr<urx::Dataset> *>(shared_dataset)));
+}
+
+bool urx_validate_dataset(void *shared_dataset) {
+  urx::utils::ValidatorReport validator;
+  validator.check(**static_cast<std::shared_ptr<urx::Dataset> *>(shared_dataset));
+  if (validator.getOutput().empty()) {
+    return true;
+  }
+
+  std::cout << validator.getOutputAsString();
+  return false;
+}
+
+void urx_throw(const char *v) { throw std::runtime_error(v); }
+void urx_cout(const char *v) { std::cout << v; }
+void urx_cerr(const char *v) { std::cerr << v; }
 
 // NOLINTEND(cppcoreguidelines-owning-memory,bugprone-macro-parentheses)

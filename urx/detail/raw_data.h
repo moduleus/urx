@@ -4,35 +4,49 @@
 #include <cstdint>
 #include <cstring>
 #include <memory>
-#include <stdexcept>
-#include <type_traits>
-#include <typeindex>
 #include <unordered_map>
 #include <vector>
 
 #include <urx/detail/compare.h>  // IWYU pragma: keep
 #include <urx/enums.h>
+#include <urx/utils/cpp.h>
 
 namespace urx {
 
+namespace detail {
+
+// Get DataType associated to type T
 template <typename T>
-struct IsComplex : public std::false_type {};
+struct DataTypeSelector {
+  static constexpr DataType VALUE = DataType::UNDEFINED;
+};
+
+template <>
+struct DataTypeSelector<double> {
+  static constexpr DataType VALUE = DataType::DOUBLE;
+};
+
+template <>
+struct DataTypeSelector<float> {
+  static constexpr DataType VALUE = DataType::FLOAT;
+};
+
+template <>
+struct DataTypeSelector<int32_t> {
+  static constexpr DataType VALUE = DataType::INT32;
+};
+
+template <>
+struct DataTypeSelector<int16_t> {
+  static constexpr DataType VALUE = DataType::INT16;
+};
 
 template <typename T>
-struct IsComplex<std::complex<T>> : public std::true_type {};
+struct DataTypeSelector<std::complex<T>> {
+  static constexpr DataType VALUE = DataTypeSelector<T>::VALUE;
+};
 
-template <typename T>
-struct IsComplex<std::vector<std::complex<T>>> : public std::true_type {};
-
-template <typename T>
-constexpr bool is_complex() {
-  return IsComplex<T>::value;
-}
-
-template <typename T>
-constexpr bool is_complex(const T&) {
-  return is_complex<T>();
-}
+}  // namespace detail
 
 class RawData {
  public:
@@ -51,10 +65,13 @@ class RawData {
         {DataType::DOUBLE, sizeof(double)}};
     return getSamplingType() == other.getSamplingType() && getDataType() == other.getDataType() &&
            getSize() == other.getSize() &&
-           std::memcmp(getBuffer(), other.getBuffer(),
-                       getSize() * group_dt_to_sizeof.at(getDataType()) *
-                           (getSamplingType() == SamplingType::RF ? 1 : 2)) == 0;
+           // Stream has null buffer. Suppose it's the same.
+           (getSize() == 0 || getBuffer() == nullptr || other.getBuffer() == nullptr ||
+            std::memcmp(getBuffer(), other.getBuffer(),
+                        getSize() * group_dt_to_sizeof.at(getDataType()) *
+                            (getSamplingType() == SamplingType::RF ? 1 : 2)) == 0);
   }
+  bool operator!=(const RawData& other) const { return !operator==(other); }
 
   virtual ~RawData() = default;
 };
@@ -62,27 +79,11 @@ class RawData {
 template <typename T>
 class IRawData : public RawData {
  public:
-  using ValueType = T;
-
   SamplingType getSamplingType() const override {
-    return IsComplex<ValueType>::value ? SamplingType::IQ : SamplingType::RF;
+    return utils::IsComplex<T>::value ? SamplingType::IQ : SamplingType::RF;
   };
 
-  DataType getDataType() const override {
-    const std::type_index type([]() -> std::type_index {
-      if constexpr (IsComplex<ValueType>::value) {
-        return typeid(typename ValueType::value_type);
-      }
-      return typeid(ValueType);
-    }());
-    static std::unordered_map<std::type_index, DataType> typeid_to_dt{
-        {std::type_index(typeid(int16_t)), DataType::INT16},
-        {std::type_index(typeid(int32_t)), DataType::INT32},
-        {std::type_index(typeid(float)), DataType::FLOAT},
-        {std::type_index(typeid(double)), DataType::DOUBLE}};
-
-    return typeid_to_dt.at(type);
-  };
+  DataType getDataType() const override { return detail::DataTypeSelector<T>::VALUE; };
 
   const T* getTypedBuffer() const { return static_cast<const T*>(getBuffer()); };
   T* getTypedBuffer() { return static_cast<T*>(getBuffer()); };
@@ -141,14 +142,8 @@ class RawDataStream : public IRawData<DataType> {
   RawDataStream(size_t size) : _size(size) {}
   ~RawDataStream() override = default;
 
-  const void* getBuffer() const override {
-    throw std::runtime_error(__FUNCTION__);
-    return nullptr;
-  }
-  void* getBuffer() override {
-    throw std::runtime_error(__FUNCTION__);
-    return nullptr;
-  }
+  const void* getBuffer() const override { return nullptr; }
+  void* getBuffer() override { return nullptr; }
   size_t getSize() const override { return _size; }
 
  protected:

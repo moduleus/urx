@@ -1,9 +1,6 @@
-import unittest
-
-
 def test_utils_io(self):
-    testName = "Utils IO binding"
-    print("\n--Test %s BEGIN--" % testName)
+    test_name = "Utils IO binding"
+    print("\n--Test %s BEGIN--" % test_name)
 
     # dataset = urx.loadFromFile(str((Path(__file__).parent.absolute(
     # ) / "../io/resources/v_0_3_channel_mapping.uff")))
@@ -16,4 +13,4 @@ def test_utils_io(self):
 
     # self.assertEqual(dataset, dataset2)
 
-    print("--Test %s END--" % testName)
+    print("--Test %s END--" % test_name)

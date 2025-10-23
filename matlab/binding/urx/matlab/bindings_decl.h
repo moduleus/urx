@@ -1,5 +1,5 @@
-#ifndef URX_LIB_BINDING_DECL
-#define URX_LIB_BINDING_DECL
+#ifndef URX_MATLAB_BINDING_DECL
+#define URX_MATLAB_BINDING_DECL
 
 #ifdef __cplusplus
 #include <cstddef>
@@ -92,11 +92,13 @@
                                     sampling_type)(void *this_ptr);                            \
   URX_MATLAB_EXPORT uint8_t CONCAT5(name, type_data, type_number, shared, data_type)(void *this_ptr)
 
-#define _RAW_DATA_SHARED_NOT_TYPED_DECL(name)                                     \
-  URX_MATLAB_EXPORT void *CONCAT3(name, shared, size)(void *this_ptr);            \
-  URX_MATLAB_EXPORT void *CONCAT3(name, shared, data)(void *this_ptr);            \
-  URX_MATLAB_EXPORT uint8_t CONCAT3(name, shared, sampling_type)(void *this_ptr); \
-  URX_MATLAB_EXPORT uint8_t CONCAT3(name, shared, data_type)(void *this_ptr)
+#define _RAW_DATA_SHARED_NOT_TYPED_DECL(name)                                              \
+  URX_MATLAB_EXPORT void *CONCAT3(name, shared, size)(void *this_ptr);                     \
+  URX_MATLAB_EXPORT void *CONCAT3(name, shared, data)(void *this_ptr);                     \
+  URX_MATLAB_EXPORT uint8_t CONCAT3(name, shared, sampling_type)(void *this_ptr);          \
+  URX_MATLAB_EXPORT uint8_t CONCAT3(name, shared, data_type)(void *this_ptr);              \
+  URX_MATLAB_EXPORT bool CONCAT4(name, cmp, shared, raw)(void *this_ptr, void *other_ptr); \
+  URX_MATLAB_EXPORT bool CONCAT4(name, cmp, shared, shared)(void *this_ptr, void *other_ptr)
 
 #define _RAW_DATA_SHARED_DECL_TYPED(name, type_data) \
   _RAW_DATA_SHARED_DECL(name, int16_t, type_data);   \
@@ -114,8 +116,10 @@
   _RAW_DATA_SHARED_NOT_TYPED_DECL(name)
 
 #define _OBJECT_DECL(name)                                                                         \
-  URX_MATLAB_EXPORT void *CONCAT2(name, new)(void);                                                \
-  URX_MATLAB_EXPORT void CONCAT2(name, delete)(void *this_ptr);                                    \
+  URX_MATLAB_EXPORT void *CONCAT3(name, new, raw)(void);                                           \
+  URX_MATLAB_EXPORT void *CONCAT3(name, new, shared)(void);                                        \
+  URX_MATLAB_EXPORT void CONCAT3(name, delete, raw)(void *this_ptr);                               \
+  URX_MATLAB_EXPORT void CONCAT3(name, delete, shared)(void *this_ptr);                            \
   URX_MATLAB_EXPORT void CONCAT4(name, assign, raw, raw)(void *this_ptr, void *other_ptr);         \
   URX_MATLAB_EXPORT void CONCAT4(name, assign, raw, shared)(void *this_ptr, void *other_ptr);      \
   URX_MATLAB_EXPORT void CONCAT4(name, assign, weak, shared)(void *this_ptr, void *other_ptr);     \
@@ -144,9 +148,11 @@
 #define OBJECT_NS_DECL(ns, type) _OBJECT_DECL(CONCAT2(ns, type))
 #define OBJECT_DECL(type) _OBJECT_DECL(type)
 
-#define _OBJECT_RAW_DATA_DECL(name)                             \
-  URX_MATLAB_EXPORT void *CONCAT2(name, new)(uint64_t size);    \
-  URX_MATLAB_EXPORT void CONCAT2(name, delete)(void *this_ptr); \
+#define _OBJECT_RAW_DATA_DECL(name)                                     \
+  URX_MATLAB_EXPORT void *CONCAT3(name, new, raw)(uint64_t size);       \
+  URX_MATLAB_EXPORT void *CONCAT3(name, new, shared)(uint64_t size);    \
+  URX_MATLAB_EXPORT void CONCAT3(name, delete, raw)(void *this_ptr);    \
+  URX_MATLAB_EXPORT void CONCAT3(name, delete, shared)(void *this_ptr); \
   URX_MATLAB_EXPORT void CONCAT4(name, assign, shared, shared)(void *this_ptr, void *other_ptr)
 
 #define _OBJECT_NS_RAW_DATA_DECL_TYPED(ns, name, type_data)  \
@@ -302,14 +308,62 @@
   OBJECT_ACCESSOR_NS_DECL(ns, Wave, time_zero_reference_point); \
   OBJECT_ACCESSOR_NS_DECL(ns, Wave, parameters)
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#define _URX_MATLAB_STREAM_DECL(ns, type)                                                         \
+  URX_MATLAB_EXPORT void *CONCAT4(ns, Stream, new, type)(const char *filename,                    \
+                                                         void *shared_dataset);                   \
+  URX_MATLAB_EXPORT void CONCAT4(ns, Stream, delete, type)(void *raw_stream);                     \
+  URX_MATLAB_EXPORT void * /*pointer to shared_ptr*/ CONCAT4(ns, Stream, dataset,                 \
+                                                             type)(void *raw_stream);             \
+  URX_MATLAB_EXPORT void CONCAT4(ns, Stream, save_to_file, type)(void *raw_stream);               \
+  URX_MATLAB_EXPORT void CONCAT4(ns, Stream, load_from_file, type)(void *raw_stream);             \
+  URX_MATLAB_EXPORT void CONCAT4(ns, Stream, set_reader_options, type)(void *raw_stream,          \
+                                                                       int raw_data_load_policy); \
+  URX_MATLAB_EXPORT void CONCAT4(ns, Stream, set_writer_options, type)(                           \
+      void *raw_stream, bool chunk_group_data, bool clean_unusable_data, bool check_data);        \
+  URX_MATLAB_EXPORT void *CONCAT5(ns, Stream, create_group_data, type, raw)(                      \
+      void *raw_stream, void *shared_group, double timestamp);                                    \
+  URX_MATLAB_EXPORT void *CONCAT5(ns, Stream, create_group_data, type, shared)(                   \
+      void *raw_stream, void *shared_group, double timestamp);                                    \
+  URX_MATLAB_EXPORT void CONCAT4(ns, Stream, read_raw_data, type)(                                \
+      void *raw_stream, size_t group_data, void *shared_raw_data, size_t sequence_urx_raw_data,   \
+      size_t sequence_h5_raw_data, size_t count)
 
-#ifdef __cplusplus
-}
-#endif
+#define URX_MATLAB_STREAM_DECL(ns)  \
+  _URX_MATLAB_STREAM_DECL(ns, raw); \
+  _URX_MATLAB_STREAM_DECL(ns, shared)
+
+#define _URX_MATLAB_GROUP_DATA_STREAM_DECL(ns, type)                                              \
+  URX_MATLAB_EXPORT void CONCAT4(ns, GroupDataStream, delete, type)(void *raw_group_data_stream); \
+  URX_MATLAB_EXPORT void CONCAT4(ns, GroupDataStream, append, type)(                              \
+      void *raw_group_data_stream, void *shared_raw_data, double sequence_timestamp,              \
+      double *event_timestamp, size_t event_timestamp_size);                                      \
+  URX_MATLAB_EXPORT void * /*raw pointer to GroupData*/ CONCAT4(                                  \
+      ns, GroupDataStream, get_group_data, type)(void *raw_group_data_stream)
+
+#define URX_MATLAB_GROUP_DATA_STREAM_DECL(ns)  \
+  _URX_MATLAB_GROUP_DATA_STREAM_DECL(ns, raw); \
+  _URX_MATLAB_GROUP_DATA_STREAM_DECL(ns, shared)
+
+#define _URX_MATLAB_GROUP_DATA_READER_DECL(ns, type)                                              \
+  URX_MATLAB_EXPORT void *CONCAT5(ns, GroupDataReader, new, type, raw)(void *raw_group_data);     \
+  URX_MATLAB_EXPORT void *CONCAT5(ns, GroupDataReader, new, type,                                 \
+                                  shared)(void *shared_group_data);                               \
+  URX_MATLAB_EXPORT void CONCAT4(ns, GroupDataReader, delete, type)(void *raw_group_data_reader); \
+  URX_MATLAB_EXPORT size_t CONCAT4(ns, GroupDataReader, sequencesCount, type)(void *raw_reader);  \
+  URX_MATLAB_EXPORT size_t CONCAT4(ns, GroupDataReader, eventsCount, type)(void *raw_reader);     \
+  URX_MATLAB_EXPORT size_t CONCAT4(ns, GroupDataReader, channelsCount, type)(void *raw_reader,    \
+                                                                             size_t event_idx);   \
+  URX_MATLAB_EXPORT size_t CONCAT4(ns, GroupDataReader, samplesCount, type)(void *raw_reader,     \
+                                                                            size_t event_idx);    \
+  URX_MATLAB_EXPORT size_t CONCAT4(ns, GroupDataReader, offset, type)(                            \
+      void *raw_reader, size_t sequence_idx, size_t event_idx, size_t channel_idx,                \
+      size_t sample_idx);                                                                         \
+  URX_MATLAB_EXPORT size_t CONCAT4(ns, GroupDataReader, sampleByteSize, type)(void *raw_reader);
+
+#define URX_MATLAB_GROUP_DATA_READER_DECL(ns)  \
+  _URX_MATLAB_GROUP_DATA_READER_DECL(ns, raw); \
+  _URX_MATLAB_GROUP_DATA_READER_DECL(ns, shared)
 
 // NOLINTEND(readability-identifier-naming)
 
-#endif  // #define URX_LIB_BINDING_DECL
+#endif  // #define URX_MATLAB_BINDING_DECL

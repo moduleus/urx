@@ -11,8 +11,8 @@ def test_event(
     wave_constructor,
     transform_constructor,
 ):
-    testName = "Event"
-    print("\n--Test %s binding BEGIN--" % testName)
+    test_name = "Event"
+    print("\n--Test %s binding BEGIN--" % test_name)
 
     # Check default CTOR
     evt = event_constructor()
@@ -35,9 +35,11 @@ def test_event(
     self.assertEqual(evt, evt_2)
     evt_2.receive_setup = rs
     self.assertNotEqual(evt, evt_2)
+    self.assertNotEqual(id(evt), id(evt_2))
     evt_ref = evt
     evt_ref.receive_setup = rs
     self.assertEqual(evt, evt_ref)
+    self.assertEqual(id(evt), id(evt_ref))
 
     # Check CTOR with all parameters
     evt = event_args(ts, rs)
@@ -71,4 +73,4 @@ def test_event(
     self.assertEqual(evt.receive_setup, rs)
     self.assertEqual(evt, evt_2)
 
-    print("--Test %s END--" % testName)
+    print("--Test %s END--" % test_name)

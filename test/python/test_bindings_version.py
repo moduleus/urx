@@ -7,8 +7,8 @@ def test_version(
     default_minor,
     default_patch,
 ):
-    testName = "Version binding"
-    print("\n--Test %s BEGIN--" % testName)
+    test_name = "Version binding"
+    print("\n--Test %s BEGIN--" % test_name)
 
     v = version_constructor()
     v_2 = version_constructor()
@@ -28,8 +28,10 @@ def test_version(
     self.assertEqual(v, v_2)
     v_2.minor = 42
     self.assertNotEqual(v, v_2)
+    self.assertNotEqual(id(v), id(v_2))
     v_ref = v
     v_ref.minor = 42
     self.assertEqual(v, v_ref)
+    self.assertEqual(id(v), id(v_ref))
 
-    print("--Test %s END--" % testName)
+    print("--Test %s END--" % test_name)

@@ -83,7 +83,7 @@ classdef StdVector < urx.ObjectField
         res = urx.StdVector(this.objectClassName, this.nbDims-1, this.ptrType, this.parent);
         res.id = this.libBindingRef.call(this.functionName('data'), this, i-1);
       elseif any(strcmp(superclasses(this.objectClassName), 'urx.Object'))
-        res = feval(this.objectClassName, this.libBindingRef.call(this.functionName('data'), this, i-1), this.ptrType, this.parent);
+        res = feval(this.objectClassName, this.ptrType, this.libBindingRef.call(this.functionName('data'), this, i-1), this.parent);
       else
         resPtr = this.libBindingRef.call(this.functionName('data'), this, i-1);
         resPtr.setdatatype([this.objectClassName 'Ptr'], 1);

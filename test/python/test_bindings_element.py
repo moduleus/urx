@@ -1,6 +1,7 @@
-import numpy as np
 import gc
 import platform
+
+import numpy as np
 
 
 def test_element(
@@ -17,8 +18,8 @@ def test_element(
     impulse_response_constructor,
     impulse_response_args,
 ):
-    testName = "Element binding"
-    print("\n--Test %s BEGIN--" % testName)
+    test_name = "Element binding"
+    print("\n--Test %s BEGIN--" % test_name)
 
     v = vector3d_constructor()
     v_2 = vector3d_args(1, 2, 3)
@@ -35,9 +36,11 @@ def test_element(
     self.assertEqual(elt, elt_2)
     elt_2.transform = transform_args(v_2, v_2)
     self.assertNotEqual(elt, elt_2)
+    self.assertNotEqual(id(elt), id(elt_2))
     elt_ref = elt
     elt_ref.transform = transform_args(v_2, v_2)
     self.assertEqual(elt, elt_ref)
+    self.assertEqual(id(elt), id(elt_ref))
 
     t = transform_args(v_3, v_3)
 
@@ -98,4 +101,4 @@ def test_element(
     # Check the weak_ptr does not reference anymore the deleted object
     self.assertEqual(elt.impulse_response, None)
 
-    print("--Test %s END--" % testName)
+    print("--Test %s END--" % test_name)

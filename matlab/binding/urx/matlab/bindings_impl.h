@@ -1,5 +1,5 @@
-#ifndef URX_LIB_BINDING_IMPL
-#define URX_LIB_BINDING_IMPL
+#ifndef URX_MATLAB_BINDING_IMPL
+#define URX_MATLAB_BINDING_IMPL
 
 #include <algorithm>
 #include <complex>
@@ -9,12 +9,14 @@
 #include <optional>
 #include <ostream>
 #include <string>
+#include <string_view>
 #include <type_traits>
 #include <utility>
 #include <vector>
 
 #include <urx/acquisition.h>
 #include <urx/dataset.h>
+#include <urx/detail/double_nan.h>
 #include <urx/detail/raw_data.h>
 #include <urx/element.h>
 #include <urx/element_geometry.h>
@@ -28,6 +30,10 @@
 #include <urx/receive_setup.h>
 #include <urx/transform.h>
 #include <urx/transmit_setup.h>
+#include <urx/utils/group_data_reader.h>
+#include <urx/utils/io/reader_options.h>
+#include <urx/utils/io/stream.h>
+#include <urx/utils/io/writer_options.h>
 #include <urx/vector.h>
 #include <urx/version.h>
 #include <urx/wave.h>
@@ -51,6 +57,30 @@ struct IsSharedPtr : std::false_type {};
 
 template <typename T>
 struct IsSharedPtr<std::shared_ptr<T>> : std::true_type {};
+
+constexpr bool stringViewEqual(const char *a, const char *b) {
+  return std::string_view(a) == std::string_view(b);
+}
+
+// NOLINTBEGIN(readability-identifier-naming)
+static constexpr char raw_str[] = "raw";
+static constexpr char shared_str[] = "shared";
+// NOLINTEND(readability-identifier-naming)
+
+template <typename T, const char *Type>
+using PtrTypeT = std::conditional_t<stringViewEqual(Type, "shared"), std::shared_ptr<T> *, T *>;
+
+template <typename T, const char *Type>
+using RawTypeT = std::conditional_t<stringViewEqual(Type, "shared"), std::shared_ptr<T>, T *>;
+
+template <typename T, const char *Type, typename U>
+auto staticCastType(U *pointer) {
+  if constexpr (std::is_pointer_v<RawTypeT<T, Type>>) {
+    return static_cast<RawTypeT<T, Type>>(pointer);
+  } else {
+    return *static_cast<PtrTypeT<T, Type>>(pointer);
+  }
+}
 
 }  // namespace urx
 
@@ -238,7 +268,13 @@ struct IsSharedPtr<std::shared_ptr<T>> : std::true_type {};
 #define VECTOR_WEAK_IMPL(name) _VECTOR_WEAK_IMPL(name, name)
 
 #define _OBJECT_IMPL(snake, type)                                                                  \
-  void *CONCAT2(snake, new)(void) {                                                                \
+  void *CONCAT3(snake, new, raw)(void) {                                                           \
+    urxIncAllocCount();                                                                            \
+    auto retval = new type();                                                                      \
+    urxGetLog() << reinterpret_cast<size_t>(retval) << " " << __FUNCTION__ << "\n" << std::flush;  \
+    return retval;                                                                                 \
+  }                                                                                                \
+  void *CONCAT3(snake, new, shared)(void) {                                                        \
     urxIncAllocCount();                                                                            \
     auto retval = new std::shared_ptr<type>(new type());                                           \
     urxGetLog() << reinterpret_cast<size_t>(retval) << " "                                         \
@@ -246,7 +282,13 @@ struct IsSharedPtr<std::shared_ptr<T>> : std::true_type {};
                 << std::flush;                                                                     \
     return retval;                                                                                 \
   }                                                                                                \
-  void CONCAT2(snake, delete)(void *this_ptr) {                                                    \
+  void CONCAT3(snake, delete, raw)(void *this_ptr) {                                               \
+    urxDecAllocCount();                                                                            \
+    urxGetLog() << reinterpret_cast<size_t>(this_ptr) << " " << __FUNCTION__ << "\n"               \
+                << std::flush;                                                                     \
+    delete static_cast<type *>(this_ptr);                                                          \
+  }                                                                                                \
+  void CONCAT3(snake, delete, shared)(void *this_ptr) {                                            \
     urxDecAllocCount();                                                                            \
     urxGetLog() << reinterpret_cast<size_t>(this_ptr) << " "                                       \
                 << reinterpret_cast<size_t>(static_cast<std::shared_ptr<type> *>(this_ptr)->get()) \
@@ -494,6 +536,14 @@ struct IsSharedPtr<std::shared_ptr<T>> : std::true_type {};
     return static_cast<uint8_t>(                                                       \
         (*static_cast<std::shared_ptr<urx::RawData> *>(this_ptr))->getDataType());     \
   }                                                                                    \
+  bool CONCAT4(name, cmp, shared, raw)(void *this_ptr, void *other_ptr) {              \
+    return **static_cast<std::shared_ptr<urx::RawData> *>(this_ptr) ==                 \
+           *static_cast<urx::RawData *>(other_ptr);                                    \
+  }                                                                                    \
+  bool CONCAT4(name, cmp, shared, shared)(void *this_ptr, void *other_ptr) {           \
+    return **static_cast<std::shared_ptr<urx::RawData> *>(this_ptr) ==                 \
+           **static_cast<std::shared_ptr<urx::RawData> *>(other_ptr);                  \
+  }                                                                                    \
   FORCE_SEMICOLON
 
 #define _RAW_DATA_SHARED_IMPL(name, type_data, type_number)                    \
@@ -528,7 +578,13 @@ struct IsSharedPtr<std::shared_ptr<T>> : std::true_type {};
 #define OBJECT_IMPL(name) _OBJECT_IMPL(name, name)
 
 #define _OBJECT_RAW_DATA_IMPL(snake, type, other_type)                                             \
-  void *CONCAT2(snake, new)(uint64_t size) {                                                       \
+  void *CONCAT3(snake, new, raw)(uint64_t size) {                                                  \
+    urxIncAllocCount();                                                                            \
+    auto retval = new other_type(size);                                                            \
+    urxGetLog() << reinterpret_cast<size_t>(retval) << " " << __FUNCTION__ << "\n" << std::flush;  \
+    return retval;                                                                                 \
+  }                                                                                                \
+  void *CONCAT3(snake, new, shared)(uint64_t size) {                                               \
     urxIncAllocCount();                                                                            \
     auto retval = new std::shared_ptr<other_type>(new other_type(size));                           \
     urxGetLog() << reinterpret_cast<size_t>(retval) << " "                                         \
@@ -536,7 +592,13 @@ struct IsSharedPtr<std::shared_ptr<T>> : std::true_type {};
                 << std::flush;                                                                     \
     return retval;                                                                                 \
   }                                                                                                \
-  void CONCAT2(snake, delete)(void *this_ptr) {                                                    \
+  void CONCAT3(snake, delete, raw)(void *this_ptr) {                                               \
+    urxDecAllocCount();                                                                            \
+    urxGetLog() << reinterpret_cast<size_t>(this_ptr) << " " << __FUNCTION__ << "\n"               \
+                << std::flush;                                                                     \
+    delete static_cast<other_type *>(this_ptr);                                                    \
+  }                                                                                                \
+  void CONCAT3(snake, delete, shared)(void *this_ptr) {                                            \
     urxDecAllocCount();                                                                            \
     urxGetLog() << reinterpret_cast<size_t>(this_ptr) << " "                                       \
                 << reinterpret_cast<size_t>(                                                       \
@@ -740,6 +802,202 @@ bool checkHasValue(const T &argument) {
   OBJECT_ACCESSOR_NS_IMPL(ns, Wave, time_zero_reference_point); \
   OBJECT_ACCESSOR_NS_IMPL(ns, Wave, parameters)
 
+#define _URX_MATLAB_STREAM_IMPL(ns, type)                                                          \
+  void *CONCAT4(ns, Stream, new, type)(const char *filename, void *shared_dataset) {               \
+    urxIncAllocCount();                                                                            \
+    if constexpr (urx::stringViewEqual(urx::type##_str, "raw")) {                                  \
+      auto retval = new urx::utils::io::Stream(                                                    \
+          filename, *static_cast<std::shared_ptr<urx::Dataset> *>(shared_dataset));                \
+      urxGetLog() << reinterpret_cast<size_t>(retval) << " " << __FUNCTION__ << "\n"               \
+                  << std::flush;                                                                   \
+      return retval;                                                                               \
+    } else {                                                                                       \
+      auto retval = new std::shared_ptr<urx::utils::io::Stream>(new urx::utils::io::Stream(        \
+          filename, *static_cast<std::shared_ptr<urx::Dataset> *>(shared_dataset)));               \
+      urxGetLog() << reinterpret_cast<size_t>(retval) << " "                                       \
+                  << reinterpret_cast<size_t>(retval->get()) << " " << __FUNCTION__ << "\n";       \
+      return retval;                                                                               \
+    }                                                                                              \
+  }                                                                                                \
+  void CONCAT4(ns, Stream, delete, type)(void *raw_stream) {                                       \
+    urxDecAllocCount();                                                                            \
+    urxGetLog() << reinterpret_cast<size_t>(raw_stream) << " " << __FUNCTION__ << "\n"             \
+                << std::flush;                                                                     \
+    auto stream = static_cast<urx::PtrTypeT<urx::utils::io::Stream, urx::type##_str>>(raw_stream); \
+    delete stream;                                                                                 \
+  }                                                                                                \
+  void *CONCAT4(ns, Stream, dataset, type)(void *raw_stream) {                                     \
+    auto stream = urx::staticCastType<urx::utils::io::Stream, urx::type##_str>(raw_stream);        \
+    urxIncAllocCount();                                                                            \
+    auto retval = new std::shared_ptr<urx::Dataset>(stream->getDataset());                         \
+    urxGetLog() << reinterpret_cast<size_t>(retval) << " "                                         \
+                << reinterpret_cast<size_t>(retval->get()) << " " << __FUNCTION__ << "\n";         \
+    return retval;                                                                                 \
+  }                                                                                                \
+  void CONCAT4(ns, Stream, save_to_file, type)(void *raw_stream) {                                 \
+    auto stream = urx::staticCastType<urx::utils::io::Stream, urx::type##_str>(raw_stream);        \
+    stream->saveToFile();                                                                          \
+  }                                                                                                \
+  void CONCAT4(ns, Stream, load_from_file, type)(void *raw_stream) {                               \
+    auto stream = urx::staticCastType<urx::utils::io::Stream, urx::type##_str>(raw_stream);        \
+    stream->loadFromFile();                                                                        \
+  }                                                                                                \
+  void CONCAT4(ns, Stream, set_reader_options, type)(void *raw_stream, int raw_data_load_policy) { \
+    auto stream = urx::staticCastType<urx::utils::io::Stream, urx::type##_str>(raw_stream);        \
+    stream->readerOptions().setRawDataLoadPolicy(                                                  \
+        static_cast<urx::utils::io::RawDataLoadPolicy>(raw_data_load_policy));                     \
+  }                                                                                                \
+  void CONCAT4(ns, Stream, set_writer_options, type)(void *raw_stream, bool chunk_group_data,      \
+                                                     bool clean_unusable_data, bool check_data) {  \
+    auto stream = urx::staticCastType<urx::utils::io::Stream, urx::type##_str>(raw_stream);        \
+    stream->writerOptions().setChunkGroupData(chunk_group_data);                                   \
+    stream->writerOptions().setCleanUnusableData(clean_unusable_data);                             \
+    stream->writerOptions().setCheckData(check_data);                                              \
+  }                                                                                                \
+  void *CONCAT5(ns, Stream, create_group_data, type, raw)(void *raw_stream, void *shared_group,    \
+                                                          double timestamp) {                      \
+    auto stream = urx::staticCastType<urx::utils::io::Stream, urx::type##_str>(raw_stream);        \
+    urxIncAllocCount();                                                                            \
+    auto retval = new urx::utils::io::GroupDataStream(stream->createGroupData(                     \
+        *static_cast<std::shared_ptr<urx::Group> *>(shared_group), urx::DoubleNan(timestamp)));    \
+    urxGetLog() << reinterpret_cast<size_t>(retval) << " " << __FUNCTION__ << "\n" << std::flush;  \
+    return retval;                                                                                 \
+  }                                                                                                \
+  void *CONCAT5(ns, Stream, create_group_data, type, shared)(void *raw_stream, void *shared_group, \
+                                                             double timestamp) {                   \
+    auto stream = urx::staticCastType<urx::utils::io::Stream, urx::type##_str>(raw_stream);        \
+    urxIncAllocCount();                                                                            \
+    auto retval =                                                                                  \
+        new std::shared_ptr<urx::utils::io::GroupDataStream>(new urx::utils::io::GroupDataStream(  \
+            stream->createGroupData(*static_cast<std::shared_ptr<urx::Group> *>(shared_group),     \
+                                    urx::DoubleNan(timestamp))));                                  \
+    urxGetLog() << reinterpret_cast<size_t>(retval) << " "                                         \
+                << reinterpret_cast<size_t>(retval->get()) << " " << __FUNCTION__ << "\n";         \
+    return retval;                                                                                 \
+  }                                                                                                \
+  void CONCAT4(ns, Stream, read_raw_data, type)(                                                   \
+      void *raw_stream, size_t group_data, void *shared_raw_data, size_t sequence_urx_raw_data,    \
+      size_t sequence_h5_raw_data, size_t count) {                                                 \
+    auto stream = urx::staticCastType<urx::utils::io::Stream, urx::type##_str>(raw_stream);        \
+    std::shared_ptr<urx::RawData> *raw_data =                                                      \
+        static_cast<std::shared_ptr<urx::RawData> *>(shared_raw_data);                             \
+    stream->readRawData(group_data, *raw_data, sequence_urx_raw_data, sequence_h5_raw_data,        \
+                        count);                                                                    \
+  }                                                                                                \
+  FORCE_SEMICOLON
+
+#define URX_MATLAB_STREAM_IMPL(ns)  \
+  _URX_MATLAB_STREAM_IMPL(ns, raw); \
+  _URX_MATLAB_STREAM_IMPL(ns, shared)
+
+#define _URX_MATLAB_GROUP_DATA_STREAM_IMPL(ns, type)                                              \
+  void CONCAT4(ns, GroupDataStream, delete, type)(void *raw_group_data_stream) {                  \
+    urxDecAllocCount();                                                                           \
+    urxGetLog() << reinterpret_cast<size_t>(raw_group_data_stream) << " " << __FUNCTION__ << "\n" \
+                << std::flush;                                                                    \
+    auto group_data_stream =                                                                      \
+        static_cast<urx::PtrTypeT<urx::utils::io::GroupDataStream, urx::type##_str>>(             \
+            raw_group_data_stream);                                                               \
+    delete group_data_stream;                                                                     \
+  }                                                                                               \
+  void CONCAT4(ns, GroupDataStream, append, type)(                                                \
+      void *raw_group_data_stream, void *shared_raw_data, double sequence_timestamp,              \
+      double *event_timestamp, size_t event_timestamp_size) {                                     \
+    auto group_data_stream =                                                                      \
+        urx::staticCastType<urx::utils::io::GroupDataStream, urx::type##_str>(                    \
+            raw_group_data_stream);                                                               \
+    std::shared_ptr<urx::RawData> *raw_data =                                                     \
+        static_cast<std::shared_ptr<urx::RawData> *>(shared_raw_data);                            \
+    const std::vector<double> v_event_timestamp = {event_timestamp,                               \
+                                                   event_timestamp + event_timestamp_size};       \
+    group_data_stream->append(*raw_data, sequence_timestamp, v_event_timestamp);                  \
+  }                                                                                               \
+  void *CONCAT4(ns, GroupDataStream, get_group_data, type)(void *raw_group_data_stream) {         \
+    auto group_data_stream =                                                                      \
+        urx::staticCastType<urx::utils::io::GroupDataStream, urx::type##_str>(                    \
+            raw_group_data_stream);                                                               \
+    return &group_data_stream->getGroupData();                                                    \
+  }                                                                                               \
+  FORCE_SEMICOLON
+
+#define URX_MATLAB_GROUP_DATA_STREAM_IMPL(ns)  \
+  _URX_MATLAB_GROUP_DATA_STREAM_IMPL(ns, raw); \
+  _URX_MATLAB_GROUP_DATA_STREAM_IMPL(ns, shared)
+
+#define _URX_MATLAB_GROUP_DATA_READER_IMPL(ns, type)                                             \
+  void *CONCAT5(ns, GroupDataReader, new, type, raw)(void *raw_group_data) {                     \
+    urxIncAllocCount();                                                                          \
+    if constexpr (urx::stringViewEqual(urx::type##_str, "raw")) {                                \
+      auto retval =                                                                              \
+          new urx::utils::GroupDataReader(*static_cast<urx::GroupData *>(raw_group_data));       \
+      urxGetLog() << reinterpret_cast<size_t>(retval) << " " << __FUNCTION__ << "\n"             \
+                  << std::flush;                                                                 \
+      return retval;                                                                             \
+    } else {                                                                                     \
+      auto retval = new std::shared_ptr<urx::utils::GroupDataReader>(                            \
+          new urx::utils::GroupDataReader(*static_cast<urx::GroupData *>(raw_group_data)));      \
+      urxGetLog() << reinterpret_cast<size_t>(retval) << " "                                     \
+                  << reinterpret_cast<size_t>(retval->get()) << " " << __FUNCTION__ << "\n";     \
+      return retval;                                                                             \
+    }                                                                                            \
+  }                                                                                              \
+  void *CONCAT5(ns, GroupDataReader, new, type, shared)(void *shared_group_data) {               \
+    urxIncAllocCount();                                                                          \
+    if constexpr (urx::stringViewEqual(urx::type##_str, "raw")) {                                \
+      auto retval = new urx::utils::GroupDataReader(                                             \
+          **static_cast<std::shared_ptr<urx::GroupData> *>(shared_group_data));                  \
+      urxGetLog() << reinterpret_cast<size_t>(retval) << " " << __FUNCTION__ << "\n"             \
+                  << std::flush;                                                                 \
+      return retval;                                                                             \
+    } else {                                                                                     \
+      auto retval =                                                                              \
+          new std::shared_ptr<urx::utils::GroupDataReader>(new urx::utils::GroupDataReader(      \
+              **static_cast<std::shared_ptr<urx::GroupData> *>(shared_group_data)));             \
+      urxGetLog() << reinterpret_cast<size_t>(retval) << " "                                     \
+                  << reinterpret_cast<size_t>(retval->get()) << " " << __FUNCTION__ << "\n";     \
+      return retval;                                                                             \
+    }                                                                                            \
+  }                                                                                              \
+  void CONCAT4(ns, GroupDataReader, delete, type)(void *raw_reader) {                            \
+    urxDecAllocCount();                                                                          \
+    urxGetLog() << reinterpret_cast<size_t>(raw_reader) << " " << __FUNCTION__ << "\n"           \
+                << std::flush;                                                                   \
+    auto reader =                                                                                \
+        static_cast<urx::PtrTypeT<urx::utils::GroupDataReader, urx::type##_str>>(raw_reader);    \
+    delete reader;                                                                               \
+  }                                                                                              \
+  size_t CONCAT4(ns, GroupDataReader, sequencesCount, type)(void *raw_reader) {                  \
+    auto reader = urx::staticCastType<urx::utils::GroupDataReader, urx::type##_str>(raw_reader); \
+    return reader->sequencesCount();                                                             \
+  }                                                                                              \
+  size_t CONCAT4(ns, GroupDataReader, eventsCount, type)(void *raw_reader) {                     \
+    auto reader = urx::staticCastType<urx::utils::GroupDataReader, urx::type##_str>(raw_reader); \
+    return reader->eventsCount();                                                                \
+  }                                                                                              \
+  size_t CONCAT4(ns, GroupDataReader, channelsCount, type)(void *raw_reader, size_t event_idx) { \
+    auto reader = urx::staticCastType<urx::utils::GroupDataReader, urx::type##_str>(raw_reader); \
+    return reader->channelsCount(event_idx);                                                     \
+  }                                                                                              \
+  size_t CONCAT4(ns, GroupDataReader, samplesCount, type)(void *raw_reader, size_t event_idx) {  \
+    auto reader = urx::staticCastType<urx::utils::GroupDataReader, urx::type##_str>(raw_reader); \
+    return reader->samplesCount(event_idx);                                                      \
+  }                                                                                              \
+  size_t CONCAT4(ns, GroupDataReader, offset, type)(void *raw_reader, size_t sequence_idx,       \
+                                                    size_t event_idx, size_t channel_idx,        \
+                                                    size_t sample_idx) {                         \
+    auto reader = urx::staticCastType<urx::utils::GroupDataReader, urx::type##_str>(raw_reader); \
+    return reader->offset(sequence_idx, event_idx, channel_idx, sample_idx);                     \
+  }                                                                                              \
+  size_t CONCAT4(ns, GroupDataReader, sampleByteSize, type)(void *raw_reader) {                  \
+    auto reader = urx::staticCastType<urx::utils::GroupDataReader, urx::type##_str>(raw_reader); \
+    return reader->sampleByteSize();                                                             \
+  }                                                                                              \
+  FORCE_SEMICOLON
+
+#define URX_MATLAB_GROUP_DATA_READER_IMPL(ns)  \
+  _URX_MATLAB_GROUP_DATA_READER_IMPL(ns, raw); \
+  _URX_MATLAB_GROUP_DATA_READER_IMPL(ns, shared)
+
 // NOLINTEND(bugprone-macro-parentheses)
 
-#endif  // #define URX_LIB_BINDING_IMPL
+#endif  // #define URX_MATLAB_BINDING_IMPL

@@ -20,7 +20,7 @@ classdef Dataset < urx.Object
       warning('urx.Dataset.loadFromFile is depreciated. Use static method urx.loadFromFile(filename).');
       libBinding = urx.LibBinding.getInstance();
       dataset_ptr = libBinding.call('urx_load_from_file', filename);
-      this = urx.Dataset(dataset_ptr, urx.PtrType.SHARED, []);
+      this = urx.Dataset(urx.PtrType.SHARED, dataset_ptr);
     end
   end
 end

@@ -9,8 +9,8 @@ def test_transform(
     vector3d_constructor,
     vector3d_args,
 ):
-    testName = "Transform binding"
-    print("\n--Test %s BEGIN--" % testName)
+    test_name = "Transform binding"
+    print("\n--Test %s BEGIN--" % test_name)
 
     tf = transform_constructor()
 
@@ -24,7 +24,12 @@ def test_transform(
     self.assertEqual(tf.translation, t)
 
     tf_2 = transform_copy(tf)
+    tf_ref = tf
     self.assertEqual(tf, tf_2)
+    self.assertNotEqual(id(tf), id(tf_2))
+    tf_ref.rotation.z = 1e9
+    self.assertEqual(tf, tf_ref)
+    self.assertEqual(id(tf), id(tf_ref))
 
     r_2 = r
     r.x = 42
@@ -44,4 +49,4 @@ def test_transform(
     self.assertEqual(tf.rotation.y, 3.0)
     self.assertEqual(tf.rotation.z, 4.0)
 
-    print("--Test %s END--" % testName)
+    print("--Test %s END--" % test_name)

@@ -19,8 +19,8 @@ def test_group(
     double_nan_constructor,
     double_nan_copy,
 ):
-    testName = "Group binding"
-    print("\n--Test %s BEGIN--" % testName)
+    test_name = "Group binding"
+    print("\n--Test %s BEGIN--" % test_name)
 
     # Check default CTOR
     g = group_constructor()
@@ -36,9 +36,11 @@ def test_group(
     self.assertEqual(g, g_2)
     g_2.description = "Hello"
     self.assertNotEqual(g, g_2)
+    self.assertNotEqual(id(g), id(g_2))
     g_ref = g
     g_ref.description = "Hello"
     self.assertEqual(g, g_ref)
+    self.assertEqual(id(g), id(g_ref))
 
     rs = receive_setup_args(probe_constructor(), transform_constructor(), 1, 2, [[3]], [4], 5, 6, 7)
     ts = transmit_setup_args(
@@ -130,4 +132,4 @@ def test_group(
     self.assertEqual(g.sequence, [evt, evt_2])
     self.assertEqual(g, g_2)
 
-    print("--Test %s END--" % testName)
+    print("--Test %s END--" % test_name)

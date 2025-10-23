@@ -5,7 +5,6 @@
 #include <utility>
 #include <vector>
 
-#include <urx/detail/compare.h>  // IWYU pragma: keep
 #include <urx/detail/double_nan.h>
 #include <urx/enums.h>
 #include <urx/vector.h>

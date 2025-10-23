@@ -5,7 +5,7 @@
 
 namespace urx::utils::common {
 
-std::string formatIndexWithLeadingZeros(const std::size_t index, const int length) {
+std::string formatIndexWithLeadingZeros(std::size_t index, int length) {
   std::string str;
   str.resize(snprintf(nullptr, 0, "%0*zu", length, index) + 1);
   snprintf(str.data(), str.size(), "%0*zu", length, index);

@@ -10,14 +10,9 @@
 
 namespace urx::utils {
 
-GroupDataReader::GroupDataReader(const GroupData& group_data, const size_t custom_sample_byte_size)
-    : _group_data{group_data} {
-  try {
-    auto group = _group_data.group.lock();
-    _sample_byte_size = group_helper::sizeofSample(group->sampling_type, group->data_type);
-  } catch (std::out_of_range&) {
-    _sample_byte_size = custom_sample_byte_size;
-  }
+GroupDataReader::GroupDataReader(const GroupData& group_data) : _group_data{group_data} {
+  auto group = _group_data.group.lock();
+  _sample_byte_size = group_helper::sizeofSample(group->sampling_type, group->data_type);
 
   _samples_offset.emplace_back(0);
 
@@ -32,22 +27,24 @@ GroupDataReader::GroupDataReader(const GroupData& group_data, const size_t custo
   }
 }
 
+GroupDataReader::GroupDataReader(const GroupData& group_data,
+                                 [[maybe_unused]] size_t custom_sample_byte_size)
+    : GroupDataReader(group_data) {}
+
 size_t GroupDataReader::sequencesCount() const {
   return _group_data.raw_data->getSize() / _samples_offset.back();
 }
 
 size_t GroupDataReader::eventsCount() const { return _group_data.group.lock()->sequence.size(); }
 
-size_t GroupDataReader::channelsCount(const size_t event_idx) const {
+size_t GroupDataReader::channelsCount(size_t event_idx) const {
   return (_samples_offset[event_idx + 1] - _samples_offset[event_idx]) / samplesCount(event_idx);
 }
 
-size_t GroupDataReader::samplesCount(const size_t event_idx) const {
-  return _samples_count[event_idx];
-}
+size_t GroupDataReader::samplesCount(size_t event_idx) const { return _samples_count[event_idx]; }
 
-size_t GroupDataReader::offset(const size_t sequence_idx, const size_t event_idx,
-                               const size_t channel_idx, const size_t sample_idx) const {
+size_t GroupDataReader::offset(size_t sequence_idx, size_t event_idx, size_t channel_idx,
+                               size_t sample_idx) const {
   return sequence_idx * _samples_offset.back() + _samples_offset[event_idx] +
          channel_idx * _samples_count[event_idx] + sample_idx;
 }

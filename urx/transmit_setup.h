@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <memory>
+#include <utility>
 #include <vector>
 
 #include <urx/detail/compare.h>
@@ -18,9 +19,10 @@ namespace detail {
 template <class Excitation>
 struct TransmitSetup {
   bool operator==(const TransmitSetup& other) const {
-    return probe == other.probe && wave == other.wave && probe_transform == other.probe_transform &&
-           time_offset == other.time_offset && active_elements == other.active_elements &&
-           excitations == other.excitations && delays == other.delays;
+    return valueComparison(probe, other.probe) && wave == other.wave &&
+           probe_transform == other.probe_transform && time_offset == other.time_offset &&
+           active_elements == other.active_elements &&
+           valueComparison(excitations, other.excitations) && delays == other.delays;
   }
 
   bool operator!=(const TransmitSetup& other) const { return !operator==(other); }

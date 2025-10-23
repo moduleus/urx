@@ -13,8 +13,10 @@ namespace urx::utils {
 
 class GroupDataReader {
  public:
+  URX_UTILS_EXPORT explicit GroupDataReader(const GroupData& group_data);
+  [[deprecated("custom_sample_byte_size is useless.")]]
   URX_UTILS_EXPORT explicit GroupDataReader(const GroupData& group_data,
-                                            const size_t custom_sample_byte_size = 1);
+                                            size_t custom_sample_byte_size);
 
   GroupDataReader(GroupDataReader&& other) noexcept = delete;
   GroupDataReader(GroupDataReader const& other) = delete;
@@ -22,8 +24,8 @@ class GroupDataReader {
   GroupDataReader& operator=(GroupDataReader const& other) = delete;
 
   template <class T = void>
-  T* operator()(const size_t sequence_idx = 0, const size_t event_idx = 0,
-                const size_t channel_idx = 0, const size_t sample_idx = 0) {
+  T* operator()(size_t sequence_idx = 0, size_t event_idx = 0, size_t channel_idx = 0,
+                size_t sample_idx = 0) {
     if constexpr (!std::is_same_v<T, void>) {
       if (sizeof(T) != _sample_byte_size) throw std::runtime_error("Invalid cast with raw_data");
     }
@@ -34,8 +36,7 @@ class GroupDataReader {
   }
 
   template <typename T>
-  T& at(const size_t sequence_idx, const size_t event_idx, const size_t channel_idx,
-        const size_t sample_idx) {
+  T& at(size_t sequence_idx, size_t event_idx, size_t channel_idx, size_t sample_idx) {
     // NOLINTNEXTLINE(readability-suspicious-call-argument)
     return *operator()<T>(sequence_idx, event_idx, channel_idx, sample_idx);
   }
@@ -44,12 +45,12 @@ class GroupDataReader {
 
   URX_UTILS_EXPORT size_t eventsCount() const;
 
-  URX_UTILS_EXPORT size_t channelsCount(const size_t event_idx) const;
+  URX_UTILS_EXPORT size_t channelsCount(size_t event_idx) const;
 
-  URX_UTILS_EXPORT size_t samplesCount(const size_t event_idx) const;
+  URX_UTILS_EXPORT size_t samplesCount(size_t event_idx) const;
 
-  URX_UTILS_EXPORT size_t offset(const size_t sequence_idx, const size_t event_idx,
-                                 const size_t channel_idx, const size_t sample_idx) const;
+  URX_UTILS_EXPORT size_t offset(size_t sequence_idx, size_t event_idx, size_t channel_idx,
+                                 size_t sample_idx) const;
 
   URX_UTILS_EXPORT size_t sampleByteSize() const;
 

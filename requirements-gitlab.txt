@@ -1,12 +1,18 @@
 build==1.2.2.post1
-twine==5.1.1
+twine==6.0.1
 wheel==0.45.1
 setuptools==75.3.0; python_version == '3.8'
 setuptools==75.6.0; python_version >= '3.9'
-mypy==1.13.0
+mypy==1.14.1; python_version == '3.8'
+mypy==1.18.2; python_version >= '3.9'
 typing_extensions==4.12.2
 toml==0.10.2
 cmake==3.31.1
+isort==5.13.2; python_version == '3.8'
+isort==6.1.0; python_version >= '3.9'
+filelock==3.16.1; python_version == '3.8'
+filelock==3.19.1; python_version == '3.9'
+filelock==3.20.0; python_version >= '3.10'
 ## The following requirements were added by pip freeze:
 backports.tarfile==1.2.0
 certifi==2024.12.14
@@ -26,9 +32,9 @@ mdurl==0.1.2
 more-itertools==10.5.0
 mypy-extensions==1.0.0
 nh3==0.2.18; platform_python_implementation == "PyPy" and python_version == '3.8'
-nh3==0.2.19; platform_python_implementation != "PyPy" or python_version >= '3.9'
+nh3==0.3.1; platform_python_implementation != "PyPy" or python_version >= '3.9'
 packaging
-pkginfo==1.10.0
+pkginfo==1.12.0
 Pygments==2.18.0
 pyproject_hooks==1.2.0
 pywin32-ctypes==0.2.3

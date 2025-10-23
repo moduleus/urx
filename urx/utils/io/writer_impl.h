@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <filesystem>
 #include <iterator>
 #include <memory>
 #include <stdexcept>
@@ -27,29 +28,76 @@
 #include <urx/group_data.h>
 #include <urx/impulse_response.h>
 #include <urx/probe.h>
+#include <urx/receive_setup.h>
+#include <urx/transmit_setup.h>
 #include <urx/utils/common.h>
+#include <urx/utils/cpp.h>
 #include <urx/utils/exception.h>
 #include <urx/utils/io/enums.h>
 #include <urx/utils/io/serialize_helper.h>
 #include <urx/utils/io/writer_options.h>
-#include <urx/utils/type_container.h>
+#include <urx/utils/serialize_helper.h>
+
+// NOLINTNEXTLINE(bugprone-macro-parentheses)
+#define INDEXOF(c, member) (&reinterpret_cast<c*>(0)->member)
 
 namespace urx::utils::io {
+
+namespace details {
+
+inline H5::Group createOrOpenGroup(const H5::Group& group, const std::string& name) {
+  if (group.nameExists(name, H5P_DEFAULT)) {
+    return group.openGroup(name);
+  }
+
+  return group.createGroup(name);
+}
+
+inline H5::Attribute createOrOverrideAttribute(const H5::Group& group, const std::string& name,
+                                               const H5::StrType& data_type,
+                                               const H5::DataSpace& data_space) {
+  if (group.attrExists(name)) {
+    group.removeAttr(name);
+  }
+
+  if (group.nameExists(name)) {
+    group.unlink(name);
+  }
+
+  return group.createAttribute(name, data_type, data_space);
+}
+
+inline H5::DataSet createOrOverrideDataSet(
+    const H5::Group& group, const std::string& name, const H5::StrType& data_type,
+    const H5::DataSpace& data_space,
+    const H5::DSetCreatPropList& create_plist = H5::DSetCreatPropList::DEFAULT) {
+  if (group.attrExists(name)) {
+    group.removeAttr(name);
+  }
+
+  if (group.nameExists(name)) {
+    group.unlink(name);
+  }
+
+  return group.createDataSet(name, data_type, data_space, create_plist);
+}
+
+}  // namespace details
 
 template <typename Dataset, typename AllTypeInVariant, typename Derived>
 class WriterBase {
  public:
   WriterBase() {
     if constexpr (std::is_same_v<Dataset, urx::Dataset>) {
-      _data_field = urx::utils::io::getMemberMap();
+      _data_field = urx::utils::getMemberMap();
     }
   }
 
   void init(const Dataset& dataset) {
-    _map_to_shared_ptr[nameTypeid<Group>()] = &dataset.acquisition.groups;
-    _map_to_shared_ptr[nameTypeid<Probe>()] = &dataset.acquisition.probes;
-    _map_to_shared_ptr[nameTypeid<Excitation>()] = &dataset.acquisition.excitations;
-    _map_to_shared_ptr[nameTypeid<GroupData>()] = &dataset.acquisition.groups_data;
+    _map_to_shared_ptr[urx::utils::nameTypeid<Group>()] = &dataset.acquisition.groups;
+    _map_to_shared_ptr[urx::utils::nameTypeid<Probe>()] = &dataset.acquisition.probes;
+    _map_to_shared_ptr[urx::utils::nameTypeid<Excitation>()] = &dataset.acquisition.excitations;
+    _map_to_shared_ptr[urx::utils::nameTypeid<GroupData>()] = &dataset.acquisition.groups_data;
   }
 
   template <typename T>
@@ -57,14 +105,16 @@ class WriterBase {
       const std::string& name, const T& field, const H5::Group& group) {
     // Number
     if constexpr (std::is_arithmetic_v<T>) {
-      const H5::StrType datatype(*getStdToHdf5().at(nameTypeid<T>()));
+      const H5::StrType datatype(*getStdToHdf5().at(urx::utils::nameTypeid<T>()));
       const H5::DataSpace dataspace = H5::DataSpace(H5S_SCALAR);
       if constexpr (USE_ATTRIBUTE) {
-        const H5::Attribute attribute = group.createAttribute(name, datatype, dataspace);
+        const H5::Attribute attribute =
+            details::createOrOverrideAttribute(group, name, datatype, dataspace);
         attribute.write(datatype, &field);
       } else {
-        const H5::DataSet dataset = group.createDataSet(name, datatype, dataspace);
+        H5::DataSet dataset = details::createOrOverrideDataSet(group, name, datatype, dataspace);
         dataset.write(&field, datatype, dataspace);
+        dataset.close();
       }
     }
     // Enum
@@ -73,29 +123,35 @@ class WriterBase {
       const H5::DataSpace dataspace(H5S_SCALAR);
       const std::string value = urx::utils::io::enums::enumToString(field);
       if constexpr (USE_ATTRIBUTE) {
-        const H5::Attribute attribute = group.createAttribute(name, datatype, dataspace);
+        const H5::Attribute attribute =
+            details::createOrOverrideAttribute(group, name, datatype, dataspace);
         attribute.write(datatype, value);
       } else {
-        const H5::DataSet dataset = group.createDataSet(name, datatype, dataspace);
+        H5::DataSet dataset = details::createOrOverrideDataSet(group, name, datatype, dataspace);
         dataset.write(value, datatype, dataspace);
+        dataset.close();
       }
     } else if constexpr (std::is_same_v<T, std::string>) {
       const H5::StrType datatype(0, H5T_VARIABLE);
       const H5::DataSpace dataspace(H5S_SCALAR);
       if constexpr (USE_ATTRIBUTE) {
-        const H5::Attribute attribute = group.createAttribute(name, datatype, dataspace);
+        const H5::Attribute attribute =
+            details::createOrOverrideAttribute(group, name, datatype, dataspace);
         attribute.write(datatype, field);
       } else {
         const H5::DSetCreatPropList plist;
-        const H5::DataSet dataset = group.createDataSet(name, datatype, dataspace, plist);
+        H5::DataSet dataset =
+            details::createOrOverrideDataSet(group, name, datatype, dataspace, plist);
         dataset.write(field, datatype, dataspace);
+        dataset.close();
       }
     } else if constexpr (std::is_same_v<T, DoubleNan>) {
       static_cast<Derived*>(this)->template serializeHdf5<double>(name, field.value, group);
     }
     // Default
     else {
-      const H5::Group group_child(group.createGroup(name));
+      const H5::Group group_child = details::createOrOpenGroup(group, name);
+
       static_cast<Derived*>(this)->template serializeAll<T>(field, group_child);
     }
   }
@@ -104,35 +160,64 @@ class WriterBase {
   typename std::enable_if_t<TypeContainer<T>::VALUE == ContainerType::SHARED_PTR> serializeHdf5(
       const std::string& name, const T& field, const H5::Group& group) {
     if constexpr (std::is_same_v<T, std::shared_ptr<RawData>>) {
-      // Chunk dataset doesn't support zero size.
-      if (!field || field->getSize() == 0) {
+      if (!field) {
+        return;
+      }
+
+      // getBuffer is null in stream mode.
+      if (field->getBuffer() == nullptr && group.nameExists(name)) {
         return;
       }
 
       const std::unordered_map<DataType, std::type_index> group_dt_to_typeid{
-          {DataType::INT16, nameTypeid<int16_t>()},
-          {DataType::INT32, nameTypeid<int32_t>()},
-          {DataType::FLOAT, nameTypeid<float>()},
-          {DataType::DOUBLE, nameTypeid<double>()}};
+          {DataType::INT16, urx::utils::nameTypeid<int16_t>()},
+          {DataType::INT32, urx::utils::nameTypeid<int32_t>()},
+          {DataType::FLOAT, urx::utils::nameTypeid<float>()},
+          {DataType::DOUBLE, urx::utils::nameTypeid<double>()}};
       const H5::PredType* datatype = getStdToHdf5().at(group_dt_to_typeid.at(field->getDataType()));
 
       const bool is_complex = field->getSamplingType() == SamplingType::IQ;
 
       H5::DataSet dataset;
       H5::DataSpace dataspace;
-      const H5::DSetCreatPropList prop;
-      if (_options.getChunkGroupData()) {
-        const hsize_t maxdims[2] = {H5S_UNLIMITED, is_complex ? 2ULL : 1ULL};
-        const hsize_t chunk_dims[2] = {field->getSize(), is_complex ? 2ULL : 1ULL};
+      const hsize_t dims[2] = {field->getSize(), is_complex ? 2ULL : 1ULL};
+      const hsize_t maxdims[2] = {H5S_UNLIMITED, is_complex ? 2ULL : 1ULL};
+#ifdef WITH_MATLAB
+      // There is a conflict between URX and MATLAB when using HDF5.
+      // H5::DSetCreatPropList prop;
+      // is buggy.
+      // So a garbage DataSet is created and its PropList duplicated.
+      if (_options.getChunkGroupData() && field->getSize() != 0) {
+        dataspace = H5::DataSpace(2, dims);
+        dataset = details::createOrOverrideDataSet(group, name, *datatype, dataspace);
 
-        dataspace = H5::DataSpace(2, chunk_dims, maxdims);
-        prop.setChunk(2, chunk_dims);
+        const H5::DataSpace dataspace2 = H5::DataSpace(2, dims, maxdims);
+        const H5::DSetCreatPropList prop = dataset.getCreatePlist();
+        prop.setChunk(2, dims);
+
+        dataset.close();
+        group.unlink(name);
+
+        dataset = details::createOrOverrideDataSet(group, name, *datatype, dataspace2, prop);
       } else {
-        const hsize_t dims[2] = {field->getSize(), is_complex ? 2ULL : 1ULL};
+        dataspace = H5::DataSpace(2, dims);
+        dataset = details::createOrOverrideDataSet(group, name, *datatype, dataspace);
+      }
+#else
+      const H5::DSetCreatPropList prop;
+      if (_options.getChunkGroupData() && field->getSize() != 0) {
+        dataspace = H5::DataSpace(2, dims, maxdims);
+        prop.setChunk(2, dims);
+      } else {
         dataspace = H5::DataSpace(2, dims);
       }
-      dataset = group.createDataSet(name, *datatype, dataspace, prop);
-      dataset.write(field->getBuffer(), *datatype);
+      dataset = details::createOrOverrideDataSet(group, name, *datatype, dataspace, prop);
+#endif
+
+      if (field->getSize() != 0 && field->getBuffer() != nullptr) {
+        dataset.write(field->getBuffer(), *datatype);
+      }
+      dataset.close();
     } else {
       static_cast<Derived*>(this)->template serializeHdf5<typename T::element_type>(name, *field,
                                                                                     group);
@@ -149,7 +234,8 @@ class WriterBase {
     }
 
     if (auto shared = field.lock()) {
-      const auto& all_shared = getSharedPtr<typename T::element_type>(_map_to_shared_ptr);
+      const auto& all_shared =
+          urx::utils::getSharedPtr<typename T::element_type>(_map_to_shared_ptr);
       auto idx = std::find_if(all_shared.begin(), all_shared.end(),
                               [&shared](const std::shared_ptr<typename T::element_type>& data) {
                                 return shared.get() == data.get();
@@ -182,18 +268,22 @@ class WriterBase {
     if constexpr (std::is_arithmetic_v<typename T::value_type>) {
       const hsize_t dims[1] = {size};
       const H5::DataSpace dataspace = H5::DataSpace(1, dims);
-      const H5::PredType* datatype = getStdToHdf5().at(nameTypeid<typename T::value_type>());
+      const H5::PredType* datatype =
+          getStdToHdf5().at(urx::utils::nameTypeid<typename T::value_type>());
       if constexpr (USE_ATTRIBUTE) {
-        const H5::Attribute attribute = group.createAttribute(name, *datatype, dataspace);
+        const H5::Attribute attribute =
+            details::createOrOverrideAttribute(group, name, *datatype, dataspace);
         if (size != 0) {
           attribute.write(*datatype, field.data());
         }
       } else {
         const H5::DSetCreatPropList plist;
-        const H5::DataSet dataset = group.createDataSet(name, *datatype, dataspace, plist);
+        H5::DataSet dataset =
+            details::createOrOverrideDataSet(group, name, *datatype, dataspace, plist);
         if (size != 0) {
           dataset.write(field.data(), *datatype);
         }
+        dataset.close();
       }
     } else if constexpr (std::is_same_v<typename T::value_type, std::string>) {
       const hsize_t dims[1] = {size};
@@ -207,24 +297,39 @@ class WriterBase {
       }
 
       if constexpr (USE_ATTRIBUTE) {
-        const H5::Attribute attribute = group.createAttribute(name, datatype, dataspace);
+        const H5::Attribute attribute =
+            details::createOrOverrideAttribute(group, name, datatype, dataspace);
         if (size != 0) {
           attribute.write(datatype, reinterpret_cast<const void*>(c_strings.data()));
         }
       } else {
         const H5::DSetCreatPropList plist;
-        const H5::DataSet dataset = group.createDataSet(name, datatype, dataspace, plist);
+        H5::DataSet dataset =
+            details::createOrOverrideDataSet(group, name, datatype, dataspace, plist);
         if (size != 0) {
           dataset.write(reinterpret_cast<const void*>(c_strings.data()), datatype);
         }
+        dataset.close();
       }
     } else {
-      const H5::Group group_child(group.createGroup(name));
+      const H5::Group group_child = details::createOrOpenGroup(group, name);
 
       size_t i = 0;
       for (const auto& iter : field) {
         static_cast<Derived*>(this)->template serializeHdf5<typename T::value_type>(
             common::formatIndexWithLeadingZeros(i, ITER_LENGTH), iter, group_child);
+        i++;
+      }
+
+      while (true) {
+        const std::string name_i = common::formatIndexWithLeadingZeros(i, ITER_LENGTH);
+        if (group_child.nameExists(name_i)) {
+          group_child.unlink(name_i);
+        } else if (group_child.attrExists(name_i)) {
+          group_child.removeAttr(name_i);
+        } else {
+          break;
+        }
         i++;
       }
     }
@@ -234,25 +339,48 @@ class WriterBase {
   void serializeAll(const T& field, const H5::Group& group) {
     // Need to update map for Probe.
     if constexpr (std::is_same_v<T, Probe>) {
-      _map_to_shared_ptr.insert({nameTypeid<ElementGeometry>(), &field.element_geometries});
-      _map_to_shared_ptr.insert({nameTypeid<ImpulseResponse>(), &field.impulse_responses});
+      _map_to_shared_ptr.insert(
+          {urx::utils::nameTypeid<ElementGeometry>(), &field.element_geometries});
+      _map_to_shared_ptr.insert(
+          {urx::utils::nameTypeid<ImpulseResponse>(), &field.impulse_responses});
     }
-    for (const auto& kv : _data_field.at(nameTypeid<T>())) {
+
+    for (const auto& kv : _data_field.at(urx::utils::nameTypeid<T>())) {
+      bool fake_data = false;
+      using ExcitationT =
+          typename decltype(Dataset::acquisition.excitations)::value_type::element_type;
+      void* kv_ptr = std::visit([](auto ptr) { return static_cast<void*>(ptr); }, kv.first);
+      if constexpr (std::is_base_of_v<ReceiveSetup, T>) {
+        if (_options.getCleanUnusableData() && field.probe.expired() &&
+            (kv_ptr == INDEXOF(T, probe_transform) || kv_ptr == INDEXOF(T, active_elements))) {
+          fake_data = true;
+        }
+      }
+      if constexpr (std::is_base_of_v<urx::detail::TransmitSetup<ExcitationT>, T>) {
+        if (_options.getCleanUnusableData() && field.probe.expired() &&
+            (kv_ptr == INDEXOF(T, probe_transform) || kv_ptr == INDEXOF(T, active_elements) ||
+             kv_ptr == INDEXOF(T, excitations) || kv_ptr == INDEXOF(T, delays))) {
+          fake_data = true;
+        }
+      }
       std::visit(
-          [this, name = kv.second, field_ptr = &field, &group](const auto* var) {
+          [this, name = kv.second, field_ptr = &field, &group, &fake_data](const auto* var) {
+            const std::remove_cv_t<std::remove_pointer_t<decltype(var)>> fake_field = {};
             static_cast<Derived*>(this)
-                ->template serializeHdf5<std::remove_cv_t<std::remove_pointer_t<decltype(var)>>>(
+                ->template serializeHdf5<std::remove_const_t<decltype(fake_field)>>(
                     name,
-                    *reinterpret_cast<decltype(var)>(reinterpret_cast<std::uintptr_t>(field_ptr) +
-                                                     reinterpret_cast<std::uintptr_t>(var)),
+                    fake_data ? fake_field
+                              : *reinterpret_cast<decltype(var)>(
+                                    reinterpret_cast<std::uintptr_t>(field_ptr) +
+                                    reinterpret_cast<std::uintptr_t>(var)),
                     group);
           },
-          std::get<0>(kv));
+          kv.first);
     }
 
     if constexpr (std::is_same_v<T, Probe>) {
-      _map_to_shared_ptr.erase(nameTypeid<ElementGeometry>());
-      _map_to_shared_ptr.erase(nameTypeid<ImpulseResponse>());
+      _map_to_shared_ptr.erase(urx::utils::nameTypeid<ElementGeometry>());
+      _map_to_shared_ptr.erase(urx::utils::nameTypeid<ImpulseResponse>());
     }
   }
 
@@ -261,7 +389,7 @@ class WriterBase {
   void setOptions(const WriterOptions& options) { _options = options; }
 
  protected:
-  MapToSharedPtr _map_to_shared_ptr;
+  urx::utils::MapToSharedPtr _map_to_shared_ptr;
   std::unordered_map<std::type_index, std::vector<std::pair<AllTypeInVariant, std::string>>>
       _data_field;
 
@@ -278,23 +406,42 @@ class WriterDatasetBase
       : Base<Dataset, AllTypeInVariant, WriterDatasetBase<Dataset, AllTypeInVariant, Base>>() {}
 
   void write(const H5::H5File& h5_file, const Dataset& dataset) {
-    this->init(dataset);
+    try {
+      this->init(dataset);
 
-    this->serializeHdf5("dataset", dataset, h5_file);
+      this->serializeHdf5("dataset", dataset, h5_file);
+    } catch (const H5::FileIException& e) {
+      throw WriteFileException("Failed to write dataset to file.\n" + e.getFuncName() + "\n" +
+                               e.getDetailMsg());
+    } catch (const H5::DataSetIException& e) {
+      throw WriteFileException("Failed to write dataset to file.\n" + e.getFuncName() + "\n" +
+                               e.getDetailMsg());
+    }
   }
 
   void write(const std::string& filename, const Dataset& dataset) {
     try {
-      const H5::H5File file(filename.data(), H5F_ACC_TRUNC);
+      H5::H5File file;
+      if (std::filesystem::exists(filename)) {
+        file = H5::H5File(filename.c_str(), H5F_ACC_RDWR);
+      } else {
+        file = H5::H5File(filename.c_str(), H5F_ACC_TRUNC);
+      }
 
       write(file, dataset);
-    } catch (const H5::FileIException&) {
-      throw WriteFileException("Failed to write " + filename + ".");
+    } catch (const H5::FileIException& e) {
+      throw WriteFileException("Failed to write " + filename + ".\n" + e.getFuncName() + "\n" +
+                               e.getDetailMsg());
+    } catch (const H5::DataSetIException& e) {
+      throw WriteFileException("Failed to write " + filename + ".\n" + e.getFuncName() + "\n" +
+                               e.getDetailMsg());
     }
   }
 };
 
-using WriterDataset =
-    urx::utils::io::WriterDatasetBase<Dataset, AllTypeInVariant, urx::utils::io::WriterBase>;
+using WriterDataset = urx::utils::io::WriterDatasetBase<Dataset, urx::utils::AllTypeInVariant,
+                                                        urx::utils::io::WriterBase>;
 
 }  // namespace urx::utils::io
+
+#undef INDEXOF

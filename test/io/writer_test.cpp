@@ -6,6 +6,7 @@
 #include <iostream>
 #include <memory>
 #include <ostream>
+#include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
@@ -29,20 +30,28 @@
 #include <urx/detail/compare.h>
 #include <urx/detail/double_nan.h>
 #include <urx/detail/raw_data.h>
+#include <urx/enums.h>
 #include <urx/event.h>
 #include <urx/excitation.h>
 #include <urx/group.h>
 #include <urx/group_data.h>
 #include <urx/probe.h>
+#include <urx/receive_setup.h>
+#include <urx/transform.h>
+#include <urx/transmit_setup.h>
 #include <urx/utils/exception.h>
 #include <urx/utils/group_data_reader.h>
 #include <urx/utils/io/reader.h>
 #include <urx/utils/io/reader_options.h>
 #include <urx/utils/io/stream.h>
-#include <urx/utils/io/test/io.h>
 #include <urx/utils/io/writer.h>
 #include <urx/utils/io/writer_options.h>
 #include <urx/utils/raw_data_helper.h>
+#include <urx/utils/test/dataset_gen.h>
+
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 namespace {
 size_t byte_count = 0;
@@ -77,30 +86,195 @@ int main(int argc, char* argv[]) {
 namespace urx::utils::io::test {
 
 TEST_CASE("Write HDF5 file", "[hdf5_writer][hdf5_reader]") {
-  auto dataset = generateFakeDataset<Dataset>();
+  auto dataset = utils::test::generateFakeDataset<Dataset>();
 
   auto chunk_group_data = GENERATE(false, true);
+  auto clean_unusable_data = GENERATE(true, false);
+  auto check_data = GENERATE(true, false);
 
   urx::utils::io::WriterOptions options;
 
   options.setChunkGroupData(chunk_group_data);
+  options.setCleanUnusableData(clean_unusable_data);
+  options.setCheckData(check_data);
 
   const std::string filename =
       "writer康🐜-" + std::string{chunk_group_data ? "chunk" : "contiguous"} + ".urx";
 
+  if (check_data) {
+    REQUIRE_THROWS_AS(writer::saveToFile(filename, *dataset, options), std::runtime_error);
+    return;
+  }
   writer::saveToFile(filename, *dataset, options);
 
   auto dataset_loaded = reader::loadFromFile(filename);
 
-  REQUIRE(dataset_loaded->acquisition.probes == dataset->acquisition.probes);
-  REQUIRE(dataset_loaded->acquisition.excitations == dataset->acquisition.excitations);
-  REQUIRE(dataset_loaded->acquisition.groups == dataset->acquisition.groups);
+  REQUIRE(dataset_loaded->acquisition.probes != dataset->acquisition.probes);
+  REQUIRE(dataset_loaded->acquisition.probes.size() == dataset->acquisition.probes.size());
+  for (size_t i = 0; i < dataset_loaded->acquisition.probes.size(); ++i) {
+    REQUIRE(*dataset_loaded->acquisition.probes.at(i) == *dataset->acquisition.probes.at(i));
+  }
+  REQUIRE(valueComparison(dataset_loaded->acquisition.probes, dataset->acquisition.probes));
+
+  REQUIRE(dataset_loaded->acquisition.excitations != dataset->acquisition.excitations);
+  REQUIRE(dataset_loaded->acquisition.excitations.size() ==
+          dataset->acquisition.excitations.size());
+  for (size_t i = 0; i < dataset_loaded->acquisition.excitations.size(); ++i) {
+    REQUIRE(*dataset_loaded->acquisition.excitations.at(i) ==
+            *dataset->acquisition.excitations.at(i));
+  }
+  REQUIRE(
+      valueComparison(dataset_loaded->acquisition.excitations, dataset->acquisition.excitations));
+
+  REQUIRE(dataset_loaded->acquisition.groups != dataset->acquisition.groups);
+  REQUIRE(dataset_loaded->acquisition.groups.size() == dataset->acquisition.groups.size());
+  for (size_t i = 0; i < dataset_loaded->acquisition.groups.size(); ++i) {
+    REQUIRE(*dataset_loaded->acquisition.groups.at(i) == *dataset->acquisition.groups.at(i));
+  }
+  REQUIRE(valueComparison(dataset_loaded->acquisition.groups, dataset->acquisition.groups));
+
   REQUIRE(dataset_loaded->acquisition.groups_data == dataset->acquisition.groups_data);
+  REQUIRE(dataset_loaded->acquisition.groups_data.size() ==
+          dataset->acquisition.groups_data.size());
+  for (size_t i = 0; i < dataset_loaded->acquisition.groups_data.size(); ++i) {
+    REQUIRE(dataset_loaded->acquisition.groups_data.at(i) ==
+            dataset->acquisition.groups_data.at(i));
+  }
+
   REQUIRE(*dataset_loaded == *dataset);
 }
 
+TEST_CASE("Write HDF5 file containing unusable data", "[hdf5_writer][hdf5_reader]") {
+  auto dataset = utils::test::generateFakeDataset<Dataset>();
+
+  auto chunk_group_data = GENERATE(false, true);
+  auto clean_unusable_data = GENERATE(true, false);
+  auto check_data = GENERATE(true, false);
+
+  urx::utils::io::WriterOptions options;
+
+  options.setChunkGroupData(chunk_group_data);
+  options.setCleanUnusableData(clean_unusable_data);
+  options.setCheckData(check_data);
+
+  const std::string filename =
+      "writer-" + std::string{chunk_group_data ? "chunk" : "contiguous"} + "-unusable.urx";
+
+  REQUIRE(dataset->acquisition.groups.back()->sequence.back().transmit_setup.probe.expired());
+  REQUIRE(dataset->acquisition.groups.back()->sequence.back().receive_setup.probe.expired());
+
+  dataset->acquisition.groups.back()->sequence.back().transmit_setup.excitations = {
+      dataset->acquisition.excitations[0]};
+  dataset->acquisition.groups.back()->sequence.back().transmit_setup.active_elements = {{1}};
+  dataset->acquisition.groups.back()->sequence.back().transmit_setup.delays = {1.6};
+  dataset->acquisition.groups.back()->sequence.back().transmit_setup.probe_transform = {
+      {5.1e-120, -8, 7.}, {5.2, 4.3, 8.2e10}};
+
+  dataset->acquisition.groups.back()->sequence.back().receive_setup.active_elements = {{1}};
+  dataset->acquisition.groups.back()->sequence.back().receive_setup.probe_transform = {
+      {5.1e-120, -8, 7.}, {5.2, 4.3, 8.2e10}};
+
+  if (check_data) {
+    REQUIRE_THROWS_AS(writer::saveToFile(filename, *dataset, options), std::runtime_error);
+    return;
+  }
+  writer::saveToFile(filename, *dataset, options);
+
+  auto dataset_loaded = reader::loadFromFile(filename);
+
+  REQUIRE(dataset_loaded->acquisition.probes != dataset->acquisition.probes);
+  REQUIRE(dataset_loaded->acquisition.probes.size() == dataset->acquisition.probes.size());
+  for (size_t i = 0; i < dataset_loaded->acquisition.probes.size(); ++i) {
+    REQUIRE(*dataset_loaded->acquisition.probes.at(i) == *dataset->acquisition.probes.at(i));
+  }
+  REQUIRE(valueComparison(dataset_loaded->acquisition.probes, dataset->acquisition.probes));
+
+  REQUIRE(dataset_loaded->acquisition.excitations != dataset->acquisition.excitations);
+  REQUIRE(dataset_loaded->acquisition.excitations.size() ==
+          dataset->acquisition.excitations.size());
+  for (size_t i = 0; i < dataset_loaded->acquisition.excitations.size(); ++i) {
+    REQUIRE(*dataset_loaded->acquisition.excitations.at(i) ==
+            *dataset->acquisition.excitations.at(i));
+  }
+  REQUIRE(
+      valueComparison(dataset_loaded->acquisition.excitations, dataset->acquisition.excitations));
+
+  REQUIRE(dataset_loaded->acquisition.groups_data == dataset->acquisition.groups_data);
+
+  if (clean_unusable_data) {
+    REQUIRE(*dataset_loaded != *dataset);
+
+    REQUIRE(dataset_loaded->acquisition.groups.back()
+                ->sequence.back()
+                .transmit_setup.excitations.empty());
+    REQUIRE(dataset_loaded->acquisition.groups.back()
+                ->sequence.back()
+                .transmit_setup.active_elements.empty());
+    REQUIRE(dataset_loaded->acquisition.groups.back()
+                ->sequence.back()
+                .transmit_setup.active_elements.empty());
+    REQUIRE(
+        dataset_loaded->acquisition.groups.back()->sequence.back().transmit_setup.delays.empty());
+    REQUIRE(
+        dataset_loaded->acquisition.groups.back()->sequence.back().transmit_setup.probe_transform ==
+        decltype(dataset_loaded->acquisition.groups.back()
+                     ->sequence.back()
+                     .transmit_setup.probe_transform)());
+
+    REQUIRE(dataset_loaded->acquisition.groups.back()
+                ->sequence.back()
+                .receive_setup.active_elements.empty());
+    REQUIRE(
+        dataset_loaded->acquisition.groups.back()->sequence.back().receive_setup.probe_transform ==
+        decltype(dataset_loaded->acquisition.groups.back()
+                     ->sequence.back()
+                     .receive_setup.probe_transform)());
+  } else {
+    REQUIRE(*dataset_loaded == *dataset);
+
+    REQUIRE(dataset_loaded->acquisition.groups.size() == dataset->acquisition.groups.size());
+    for (size_t i = 0; i < dataset_loaded->acquisition.groups.size(); ++i) {
+      REQUIRE(*dataset_loaded->acquisition.groups.at(i) == *dataset->acquisition.groups.at(i));
+    }
+  }
+
+  REQUIRE(dataset_loaded->acquisition.groups_data == dataset->acquisition.groups_data);
+  REQUIRE(dataset_loaded->acquisition.groups_data.size() ==
+          dataset->acquisition.groups_data.size());
+  for (size_t i = 0; i < dataset_loaded->acquisition.groups_data.size(); ++i) {
+    REQUIRE(dataset_loaded->acquisition.groups_data.at(i) ==
+            dataset->acquisition.groups_data.at(i));
+  }
+}
+
+TEST_CASE("Check saving opened HDF5 file throws an exception", "[hdf5_writer]") {
+#ifdef _WIN32
+
+  auto dataset = utils::test::generateFakeDataset<Dataset>();
+
+  urx::utils::io::WriterOptions options;
+
+  options.setChunkGroupData(false);
+  options.setCleanUnusableData(false);
+  options.setCheckData(false);
+
+  const std::string filename = "write-opened_file.urx";
+
+  writer::saveToFile(filename, *dataset, options);
+
+  FILE* file = _fsopen(filename.c_str(), "w", _SH_DENYWR);
+
+  REQUIRE_THROWS_AS(writer::saveToFile(filename, *dataset, options),
+                    urx::utils::WriteFileException);
+
+  fclose(file);
+#endif
+}
+
 TEST_CASE("Stream HDF5 file", "[hdf5_writer][hdf5_reader]") {
-  auto dataset = generateFakeDataset<Dataset>();
+  auto dataset = urx::utils::test::generateFakeDataset<Dataset>();
+
+  writer::saveToFile("test-cpp.urx", *dataset, {false, false, false});
 
   const std::string filename = "stream.urx";
 
@@ -140,22 +314,28 @@ TEST_CASE("Stream HDF5 file", "[hdf5_writer][hdf5_reader]") {
 
   // Write using stream.
   {
+    {
+      Stream stream(filename, dataset);
+      stream.saveToFile();
+    }
+
     Stream stream(filename, dataset);
     stream.saveToFile();
+    stream.writerOptions().setCleanUnusableData(false);
 
     {
-      stream.setChunkGroupData(false);
+      stream.writerOptions().setChunkGroupData(false);
       urx::utils::io::GroupDataStream group_data =
-          stream.createGroupData(dataset->acquisition.groups.front(), urx::DoubleNan(1.));
+          stream.createGroupData(dataset->acquisition.groups[1], urx::DoubleNan(1.));
 
       group_data.append(raw_data_vector_double, 1.2, {2.3, 3.4, 4.5});
       group_data.append(raw_data_vector_double2, 12., {23., 34., 45.});
     }
 
     {
-      stream.setChunkGroupData(true);
+      stream.writerOptions().setChunkGroupData(true);
       urx::utils::io::GroupDataStream group_data =
-          stream.createGroupData(dataset->acquisition.groups.front(), urx::DoubleNan(2.));
+          stream.createGroupData(dataset->acquisition.groups[2], urx::DoubleNan(2.));
 
       group_data.append(raw_data_vector_short, 9., {8.});
       group_data.append(raw_data_vector_short2, 5., {8., 9.4});
@@ -193,7 +373,7 @@ TEST_CASE("Stream HDF5 file", "[hdf5_writer][hdf5_reader]") {
   {
     const std::shared_ptr<Dataset> dataset_loaded = std::make_shared<Dataset>();
     Stream stream(filename, dataset_loaded);
-    stream.setRawDataLoadPolicy(urx::utils::io::RawDataLoadPolicy::STREAM);
+    stream.readerOptions().setRawDataLoadPolicy(urx::utils::io::RawDataLoadPolicy::STREAM);
     stream.loadFromFile();
 
     const std::shared_ptr<urx::RawData> buffer_double =
@@ -216,6 +396,39 @@ TEST_CASE("Stream HDF5 file", "[hdf5_writer][hdf5_reader]") {
       REQUIRE(*buffer_short == *raw_data_short);
     }
   }
+
+  // Check that saveToFile works well with STREAM
+  {
+    auto dataset_loaded =
+        reader::loadFromFile(filename, ReaderOptions{urx::utils::io::RawDataLoadPolicy::STREAM});
+    auto dataset_loaded_full = reader::loadFromFile(filename);
+    const std::string filename_modified = "stream_modified.urx";
+    std::filesystem::copy(filename, filename_modified,
+                          std::filesystem::copy_options::overwrite_existing);
+    auto dataset_modified = reader::loadFromFile(
+        filename_modified, ReaderOptions{urx::utils::io::RawDataLoadPolicy::STREAM});
+    dataset_modified->acquisition.description = "modified";
+    dataset_modified->acquisition.excitations.erase(
+        dataset_modified->acquisition.excitations.begin() +
+        dataset_modified->acquisition.excitations.size() - 1);
+    auto probe = std::make_shared<urx::Probe>();
+    probe->description = "New probe";
+    probe->type = urx::ProbeType::LINEAR;
+    dataset_modified->acquisition.probes.push_back(probe);
+    writer::saveToFile(filename_modified, *dataset_modified, {false, false, false});
+
+    auto dataset_reloaded = reader::loadFromFile(filename_modified);
+
+    REQUIRE(dataset_reloaded->acquisition.description == "modified");
+    REQUIRE(dataset_loaded->acquisition.excitations.size() - 1 ==
+            dataset_reloaded->acquisition.excitations.size());
+    REQUIRE(dataset_loaded->acquisition.probes.size() + 1 ==
+            dataset_reloaded->acquisition.probes.size());
+    REQUIRE(dataset_loaded->acquisition.groups_data.size() ==
+            dataset_reloaded->acquisition.groups_data.size());
+    REQUIRE(dataset_loaded_full->acquisition.groups_data ==
+            dataset_reloaded->acquisition.groups_data);
+  }
 }
 
 TEST_CASE("Benchmark stream HDF5 file", "[hdf5_reader][hdf5_writer]") {
@@ -232,8 +445,9 @@ TEST_CASE("Benchmark stream HDF5 file", "[hdf5_reader][hdf5_writer]") {
 
     const std::shared_ptr<Dataset> dataset_loaded = std::make_shared<Dataset>();
     Stream stream(filename + ".tmp", dataset_loaded);
-    stream.setRawDataLoadPolicy(urx::utils::io::RawDataLoadPolicy::STREAM);
-    stream.setChunkGroupData(true);
+    stream.readerOptions().setRawDataLoadPolicy(urx::utils::io::RawDataLoadPolicy::STREAM);
+    stream.writerOptions().setChunkGroupData(true);
+    stream.writerOptions().setCleanUnusableData(false);
     stream.loadFromFile();
 
     urx::utils::io::GroupDataStream group_data =
@@ -262,7 +476,7 @@ TEST_CASE("Benchmark stream HDF5 file", "[hdf5_reader][hdf5_writer]") {
   (Catch::Benchmark::Chronometer meter) {
     const std::shared_ptr<Dataset> dataset_loaded = std::make_shared<Dataset>();
     Stream stream(filename + ".tmp", dataset_loaded);
-    stream.setRawDataLoadPolicy(urx::utils::io::RawDataLoadPolicy::STREAM);
+    stream.readerOptions().setRawDataLoadPolicy(urx::utils::io::RawDataLoadPolicy::STREAM);
     stream.loadFromFile();
 
     const urx::utils::GroupDataReader group_data_reader(dataset_loaded->acquisition.groups_data[0]);
@@ -280,6 +494,10 @@ TEST_CASE("Benchmark stream HDF5 file", "[hdf5_reader][hdf5_writer]") {
       }
     });
   };
+
+  if (std::filesystem::exists(filename + ".tmp")) {
+    REQUIRE(std::filesystem::remove(filename + ".tmp"));
+  }
 }
 
 TEST_CASE("Read failure HDF5 file", "[hdf5_reader]") {
@@ -289,9 +507,15 @@ TEST_CASE("Read failure HDF5 file", "[hdf5_reader]") {
 TEST_CASE("Write failure HDF5 file", "[hdf5_writer]") {
   const urx::Dataset dataset;
 #ifdef _WIN32
-  REQUIRE_THROWS_AS(writer::saveToFile("aux", dataset), urx::utils::WriteFileException);
+  REQUIRE_THROWS_AS(writer::saveToFile("aux", dataset), std::runtime_error);
+  WriterOptions options;
+  options.setCheckData(false);
+  REQUIRE_THROWS_AS(writer::saveToFile("aux", dataset, options), std::runtime_error);
 #else
-  REQUIRE_THROWS_AS(writer::saveToFile("/", dataset), urx::utils::WriteFileException);
+  REQUIRE_THROWS_AS(writer::saveToFile("/", dataset), std::runtime_error);
+  WriterOptions options;
+  options.setCheckData(false);
+  REQUIRE_THROWS_AS(writer::saveToFile("/", dataset, options), urx::utils::WriteFileException);
 #endif
 }
 

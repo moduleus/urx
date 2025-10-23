@@ -18,8 +18,9 @@ namespace urx {
 struct Probe {
   bool operator==(const Probe& other) const {
     return description == other.description && type == other.type && transform == other.transform &&
-           element_geometries == other.element_geometries &&
-           impulse_responses == other.impulse_responses && elements == other.elements;
+           valueComparison(element_geometries, other.element_geometries) &&
+           valueComparison(impulse_responses, other.impulse_responses) &&
+           elements == other.elements;
   }
 
   bool operator!=(const Probe& other) const { return !operator==(other); }
