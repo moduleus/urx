@@ -59,7 +59,7 @@
 namespace py = pybind11;
 
 // NOLINTBEGIN(misc-redundant-expression)
-PYBIND11_MODULE(bindings, m) {
+PYBIND11_MODULE(bindings, m, py::mod_gil_not_used()) {
   m.doc() = "Python binding of urx library";
 
   urx::python::detail::bindVector<urx::python::VecUInt8>(m);
@@ -320,6 +320,7 @@ PYBIND11_MODULE(bindings, m) {
   // group_data_reader.h
   py::class_<urx::utils::GroupDataReader>(m, "UrxGroupDataReader")
       .def(py::init<urx::GroupData &>())
+      .def(py::init<urx::GroupData &, size_t>())
       .def("sequencesCount", &urx::utils::GroupDataReader::sequencesCount)
       .def("eventsCount", &urx::utils::GroupDataReader::eventsCount)
       .def("channelsCount", &urx::utils::GroupDataReader::channelsCount)

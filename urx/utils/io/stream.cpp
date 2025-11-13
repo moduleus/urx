@@ -183,6 +183,8 @@ void extend(H5::Group& group, H5::DataSet& dataset, const std::shared_ptr<RawDat
 
 GroupDataStream::GroupDataStream() = default;
 GroupDataStream::~GroupDataStream() = default;
+GroupDataStream::GroupDataStream(GroupDataStream&& other) noexcept = default;
+GroupDataStream& GroupDataStream::operator=(GroupDataStream&& other) noexcept = default;
 
 void GroupDataStream::append(const std::shared_ptr<RawData>& raw_data, double sequence_timestamp,
                              const std::vector<double>& event_timestamp) {

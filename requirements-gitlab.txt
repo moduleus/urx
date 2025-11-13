@@ -32,7 +32,8 @@ mdurl==0.1.2
 more-itertools==10.5.0
 mypy-extensions==1.0.0
 nh3==0.2.18; platform_python_implementation == "PyPy" and python_version == '3.8'
-nh3==0.3.1; platform_python_implementation != "PyPy" or python_version >= '3.9'
+nh3==0.3.1; platform_python_implementation == "PyPy" and python_version >= '3.9' and python_version <= '3.10'
+nh3==0.3.2; platform_python_implementation != "PyPy" or python_version >= '3.11'
 packaging
 pkginfo==1.12.0
 Pygments==2.18.0

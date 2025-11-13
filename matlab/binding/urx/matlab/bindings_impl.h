@@ -32,11 +32,12 @@
 #include <urx/transmit_setup.h>
 #include <urx/utils/group_data_reader.h>
 #include <urx/utils/io/reader_options.h>
-#include <urx/utils/io/stream.h>
 #include <urx/utils/io/writer_options.h>
 #include <urx/vector.h>
 #include <urx/version.h>
 #include <urx/wave.h>
+
+// IWYU pragma: no_include "urx/utils/io/stream.h"
 
 namespace urx {
 

@@ -19,6 +19,11 @@ target_link_libraries(
   UrxMatlab
   PUBLIC Urx::Urx Urx::UrxUtils
   PRIVATE Urx::UrxCompilerFlags)
+
+if(WITH_HDF5)
+  target_link_libraries(UrxMatlab PRIVATE hdf5::hdf5-${HDF5_TYPE}
+                                          hdf5::hdf5_cpp-${HDF5_TYPE})
+endif()
 target_sources(
   UrxMatlab
   PUBLIC FILE_SET HEADERS BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR} FILES

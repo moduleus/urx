@@ -325,11 +325,11 @@ TEST_CASE("Stream HDF5 file", "[hdf5_writer][hdf5_reader]") {
 
     {
       stream.writerOptions().setChunkGroupData(false);
-      urx::utils::io::GroupDataStream group_data =
-          stream.createGroupData(dataset->acquisition.groups[1], urx::DoubleNan(1.));
+      auto group_data = std::make_unique<urx::utils::io::GroupDataStream>(
+          stream.createGroupData(dataset->acquisition.groups[1], urx::DoubleNan(1.)));
 
-      group_data.append(raw_data_vector_double, 1.2, {2.3, 3.4, 4.5});
-      group_data.append(raw_data_vector_double2, 12., {23., 34., 45.});
+      group_data->append(raw_data_vector_double, 1.2, {2.3, 3.4, 4.5});
+      group_data->append(raw_data_vector_double2, 12., {23., 34., 45.});
     }
 
     {

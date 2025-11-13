@@ -37,7 +37,7 @@ endif()
 
 project(
   Urx
-  VERSION 1.3.0
+  VERSION 1.3.1
   LANGUAGES C CXX
   DESCRIPTION "Ultrasound Raw eXchange format C++ implementation")
 
@@ -201,6 +201,25 @@ if(WITH_PYTHON AND (NOT TARGET pybind11::pybind11 OR NOT TARGET Python3::Module
     TARGET pybind11::pybind11
     APPEND
     PROPERTY INTERFACE_COMPILE_DEFINITIONS $<$<CONFIG:Debug>:Py_DEBUG>)
+endif()
+
+if(WITH_HDF5)
+  option(URX_HDF5_LINK_SHARED "Link shared or static HDF5 lib"
+         ${BUILD_SHARED_LIBS})
+  if(URX_HDF5_LINK_SHARED)
+    set(LIB_TYPE SHARED)
+  else()
+    set(LIB_TYPE STATIC)
+  endif()
+  string(TOLOWER ${LIB_TYPE} HDF5_TYPE)
+  # For UrxConfig.cmake.in
+  message(STATUS "UrxUtils linking hdf5 ${HDF5_TYPE}")
+
+  if(NOT TARGET hdf5::hdf5-${HDF5_TYPE})
+    find_package(HDF5 REQUIRED NAMES hdf5 COMPONENTS CXX ${HDF5_TYPE})
+  endif()
+else()
+  set(URX_HDF5_LINK_SHARED ${BUILD_SHARED_LIBS})
 endif()
 
 add_subdirectory("urx")

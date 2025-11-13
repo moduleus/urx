@@ -150,7 +150,7 @@ if(NOT CALL_FROM_SETUP_PY AND WITH_PYTHON_WHL)
     message(FATAL_ERROR "Failed to get release ABI tags")
   endif()
 
-  if(NOT ${Python3_EXECUTABLE_DEBUG} STREQUAL "")
+  if(Python3_EXECUTABLE_DEBUG AND NOT Python3_EXECUTABLE_DEBUG STREQUAL "")
     execute_process(
       COMMAND
         ${Python3_EXECUTABLE_DEBUG_EXEC} -c
@@ -179,7 +179,7 @@ if(NOT CALL_FROM_SETUP_PY AND WITH_PYTHON_WHL)
     message(FATAL_ERROR "Unsupported architecture for python output.")
   endif()
 
-  if(NOT ${Python3_EXECUTABLE_DEBUG} STREQUAL "")
+  if(Python3_EXECUTABLE_DEBUG AND NOT Python3_EXECUTABLE_DEBUG STREQUAL "")
     set(PYTHON_MODULE_URX_OUTPUT_DEBUG
         "${PYPI_URX_PACKAGE}-${CMAKE_PROJECT_VERSION}-${PYTHON_TAG_DEBUG}-${PYTHON_TAG_POSTFIX}"
     )

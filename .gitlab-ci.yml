@@ -279,7 +279,7 @@ format:iwyu:
     - cd ..
     - sed -i "s/-Winvalid-pch.*cmake_pch.hxx //g" CI/compile_commands.json
     - iwyu_tool.py -p CI -j $NUM_PARALLEL -- -Xiwyu --no_default_mappings -Xiwyu --mapping_file="$(pwd)/.iwyu-imp" -Xiwyu --no_fwd_decls -Xiwyu --check_also="*urx/matlab/*.h" -Xiwyu --check_also="*urx/python/*.h" -Xiwyu --check_also="*urx/test/*.h" -Xiwyu --check_also="*urx/urx/*.h" > CI/iwyu_tool.log
-    - fix_includes.py --nosafe_headers < CI/iwyu_tool.log
+    - fix_includes.py < CI/iwyu_tool.log
     - find . -type d \( -path "*vcpkg*" -o -name build -o -name install \) -prune -false -o -type f \( -name "*.cpp" -o -name "*.cc" -o -name "*.hpp" -o -name "*.h" \) -exec clang-format-18 --style=file -i {} \;
     - git diff > CI/iwyu.patch
     - cat CI/iwyu.patch
@@ -701,7 +701,7 @@ release:all-python-manylinux2014_x86_64:
     PLAT: manylinux_2_17_x86_64
     # cp36-cp36m;cp37-cp37m: not maintained anymore
     # cp313-cp313t build fails
-    SKIP_PYTHON: cp36-cp36m;cp37-cp37m;cp313-cp313t
+    SKIP_PYTHON: cp36-cp36m;cp37-cp37m;cp313-cp313t;cp314-cp314t
     # ONLY_PYTHON: cp312-cp312
     PIP_WHEEL_OPTIONS: --config-settings=--global-option=-DBUILD_TESTING:BOOL=OFF
   stage: release
@@ -751,7 +751,7 @@ release:all-python-musllinux_1_2_x86_64:
     GIT_SUBMODULE_STRATEGY: recursive
     PLAT: musllinux_1_2_x86_64
     # cp36-cp36m;cp37-cp37m: not maintained anymore
-    SKIP_PYTHON: cp36-cp36m;cp37-cp37m;cp313-cp313t
+    SKIP_PYTHON: cp36-cp36m;cp37-cp37m;cp313-cp313t;cp314-cp314t
     # ONLY_PYTHON: cp312-cp312
     VCPKG_FORCE_SYSTEM_BINARIES: 1
     PIP_WHEEL_OPTIONS: --config-settings=--global-option=-DBUILD_TESTING:BOOL=OFF
@@ -774,7 +774,7 @@ release:all-python-musllinux_1_2_x86_64:
 
 release:all-python-windows-x64:
   variables:
-    CIBW_BUILD: cp38-win_amd64 cp39-win_amd64 cp310-win_amd64 cp311-win_amd64 cp312-win_amd64 cp313-win_amd64 cp314-win_amd64 cp314t-win_amd64 pp38-win_amd64 pp39-win_amd64 pp310-win_amd64 pp311-win_amd64
+    CIBW_BUILD: cp38-win_amd64 cp39-win_amd64 cp310-win_amd64 cp311-win_amd64 cp312-win_amd64 cp313-win_amd64 cp314-win_amd64 pp38-win_amd64 pp39-win_amd64 pp310-win_amd64 pp311-win_amd64
     CIBW_ENABLE: pypy pypy-eol
   stage: release
   needs: []
@@ -791,7 +791,7 @@ release:all-python-windows-x64:
     - Pop-Location
     - *python-venv-windows
     - $Env:CIBW_CONFIG_SETTINGS = "--global-option=CMAKE_TOOLCHAIN_FILE=$Env:VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake --global-option=-DVCPKG_INSTALL_OPTIONS=--x-buildtrees-root=$Env:VCPKG_BUILDTREE --global-option=-DBUILD_TESTING:BOOL=OFF --global-option=cmake_build_type=Release --global-option=-DCMAKE_CONFIGURATION_TYPES=Release --global-option=vcpkg_triplet=x64-wssrep --global-option=-DCRT_SHARED_LIBS=OFF"
-    - python.exe -m pip install cibuildwheel==3.2.1
+    - python.exe -m pip install cibuildwheel==3.2.1 delvewheel==1.11.2
     - python.exe -m cibuildwheel --output-dir wheelhouse --platform windows
     - *after-script-clean-vcpkg-windows
   artifacts:
@@ -801,7 +801,7 @@ release:all-python-windows-x64:
 
 release:all-python-windows-x86:
   variables:
-    CIBW_BUILD: cp314t-win32
+    CIBW_BUILD: cp314-win32
   stage: release
   needs: []
   when: manual
@@ -817,7 +817,7 @@ release:all-python-windows-x86:
     - Pop-Location
     - *python-venv-windows
     - $Env:CIBW_CONFIG_SETTINGS = "--global-option=CMAKE_TOOLCHAIN_FILE=$Env:VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake --global-option=-DVCPKG_INSTALL_OPTIONS=--x-buildtrees-root=$Env:VCPKG_BUILDTREE --global-option=-DBUILD_TESTING:BOOL=OFF --global-option=cmake_build_type=Release --global-option=-DCMAKE_CONFIGURATION_TYPES=Release --global-option=vcpkg_triplet=x86-wssrep --global-option=-DCRT_SHARED_LIBS=OFF"
-    - python.exe -m pip install cibuildwheel==3.2.1
+    - python.exe -m pip install cibuildwheel==3.2.1 delvewheel==1.11.2
     - python.exe -m cibuildwheel --output-dir wheelhouse --platform windows
     - *after-script-clean-vcpkg-windows
   artifacts:
@@ -848,7 +848,7 @@ release:all-python-windows-arm64:
     - Pop-Location
     - *python-venv-windows
     - $Env:CIBW_CONFIG_SETTINGS = "--global-option=CMAKE_TOOLCHAIN_FILE=$Env:VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake --global-option=-DVCPKG_INSTALL_OPTIONS=--x-buildtrees-root=$Env:VCPKG_BUILDTREE --global-option=-DBUILD_TESTING:BOOL=OFF --global-option=cmake_build_type=Release --global-option=-DCMAKE_CONFIGURATION_TYPES=Release --global-option=vcpkg_triplet=arm64-wssrep --global-option=-DCRT_SHARED_LIBS=OFF"
-    - python.exe -m pip install cibuildwheel==3.2.1
+    - python.exe -m pip install cibuildwheel==3.2.1 delvewheel==1.11.2
     - python.exe -m cibuildwheel --output-dir wheelhouse --platform windows
     - *after-script-clean-vcpkg-windows
   artifacts:

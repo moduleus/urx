@@ -1,5 +1,25 @@
 # Changelog
 
+## 1.3.1
+
+### C++
+
+#### Bug fixes
+
+Fix PImpl of Stream class (ABI break).
+
+### MATLAB
+
+#### Bug fixes
+
+Fix validate dataset function.
+
+### Python
+
+#### Bug fixes
+
+Restore dropped constructor for GroupDataReader.
+
 ## 1.3.0
 
 ### What's new (feature)

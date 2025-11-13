@@ -41,6 +41,7 @@
 #ifdef URX_WITH_HDF5
 #include <urx/utils/io/reader.h>
 #include <urx/utils/io/reader_options.h>
+#include <urx/utils/io/stream.h>  // IWYU pragma: keep
 #include <urx/utils/io/writer.h>
 #include <urx/utils/io/writer_options.h>
 #endif

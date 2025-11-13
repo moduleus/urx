@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+#include <H5Cpp.h>
+
 #include <urx/dataset.h>
 #include <urx/detail/double_nan.h>
 #include <urx/detail/raw_data.h>
@@ -21,9 +23,9 @@ class GroupDataStream {
  public:
   URX_UTILS_EXPORT GroupDataStream();
   GroupDataStream(const GroupDataStream& other) = delete;
-  GroupDataStream(GroupDataStream&& other) noexcept = default;
+  URX_UTILS_EXPORT GroupDataStream(GroupDataStream&& other) noexcept;
   GroupDataStream& operator=(GroupDataStream const& other) = delete;
-  GroupDataStream& operator=(GroupDataStream&& other) noexcept = default;
+  URX_UTILS_EXPORT GroupDataStream& operator=(GroupDataStream&& other) noexcept;
   URX_UTILS_EXPORT ~GroupDataStream();
 
   URX_UTILS_EXPORT void append(const std::shared_ptr<RawData>& raw_data, double sequence_timestamp,
@@ -35,8 +37,8 @@ class GroupDataStream {
   struct GroupDataStreamHdf5Fields;
 
   std::unique_ptr<GroupDataStreamHdf5Fields> _impl;
-  std::vector<urx::GroupData>* _group_data;
-  size_t _group_data_idx;
+  std::vector<urx::GroupData>* _group_data = nullptr;
+  size_t _group_data_idx = 0;
 
   friend class Stream;
 };
