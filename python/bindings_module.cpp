@@ -280,7 +280,8 @@ PYBIND11_MODULE(bindings, m, py::mod_gil_not_used()) {
              self.append(urx::python::detail::pyArrayToRawData(raw_data), sequence_timestamp,
                          event_timestamp);
            })
-      .def("getGroupData", &urx::utils::io::GroupDataStream::getGroupData);
+      .def("getGroupData", &urx::utils::io::GroupDataStream::getGroupData,
+           py::return_value_policy::reference_internal);
   m.attr("GroupDatastream") = m.attr("UrxGroupDatastream");
 
   py::class_<urx::utils::io::Stream, std::shared_ptr<urx::utils::io::Stream>>(m, "UrxStream")
@@ -290,10 +291,12 @@ PYBIND11_MODULE(bindings, m, py::mod_gil_not_used()) {
       .def("loadFromFile", &urx::utils::io::Stream::loadFromFile)
       .def("readerOptions",
            static_cast<urx::utils::io::ReaderOptions &(urx::utils::io::Stream::*)()>(
-               &urx::utils::io::Stream::readerOptions))
+               &urx::utils::io::Stream::readerOptions),
+           py::return_value_policy::reference_internal)
       .def("writerOptions",
            static_cast<urx::utils::io::WriterOptions &(urx::utils::io::Stream::*)()>(
-               &urx::utils::io::Stream::writerOptions))
+               &urx::utils::io::Stream::writerOptions),
+           py::return_value_policy::reference_internal)
       .def("createGroupData",
            [](urx::utils::io::Stream &stream, const std::shared_ptr<urx::Group> &group,
               urx::DoubleNan timestamp) {

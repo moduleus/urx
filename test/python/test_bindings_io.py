@@ -141,7 +141,10 @@ def test_io_stream(
 
     stream = urx.Stream(filename, dataset)
     stream.saveToFile()
+    stream.writerOptions().clean_unusable_data = True
+    self.assertTrue(stream.writerOptions().clean_unusable_data)
     stream.writerOptions().clean_unusable_data = False
+    self.assertFalse(stream.writerOptions().clean_unusable_data)
 
     group_data = stream.createGroupData(dataset.acquisition.groups[1], 1.0)
     group_data.append(raw_data_vector_double, 1.2, [2.3, 3.4, 4.5])
@@ -165,7 +168,12 @@ def test_io_stream(
 
     dataset_loaded2 = urx.Dataset()
     stream = urx.Stream(filename, dataset_loaded2)
+
+    stream.readerOptions().raw_data_load_policy = urx.RawDataLoadPolicy.FULL
+    self.assertEqual(stream.readerOptions().raw_data_load_policy, urx.RawDataLoadPolicy.FULL)
     stream.readerOptions().raw_data_load_policy = urx.RawDataLoadPolicy.STREAM
+    self.assertEqual(stream.readerOptions().raw_data_load_policy, urx.RawDataLoadPolicy.STREAM)
+
     stream.loadFromFile()
 
     buffer_double = np.ndarray((8), dtype=np.complex128)

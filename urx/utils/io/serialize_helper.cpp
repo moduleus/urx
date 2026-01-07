@@ -7,6 +7,8 @@
 
 namespace urx::utils::io {
 
+bool use_attribute = false;
+
 const std::unordered_map<std::type_index, const H5::PredType*>& getStdToHdf5() {
   static const std::unordered_map<std::type_index, const H5::PredType*> std_to_hdf5{
       {urx::utils::nameTypeid<float>(), &H5::PredType::NATIVE_FLOAT},

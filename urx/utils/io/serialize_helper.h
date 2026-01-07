@@ -18,7 +18,7 @@ namespace urx::utils::io {
 URX_UTILS_EXPORT const std::unordered_map<std::type_index, const H5::PredType*>& getStdToHdf5();
 
 constexpr int ITER_LENGTH = 8;
-constexpr bool USE_ATTRIBUTE = false;
+URX_UTILS_EXPORT extern bool use_attribute;
 
 using AllTypeInVariant [[deprecated("Will be move to urx::utils namespace.")]] =
     urx::utils::AllTypeInVariant;

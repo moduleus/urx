@@ -1,3 +1,0 @@
-[submodule "vcpkg-registry"]
-	path = vcpkg-registry
-	url = ../vcpkg-registry.git

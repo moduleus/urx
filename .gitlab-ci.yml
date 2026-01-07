@@ -83,36 +83,42 @@ variables:
 
 .python-venv-windows: &python-venv-windows
   - $Env:CMAKE_BUILD_PARALLEL_LEVEL=$NUM_PARALLEL
-  - python.exe -m venv .venv
-  - ./.venv/Scripts/Activate.ps1
-  - $Env:VCPKG_Python3_EXECUTABLE=$((Get-Location).Path + "\.venv\Scripts\python.exe")
+  - $PYTHON_VERSION = python.exe -c 'import sys; version=sys.version_info[:3]; print("{0}.{1}.{2}".format(*version))'
+  - python.exe -m venv .venv-$PYTHON_VERSION
+  - |
+    &./.venv-$PYTHON_VERSION/Scripts/Activate.ps1
+  - $Env:VCPKG_Python3_EXECUTABLE=$((Get-Location).Path + "\.venv-$PYTHON_VERSION\Scripts\python.exe")
   - python.exe -m ensurepip
   - python.exe -m pip install --upgrade pip
   - python.exe -m pip install -r requirements-gitlab.txt
 
 .python-venv-windows-d: &python-venv-windows-d
   - $Env:CMAKE_BUILD_PARALLEL_LEVEL=$NUM_PARALLEL
-  - python_d.exe -m venv .venv
-  - ./.venv/Scripts/Activate.ps1
-  - $Env:VCPKG_Python3_EXECUTABLE=$((Get-Location).Path + "\.venv\Scripts\python.exe")
+  - $PYTHON_VERSION = python_d.exe -c 'import sys; version=sys.version_info[:3]; print("{0}.{1}.{2}".format(*version))'
+  - python_d.exe -m venv .venv-$PYTHON_VERSION
+  - |
+    &./.venv-$PYTHON_VERSION/Scripts/Activate.ps1
+  - $Env:VCPKG_Python3_EXECUTABLE=$((Get-Location).Path + "\.venv-$PYTHON_VERSION\Scripts\python.exe")
   - python_d.exe -m ensurepip
   - python_d.exe -m pip install --upgrade pip
   - python_d.exe -m pip install -r requirements-gitlab.txt
 
 .python-venv-linux: &python-venv-linux
   - export CMAKE_BUILD_PARALLEL_LEVEL=$NUM_PARALLEL
-  - python -m venv .venv
-  - source .venv/bin/activate
-  - export VCPKG_Python3_EXECUTABLE=$(pwd)/.venv/bin/python
+  - PYTHON_VERSION=`python -c 'import sys; version=sys.version_info[:3]; print("{0}.{1}.{2}".format(*version))'`
+  - python -m venv .venv-${PYTHON_VERSION}
+  - source .venv-${PYTHON_VERSION}/bin/activate
+  - export VCPKG_Python3_EXECUTABLE=$(pwd)/.venv-${PYTHON_VERSION}/bin/python
   - python -m ensurepip
   - python -m pip install --upgrade pip
   - python -m pip install -r requirements-gitlab.txt
 
 .python-venv-linux-d: &python-venv-linux-d
   - export CMAKE_BUILD_PARALLEL_LEVEL=$NUM_PARALLEL
-  - python3d -m venv .venv
-  - source .venv/bin/activate
-  - export VCPKG_Python3_EXECUTABLE=$(pwd)/.venv/bin/python3
+  - PYTHON_VERSION=`python3d -c 'import sys; version=sys.version_info[:3]; print("{0}.{1}.{2}".format(*version))'`
+  - python3d -m venv .venv-${PYTHON_VERSION}
+  - source .venv-${PYTHON_VERSION}/bin/activate
+  - export VCPKG_Python3_EXECUTABLE=$(pwd)/.venv-${PYTHON_VERSION}/bin/python3
   - python3d -m ensurepip
   - python3d -m pip install --upgrade pip
   - python3d -m pip install -r requirements-gitlab.txt
@@ -774,7 +780,8 @@ release:all-python-musllinux_1_2_x86_64:
 
 release:all-python-windows-x64:
   variables:
-    CIBW_BUILD: cp38-win_amd64 cp39-win_amd64 cp310-win_amd64 cp311-win_amd64 cp312-win_amd64 cp313-win_amd64 cp314-win_amd64 pp38-win_amd64 pp39-win_amd64 pp310-win_amd64 pp311-win_amd64
+    CIBW_BUILD: cp*-win_amd64 pp*-win_amd64
+    CIBW_SKIP: "cp3??t-*"
     CIBW_ENABLE: pypy pypy-eol
   stage: release
   needs: []
@@ -791,7 +798,7 @@ release:all-python-windows-x64:
     - Pop-Location
     - *python-venv-windows
     - $Env:CIBW_CONFIG_SETTINGS = "--global-option=CMAKE_TOOLCHAIN_FILE=$Env:VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake --global-option=-DVCPKG_INSTALL_OPTIONS=--x-buildtrees-root=$Env:VCPKG_BUILDTREE --global-option=-DBUILD_TESTING:BOOL=OFF --global-option=cmake_build_type=Release --global-option=-DCMAKE_CONFIGURATION_TYPES=Release --global-option=vcpkg_triplet=x64-wssrep --global-option=-DCRT_SHARED_LIBS=OFF"
-    - python.exe -m pip install cibuildwheel==3.2.1 delvewheel==1.11.2
+    - python.exe -m pip install cibuildwheel==3.3.1 delvewheel==1.11.2
     - python.exe -m cibuildwheel --output-dir wheelhouse --platform windows
     - *after-script-clean-vcpkg-windows
   artifacts:
@@ -817,7 +824,7 @@ release:all-python-windows-x86:
     - Pop-Location
     - *python-venv-windows
     - $Env:CIBW_CONFIG_SETTINGS = "--global-option=CMAKE_TOOLCHAIN_FILE=$Env:VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake --global-option=-DVCPKG_INSTALL_OPTIONS=--x-buildtrees-root=$Env:VCPKG_BUILDTREE --global-option=-DBUILD_TESTING:BOOL=OFF --global-option=cmake_build_type=Release --global-option=-DCMAKE_CONFIGURATION_TYPES=Release --global-option=vcpkg_triplet=x86-wssrep --global-option=-DCRT_SHARED_LIBS=OFF"
-    - python.exe -m pip install cibuildwheel==3.2.1 delvewheel==1.11.2
+    - python.exe -m pip install cibuildwheel==3.3.1 delvewheel==1.11.2
     - python.exe -m cibuildwheel --output-dir wheelhouse --platform windows
     - *after-script-clean-vcpkg-windows
   artifacts:
@@ -830,7 +837,7 @@ release:all-python-windows-x86:
 # Can't cross-compile. pybind11 and python/CMakeLists.txt launch python.exe.
 release:all-python-windows-arm64:
   variables:
-    CIBW_BUILD: cp39-win_arm64 cp310-win_arm64 cp311-win_arm64 cp312-win_arm64 cp313-win_arm64
+    CIBW_BUILD: "none"
     CIBW_ENABLE: cpython-freethreading
     CIBW_ARCHS: ARM64
   stage: release
@@ -848,7 +855,7 @@ release:all-python-windows-arm64:
     - Pop-Location
     - *python-venv-windows
     - $Env:CIBW_CONFIG_SETTINGS = "--global-option=CMAKE_TOOLCHAIN_FILE=$Env:VCPKG_LOCAL_GIT/scripts/buildsystems/vcpkg.cmake --global-option=-DVCPKG_INSTALL_OPTIONS=--x-buildtrees-root=$Env:VCPKG_BUILDTREE --global-option=-DBUILD_TESTING:BOOL=OFF --global-option=cmake_build_type=Release --global-option=-DCMAKE_CONFIGURATION_TYPES=Release --global-option=vcpkg_triplet=arm64-wssrep --global-option=-DCRT_SHARED_LIBS=OFF"
-    - python.exe -m pip install cibuildwheel==3.2.1 delvewheel==1.11.2
+    - python.exe -m pip install cibuildwheel==3.3.1 delvewheel==1.11.2
     - python.exe -m cibuildwheel --output-dir wheelhouse --platform windows
     - *after-script-clean-vcpkg-windows
   artifacts:

@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.3.2
+
+### C++
+
+#### What's new (improvement)
+
+Speedup read of `vector<vector<uint32_t>>` from urx file.
+
+### Python
+
+#### Bug fixes
+
+Fix setting stream.readerOptions / stream.writerOptions :
+
+`stream.writerOptions().clean_unusable_data = True`
+
 ## 1.3.1
 
 ### C++

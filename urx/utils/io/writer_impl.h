@@ -107,7 +107,7 @@ class WriterBase {
     if constexpr (std::is_arithmetic_v<T>) {
       const H5::StrType datatype(*getStdToHdf5().at(urx::utils::nameTypeid<T>()));
       const H5::DataSpace dataspace = H5::DataSpace(H5S_SCALAR);
-      if constexpr (USE_ATTRIBUTE) {
+      if (use_attribute) {
         const H5::Attribute attribute =
             details::createOrOverrideAttribute(group, name, datatype, dataspace);
         attribute.write(datatype, &field);
@@ -122,7 +122,7 @@ class WriterBase {
       const H5::StrType datatype(0, H5T_VARIABLE);
       const H5::DataSpace dataspace(H5S_SCALAR);
       const std::string value = urx::utils::io::enums::enumToString(field);
-      if constexpr (USE_ATTRIBUTE) {
+      if (use_attribute) {
         const H5::Attribute attribute =
             details::createOrOverrideAttribute(group, name, datatype, dataspace);
         attribute.write(datatype, value);
@@ -134,7 +134,7 @@ class WriterBase {
     } else if constexpr (std::is_same_v<T, std::string>) {
       const H5::StrType datatype(0, H5T_VARIABLE);
       const H5::DataSpace dataspace(H5S_SCALAR);
-      if constexpr (USE_ATTRIBUTE) {
+      if (use_attribute) {
         const H5::Attribute attribute =
             details::createOrOverrideAttribute(group, name, datatype, dataspace);
         attribute.write(datatype, field);
@@ -270,7 +270,7 @@ class WriterBase {
       const H5::DataSpace dataspace = H5::DataSpace(1, dims);
       const H5::PredType* datatype =
           getStdToHdf5().at(urx::utils::nameTypeid<typename T::value_type>());
-      if constexpr (USE_ATTRIBUTE) {
+      if (use_attribute) {
         const H5::Attribute attribute =
             details::createOrOverrideAttribute(group, name, *datatype, dataspace);
         if (size != 0) {
@@ -296,7 +296,7 @@ class WriterBase {
         c_strings.push_back(str.c_str());
       }
 
-      if constexpr (USE_ATTRIBUTE) {
+      if (use_attribute) {
         const H5::Attribute attribute =
             details::createOrOverrideAttribute(group, name, datatype, dataspace);
         if (size != 0) {

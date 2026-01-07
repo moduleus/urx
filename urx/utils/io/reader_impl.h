@@ -39,6 +39,19 @@
 
 namespace urx::utils::io {
 
+struct FindMaxData {
+  int max_value = -1;
+  std::string group_path;
+};
+
+template <typename T, typename Derived>
+struct DeserializeData {
+  Derived* self;
+  T* field_ptr;
+  const H5::Group* group_ptr;
+  std::string group_path;
+};
+
 template <typename Dataset, typename AllTypeInVariant, typename Derived>
 class ReaderBase {
  public:
@@ -242,55 +255,82 @@ class ReaderBase {
                                  group_child.getObjName() + "/" + name);
       }
 
-      int max_attribute_name = -1;
-
+      FindMaxData data_max;
+      data_max.group_path = group.getObjName() + "/" + name;
       if (number_attrs) {
-        for (unsigned int i = 0; i < number_attrs; ++i) {
-          const H5::Attribute attr = group_child.openAttribute(i);
-          const std::string attr_name = attr.getName();
-
-          try {
-            const int value = std::stoi(attr_name);
-            max_attribute_name = std::max(max_attribute_name, value);
-          } catch (const std::invalid_argument&) {
-            throw std::runtime_error("Can't read attr_name in " + group_child.getObjName() + "/" +
-                                     name);
-          }
-        }
+        hsize_t idx = 0;
+        H5Aiterate2(
+            group_child.getId(), H5_INDEX_NAME, H5_ITER_NATIVE, &idx,
+            [](hid_t /*loc_id*/, const char* name_attr, const H5A_info_t* /*ainfo*/,
+               void* operator_data) -> herr_t {
+              auto* data = static_cast<FindMaxData*>(operator_data);
+              try {
+                data->max_value = std::max(data->max_value, std::stoi(name_attr));
+              } catch (const std::invalid_argument&) {
+                throw std::runtime_error("Invalid name_attr for " + data->group_path + "/" +
+                                         name_attr);
+              }
+              return 0;
+            },
+            &data_max);
       }
       if (number_dataset) {
-        for (unsigned int i = 0; i < number_dataset; ++i) {
-          const std::string dataset_name = group_child.getObjnameByIdx(i);
-          try {
-            const int value = std::stoi(dataset_name);
-            max_attribute_name = std::max(max_attribute_name, value);
-          } catch (const std::invalid_argument&) {
-            throw std::runtime_error("Can't read attr_name in " + group_child.getObjName() + "/" +
-                                     name);
-          }
-        }
+        H5Literate(
+            group_child.getId(), H5_INDEX_NAME, H5_ITER_NATIVE, nullptr,
+            [](hid_t /*loc_id*/, const char* name_dataset, const H5L_info_t* /*info*/,
+               void* operator_data) -> herr_t {
+              auto* data = static_cast<FindMaxData*>(operator_data);
+              try {
+                data->max_value = std::max(data->max_value, std::stoi(name_dataset));
+              } catch (const std::invalid_argument&) {
+                throw std::runtime_error("Invalid name_dataset for " + data->group_path + "/" +
+                                         name_dataset);
+              }
+              return 0;
+            },
+            &data_max);
       }
 
-      field.resize(max_attribute_name + 1);
+      field.resize(data_max.max_value + 1);
 
+      DeserializeData<T, Derived> data_deserialize{
+          static_cast<Derived*>(this), &field, &group_child, group_child.getObjName() + "/" + name};
       if (number_attrs) {
-        for (unsigned int i = 0; i < number_attrs; ++i) {
-          const H5::Attribute attr = group_child.openAttribute(i);
-          const std::string name_i = attr.getName();
-
-          const int value = std::stoi(name_i);
-          static_cast<Derived*>(this)->template deserializeHdf5<typename T::value_type>(
-              name_i, field[value], group_child);
-        }
+        hsize_t idx = 0;
+        H5Aiterate2(
+            group_child.getId(), H5_INDEX_NAME, H5_ITER_NATIVE, &idx,
+            [](hid_t /*loc_id*/, const char* name_attr, const H5A_info_t* /*ainfo*/,
+               void* operator_data) -> herr_t {
+              auto* data = static_cast<DeserializeData<T, Derived>*>(operator_data);
+              try {
+                const int value = std::stoi(name_attr);
+                data->self->template deserializeHdf5<typename T::value_type>(
+                    name_attr, (*data->field_ptr)[value], *data->group_ptr);
+              } catch (const std::invalid_argument&) {
+                throw std::runtime_error("Invalid name_attr for " + data->group_path + "/" +
+                                         name_attr);
+              }
+              return 0;
+            },
+            &data_deserialize);
       }
       if (number_dataset) {
-        for (hsize_t i = 0; i < number_dataset; ++i) {
-          const std::string name_i = group_child.getObjnameByIdx(i);
-
-          const int value = std::stoi(name_i);
-          static_cast<Derived*>(this)->template deserializeHdf5<typename T::value_type>(
-              name_i, field[value], group_child);
-        }
+        H5Literate(
+            group_child.getId(), H5_INDEX_NAME, H5_ITER_NATIVE, nullptr,
+            [](hid_t /*loc_id*/, const char* name_dataset, const H5L_info_t* /*info*/,
+               void* operator_data) -> herr_t {
+              auto* data = static_cast<DeserializeData<T, Derived>*>(operator_data);
+              try {
+                const int value = std::stoi(name_dataset);
+                data->self->template deserializeHdf5<typename T::value_type>(
+                    name_dataset, (*data->field_ptr)[value], *data->group_ptr);
+              } catch (const std::invalid_argument&) {
+                throw std::runtime_error("Invalid name_dataset for " + data->group_path + "/" +
+                                         name_dataset);
+              }
+              return 0;
+            },
+            &data_deserialize);
       }
     }
   }
